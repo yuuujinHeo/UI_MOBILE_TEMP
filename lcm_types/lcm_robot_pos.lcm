@@ -1,0 +1,11 @@
+// package lcm_rb;
+
+struct lcm_robot_pos
+{
+    double mobile_x_dot;
+    double mobile_y_dot;
+    double mobile_theta_dot;
+    double mobile_x;
+    double mobile_y;
+    double mobile_theta;
+}

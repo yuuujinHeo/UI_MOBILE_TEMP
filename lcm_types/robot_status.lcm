@@ -1,0 +1,30 @@
+struct robot_status
+{
+	int8_t connection_m0;
+	int8_t connection_m1;
+
+	int8_t status_m0;
+	int8_t status_m1;
+
+	int8_t temp_m0;
+	int8_t temp_m1;
+
+    int8_t status_charge;
+	int8_t status_power;
+	int8_t status_emo;		
+  	int8_t status_remote;
+  	
+    float bat_in;
+    float bat_out;
+    float bat_cur;
+
+    float power;
+    float total_power;
+    
+    int8_t init_state;
+    int8_t running_state;
+    int8_t err_code;
+    
+    float robot_pose[3];
+    float robot_scan[360];
+}

@@ -1,0 +1,7 @@
+// package lcm_rb;
+
+struct lcm_move
+{
+    double vel_speed;
+    double vel_omega;
+}

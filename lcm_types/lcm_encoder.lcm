@@ -1,0 +1,7 @@
+// package lcm_rb;
+
+struct lcm_encoder
+{
+    double enc_r;
+    double enc_l;
+}

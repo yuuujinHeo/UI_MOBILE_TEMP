@@ -1,0 +1,11 @@
+struct camera_data
+{
+    int32_t width;
+    int32_t height;
+    
+    int8_t num;
+    
+    int32_t	image_len;
+    int32_t	image[num][image_len];
+    string  serial[num];
+}

@@ -1,0 +1,12 @@
+// package lcm_rb;
+
+struct lcm_user_command
+{
+    const int8_t lcm_MAX_ARR = 30;
+    
+    int32_t	USER_COMMAND;
+    byte  	USER_PARA_CHAR[lcm_MAX_ARR];
+    int32_t	USER_PARA_INT[lcm_MAX_ARR];
+    float   	USER_PARA_FLOAT[lcm_MAX_ARR];
+    double  	USER_PARA_DOUBLE[lcm_MAX_ARR];
+}

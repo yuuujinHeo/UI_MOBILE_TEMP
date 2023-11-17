@@ -1,0 +1,14 @@
+lcm_robot_pos.lcm
+map_data.lcm
+lcm_reference.lcm
+lcm_program_restart.lcm
+robot_status.lcm
+lcm_battery_voltage.lcm
+lcm_move.lcm
+command.lcm
+lcm_motor_power.lcm
+lcm_get_time.lcm
+lcm_encoder.lcm
+robot_path.lcm
+lcm_limit.lcm
+lcm_user_command.lcm

@@ -1,0 +1,5 @@
+struct robot_path
+{
+    int32_t num;
+    float path[num][3];
+}

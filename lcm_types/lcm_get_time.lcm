@@ -1,0 +1,6 @@
+// package lcm_rb;
+
+struct lcm_get_time
+{
+    double time;
+}

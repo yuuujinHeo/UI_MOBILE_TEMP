@@ -1,0 +1,11 @@
+struct map_data
+{
+    float  map_grid_w;
+    int32_t map_w;
+    int32_t map_h;
+    int32_t map_origin[2];
+           
+    int32_t len;
+    int8_t data[len];
+   
+}
