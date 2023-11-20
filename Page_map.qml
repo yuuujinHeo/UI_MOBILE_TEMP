@@ -15,6 +15,7 @@ Item {
     width: 1280
     height: 800
     property int width_menu: 400
+
     //slam
     property bool slam_initializing: false
     property bool joystick_connection: false
@@ -196,7 +197,6 @@ Item {
             MAP_FULL2{
                 id: map_current
                 objectName: "CURRENT"
-//                enabled: false
                 width: height
                 height: parent.height
                 show_button_following: true

@@ -78,6 +78,7 @@ public:
 
     ////*********************************************  IP SETTINGs   *********************************************////
 
+    Q_INVOKABLE void resetClear();
     QString wifi_temp_ssd = "";
     Q_INVOKABLE int getWifiNum();
     Q_INVOKABLE int getWifiConnection(QString ssid);

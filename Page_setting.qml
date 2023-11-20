@@ -14,25 +14,17 @@ Item {
     height: 800
 
     property bool debug_use_ip: true
-    property bool debug_test_1: false
-
     property bool is_admin: true
-
     property string select_category: "status"
     property string platform_name: supervisor.getRobotName()
-    property string debug_platform_name: ""
-    property bool is_debug: false
     property int motor_left_id: 1
     property int motor_right_id: 0
-
     property int cur_preset: -1
     property bool is_reset_slam: false
-
     property bool use_tray: false
     property bool use_multirobot: false
-    property bool is_realsense: false
-
     property bool wifi_update_auto: true
+
 
     function update_camera(){
         if(popup_camera.opened)
@@ -42,7 +34,6 @@ Item {
         popup_loading.close();
         init();
     }
-
     function wifistatein(){
         popup_loading.close();
         popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
@@ -57,6 +48,7 @@ Item {
         popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
         popup_wifi.ip_update();
     }
+
     onIs_adminChanged: {
         if(is_admin){
             init();
@@ -74,7 +66,7 @@ Item {
     }
 
     function set_category(num){
-        secelect_category = num;
+        select_category = num;
     }
 
     function set_call_done(){
@@ -88,6 +80,7 @@ Item {
     Tool_Keyboard{
         id: keyboard
     }
+
     Audio{
         id: voice_test
         autoPlay: false
@@ -114,6 +107,8 @@ Item {
             isplaying = false;
         }
     }
+
+
     Rectangle{
         width: parent.width
         height: parent.height-statusbar.height
@@ -156,7 +151,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                       click_sound.play();
                        select_category = "status";
                     }
                 }
@@ -420,7 +415,6 @@ Item {
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
-                                    is_reset_slam = true;
                                 }
                                 model:[0,1,2,3,4,5,6,7,8,9,10]
                             }
@@ -603,7 +597,6 @@ Item {
                                         onClicked:{
                                             click_sound.play();
                                             cur_preset = 2
-
                                         }
                                     }
                                 }
@@ -3233,7 +3226,7 @@ Item {
                     id: init_
                     width: 840
                     height: 50
-                    visible: false//is_admin && debug_test_1
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3369,9 +3362,9 @@ Item {
                                     ischanged = true;
                                     is_reset_slam = true;
                                     if(currentIndex == 0){
-                                        is_realsense = true;
+//                                        is_realsense = true;
                                     }else{
-                                        is_realsense = false;
+//                                        is_realsense = false;
                                     }
                                 }
                                 model:["리얼센스","제미니"]
@@ -3383,7 +3376,6 @@ Item {
                     id: set_cam_exposure
                     width: 840
                     height: 50
-                    visible: is_realsense
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6547,7 +6539,6 @@ Item {
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
-                                    is_reset_slam = true;
                                 }
                                 MouseArea{
                                     anchors.fill:parent
@@ -6607,7 +6598,6 @@ Item {
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
-                                    is_reset_slam = true;
                                 }
                                 MouseArea{
                                     anchors.fill:parent
@@ -7968,7 +7958,192 @@ Item {
             anchors.top: parent.top
             anchors.topMargin: 80
             height: parent.height - 130
+            Row{
+                spacing : 150
+                anchors.centerIn: parent
+                Image{
+                    source: "image/image_robot_temp.png"
+                    anchors.verticalCenter: parent.verticalCenter
+                    width: 200
+                    height: 460
+                    ColorOverlay{
+                        anchors.fill: parent
+                        source: parent
+                        color: color_dark_gray
+                    }
+                    Image{
+                        id: status_motor_left
+                        property var state: 2
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        width: 50
+                        height: 50
+                        anchors.left: parent.left
+                        anchors.leftMargin: -60
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: state === 1 ? 20 : 23
+                        Rectangle{
+                            visible: false
+                            width: 130
+                            height: 30
+                            radius: 5
+                            anchors.topMargin: parent.state === 1 ? 0 : 3
+                            color: parent.state === 0?color_red:parent.state === 1?color_warning:color_green
+                            anchors.top: parent.bottom
+                            anchors.left: parent.left
+                            Text{
+                                anchors.centerIn: parent
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                                color: "white"
+                                text: "모터 1"
+                            }
+                        }
+                    }
+                    Image{
+                        id: status_motor_right
+                        property var state: 1
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        width: 50
+                        height: 50
+                        anchors.right: parent.right
+                        anchors.rightMargin: -60
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: state === 1 ? 20 : 23
+                        Rectangle{
+                            width: 130
+                            visible: false
+                            height: 30
+                            radius: 5
+                            anchors.topMargin: parent.state === 1 ? 0 : 3
+                            color: parent.state === 0?color_red:parent.state === 1?color_warning:color_green
+                            anchors.top: parent.bottom
+                            anchors.right: parent.right
+                            Text{
+                                anchors.centerIn: parent
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                                color: "white"
+                                text: "모터 2"
+                            }
+                        }
+                    }
+                    Image{
+                        id: status_power
+                        property var state: 0
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        width: 55
+                        height: 50
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: state === 1 ? 117 : 120
+                        Rectangle{
+                            width: 130
+                            height: 30
+                            visible: false
+                            radius: 5
+                            color: parent.state === 0?color_red:parent.state === 1?color_warning:color_green
+                            anchors.top: parent.bottom
+                            anchors.topMargin: parent.state === 1 ? 0 : 3
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            Text{
+                                anchors.centerIn: parent
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                                color: "white"
+                                text: "전원"
+                            }
+                        }
+                    }
+                    Image{
+                        id: status_localization
+                        property var state: 0
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        width: 55
+                        height: 50
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.bottom: parent.top
+                        anchors.bottomMargin: -20
+                    }
+                }
+                Column{
+                    anchors.verticalCenter: parent.verticalCenter
+                    spacing: 10
+                    Rectangle{
+                        id: state_robot
+                        width: 500
+                        height: 100
+                        radius: 10
+                        color: "white"
+                        Text{
+                            id: text_robot
+                            anchors.centerIn: parent
+                            font.family: font_noto_b.name
+                            font.pixelSize: 40
+                            text: "로봇 운영 중"
+                        }
+                    }
+                    Rectangle{
+                        id: state_power
+                        width: 500
+                        height: 500
+                        radius: 10
+                        clip: true
+                        visible: model_power_issue.count > 0
+                        color: "transparent"
+                        Flickable{
+                            width: parent.width*0.9
+                            height: parent.height*0.9
+                            anchors.centerIn: parent
+                            contentHeight: ddddd.height
+                            Column{
+                                id: ddddd
+                                anchors.centerIn: parent
+                                spacing: 10
+                                Repeater{
+                                    model:ListModel{id:model_power_issue}
+                                    Rectangle{
+                                        width: 500
+                                        height: 50
+                                        radius: 10
+                                        color: "transparent"
+                                        Row{
+                                            spacing: 30
+                                            Rectangle{
+                                                width: 100
+                                                height: 50
+                                                color: "transparent"
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    source: image
+                                                    width: 45
+                                                    height: 40
+                                                }
+                                            }
+                                            Rectangle{
+                                                width: 370
+                                                height: 50
+                                                radius : 10
+                                                color: "white"
+                                                Text{
+                                                    anchors.centerIn: parent
+                                                    font.family: font_noto_r.name
+                                                    font.pixelSize: 20
+                                                    text: name
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
             Column{
+                visible: false
                 Rectangle{
                     width: area_setting_motor.width
                     height: area_setting_motor.height*0.55
@@ -9747,9 +9922,9 @@ Item {
         supervisor.readSetting();
         if(is_reset_slam)
             supervisor.slam_ini_reload();
-//            supervisor.restartSLAM();
 
-//        init();
+        is_reset_slam = false;
+
         backPage();
     }
 
@@ -9993,8 +10168,6 @@ Item {
         voice_test.source = supervisor.getVoice("start_serving");
 
         //변수 초기화
-        is_reset_slam = false;
-
         platform_name.ischanged = false;
         combo_platform_serial.ischanged = false;
         combo_voice_mode.ischanged = false;
@@ -10111,6 +10284,7 @@ Item {
         obs_detect_area.ischanged = false;
         obs_detect_sensitivity.ischanged = false;
         robot_length.ischanged = false;
+        is_reset_slam = false;
     }
 
     function check_update(){
@@ -10214,222 +10388,194 @@ Item {
             if(wifi_connection.connection === 0 && supervisor.getCurWifiSSID() !== "" && supervisor.getcurIP() === ""){
                 supervisor.getWifiIP();
             }
-
-
-
             motor_left_id = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
             motor_right_id = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
 
-            //로봇 상태 - 전원
-            bar_battery.value = supervisor.getBattery();
-            bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
-            bar_battery_out.value = supervisor.getBatteryOut().toFixed(2);
-            bar_battery_cur.value = supervisor.getBatteryCurrent().toFixed(2);
-
-            bar_power.value = supervisor.getPower().toFixed(3);
-            bar_powert.value = supervisor.getPowerTotal().toFixed(3);
 
 
-            //로봇 상태 - 상태 값
-            if(supervisor.getChargeStatus() === 0){
-                bar_charging.background_color = color_gray;
-                text_charging.text = "연결 안됨";
-            }else{
-                bar_charging.background_color = color_blue;
-                text_charging.text = "연결 됨";
-            }
-            if(supervisor.getPowerStatus() === 0){
-                bar_powerstate.background_color = color_red;
-                text_powerstate.text = "공급 안됨";
-            }else{
-                bar_powerstate.background_color = color_blue;
-                text_powerstate.text = "공급 됨";
-            }
-            if(supervisor.getEmoStatus() === 0){
-                bar_emo.background_color = color_gray;
-                text_emo.text = "안 눌림"
-            }else{
-                bar_emo.background_color = color_red;
-                text_emo.text = "눌림"
-            }
-            if(supervisor.getRemoteStatus() === 0){
-                bar_remote.background_color = color_red;
-                text_remote.text = "눌림";
-            }else{
-                bar_remote.background_color = color_gray;
-                text_remote.text = "안 눌림";
-            }
 
             //로봇 상태 - 로봇 상태
-            var state = supervisor.getLocalizationState();
-            if(state === 0){
-                bar_localization.background_color = color_red;
-                text_local.text = "초기화 안됨";
-            }else if(state === 1){
-                bar_localization.background_color = color_yellow;
-                text_local.text = "초기화 중";
-            }else if(state === 2){
-                bar_localization.background_color = color_blue;
-                text_local.text = "초기화 완료";
-            }else if(state === 3){
-                bar_localization.background_color = color_red;
-                text_local.text = "초기화 실패";
-            }
+            if(supervisor.getIPCConnection()){
+                //로봇 상태 - 전원
+                if(supervisor.getBattery() < 30){
+                    status_power.state = 1;
+                    model_power_issue.append({"name":"배터리잔량 낮음","image":"image/icon_warning.png"});
+                }
 
-            state = supervisor.getStateMoving();
-            if(state === 0){
-                bar_moving.background_color = color_red;
-                text_moving.text = "준비 안됨";
-            }else if(state === 1){
-                bar_moving.background_color = color_blue;
-                text_moving.text = "준비";
-            }else if(state === 2){
-                bar_moving.background_color = color_green;
-                text_moving.text = "이동 중";
-            }else if(state === 3){
-                bar_moving.background_color = color_yellow;
-                text_moving.text = "대기 중";
-            }else if(state === 4){
-                bar_moving.background_color = color_yellow;
-                text_moving.text = "일시정지 중";
-            }
-            state = supervisor.getObsState();
-            if(state === 0){
-                bar_obs.background_color = color_gray;
-                text_obs.text = "없음"
-            }else if(state === 1){
-                bar_obs.background_color = color_red;
-                text_obs.text = "장애물 겹침"
-            }
-            state = supervisor.getObsinPath();
-            if(state === 0){
-                text_face.text = "보통"
-            }else if(state === 1){
-                text_face.text = "놀람"
-            }else if(state === 2){
-                text_face.text = "운다"
-            }
-            state = supervisor.getLockStatus();
-            if(state === 0){
-                text_motorlock.text = "풀림"
-                bar_motorlock.background_color  = color_red;
+                bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
+                bar_battery_out.value = supervisor.getBatteryOut().toFixed(2);
+                bar_battery_cur.value = supervisor.getBatteryCurrent().toFixed(2);
+
+                bar_power.value = supervisor.getPower().toFixed(3);
+                bar_powert.value = supervisor.getPowerTotal().toFixed(3);
+
+                //로봇 상태 - 상태 값
+                model_power_issue.clear();
+                if(supervisor.getChargeStatus() !== 0){
+                    model_power_issue.append({"name":"충전케이블 연결됨","image":"image/icon_warning.png"});
+                }
+                if(supervisor.getPowerStatus() === 0){
+                    model_power_issue.append({"name":"전원 공급 안됨","image":"icon/icon_error.png"});
+                }
+                if(supervisor.getEmoStatus() !== 0){
+                    model_power_issue.append({"name":"비상스위치 눌림","image":"icon/icon_error.png"});
+                }
+                if(supervisor.getRemoteStatus() === 0){
+                    model_power_issue.append({"name":"원격비상스위치 눌림","image":"icon/icon_error.png"});
+                }
+
+                var state = supervisor.getLocalizationState();
+                if(state === 0){
+                    model_power_issue.append({"name":"위치초기화 필요","image":"icon/icon_error.png"});
+                    text_robot.text = "초기화 안됨";
+                }else if(state === 1){
+                    model_power_issue.append({"name":"위치초기화 진행중","image":"image/icon_warning.png"});
+                    text_robot.text = "초기화 중";
+                }else if(state === 2){
+                    text_robot.text = "초기화 완료";
+
+                    state = supervisor.getStateMoving();
+                    if(state === 0){
+                        model_power_issue.append({"name":"로봇주행 준비안됨","image":"image/icon_warning.png"});
+                        text_robot.text = "준비 안됨";
+                    }else if(state === 1){
+                        text_robot.text = "준비";
+                    }else if(state === 2){
+                        text_robot.text = "이동 중";
+                    }else if(state === 3){
+                        text_robot.text = "대기 중";
+                    }else if(state === 4){
+                        text_robot.text = "일시정지 중";
+                    }
+
+                }else if(state === 3){
+                    model_power_issue.append({"name":"위치초기화 실패","image":"image/icon_warning.png"});
+                    text_robot.text = "초기화 실패";
+                }
+
+
+                if(supervisor.getObsState() === 1){
+                    model_power_issue.append({"name":"장애물 겹침","image":"image/icon_warning.png"});
+                }
+
+                state = supervisor.getLockStatus();
+                if(state === 0){
+                    model_power_issue.append({"name":"모터락 풀림","image":"image/icon_warning.png"});
+                }
+
+                //모터 상태 - 모터 1
+                state = supervisor.getMotorConnection(0);
+                if(state === 0){
+                    model_power_issue.append({"name":"모터 1 연결안됨","image":"icon/icon_error.png"});
+                    status_motor_left.state = 0;
+
+                }
+
+                state = supervisor.getMotorStatus(0);
+                if(state === 0){
+                    model_power_issue.append({"name":"모터 1 준비안됨","image":"icon/icon_error.png"});
+                    status_motor_left.state = 1;
+                }else if(state === 1){
+                    status_motor_left.state = 2;
+                }else{
+                    status_motor_left.state = 0;
+                    var str_error = "";
+                    if(state >= 128){
+                        str_error += "Unknown ";
+                        state -= 128;
+                    }
+                    if(state >= 64){
+                        str_error += "PS1,2 ";
+                        state -= 64;
+                    }
+                    if(state >= 32){
+                        str_error += "INPUT ";
+                        state -= 32;
+                    }
+                    if(state >= 16){
+                        str_error += "BIG ";
+                        state -= 16;
+                    }
+                    if(state >= 8){
+                        str_error += "CUR ";
+                        state -= 8;
+                    }
+                    if(state >= 4){
+                        str_error += "JAM ";
+                        state -= 4;
+                    }
+                    if(state >= 2){
+                        str_error += "MOD ";
+                        state -= 2;
+                    }
+                    model_power_issue.append({"name":"모터 1 "+str_error,"image":"icon/icon_error.png"});
+                }
+
+                bar_temp1.value = supervisor.getMotorTemperature(0);
+                bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
+                bar_cur1.value = supervisor.getMotorCurrent(0);
+
+
+                //모터 상태 - 모터 2
+                state = supervisor.getMotorConnection(1);
+                if(state === 0){
+                    status_motor_right.state = 0;
+                    model_power_issue.append({"name":"모터 2 연결안됨","image":"icon/icon_error.png"});
+                }
+
+                state = supervisor.getMotorStatus(1);
+                if(state === 0){
+                    status_motor_right.state = 1;
+                    model_power_issue.append({"name":"모터 2 준비안됨","image":"icon/icon_error.png"});
+                }else if(state === 1){
+                    status_motor_right.state = 2;
+                }else{
+                    status_motor_right.state = 0;
+                    var str_error = "";
+                    if(state >= 128){
+                        str_error += "Unknown ";
+                        state -= 128;
+                    }
+                    if(state >= 64){
+                        str_error += "PS1,2 ";
+                        state -= 64;
+                    }
+                    if(state >= 32){
+                        str_error += "INPUT ";
+                        state -= 32;
+                    }
+                    if(state >= 16){
+                        str_error += "BIG ";
+                        state -= 16;
+                    }
+                    if(state >= 8){
+                        str_error += "CUR ";
+                        state -= 8;
+                    }
+                    if(state >= 4){
+                        str_error += "JAM ";
+                        state -= 4;
+                    }
+                    if(state >= 2){
+                        str_error += "MOD ";
+                        state -= 2;
+                    }
+                    model_power_issue.append({"name":"모터 2 "+str_error,"image":"icon/icon_error.png"});
+
+                    bar_status2.background_color = color_red;
+                    text_status2.text = str_error;
+                }
+
+                bar_temp2.value = supervisor.getMotorTemperature(1);
+                bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
+                bar_cur2.value = supervisor.getMotorCurrent(1);
             }else{
-                text_motorlock.text = "락 걸림"
-                bar_motorlock.background_color = color_blue;
+                status_power.state = 0;
+                status_motor_left.state = 0;
+                status_motor_right.state = 0;
+                text_robot.text = "프로그램 연결 안됨"
             }
 
-            //모터 상태 - 모터 1
-            state = supervisor.getMotorConnection(0);
-            if(state === 0){
-                bar_con1.background_color = color_gray;
-                text_con1.text = "연결 안됨"
-            }else{
-                bar_con1.background_color = color_blue;
-                text_con1.text = "연결 됨"
-            }
-
-            state = supervisor.getMotorStatus(0);
-            if(state === 0){
-                bar_status1.background_color = color_gray;
-                text_status1.text = "준비 안됨"
-            }else if(state === 1){
-                bar_status1.background_color = color_blue;
-                text_status1.text = "준비"
-            }else{
-                var str_error = "";
-                if(state >= 128){
-                    str_error += "Unknown ";
-                    state -= 128;
-                }
-                if(state >= 64){
-                    str_error += "PS1,2 ";
-                    state -= 64;
-                }
-                if(state >= 32){
-                    str_error += "INPUT ";
-                    state -= 32;
-                }
-                if(state >= 16){
-                    str_error += "BIG ";
-                    state -= 16;
-                }
-                if(state >= 8){
-                    str_error += "CUR ";
-                    state -= 8;
-                }
-                if(state >= 4){
-                    str_error += "JAM ";
-                    state -= 4;
-                }
-                if(state >= 2){
-                    str_error += "MOD ";
-                    state -= 2;
-                }
-
-                bar_status1.background_color = color_red;
-                text_status1.text = str_error;
-            }
-
-            bar_temp1.value = supervisor.getMotorTemperature(0);
-            bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
-            bar_cur1.value = supervisor.getMotorCurrent(0);
-
-
-            //모터 상태 - 모터 2
-            state = supervisor.getMotorConnection(1);
-            if(state === 0){
-                bar_con2.background_color = color_gray;
-                text_con2.text = "연결 안됨"
-            }else{
-                bar_con2.background_color = color_blue;
-                text_con2.text = "연결 됨"
-            }
-
-            state = supervisor.getMotorStatus(1);
-            if(state === 0){
-                bar_status2.background_color = color_gray;
-                text_status2.text = "준비 안됨"
-            }else if(state === 1){
-                bar_status2.background_color = color_blue;
-                text_status2.text = "준비"
-            }else{
-                var str_error = "";
-                if(state >= 128){
-                    str_error += "Unknown ";
-                    state -= 128;
-                }
-                if(state >= 64){
-                    str_error += "PS1,2 ";
-                    state -= 64;
-                }
-                if(state >= 32){
-                    str_error += "INPUT ";
-                    state -= 32;
-                }
-                if(state >= 16){
-                    str_error += "BIG ";
-                    state -= 16;
-                }
-                if(state >= 8){
-                    str_error += "CUR ";
-                    state -= 8;
-                }
-                if(state >= 4){
-                    str_error += "JAM ";
-                    state -= 4;
-                }
-                if(state >= 2){
-                    str_error += "MOD ";
-                    state -= 2;
-                }
-
-                bar_status2.background_color = color_red;
-                text_status2.text = str_error;
-            }
-
-            bar_temp2.value = supervisor.getMotorTemperature(1);
-            bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
-            bar_cur2.value = supervisor.getMotorCurrent(1);
         }
     }
 
@@ -10559,6 +10705,7 @@ Item {
                     color: enabled?"white":color_light_gray
                     border.width: 1
                     border.color: "#7e7e7e"
+                    visible: false
                     Text{
                         anchors.centerIn: parent
                         text: "USB에 저장하기"
@@ -10582,6 +10729,7 @@ Item {
                     enabled: false
                     color:enabled?"white":color_light_gray
                     border.width: 1
+                    visible: false
                     border.color: "#7e7e7e"
                     Text{
                         anchors.centerIn: parent
@@ -10620,7 +10768,7 @@ Item {
                         anchors.fill: parent
                         onClicked:{
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> KILL SLAM");
-                            supervisor.killSLAM();
+                            supervisor.restartSLAM();
                         }
                     }
                 }
@@ -10642,6 +10790,7 @@ Item {
                         anchors.fill: parent
                         onClicked:{
                             supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
+                            supervisor.resetClear();
                         }
                     }
                 }
@@ -11880,6 +12029,10 @@ Item {
                                     supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA SWITCH LEFT("+text_camera_1.text+") RIGHT("+text_camera_2.text+")");
                                     supervisor.setCamera(text_camera_1.text,text_camera_2.text);
                                 }
+                                if(left_camera.text  !== supervisor.getSetting("static","SENSOR","left_camera_serial") || right_camera.text !== supervisor.getSetting("static","SENSOR","right_camera_serial")){
+                                    is_reset_slam = true;
+                                }
+
                                 left_camera.text = supervisor.getSetting("static","SENSOR","left_camera_serial");
                                 right_camera.text = supervisor.getSetting("static","SENSOR","right_camera_serial");
                                 popup_camera.close();
@@ -12907,8 +13060,6 @@ Item {
             color: "transparent"
         }
         onOpened:{
-
-
             var left_str = supervisor.getSetting("static","SENSOR","left_camera_tf");
             var left_strs = left_str.split(",");
             tf_left_x.text = left_strs[0];
@@ -13474,14 +13625,13 @@ Item {
                                 supervisor.setSetting("static","SENSOR/left_camera_tf",left_str);
                                 supervisor.setSetting("static","SENSOR/right_camera_tf",right_str);
 
+                                is_reset_slam = true;
                                 popup_tf.close();
                             }
                         }
                     }
                 }
-
             }
-
         }
     }
 

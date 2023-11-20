@@ -3957,7 +3957,7 @@ Item {
                     height: 180
                     type: "round_text"
                     text: qsTr("고정장애물 인식")
-                    visible: false
+//                    visible:
                     onClicked: {
                         click_sound.play();
                         supervisor.writelog("[ANNOTATION] Enter : Object Map");
@@ -4099,6 +4099,7 @@ Item {
                             anchors.centerIn: parent
                             spacing: 50
                             Item_buttonRectIcon{
+                                visible: false
                                 selected: select_mode===0
                                 icon: "icon/icon_mapping_start.png"
                                 name: qsTr("오브젝트")
@@ -4108,6 +4109,7 @@ Item {
                                 }
                             }
                             Item_buttonRectIcon{
+                                visible: false
                                 selected: select_mode===1
                                 icon: "icon/icon_lidar.png"
                                 name: qsTr("카메라 인식")

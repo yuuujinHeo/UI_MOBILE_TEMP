@@ -434,7 +434,7 @@ Item {
             id: rree
             width: parent.width
             height: parent.height
-            radius: 30
+            radius: 25
             color: "white"
 
             Rectangle{
@@ -539,6 +539,7 @@ Item {
         DropShadow{
             anchors.fill: parent
             radius: 10
+            visible: false
             color: color_gray
             source: rree
         }
@@ -624,7 +625,7 @@ Item {
             id: rre
             width: parent.width
             height: parent.height
-            radius: 30
+            radius: 25
             color: "white"
             Rectangle{
                 width: parent.width
@@ -660,6 +661,7 @@ Item {
             anchors.fill: parent
             radius: 10
             color: color_gray
+            visible: false
             source: rre
         }
         Rectangle{

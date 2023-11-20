@@ -50,6 +50,7 @@ Window {
     property color color_navy: "#4f5666"
     property color color_dark_navy: "#323744"
     property color color_mid_navy: "#242535"
+    property color color_warning: "#fad271"
     property color color_blue: "#24a9f7"
     property color color_yellow_rect: "#ffc850"
 
@@ -97,6 +98,7 @@ Window {
         voice_emergency.source = supervisor.getVoice("error_emo");
         voice_battery.source = supervisor.getVoice("low_battery");
     }
+
 
     function playVoice(str){
         print("playVoice ",str);

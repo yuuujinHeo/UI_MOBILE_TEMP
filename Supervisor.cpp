@@ -4208,3 +4208,39 @@ void Supervisor::resetLocalization(){
     QMetaObject::invokeMethod(mMain, "need_init");
 
 }
+
+void Supervisor::resetClear(){
+    //log 삭제
+    QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
+    if(dir_log.removeRecursively()){
+        plog->reset();
+        plog->write("[SETTING] Reset Clear");
+        plog->write("[SETTING] Reset Clear : Remove logs");
+    }else{
+        plog->write("[SETTING] Reset Clear");
+        plog->write("[SETTING] Reset Clear : Remove logs failed");
+    }
+
+//    //maps 폴더 지움.
+//    QDir dir_maps(QDir::homePath()+"/RB_MOBILE/maps");
+//    if(dir_maps.removeRecursively()){
+//        plog->write("[SETTING] Reset Clear : Remove maps");
+//    }else{
+//        plog->write("[SETTING] Reset Clear : Remove maps failed");
+//    }
+
+//    //temp 폴더 지움.
+//    QDir dir_temp(QDir::homePath()+"/RB_MOBILE/temp");
+//    if(dir_temp.removeRecursively()){
+//        plog->write("[SETTING] Reset Clear : Remove temp");
+//    }else{
+//        plog->write("[SETTING] Reset Clear : Remove temp failed");
+//    }
+
+
+    //myID 등  robot_config.ini 수정
+
+    //sh 파일 복구?
+
+
+}

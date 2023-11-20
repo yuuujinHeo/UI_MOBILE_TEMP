@@ -286,5 +286,6 @@
         <file>voice/child_error_call_manager.mp3</file>
         <file>voice/child_charging.mp3</file>
         <file>voice/child_cancel_path.mp3</file>
+        <file>image/image_robot_temp.png</file>
     </qresource>
 </RCC>

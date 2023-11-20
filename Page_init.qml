@@ -22,7 +22,6 @@ Item {
 
     Component.onCompleted: {
         init_mode = 0;
-//        update_timer.start();
         supervisor.clearSharedMemory();
         supervisor.setUiState(1);
         supervisor.checkUpdate();
@@ -258,26 +257,16 @@ Item {
                     id: btn_lcm_pass
                     width: 230
                     height: 130
-                    radius: 40
+                    radius: 30
                     color: "transparent"
                     border.width: 2
                     border.color: color_navy
                     Row{
                         spacing: 15
                         anchors.centerIn: parent
-                        Image{
-                            width: 40
-                            height: 40
-                            source:"icon/icon_remove.png"
-                            anchors.verticalCenter: parent.verticalCenter
-                            ColorOverlay{
-                                source: parent
-                                anchors.fill: parent
-                                color: color_navy
-                            }
-                        }
                         Text{
-                            text: qsTr("넘어가기")
+                            text: qsTr("업데이트 안함")
+                            horizontalAlignment: Text.AlignHCenter
                             color: color_navy
                             font.family: font_noto_r.name
                             font.pixelSize: 30
@@ -473,7 +462,7 @@ Item {
                     id: btn_minimize
                     width: 230
                     height: 130
-                    radius: 40
+                    radius: 30
                     color: color_navy
                     Row{
                         spacing: 15
@@ -516,7 +505,7 @@ Item {
                     id: btn_lcm_pass
                     width: 230
                     height: 130
-                    radius: 40
+                    radius: 30
                     color: "transparent"
                     border.width: 2
                     border.color: color_navy
@@ -524,22 +513,11 @@ Item {
                     Row{
                         spacing: 15
                         anchors.centerIn: parent
-                        Image{
-                            id: image_charge1
-                            width: 40
-                            height: 40
-                            source:"icon/icon_remove.png"
-                            anchors.verticalCenter: parent.verticalCenter
-                            ColorOverlay{
-                                source: parent
-                                anchors.fill: parent
-                                color: color_navy
-                            }
-                        }
                         Text{
                             id: text_slam_pass
-                            text: qsTr("넘어가기")
+                            text: qsTr("건너뛰기")
                             color: color_navy
+                            horizontalAlignment: Text.AlignHCenter
                             font.family: font_noto_r.name
                             font.pixelSize: 30
                         }
@@ -552,10 +530,7 @@ Item {
                         onReleased: {
                             click_sound.play();
                             supervisor.writelog("[INIT] PASS IPC Connection")
-                            supervisor.passInit();
-                            debug_mode = true;
-                            loadPage(pkitchen);
-//                            loader_page.item.setDebug(true);
+                            popup_debug_onoff.open();
                             parent.color = "transparent";
                         }
                     }
@@ -777,16 +752,9 @@ Item {
                                 Column{
                                     spacing: 5
                                     anchors.centerIn: parent
-                                    Image{
-                                        id: image_charge1
-                                        width: 30
-                                        height: 30
-                                        source:"icon/icon_remove.png"
-                                        anchors.horizontalCenter: parent.horizontalCenter
-                                    }
                                     Text{
                                         id: text_slam_pass
-                                        text: qsTr("넘어가기 (DEBUG)")
+                                        text: qsTr("건너뛰기")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -795,18 +763,14 @@ Item {
                                     anchors.fill: parent
                                     onClicked: {
                                         click_sound.play();
-                                        supervisor.passInit();
-                                        debug_mode = true;
+                                        popup_debug_onoff.open();
                                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS CONNECTION")
-                                        loadPage(pkitchen);
-//                                        loader_page.item.setDebug(true);
                                         update_timer.stop();
                                     }
                                 }
                             }
                         }
                     }
-
                 }
                 Item{
                     id: wizard_type
@@ -2897,7 +2861,7 @@ Item {
                     id: btn_lcm_pass
                     width: 230
                     height: 130
-                    radius: 40
+                    radius: 30
                     color: "transparent"
                     border.width: 2
                     border.color: color_navy
@@ -2918,7 +2882,8 @@ Item {
                             }
                         }
                         Text{
-                            text: qsTr("넘어가기")
+                            text: qsTr("건너뛰기")
+                            horizontalAlignment: Text.AlignHCenter
                             color: color_navy
                             anchors.horizontalCenter: parent.horizontalCenter
                             font.family: font_noto_r.name
@@ -2933,10 +2898,7 @@ Item {
                         }
                         onReleased: {
                             supervisor.passInit();
-                            debug_mode = true;
                             supervisor.writelog("[INIT] PASS IPC Connection")
-                            loadPage(pkitchen);
-//                            loader_page.item.setDebug(true);
                             parent.color = "transparent";
                         }
                     }
@@ -3667,6 +3629,58 @@ Item {
             }
         }
 
+    }
+
+    Popup{
+        id: popup_debug_onoff
+        anchors.centerIn: parent
+        width: 1280
+        height: 400
+        background: Rectangle{
+            anchors.fill: parent
+            color:color_dark_navy
+        }
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_dark_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 50
+                Column{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 10
+                    Text{
+                        text:"초기화를 건너뛰겠습니까?"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        font.family: font_noto_r.name
+                        font.pixelSize: 50
+                        color: "white"
+                    }
+                    Text{
+                        text:"초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다"
+                        font.family: font_noto_r.name
+                        font.pixelSize: 25
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        horizontalAlignment: Text.AlignHCenter
+                        color: "white"
+                    }
+                }
+                Item_buttons{
+                    type: "round_text"
+                    text:"전환"
+                    width: 200
+                    height: 80
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    onClicked:{
+                        supervisor.writelog("[INIT] Debug Mode On");
+                        supervisor.passInit();
+                        debug_mode = true;
+                        loadPage(pkitchen);
+                    }
+                }
+            }
+        }
     }
 
     Popup{

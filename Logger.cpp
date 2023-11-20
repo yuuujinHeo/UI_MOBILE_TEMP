@@ -14,14 +14,38 @@ Logger::Logger()
     filename = getFileName();
     file = new QFile;
     file->setFileName(filename);
-    file->open(QIODevice::Append | QIODevice::Text);
+    if(file->open(QIODevice::Append | QIODevice::Text)){
+        write("[LOGGER] file opened");
+    }else{
+
+    }
     prev_str = "";
 }
 
+void Logger::reset(){
+    QString path = QDir::homePath()+"/RB_MOBILE/log/ui_log";
+    QDir directory(path);
+    if(!directory.exists()){
+        directory.mkpath(".");
+        qDebug() << "[LOGGER] ui_log directory not found. make new";
+    }
+    filename = getFileName();
+    qDebug() << "1";
+    file = new QFile;
+    qDebug() << "1";
+    file->setFileName(filename);
+    qDebug() << "1";
+    if(file->open(QIODevice::Append | QIODevice::Text)){
+        write("[LOGGER] file opened");
+    }else{
+
+    }
+    prev_str = "";
+
+}
 void Logger::write(const QString str, bool print){
     QString text = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + str + "\n";
     QString text1 = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss") + " " + str;
-
 
     QString tempname = instance.getFileName();
     if(tempname != instance.filename){
@@ -71,6 +95,6 @@ void Logger::write_space(){
 }
 
 QString Logger::getFileName(){
-    QString tempname = QDir::homePath()+"/RB_MOBILE/log/ui_log/"+QDateTime::currentDateTime().toString("/yyyy_MM_dd") + ".txt";
+    QString tempname = QDir::homePath()+"/RB_MOBILE/log/ui_log"+QDateTime::currentDateTime().toString("/yyyy_MM_dd") + ".txt";
     return tempname;
 }

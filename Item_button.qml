@@ -112,10 +112,7 @@ Item {
         }
     }
 
-//    SoundEffect{
-//        id: click_sound
-//        source: "bgm/click2.wav"
-//    }
+
     SequentialAnimation{
         id: ani_radial_shape
         loops: -1
@@ -199,6 +196,7 @@ Item {
             to: 360
             duration: 300
         }
+
         ParallelAnimation{
             PropertyAnimation{
                 target: path_radial
