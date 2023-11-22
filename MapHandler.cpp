@@ -665,7 +665,11 @@ void MapHandler::setMap(){
                     path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
                     painter.setPen(QPen(Qt::white,1));
 
-                    painter.fillPath(path,QBrush(QColor(hex_color_pink)));
+                    if(mode == "annot_tline"){
+
+                    }else{
+                        painter.fillPath(path,QBrush(QColor(hex_color_pink)));
+                    }
 
                     painter.drawPath(path);
                     painter.setPen(QPen(Qt::white,1.5));

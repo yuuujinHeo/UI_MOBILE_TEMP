@@ -3457,6 +3457,9 @@ Item {
                     }
                 }
             }
+
+
+
             Rectangle{
                 visible: local_find_state === 10
                 width: parent.width
@@ -3492,6 +3495,62 @@ Item {
                 }
             }
 
+            Rectangle{
+                id: btn_slam_pass2
+                width: 188
+                height: 100
+                radius: 60
+                color: "transparent"
+                border.width: 3
+                visible: show_debug
+                border.color: "#e5e5e5"
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: text_notice4.bottom
+                anchors.topMargin: 80
+                Column{
+                    spacing: 5
+                    anchors.centerIn: parent
+                    Image{
+                        id: image_charge12
+                        width: 30
+                        height: 30
+                        source:"icon/icon_remove.png"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                    }
+                    Text{
+                        id: text_slam_pass2
+                        text: qsTr("넘어가기")
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                    }
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        click_sound.play();
+                        popup_debug_onoff.open();
+                        supervisor.writelog("[USER INPUT] INIT PAGE : PASS ROBOT INIT")
+
+                    }
+                }
+            }
+            MouseArea{
+                id: area_debu3g
+                width: 100
+                height: 100
+                anchors.right: parent.right
+                anchors.bottom : parent.bottom
+                z: 99
+                property var password: 0
+                onClicked: {
+                    click_sound2.play();
+                    password++;
+                    if(password > 4){
+                        password = 0;
+                        show_debug = true;
+                    }
+                }
+            }
             MAP_FULL2{
                 id: map
                 enabled: false
@@ -3602,12 +3661,9 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         click_sound.play();
-                        supervisor.passInit();
-                        debug_mode = true;
+                        popup_debug_onoff.open();
                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS ROBOT INIT")
-                        loadPage(pkitchen);
-//                        loader_page.item.setDebug(true);
-    //                    update_timer.stop();
+
                     }
                 }
             }

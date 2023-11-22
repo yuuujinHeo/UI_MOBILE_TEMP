@@ -286,7 +286,7 @@ void ExtProcess::onTimer(){
 
         QList<QString> keys = probot->wifi_map.keys();
         for(int i=0; i<keys.size(); i++){
-            if(probot->wifi_map[keys[i]].discon_count++ > 3){
+            if(probot->wifi_map[keys[i]].discon_count++ > 5){
                 probot->wifi_map.remove(keys[i]);
             }
         }
@@ -324,6 +324,7 @@ void ExtProcess::git_pull(){
     }
     set_command(temp,"Git Pull");
 }
+
 void ExtProcess::git_reset(){
     Command temp;
     temp.cmd = PROCESS_CMD_GIT_RESET;

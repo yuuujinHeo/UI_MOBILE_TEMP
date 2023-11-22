@@ -73,9 +73,16 @@ public:
     int patrol_num = -1;
     LOCATION current_target;
 
+    int foundCount;
+    QNetworkConfiguration netcfg;
+    QStringList WiFisList;
+    QList<QNetworkConfiguration> netcfgList;
+    QNetworkConfiguration defaultWifiConf;
+
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
 
+    Q_INVOKABLE bool checkLocationName(int group, QString name);
     ////*********************************************  IP SETTINGs   *********************************************////
 
     Q_INVOKABLE void resetClear();
@@ -681,6 +688,8 @@ public slots:
 
 private:
     QTimer *timer;
+    QTimer *wifiTimer;
+    QNetworkSession *session;
     QQuickWindow *mMain;
     QObject *mObject = nullptr;
     QTranslator *translator;
