@@ -3247,7 +3247,7 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
                         Text{
-                            text: qsTr("넘어가기 (DEBUG)")
+                            text: qsTr("넘어가기")
                             font.family: font_noto_r.name
                             font.pixelSize: 15
                         }
@@ -3256,10 +3256,11 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             click_sound.play();
-                            supervisor.passInit();
-                            debug_mode = true;
+                            popup_debug_onoff.open();
+//                            supervisor.passInit();
+//                            debug_mode = true;
                             supervisor.writelog("[USER INPUT] INIT PAGE : PASS LOCALIZATION")
-                            loadPage(pkitchen);
+//                            loadPage(pkitchen);
                         }
                     }
                 }
