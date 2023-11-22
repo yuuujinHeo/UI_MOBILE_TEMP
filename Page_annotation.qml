@@ -2204,7 +2204,6 @@ Item {
 
             Popup{
                 id: popup_add_serving
-                property bool use_group: false
                 property var cur_group: 0
                 width: 1280
                 height:800
@@ -2291,13 +2290,14 @@ Item {
                                             width: 400
                                             height: 80
                                             anchors.horizontalCenter: parent.horizontalCenter
-                                            placeholderText: "(loc_name)"
+                                            placeholderText: qsTr("(이름을 입력하세요)")
                                             font.family: font_noto_r.name
                                             horizontalAlignment: Text.AlignHCenter
                                             font.pointSize: 30
                                             onFocusChanged: {
                                                 keyboard.owner = textfield_loc_name;
                                                 textfield_loc_name.selectAll();
+                                                text_loc_check.text = "";
                                                 if(focus){
                                                     keyboard.open();
                                                 }else{
@@ -2305,6 +2305,15 @@ Item {
                                                     keyboard.close();
                                                 }
                                             }
+                                        }
+                                        Text{
+                                            id: text_loc_check
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            text: qsTr("")
+                                            font.pixelSize: 20
+                                            color: color_red
+                                            horizontalAlignment: Text.AlignHCenter
+                                            font.family: font_noto_r.name
                                         }
                                     }
                                     Column{
@@ -2316,33 +2325,32 @@ Item {
                                             horizontalAlignment: Text.AlignHCenter
                                             font.family: font_noto_r.name
                                         }
-                                        Row{
-                                            anchors.horizontalCenter: parent.horizontalCenter
-                                            spacing: 30
-                                            visible: !popup_add_serving.use_group
-                                            Item_buttons{
-                                                width: 180
-                                                height: 80
-                                                type: "round_text"
-                                                text: qsTr("지정 안함")
-                                            }
-                                            Item_buttons{
-                                                width: 180
-                                                height: 80
-                                                type: "round_text"
-                                                text:  qsTr("그룹 사용")
-                                                onClicked: {
-                                                    click_sound.play();
-                                                    popup_add_serving.use_group = true;
-                                                }
-                                            }
-                                        }
+//                                        Row{
+//                                            anchors.horizontalCenter: parent.horizontalCenter
+//                                            spacing: 30
+//                                            visible: !popup_add_serving.use_group
+//                                            Item_buttons{
+//                                                width: 180
+//                                                height: 80
+//                                                type: "round_text"
+//                                                text: qsTr("지정 안함")
+//                                            }
+//                                            Item_buttons{
+//                                                width: 180
+//                                                height: 80
+//                                                type: "round_text"
+//                                                text:  qsTr("그룹 사용")
+//                                                onClicked: {
+//                                                    click_sound.play();
+//                                                    popup_add_serving.use_group = true;
+//                                                }
+//                                            }
+//                                        }
 
                                         Flickable{
                                             width: 400
                                             height:100
                                             clip: true
-                                            visible: popup_add_serving.use_group
                                             contentWidth: row_group.width
                                             Row{
                                                 id: row_group
@@ -2405,7 +2413,12 @@ Item {
                                         if(textfield_loc_name.text == ""){
                                             click_sound_no.play();
                                             textfield_loc_name.color = color_red;
+                                        }else if(!supervisor.checkLocationName(popup_add_serving.cur_group, textfield_loc_name.text)){
+                                            click_sound_no.play();
+                                            textfield_loc_name.color = color_red;
+                                            text_loc_check.text = qsTr("이미 중복되는 이름이 있습니다");
                                         }else{
+
                                             click_sound.play();
                                             map_hide.savelocation("location_cur","Serving", popup_add_serving.cur_group, textfield_loc_name.text);
                                             supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving -> "+popup_add_serving.cur_group+", "+textfield_loc_name.text);
@@ -2415,7 +2428,6 @@ Item {
                                     }
                                 }
                             }
-
                         }
                     }
                 }
@@ -2671,7 +2683,6 @@ Item {
         Item{
             width: annot_pages.width
             height: annot_pages.height
-            property bool use_group: false
             property bool use_callbell : true
             Component.onCompleted: {
                 supervisor.setMotorLock(true);
@@ -2742,18 +2753,21 @@ Item {
                 details.append({"ltype":"Charging",
                                    "name":qsTr("충전위치"),
                                    "group":0,
-                                   "error":false,
+                                   "callerror":false,
+                                   "nameerror":false,
                                    "call_id":supervisor.getLocationCallID(0)});
                 details.append({"ltype":"Resting",
                                    "name":qsTr("대기위치"),
                                    "group":0,
-                                   "error":false,
+                                   "callerror":false,
+                                   "nameerror":false,
                                    "call_id":supervisor.getLocationCallID(1)});
                 if(supervisor.getRobotType()==="CLEANING"){
                     details.append({"ltype":"Cleaning",
                                        "name":qsTr("퇴식위치"),
                                        "group":0,
-                                       "error":false,
+                                       "callerror":false,
+                                       "nameerror":false,
                                        "call_id":supervisor.getLocationCallID(2)});
                 }
                 for(var i=0; i<locations.count; i++){
@@ -2761,11 +2775,13 @@ Item {
                                     "name":locations.get(i).name,
                                    "group":locations.get(i).group,
                                     "call_id":locations.get(i).call_id,
-                                   "error":locations.get(i).error});
+                                   "callerror":locations.get(i).callerror,
+                                       "nameerror":locations.get(i).nameerror});
 //                        print("detail append : ",i, locations.get(i).group, locations.get(i).number, getgroupsize(locations.get(i).group))
                 }
 //                print("=================================");
                 checkLocationNumber();
+                checkLocationName();
 //                print("=================================");
 
                 list_location_detail.currentIndex = select_location;
@@ -2780,7 +2796,7 @@ Item {
             function isError(){
                 for(var i=0; i<details.count; i++){
                     if(details.get(i).ltype === "Serving")
-                        if(details.get(i).error)
+                        if(details.get(i).callerror || details.get(i).nameerror)
                             return true;
                 }
                 return false;
@@ -2802,7 +2818,6 @@ Item {
                         locations.get(number-2).number = 0;
                     }
                 }
-
                 update();
             }
 
@@ -2839,10 +2854,33 @@ Item {
                         if(details.get(i).call_id === "" || details.get(i).call_id === "-")
                             continue;
                         else if(details.get(i).call_id === details.get(j).call_id){
-                            details.get(i).error = true;
-                            details.get(j).error = true;
+                            details.get(i).callerror = true;
+                            details.get(j).callerror = true;
                         }
                     }
+                }
+            }
+            function clearLocationName(){
+                for(var i=0; i<details.count; i++){
+                    details.get(i).nameerror = false;
+                }
+
+            }
+
+            function checkLocationName(){
+                for(var i=0; i<details.count; i++){
+                    for(var j=i+1; j<details.count; j++){
+                        if(details.get(i).group === details.get(i).group)
+                            if(details.get(i).name === details.get(j).name){
+                                details.get(i).nameerror = true;
+                                details.get(j).nameerror = true;
+                            }
+                    }
+                }
+                if(isError()){
+                    btn_right.enabled = false;
+                }else{
+                    btn_right.enabled = true;
                 }
             }
 
@@ -2980,13 +3018,20 @@ Item {
                                 }
                             }
                         }
+                        Image{
+                            visible: nameerror && ltype ==="Serving"
+                            source: "icon/icon_error.png"
+                            width: 40
+                            height: 38
+                            anchors.verticalCenter: parent.verticalCenter
+                        }
                         TextField{
                             id: tx_name
                             text: name
                             background: Rectangle{
                                 color:select_location === index?color_green:"white"
                             }
-                            width:ltype==="Serving"?250:250+160+5
+                            width : ltype ==="Serving"?nameerror?205:250:250+160+5
                             height: 50
                             font.family: font_noto_r.name
                             font.pixelSize: 20
@@ -3022,18 +3067,19 @@ Item {
                                         }
                                     }
                                 }
-
+                                clearLocationName();
+                                checkLocationName();
                             }
                         }
                         Image{
-                            visible: error && ltype ==="Serving"
+                            visible: callerror && ltype ==="Serving"
                             source: "icon/icon_error.png"
                             width: 40
                             height: 38
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Rectangle{
-                            width : error && ltype ==="Serving"?105:150
+                            width : callerror && ltype ==="Serving"?105:150
                             height: 50
                             color:select_location === index?color_green:"white"
                             Text{

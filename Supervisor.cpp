@@ -206,6 +206,16 @@ void Supervisor::sendMapServer(){
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 }
 
+bool Supervisor::checkLocationName(int group, QString name){
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].group == group){
+            if(pmap->locations[i].name == name){
+                return false;
+            }
+        }
+    }
+    return true;
+}
 ////*********************************************  CALLING 관련   ***************************************************////
 void Supervisor::clear_call(){
     if(setting_call_num > -1){
@@ -3293,7 +3303,7 @@ void Supervisor::onTimer(){
         }
 
         if(probot->ui_fail_state == 1){
-            ui_state = UI_STATE_NONE;
+//            ui_state = UI_STATE_NONE;
             killSLAM();
         }else if(getMotorState() == 0){
             if(probot->status_lock){
@@ -3639,6 +3649,9 @@ void Supervisor::onTimer(){
         break;
     }
     case UI_STATE_CLEANING:{
+        if(getSetting("setting","USE_UI","use_calling_notice") != "true"){
+            ui_state = UI_STATE_RESTING;
+        }
         break;
     }
     case UI_STATE_PICKUP:{
@@ -3939,6 +3952,8 @@ void Supervisor::process_done(int cmd){
 //        getWifiIP();
         QMetaObject::invokeMethod(mMain,"wifireset");
         setWifiConnection(probot->wifi_ssid,2);
+    }else if(cmd == ExtProcess::PROCESS_CMD_GET_WIFI_LIST){
+        QMetaObject::invokeMethod(mMain, "wifisuccess");
     }else if(cmd == ExtProcess::PROCESS_CMD_CHECK_CONNECTION){
         QMetaObject::invokeMethod(mMain, "checkwifidone");
     }else if(cmd == ExtProcess::PROCESS_CMD_CONNECT_WIFI){
@@ -4077,6 +4092,8 @@ void Supervisor::getAllWifiList(){
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
     extproc->set_command(temp, "Get Wifi List");
+    QNetworkConfigurationManager ncm;
+    defaultWifiConf = ncm.defaultConfiguration();
 }
 bool Supervisor::getWifiSecurity(QString ssid){
     return probot->wifi_map[ssid].security;
@@ -4211,15 +4228,15 @@ void Supervisor::resetLocalization(){
 
 void Supervisor::resetClear(){
     //log 삭제
-    QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
-    if(dir_log.removeRecursively()){
-        plog->reset();
-        plog->write("[SETTING] Reset Clear");
-        plog->write("[SETTING] Reset Clear : Remove logs");
-    }else{
-        plog->write("[SETTING] Reset Clear");
-        plog->write("[SETTING] Reset Clear : Remove logs failed");
-    }
+//    QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
+//    if(dir_log.removeRecursively()){
+//        plog->reset();
+//        plog->write("[SETTING] Reset Clear");
+//        plog->write("[SETTING] Reset Clear : Remove logs");
+//    }else{
+//        plog->write("[SETTING] Reset Clear");
+//        plog->write("[SETTING] Reset Clear : Remove logs failed");
+//    }
 
 //    //maps 폴더 지움.
 //    QDir dir_maps(QDir::homePath()+"/RB_MOBILE/maps");
