@@ -69,7 +69,7 @@ Supervisor::Supervisor(QObject *parent)
     connect(extproc, SIGNAL(timeout(int)),this,SLOT(process_timeout(int)));
     connect(extproc, SIGNAL(got_done(int)),this,SLOT(process_done(int)));
     connect(extproc, SIGNAL(got_accept(int)),this,SLOT(process_accept(int)));
-    connect(extproc, SIGNAL(got_error(int)),this,SLOT(process_error(int)));
+    connect(extproc, SIGNAL(got_error(int,int)),this,SLOT(process_error(int,int)));
     connect(call, SIGNAL(new_call()),this,SLOT(new_call()));
     connect(ipc, SIGNAL(pathchanged()),this,SLOT(path_changed()));
     connect(ipc, SIGNAL(mappingin()),this,SLOT(mapping_update()));
@@ -98,15 +98,24 @@ Supervisor::Supervisor(QObject *parent)
 
 Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
-    slam_process->close();
     ipc->clearSharedMemory(ipc->shm_cmd);
-    QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    slam_process->start(file);
-    slam_process->waitForReadyRead(3000);
-    QThread::sleep(1);
-    slam_process->waitForFinished(3000);
-    slam_process->kill();
-    slam_process->close();
+    delete extproc;
+    delete ipc;
+    delete slam_process;
+    delete zip;
+    delete maph;
+    delete call;
+//    delete
+//    extproc->deleteLater();
+//    ipc->deleteLater();
+//    slam_process->close();
+//    QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
+//    slam_process->start(file);
+//    slam_process->waitForReadyRead(3000);
+//    QThread::sleep(1);
+//    slam_process->waitForFinished(3000);
+//    slam_process->kill();
+//    slam_process->close();
 //    wifi_process->close();
     plog->write("[BUILDER] KILLED SLAMNAV");
 }
@@ -336,7 +345,7 @@ bool Supervisor::isNeedUpdate(){
     return server->new_update;
 }
 QString Supervisor::getLocalVersion(){
-    return probot->program_version;
+    return getSetting("robot","VERSION","last_update_date");
 }
 QString Supervisor::getServerVersion(){
     if(server->program_version != ""){
@@ -349,7 +358,7 @@ QString Supervisor::getServerVersion(){
     }
 }
 QString Supervisor::getLocalVersionDate(){
-    return probot->program_date;
+    return getSetting("robot","VERSION","last_update_date");
 }
 QString Supervisor::getLocalVersionMessage(){
     return probot->program_message;
@@ -389,6 +398,10 @@ QString Supervisor::getCurrentCommit(QString name){
 }
 void Supervisor::updateProgram(){
     server->doUpdate();
+}
+void Supervisor::updateProgramGitPull(){
+    server->getGitCommits();
+    extproc->git_pull();
 }
 
 void Supervisor::restartUpdate(){
@@ -458,6 +471,11 @@ void Supervisor::readSetting(QString map_name){
     probot->max_moving_count = setting_config.value("call_maximum").toInt();
     setting_config.endGroup();
 
+    setting_config.beginGroup("NETWORK");
+    probot->wifi_ssid = setting_config.value("wifi_ssid").toInt();
+    setting_config.endGroup();
+
+
     setting_config.beginGroup("MAP");
     pmap->map_name = setting_config.value("map_name").toString();
     pmap->map_path = setting_config.value("map_path").toString();
@@ -495,7 +513,7 @@ void Supervisor::readSetting(QString map_name){
 
     ini_path = getIniPath("update");
     QSettings update_config(ini_path, QSettings::IniFormat);
-    update_config.beginGroup("VERSION");
+    update_config.beginGroup("DRIVING");
     probot->cur_preset = update_config.value("cur_preset").toInt();
     probot->comeback_preset = update_config.value("comeback_preset").toInt();
     update_config.endGroup();
@@ -551,6 +569,7 @@ void Supervisor::readSetting(QString map_name){
         temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
         temp_loc.angle = strlist[3].toFloat();
         temp_loc.group = 0;
+        temp_loc.group_name = "Charging";
         temp_loc.type = "Charging";
         temp_loc.name = strlist[0];
         if(strlist.size() > 4)
@@ -570,6 +589,7 @@ void Supervisor::readSetting(QString map_name){
         temp_loc.angle = strlist[3].toFloat();
         temp_loc.type = "Resting";
         temp_loc.group = 0;
+        temp_loc.group_name = "Resting";
         temp_loc.name = strlist[0];
         if(strlist.size() > 4)
             temp_loc.call_id = strlist[4];
@@ -589,6 +609,7 @@ void Supervisor::readSetting(QString map_name){
             temp_loc.angle = strlist[3].toFloat();
             temp_loc.type = "Cleaning";
             temp_loc.group = 0;
+            temp_loc.group_name = "Cleaning";
             temp_loc.name = strlist[0];
             if(strlist.size() > 4)
                 temp_loc.call_id = strlist[4];
@@ -628,6 +649,7 @@ void Supervisor::readSetting(QString map_name){
             temp_loc.angle = strlist[3].toFloat();
             temp_loc.type = "Serving";
             temp_loc.name = strlist[0];
+            temp_loc.group_name = pmap->location_groups[i];
             if(strlist.size() > 4)
                 temp_loc.call_id = strlist[4];
             else
@@ -717,6 +739,18 @@ void Supervisor::requestSystemVolume(){
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_SYSTEM_VOLUME;
     extproc->set_command(temp);
+}
+
+
+int Supervisor::getLocationNum(QString group, QString name){
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].group == group){
+            if(pmap->locations[i].name == name){
+                return i;
+            }
+        }
+    }
+    return -1;
 }
 
 void Supervisor::saveLocation(QString type, int groupnum, QString name){
@@ -845,8 +879,8 @@ QString Supervisor::getRobotType(){
     return getSetting("setting","ROBOT_TYPE","type");
 }
 void Supervisor::setCamera(QString left, QString right){
-    setSetting("static","SENSOR/left_camera",left);
-    setSetting("static","SENSOR/right_camera",right);
+    setSetting("static","SENSOR/left_camera_serial",left);
+    setSetting("static","SENSOR/right_camera_serial",right);
 //    readSetting();
 }
 QString Supervisor::getLeftCamera(){
@@ -1318,6 +1352,11 @@ void Supervisor::setMap(QString name){
     setSetting("setting","MAP/map_name",name);
     readSetting(name);
     slam_map_reload(name);
+}
+
+void Supervisor::copyMap(QString orinname, QString newname){
+
+
 }
 
 void Supervisor::loadMap(QString name){
@@ -2411,13 +2450,12 @@ void Supervisor::acceptCall(bool yes){
 }
 
 ////*********************************************  SCHEDULER(SERVING) 관련   ***************************************************////
-void Supervisor::setTray(int tray_num, int table_num){
+void Supervisor::setTray(int tray_num, int group, int table){
     if(ui_state == UI_STATE_RESTING){
         if(tray_num > -1 && tray_num < probot->trays.size()){
             probot->trays[tray_num].empty = false;
-            probot->trays[tray_num].location.group = 0;
-//            probot->trays[tray_num].location.number = table_num;
-            plog->write("[COMMAND] Set Tray : "+QString::number(tray_num)+" , table "+QString::number(table_num));
+            probot->trays[tray_num].location = getLocation(group,getServingName(group,table));
+            plog->write("[COMMAND] Set Tray : "+QString::number(tray_num)+" , "+getServingName(group,table));
         }
     }
 }
@@ -2493,7 +2531,7 @@ void Supervisor::moveStop(){
 void Supervisor::moveToCharge(){
     if(ui_state == UI_STATE_RESTING || ui_state == UI_STATE_MOVEFAIL|| ui_state == UI_STATE_CLEANING){
         plog->write("[COMMAND] Move to Charging");
-        current_target = getLocation("Charging0");
+        current_target = getLocation(0, "Charging0");
         ui_state = UI_STATE_MOVING;
         is_test_moving = false;
     }else{
@@ -2505,7 +2543,7 @@ void Supervisor::moveToCharge(){
 void Supervisor::moveToWait(){
     if(ui_state == UI_STATE_RESTING|| ui_state == UI_STATE_MOVEFAIL || ui_state == UI_STATE_CLEANING){
         plog->write("[COMMAND] Move to Resting");
-        current_target = getLocation("Resting0");
+        current_target = getLocation(0, "Resting0");
         ui_state = UI_STATE_MOVING;
         is_test_moving = false;
     }else{
@@ -2782,25 +2820,25 @@ QVector<int> Supervisor::getOrigin(){
     return temp;
 }
 
-void Supervisor::moveToServingTest(QString name){
+void Supervisor::moveToServingTest(int group, QString name){
     if(ui_state == UI_STATE_RESTING || ui_state == UI_STATE_MOVEFAIL || ui_state == UI_STATE_PICKUP|| ui_state == UI_STATE_CLEANING){
         if(name.left(8) == "Charging" || name == tr("충전위치")){
-            current_target = getLocation("Charging0");
+            current_target = getLocation(0, "Charging0");
             ui_state = UI_STATE_MOVING;
             is_test_moving = true;
             plog->write("[COMMAND] Serving Test : "+name);
         }else if(name.left(7) == "Resting"|| name == tr("대기위치")){
-            current_target = getLocation("Resting0");
+            current_target = getLocation(0, "Resting0");
             ui_state = UI_STATE_MOVING;
             is_test_moving = true;
             plog->write("[COMMAND] Serving Test : "+name);
         }else if(name.left(8) == "Cleaning"|| name == tr("퇴식위치")){
-            current_target = getLocation("Cleaning0");
+            current_target = getLocation(0, "Cleaning0");
             ui_state = UI_STATE_MOVING;
             is_test_moving = true;
             plog->write("[COMMAND] Serving Test : "+name);
         }else if(probot->trays[0].empty){
-            LOCATION temp_loc = getLocation(name);
+            LOCATION temp_loc = getLocation(group, name);
             if(temp_loc.name == ""){
                 plog->write("[COMMAND] Serving Test (Not found) : "+name);
                 is_test_moving = false;
@@ -3086,6 +3124,7 @@ void Supervisor::onTimer(){
         setWindow(qobject_cast<QQuickWindow*>(object));
     }
 
+
     //State 강제 변경조건
     if(!ipc->getConnection()){
         //Clear Status
@@ -3168,6 +3207,7 @@ void Supervisor::onTimer(){
             }
         }else{
             if(check_init){
+                plog->write("[SUPERVISOR] Initializing -> Init Page");
                 QMetaObject::invokeMethod(mMain, "need_init");
                 check_init = false;
             }
@@ -3263,7 +3303,7 @@ void Supervisor::onTimer(){
                     //세팅 되지 않음 -> 고 홈
                     plog->write("[SUPERVISOR] MOVING (No Target) : Back to CleaningLocation");
                     probot->call_moving_count = 0;
-                    current_target = getLocation("Cleaning0");
+                    current_target = getLocation(0,"Cleaning0");
                     ui_state = UI_STATE_MOVING;
                 }else{
                     ipc->handsdown();
@@ -3271,7 +3311,7 @@ void Supervisor::onTimer(){
                     //세팅 되지 않음 -> 고 홈
                     plog->write("[SUPERVISOR] MOVING (No Target) : Back to Resting");
                     probot->call_moving_count = 0;
-                    current_target = getLocation("Resting0");
+                    current_target = getLocation(0,"Resting0");
                     ui_state = UI_STATE_MOVING;
 
                 }
@@ -3281,13 +3321,13 @@ void Supervisor::onTimer(){
                 //세팅 되지 않음 -> 고 홈
                 plog->write("[SUPERVISOR] MOVING (No Target) : Back to CleaningLocation");
                 probot->call_moving_count = 0;
-                current_target = getLocation("Cleaning0");
+                current_target = getLocation(0,"Cleaning0");
                 ui_state = UI_STATE_MOVING;
             }else{
                 //세팅 되지 않음 -> 고 홈
                 plog->write("[SUPERVISOR] MOVING (No Target) : Back to Resting");
                 probot->call_moving_count = 0;
-                current_target = getLocation("Resting0");
+                current_target = getLocation(0,"Resting0");
                 ui_state = UI_STATE_MOVING;
             }
         }
@@ -3305,6 +3345,8 @@ void Supervisor::onTimer(){
 
         if(probot->ui_fail_state == 1){
 //            ui_state = UI_STATE_NONE;
+            ui_state = UI_STATE_INITAILIZING;
+            plog->write("[SUPERVISOR] UI FAIL STATE -> KILL SLAM");
             killSLAM();
         }else if(getMotorState() == 0){
             if(probot->status_lock){
@@ -3433,6 +3475,7 @@ void Supervisor::onTimer(){
                                 //트레이 점유됨
                                 if(!probot->trays[i].empty){
                                     if(!match){
+                                        match = true;
                                         curLoc = probot->trays[i].location;
                                     }
                                     if(isSameLocation(probot->trays[i].location,curLoc)){
@@ -3461,6 +3504,7 @@ void Supervisor::onTimer(){
                         for(int i=0; i<setting.tray_num; i++){
                             if(!probot->trays[i].empty){
                                 tray_num = i;
+                                break;
                             }
                         }
 
@@ -3514,7 +3558,7 @@ void Supervisor::onTimer(){
                                                 patrol_num = temp%(patrol_list.size());
 
                                                 //패트롤 위치가 유효한 지 체크
-                                                LOCATION temp_loc = getLocation(patrol_list[patrol_num]);
+                                                LOCATION temp_loc = getLocation(0, patrol_list[patrol_num]);
                                                 if(temp_loc.name != ""){
                                                     cur_target = temp_loc;
                                                     probot->is_calling = false;
@@ -3531,7 +3575,7 @@ void Supervisor::onTimer(){
                                                 plog->write("[SUPERVISOR] MOVING (PATROL SEQUENCE) : CUR ("+QString::number(patrol_num)+")");
 
                                                 //패트롤 위치가 유효한 지 체크
-                                                LOCATION temp_loc = getLocation(patrol_list[patrol_num]);
+                                                LOCATION temp_loc = getLocation(0, patrol_list[patrol_num]);
                                                 if(temp_loc.name != ""){
                                                     cur_target = temp_loc;
                                                     probot->is_calling = false;
@@ -3868,11 +3912,12 @@ LOCATION Supervisor::getLocationbyCall(QString call){
     }
     return LOCATION();
 }
-LOCATION Supervisor::getLocation(QString name){
+LOCATION Supervisor::getLocation(int group, QString name){
     for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == name){
-            return pmap->locations[i];
-        }
+        if(pmap->locations[i].group == group)
+            if(pmap->locations[i].name == name){
+                return pmap->locations[i];
+            }
     }
     return LOCATION();
 }
@@ -3962,7 +4007,7 @@ void Supervisor::process_done(int cmd){
         QMetaObject::invokeMethod(mMain, "checkwifidone");
     }else if(cmd == ExtProcess::PROCESS_CMD_GET_WIFI_IP){
         QMetaObject::invokeMethod(mMain, "wifisuccess");
-    }else if(cmd == ExtProcess::PROCESS_CMD_GIT_PULL || cmd == ExtProcess::PROCESS_CMD_GIT_RESET){
+    }else if(cmd == ExtProcess::PROCESS_CMD_GIT_PULL || cmd == ExtProcess::PROCESS_CMD_GIT_UPDATE ||  cmd == ExtProcess::PROCESS_CMD_GIT_RESET){
         setSetting("robot","VERSION/last_update_mode","git");
         setSetting("robot","VERSION/last_update_date",probot->program_date);
         readSetting();
@@ -4012,7 +4057,7 @@ void Supervisor::process_done(int cmd){
     }
 }
 
-void Supervisor::process_error(int cmd){
+void Supervisor::process_error(int cmd, int param){
     if(cmd == ExtProcess::PROCESS_CMD_CHECK_CONNECTION){
         QMetaObject::invokeMethod(mMain, "checkwifidone");
     }else if(cmd == ExtProcess::PROCESS_CMD_CONNECT_WIFI){
@@ -4021,6 +4066,14 @@ void Supervisor::process_error(int cmd){
         QMetaObject::invokeMethod(mMain, "setip_fail");
     }else if(cmd == ExtProcess::PROCESS_CMD_GIT_PULL){
         extproc->git_reset();
+    }else if(cmd == ExtProcess::PROCESS_CMD_GIT_UPDATE){
+        if(param == 0){
+            plog->write("[PROCESS] Update failed");
+            QMetaObject::invokeMethod(mMain, "gitfailed");
+        }else if(param == 1){
+            plog->write("[PROCESS] Update failed");
+            QMetaObject::invokeMethod(mMain, "gitnewest");
+        }
     }
 }
 
@@ -4095,6 +4148,9 @@ void Supervisor::getAllWifiList(){
     extproc->set_command(temp, "Get Wifi List");
     QNetworkConfigurationManager ncm;
     defaultWifiConf = ncm.defaultConfiguration();
+    if(defaultWifiConf.name() != ""){
+        probot->wifi_ssid = defaultWifiConf.name();
+    }
 }
 bool Supervisor::getWifiSecurity(QString ssid){
     return probot->wifi_map[ssid].security;
@@ -4261,4 +4317,25 @@ void Supervisor::resetClear(){
     //sh 파일 복구?
 
 
+}
+
+
+
+int Supervisor::getTravellineIssue(){
+    return pmap->tline_issue;
+}
+QString Supervisor::getTravellineIssueGroup(int num){
+    return pmap->tline_issues[num].group;
+}
+QString Supervisor::getTravellineIssueName(int num){
+
+    return pmap->tline_issues[num].name;
+}
+bool Supervisor::getTravellineIssueFar(int num){
+
+    return pmap->tline_issues[num].is_far;
+}
+bool Supervisor::getTravellineIssueBroken(int num){
+
+    return pmap->tline_issues[num].is_broken;
 }

@@ -49,7 +49,7 @@ public:
     bool use_patrol_pickup = false;
     bool use_cleaning_location = false;
 
-    //
+
     ////*********************************************  STRUCT   ***************************************************////
     ST_MAP map;
     ST_ROBOT robot;
@@ -58,7 +58,6 @@ public:
     ServerHandler *server;
 
     ////*********************************************  VARIABLE   ***************************************************////
-
     QStringList usb_list;
     QStringList usb_file_full_list;
     QStringList usb_file_list;
@@ -66,7 +65,6 @@ public:
     QVector<QString> usb_map_list;
     QVector<QString> map_list;
     QVector<QString> map_detail_list;
-
 
     int setting_call_num = -1;
     QVector<QString> call_queue;
@@ -101,7 +99,6 @@ public:
     Q_INVOKABLE void getAllWifiList();
     Q_INVOKABLE void getWifiIP();
     Q_INVOKABLE void setWifi(QString ip, QString gateway, QString dns);
-    Q_INVOKABLE QString getcurSSD(){return probot->wifi_ssid;}
     Q_INVOKABLE QString getcurIP();
     Q_INVOKABLE QString getcurGateway();
     Q_INVOKABLE QString getcurDNS();
@@ -211,6 +208,7 @@ public:
     Q_INVOKABLE void setLineWidth(int width){maph->setLineWidth(width);}
 
 
+    Q_INVOKABLE int getLocationNum(QString group, QString name);
     Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);//{maph->saveLocation(type,groupnum,name);}
     Q_INVOKABLE void clearLocation(){maph->clearLocation();}
     Q_INVOKABLE void addLocation(int x, int y,float th){maph->addLocation(x,y,th);}
@@ -323,6 +321,7 @@ public:
     Q_INVOKABLE void checkTravelline();
     ////*********************************************  GIT 관련   ***************************************************////
     Q_INVOKABLE void updateProgram();
+    Q_INVOKABLE void updateProgramGitPull();
     Q_INVOKABLE void checkVersionAgain();
     Q_INVOKABLE bool isNewVersion();
     Q_INVOKABLE bool isNeedUpdate();
@@ -351,7 +350,7 @@ public:
     Q_INVOKABLE bool isCallingMode(){return probot->is_calling;}
     Q_INVOKABLE void goServing(int group, int table);
     Q_INVOKABLE LOCATION getLocationbyCall(QString call);
-    Q_INVOKABLE LOCATION getLocation(QString name);
+    Q_INVOKABLE LOCATION getLocation(int group, QString name);
     Q_INVOKABLE LOCATION getLocationbyID(int id);
 
     Q_INVOKABLE void setUiState(int state){
@@ -412,6 +411,7 @@ public:
     Q_INVOKABLE void removeMap(QString filename);
 
     Q_INVOKABLE void loadMap(QString name);
+    Q_INVOKABLE void copyMap(QString orinname, QString newname);
     Q_INVOKABLE void setMap(QString name);
     Q_INVOKABLE bool rotate_map(QString _src, QString _dst, int mode);
 
@@ -555,7 +555,7 @@ public:
 
 
     ////*********************************************  SCHEDULER(SERVING) 관련   ***************************************************////
-    Q_INVOKABLE void setTray(int tray_num, int table_num);
+    Q_INVOKABLE void setTray(int tray_num, int group, int table);
     Q_INVOKABLE void startServing();
     Q_INVOKABLE void setPreset(int preset);
     Q_INVOKABLE void confirmPickup();
@@ -661,7 +661,7 @@ public:
 
     Q_INVOKABLE void clearFlagStop();
     Q_INVOKABLE void slam_fullautoInit();
-    Q_INVOKABLE void moveToServingTest(QString name);
+    Q_INVOKABLE void moveToServingTest(int group, QString name);
     Q_INVOKABLE int getusberrorsize();
     Q_INVOKABLE QString getusberror(int num);
     Q_INVOKABLE int getzipstate();
@@ -670,6 +670,12 @@ public:
 
     Q_INVOKABLE void restartUpdate();
     Q_INVOKABLE void startUpdate();
+
+    Q_INVOKABLE int getTravellineIssue();
+    Q_INVOKABLE QString getTravellineIssueGroup(int num);
+    Q_INVOKABLE QString getTravellineIssueName(int num);
+    Q_INVOKABLE bool getTravellineIssueFar(int num);
+    Q_INVOKABLE bool getTravellineIssueBroken(int num);
 public slots:
     void onTimer();
     void path_changed();
@@ -681,7 +687,7 @@ public slots:
     void new_call();
     void process_accept(int cmd);
     void process_done(int cmd);
-    void process_error(int cmd);
+    void process_error(int cmd,int param);
     void process_timeout(int cmd);
     void update_success();
     void update_fail();

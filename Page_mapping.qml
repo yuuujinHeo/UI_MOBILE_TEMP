@@ -44,6 +44,7 @@ Item {
                 }
             }else{
                 if(is_mapping){
+                    voice_stop_mapping.play();
                     voice_start_mapping.stop();
                     is_mapping = false;
                 }
@@ -97,6 +98,7 @@ Item {
                 width: 80
                 height: width
                 radius: width
+                visible: false
                 color: "transparent"
                 border.width:2
                 border.color: "white"
@@ -609,6 +611,7 @@ Item {
                 height: width
                 radius: width
                 color: "transparent"
+                visible: false
                 border.width:2
                 border.color: "white"
                 anchors.right: parent.right
@@ -736,7 +739,8 @@ Item {
                 color: color_dark_navy
             }
             Component.onCompleted: {
-                loading.show();
+                popup_loading.open();
+//                loading.show();
             }
             Timer{
                 running: true
@@ -744,7 +748,7 @@ Item {
                 interval: 1000
                 onTriggered: {
                     if(supervisor.getIPCConnection()){
-                        loading.hide();
+                        popup_loading.close();
                         supervisor.setMap(map_name);
                         detect_done = true;
                         stop();
@@ -856,16 +860,5 @@ Item {
 
     Tool_Keyboard{
         id: keyboard
-    }
-    AnimatedImage{
-        id: loading
-        anchors.fill: parent
-        function show(){
-            source = "image/loading_rb.gif"
-        }
-        function hide(){
-            source = "";
-        }
-        source: ""
     }
 }

@@ -35,6 +35,15 @@ Item {
         popup_loading.close();
         init();
     }
+    function git_failed(){
+        popup_loading.close();
+        popup_update.failed();
+    }
+    function git_newest(){
+        popup_loading.close();
+        popup_update.newest();
+    }
+
     function wifistatein(){
         popup_loading.close();
         popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
@@ -118,6 +127,7 @@ Item {
         color: "#f4f4f4"
         //카테고리 바
         Row{
+            id: row_category
             spacing: 5
             Rectangle{
                 width: 250
@@ -4533,6 +4543,97 @@ Item {
                     }
                 }
 
+                Rectangle{
+                    id: set_use_earlystop_resting
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"대기위치 근처 장애물 미리 정지"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_use_earlystop_resting
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                model:["사용안함","사용"]
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_use_earlystop_serving
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"서빙위치 근처 장애물 미리 정지"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_use_earlystop_serving
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                model:["사용안함","사용"]
+                            }
+                        }
+                    }
+                }
+
 
                 Rectangle{
                     id: set_decmargin
@@ -7962,6 +8063,7 @@ Item {
                 Image{
                     source: "image/image_robot_temp.png"
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 50
                     width: 200
                     height: 460
                     ColorOverlay{
@@ -7972,7 +8074,7 @@ Item {
                     Image{
                         id: status_motor_left
                         property var state: 2
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/btn_yes.png"
                         width: 55
                         height: 50
                         anchors.left: parent.left
@@ -8000,7 +8102,7 @@ Item {
                     Image{
                         id: status_motor_right
                         property var state: 1
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/btn_yes.png"
                         width: 55
                         height: 50
                         anchors.right: parent.right
@@ -8028,14 +8130,10 @@ Item {
                     Image{
                         id: status_power
                         property var state: 0
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/btn_yes.png"
                         width: 55
                         height: 50
                         anchors.centerIn: parent
-                        /*
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: state === 1 ? 117 : 120*/
                         Rectangle{
                             width: 130
                             height: 30
@@ -8076,7 +8174,7 @@ Item {
                     Image{
                         id: status_localization
                         property var state: 0
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/icon_warning.png":"icon/btn_yes.png"
+                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/btn_yes.png"
                         width: 55
                         height: 50
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -8569,7 +8667,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: 50
             anchors.top: parent.top
-            anchors.topMargin: 50
+            anchors.topMargin: 50 + row_category.height
             color: "transparent"
             radius: 30
             Behavior on width{
@@ -9454,11 +9552,27 @@ Item {
             }
         }
 
+        if(combo_use_earlystop_serving.ischanged){
+            if(combo_use_earlystop_serving.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_serving",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_serving",true);
+            }
+        }
+
+        if(combo_use_earlystop_resting.ischanged){
+            if(combo_use_earlystop_resting.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",true);
+            }
+        }
+
         if(combo_use_obs_near.ischanged){
             if(combo_use_obs_near.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_near_obs",false);
+                supervisor.setSetting("setting","USE_SLAM/use_obs_near",false);
             }else{
-                supervisor.setSetting("setting","USE_SLAM/use_near_obs",true);
+                supervisor.setSetting("setting","USE_SLAM/use_obs_near",true);
             }
         }
 
@@ -9786,6 +9900,16 @@ Item {
         }else{
             combo_use_obs_near.currentIndex = 0;
         }
+        if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_resting") === "true"){
+            combo_use_earlystop_resting.currentIndex = 1;
+        }else{
+            combo_use_earlystop_resting.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_serving") === "true"){
+            combo_use_earlystop_serving.currentIndex = 1;
+        }else{
+            combo_use_earlystop_serving.currentIndex = 0;
+        }
 
         slider_volume_bgm.value = Number(supervisor.getSetting("setting","UI","volume_bgm"));
         slider_volume_voice.value = Number(supervisor.getSetting("setting","UI","volume_voice"));
@@ -9951,6 +10075,8 @@ Item {
 
         obs_preview_time.ischanged = false;
         combo_use_obs_near.ischanged = false;
+        combo_use_earlystop_resting.ischanged = false;
+        combo_use_earlystop_serving.ischanged = false;
         combo_use_avoid.ischanged = false;
         combo_use_obs_preview.ischanged = false;
         combo_use_pivot_obs.ischanged = false;
@@ -10131,9 +10257,10 @@ Item {
             //로봇 상태 - 로봇 상태
             if(supervisor.getIPCConnection()){
                 //로봇 상태 - 전원
+                status_power.state = 2;
                 if(supervisor.getBattery() < 30){
                     status_power.state = 1;
-                    model_power_issue.append({"name":"배터리잔량 낮음","image":"image/icon_warning.png"});
+                    model_power_issue.append({"name":"배터리잔량 낮음","image":"image/warning.png"});
                 }
 
                 bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
@@ -10145,32 +10272,34 @@ Item {
 
                 //로봇 상태 - 상태 값
                 model_power_issue.clear();
-                if(supervisor.getChargeStatus() !== 0){
-                    model_power_issue.append({"name":"충전케이블 연결됨","image":"image/icon_warning.png"});
-                }
-                if(supervisor.getPowerStatus() === 0){
-                    model_power_issue.append({"name":"전원 공급 안됨","image":"icon/icon_error.png"});
-                }
+
                 if(supervisor.getEmoStatus() !== 0){
-                    model_power_issue.append({"name":"비상스위치 눌림","image":"icon/icon_error.png"});
-                }
-                if(supervisor.getRemoteStatus() === 0){
-                    model_power_issue.append({"name":"원격비상스위치 눌림","image":"icon/icon_error.png"});
+                    model_power_issue.append({"name":"비상스위치 눌림","image":"image/warning.png"});
+                    status_power.state = 1;
+                }else if(supervisor.getRemoteStatus() === 0){
+                    model_power_issue.append({"name":"원격비상스위치 눌림","image":"image/warning.png"});
+                    status_power.state = 1;
+                }else if(supervisor.getPowerStatus() === 0){
+                    model_power_issue.append({"name":"전원 공급 안됨","image":"icon/icon_error.png"});
+                    status_power.state = 0;
                 }
 
                 var state = supervisor.getLocalizationState();
                 if(state === 0){
                     model_power_issue.append({"name":"위치초기화 필요","image":"icon/icon_error.png"});
                     text_robot.text = "초기화 안됨";
+                    status_localization.state = 0;
                 }else if(state === 1){
-                    model_power_issue.append({"name":"위치초기화 진행중","image":"image/icon_warning.png"});
+                    model_power_issue.append({"name":"위치초기화 진행중","image":"image/warning.png"});
                     text_robot.text = "초기화 중";
+                    status_localization.state = 1;
                 }else if(state === 2){
                     text_robot.text = "초기화 완료";
+                    status_localization.state = 2;
 
                     state = supervisor.getStateMoving();
                     if(state === 0){
-                        model_power_issue.append({"name":"로봇주행 준비안됨","image":"image/icon_warning.png"});
+                        model_power_issue.append({"name":"로봇주행 준비안됨","image":"image/warning.png"});
                         text_robot.text = "준비 안됨";
                     }else if(state === 1){
                         text_robot.text = "준비";
@@ -10183,130 +10312,146 @@ Item {
                     }
 
                 }else if(state === 3){
-                    model_power_issue.append({"name":"위치초기화 실패","image":"image/icon_warning.png"});
+                    status_localization.state = 0;
+                    model_power_issue.append({"name":"위치초기화 실패","image":"image/warning.png"});
                     text_robot.text = "초기화 실패";
                 }
 
 
                 if(supervisor.getObsState() === 1){
-                    model_power_issue.append({"name":"장애물 겹침","image":"image/icon_warning.png"});
-                }
-
-                state = supervisor.getLockStatus();
-                if(state === 0){
-                    model_power_issue.append({"name":"모터락 풀림","image":"image/icon_warning.png"});
+                    status_localization.state = 0;
+                    model_power_issue.append({"name":"장애물 겹침","image":"image/warning.png"});
                 }
 
                 //모터 상태 - 모터 1
-                state = supervisor.getMotorConnection(0);
-                if(state === 0){
+                var state1 = supervisor.getMotorConnection(0);
+                //모터 상태 - 모터 2
+                var state2 = supervisor.getMotorConnection(1);
+
+
+                if(!state1){
                     model_power_issue.append({"name":"모터 1 연결안됨","image":"icon/icon_error.png"});
                     status_motor_left.state = 0;
-
-                }
-
-                state = supervisor.getMotorStatus(0);
-                if(state === 0){
-                    model_power_issue.append({"name":"모터 1 준비안됨","image":"icon/icon_error.png"});
-                    status_motor_left.state = 1;
-                }else if(state === 1){
-                    status_motor_left.state = 2;
                 }else{
-                    status_motor_left.state = 0;
-                    var str_error = "";
-                    if(state >= 128){
-                        str_error += "Unknown ";
-                        state -= 128;
-                    }
-                    if(state >= 64){
-                        str_error += "PS1,2 ";
-                        state -= 64;
-                    }
-                    if(state >= 32){
-                        str_error += "INPUT ";
-                        state -= 32;
-                    }
-                    if(state >= 16){
-                        str_error += "BIG ";
-                        state -= 16;
-                    }
-                    if(state >= 8){
-                        str_error += "CUR ";
-                        state -= 8;
-                    }
-                    if(state >= 4){
-                        str_error += "JAM ";
-                        state -= 4;
-                    }
-                    if(state >= 2){
-                        str_error += "MOD ";
-                        state -= 2;
-                    }
-                    model_power_issue.append({"name":"모터 1 "+str_error,"image":"icon/icon_error.png"});
+                    status_motor_left.state = 2;
                 }
 
-                bar_temp1.value = supervisor.getMotorTemperature(0);
-                bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
-                bar_cur1.value = supervisor.getMotorCurrent(0);
-
-
-                //모터 상태 - 모터 2
-                state = supervisor.getMotorConnection(1);
-                if(state === 0){
+                if(!state2){
                     status_motor_right.state = 0;
                     model_power_issue.append({"name":"모터 2 연결안됨","image":"icon/icon_error.png"});
-                }
-
-                state = supervisor.getMotorStatus(1);
-                if(state === 0){
-                    status_motor_right.state = 1;
-                    model_power_issue.append({"name":"모터 2 준비안됨","image":"icon/icon_error.png"});
-                }else if(state === 1){
-                    status_motor_right.state = 2;
                 }else{
-                    status_motor_right.state = 0;
-                    var str_error = "";
-                    if(state >= 128){
-                        str_error += "Unknown ";
-                        state -= 128;
-                    }
-                    if(state >= 64){
-                        str_error += "PS1,2 ";
-                        state -= 64;
-                    }
-                    if(state >= 32){
-                        str_error += "INPUT ";
-                        state -= 32;
-                    }
-                    if(state >= 16){
-                        str_error += "BIG ";
-                        state -= 16;
-                    }
-                    if(state >= 8){
-                        str_error += "CUR ";
-                        state -= 8;
-                    }
-                    if(state >= 4){
-                        str_error += "JAM ";
-                        state -= 4;
-                    }
-                    if(state >= 2){
-                        str_error += "MOD ";
-                        state -= 2;
-                    }
-                    model_power_issue.append({"name":"모터 2 "+str_error,"image":"icon/icon_error.png"});
-
-                    bar_status2.background_color = color_red;
-                    text_status2.text = str_error;
+                    status_motor_right.state = 2;
                 }
 
-                bar_temp2.value = supervisor.getMotorTemperature(1);
-                bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
-                bar_cur2.value = supervisor.getMotorCurrent(1);
+                if(state1 && state2){
+                    var lstate = supervisor.getLockStatus();
+                    if(supervisor.getChargeStatus() !== 0){
+                        status_motor_right.state = 1;
+                        status_motor_left.state = 1;
+                        model_power_issue.append({"name":"충전케이블 연결됨","image":"image/warning.png"});
+                    }else if(lstate === 0){
+                        status_motor_right.state = 1;
+                        status_motor_left.state = 1;
+                        model_power_issue.append({"name":"모터락 풀림","image":"image/warning.png"});
+                    }else{
+                        state1 = supervisor.getMotorStatus(0);
+                        if(state1 === 0){
+                            model_power_issue.append({"name":"모터 1 준비안됨","image":"icon/icon_error.png"});
+                            status_motor_left.state = 1;
+                        }else if(state1 === 1){
+                            status_motor_left.state = 2;
+                        }else{
+                            status_motor_left.state = 0;
+                            var str_error = "";
+                            if(state1 >= 128){
+                                str_error += "Unknown ";
+                                state1 -= 128;
+                            }
+                            if(state1 >= 64){
+                                str_error += "PS1,2 ";
+                                state1 -= 64;
+                            }
+                            if(state1 >= 32){
+                                str_error += "INPUT ";
+                                state1 -= 32;
+                            }
+                            if(state1 >= 16){
+                                str_error += "BIG ";
+                                state1 -= 16;
+                            }
+                            if(state1 >= 8){
+                                str_error += "CUR ";
+                                state1 -= 8;
+                            }
+                            if(state1 >= 4){
+                                str_error += "JAM ";
+                                state1 -= 4;
+                            }
+                            if(state1 >= 2){
+                                str_error += "MOD ";
+                                state1 -= 2;
+                            }
+                            model_power_issue.append({"name":"모터 1 "+str_error,"image":"icon/icon_error.png"});
+                        }
+
+                        state2 = supervisor.getMotorStatus(1);
+                        if(state2 === 0){
+                            status_motor_right.state = 1;
+                            model_power_issue.append({"name":"모터 2 준비안됨","image":"icon/icon_error.png"});
+                        }else if(state2 === 1){
+                            status_motor_right.state = 2;
+                        }else{
+                            status_motor_right.state = 0;
+                            var str_error = "";
+                            if(state2 >= 128){
+                                str_error += "Unknown ";
+                                state2 -= 128;
+                            }
+                            if(state2 >= 64){
+                                str_error += "PS1,2 ";
+                                state2 -= 64;
+                            }
+                            if(state2 >= 32){
+                                str_error += "INPUT ";
+                                state2 -= 32;
+                            }
+                            if(state2 >= 16){
+                                str_error += "BIG ";
+                                state2 -= 16;
+                            }
+                            if(state2 >= 8){
+                                str_error += "CUR ";
+                                state2 -= 8;
+                            }
+                            if(state2 >= 4){
+                                str_error += "JAM ";
+                                state2 -= 4;
+                            }
+                            if(state2 >= 2){
+                                str_error += "MOD ";
+                                state2 -= 2;
+                            }
+                            model_power_issue.append({"name":"모터 2 "+str_error,"image":"icon/icon_error.png"});
+
+                            bar_status2.background_color = color_red;
+                            text_status2.text = str_error;
+                        }
+                    }
+
+                    bar_temp1.value = supervisor.getMotorTemperature(0);
+                    bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
+                    bar_cur1.value = supervisor.getMotorCurrent(0);
+                    bar_temp2.value = supervisor.getMotorTemperature(1);
+                    bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
+                    bar_cur2.value = supervisor.getMotorCurrent(1);
+                }
+
+
             }else{
                 status_power.state = 0;
                 status_motor_left.state = 0;
                 status_motor_right.state = 0;
+                status_localization.state = 0;
                 text_robot.text = "프로그램 연결 안됨"
             }
 
@@ -11348,173 +11493,175 @@ Item {
         id: popup_update
         width: 1280
         height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
         anchors.centerIn: parent
         background: Rectangle{
             anchors.fill: parent
             color: "transparent"
         }
 
+        function newest(){
+            text_main_update.text = qsTr("프로그램이 이미 최신입니다");
+            text_serv_update.text = qsTr("");
+        }
+
+        function failed(){
+            text_main_update.text = qsTr("업데이트에 실패했습니다");
+            text_serv_update.text = qsTr("");
+        }
+
         onOpened: {
-            //버전 체크
-            if(supervisor.isNewVersion()){
+            area_debug_update.count = 0;
+            //서버 연결 체크
+            if(supervisor.isConnectServer()){
+                //서버 연결 됨 -> 기본 서버업데이트, Git Pull은 선택
                 if(supervisor.isNeedUpdate()){
-                    //Server Update
+                    //서버 내 업데이트 존재 -> 서버 업데이트 유도. Git Pull숨겨둠
+                    supervisor.writelog("[SETTING] UPDATE PROGRAM -> New Server Update Detected")
+                    text_main_update.text = qsTr("새로운 업데이트가 있습니다");
+                    text_serv_update.text = qsTr("업데이트를 진행하시겠습니까?");
+                    btn_gitpull.visible = false;
+                    btn_cancel.visible = true;
+                    btn_doupdate.visible = true;
+                    current_version.visible = true;
+                    new_version.visible = true;
                 }else{
-                    //Local Git Update
+                    //서버 내 업데이트 없음 -> Git Pull 숨겨둠
+                    supervisor.writelog("[SETTING] UPDATE PROGRAM -> No Server Update")
+                    text_main_update.text = qsTr("프로그램이 이미 최신입니다");
+                    text_serv_update.text = qsTr("");
+                    btn_gitpull.visible = false;
+                    btn_cancel.visible = true;
+                    btn_doupdate.visible = false;
+                    current_version.visible = true;
+                    new_version.visible = false;
                 }
             }else{
-
+                //서버 연결 안됨 -> Git Pull만 가능(숨겨둠)
+                supervisor.writelog("[SETTING] UPDATE PROGRAM -> Disconnected Server")
+                text_main_update.text = qsTr("서버와 연결되지 않았습니다");
+                text_serv_update.text = qsTr("무선 와이파이가 연결되었는지 확인해주세요");
+                btn_gitpull.visible = false;
+                btn_cancel.visible = true;
+                btn_doupdate.visible = false;
+                current_version.visible = true;
+                new_version.visible = false;
             }
-
-            if(!supervisor.isNewVersion()){
-                supervisor.writelog("[USER INPUT] UPDATE PROGRAM -> CHECK NEW VERSION")
-                //새로운 버전 확인됨
-                rect_lastest.visible = false;
-                rect_need_update.visible = true;
-                text_version1.text = "현재 버전 : " + supervisor.getLocalVersionDate()
-                text_version2.text = "최신 버전 : " + supervisor.getServerVersion()
-            }else{
-                rect_lastest.visible = true;
-                rect_need_update.visible = false;
-                text_version.text = "현재 버전 : " + supervisor.getLocalVersionDate()
-//                text_version2.text = "최신 버전 : " + supervisor.getServerVersionDate()
-            }
-
-
-
-            if(supervisor.getSetting("setting","USE_UI","auto_update")==="true"){
-//                if(supervisor.checkNewUpdateProgram()){
-//                    supervisor.writelog("[USER INPUT] UPDATE PROGRAM -> ALREADY NEW VERSION")
-//                    //버전이 이미 최신임기
-//                    rect_lastest.visible = true;
-//                    rect_need_update.visible = false;
-//                    text_version.text = "현재 버전 : " + supervisor.getLocalVersionDate()
-//                }else{
-//                    supervisor.writelog("[USER INPUT] UPDATE PROGRAM -> CHECK NEW VERSION")
-//                    //새로운 버전 확인됨
-//                    rect_lastest.visible = false;
-//                    rect_need_update.visible = true;
-//                    text_version1.text = "현재 버전 : " + supervisor.getLocalVersionDate()
-//                    text_version2.text = "최신 버전 : " + supervisor.getServerVersionDate()
-//                }
-            }else{
-//                if(supervisor.checkNewUpdateProgram()){
-//                    supervisor.writelog("[USER INPUT] UPDATE PROGRAM -> CHECK NEW VERSION")
-//                    //새로운 버전 확인됨
-//                    rect_lastest.visible = false;
-//                    rect_need_update.visible = true;
-//                    text_version1.text = "현재 버전 : " + supervisor.getLocalVersionDate()
-//                    text_version2.text = "최신 버전 : " + supervisor.getProgramUpdateVersion()
-//                }else{
-//                    rect_lastest.visible = true;
-//                    rect_need_update.visible = false;
-//                    text_version.text = "현재 버전 : " + supervisor.getLocalVersionDate()
-//                }
-            }
-
-
         }
         Rectangle{
-            id: rect_lastest
             width: parent.width
             height: parent.height
             color: color_navy
             Column{
                 anchors.centerIn: parent
                 spacing: 40
-
-                Text{
-                    id: text_1
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.family: font_noto_r.name
-                    font.pixelSize: 40
-                    color: "white"
-                    text:"프로그램이 이미 최신입니다"
-                }
-                Text{
-                    id: text_version
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.family: font_noto_r.name
-                    font.pixelSize: 25
-                    color: "white"
-                    text: "현재 버전 : "+supervisor.getSetting("robot","VERSION","last_update_date");
-                }
-
-                Rectangle{
-                    width: 180
-                    height: 60
-                    radius: 10
-                    color: "#12d27c"
-                    border.width: 1
-                    border.color: "#12d27c"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Text{
-                        anchors.centerIn: parent
-                        text: "확인"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 25
-                        color: "white"
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            popup_update.close();
-                        }
-                    }
-                }
-            }
-
-        }
-        Rectangle{
-            id: rect_need_update
-            anchors.fill: parent
-            width: parent.width
-            height: parent.height
-            color: color_navy
-            Column{
-                anchors.centerIn: parent
-                spacing: 30
-
-                Text{
-                    id: text_11
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.family: font_noto_r.name
-                    font.pixelSize: 40
-                    color: "white"
-                    text:"새로운 버전이 확인되었습니다. 업데이트하시겠습니까?"
-                }
                 Column{
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
-                        id: text_version1
+                        id: text_main_update
+                        anchors.horizontalCenter: parent.horizontalCenter
                         font.family: font_noto_r.name
-                        font.pixelSize: 25
+                        font.pixelSize: 50
                         color: "white"
+                        text: qsTr("프로그램이 이미 최신입니다")
                     }
                     Text{
-                        id: text_version2
+                        id: text_serv_update
+                        anchors.horizontalCenter: parent.horizontalCenter
                         font.family: font_noto_r.name
-                        font.pixelSize: 25
+                        font.pixelSize: 40
                         color: "white"
-                        text:"최신 버전 : "+supervisor.getServerVersion()
+                        text: qsTr("프로그램이 이미 최신입니다")
+                    }
+                }
+                Column{
+                    spacing: 10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row{
+                        id: current_version
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text: "현재 버전 : "
+                        }
+                        Text{
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getLocalVersion()
+                        }
+                    }
+                    Row{
+                        id: new_version
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text: "최신 버전 : "
+                        }
+                        Text{
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getServerVersion()
+                        }
                     }
                 }
                 Row{
-                    spacing: 50
                     anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
                     Rectangle{
+                        id: btn_doupdate
                         width: 180
                         height: 60
                         radius: 10
-                        color:"transparent"
+                        color: "#12d27c"
+                        border.width: 1
+                        border.color: "#12d27c"
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("업데이트")
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                                supervisor.updateProgram();
+                                popup_update.close();
+                            }
+                        }
+                    }
+                    Rectangle{
+                        id: btn_cancel
+                        width: 180
+                        height: 60
+                        radius: 10
+                        color: "transparent"
                         border.width: 1
                         border.color: "white"
                         Text{
                             anchors.centerIn: parent
-                            text: "취소"
-                            color: "white"
+                            text: qsTr("닫기")
                             font.family: font_noto_r.name
                             font.pixelSize: 25
+                            color: "white"
                         }
                         MouseArea{
                             anchors.fill: parent
@@ -11524,6 +11671,7 @@ Item {
                         }
                     }
                     Rectangle{
+                        id: btn_gitpull
                         width: 180
                         height: 60
                         radius: 10
@@ -11532,7 +11680,7 @@ Item {
                         border.color: "#12d27c"
                         Text{
                             anchors.centerIn: parent
-                            text: "확인"
+                            text: qsTr("PULL")
                             font.family: font_noto_r.name
                             font.pixelSize: 25
                             color: "white"
@@ -11540,26 +11688,31 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                supervisor.writelog("[USER INPUT] UPDATE PROGRAM -> UPDATE START")
-                                if(is_admin){
-                                    supervisor.updateProgram();
-//                                    if(supervisor.getSetting("setting","ROBOT_SW","update_auto")==="true"){
-//                                        supervisor.updateNow();
-//                                    }else{
-//                                        supervisor.updateProgram();
-//                                    }
-
-                                    popup_update.close();
-                                }else{
-                                    popup_password.open();
-                                }
+                                popup_loading.open();
+                                supervisor.writelog("[USER INPUT] SETTING : Program Update(Git Pull) Start");
+                                supervisor.updateProgramGitPull();
+//                                popup_update.close();
                             }
                         }
                     }
                 }
+
+            }
+            MouseArea{
+                id: area_debug_update
+                width: 100
+                height: parent.height
+                anchors.right: parent.right
+                property var count: 0
+                onClicked:{
+                    if(++count > 4){
+                        count = 0;
+                        supervisor.writelog("[USER INPUT] SETTING : Show Git Pull Button");
+                        btn_gitpull.visible = true;
+                    }
+                }
             }
         }
-
     }
     Popup{
         id: popup_camera
@@ -13944,6 +14097,7 @@ Item {
                                                     passwd_wifi.selectAll();
                                                 }else{
                                                     keyboard.owner = passwd_wifi;
+                                                    keyboard.is_ko = false;
                                                     passwd_wifi.selectAll();
                                                     keyboard.open();
                                                 }
@@ -14760,58 +14914,7 @@ Item {
 
 
 
-    Popup{
-        id: popup_loading
-        anchors.centerIn: parent
-        leftPadding: 0
-        rightPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        width: 1280
-        height: 800
-        background: Rectangle{
-            anchors.fill: parent
-            color: "transparent"
-        }
-        onOpened:{
-            print("popup_loading open")
-            loadi.play("image/loading_rb.gif");
-        }
-        onClosed:{
-            print("popup_loading close")
-            loadi.stop();
-        }
 
-        AnimatedImage{
-            id: loadi
-            cache: false
-            function play(name){
-                source = name;
-                visible = true;
-            }
-            function stop(){
-                visible = false;
-                source = "";
-            }
-            source:  ""
-            MouseArea{
-                id: area_debug
-                width: 150
-                height: 150
-                anchors.right: parent.right
-                anchors.bottom : parent.bottom
-                z: 99
-                property var password: 0
-                onClicked: {
-                    password++;
-                    if(password > 4){
-                        password = 0;
-                        popup_loading.close();
-                    }
-                }
-            }
-        }
-    }
 
 //    function wifi_con_failed(){
 //        print("wifi_con_failed")

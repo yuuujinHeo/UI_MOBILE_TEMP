@@ -3255,6 +3255,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            print("1")
                             click_sound.play();
                             popup_debug_onoff.open();
 //                            supervisor.passInit();
@@ -3502,7 +3503,7 @@ Item {
                 radius: 60
                 color: "transparent"
                 border.width: 3
-                visible: show_debug
+                visible: false
                 border.color: "#e5e5e5"
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: text_notice4.bottom
@@ -3527,6 +3528,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
+                        print("2")
                         click_sound.play();
                         popup_debug_onoff.open();
                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS ROBOT INIT")
@@ -3938,58 +3940,6 @@ Item {
             }
         }
 
-    }
-
-    Popup{
-        id: popup_loading
-        y: statusbar.height
-        leftPadding: 0
-        rightPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        width: 1280
-        height: 800 - statusbar.height
-        closePolicy: Popup.NoAutoClose
-        background: Rectangle{
-            anchors.fill: parent
-            color: "transparent"
-        }
-        onOpened:{
-            loadi.play("image/loading_rb.gif");
-        }
-        onClosed:{
-            loadi.stop();
-        }
-
-        AnimatedImage{
-            id: loadi
-            cache: false
-            function play(name){
-                source = name;
-                visible = true;
-            }
-            function stop(){
-                visible = false;
-                source = "";
-            }
-            source:  ""
-            MouseArea{
-                width: 100
-                height: 100
-                anchors.right: parent.right
-                anchors.bottom : parent.bottom
-                z: 99
-                property var password: 0
-                onClicked: {
-                    click_sound2.play();
-                    password++;
-                    if(password > 4){
-                        password = 0;
-                        popup_loading.close();
-                    }
-                }
-            }
-        }
     }
 
     Popup{

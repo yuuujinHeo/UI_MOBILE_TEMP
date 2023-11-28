@@ -16,25 +16,26 @@ Window {
     width: 1280
     height: 800
 
+
     property bool debug_mode: false
     property var volume_button : parseInt(supervisor.getSetting("setting","UI","volume_button"));
     property var volume_bgm : parseInt(supervisor.getSetting("setting","UI","volume_bgm"));
     property var volume_voice: parseInt(supervisor.getSetting("setting","UI","volume_voice"));
 
-//    flags: homePath.split("/")[2]==="odroid"?Qt.Window | Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint |Qt.WindowStaysOnTopHint |Qt.WindowOverridesSystemGestures |Qt.MaximizeUsingFullscreenGeometryHint:Qt.Window
-//    visibility: homePath.split("/")[2]==="odroid"?Window.FullScreen:Window.Windowed
-//    onVisibilityChanged: {
-//        if(homePath.split("/")[2]==="odroid"){
-//            if(mainwindow.visibility == Window.Minimized){
-//                print("minimized");
-//            }else if(mainwindow.visibility == Window.FullScreen){
-//                print("fullscreen");
-//            }else{
-//                supervisor.writelog("[QML - MAIN] Window show fullscreen");
-//                mainwindow.visibility = Window.FullScreen;
-//            }
-//        }
-//    }
+    flags: !testMode?Qt.Window | Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint |Qt.WindowStaysOnTopHint |Qt.WindowOverridesSystemGestures |Qt.MaximizeUsingFullscreenGeometryHint:Qt.Window
+    visibility: !testMode?Window.FullScreen:Window.Windowed
+    onVisibilityChanged: {
+        if(!testMode){
+            if(mainwindow.visibility == Window.Minimized){
+                print("minimized");
+            }else if(mainwindow.visibility == Window.FullScreen){
+                print("fullscreen");
+            }else{
+                supervisor.writelog("[QML - MAIN] Window show fullscreen");
+                mainwindow.visibility = Window.FullScreen;
+            }
+        }
+    }
     property color color_more_gray: "#777777";
     property color color_dark_gray: "#999999";
     property color color_red: "#E7584D"
@@ -97,6 +98,14 @@ Window {
         voice_motor_error.source = supervisor.getVoice("error_call_manager");
         voice_emergency.source = supervisor.getVoice("error_emo");
         voice_battery.source = supervisor.getVoice("low_battery");
+    }
+
+
+    function gitfailed(){
+        loader_page.item.git_failed();
+    }
+    function gitnewest(){
+        loader_page.item.git_newest();
     }
 
 
@@ -316,7 +325,7 @@ Window {
             cur_location = qsTr("퇴식 장소");
             playVoice("moveResting");
         }else{
-            if(supervisor.isCallingMode() || supervisor.getSetting("ROBOT_HW","type") === "CLEANING"){
+            if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                 playVoice("startCalling");
             }else{
                 playVoice("startServing");
@@ -395,7 +404,7 @@ Window {
             supervisor.writelog("[UI] Annotation Check : Moving Done (Serving Pickup) ");
             loader_page.item.movedone();
         }else{
-            if(supervisor.isCallingMode() || supervisor.getSetting("ROBOT_HW","type") === "CLEANING"){
+            if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                 supervisor.writelog("[UI] Force Page Change Pickup(Calling) : "+ loader_page.item.pos_name);
                 loadPage(ppickupCall);
                 loader_page.item.init();
@@ -763,23 +772,30 @@ Window {
     }
 
     Popup{
-        id: rect_loading
-        width: parent.width
-        height: parent.height
+        id: popup_loading
+        y: statusbar.height
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        width: 1280
+        height: 800 - statusbar.height
+        closePolicy: Popup.NoAutoClose
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
         onOpened:{
-            loading_image.play("image/loading_rb.gif");
+            print("popup_loading open")
+            loadi.play("image/loading_rb.gif");
         }
         onClosed:{
-            loading_image.stop();
+            print("popup_loading close")
+            loadi.stop();
         }
-        background:Rectangle{
-            anchors.fill: parent
-            color: color_dark_black
-            opacity: 0.5
-        }
+
         AnimatedImage{
-            id: loading_image
-            source: ""
+            id: loadi
             cache: false
             function play(name){
                 source = name;
@@ -789,9 +805,26 @@ Window {
                 visible = false;
                 source = "";
             }
-            anchors.fill: parent
+            source:  ""
+            MouseArea{
+                width: 100
+                height: 100
+                anchors.right: parent.right
+                anchors.bottom : parent.bottom
+                z: 99
+                property var password: 0
+                onClicked: {
+                    click_sound2.play();
+                    password++;
+                    if(password > 4){
+                        password = 0;
+                        popup_loading.close();
+                    }
+                }
+            }
         }
     }
+
     Popup{
         id: rect_resting
         width: parent.width
@@ -856,4 +889,5 @@ Window {
         source: "bgm/click_start.wav"
         volume: volume_button/100
     }
+
 }

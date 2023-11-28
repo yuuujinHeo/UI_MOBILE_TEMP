@@ -86,6 +86,7 @@ ExtProcess::ExtProcess(QObject *parent)
 }
 
 ExtProcess::~ExtProcess(){
+    qDebug() << "destroy ExtProcess";
     shm_command.detach();
     shm_return.detach();
     shm_wifilist.detach();
@@ -93,6 +94,7 @@ ExtProcess::~ExtProcess(){
     program->close();
     proc->kill();
     proc->close();
+    qDebug() << "done ExtProcess";
 }
 
 void ExtProcess::setSetting(QString file, QString name, QString value){
@@ -205,6 +207,49 @@ void ExtProcess::onTimer(){
                 probot->program_date = QString::fromUtf8(temp2);
                 probot->program_message = QString::fromUtf8(temp3);
                 plog->write("[ExtProcess] Git pull : Success");
+            }else if(_return.command == PROCESS_CMD_GIT_UPDATE){
+//                qDebug() << "======================================================";
+                char temp[100];
+                memcpy(temp, _return.params,100);
+                if(QString::fromUtf8(temp) == "newest"){
+                    plog->write("[ExtProcess] Git Update : Already Newest");
+                }else{
+                    probot->program_version = QString::fromUtf8(temp);
+                    plog->write("[ExtProcess] Git Update Version : "+probot->program_version);
+                    for(int i=0; i<probot->gitList.size();i++){
+                        if(probot->gitList[i].commit == QString::fromUtf8(temp)){
+                            plog->write("[ExtProcess] Git Update : Match");
+                            probot->program_date = probot->gitList[i].date;
+                            probot->program_message = probot->gitList[i].message;
+                        }
+                    }
+                    setSetting("robot","VERSION/last_update_mode","git");
+                    setSetting("robot","VERSION/last_update_date",probot->program_date);
+
+                    QString list = getSetting("robot","VERSION","update_list");//.split(",");
+
+                    if(!list.contains("MAIN_MOBILE")){
+                        list +=",MAIN_MOBILE";
+                    }
+                    if(!list.contains("ExtProcess")){
+                        list +=",ExtProcess";
+                    }
+                    if(!list.contains("SLAMNAV")){
+                        list +=",SLAMNAV";
+                    }
+
+
+                    setSetting("robot","MAIN_MOBILE/commit",probot->program_version);
+                    setSetting("robot","ExtProcess/commit",probot->program_version);
+                    setSetting("robot","SLAMNAV/commit",probot->program_version);
+                    setSetting("robot","MAIN_MOBILE/last_update_date",probot->program_date);
+                    setSetting("robot","ExtProcess/last_update_date",probot->program_date);
+                    setSetting("robot","SLAMNAV/last_update_date",probot->program_date);
+                    setSetting("robot","MAIN_MOBILE/last_update_mode","git");
+                    setSetting("robot","ExtProcess/last_update_date","git");
+                    setSetting("robot","SLAMNAV/last_update_date","git");
+                    plog->write("[ExtProcess] Git update : Success "+probot->program_version+", " +probot->program_date);
+                }
             }else if(_return.command == PROCESS_CMD_GIT_RESET){
                 char temp[100];
                 char temp2[100];
@@ -223,6 +268,7 @@ void ExtProcess::onTimer(){
         }else if(_return.result == PROCESS_RETURN_ERROR){
             process_working = false;
             plog->write("[ExtProcess] Error : ");
+            int param = 0;
             if(_return.command == PROCESS_CMD_CHECK_CONNECTION){
                 char temp[100];
                 memcpy(temp, _return.params, sizeof(char)*100);
@@ -237,10 +283,19 @@ void ExtProcess::onTimer(){
                 plog->write("[ExtProcess] Connect Wifi Failed : "+ssid);
             }else if(_return.command == PROCESS_CMD_GIT_PULL){
                 plog->write("[ExtProcess] Git pull : Failed");
+            }else if(_return.command == PROCESS_CMD_GIT_UPDATE){
+                char temp[100];
+                memcpy(temp, _return.params,100);
+                if(QString::fromUtf8(temp) == "newest"){
+                    plog->write("[ExtProcess] Git Update : Already Newest");
+                    param = 1;
+                }else{
+                    plog->write("[ExtProcess] Git update : Failed");
+                }
             }else if(_return.command == PROCESS_CMD_GIT_RESET){
                 plog->write("[ExtProcess] Git reset : Failed");
             }
-            emit got_error(_return.command);
+            emit got_error(_return.command,param);
         }
         prev_tick = _return.tick;
     }
@@ -278,7 +333,9 @@ void ExtProcess::onTimer(){
                 if(getSetting("setting","NETWORK","wifi_ssid") == ""){
                     setSetting("setting","NETWORK/wifi_ssid",temp_wifi.ssid);
                 }
-                probot->wifi_ssid = temp_wifi.ssid;
+
+//                qDebug() << "probot->wifidddssid : " << probot->wifi_ssid;
+//                probot->wifi_ssid = temp_wifi.ssid;
             }
             probot->wifi_map[temp_wifi.ssid] = temp_wifi;
             prev_wifilist_tick = _wifilist.tick;
@@ -313,16 +370,18 @@ void ExtProcess::update_unzip(){
 
 void ExtProcess::git_pull(){
     Command temp;
-    temp.cmd = PROCESS_CMD_GIT_PULL;
-    QString path = QApplication::applicationDirPath();
+//    temp.cmd = PROCESS_CMD_GIT_PULL;
+    temp.cmd = PROCESS_CMD_GIT_UPDATE;
+    QString path = QDir::homePath()+"/RB_MOBILE";
+//    QString path = QApplication::applicationDirPath();
     if(path.toUtf8().size() > 100){
         memcpy(temp.params,path.left(100).toUtf8(),100);
         path.remove(0,100);
         memcpy(temp.params2,path.toUtf8(),100);
     }else{
-        memcpy(temp.params,QApplication::applicationDirPath().toUtf8(),100);
+        memcpy(temp.params,path.toUtf8(),100);
     }
-    set_command(temp,"Git Pull");
+    set_command(temp,"Git Update");
 }
 
 void ExtProcess::git_reset(){

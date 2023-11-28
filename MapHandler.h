@@ -190,6 +190,7 @@ public:
     bool edit_location_flag;
     LOCATION orin_location;
 
+    Q_INVOKABLE void setTravellineIssue(int count, int num);
     Q_INVOKABLE void setSelectLocation(int num);
 //    Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);
     Q_INVOKABLE void clearLocation();
@@ -199,6 +200,7 @@ public:
     Q_INVOKABLE void setLocation(int x, int y, float th);
     Q_INVOKABLE void editLocation(int x, int y, float th);
     Q_INVOKABLE int getLocationNum(int x, int y);
+
     Q_INVOKABLE void removeLocation(int num);
     Q_INVOKABLE void setTableNumberAuto();
     Q_INVOKABLE int getLocationNum(QString type);
@@ -231,6 +233,9 @@ public:
     int getLocationGroupSize(int num);
 //    Q_INVOKABLE void saveAnnotation(QString filename);
 
+
+    //travelline check
+    int travelline_issue[5] = {-1,};
 
 
     ///Object

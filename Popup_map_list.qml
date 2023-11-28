@@ -57,7 +57,6 @@ Popup{
             model_details.append({"name1":"충전 위치","name2":supervisor.getLocationNum("Charging").toString(),"show":false});
             model_details.append({"name1":"이동 경로","name2":"","show":true});
             model_details.append({"name1":"안전 속도","name2":"","show":true});
-
         }
     }
 
@@ -307,6 +306,24 @@ Popup{
                             width: 130
                             height: 60
                             type: "round_text"
+                            text: "복사본만들기"
+                            onClicked: {
+                                click_sound.play();
+                                if(select_map_list > -1){
+                                    supervisor.writelog("[USER INPUT] Map used copied : " + model_maps.get(select_map_list).name);
+                                    popup_copymap.open();
+
+
+                                    supervisor.setMap(model_maps.get(select_map_list).name);
+                                    loader_page.item.init();
+                                    popup_map_list.close();
+                                }
+                            }
+                        }
+                        Item_buttons{
+                            width: 130
+                            height: 60
+                            type: "round_text"
                             visible: false
                             text: "수 정"
                             onClicked: {
@@ -350,6 +367,31 @@ Popup{
             }
         }
     }
+    Popup{
+        id: popup_copymap
+        anchors.centerIn: parent
+        width: 500
+        height: 300
+        background:Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        Rectangle{
+            anchors.fill: parent
+            Column{
+                anchors.centerIn: parent
+                Text{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text:qsTr("새로운 맵의 이름을 입력해주세요")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 25
+
+                }
+
+            }
+        }
+    }
+
     Popup{
         id: popup_annotation_delete
         width: parent.width

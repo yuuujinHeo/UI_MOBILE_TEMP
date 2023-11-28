@@ -17,9 +17,9 @@ ServerHandler::ServerHandler()
     checkUpdate();
 //    sendRobotConfig();
 //    sendMaps();
-    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
-    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/ExtProcess","hello..4");
-    uploadRelease(QDir::homePath()+"/RB_MOBILE/sh/autostart.sh","hello..4");
+//    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
+//    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/ExtProcess","hello..4");
+//    uploadRelease(QDir::homePath()+"/RB_MOBILE/sh/autostart.sh","hello..4");
     getGitCommits();
 }
 
@@ -147,7 +147,8 @@ bool ServerHandler::need_update(){
 
 void ServerHandler::getGitCommits(){
     plog->write("[SERVER] CMD : Get Git Commits");
-    generalGet("https://api.github.com/repos/yuuujinHeo/UI_MOBILE_release/commits");
+    generalGet("https://api.github.com/repos/yuuujinHeo/release/commits");
+//    generalGet("https://api.github.com/repos/yuuujinHeo/UI_MOBILE_release/commits");
 }
 
 void ServerHandler::sendRobotConfig(){
@@ -285,7 +286,9 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
 
             for(int i=0; i<git_array.size(); i++){
                 ST_GIT temp_git;
-                temp_git.date = git_array[i].toObject()["commit"].toObject()["author"].toObject()["date"].toString();
+                QString temdate = git_array[i].toObject()["commit"].toObject()["author"].toObject()["date"].toString();
+                temp_git.date = QDateTime::fromString(temdate,"yyyy-MM-ddThh:mm:ssZ").addSecs(3600*9).toString("yyyy-MM-dd hh:mm");
+
                 temp_git.commit = git_array[i].toObject()["sha"].toString();
                 temp_git.message = git_array[i].toObject()["commit"].toObject()["message"].toString();
                 probot->gitList.push_back(temp_git);

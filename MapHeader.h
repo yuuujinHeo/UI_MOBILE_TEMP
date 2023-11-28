@@ -49,12 +49,15 @@ typedef struct{
 
 typedef struct{
     int group;
+    QString group_name;
     QString type;
     QString name;
     cv::Point2f point;
     float angle;
     QString call_id;
     bool available;
+    bool travelline_far;
+    bool travelline_broken;
 }LOCATION;
 
 

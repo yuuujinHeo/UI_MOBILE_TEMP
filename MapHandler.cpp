@@ -439,8 +439,10 @@ void MapHandler::initLocation(){
     pmap->annot_edit_location = false;
     for(int i=0; i<pmap->locations.size(); i++){
         LOCATION temp;
+
         temp.group = pmap->locations[i].group;
         temp.call_id = pmap->locations[i].call_id;
+        temp.group_name = pmap->locations[i].group_name;
         temp.type = pmap->locations[i].type;
         temp.name = pmap->locations[i].name;
         if(draw_object_flag){
@@ -549,84 +551,84 @@ void MapHandler::setMap(){
 
 
     if(show_object && !draw_object_flag){
-        for(int obj=0; obj<objs.size(); obj++){
-            QPainterPath path;
-            if(objs[obj].is_rect){
-                if(select_obj == obj){
-                    painter.setPen(QPen(Qt::white,3));
-                    path.addRect(QRectF(QPointF(objs[obj].points[0].x*res,objs[obj].points[0].y*res),QPointF(objs[obj].points[2].x*res,objs[obj].points[2].y*res)));
-                    painter.fillPath(path,QBrush(QColor(10,24,50,100)));
-                    painter.drawPath(path);
-
-                    QPainterPath circles;
-                    for(int j=0; j<objs[obj].points.size(); j++){
-                        int rad = 2*res;
-                        int xx = objs[obj].points[j].x*res - rad;
-                        int yy = objs[obj].points[j].y*res - rad;
-                        circles.addRoundedRect(xx,yy,rad*2,rad*2,rad,rad);
-                        painter.fillPath(circles,Qt::white);
-                    }
-                }else{
-                    painter.setPen(QPen(Qt::white,1));
-                    path.addRect(QRectF(QPointF(objs[obj].points[0].x*res,objs[obj].points[0].y*res),QPointF(objs[obj].points[2].x*res,objs[obj].points[2].y*res)));
-                    painter.fillPath(path,QBrush(QColor(0,0,0,100)));
-                    painter.drawPath(path);
-                }
-            }else{
-                QPolygonF polygon;
-                for(int j=0; j<objs[obj].points.size(); j++){
-                    polygon << QPointF(objs[obj].points[j].x*res, objs[obj].points[j].y*res);
-                }
-
-                path.addPolygon(polygon);
-                if(select_obj == obj){
-                    painter.setPen(QPen(Qt::white,3));
-                    painter.fillPath(path,QBrush(QColor(10,24,50,100)));
-                    painter.drawPolygon(polygon);
-                    QPainterPath circles;
-                    for(int j=0; j<objs[obj].points.size(); j++){
-                        int rad = 2*res;
-                        int xx = objs[obj].points[j].x*res - rad;
-                        int yy = objs[obj].points[j].y*res - rad;
-                        circles.addRoundedRect(xx,yy,rad*2,rad*2,rad,rad);
-                        painter.fillPath(circles,Qt::white);
-                    }
-
-                }else{
-                    painter.setPen(QPen(Qt::white,1));
-                    painter.fillPath(path,QBrush(QColor(0,0,0,100)));
-                    painter.drawPolygon(polygon);
-                }
-            }
-        }
-        if(new_obj_flag){
-            QPainterPath path;
-            qDebug() << "new object drawing";
-            if(new_obj.is_rect){
-                path.addRect(QRectF(QPointF(new_obj.points[0].x*res,new_obj.points[0].y*res),QPointF(new_obj.points[2].x*res,new_obj.points[2].y*res)));
-                painter.setPen(QPen(Qt::white,2));
-                painter.fillPath(path,QBrush(QColor(10,24,50,100)));
-                painter.drawPath(path);
+//        for(int obj=0; obj<objs.size(); obj++){
+//            QPainterPath path;
+//            if(objs[obj].is_rect){
+//                if(select_obj == obj){
+//                    painter.setPen(QPen(Qt::white,3));
+//                    path.addRect(QRectF(QPointF(objs[obj].points[0].x*res,objs[obj].points[0].y*res),QPointF(objs[obj].points[2].x*res,objs[obj].points[2].y*res)));
+//                    painter.fillPath(path,QBrush(QColor(10,24,50,100)));
+//                    painter.drawPath(path);
 
 //                    QPainterPath circles;
-//                    for(int j=0; j<new_object.points.size(); j++){
+//                    for(int j=0; j<objs[obj].points.size(); j++){
 //                        int rad = 2*res;
-//                        int xx = new_object.points[j].x*res - rad;
-//                        int yy = new_object.points[j].y*res - rad;
+//                        int xx = objs[obj].points[j].x*res - rad;
+//                        int yy = objs[obj].points[j].y*res - rad;
 //                        circles.addRoundedRect(xx,yy,rad*2,rad*2,rad,rad);
 //                        painter.fillPath(circles,Qt::white);
 //                    }
-            }else{
-                QPolygonF polygon;
-                for(int j=0; j<new_obj.points.size(); j++){
-                    polygon << QPointF(new_obj.points[j].x*res, new_obj.points[j].y*res);
-                }
-                painter.setPen(QPen(Qt::white,2));
-                path.addPolygon(polygon);
-                painter.fillPath(path,QBrush(QColor(10,24,50,100)));
-                painter.drawPolygon(polygon);
-            }
-        }
+//                }else{
+//                    painter.setPen(QPen(Qt::white,1));
+//                    path.addRect(QRectF(QPointF(objs[obj].points[0].x*res,objs[obj].points[0].y*res),QPointF(objs[obj].points[2].x*res,objs[obj].points[2].y*res)));
+//                    painter.fillPath(path,QBrush(QColor(0,0,0,100)));
+//                    painter.drawPath(path);
+//                }
+//            }else{
+//                QPolygonF polygon;
+//                for(int j=0; j<objs[obj].points.size(); j++){
+//                    polygon << QPointF(objs[obj].points[j].x*res, objs[obj].points[j].y*res);
+//                }
+
+//                path.addPolygon(polygon);
+//                if(select_obj == obj){
+//                    painter.setPen(QPen(Qt::white,3));
+//                    painter.fillPath(path,QBrush(QColor(10,24,50,100)));
+//                    painter.drawPolygon(polygon);
+//                    QPainterPath circles;
+//                    for(int j=0; j<objs[obj].points.size(); j++){
+//                        int rad = 2*res;
+//                        int xx = objs[obj].points[j].x*res - rad;
+//                        int yy = objs[obj].points[j].y*res - rad;
+//                        circles.addRoundedRect(xx,yy,rad*2,rad*2,rad,rad);
+//                        painter.fillPath(circles,Qt::white);
+//                    }
+
+//                }else{
+//                    painter.setPen(QPen(Qt::white,1));
+//                    painter.fillPath(path,QBrush(QColor(0,0,0,100)));
+//                    painter.drawPolygon(polygon);
+//                }
+//            }
+//        }
+//        if(new_obj_flag){
+//            QPainterPath path;
+//            qDebug() << "new object drawing";
+//            if(new_obj.is_rect){
+//                path.addRect(QRectF(QPointF(new_obj.points[0].x*res,new_obj.points[0].y*res),QPointF(new_obj.points[2].x*res,new_obj.points[2].y*res)));
+//                painter.setPen(QPen(Qt::white,2));
+//                painter.fillPath(path,QBrush(QColor(10,24,50,100)));
+//                painter.drawPath(path);
+
+////                    QPainterPath circles;
+////                    for(int j=0; j<new_object.points.size(); j++){
+////                        int rad = 2*res;
+////                        int xx = new_object.points[j].x*res - rad;
+////                        int yy = new_object.points[j].y*res - rad;
+////                        circles.addRoundedRect(xx,yy,rad*2,rad*2,rad,rad);
+////                        painter.fillPath(circles,Qt::white);
+////                    }
+//            }else{
+//                QPolygonF polygon;
+//                for(int j=0; j<new_obj.points.size(); j++){
+//                    polygon << QPointF(new_obj.points[j].x*res, new_obj.points[j].y*res);
+//                }
+//                painter.setPen(QPen(Qt::white,2));
+//                path.addPolygon(polygon);
+//                painter.fillPath(path,QBrush(QColor(10,24,50,100)));
+//                painter.drawPolygon(polygon);
+//            }
+//        }
     }
     //위치
     if(show_location){
@@ -659,6 +661,41 @@ void MapHandler::setMap(){
                     painter.drawLine(x,y,x2,y2);
                 }else if(locations[i].type == "Resting"){
                 }else if(locations[i].type == "Charging"){
+                }
+            }else if(mode == "annot_tline"){
+                bool match = false;
+                for(int k=0; k<pmap->tline_issue; k++){
+                    qDebug() << pmap->tline_issues[k].group << pmap->tline_issues[k].name << locations[i].group_name << locations[i].name;
+                    if(pmap->tline_issues[k].group == locations[i].group_name){
+                        if(pmap->tline_issues[k].name == locations[i].name){
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(match){
+                    if(locations[i].type == "Serving"){
+                        path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
+                        painter.setPen(QPen(Qt::red,3));
+                        painter.drawPath(path);
+                        painter.drawLine(x1,y1,x,y);
+                        painter.drawLine(x,y,x2,y2);
+                    }else if(locations[i].type == "Resting"){
+                    }else if(locations[i].type == "Charging"){
+                    }
+                }else{
+                    if(locations[i].type == "Serving"){
+                        path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
+                        painter.setPen(QPen(Qt::white,1));
+
+                        painter.drawPath(path);
+                        painter.setPen(QPen(Qt::white,1.5));
+                        painter.drawLine(QLine(x1,y1,x,y));
+                        painter.drawLine(QLine(x2,y2,x,y));
+                    }else if(locations[i].type == "Resting"){
+                    }else if(locations[i].type == "Charging"){
+                    }
                 }
             }else{
                 if(locations[i].type == "Serving"){
@@ -2044,6 +2081,9 @@ void MapHandler::addLocationCur(int x, int y, float th){
     //qDebug() << "add:ocationCur" << x << y << th << new_location.point.x << new_location.point.y << new_location.angle;
     initLocation();
     setMap();
+}
+void MapHandler::setTravellineIssue(int count, int num){
+    travelline_issue[count]=num;
 }
 void MapHandler::setSelectLocation(int num){
     select_location = num;

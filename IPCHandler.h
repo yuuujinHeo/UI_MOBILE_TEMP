@@ -158,6 +158,30 @@ public:
         }
     };
 
+    struct CHECK_TRAVEL{
+        uint32_t tick = 0;
+
+        //travelline wrong count(0~5)
+        uint8_t num = 0;
+
+        uint8_t group[5][255] = {0,};
+        uint8_t name[5][255] = {0,};
+        uint8_t is_broken[5] = {0,};
+        uint8_t is_far[5] = {0,};
+
+        CHECK_TRAVEL(){
+
+        }
+        CHECK_TRAVEL(const CHECK_TRAVEL &p){
+            tick = p.tick;
+            num = p.num;
+            memcpy(group, p.group, 5*255);
+            memcpy(name, p.name, 5*255);
+            memcpy(is_broken, p.is_broken, 5);
+            memcpy(is_far, p.is_far, 5);
+        }
+    };
+
     struct IMG
     {
         uint32_t tick = 0;
@@ -274,6 +298,7 @@ public:
     QSharedMemory shm_loc_status;
     QSharedMemory shm_call_loc;
     QSharedMemory shm_call_status;
+    QSharedMemory shm_check_travel;
 
     CMD get_cmd();
     STATUS get_status();
@@ -286,6 +311,7 @@ public:
     IMG_COLOR get_cam_color1();
     LOC_STATUS get_loc_status();
     CALL_LOC get_call_loc();
+    CHECK_TRAVEL get_check_travel();
 
 
     bool getConnection(){
@@ -343,6 +369,7 @@ public:
     unsigned int prev_tick_cam_color1 = 0;
     unsigned int prev_tick_loc_status = 0;
     unsigned int prev_tick_call_loc = 0;
+    unsigned int prev_tick_check_travel = 0;
 
 signals:
     void pathchanged();

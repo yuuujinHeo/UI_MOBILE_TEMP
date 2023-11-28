@@ -64,6 +64,7 @@ Item {
 //        print("set enable ",objectName,en);
     }
 
+
     function setViewer(mode){
         supervisor.writelog("[QML MAP] SET Viewer "+objectName+" to "+mode);
         supervisor.setMode(mode);
@@ -438,7 +439,7 @@ Item {
                     height: 30
                     visible: rect_notice.show_icon
                     anchors.verticalCenter: parent.verticalCenter
-                    source: "icon/icon_warning.png"
+                    source: "icon/warning.png"
                     ColorOverlay{
                         source: parent
                         anchors.fill: parent

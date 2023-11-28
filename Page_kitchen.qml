@@ -48,8 +48,8 @@ Item {
         }
 
         if(use_tray){
-            col_num = parseInt(supervisor.getSetting("setting","UI","table_col_num"));
-            row_num = parseInt(supervisor.getSetting("setting","UI","table_row_num"));
+            col_num = 1;//parseInt(supervisor.getSetting("setting","UI","table_col_num"));
+            row_num = 5;//parseInt(supervisor.getSetting("setting","UI","table_row_num"));
         }else{
             col_num = parseInt(supervisor.getSetting("setting","UI","group_col_num"));
             row_num = parseInt(supervisor.getSetting("setting","UI","group_row_num"));
@@ -65,7 +65,7 @@ Item {
 
         traymodel.clear();
         for(var i=0; i<tray_num; i++){
-            traymodel.append({x:0,y:0,tray_num:i+1,set_table:0,color:"white"});
+            traymodel.append({tray_num:i+1,setting:false,group:-1,table:-1});
         }
 
         update_group();
@@ -137,11 +137,10 @@ Item {
     ListModel{
         id: traymodel
         ListElement{
-            x: 0
-            y: 0
             tray_num: 1
-            set_table: 0
-            color: "white"
+            table: -1
+            group: -1
+            setting: false
         }
     }
 
@@ -183,7 +182,7 @@ Item {
                         text_go.text = qsTr("모터락해제됨")
                         text_go.font.pixelSize = 25
                         popup_notice.main_str = qsTr("모터 락이 해제되었습니다.")
-                        popup_notice.sub_str = qsTr("모터 초기화를 눌러주세요")
+                        popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요")
                         popup_notice.show_motorinit = true;
                         popup_notice.show_localization = false;
                         popup_notice.show_restart = false;
@@ -263,22 +262,20 @@ Item {
 
             }
         }
-        if(model_group.count > 0)
+        if(model_group.count > 0){
             table_num = supervisor.getLocationGroupSize(model_group.get(cur_group).num);
-        else
+            print("table_num : " +table_num);
+        }else
             table_num = 0;
         update_table();
     }
     function update_table(){
         model_group_table.clear();
         for(var i=col_num*row_num*cur_page; i<col_num*row_num*(cur_page+1); i++){
-//            print(i);
             if(i>=table_num)
                 break;
-//            print("update table : ",i,supervisor.getLocationAvailable(supervisor.getLocationNumber(model_group.get(cur_group).num,i)))
-
             model_group_table.append({"num":i,"available":true,"name":supervisor.getServingName(model_group.get(cur_group).num, i)});
-            }
+        }
     }
 
     Image{
@@ -335,8 +332,8 @@ Item {
                         width: tray_width
                         height: tray_height
                         radius:50
-                        color: model.color
-                        border.color: model.color
+                        color: model.setting?color_green:"white"
+                        border.color: model.setting?color_green:"white"
                         border.width: 1
                         onColorChanged: {
                             if(color != "#0000ff"){
@@ -367,13 +364,14 @@ Item {
                         }
                         onReleased: {
                             if(width_dis > 50){
-                                model.set_table = 0;
-                                model.color =  "white"
+                                model.setting = false;
+
                                 cur_table = -1;
                             }else{
-                                if(cur_table != 0){
-                                    model.set_table = cur_table;
-                                    model.color =  "#12d27c"
+                                if(cur_table != -1){
+                                    model.setting = true;
+                                    model.group = cur_group;
+                                    model.table = cur_table;
                                 }
 
                             }
@@ -388,7 +386,7 @@ Item {
                             if(width_dis < 0)
                                 width_dis = 0;
 
-                            if(model.set_table !== 0){
+                            if(model.setting){
                                 if(width_dis > 50){
                                     text_cancel.visible = true;
                                 }else{
@@ -403,10 +401,10 @@ Item {
                         id: textTray
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
-                        font.pixelSize: (model.set_table===0)?25:30
-                        font.bold: (model.set_table===0)?false:true
-                        color: (model.set_table===0)?"#d0d0d0":"white"
-                        text: (model.set_table===0)?"Tray "+Number(model.tray_num):Number(model.set_table)
+                        font.pixelSize: (!model.setting)?25:30
+                        font.bold: (!model.setting)?false:true
+                        color: (!model.setting)?"#d0d0d0":"white"
+                        text: (!model.setting)?"Tray "+Number(model.tray_num):supervisor.getServingName(model.group, model.table)
                     }
                 }
             }
@@ -416,94 +414,101 @@ Item {
     Rectangle{
         id: rect_table_box
         visible: (show_serving && use_tray)?true:false
-        width: {
-            if(col_num > 2){
-               300 - 20 + 160
-           }else{
-               (col_num)*100 - 20 + 160
-           }
-        }
+        width: 350
         height: parent.height - statusbar.height
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.topMargin: statusbar.height
         color: "#282828"
-        Text{
-            id: text_tables
-            color:"white"
-            font.bold: true
-            font.family: font_noto_b.name
-            text: qsTr("테이블 번호")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 40
-            font.pixelSize: 30
+        Flickable{
+            id: flick_group
+            width: parent.width
+            height: 100
+            clip: true
+            contentWidth: row_group.width
+            Row{
+                id: row_group
+                anchors.centerIn: parent
+                spacing: 20
+                Repeater{
+                    id: column_table
+                    model: model_group
+                    Rectangle{
+                        width: 160
+                        height: 70
+                        color: "transparent"
+                        DropShadow{
+                            anchors.fill: textt3
+                            source: textt3
+                            visible: cur_group==index
+                            radius: 3
+                            color: color_more_gray
+                        }
+                        Text{
+                            id: textt3
+                            anchors.centerIn: parent
+                            font.family: font_noto_b.name
+                            font.pixelSize: 30
+                            text: name
+                            color: cur_group==index?color_green:color_dark_gray
+                        }
+                        Rectangle{
+                            anchors.bottom: parent.bottom
+                            width: parent.width*0.9
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            radius: 2
+                            height: 3
+                            color: cur_group==index?color_green:"transparent"
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                cur_group = index;
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
         }
+
         SwipeView{
             id: swipeview_tables
             width: parent.width
             currentIndex: 0
             clip: true
-            anchors.top: text_tables.bottom
+            anchors.top: flick_group.bottom
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 100
+            onCurrentIndexChanged: {
+                if(currentIndex > -1)
+                    cur_page = currentIndex;
+                update_table();
+            }
+
             Repeater{
                 id: page_table
                 model: Math.ceil((table_num/(col_num*row_num)))
 
-                onModelChanged: {
-                    swipeview_tables.currentIndex = 0;
-                }
                 Item{
                     property int cur_page: index
-                    Grid{
-                        rows: row_num
-                        columns: table_num-(col_num*row_num*(cur_page+1))>0?col_num:((table_num-(col_num*row_num*cur_page))/row_num + 1).toFixed(0)
+                    Column{
                         spacing: 20
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
-                        flow: Grid.TopToBottom
                         Repeater{
-                            id: column_table
-                            model: table_num-(col_num*row_num*cur_page)>(col_num*row_num)?col_num*row_num:table_num-(col_num*row_num*cur_page)
-                            Rectangle{
-                                id: rect_table
-                                width:80
-                                height:80
-                                radius:80
-                                enabled:supervisor.getLocationAvailable((col_num*row_num*cur_page)+index);
-                                color: ((col_num*row_num*cur_page)+index+1 == cur_table)?"#12d27c":"#d0d0d0"
-                                Rectangle{
-                                    width:68
-                                    height:68
-                                    radius:68
-                                    color: "#f4f4f4"
-                                    anchors.centerIn: parent
-                                    Text{
-                                        anchors.centerIn: parent
-                                        text: (col_num*row_num*cur_page)+index+1
-                                        color:"#525252"
-                                        font.family: font_noto_r.name
-                                        font.pixelSize: 25
-                                    }
-                                }
-                                MouseArea{
-                                    anchors.fill:parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        count_resting = 0;
-                                        if(cur_table == (col_num*row_num*cur_page)+index+1){
-                                            cur_table = -1;
-                                        }else{
-                                            if(supervisor.isExistLocation(-1,(col_num*row_num*cur_page)+index)){
-                                                cur_table = (col_num*row_num*cur_page)+index+1;
-                                            }else{
-
-                                            }
-                                        }
-                                    }
+                            id: column_table_group2
+                            delegate: {
+                                if(view_mode === 1){
+                                    tableNameCompo
+                                }else{
+                                    tableNumCompo
                                 }
                             }
+                            model: model_group_table
                         }
                     }
                 }
@@ -1167,7 +1172,7 @@ Item {
                             supervisor.setMotorLock(true);
                             if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
                                 for(var i=0; i<tray_num; i++){
-                                    supervisor.setTray(i,traymodel.get(i).set_table);
+                                    supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
                                 }
                                 supervisor.startServing();
                             }else{
@@ -1999,7 +2004,7 @@ Item {
                         id: image_warn
                         width: 160
                         height: 160
-                        source: "image/icon_warning.png"
+                        source: "image/warning.png"
                         anchors.verticalCenter: parent.verticalCenter
                     }
                     Column{
@@ -2050,8 +2055,9 @@ Item {
                             click_sound.play()
                         }
                         onReleased:{
-                            parent.color = "transparent"
-                            loadPage(plocalization);
+                            parent.color = color_dark_navy
+                            debug_mode = false;
+                            supervisor.setUiState(0);
                         }
                     }
                 }
@@ -2099,8 +2105,9 @@ Item {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 20
                     color: color_dark_navy
+//                    visible: false
                     radius: 40
-                    visible: popup_notice.show_motorinit
+//                    visible: popup_notice.show_motorinit
                     Text{
                         anchors.centerIn: parent
                         color: "white"
@@ -2599,6 +2606,6 @@ Item {
 
             }
         }
-
+    ListModel{id:model_group_table_temp}
     }
 }

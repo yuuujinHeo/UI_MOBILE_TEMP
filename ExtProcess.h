@@ -108,7 +108,7 @@ public:
 signals:
     void got_accept(int cmd);
     void got_done(int cmd);
-    void got_error(int cmd);
+    void got_error(int cmd, int param=0);
     void timeout(int cmd);
 
 private slots:

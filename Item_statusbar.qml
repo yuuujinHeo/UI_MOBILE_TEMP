@@ -36,7 +36,7 @@ Item {
         height: 60
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        color: "white"
+        color: testMode?"red":"white"
         Text{
             id: textName
             width: 300

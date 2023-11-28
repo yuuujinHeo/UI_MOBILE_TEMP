@@ -243,7 +243,7 @@ Item {
         }
         Image{
             id: image_warning
-            source: "icon/icon_warning.png"
+            source: "icon/warning.png"
             width: 160
             height: 160
             anchors.horizontalCenter: parent.horizontalCenter
@@ -378,7 +378,7 @@ Item {
             color: color_dark_black
             Image{
                 id: image_warn
-                source: "image/icon_warning.png"
+                source: "image/warning.png"
                 width: 120
                 height: 120
                 anchors.verticalCenter: parent.verticalCenter
@@ -486,7 +486,7 @@ Item {
             color: color_dark_black
             Image{
                 id: image_warn2
-                source: "image/icon_warning.png"
+                source: "image/warning.png"
                 width: 120
                 height: 120
                 anchors.verticalCenter: parent.verticalCenter

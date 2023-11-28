@@ -15,6 +15,7 @@ IPCHandler::IPCHandler(QObject *parent)
     , shm_loc_status("slamnav_loc_status")
     , shm_call_status("slamnav_call_status")
     , shm_call_loc("slamnav_call_loc")
+    , shm_check_travel("slamnav_check_travel")
 {
     // msg tick clear, check for new data
     tick = 0;
@@ -33,9 +34,11 @@ IPCHandler::IPCHandler(QObject *parent)
     updateSharedMemory(shm_loc_status,"LocationStatus",sizeof(IPCHandler::LOC_STATUS));
     updateSharedMemory(shm_call_loc,"CallLocation",sizeof(IPCHandler::CALL_LOC));
     updateSharedMemory(shm_call_status,"CallStatus",sizeof(IPCHandler::CALL_STATUS));
+    updateSharedMemory(shm_check_travel,"CheckTravel",sizeof(IPCHandler::CHECK_TRAVEL));
     clearSharedMemory(shm_cmd);
     clearSharedMemory(shm_call_status);
     clearSharedMemory(shm_call_loc);
+    clearSharedMemory(shm_check_travel);
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
@@ -96,6 +99,7 @@ void IPCHandler::update(){
     updateSharedMemory(shm_loc_status,"LocationStatus",sizeof(IPCHandler::LOC_STATUS));
     updateSharedMemory(shm_call_loc,"CallLocation",sizeof(IPCHandler::CALL_LOC));
     updateSharedMemory(shm_call_status,"CallStatus",sizeof(IPCHandler::CALL_STATUS));
+    updateSharedMemory(shm_check_travel,"CheckTravel",sizeof(IPCHandler::CHECK_TRAVEL));
 
 }
 
@@ -114,6 +118,7 @@ IPCHandler::~IPCHandler()
     detachSharedMemory(shm_loc_status,"LocationStatus");
     detachSharedMemory(shm_call_loc,"CallLocation");
     detachSharedMemory(shm_call_status,"CallStatus");
+    detachSharedMemory(shm_check_travel,"CheckTravel");
 
 }
 
@@ -235,6 +240,32 @@ void IPCHandler::onTimer(){
         probot->curPath = temp_path;
         prev_tick_path = temp2.tick;
         emit pathchanged();
+    }
+
+    IPCHandler::CHECK_TRAVEL tempp = get_check_travel();
+    if(tempp.tick != prev_tick_check_travel){
+        flag_rx = true;
+        read_count = 0;
+
+        pmap->tline_issue = tempp.num;
+
+        for(int i=0; i<pmap->tline_issue; i++){
+            char temp_char[255];
+            for (int a = 0; a < 255; a++) {
+                temp_char[a] = (char)tempp.name[i][a];
+            }
+            pmap->tline_issues[i].name = QString::fromUtf8(temp_char);
+            for (int a = 0; a < 255; a++) {
+                temp_char[a] = (char)tempp.group[i][a];
+            }
+            pmap->tline_issues[i].group = QString::fromUtf8(temp_char);
+
+
+            pmap->tline_issues[i].is_far = tempp.is_far[i];
+            pmap->tline_issues[i].is_broken = tempp.is_broken[i];
+            plog->write("[IPC] Travelline Issue : "+pmap->tline_issues[i].group+", "+pmap->tline_issues[i].name+" -> "+QString().sprintf("%d, %d",tempp.is_far[i],tempp.is_broken[i]));
+
+        }
     }
 
     IPCHandler::MAP temp3 = get_map();
@@ -515,6 +546,16 @@ IPCHandler::CMD IPCHandler::get_cmd()
 
     return res;
 }
+IPCHandler::CHECK_TRAVEL IPCHandler::get_check_travel()
+{
+    IPCHandler::CHECK_TRAVEL res;
+    shm_check_travel.lock();
+    memcpy(&res, (char*)shm_check_travel.constData(), sizeof(IPCHandler::CHECK_TRAVEL));
+    shm_check_travel.unlock();
+
+    return res;
+}
+
 
 IPCHandler::STATUS IPCHandler::get_status()
 {

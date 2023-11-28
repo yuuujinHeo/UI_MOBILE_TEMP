@@ -45,6 +45,12 @@ POSE setAxisBack(cv::Point2f _point, float _angle);
 bool sortLocation2(const LOCATION &l1, const LOCATION &l2);
 bool sortWifi(const QString &w1, const QString &w2);
 
+typedef struct{
+    QString group;
+    QString name;
+    bool is_far;
+    bool is_broken;
+}ST_TLINE_CHECK;
 enum{
     WIFI_NONE = 0,
     WIFI_CONNECTING,
@@ -104,6 +110,8 @@ typedef struct{
 
     QPixmap map;
 
+    int tline_issue = 0;
+    ST_TLINE_CHECK tline_issues[5];
 }ST_MAP;
 extern ST_MAP *pmap;
 
