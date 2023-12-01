@@ -171,6 +171,8 @@ typedef struct{
 
     int localization_confirm = 0;
 
+    float inlier_ratio = 0;
+    float inlier_error = 0;
 
     int err_code = 0;
 

@@ -314,9 +314,9 @@ Popup{
                                     popup_copymap.open();
 
 
-                                    supervisor.setMap(model_maps.get(select_map_list).name);
-                                    loader_page.item.init();
-                                    popup_map_list.close();
+//                                    supervisor.setMap(model_maps.get(select_map_list).name);
+//                                    loader_page.item.init();
+//                                    popup_map_list.close();
                                 }
                             }
                         }
@@ -376,18 +376,62 @@ Popup{
             anchors.fill: parent
             color: "transparent"
         }
+        property string orin_name : ""
         Rectangle{
-            anchors.fill: parent
+            width: parent.width
+            height: parent.height
+            radius: 20
             Column{
                 anchors.centerIn: parent
+                spacing: 20
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
                     text:qsTr("새로운 맵의 이름을 입력해주세요")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
-
                 }
+                TextField{
+                    id: textfield_new_map
+                    width: 200
+                    height: 40
+                    horizontalAlignment: TextField.AlignHCenter
+                    text: popup_copymap.orin_name
+                    MouseArea{
+                        anchors.fill:parent
+                        onClicked: {
+                            keyboard.owner = textfield_new_map;
+                            keyboard.owner_text = "textfield_new_map";
+                            textfield_new_map.selectAll();
 
+                            if(!keyboard.opened){
+                                keyboard.open();
+                            }
+                        }
+                    }
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 30
+                    Item_buttons{
+                        width: 160
+                        height: 40
+                        text:"취소"
+                        onClicked:{
+                            popup_copymap.close();
+                        }
+                    }
+                    Item_buttons{
+                        width: 160
+                        height: 40
+                        text:"확인"
+                        onClicked:{
+                            if(textfield_new_map.text != ""){
+                                supervisor.copyMap(orin_name, textfield_new_map.text);
+                                popup_copymap.close();
+                            }
+                        }
+                    }
+                }
             }
         }
     }

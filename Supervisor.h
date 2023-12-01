@@ -659,6 +659,9 @@ public:
     Q_INVOKABLE void setRotateList(QString name);
     Q_INVOKABLE void startPatrol(QString mode, bool pickup);
 
+    Q_INVOKABLE float getICPRatio();
+    Q_INVOKABLE float getICPError();
+
     Q_INVOKABLE void clearFlagStop();
     Q_INVOKABLE void slam_fullautoInit();
     Q_INVOKABLE void moveToServingTest(int group, QString name);

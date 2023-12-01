@@ -163,7 +163,7 @@ void ExtProcess::onTimer(){
                 QString ssid = QString::fromUtf8(temp);
                 plog->write("[ExtProcess] Done : Connect Wifi " + ssid);
                 probot->wifi_ssid = ssid;
-                probot->wifi_connection = true;
+                probot->wifi_connection = WIFI_CONNECT;
             }else if(_return.command == PROCESS_CMD_SET_WIFI_IP){
                 char temp[100];
                 char temp22[100];
@@ -329,15 +329,17 @@ void ExtProcess::onTimer(){
             temp_wifi.state = _wifilist.param[i][5];
             temp_wifi.prev_state = _wifilist.param[i][6];
 
-            if(temp_wifi.inuse){
-                if(getSetting("setting","NETWORK","wifi_ssid") == ""){
-                    setSetting("setting","NETWORK/wifi_ssid",temp_wifi.ssid);
-                }
+            if(temp_wifi.level>1){
+                probot->wifi_map[temp_wifi.ssid] = temp_wifi;
+                if(temp_wifi.inuse){
+                    if(getSetting("setting","NETWORK","wifi_ssid") == ""){
+                        setSetting("setting","NETWORK/wifi_ssid",temp_wifi.ssid);
+                    }
 
-//                qDebug() << "probot->wifidddssid : " << probot->wifi_ssid;
-//                probot->wifi_ssid = temp_wifi.ssid;
+    //                qDebug() << "probot->wifidddssid : " << probot->wifi_ssid;
+    //                probot->wifi_ssid = temp_wifi.ssid;
+                }
             }
-            probot->wifi_map[temp_wifi.ssid] = temp_wifi;
             prev_wifilist_tick = _wifilist.tick;
         }
 

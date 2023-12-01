@@ -23,6 +23,7 @@ Item {
     //0 none 1 moving 2 movefail
     property var test_move_state: 0
     property bool annotation_after_mapping: false
+    property bool edit_once: false
 
     property var select_location: -1
     property var select_preset: 0
@@ -211,6 +212,7 @@ Item {
             Component.onCompleted: {
                 supervisor.setMotorLock(true);
                 if(supervisor.getLocalizationState() === 2 && supervisor.getChargeStatus() === 0){
+
                     btn_charge.enabled = true;
                     btn_resting.enabled = true;
                     btn_serving.enabled = true;
@@ -1252,7 +1254,7 @@ Item {
             height: annot_pages.height
             Component.onCompleted: {
                 supervisor.setMotorLock(false);
-                if(annotation_after_mapping || supervisor.getLocationNum("Charging") === 0){
+//                if(annotation_after_mapping || supervisor.getLocationNum("Charging") === 0){
                     last_robot_x = supervisor.getlastRobotx();
                     last_robot_y = supervisor.getlastRoboty();
                     last_robot_th = supervisor.getlastRobotth();
@@ -1261,14 +1263,14 @@ Item {
                     text_save_done.visible = true;
                     column_another_save.visible = false;
                     btn_right.enabled = true;
-                }else{
-                    column_another_save.visible = true;
-                    text_save_done.visible = false;
-                    model_chargings.clear();
-                    for(var i=0; i<supervisor.getLocationNum("Charging"); i++){
-                        model_chargings.append({"name":qsTr("충전위치")+Number(i)});
-                    }
-                }
+//                }else{
+//                    column_another_save.visible = true;
+//                    text_save_done.visible = false;
+//                    model_chargings.clear();
+//                    for(var i=0; i<supervisor.getLocationNum("Charging"); i++){
+//                        model_chargings.append({"name":qsTr("충전위치")+Number(i)});
+//                    }
+//                }
             }
             property int select_charging: 0
             Rectangle{
@@ -1407,7 +1409,11 @@ Item {
                     click_sound.play();
                     supervisor.writelog("[Annotation] Location Save : Charging -> Done");
                     if(annotation_after_mapping)
-                        annot_pages.sourceComponent = page_annot_location_resting;
+                        if(edit_once){
+                            annot_pages.sourceComponent = page_annot_location_test_1;
+                            edit_once = false;
+                        }else
+                            annot_pages.sourceComponent = page_annot_location_resting;
                     else
                         annot_pages.sourceComponent = page_annot_location_test_1;
                 }
@@ -1525,7 +1531,7 @@ Item {
             height: annot_pages.height
             Component.onCompleted: {
                 supervisor.setMotorLock(false);
-                if(annotation_after_mapping || supervisor.getLocationNum("Resting") === 0){
+//                if(annotation_after_mapping || supervisor.getLocationNum("Resting") === 0){
                     last_robot_x = supervisor.getlastRobotx();
                     last_robot_y = supervisor.getlastRoboty();
                     last_robot_th = supervisor.getlastRobotth();
@@ -1534,14 +1540,14 @@ Item {
                     text_save_done.visible = true;
                     column_another_save.visible = false;
                     btn_right.enabled = true;
-                }else{
-                    column_another_save.visible = true;
-                    text_save_done.visible = false;
-                    model_resting.clear();
-                    for(var i=0; i<supervisor.getLocationNum("Resting"); i++){
-                        model_resting.append({"name":qsTr("대기위치")+Number(i)});
-                    }
-                }
+//                }else{
+//                    column_another_save.visible = true;
+//                    text_save_done.visible = false;
+//                    model_resting.clear();
+//                    for(var i=0; i<supervisor.getLocationNum("Resting"); i++){
+//                        model_resting.append({"name":qsTr("대기위치")+Number(i)});
+//                    }
+//                }
 //                loading.show();
             }
             property int select_resting: 0
@@ -1768,6 +1774,7 @@ Item {
                     click_sound.play();
                     supervisor.writelog("[Annotation] Location Save : Resting -> Canceled");
                     annot_pages.sourceComponent = page_annot_location_resting;
+                    edit_once = false;
                 }
             }
             Item_buttons{
@@ -1782,6 +1789,7 @@ Item {
                 onClicked: {
                     click_sound.play();
                     supervisor.writelog("[Annotation] Location Save : Charging -> Canceled");
+                    edit_once = true;
                     annot_pages.sourceComponent = page_annot_location_charging;
                 }
             }

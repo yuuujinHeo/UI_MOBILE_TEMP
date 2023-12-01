@@ -77,126 +77,33 @@ Item {
         }
     }
 
-    property var size_menu: 100
-    Rectangle{
-        id: rect_menu_box
-        width: 120
-        height: width*3
+
+    Item_menubar{
+        id: menubar
         anchors.right: parent.right
         anchors.rightMargin: 50
         anchors.top: status_bar.bottom
         anchors.topMargin: 50
-        color: "white"
-        radius: 30
-        Column{
-            spacing: 10
-            anchors.top: parent.top
-            anchors.topMargin: 10
-            anchors.horizontalCenter: parent.horizontalCenter
-            Rectangle{
-                id: btn_menu
-                width: size_menu
-                height: size_menu
-                color: "transparent"
-                anchors.horizontalCenter: parent.horizontalCenter
-                Image{
-                    source:"icon/btn_menu.png"
-                    anchors.centerIn: parent
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            loadPage(pkitchen);
-                        }
-                    }
-                }
-            }
-            Rectangle{// 구분바
-                width: rect_menu_box.width
-                height: 3
-                color: "#f4f4f4"
-            }
-            Rectangle{
-                id: btn_minimize
-                width: size_menu
-                height: size_menu
-                color: "transparent"
-                anchors.horizontalCenter: parent.horizontalCenter
-                Rectangle{
-                    width: size_menu
-                    color: "transparent"
-                    height: image_charge.height+text_charge.height
-                    anchors.centerIn: parent
-                    Image{
-                        id: image_charge
-                        scale: 1.2
-                        source:"icon/btn_minimize.png"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    Text{
-                        id: text_charge
-                        text:qsTr("최소화")
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        horizontalAlignment: Text.AlignHCenter
-                        color: "#525252"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: image_charge.bottom
-                        anchors.topMargin: 10
-                    }
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        supervisor.writelog("[USER INPUT] Screen Minimized.");
-                        mainwindow.showMinimized();
-                    }
-                }
-            }
-            Rectangle{// 구분바
-                width: rect_menu_box.width
-                height: 3
-                color: "#f4f4f4"
-            }
-            Rectangle{
-                width: size_menu
-                height: size_menu
-                color: "transparent"
-                anchors.horizontalCenter: parent.horizontalCenter
-                Rectangle{
-                    width: size_menu
-                    color: "transparent"
-                    height: image_wait.height+text_wait.height
-                    anchors.centerIn: parent
-                    Image{
-                        id: image_wait
-                        scale: 1.2
-                        source:"icon/icon_power.png"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    Text{
-                        id: text_wait
-                        text:qsTr("프로그램 종료")
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        color: "#525252"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: image_wait.bottom
-                        anchors.topMargin: 10
-                    }
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        popup_program_exit.open();
-//                        supervisor.programExit();
-                    }
-                }
-            }
+        Component.onCompleted: {
+            addMenu("","icon/btn_menu.png");
+            addMenu(qsTr("최소화"),"icon/btn_minimize.png");
+            addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
+        }
+        onMenu1_clicked: {
+            click_sound.play();
+            loadPage(pkitchen);
+        }
+        onMenu2_clicked: {
+            click_sound.play();
+            supervisor.writelog("[USER INPUT] Screen Minimized.");
+            mainwindow.showMinimized();
+        }
+        onMenu3_clicked: {
+            click_sound.play();
+            popup_program_exit.open();
         }
     }
+
 
     Popup{
         id: popup_program_exit

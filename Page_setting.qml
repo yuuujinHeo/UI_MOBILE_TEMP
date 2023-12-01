@@ -14,7 +14,8 @@ Item {
     height: 800
 
     property bool debug_use_ip: true
-    property bool is_admin: true
+    property bool is_admin: false
+    property bool is_rainbow: false
     property string select_category: "status"
     property string platform_name: supervisor.getRobotName()
     property int motor_left_id: 1
@@ -68,6 +69,7 @@ Item {
     Component.onCompleted: {
         statusbar.visible = true;
         is_admin = false;
+        is_rainbow = false;
         is_reset_slam = false;
         supervisor.getAllWifiList();
         supervisor.getWifiIP();
@@ -208,7 +210,7 @@ Item {
                 id: rect_category_3
                 width: 264
                 height: 50
-                visible: is_admin
+                visible: is_admin || is_rainbow
                 color: "#647087"
                 Text{
                     anchors.centerIn: parent
@@ -238,7 +240,7 @@ Item {
                 width: 240
                 height: 50
                 color: "#647087"
-                visible: is_admin
+                visible: is_admin || is_rainbow
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
@@ -1090,7 +1092,7 @@ Item {
                     id: set_tray_num
                     width: 840
                     height: 50
-                    visible: false//use_tray
+                    visible: is_rainbow && use_tray
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3318,6 +3320,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -3388,6 +3391,7 @@ Item {
                     id: set_cam_exposure
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3447,6 +3451,7 @@ Item {
                     id: set_left_camera
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3510,6 +3515,7 @@ Item {
                     id: set_right_camera
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3579,6 +3585,7 @@ Item {
                     id: set_lidar_offset_tf
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3641,6 +3648,7 @@ Item {
                     id: set_left_camera_tf
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3703,6 +3711,7 @@ Item {
                     id: set_right_camera_tf
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3764,6 +3773,7 @@ Item {
                     id: set_obs_height_min
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3839,6 +3849,7 @@ Item {
                     id: set_obsheight_max
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3914,6 +3925,7 @@ Item {
                     id: set_max_range
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3990,6 +4002,7 @@ Item {
                     id: set_icp_near
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4633,6 +4646,67 @@ Item {
                         }
                     }
                 }
+                Rectangle{
+                    id: set_obs_early_stop_dist
+                    width: 840
+                    height: 50
+                    visible: set_use_earlystop_resting.currentIndex === 1 || set_use_earlystop_serving.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"근처 장애물 정지 거리"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: obs_early_stop_dist
+                                anchors.fill: parent
+                                objectName: "obs_early_stop_dist"
+                                text:supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
+                                property bool ischanged: false
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        if(keypad.is_opened){
+                                            keypad.owner = obs_early_stop_dist;
+                                            obs_early_stop_dist.selectAll();
+                                        }else{
+                                            keypad.owner = obs_early_stop_dist;
+                                            obs_early_stop_dist.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                            }
+                        }
+                    }
+                }
 
 
                 Rectangle{
@@ -5097,6 +5171,7 @@ Item {
                     id: set_lookaheaddist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5171,6 +5246,7 @@ Item {
                     id: set_minlookaheaddist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5246,6 +5322,7 @@ Item {
                     id: set_path_out_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5331,9 +5408,128 @@ Item {
                     }
                 }
                 Rectangle{
+                    id: set_icp_init_ratio
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"초기화 성공기준 [0~1]"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: icp_init_ratio
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        if(keypad.is_opened){
+                                            keypad.owner = icp_init_ratio;
+                                            icp_init_ratio.selectAll();
+                                        }else{
+                                            keypad.owner = icp_init_ratio;
+                                            icp_init_ratio.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("setting","INITIALIZATION","icp_init_ratio");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_icp_init_error
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"초기화 에러기준 [0~1]"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: icp_init_error
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        if(keypad.is_opened){
+                                            keypad.owner = icp_init_error;
+                                            icp_init_error.selectAll();
+                                        }else{
+                                            keypad.owner = icp_init_error;
+                                            icp_init_error.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("setting","INITIALIZATION","icp_init_error");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
                     id: set_icp_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5411,6 +5607,7 @@ Item {
                     id: set_icp_error
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5488,6 +5685,7 @@ Item {
                     id: set_icp_ratio
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5561,11 +5759,11 @@ Item {
                         }
                     }
                 }
-
                 Rectangle{
                     id: set_icp_odometry_weight
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5642,6 +5840,7 @@ Item {
                     id: set_icp_repeat_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5716,6 +5915,7 @@ Item {
                     id: set_icp_repeat_time
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5794,6 +5994,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -5807,6 +6008,7 @@ Item {
                     id: set_goal_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5883,6 +6085,7 @@ Item {
                     id: set_goal_th
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5960,6 +6163,7 @@ Item {
                     id: set_goal_near_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6035,6 +6239,7 @@ Item {
                     id: set_goal_near_th
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6111,6 +6316,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -6124,6 +6330,7 @@ Item {
                     id: set_slam_submap_cnt
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6200,6 +6407,7 @@ Item {
                     id: set_slam_lc_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6276,6 +6484,7 @@ Item {
                     id: set_slam_lc_icp_dist
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6352,6 +6561,7 @@ Item {
                     id: set_map_size
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6428,6 +6638,7 @@ Item {
                     id: set_grid_size
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6528,6 +6739,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -6547,6 +6759,7 @@ Item {
                     id: set_use_current
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6607,7 +6820,7 @@ Item {
                     id: set_motor_current_margin
                     width: 840
                     height: 50
-                    visible: combo_use_motorcurrent.currentIndex === 1
+                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6666,7 +6879,7 @@ Item {
                 Rectangle{
                     width: 840
                     height: 50
-                    visible: combo_use_motorcurrent.currentIndex === 1
+                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6726,6 +6939,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -6745,6 +6959,7 @@ Item {
                     id: set_st_v
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6820,6 +7035,7 @@ Item {
                     id: set_goal_v
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6895,6 +7111,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -6914,6 +7131,7 @@ Item {
                     id: set_k_curve
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -6972,6 +7190,7 @@ Item {
                 Rectangle{
                     id: set_k_v
                     width: 840
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -7031,6 +7250,7 @@ Item {
                 Rectangle{
                     id: set_k_w
                     width: 840
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -7089,6 +7309,7 @@ Item {
                 }
                 Rectangle{
                     id: set_k_dd
+                    visible: is_rainbow
                     width: 840
                     height: 50
                     Row{
@@ -7150,6 +7371,7 @@ Item {
                     id: set_path_delta_v_acc_gain
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7209,6 +7431,7 @@ Item {
                     id: set_path_delta_v_dec_gain
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7268,6 +7491,7 @@ Item {
                     id: set_path_ref_v_gain
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7327,6 +7551,7 @@ Item {
                     id: set_path_shifting_val
                     width: 840
                     height: 50
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7383,43 +7608,11 @@ Item {
                     }
                 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 Rectangle{
                     width: 1100
                     height: 40
                     color: "black"
-                    visible: is_admin
+                    visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -7433,7 +7626,7 @@ Item {
                     id: set_wheel_dir
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7479,7 +7672,7 @@ Item {
                     id: set_left_id
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7525,7 +7718,7 @@ Item {
                     id: set_right_id
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7571,7 +7764,7 @@ Item {
                     id: set_gear_ratio
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7631,7 +7824,7 @@ Item {
                     id: set_kp
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7691,7 +7884,7 @@ Item {
                     id: set_ki
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7751,7 +7944,7 @@ Item {
                     id: set_kd
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7810,7 +8003,7 @@ Item {
                 Rectangle{
                     id: set_limit_v
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -7870,7 +8063,7 @@ Item {
                 Rectangle{
                     id: set_limitv_acc
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -7931,7 +8124,7 @@ Item {
                     id: set_limit_w
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7991,7 +8184,7 @@ Item {
                     id: set_limit_wacc
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9403,9 +9596,9 @@ Item {
             }
         }
 
-//        if(combo_tray_num.ischanged){
-//            supervisor.setSetting("ROBOT_HW/tray_num",combo_tray_num.currentText);
-//        }
+        if(combo_tray_num.ischanged){
+            supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
+        }
 
         if(slider_volume_bgm.ischanged){
             supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value.toFixed(0));
@@ -9515,6 +9708,12 @@ Item {
         }
         if(obs_margin0.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_margin0",obs_margin0.text);
+        }
+        if(obs_near.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_near",obs_near.text);
+        }
+        if(obs_early_stop_dist.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_early_stop_dist",obs_early_stop_dist.text);
         }
 
         if(obs_detect_area.ischanged){
@@ -9644,6 +9843,13 @@ Item {
         if(slam_lc_dist.ischanged){
             supervisor.setSetting("update","SLAM/slam_lc_dist",slam_lc_dist.text);
         }
+        if(icp_init_error.ischanged){
+            supervisor.setSetting("setting","INITIALIZATION/icp_init_error",icp_init_error.text);
+        }
+        if(icp_init_ratio.ischanged){
+            supervisor.setSetting("setting","INITIALIZATION/icp_init_ratio",icp_init_ratio.text);
+        }
+
         if(slam_lc_icp_dist.ischanged){
             supervisor.setSetting("update","SLAM/slam_lc_icp_dist",slam_lc_icp_dist.text);
         }
@@ -9786,7 +9992,7 @@ Item {
         combo_platform_serial.currentIndex = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","serial_num"))
         radius.text = supervisor.getSetting("static","ROBOT_HW","robot_radius");
 
-//        combo_tray_num.currentIndex = supervisor.getSetting("setting","ROBOT_HW","tray_num")-1;
+        combo_tray_num.currentIndex = supervisor.getSetting("setting","ROBOT_TYPE","tray_num")-1;
 
         if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
             combo_multirobot.currentIndex = 1;
@@ -9869,10 +10075,8 @@ Item {
         slam_lc_icp_dist.text = supervisor.getSetting("update","SLAM","slam_lc_icp_dist");
         map_size.text = supervisor.getSetting("update","SLAM","map_size");
         grid_size.text = supervisor.getSetting("update","SLAM","grid_size");
-
-
-
-
+        icp_init_ratio.text = supervisor.getSetting("setting","INITIALIZATION","icp_init_ratio");
+        icp_init_error.text = supervisor.getSetting("setting","INITIALIZATION","icp_init_error");
 
         motor_limit_v.text = supervisor.getSetting("update","MOTOR","limit_v");
         motor_limit_v_acc.text = supervisor.getSetting("update","MOTOR","limit_v_acc");
@@ -9982,6 +10186,8 @@ Item {
         }else{
             combo_resting_lock.currentIndex = 0;
         }
+        obs_early_stop_dist.text = supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
+        obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near");
         obs_margin1.text = supervisor.getSetting("setting","OBSTACLE","obs_margin1");
         obs_margin0.text = supervisor.getSetting("setting","OBSTACLE","obs_margin0");
         obs_detect_area.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
@@ -10128,6 +10334,8 @@ Item {
         slam_submap_cnt.ischanged = false;
         slam_lc_dist.ischanged = false;
         slam_lc_icp_dist.ischanged = false;
+        icp_init_ratio.ischanged = false;
+        icp_init_error.ischanged = false;
         map_size.ischanged = false;
         grid_size.ischanged = false;
         combo_auto_update.ischanged = false;
@@ -10141,6 +10349,8 @@ Item {
         obs_height_min.ischanged = false;
         obs_margin1.ischanged = false;
         obs_margin0.ischanged = false;
+        obs_near.ischanged = false;
+        obs_early_stop_dist.ischanged = false;
         obs_detect_area.ischanged = false;
         obs_detect_sensitivity.ischanged = false;
         robot_length.ischanged = false;
@@ -10219,6 +10429,8 @@ Item {
         if(slam_submap_cnt.ischanged) is_changed = true;
         if(slam_lc_dist.ischanged) is_changed = true;
         if(slam_lc_icp_dist.ischanged) is_changed = true;
+        if(icp_init_ratio.ischanged) is_changed = true;
+        if(icp_init_error.ischanged) is_changed = true;
         if(map_size.ischanged) is_changed = true;
         if(grid_size.ischanged) is_changed = true;
         if(combo_auto_update.ischanged) is_changed = true;
@@ -13629,6 +13841,7 @@ Item {
                 model_wifis.clear();
                 for(var i=0; i<supervisor.getWifiNum(); i++){
                     var ssid = supervisor.getWifiSSID(i);
+//                    print(i,ssid);
                     model_wifis.append({"ssid":ssid,"inuse":supervisor.getWifiInuse(ssid),"rate":supervisor.getWifiRate(ssid),"level":supervisor.getWifiLevel(ssid),"security":supervisor.getWifiSecurity(ssid)});
                 }
             }

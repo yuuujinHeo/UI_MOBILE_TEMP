@@ -332,10 +332,11 @@ void MapHandler::setMode(QString name){
         show_global_path = false;
         show_local_path = false;
         show_lidar = false;
-        show_location = false;
-        show_location_icon = false;
+        show_location = true;
+        show_location_icon = true;
         robot_following = false;
         show_velocitymap = true;
+        show_travelline = true;
         setFullScreen();
     }else if(mode == "annot_location"){
         file_width = map_orin.rows;
@@ -367,6 +368,7 @@ void MapHandler::setMode(QString name){
         show_lidar = true;
         show_location = false;
         show_location_icon = false;
+        show_travelline = false;
         robot_following = true;
         pmap->annotation_edited = false;
         pmap->annot_edit_drawing = false;
@@ -402,6 +404,7 @@ void MapHandler::setMode(QString name){
         show_lidar = false;
         show_object = true;
         show_location = true;
+        show_travelline = true;
         show_location_icon = true;
         robot_following = false;
         initObject();
@@ -416,6 +419,7 @@ void MapHandler::setMode(QString name){
         show_location = true;
         show_location_icon = true;
         robot_following = false;
+        show_travelline = true;
         initObject();
         setFullScreen();
     }

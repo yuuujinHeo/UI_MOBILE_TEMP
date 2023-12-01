@@ -93,7 +93,6 @@ Supervisor::Supervisor(QObject *parent)
 
     translator = new QTranslator();
     setLangauge(getSetting("setting","UI","langauge"));
-
 }
 
 Supervisor::~Supervisor(){
@@ -105,18 +104,6 @@ Supervisor::~Supervisor(){
     delete zip;
     delete maph;
     delete call;
-//    delete
-//    extproc->deleteLater();
-//    ipc->deleteLater();
-//    slam_process->close();
-//    QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-//    slam_process->start(file);
-//    slam_process->waitForReadyRead(3000);
-//    QThread::sleep(1);
-//    slam_process->waitForFinished(3000);
-//    slam_process->kill();
-//    slam_process->close();
-//    wifi_process->close();
     plog->write("[BUILDER] KILLED SLAMNAV");
 }
 
@@ -465,7 +452,7 @@ void Supervisor::readSetting(QString map_name){
     }
     setting_config.endGroup();
 
-    setting.tray_num = 3;
+    setting.tray_num = getSetting("setting","ROBOT_TYPE","tray_num").toInt();
 
     setting_config.beginGroup("CALL");
     probot->max_moving_count = setting_config.value("call_maximum").toInt();
@@ -1009,12 +996,21 @@ int Supervisor::getAvailableMap(){
     std::string path = QString(QDir::homePath()+"/RB_MOBILE/maps").toStdString();
     QDir directory(path.c_str());
     QStringList FileList = directory.entryList();
+    qDebug() << "FILELIST : " << FileList;
     map_list.clear();
     for(int i=0; i<FileList.size(); i++){
-        QStringList namelist = FileList[i].split(".");
-        if(namelist.size() > 1){
+        if(FileList[i] == "." || FileList[i] == ".."){
             continue;
         }
+        QString path3 = QDir::homePath() + "/RB_MOBILE/maps/"+FileList[i];
+        QFileInfo info(path3);
+        if(!info.isDir()){
+            continue;
+        }
+//        QStringList namelist = FileList[i].split(".");
+//        if(namelist.size() > 1){
+//            continue;
+//        }
         std::string path2 = QString(QDir::homePath()+"/RB_MOBILE/maps/"+FileList[i]).toStdString();
         QDir direc2(path2.c_str());
         QStringList detailList = direc2.entryList();
@@ -1024,6 +1020,7 @@ int Supervisor::getAvailableMap(){
                 available = true;
                 break;
             }
+
         }
         if(available){
             map_list.push_back(FileList[i]);
@@ -1085,7 +1082,6 @@ bool Supervisor::isLoadMap(){
     }
     return false;
 }
-
 void Supervisor::removeMap(QString filename){
     plog->write("[USER INPUT] Remove Map : "+filename);
     QDir dir(QDir::homePath()+"/RB_MOBILE/maps/" + filename);
@@ -1111,7 +1107,6 @@ bool Supervisor::checkINI(){
         return false;
     }
 }
-
 void Supervisor::checkRobotINI(){
     if(getSetting("setting","UI","group_row_num").toInt()==0)
         setSetting("setting","UI/group_row_num","2");
@@ -1186,6 +1181,8 @@ void Supervisor::checkRobotINI(){
         setSetting("setting","ROBOT_TYPE/type","SERVING");
     if(getSetting("setting","ROBOT_TYPE","model") == "")
         setSetting("setting","ROBOT_TYPE/model","None");
+    if(getSetting("setting","ROBOT_TYPE","tray_num") == "")
+        setSetting("setting","ROBOT_TYPE/tray_num","2");
 
     if(getSetting("setting","SENSOR","cam_exposure").toFloat()==0)
         setSetting("setting","SENSOR/cam_exposure","2000");
@@ -1309,7 +1306,7 @@ bool Supervisor::getIPCTX(){
     if(probot->ipc_use)
         return ipc->flag_tx;
 }
-int Supervisor::getusbsize(){
+int  Supervisor::getusbsize(){
     return usb_list.size();
 }
 QString Supervisor::getusbname(int num){
@@ -1321,8 +1318,6 @@ QString Supervisor::getusbname(int num){
 void Supervisor::readusb(){
 
 }
-
-
 
 void Supervisor::saveMapfromUsb(QString path){
     std::string user = getenv("USER");
@@ -1346,26 +1341,22 @@ void Supervisor::saveMapfromUsb(QString path){
         plog->write("[SETTING - ERROR] Save Map from USB (Origin not found): "+kk[kk.length()-1]);
     }
 }
-
 void Supervisor::setMap(QString name){
     setSetting("setting","MAP/map_path",QDir::homePath()+"/RB_MOBILE/maps/"+name);
     setSetting("setting","MAP/map_name",name);
     readSetting(name);
     slam_map_reload(name);
 }
-
 void Supervisor::copyMap(QString orinname, QString newname){
 
 
 }
-
 void Supervisor::loadMap(QString name){
     setSetting("setting","MAP/map_path",QDir::homePath()+"/RB_MOBILE/maps/"+name);
     setSetting("setting","MAP/map_name",name);
     readSetting(name);
     slam_map_reload(name);
 }
-
 void Supervisor::restartSLAM(){
     plog->write("[USER INPUT] Restart SLAM");
     ipc->clearSharedMemory(ipc->shm_cmd);
@@ -1414,7 +1405,6 @@ void Supervisor::restartSLAM(){
     probot->status_remote = 0;
     ipc->update();
 }
-
 void Supervisor::killSLAM(){
     patrol_mode = PATROL_NONE;
     probot->is_patrol = false;
@@ -3962,15 +3952,27 @@ QString Supervisor::getCurWifiSSID(){
 //    return getSetting("NETWORK","wifi_ssid");
 
 }
+
+float Supervisor::getICPRatio(){
+    return probot->inlier_ratio;
+}
+float Supervisor::getICPError(){
+    return probot->inlier_error;
+}
 QString Supervisor::getWifiSSID(int num){
-    QList<QString> keys = probot->wifi_map.keys();
-//    qDebug() << "Before : " << keys;
-    std::sort(keys.begin(),keys.end(),sortWifi);
-//    qDebug() << "After : " << keys;
-    if(num < keys.size() && num > -1){
+    if(num < probot->wifi_map.size() && num > -1){
+        QList<QString> keys = probot->wifi_map.keys();
         return probot->wifi_map[keys[num]].ssid;
-    }else
+//        qDebug() << "Before : " << keys;
+        std::sort(keys.begin(),keys.end(),sortWifi);
+//        qDebug() << "After : " << keys;
+        if(num < keys.size() && num > -1){
+            return probot->wifi_map[keys[num]].ssid;
+        }else
+            return "unknown";
+    }else{
         return "unknown";
+    }
 }
 int Supervisor::getWifiConnection(QString ssid){
     if(ssid == ""){
@@ -4147,9 +4149,19 @@ void Supervisor::getAllWifiList(){
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
     extproc->set_command(temp, "Get Wifi List");
     QNetworkConfigurationManager ncm;
-    defaultWifiConf = ncm.defaultConfiguration();
+    QList<QNetworkConfiguration> lists = ncm.allConfigurations();
+    for(QNetworkConfiguration e : lists){
+        if(e.bearerType() == QNetworkConfiguration::BearerWLAN)
+        {
+            if(e.state() == QNetworkConfiguration::Active){
+                defaultWifiConf = e;
+            }
+        }
+    }
+    qDebug() << "default : " << defaultWifiConf.name() << defaultWifiConf.state();
     if(defaultWifiConf.name() != ""){
         probot->wifi_ssid = defaultWifiConf.name();
+        probot->wifi_connection = WIFI_CONNECT;
     }
 }
 bool Supervisor::getWifiSecurity(QString ssid){

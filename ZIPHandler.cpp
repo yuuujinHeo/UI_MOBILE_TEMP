@@ -107,7 +107,7 @@ void ZIPHandler::makeZip(QString path, bool _ui, bool _slam, bool _config, bool 
         if(_map){
             log_str += "maps, ";
             QString target = outzip + "/maps.zip";
-            QString source = QDir::homePath() + "/maps";
+            QString source = QDir::homePath() + "/RB_MOBILE/maps";
             if(zipper.compressDir(target,source,true)){
                 plog->write("[ZIP] Compress : "+source);
             }else{
@@ -120,7 +120,7 @@ void ZIPHandler::makeZip(QString path, bool _ui, bool _slam, bool _config, bool 
         if(_log){
             log_str += "logs, ";
             QString target = outzip + "/ui_log.zip";
-            QString source = QDir::homePath() + "/ui_log";
+            QString source = QDir::homePath() + "/RB_MOBILE/log/ui_log";
             zipper.compressDir(target,source,true);
             target = outzip + "/sn_log.zip";
             source = QDir::homePath() + "/sn_log";

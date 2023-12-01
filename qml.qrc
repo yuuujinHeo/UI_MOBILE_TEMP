@@ -287,5 +287,8 @@
         <file>voice/child_charging.mp3</file>
         <file>voice/child_cancel_path.mp3</file>
         <file>image/image_robot_temp.png</file>
+        <file>Item_menubar.qml</file>
+        <file>Item_progressCircle.qml</file>
+        <file>Item_CircleP.qml</file>
     </qresource>
 </RCC>

@@ -30,7 +30,7 @@ Item {
         group_num = supervisor.getLocationGroupNum();
         robot_type = supervisor.getSetting("setting","ROBOT_TYPE","type");
         table_num = 0;
-        tray_num = 3;
+        tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
 
         if(robot_type == "CALLING"){
             show_serving = false;
@@ -93,7 +93,7 @@ Item {
         }
     }
 
-    property int tray_num: 3
+    property int tray_num: 2
     property int table_num: 5
     property int group_num: 1
     property int row_num: 5
@@ -119,6 +119,7 @@ Item {
     property int cur_page: 0
 
     property bool go_wait: false
+    property bool go_cleaning: false
     property bool go_charge: false
     property bool go_patrol: false
     property bool calling_mode: false
@@ -161,9 +162,9 @@ Item {
             if(is_con_robot){
                 if(is_motor_power){
                     if(is_emergency){
-                        btn_go.active = false;
-                        btn_charge.active = false;
-                        btn_resting.active = false;
+                        menubar.menu2_en = false;
+                        menubar.menu3_en = false;
+                        menubar.menu4_en = false;
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("비상스위치가 눌려있음")
@@ -175,8 +176,9 @@ Item {
                         popup_notice.show_restart = false;
                     }else if(supervisor.getMotorState() === 0){
                         btn_go.active = false;
-                        btn_charge.active = false;
-                        btn_resting.active = false;
+                        menubar.menu2_en = false;
+                        menubar.menu3_en = false;
+                        menubar.menu4_en = false;
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("모터락해제됨")
@@ -189,8 +191,9 @@ Item {
 
                     }else if(supervisor.getLocalizationState() === 2){
                         btn_go.active = true;
-                        btn_charge.active = true;
-                        btn_resting.active = true;
+                        menubar.menu2_en = true;
+                        menubar.menu3_en = true;
+                        menubar.menu4_en = true;
                         rect_go.color = color_blue;
 
                         text_go.color = "white";
@@ -203,8 +206,9 @@ Item {
                         popup_notice.show_restart = false;
                     }else{
                         btn_go.active = false;
-                        btn_charge.active = false;
-                        btn_resting.active = false;
+                        menubar.menu2_en = false;
+                        menubar.menu3_en = false;
+                        menubar.menu4_en = false;
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("위치 초기화필요")
@@ -217,8 +221,9 @@ Item {
                     }
                 }else{
                     btn_go.active = false;
-                    btn_charge.active = false;
-                    btn_resting.active = false;
+                    menubar.menu2_en = false;
+                    menubar.menu3_en = false;
+                    menubar.menu4_en = false;
                     rect_go.color = color_gray;
                     text_go.color = color_dark_gray;
                     text_go.text = qsTr("로봇 전원 안켜짐")
@@ -231,8 +236,9 @@ Item {
                 }
             }else{
                 btn_go.active = false;
-                btn_charge.active = false;
-                btn_resting.active = false;
+                menubar.menu2_en = false;
+                menubar.menu3_en = false;
+                menubar.menu4_en = false;
                 rect_go.color = color_gray;
                 text_go.color = color_dark_gray;
                 text_go.text = qsTr("로봇 연결 안됨")
@@ -299,7 +305,7 @@ Item {
         radius: 30
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: rect_table_box.right
-        anchors.leftMargin: (rect_menu_box.x-rect_table_box.width - width)/2
+        anchors.leftMargin: (menubar.x-rect_table_box.width - width)/2
         Column{
             id: column_tray
             anchors.centerIn: parent
@@ -741,7 +747,7 @@ Item {
 
         Rectangle{
             id: rect_group
-            width: 1280 - 150 - rect_menu_box.width
+            width: 1280 - 150 - menubar.width
             height: parent.height
             anchors.left: parent.left
             anchors.leftMargin: 50
@@ -1806,163 +1812,64 @@ Item {
     }
 
 
-    property var size_menu: 100
-    Rectangle{
-        id: rect_menu_box
-        width: 120
-        height: width*3
-        clip: true
+    Item_menubar{
+        id: menubar
         anchors.right: parent.right
         anchors.rightMargin: 50
         anchors.top: parent.top
         anchors.topMargin: statusbar.height + 50
-        color: "white"
-        radius: 30
-        Column{
-            spacing: 10
-            anchors.top: parent.top
-            anchors.topMargin: 10
-            anchors.horizontalCenter: parent.horizontalCenter
-            Rectangle{
-                id: btn_menu
-                width: size_menu
-                height: size_menu
-                color: "transparent"
-                anchors.horizontalCenter: parent.horizontalCenter
-                Image{
-                    id: image_menu
-                    source:"icon/btn_menu.png"
-                    anchors.centerIn: parent
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            btn_menu.color = color_light_gray;
-                            click_sound.play();
-                        }
-                        onReleased:{
-                            btn_menu.color = "white";
-                            count_resting = 0;
-                            cur_table = -1;
-                            loadPage(pmenu);
-                        }
-                    }
-                }
+        Component.onCompleted: {
+            addMenu("","icon/btn_menu.png");
+            addMenu(qsTr("충전위치로"),"icon/btn_charge.png");
+            addMenu(qsTr("대기위치로"),"icon/btn_wait.png");
+            if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                addMenu(qsTr("퇴식위치로"),"icon/btn_wait.png")
             }
-            Rectangle{// 구분바
-                width: rect_menu_box.width
-                height: 3
-                color: "#f4f4f4"
+        }
+        onMenu1_clicked: {
+            click_sound.play();
+            count_resting = 0;
+            cur_table = -1;
+            loadPage(pmenu);
+        }
+        onMenu2_clicked: {
+            count_resting = 0;
+            cur_table = -1;
+            if(menu2_en){
+                click_sound.play();
+                go_charge = true;
+                popup_question.visible = true;
+            }else{
+                click_sound_no.play();
+                popup_notice.open();
             }
-            Rectangle{
-                id: btn_charge
-                property bool active: false
-                width: size_menu
-                height: size_menu
-                anchors.horizontalCenter: parent.horizontalCenter
-                Rectangle{
-                    width: size_menu
-                    height: image_charge.height+text_charge.height
-                    anchors.centerIn: parent
-                    color: parent.color
-                    Image{
-                        id: image_charge
-                        scale: 1.2
-                        source:"icon/btn_charge.png"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    Text{
-                        id: text_charge
-                        text:qsTr("충전위치로")
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        color: color_dark_black
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: image_charge.bottom
-                        anchors.topMargin: 10
-                    }
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onPressed:{
-                        btn_charge.color = color_light_gray;
-                        count_resting = 0;
-                        cur_table = -1;
-                        if(btn_charge.active){
-                            click_sound.play();
-                            go_charge = true;
-                        }else{
-                            click_sound_no.play();
-                        }
-                    }
-                    onReleased:{
-                        btn_charge.color = "white";
-                        if(btn_charge.active){
-                            popup_question.visible = true;
-                        }else{
-
-                            popup_notice.open();
-                        }
-                    }
-                }
+        }
+        onMenu3_clicked: {
+            count_resting = 0;
+            cur_table = -1;
+            if(menu3_en){
+                click_sound.play();
+                go_wait = true;
+                popup_question.visible = true;
+            }else{
+                click_sound_no.play();
+                popup_notice.open();
             }
-            Rectangle{// 구분바
-                width: rect_menu_box.width
-                height: 3
-                color: "#f4f4f4"
-            }
-            Rectangle{
-                id: btn_resting
-                width: size_menu
-                height: size_menu-10
-                property bool active: false
-                anchors.horizontalCenter: parent.horizontalCenter
-                Rectangle{
-                    width: size_menu
-                    height: image_wait.height+text_wait.height
-                    anchors.centerIn: parent
-                    color: btn_resting.color
-                    Image{
-                        id: image_wait
-                        scale: 1.3
-                        source:"icon/btn_wait.png"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                    }
-                    Text{
-                        id: text_wait
-                        text:qsTr("대기위치로")
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        color: color_dark_black
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: image_wait.bottom
-                        anchors.topMargin: 10
-                    }
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onPressed:{
-                        btn_resting.color = color_light_gray;
-                        count_resting = 0;
-                        cur_table = -1;
-                        if(btn_resting.active){
-                            click_sound.play();
-                        }else{
-                            click_sound_no.play();
-                        }
-                    }
-                    onReleased:{
-                        btn_resting.color = "white";
-                        if(btn_resting.active){
-                            go_wait = true;
-                            popup_question.visible = true;
-                        }else{
-                            popup_notice.open();
-                        }
-                    }
-                }
+        }
+        onMenu4_clicked: {
+            count_resting = 0;
+            cur_table = -1;
+            if(menu4_en){
+                click_sound.play();
+                go_cleaning = true;
+                popup_question.visible = true;
+            }else{
+                click_sound_no.play();
+                popup_notice.open();
             }
         }
     }
+
 
 
     Popup{
@@ -2105,7 +2012,7 @@ Item {
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 20
                     color: color_dark_navy
-//                    visible: false
+                    visible: false
                     radius: 40
 //                    visible: popup_notice.show_motorinit
                     Text{
@@ -2163,6 +2070,8 @@ Item {
             text: {
                 if(go_wait){
                     qsTr("대기 장소로 이동<font color=\"white\">하시겠습니까?</font>")
+                }else if(go_cleaning){
+                    qsTr("퇴식 장소로 이동<font color=\"white\">하시겠습니까?</font>")
                 }else if(go_charge){
                     qsTr("충전기로 이동<font color=\"white\">하시겠습니까?</font>")
                 }else if(go_patrol){
@@ -2179,7 +2088,7 @@ Item {
             width: 250
             height: 90
             radius: 20
-            visible: !go_charge&&!go_wait&&!go_patrol
+            visible: !go_charge&&!go_wait&&!go_patrol&&!go_cleaning
             color: "#d0d0d0"
             anchors.top: text_quest.bottom
             anchors.topMargin: 50
@@ -2208,19 +2117,22 @@ Item {
                     if(go_wait){
                         start_sound.play();
                         supervisor.moveToWait();
+                    }else if(go_cleaning){
+                        start_sound.play();
+                        supervisor.moveToCleaning();
                     }else if(go_charge){
                         start_sound.play();
                         supervisor.moveToCharge();
                     }else if(go_patrol){
                         start_sound.play();
-
                     }else{
-                        click_error.play();
+                        click_sound_no.play();
                     }
 
                     go_wait = false;
                     go_charge = false;
                     go_patrol = false;
+                    go_cleaning = false;
                     popup_question.visible = false;
                 }
             }
@@ -2230,7 +2142,7 @@ Item {
             width: 250
             height: 90
             radius: 20
-            visible: go_charge||go_wait||go_patrol
+            visible: go_charge||go_wait||go_patrol||go_cleaning
             color: "#d0d0d0"
             anchors.top: text_quest.bottom
             anchors.topMargin: 50
@@ -2270,7 +2182,7 @@ Item {
             width: 250
             height: 90
             radius: 20
-            visible: go_charge||go_wait||go_patrol
+            visible: go_charge||go_wait||go_patrol||go_cleaning
             color: "#d0d0d0"
             anchors.top: text_quest.bottom
             anchors.topMargin: 50

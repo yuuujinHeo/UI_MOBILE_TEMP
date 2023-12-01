@@ -81,6 +81,10 @@ public:
         int8_t     ui_draw_state = 0;
         int8_t      ui_multi_state = 0;//ready, moving, wait
         int8_t      ui_fail_state = 0;//kill
+
+        float ui_loc_inlier_ratio = 0;
+        float ui_loc_inlier_error = 0;
+
         STATUS()
         {
         }
@@ -117,6 +121,8 @@ public:
             memcpy(robot_pose, p.robot_pose, sizeof(float)*3);
             memcpy(robot_scan, p.robot_scan, sizeof(float)*360);
             ui_fail_state = p.ui_fail_state;
+            ui_loc_inlier_ratio = p.ui_loc_inlier_ratio;
+            ui_loc_inlier_error = p.ui_loc_inlier_error;
         }
     };
 

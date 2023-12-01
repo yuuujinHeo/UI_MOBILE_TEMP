@@ -153,6 +153,9 @@ void IPCHandler::onTimer(){
         probot->total_power = temp1.total_power;
 
         probot->bat_list.push_back(probot->battery_in);
+        if(probot->bat_list.size() > 3){
+            probot->bat_list.pop_front();
+        }
 
         float sum_battery = 0;
         for(int i=0; i<probot->bat_list.size(); i++){
@@ -160,20 +163,19 @@ void IPCHandler::onTimer(){
         }
 
         float av_battery = sum_battery/probot->bat_list.size();
-        if(probot->bat_list.size() > 3){
-            probot->bat_list.pop_front();
-        }
 
         if(probot->battery < av_battery){
             probot->battery = av_battery;
-        }else if(av_battery - probot->battery > 1.){
+        }else if(probot->battery - av_battery > 0.5){
             probot->battery = av_battery;
         }
 
         probot->battery_percent = (probot->battery-44)*100/10;
 
-        if(probot->battery_percent > 100) probot->battery_percent = 100;
-        if(probot->battery_percent < 0) probot->battery_percent = 0;
+        if(probot->battery_percent > 100)
+            probot->battery_percent = 100;
+        if(probot->battery_percent < 0)
+            probot->battery_percent = 0;
 
         probot->battery_cur = temp1.bat_cur;
         probot->motor[0].connection = temp1.connection_m0;
@@ -219,6 +221,8 @@ void IPCHandler::onTimer(){
         for(int i=0; i<360; i++){
             probot->lidar_data[i] = temp1.robot_scan[i];
         }
+        probot->inlier_ratio = temp1.ui_loc_inlier_ratio;
+        probot->inlier_error = temp1.ui_loc_inlier_error;
 //        qDebug() << probot->curPose.point.x << probot->curPose.point.y << probot->curPose.angle << probot->lidar_data[0];
         prev_tick_status = temp1.tick;
     }

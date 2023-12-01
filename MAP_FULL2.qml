@@ -439,7 +439,7 @@ Item {
                     height: 30
                     visible: rect_notice.show_icon
                     anchors.verticalCenter: parent.verticalCenter
-                    source: "icon/warning.png"
+                    source: "image/warning.png"
                     ColorOverlay{
                         source: parent
                         anchors.fill: parent
