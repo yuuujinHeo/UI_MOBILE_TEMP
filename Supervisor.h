@@ -411,7 +411,9 @@ public:
     Q_INVOKABLE void removeMap(QString filename);
 
     Q_INVOKABLE void loadMap(QString name);
-    Q_INVOKABLE void copyMap(QString orinname, QString newname);
+
+    void CopyPath(QString srcs, QString dst);
+    Q_INVOKABLE int copyMap(QString orinname, QString newname);
     Q_INVOKABLE void setMap(QString name);
     Q_INVOKABLE bool rotate_map(QString _src, QString _dst, int mode);
 

@@ -312,6 +312,7 @@ Popup{
                                 if(select_map_list > -1){
                                     supervisor.writelog("[USER INPUT] Map used copied : " + model_maps.get(select_map_list).name);
                                     popup_copymap.open();
+                                    popup_copymap.orin_name = model_maps.get(select_map_list).name;
 
 
 //                                    supervisor.setMap(model_maps.get(select_map_list).name);
@@ -391,8 +392,9 @@ Popup{
                     font.pixelSize: 25
                 }
                 TextField{
+                    anchors.horizontalCenter: parent.horizontalCenter
                     id: textfield_new_map
-                    width: 200
+                    width: 250
                     height: 40
                     horizontalAlignment: TextField.AlignHCenter
                     text: popup_copymap.orin_name
@@ -413,6 +415,7 @@ Popup{
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 30
                     Item_buttons{
+                        type: "round_text"
                         width: 160
                         height: 40
                         text:"취소"
@@ -421,12 +424,13 @@ Popup{
                         }
                     }
                     Item_buttons{
+                        type: "round_text"
                         width: 160
                         height: 40
                         text:"확인"
                         onClicked:{
                             if(textfield_new_map.text != ""){
-                                supervisor.copyMap(orin_name, textfield_new_map.text);
+                                supervisor.copyMap(popup_copymap.orin_name, textfield_new_map.text);
                                 popup_copymap.close();
                             }
                         }

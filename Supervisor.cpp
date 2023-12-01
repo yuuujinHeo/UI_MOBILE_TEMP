@@ -1354,9 +1354,47 @@ void Supervisor::setMap(QString name){
     readSetting(name);
     slam_map_reload(name);
 }
-void Supervisor::copyMap(QString orinname, QString newname){
 
+void Supervisor::CopyPath(QString src, QString dst){
+    QDir dir(src);
+    if (! dir.exists())
+        return;
 
+    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+        QString dst_path = dst + QDir::separator() + d;
+        dir.mkpath(dst_path);
+        CopyPath(src+ QDir::separator() + d, dst_path);
+    }
+
+    foreach (QString f, dir.entryList(QDir::Files)) {
+        QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
+    }
+}
+
+int Supervisor::copyMap(QString orinname, QString newname){
+    plog->write("[SETTING] Copy Map orin = "+orinname+", new = "+newname);
+
+    QString orin_path = QDir::homePath() + "/RB_MOBILE/maps/" + orinname;
+    QString new_path = QDir::homePath() + "/RB_MOBILE/maps/" + newname;
+
+    QDir dir(orin_path);
+
+    if(QFile::exists(orin_path)){
+        if(QFile::exists(new_path)){
+            plog->write("[SETTING] Copy Map failed : Already has");
+            return 2;
+        }else{
+            if(QDir().mkdir(new_path)){
+                CopyPath(orin_path, new_path);
+            }else{
+                plog->write("[SETTING] Co        py Map failed : new Folder make failed");
+                return 2;
+            }
+        }
+    }else{
+        plog->write("[SETTING] Copy Map failed : No orinFile");
+        return 1;
+    }
 }
 void Supervisor::loadMap(QString name){
     setSetting("setting","MAP/map_path",QDir::homePath()+"/RB_MOBILE/maps/"+name);
