@@ -29,12 +29,18 @@ Item {
         onTriggered: {
             value = supervisor.getICPRatio();
             error = supervisor.getICPError();
+//            print("TEST : ",value,error,limit,error_limit,state);
             if(error > error_limit){
-                print(error, error_limit);
+                circle1.progressColor = color_red;
+                btn_init_success.enabled = false;
                 state = 3;
             }else if(value > limit){
+                circle1.progressColor = color_green;
                 state = 2;
+                btn_init_success.enabled = true;
             }else{
+                circle1.progressColor = color_warning;
+                btn_init_success.enabled = false;
                 state = 1;
             }
         }
@@ -54,6 +60,7 @@ Item {
         show_limit: true
         value: value
         startAngle: 0
+        limit_angle: limit
         endAngle: 270
         rotation : 225
         limiter: Item {
@@ -99,7 +106,6 @@ Item {
                 x: (circle2.handleWidth - width) / 2
                 y: circle2.handleHeight / 2
             }
-
             width: 5
             height: circle2.height / 2
             color: "#FFac89"
@@ -115,6 +121,7 @@ Item {
         width: 200
         height: width
         radius: width
+        color: color_light_gray
         Column{
             anchors.centerIn: parent
             spacing: -20
@@ -127,7 +134,7 @@ Item {
                     from: text_value.textValue
                     duration: 500
                 }
-                color: state===1?state===2?color_red:color_green:color_blue
+                color: circle1.progressColor//state===1?state===2?color_red:color_green:color_blue
                 anchors.horizontalCenter: parent.horizontalCenter
                 text: Number(textValue*100).toFixed(0);
                 font.pixelSize: 120

@@ -67,7 +67,8 @@ Item {
         height = width * model_menu.count
     }
     function setEnable(num, en){
-        model_menu.get(num).en = en;
+        if(num > -1 && num < model_menu.count)
+            model_menu.get(num).en = en;
     }
 
 

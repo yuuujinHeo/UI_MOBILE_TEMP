@@ -1177,6 +1177,13 @@ void Supervisor::checkRobotINI(){
         setSetting("setting","PRESET5/limit_w_acc","120");
     }
 
+    if(getSetting("setting","INITIALIZATION","icp_init_ratio") == "")
+        setSetting("setting","INITIALIZATION/icp_init_ratio","0.7");
+
+    if(getSetting("setting","INITIALIZATION","icp_init_error") == "")
+        setSetting("setting","INITIALIZATION/icp_init_error","0.2");
+
+
     if(getSetting("setting","ROBOT_TYPE","type") == "")
         setSetting("setting","ROBOT_TYPE/type","SERVING");
     if(getSetting("setting","ROBOT_TYPE","model") == "")
@@ -3193,7 +3200,7 @@ void Supervisor::onTimer(){
             if(probot->status_charge == 1){
                 ui_state = UI_STATE_CHARGING;
             }else{
-                qDebug() << "?!!!!!!!!!!!!!!!!!!!!!";
+//                qDebug() << "?!!!!!!!!!!!!!!!!!!!!!";
             }
         }else{
             if(check_init){

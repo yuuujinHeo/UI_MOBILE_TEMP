@@ -3072,21 +3072,34 @@ Item {
                 interval: 500
                 onTriggered: {
                     local_find_state = supervisor.getLocalizationState();
+                    print(local_find_state);
                     if(local_find_state===0){//not ready
                         if(!popup_loading.opened)
                             popup_loading.open();
                     }else if(local_find_state === 1){
                         text_finding.text = qsTr("로봇의 위치를 찾고 있습니다")
                         popup_loading.close();
+                        btn_init_success.visible = false;
+                        btn_init_reboot.visible = false;
+                        btn_init_manual.visible = false;
+                        btn_init_retry.visible = false;
                     }else if(local_find_state === 2){//success
                         text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
                         popup_loading.close();
-                        timer_check_localization.stop();
+                        btn_init_success.visible = true;
+                        btn_init_retry.visible = true;
+                        btn_init_manual.visible = true;
+                        btn_init_reboot.visible = false;
+//                        timer_check_localization.stop();
                     }else if(local_find_state === 3){//failed
                         text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
                         popup_loading.close();
+                        btn_init_success.visible = false;
+                        btn_init_manual.visible = true;
+                        btn_init_reboot.visible = false;
+                        btn_init_retry.visible = true;
                         timer_check_localization2.start();
-                        timer_check_localization.stop();
+//                        timer_check_localization.stop();
                     }else{
                         text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
                     }
@@ -3094,6 +3107,7 @@ Item {
                     if(!supervisor.getIPCConnection()){
                         local_find_state = 10;
                         popup_loading.close();
+                        btn_init_reboot.visible = true;
                         timer_check_localization.stop();
                     }
                 }
@@ -3105,14 +3119,14 @@ Item {
                 interval: 500
                 onTriggered: {
                     if(supervisor.getLocalizationState() === 2){//success
-                        btn_right2.enabled = true;
+//                        btn_right2.enabled = true;
                         btn_do_autoinit.running = false;
                     }else if(supervisor.getLocalizationState() === 1){
                         btn_do_autoinit.running = true;
-                        btn_right2.enabled = false;
+//                        btn_right2.enabled = false;
                     }else{
                         btn_do_autoinit.running = false;
-                        btn_right2.enabled = false;
+//                        btn_right2.enabled = false;
                     }
                 }
             }
@@ -3291,21 +3305,23 @@ Item {
                 Text{
                     id: text_finding
                     text: qsTr("로봇의 위치를 찾고 있습니다")
-                    color: "white"
-                    opacity: 0
+                    color: color_dark_navy
                     Behavior on opacity {
                         NumberAnimation{
                             duration : 500
                         }
                     }
-                    font.pixelSize: 60
+                    horizontalAlignment:Text.AlignHCenter
+                    font.pixelSize: 40
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
-                    anchors.topMargin: 140
+                    anchors.topMargin: 50
                     font.family: font_noto_b.name
                 }
                 Item_progressCircle{
-                    anchors.centerIn: parent
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 50
                 }
                 Item_buttons{
                     id: btn_init_success
@@ -3333,9 +3349,9 @@ Item {
                     type: "round_text"
                     text: qsTr("수동지정(전문가)")
                     anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.bottomMargin: 50
-                    anchors.leftMargin: 50
+                    anchors.right: parent.right
+                    anchors.bottomMargin: 150
+                    anchors.rightMargin: 50
                     onClicked: {
                         click_sound.play();
                         supervisor.writelog("[ANNOTATION] Localization : Failed")
@@ -3399,7 +3415,7 @@ Item {
                     anchors.bottom: parent.bottom
                     color: color_navy
                     Text{
-                        text:qsTr("로봇의 위치를 찾을 수 없습니다 로봇의 위치를 맵 상에서 표시해주세요")
+                        text:qsTr("로봇의 위치를 맵 상에서 표시해주세요")
                         font.pixelSize: 30
                         horizontalAlignment: Text.AlignHCenter
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -3409,30 +3425,11 @@ Item {
                         font.family: font_noto_b.name
                     }
                     Item_buttons{
-                        id: btn_right2
-                        width: 200
-                        height: 80
-                        type: "round_text"
-                        text: qsTr("일치 합니다")
-                        anchors.bottom: parent.bottom
-                        anchors.right: parent.right
-                        anchors.bottomMargin: 50
-                        anchors.rightMargin: 50
-                        enabled: false
-                        onClicked: {
-                            click_sound.play();
-                            supervisor.writelog("[INIT] Localization : Success");
-                            supervisor.confirmLocalization();
-                            update_timer.start();
-                            popup_init_manual.close();
-                        }
-                    }
-                    Item_buttons{
                         id: btn_right23
                         width: 200
                         height: 80
                         type: "round_text"
-                        text: qsTr("취 소")
+                        text: qsTr("종 료")
                         anchors.bottom: parent.bottom
                         anchors.right: parent.right
                         anchors.bottomMargin: 50
@@ -3475,6 +3472,7 @@ Item {
                         Item_buttons{
                             width: 200
                             height: 80
+                            visible: false
                             type: "round_text"
                             text:  qsTr("다시 시도")
                             onClicked: {
@@ -3506,10 +3504,10 @@ Item {
                     id: map
                     enabled: false
                     objectName: "annot_local"
-                    visible: local_find_state>1 && local_find_state<10
-                    onVisibleChanged: {
-                        print("map visible changed",visible,x,y,width,height);
-                    }
+//                    visible: local_find_state>1 && local_find_state<10
+//                    onVisibleChanged: {
+//                        print("map visible changed",visible,x,y,width,height);
+//                    }
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 50
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -3527,7 +3525,6 @@ Item {
         Item{
             objectName: "init_motor"
             anchors.fill: parent
-            visible: false
             Component.onCompleted: {
                 statusbar.visible = true;
                 supervisor.setMotorLock(true);
@@ -3535,13 +3532,6 @@ Item {
             Rectangle{
                 anchors.fill: parent
                 color: "#f4f4f4"
-            }
-            Timer{
-                running: true
-                interval: 1000
-                onTriggered: {
-                    parent.visible = true;
-                }
             }
 
             SequentialAnimation{
@@ -4407,6 +4397,14 @@ Item {
             update_timer.start();
         }
     }
+    Timer{
+        id:timer_motor_init
+        running: false
+        interval: 1500
+        onTriggered: {
+            loader_init.sourceComponent = item_motor_init;
+        }
+    }
 
     Timer{
         id: update_timer
@@ -4513,14 +4511,16 @@ Item {
                     dochargeininit();
                     supervisor.writelog("[INIT] Charging Detected");
                 }else if(supervisor.getIPCConnection() && supervisor.getMotorState() === 1){
+                    timer_motor_init.stop();
                     supervisor.writelog("[INIT] Motor Check : Success");
                     init_mode = 6;
                     update_timer.stop();
                     loadPage(pkitchen);
                 }else{
                     if(loader_init.item.objectName != "init_motor"){
-                        supervisor.writelog("[INIT] Motor Check : Failed");
-                        loader_init.sourceComponent = item_motor_init
+//                        supervisor.writelog("[INIT] Motor Check : Failed");
+                        timer_motor_init.start();
+//                        loader_init.sourceComponent = item_motor_init
                     }
                 }
             }
