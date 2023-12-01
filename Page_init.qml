@@ -3287,7 +3287,7 @@ Item {
                 width: parent.width
                 height: parent.height - statusbar.height
                 anchors.bottom: parent.bottom
-                color: color_navy
+                color: color_light_gray
                 Text{
                     id: text_finding
                     text: qsTr("로봇의 위치를 찾고 있습니다")
