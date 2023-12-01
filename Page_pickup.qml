@@ -17,6 +17,7 @@ Item {
     property bool blink_1: false
     property bool blink_2: false
     property bool blink_3: false
+    property var tray_num: parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))
 
     function init(){
         supervisor.writelog("[QML] PICKUP PAGE Init");
@@ -31,6 +32,16 @@ Item {
         timer_hello.stop();
         voice_pickup.play();
         statusbar.visible = false;
+        tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
+        if(tray_num === 2){
+            rect_tray_1.visible = true;
+            rect_tray_2.visible = true;
+            rect_tray_3.visible = false;
+        }else{
+            rect_tray_1.visible = true;
+            rect_tray_2.visible = true;
+            rect_tray_3.visible = true;
+        }
     }
 
     function play_voice(){

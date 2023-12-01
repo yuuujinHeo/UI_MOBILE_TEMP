@@ -414,22 +414,29 @@ Window {
                 loader_page.item.init();
 
                 var trays = supervisor.getPickuptrays();
-                var tempstr = "";
-                for(var i=0; i<trays.length; i++){
-                    if(tempstr === ""){
-                        tempstr = Number(trays[i])+qsTr("번");
-                    }else{
-                        tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
+                if(trays.length === parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))){
+                    loader_page.item.pos = "";
+                    loader_page.item.pickup_1 = true;
+                    loader_page.item.pickup_2 = true;
+                    loader_page.item.pickup_3 = true;
+                }else{
+                    var tempstr = "";
+                    for(var i=0; i<trays.length; i++){
+                        if(tempstr === ""){
+                            tempstr = Number(trays[i])+qsTr("번");
+                        }else{
+                            tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
+                        }
+                        if(trays[i] === 1){
+                            loader_page.item.pickup_1 = true;
+                        }else if(trays[i] === 2){
+                            loader_page.item.pickup_2 = true;
+                        }else if(trays[i] === 3){
+                            loader_page.item.pickup_3 = true;
+                        }
                     }
-                    if(trays[i] === 1){
-                        loader_page.item.pickup_1 = true;
-                    }else if(trays[i] === 2){
-                        loader_page.item.pickup_2 = true;
-                    }else if(trays[i] === 3){
-                        loader_page.item.pickup_3 = true;
-                    }
+                    loader_page.item.pos = tempstr;
                 }
-                loader_page.item.pos = tempstr;
             }
 
         }
