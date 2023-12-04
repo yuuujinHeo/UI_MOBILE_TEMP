@@ -136,9 +136,9 @@ void MapHandler::loadFile(QString name, QString type){
         for(int i=0; i<file_object.cols; i++){
             for(int j=0; j<file_object.rows; j++){
                 if(file_object.at<cv::Vec3b>(i,j)[0] == 255){
-                    file_object.at<cv::Vec3b>(i,j)[0] = 80;
-                    file_object.at<cv::Vec3b>(i,j)[1] = 200;
-                    file_object.at<cv::Vec3b>(i,j)[2] = 255;
+                    file_object.at<cv::Vec3b>(i,j)[0] = 249;
+                    file_object.at<cv::Vec3b>(i,j)[1] = 184;
+                    file_object.at<cv::Vec3b>(i,j)[2] = 131;
                 }
             }
         }
@@ -311,6 +311,9 @@ void MapHandler::setMode(QString name){
         show_local_path = false;
         show_lidar = false;
         show_location = false;
+        show_travelline = false;
+        show_object = false;
+        show_velocitymap = false;
         show_location_icon = false;
         robot_following = false;
         setFullScreen();
@@ -500,6 +503,21 @@ void MapHandler::setMap(){
 
         cv::cvtColor(file_object,temp_obj,cv::COLOR_BGR2BGRA);
 
+        //이동경로맵
+        if(show_travelline){
+            if(show_velocitymap || show_object){
+                cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
+            }else if(mode == "annot_location" || mode == "map_list"){
+                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel,temp_travel);
+                cv::add(temp_travel,map_drawing,temp_travel);
+                cv::addWeighted(temp_orin,1,temp_travel,1,0,temp_orin);
+            }else{
+                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel,temp_travel);
+                cv::add(temp_travel,map_drawing,temp_travel);
+                cv::addWeighted(temp_orin,0.5,temp_travel,1,0,temp_orin);
+            }
+        }
+
         //속도맵
         if(show_velocitymap){
             cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
@@ -507,29 +525,21 @@ void MapHandler::setMap(){
             cv::addWeighted(temp_orin,1,temp_velmap,0.5,0,temp_orin);
         }
 
-        //이동경로맵
-        if(show_travelline){
-            cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel,temp_travel);
-            cv::add(temp_travel,map_drawing,temp_travel);
-            if(mode == "annot_location" || mode == "map_list"){
-                cv::addWeighted(temp_orin,1,temp_travel,1,0,temp_orin);
-            }else{
-                cv::addWeighted(temp_orin,0.5,temp_travel,1,0,temp_orin);
-            }
-        }
-
         if(show_object){//!show_velocitymap && !show_travelline){
             if(mode == "annot_object_png"){
                 cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
                 cv::add(temp_obj,map_drawing,temp_obj);
                 cv::addWeighted(temp_orin,1,temp_obj,0.5,0,temp_orin);
-//                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask, temp_orin, temp_orin);
-//                cv::addWeighted(temp_orin, 1,map_drawing,0.5,0,temp_orin);
             }else{
                 cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
                 cv::add(temp_orin,map_drawing,temp_orin);
             }
-//            qDebug() << map_drawing_mask.channels() << temp_orin.channels() << map_drawing_mask.rows << temp_orin.rows;
+        }
+
+        if(!show_object && !show_velocitymap && !show_travelline){
+
+            cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
+            cv::add(temp_orin,map_drawing,temp_orin);
 
         }
 
@@ -1572,7 +1582,7 @@ void MapHandler::setMapDrawing(){
             }else if(mode == "annot_object_png"){
                 if(lines[line].color == 255){
                     for(int i=0; i<lines[line].points.size()-1; i++){
-                        cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),color_yellow,lines[line].width,8,0);
+                        cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),color_blue,lines[line].width,8,0);
                         cv::line(map_drawing_mask,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar::all(255),lines[line].width,8,0);
                     }
                 }else{
@@ -1598,7 +1608,7 @@ void MapHandler::setMapDrawing(){
                 cv::rectangle(map_drawing,lines[line].points[0],lines[line].points[2],cv::Scalar(-1,-1,-1,255),-1,8,0);
                 cv::rectangle(map_drawing_mask,lines[line].points[0],lines[line].points[2],cv::Scalar::all(255),-1,8,0);
             }else if(mode == "annot_object_png"){
-                cv::rectangle(map_drawing,lines[line].points[0],lines[line].points[2],color_yellow,-1,8,0);
+                cv::rectangle(map_drawing,lines[line].points[0],lines[line].points[2],color_blue,-1,8,0);
                 cv::rectangle(map_drawing_mask,lines[line].points[0],lines[line].points[2],cv::Scalar::all(255),-1,8,0);
             }
         }
@@ -1614,7 +1624,7 @@ void MapHandler::setMapDrawing(){
             }
         }else if(mode == "annot_object_png"){
 
-            cv::line(map_drawing,straight[0],straight[1],color_yellow,cur_line_width,8,0);
+            cv::line(map_drawing,straight[0],straight[1],color_blue,cur_line_width,8,0);
             cv::line(map_drawing_mask,straight[0],straight[1],cv::Scalar::all(255),cur_line_width,8,0);
         }else{
             cv::line(map_drawing,straight[0],straight[1],cv::Scalar(cur_line_color,cur_line_color,cur_line_color,255),cur_line_width,8,0);
@@ -1632,7 +1642,7 @@ void MapHandler::setMapDrawing(){
             cv::rectangle(map_drawing,temp_rect[0],temp_rect[2],cv::Scalar(-1,-1,-1,255),-1,8,0);
             cv::rectangle(map_drawing_mask,temp_rect[0],temp_rect[2],cv::Scalar::all(255),-1,8,0);
         }else if(mode == "annot_object_png"){
-            cv::rectangle(map_drawing,temp_rect[0],temp_rect[2],color_yellow,-1,8,0);
+            cv::rectangle(map_drawing,temp_rect[0],temp_rect[2],color_blue,-1,8,0);
             cv::rectangle(map_drawing_mask,temp_rect[0],temp_rect[2],cv::Scalar::all(255),-1,8,0);
         }
     }
@@ -1711,7 +1721,7 @@ void MapHandler::addLinePoint(int x, int y){
             cv::line(map_drawing,line[line.size()-2],line[line.size()-1],cv::Scalar(-1,-1,-1,255),cur_line_width,8,0);
             cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
         }else{
-            cv::line(map_drawing,line[line.size()-2],line[line.size()-1],color_yellow,cur_line_width,8,0);
+            cv::line(map_drawing,line[line.size()-2],line[line.size()-1],color_blue,cur_line_width,8,0);
             cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
         }
     }else{
@@ -1893,7 +1903,7 @@ void MapHandler::saveObjectPNG(){
         file_width = map_orin.rows;
         file_object = cv::Mat(file_width,file_width,CV_8UC3, cv::Scalar::all(0));
     }
-    qDebug() << QFile::exists(file_path) << file_width << file_object.rows << map_drawing.rows << lines.size();
+//    qDebug() << QFile::exists(file_path) << file_width << file_object.rows << map_drawing.rows << lines.size();
 
 
     for(int line=0; line<lines.size(); line++){

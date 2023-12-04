@@ -17,7 +17,7 @@
 #define color_red       cv::Scalar(77,88,231,255)
 #define color_navy      cv::Scalar(79,86,102,255)
 #define color_gray      cv::Scalar(127,127,127,255)
-#define color_blue      cv::Scalar(131,184,249,255)
+#define color_blue      cv::Scalar(249,184,131,255)
 #define color_pink      cv::Scalar(255,217,255,255)
 #define color_yellow    cv::Scalar(80,200,255,255)
 

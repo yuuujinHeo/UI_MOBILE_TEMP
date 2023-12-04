@@ -815,21 +815,80 @@ Item {
         Item{
             width: annot_pages.width
             height: annot_pages.height
-            property var local_find_state: 0
+            property var local_find_state: -1
+            property bool show_debug: false
             Component.onCompleted: {
-                supervisor.setMotorLock(true);
-                loading.show();
-                text_finding.opacity = 1;
-                map.setEnable(true);
-                map.setTool("move");
+                if(annotation_after_mapping){
+                    supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
+                    supervisor.slam_autoInit();
+                    local_find_state = 1;
+                    timer_check_localization.start();
+                }else{
+
+                }
             }
             Component.onDestruction: {
                 map.setEnable(false);
             }
 
+            Timer{
+                running: true
+                interval: 500
+                onTriggered:{
+                    supervisor.setMotorLock(true);
+                }
+            }
+
             Rectangle{
                 anchors.fill: parent
-                color: color_dark_navy
+                color: color_light_gray
+            }
+            Timer{
+                id: timer_check_localization
+                running: false
+                repeat: true
+                interval: 500
+                onTriggered: {
+                    local_find_state = supervisor.getLocalizationState();
+                    print(local_find_state);
+                    if(local_find_state===0){//not ready
+                        if(!popup_loading.opened)
+                            popup_loading.open();
+                    }else if(local_find_state === 1){
+                        text_finding.text = qsTr("로봇의 위치를 찾고 있습니다")
+                        popup_loading.close();
+                        btn_init_success.visible = false;
+                        btn_init_reboot.visible = false;
+                        btn_init_manual.visible = false;
+                        btn_init_retry.visible = false;
+                    }else if(local_find_state === 2){//success
+                        text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
+                        popup_loading.close();
+                        btn_init_success.visible = true;
+                        btn_init_retry.visible = true;
+                        btn_init_manual.visible = true;
+                        btn_init_reboot.visible = false;
+//                        timer_check_localization.stop();
+                    }else if(local_find_state === 3){//failed
+                        text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
+                        popup_loading.close();
+                        btn_init_success.visible = false;
+                        btn_init_manual.visible = true;
+                        btn_init_reboot.visible = false;
+                        btn_init_retry.visible = true;
+                        timer_check_localization2.start();
+//                        timer_check_localization.stop();
+                    }else{
+                        text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
+                    }
+
+                    if(!supervisor.getIPCConnection()){
+                        local_find_state = 10;
+                        popup_loading.close();
+                        btn_init_reboot.visible = true;
+                        timer_check_localization.stop();
+                    }
+                }
             }
             Timer{
                 id: timer_check_localization2
@@ -837,292 +896,309 @@ Item {
                 repeat: true
                 interval: 500
                 onTriggered: {
-                    if(test){
-                        btn_right2.enabled = true;
+                    if(supervisor.getLocalizationState() === 2){//success
+//                        btn_right2.enabled = true;
+                        btn_do_autoinit.running = false;
+                    }else if(supervisor.getLocalizationState() === 1){
+                        btn_do_autoinit.running = true;
+//                        btn_right2.enabled = false;
                     }else{
-                        if(supervisor.getLocalizationState() === 2){//success
-                            btn_right2.enabled = true;
-                            btn_do_autoinit.running = false;
-                        }else if(supervisor.getLocalizationState() === 1){
-                            btn_do_autoinit.running = true;
-                        }else{
-                            btn_do_autoinit.running = false;
-                            btn_right2.enabled = false;
-                        }
+                        btn_do_autoinit.running = false;
+//                        btn_right2.enabled = false;
                     }
                 }
             }
 
-            Timer{
-                id: timer_check_localization
-                running: true
-                repeat: true
-                interval: 500
-                onTriggered: {
-//                    map.loadmapsoft(supervisor.getMapname(),"EDITED");
-                    if(test){
-                        local_find_state = 2;
-                        loading.hide();
-                        map.setViewer("local_view");
-                        timer_check_localization.stop();
-                    }else{
-                        local_find_state = supervisor.getLocalizationState();
-                        print("local state = ",local_find_state);
-                        if(local_find_state===0){//not ready
+            Rectangle{
+                id: initPage_main
+                visible: local_find_state === -1 || local_find_state === 0
+                anchors.fill: parent
+                color: color_light_gray
+                Text{
+                    id: text_notice4
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+                    anchors.topMargin: 200
+                    horizontalAlignment: Text.AlignHCenter
+                    color: color_dark_gray
+                    font.family: font_noto_b.name
+                    text: qsTr("로봇을 지정된 대기위치로 이동시켜 주세요\n이동하신 후 아래 버튼을 눌러주세요")
+                    font.pixelSize: 50
+                }
+                Rectangle{
+                    id: btn_slam_do_init
+                    width: 300
+                    height: 120
+                    radius: 60
+                    opacity: 0
+                    color: color_green
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 100
+                    Text{
+                        id: text_slam_do_init
+                        anchors.centerIn: parent
+                        text: qsTr("대기위치입니다")
+                        color: "white"
+                        font.family: font_noto_r.name
+                        font.pixelSize: 40
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onPressed:{
+                            start_sound.play();
+                            parent.color = color_mid_green;
+                        }
+                        onReleased: {
+                            parent.color = color_green;
+                        }
+                        onClicked: {
+                            timer_check_localization.start();
+                            supervisor.writelog("[USER INPUT] INIT PAGE : DO LOCALIZATION")
                             supervisor.slam_autoInit();
-                        }else if(local_find_state === 2){//success
-                            loading.hide();
-                            map.setViewer("local_view");
-                            timer_check_localization.stop();
-                        }else if(local_find_state === 3){//failed
-                            loading.hide();
-                            map.setViewer("localization");
-                            timer_check_localization2.start();
-                            timer_check_localization.stop();
-                        }
-                        if(!supervisor.getIPCConnection()){
-                            local_find_state = 10;
-                            loading.hide();
-                            timer_check_localization.stop();
+                            update_timer.stop();
                         }
                     }
-
+                }
+                DropShadow{
+                    anchors.fill: btn_slam_do_init
+                    radius: 10
+                    color: color_dark_gray
+                    source: btn_slam_do_init
                 }
             }
 
-            Text{
-                id: text_finding
-                visible: local_find_state<2
-                text: qsTr("로봇의 위치를 찾고 있습니다")
-                color: "white"
-                opacity: 0
-                Behavior on opacity {
-                    NumberAnimation{
-                        duration : 500
+            Rectangle{
+                id: iniPage_localization
+                visible: !initPage_main.visible
+                width: parent.width
+                height: parent.height - statusbar.height
+                anchors.bottom: parent.bottom
+                color: color_light_gray
+                Text{
+                    id: text_finding
+                    text: qsTr("로봇의 위치를 찾고 있습니다")
+                    color: color_dark_navy
+                    Behavior on opacity {
+                        NumberAnimation{
+                            duration : 500
+                        }
+                    }
+                    horizontalAlignment:Text.AlignHCenter
+                    font.pixelSize: 40
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.top
+                    anchors.topMargin: 50
+                    font.family: font_noto_b.name
+                }
+                Item_progressCircle{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 50
+                }
+                Column{
+                    anchors.bottom: parent.bottom
+                    anchors.right: parent.right
+                    anchors.bottomMargin: 50
+                    anchors.rightMargin: 50
+                    spacing: 20
+                    Item_buttons{
+                        id: btn_init_pass
+                        visible: show_debug
+                        width: 200
+                        height: 80
+                        type: "round_text"
+                        text:qsTr("넘어가기")
+                        onClicked: {
+                            click_sound.play();
+                            supervisor.writelog("[ANNOTATION] Localization : Pass");
+                            annot_pages.sourceComponent = page_annot_menu;
+                        }
+                    }
+                    Item_buttons{
+                        id: btn_init_manual
+                        visible: false
+                        width: 200
+                        height: 80
+                        type: "round_text"
+                        text: qsTr("수동지정(전문가)")
+                        onClicked: {
+                            click_sound.play();
+                            supervisor.writelog("[ANNOTATION] Localization : Failed")
+                            popup_init_manual.open();
+                        }
+                    }
+                    Item_buttons{
+                        id: btn_init_success
+                        visible: false
+                        width: 200
+                        height: 80
+                        type: "round_text"
+                        text:qsTr("확 인")
+                        onClicked: {
+                            click_sound.play();
+                            supervisor.writelog("[ANNOTATION] Localization : Success");
+                            supervisor.confirmLocalization();
+                            annot_pages.sourceComponent = page_annot_menu;
+                        }
                     }
                 }
-                font.pixelSize: 60
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 140
-                font.family: font_noto_b.name
-            }
-            Text{
-                id: text_failed_connection
-                visible: local_find_state===10
-                text: qsTr("로봇과 연결이 되지 않았습니다")
-                color: "white"
-                font.pixelSize: 60
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 140
-                font.family: font_noto_b.name
-            }
-            Text{
-                id: text_find
-                visible: local_find_state===2||local_find_state===3
-                text:local_find_state===2?qsTr("로봇의 위치를 찾았습니다. 로봇의 위치가 정확합니까?"):qsTr("로봇의 위치를 찾을 수 없습니다. 로봇의 위치를 맵 상에서 표시해주세요")
-                font.pixelSize: 30
-                horizontalAlignment: Text.AlignHCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 30
-                color: "white"
-                font.family: font_noto_b.name
-            }
-            Column{
-                anchors.right: map.left
-                anchors.rightMargin: 30
-                anchors.verticalCenter: map.verticalCenter
-                spacing: 50
                 Item_buttons{
-                    visible: local_find_state===3
+                    id: btn_init_retry
+                    visible: false
                     width: 200
                     height: 80
                     type: "round_text"
-                    selected: map.tool==="move"
-                    text: qsTr("이 동")
+                    text: qsTr("다시시도")
+                    anchors.bottom: parent.bottom
+                    anchors.left: parent.left
+                    anchors.bottomMargin: 50
+                    anchors.leftMargin: 50
                     onClicked: {
                         click_sound.play();
-                        map.setTool("move");
+                        timer_check_localization.stop();
+                        local_find_state = -1;
+                        supervisor.writelog("[ANNOTATION] Localization : Retry");
+//                        timer_check_localization2.start();
                     }
                 }
-                Item_buttons{
-                    visible: local_find_state===3
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    selected: map.tool==="slam_init"
-                    text: qsTr("수동 지정")
-                    onClicked: {
-                        click_sound.play();
-                        map.setTool("slam_init");
-                        supervisor.setInitCurPos();
-                        supervisor.slam_setInit();
-                    }
-                }
-                Item_buttons{
-                    visible: local_find_state===3
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    text:  qsTr("다시 시도")
-                    onClicked: {
-                        click_sound.play();
-                        map.setTool("move");
-                        supervisor.slam_autoInit();
-                        timer_check_localization2.start();
-                    }
-                }
-                Item_buttons{
-                    id: btn_do_autoinit
-                    visible: local_find_state===3
-                    width: 200
-                    height: 100
-                    running: false
-                    type: "start_progress"
-                    text: qsTr("자동위치찾기\n(1분소요)")
-                    shadowcolor: color_dark_black
-                    onClicked: {
-                        click_sound.play();
-                        map.setTool("move");
-                        supervisor.slam_fullautoInit();
-                        timer_check_localization2.start();
-                    }
-                }
-            }
-            MAP_FULL2{
-                id: map
-                objectName: "annot_local"
-                visible: local_find_state>1 && local_find_state<10
-                anchors.top: text_find.bottom
-                anchors.topMargin: 30
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: 600
-                height: 600
             }
 
-            Item_buttons{
-                type: "circle_text"
-                text: "?"
-                width: 60
-                height: 60
-                anchors.top: parent.top
-                anchors.topMargin: 50
+            MouseArea{
+                width: 50
+                height: 50
+                anchors.bottom: parent.bottom
                 anchors.right: parent.right
-                anchors.rightMargin: 50
+                property var count: 0
                 onClicked:{
-                    click_sound.play();
-                    popup_annot_help.open();
-                    popup_annot_help.setTitle(qsTr("로봇 위치 초기화"));
-                    if(local_find_state === 2){
-                        popup_annot_help.addLine(qsTr("파란색으로 표시된 라이다맵과 실제 맵이 일치하는 지 확인해주세요"));
-                        popup_annot_help.addLine(qsTr("로봇이 충전, 대기, 서빙 위치 근처에 있으면 보다 정확하고 빠르게 위치를 찾습니다"));
-                        popup_annot_help.addLine(qsTr("로봇은 위치를 찾았다고 생각하지만 라이다맵이 실제 맵과 일치 하지 않으면\n로봇이 주행 중 이상한 곳으로 가거나 충돌이 날 수 있습니다"));
-                    }else{
-                        popup_annot_help.addLine(qsTr("로봇을 충전, 대기, 서빙 위치 근처로 이동시킨 뒤 [다시시도]를 하시면 보다 정확하고 빠르게 위치를 찾습니다"));
-                        popup_annot_help.addLine(qsTr("아니라면 [수동지정]을 통해 맵 상의 로봇의 위치와 방향을 표시해주세요. 그 위치에서 초기화를 시도합니다"));
-                        popup_annot_help.addLine(qsTr("로봇이 이동할 수 있는 상황이 아니고 수동지정도 어려우면 [자동위치찾기]버튼을 누르세요\n시간이 조금 소요됩니다"));
+                    print(count);
+                    if(count++ > 4){
+                        count = 0;
+                        show_debug = true;
                     }
-
                 }
             }
-            Item_buttons{
-                id: btn_pass
-                visible: debug_mode && local_find_state > 1
-                width: 200
-                height: 80
-                type: "round_text"
-                text: qsTr("넘어가기")
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.bottomMargin: 150
-                anchors.rightMargin: 50
-                onClicked: {
-                    click_sound.play();
-                    supervisor.writelog("[ANNOTATION] Localization : Pass");
-                    annot_pages.sourceComponent = page_annot_menu;
-                }
-            }
-            Item_buttons{
-                id: btn_right
-                visible: local_find_state===2
-                width: 200
-                height: 80
-                type: "round_text"
-                text: qsTr("일치 합니다")
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.bottomMargin: 50
-                anchors.rightMargin: 50
-                onClicked: {
-                    click_sound.play();
-                    supervisor.writelog("[ANNOTATION] Localization : Success");
-                    supervisor.confirmLocalization();
-                    if(annotation_after_mapping)
-                        annot_pages.sourceComponent = page_annot_location_charging;
-                    else
-                        annot_pages.sourceComponent = page_annot_menu;
-                }
-            }
-            Item_buttons{
-                id: btn_right2
-                visible: local_find_state===3
-                width: 200
-                height: 80
-                type: "round_text"
-                text: qsTr("일치 합니다")
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.bottomMargin: 50
-                anchors.rightMargin: 50
-                enabled: false
-                onClicked: {
-                    click_sound.play();
-                    supervisor.writelog("[ANNOTATION] Localization : Success");
-                    supervisor.confirmLocalization();
-                    if(annotation_after_mapping)
-                        annot_pages.sourceComponent = page_annot_location_charging;
-                    else
-                        annot_pages.sourceComponent = page_annot_menu;
-                }
-            }
-            Item_buttons{
-                id: btn_right3
-                visible: local_find_state===10
-                width: 200
-                height: 80
-                type: "round_text"
-                text: qsTr("프로그램 다시시작")
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.bottomMargin: 50
-                anchors.rightMargin: 50
-                onClicked: {
-                    click_sound.play();
-                    supervisor.writelog("[ANNOTATION] Localization : Connection Failed. Restart");
-                    supervisor.programRestart();
-                }
-            }
-            Item_buttons{
-                id: btn_left
-                visible: local_find_state===2
-                width: 200
-                height: 80
-                type: "round_text"
-                text: qsTr("틀립니다.\n(수동초기화)")
-                anchors.bottom: parent.bottom
-                anchors.left: parent.left
-                anchors.bottomMargin: 50
-                anchors.leftMargin: 50
-                onClicked: {
-                    click_sound.play();
-                    supervisor.writelog("[ANNOTATION] Localization : Failed")
-                    local_find_state = 3;
+            Popup{
+                id: popup_init_manual
+                width: parent.width
+                height: parent.height
+                onOpened: {
                     map.setViewer("localization");
-                    timer_check_localization2.start();
+                    map.setEnable(true);
                 }
+                onClosed:{
+                    map.setEnable(false);
+                }
+
+                Rectangle{
+                    id: manual_init
+                    width: parent.width
+                    height: parent.height// - statusbar.height
+                    anchors.bottom: parent.bottom
+                    color: color_navy
+                    Text{
+                        text:qsTr("로봇의 위치를 맵 상에서 표시해주세요")
+                        font.pixelSize: 30
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        anchors.top: parent.top
+                        anchors.topMargin: 30
+                        color: "white"
+                        font.family: font_noto_b.name
+                    }
+                    Item_buttons{
+                        id: btn_right23
+                        width: 200
+                        height: 80
+                        type: "round_text"
+                        text: qsTr("종 료")
+                        anchors.bottom: parent.bottom
+                        anchors.right: parent.right
+                        anchors.bottomMargin: 50
+                        anchors.rightMargin: 50
+                        onClicked: {
+                            click_sound.play();
+                            popup_init_manual.close();
+                        }
+                    }
+                    Column{
+                        anchors.left: parent.left
+                        anchors.leftMargin: 30
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 100
+                        spacing: 50
+                        Item_buttons{
+                            width: 200
+                            height: 80
+                            type: "round_text"
+                            selected: map.tool==="move"
+                            text: qsTr("이 동")
+                            onClicked: {
+                                click_sound.play();
+                                map.setTool("move");
+                            }
+                        }
+                        Item_buttons{
+                            width: 200
+                            height: 80
+                            type: "round_text"
+                            selected: map.tool==="slam_init"
+                            text:  qsTr("수동 지정")
+                            onClicked: {
+                                click_sound.play();
+                                map.setTool("slam_init");
+                                supervisor.setInitCurPos();
+                                supervisor.slam_setInit();
+                            }
+                        }
+                        Item_buttons{
+                            width: 200
+                            height: 80
+                            visible: false
+                            type: "round_text"
+                            text:  qsTr("다시 시도")
+                            onClicked: {
+                                click_sound.play();
+                                map.setTool("move");
+                                supervisor.slam_autoInit();
+                                timer_check_localization2.start();
+                            }
+                        }
+                        Item_buttons{
+                            id: btn_do_autoinit
+                            width: 200
+                            height: 100
+                            running: false
+                            type: "start_progress"
+                            text: qsTr("자동위치찾기\n(1분소요)")
+                            shadowcolor: color_dark_black
+                            onClicked: {
+                                click_sound.play();
+                                print("init autoinit");
+                                map.setTool("move");
+                                supervisor.slam_fullautoInit();
+                                timer_check_localization2.start();
+                            }
+                        }
+                    }
+                }
+                MAP_FULL2{
+                    id: map
+                    enabled: false
+                    objectName: "annot_local"
+//                    visible: local_find_state>1 && local_find_state<10
+//                    onVisibleChanged: {
+//                        print("map visible changed",visible,x,y,width,height);
+//                    }
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: 600
+                    height: 600
+                }
+
             }
+
         }
     }
     Component{
@@ -7468,7 +7544,6 @@ Item {
                     }
                     onReleased:{
                         parent.color = "transparent"
-
                         loadPage(plocalization);
                     }
                 }

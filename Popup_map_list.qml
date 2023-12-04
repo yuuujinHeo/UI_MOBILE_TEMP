@@ -306,6 +306,7 @@ Popup{
                             width: 130
                             height: 60
                             type: "round_text"
+                            visible: false
                             text: "복사본만들기"
                             onClicked: {
                                 click_sound.play();

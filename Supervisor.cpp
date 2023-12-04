@@ -1322,6 +1322,7 @@ QString Supervisor::getusbname(int num){
     }
     return "";
 }
+
 void Supervisor::readusb(){
 
 }
@@ -1920,6 +1921,7 @@ QString Supervisor::getLocationCallID(int num){
 //    }
 //    return "";
 }
+
 void Supervisor::setLocationGroup(int num, int group){
     if(num > -1 && num < pmap->locations.size()){
         pmap->locations[num].group = group;
@@ -2001,6 +2003,7 @@ QString Supervisor::getLocationName(int num, QString type){
         return "설정 안됨";
     }
 }
+
 QString Supervisor::getLocationType(int num){
     if(num > -1 && num < pmap->locations.size()){
         return pmap->locations[num].type;
