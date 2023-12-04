@@ -518,7 +518,7 @@ void MapHandler::setMap(){
             }
         }
 
-        if(!show_velocitymap && !show_travelline){
+        if(show_object){//!show_velocitymap && !show_travelline){
             if(mode == "annot_object_png"){
                 cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
                 cv::add(temp_obj,map_drawing,temp_obj);
