@@ -204,7 +204,7 @@ void IPCHandler::onTimer(){
         //DEBUG
         probot->status_charge = temp1.status_charge;
         probot->localization_state = temp1.ui_loc_state;
-        qDebug() << probot->localization_state;
+//        qDebug() << probot->localization_state;
         if(probot->localization_state == 2){
             pmap->cut_map[0] = 0;
             pmap->cut_map[1] = 0;

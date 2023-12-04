@@ -818,31 +818,36 @@ Item {
             property var local_find_state: -1
             property bool show_debug: false
             Component.onCompleted: {
-                if(annotation_after_mapping){
-                    supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
-                    supervisor.slam_autoInit();
-                    local_find_state = 1;
-                    timer_check_localization.start();
-                }else{
 
-                }
             }
             Component.onDestruction: {
                 map.setEnable(false);
-            }
-
-            Timer{
-                running: true
-                interval: 500
-                onTriggered:{
-                    supervisor.setMotorLock(true);
-                }
             }
 
             Rectangle{
                 anchors.fill: parent
                 color: color_light_gray
             }
+
+            Timer{
+                running: true
+                interval: 500
+                onTriggered:{
+                    if(annotation_after_mapping){
+                        timer_check_localization.start();
+                        supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
+                        supervisor.slam_autoInit();
+                    }
+                }
+            }
+            Timer{
+                running: true
+                interval: 1000
+                onTriggered:{
+                    supervisor.setMotorLock(false);
+                }
+            }
+
             Timer{
                 id: timer_check_localization
                 running: false
@@ -850,7 +855,7 @@ Item {
                 interval: 500
                 onTriggered: {
                     local_find_state = supervisor.getLocalizationState();
-                    print(local_find_state);
+//                    print(local_find_state);
                     if(local_find_state===0){//not ready
                         if(!popup_loading.opened)
                             popup_loading.open();
@@ -858,7 +863,6 @@ Item {
                         text_finding.text = qsTr("로봇의 위치를 찾고 있습니다")
                         popup_loading.close();
                         btn_init_success.visible = false;
-                        btn_init_reboot.visible = false;
                         btn_init_manual.visible = false;
                         btn_init_retry.visible = false;
                     }else if(local_find_state === 2){//success
@@ -867,14 +871,12 @@ Item {
                         btn_init_success.visible = true;
                         btn_init_retry.visible = true;
                         btn_init_manual.visible = true;
-                        btn_init_reboot.visible = false;
 //                        timer_check_localization.stop();
                     }else if(local_find_state === 3){//failed
                         text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
                         popup_loading.close();
                         btn_init_success.visible = false;
                         btn_init_manual.visible = true;
-                        btn_init_reboot.visible = false;
                         btn_init_retry.visible = true;
                         timer_check_localization2.start();
 //                        timer_check_localization.stop();
@@ -911,7 +913,7 @@ Item {
 
             Rectangle{
                 id: initPage_main
-                visible: local_find_state === -1 || local_find_state === 0
+                visible: !annotation_after_mapping && (local_find_state === -1 || local_find_state === 0)
                 anchors.fill: parent
                 color: color_light_gray
                 Text{
@@ -1016,6 +1018,19 @@ Item {
                         }
                     }
                     Item_buttons{
+                        id: btn_init_remapping
+                        visible: show_debug
+                        width: 200
+                        height: 80
+                        type: "round_text"
+                        text:qsTr("맵 다시생성")
+                        onClicked: {
+                            click_sound.play();
+                            supervisor.writelog("[ANNOTATION] Localization : pass to mapping");
+                            loadPage(pmapping);
+                        }
+                    }
+                    Item_buttons{
                         id: btn_init_manual
                         visible: false
                         width: 200
@@ -1038,8 +1053,13 @@ Item {
                         onClicked: {
                             click_sound.play();
                             supervisor.writelog("[ANNOTATION] Localization : Success");
-                            supervisor.confirmLocalization();
-                            annot_pages.sourceComponent = page_annot_menu;
+                            if(annotation_after_mapping){
+                                annot_pages.sourceComponent = page_annot_location_charging;
+                            }else{
+                                supervisor.confirmLocalization();
+                                annot_pages.sourceComponent = page_annot_menu;
+                            }
+
                         }
                     }
                 }
@@ -1056,10 +1076,17 @@ Item {
                     anchors.leftMargin: 50
                     onClicked: {
                         click_sound.play();
-                        timer_check_localization.stop();
-                        local_find_state = -1;
-                        supervisor.writelog("[ANNOTATION] Localization : Retry");
-//                        timer_check_localization2.start();
+                        if(annotation_after_mapping){
+                            timer_check_localization.start();
+                            supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
+                            supervisor.slam_autoInit();
+                        }else{
+                            timer_check_localization.stop();
+                            local_find_state = -1;
+                            supervisor.writelog("[ANNOTATION] Localization : Retry");
+    //                        timer_check_localization2.start();
+                        }
+
                     }
                 }
             }
@@ -1074,7 +1101,11 @@ Item {
                     print(count);
                     if(count++ > 4){
                         count = 0;
-                        show_debug = true;
+                        if(annotation_after_mapping){
+                            btn_init_remapping.visible = true;
+                        }else{
+                            show_debug = true;
+                        }
                     }
                 }
             }
