@@ -57,7 +57,7 @@ public:
 
     //------------map variables--------------//
     Q_INVOKABLE void setName(QString name){object_name = name;}
-    Q_INVOKABLE void setTool(QString name){tool = name;}
+    Q_INVOKABLE void setTool(QString name){tool = name;setMap();}
     Q_INVOKABLE QString getTool(){return tool;}
     Q_INVOKABLE void setMode(QString name);
     Q_INVOKABLE void setEnable(bool en){enable = en;}

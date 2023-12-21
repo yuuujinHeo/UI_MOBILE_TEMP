@@ -82,15 +82,12 @@ Popup{
             supervisor.setShowTravelline(false);
             supervisor.setShowVelocitymap(false);
 
+            print("71");
             map_size_str = supervisor.getMapWidth().toString()+" px";
             grid_width_str = supervisor.getGridWidth().toFixed(2).toString()+" m";
             modify_date_str = supervisor.getAnnotModifiedDate();
 
-            if(supervisor.isExistRawMap(model_maps.get(select_map_list).name)){
-                radio_rawmap.setEnabled(true);
-            }else{
-                radio_rawmap.setEnabled(false);
-            }
+            print("16");
             if(supervisor.isExistMap(model_maps.get(select_map_list).name)){
                 radio_editmap.setEnabled(true);
                 radio_editmap.setOnoff(true);
@@ -98,7 +95,7 @@ Popup{
                 radio_objectmap.setOnoff(true);
                 radio_tline.setOnoff(true);
                 radio_velmap.setOnoff(true);
-            }else{
+            }else if(supervisor.isExistRawMap(model_maps.get(select_map_list).name)){
                 radio_editmap.setEnabled(false);
                 radio_editmap.setOnoff(false);
                 radio_rawmap.setOnoff(true);
@@ -106,8 +103,17 @@ Popup{
                 radio_objectmap.setOnoff(false);
                 radio_tline.setOnoff(false);
                 radio_velmap.setOnoff(false);
+            }else{
+                radio_editmap.setEnabled(false);
+                radio_editmap.setOnoff(false);
+                radio_rawmap.setOnoff(false);
+                radio_avoidmap.setOnoff(false);
+                radio_objectmap.setOnoff(false);
+                radio_tline.setOnoff(false);
+                radio_velmap.setOnoff(false);
             }
 
+            print("15");
             if(supervisor.isExistAvoidMap(model_maps.get(select_map_list).name)){
                 radio_avoidmap.setEnabled(true);
             }else{
@@ -129,6 +135,7 @@ Popup{
                 radio_velmap.setEnabled(false);
             }
 
+            print("14");
             if(supervisor.getLocationNum("Charging") === 0){
                 state_charging.enabled = false;
             }else{
@@ -144,8 +151,10 @@ Popup{
             }else{
                 state_cleaning.enabled = true;
             }
+            print("12");
             update_group();
             supervisor.setMap();
+            print("13");
         }
     }
 
@@ -367,7 +376,9 @@ Popup{
                                                         radio_velmap.setOnoff(false);
                                                         radio_tline.setOnoff(false);
                                                         supervisor.setShowLocation(false);
+                                                        print("?")
                                                         supervisor.setMapOrin("RAW");
+                                                        print("!")
                                                     }
                                                 }
                                             }
@@ -388,14 +399,20 @@ Popup{
                                                     onTurnon: {
                                                         print("edit turn on")
                                                         radio_rawmap.setOnoff(false);
+                                                        print("???")
                                                         radio_objectmap.setOnoff(true);
+                                                        print("???")
                                                         radio_avoidmap.setOnoff(true);
+                                                        print("???")
                                                         radio_velmap.setOnoff(true);
+                                                        print("???")
                                                         radio_tline.setOnoff(true);
+                                                        print("???")
                                                         supervisor.setShowLocation(true);
+                                                        print("???")
                                                         supervisor.setMapOrin("EDITED");
+                                                        print("!!!")
                                                     }
-
                                                 }
                                             }
                                             Row{

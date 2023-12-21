@@ -195,9 +195,11 @@ void IPCHandler::onTimer(){
         if(probot->status_emo == temp1.status_emo){
             plog->write("[IPC] EMO status changed !! "+QString::number(!temp1.status_emo));
         }
+
         if(probot->status_lock != temp1.ui_motor_lock_state){
             plog->write("[IPC] MOTOR LOCK status changed !! "+QString::number(temp1.ui_motor_lock_state));
         }
+
         probot->status_lock = temp1.ui_motor_lock_state;
         probot->status_emo = !temp1.status_emo;
         probot->status_remote = temp1.status_remote;

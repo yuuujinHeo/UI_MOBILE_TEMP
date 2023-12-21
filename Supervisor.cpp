@@ -3264,10 +3264,12 @@ void Supervisor::makeKillSlam(){
     process.waitForReadyRead(200);
 
 }
+
 void Supervisor::makeStartShell(){
     //Make kill_slam.sh
     QString file_name = QDir::homePath() + "/RB_MOBILE/sh/startslam.sh";
     QFile file(file_name);
+
     if(file.open(QIODevice::ReadWrite)){
         QTextStream stream(&file);
         stream << "#!/bin/bash" << endl << endl;
@@ -3283,6 +3285,7 @@ void Supervisor::makeStartShell(){
         stream << "     fi" << endl;
         stream << "done" << endl;
     }
+
     file.close();
     //Chmod
     QProcess process;

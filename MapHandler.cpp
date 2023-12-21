@@ -261,12 +261,11 @@ void MapHandler::setMapSize(int width, int height){
 }
 
 void MapHandler::onTimer(){
-    if(enable){
-        if(flag_drawing){
-            show_robot = true;
-            robot_following = true;
-            drawTline();
-        }
+    if(flag_drawing){
+        show_robot = true;
+        robot_following = true;
+        drawTline();
+    }
 //        else if(mode == "annot_tline"){
 //            show_robot = false;
 //            robot_following = false;
@@ -274,13 +273,13 @@ void MapHandler::onTimer(){
 
 //        setMap();
 
-        //Robot Following
-        if(robot_following){
-            cv::Point2f robot_pose;
-            robot_pose = setAxis(probot->curPose.point);
-            setZoomCenter(robot_pose.x, robot_pose.y);
-        }
+    //Robot Following
+    if(robot_following){
+        cv::Point2f robot_pose;
+        robot_pose = setAxis(probot->curPose.point);
+        setZoomCenter(robot_pose.x, robot_pose.y);
     }
+
 }
 
 
@@ -562,9 +561,12 @@ void MapHandler::setMapLayer(){
     }else{
         temp_robot_pose = setAxis(probot->curPose.point);
     }
+
     robot_pose.x = (temp_robot_pose.x - draw_x)*news;
     robot_pose.y = (temp_robot_pose.y - draw_y)*news;
     float robot_angle = setAxis(probot->curPose.angle);
+
+//    qDebug() << probot->curPose.point.x << setAxisMapping(probot->curPose.point).y << robot_pose.y;
 
     //위치
     if(show_location){
@@ -828,48 +830,25 @@ void MapHandler::setMapLayer(){
     }
 
     //로봇 현재 위치 기준으로 라이다 표시
-    if(show_lidar){
-        if(mode == "local_view"){
-            painter_layer.setPen(QPen(QColor(hex_color_blue),3*news));
-            float x1, y1;
-            int num=0;
-            float limit = pmap->robot_radius;
-            for(int i=0; i<360; i++){
-                if(probot->lidar_data[i] > limit){
-                    x1 = (robot_pose.x + (probot->lidar_data[i]/grid_width)*news*cos((-M_PI*(i))/180 + robot_angle));
-                    y1 = (robot_pose.y + (probot->lidar_data[i]/grid_width)*news*sin((-M_PI*(i))/180 + robot_angle));
-                    num = i;
-                    break;
-                }
-            }
-            for(int i=num+1; i<360; i++){
-                if(probot->lidar_data[i] > limit){
-                    float x2 = (robot_pose.x + (probot->lidar_data[i]/grid_width)*news*cos((-M_PI*i)/180 + robot_angle));
-                    float y2 = (robot_pose.y + (probot->lidar_data[i]/grid_width)*news*sin((-M_PI*i)/180 + robot_angle));
-                    painter_layer.drawLine(round(x1), round(y1), round(x2), round(y2));
-                    x1 = x2;
-                    y1 = y2;
-                }
-            }
-        }else{
-            for(int i=0; i<360; i++){
-                painter_layer.setPen(QPen(QColor("red"),2*news));
-                float robot_x = (robot_pose.x - draw_x)*news;
-                float robot_y = (robot_pose.y - draw_y)*news;
-                if(probot->lidar_data[i] > grid_width){
-                    float x = (robot_x + (probot->lidar_data[i]/grid_width)*news*cos((-M_PI*i)/180 + robot_angle));
-                    float y = (robot_y + (probot->lidar_data[i]/grid_width)*news*sin((-M_PI*i)/180 + robot_angle));
-                    painter_layer.drawPoint(round(x),round(y));
-                }
+    if(show_lidar){        
+        for(int i=0; i<360; i++){
+            painter_layer.setPen(QPen(QColor("red"),2*news));
+            float robot_x = robot_pose.x;
+            float robot_y = robot_pose.y;
+            if(probot->lidar_data[i] > grid_width){
+                float x = (robot_x + (probot->lidar_data[i]/grid_width)*news*cos((-M_PI*i)/180 + robot_angle));
+                float y = (robot_y + (probot->lidar_data[i]/grid_width)*news*sin((-M_PI*i)/180 + robot_angle));
+                painter_layer.drawPoint(round(x),round(y));
             }
         }
+
     }
     //로봇 현재 위치 표시(매핑 중이거나 위치 초기화 성공했을 때만)
 //    qDebug() << "show robot " << show_robot << ", " << set_init_flag;
     if(show_robot){
         if(probot->localization_state == LOCAL_READY || mode == "mapping" || draw_object_flag){
-            float loc_x = (robot_pose.x - draw_x)*news;
-            float loc_y = (robot_pose.y - draw_y)*news;
+            float loc_x = robot_pose.x;
+            float loc_y = robot_pose.y;
             float distance = (pmap->robot_radius/grid_width)*2*news;
             float distance2 = distance*0.8;
             float th_dist = (M_PI/8);
@@ -951,6 +930,7 @@ void MapHandler::setMapLayer(){
 }
 
 void MapHandler::setMapTest(){
+    qDebug() << "setMap:" << map_orin.rows;
     if(mode == "mapping"){
         map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_mapping));
         grid_width = pmap->mapping_gridwidth*pmap->mapping_width/file_width;
@@ -1050,9 +1030,9 @@ void MapHandler::setMapTest(){
             painter.fillPath(circles,Qt::white);
         }
     }
-
     setMapLayer();
 
+    qDebug() << "setMAp done";
 }
 
 void MapHandler::setMap(){
@@ -1534,7 +1514,9 @@ void MapHandler::update(){
     final_map = QPixmap(2000,2000);
     QPainter pp(&final_map);
     pp.fillRect(0,0,2000,2000,Qt::black);
-    pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
+    if(map.width() > 0 && map.width() < draw_x + draw_width){
+        pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
+    }
     pp.drawPixmap(0,0,2000,2000,map_layer);
     pmap->map = final_map;
 }
@@ -1762,6 +1744,7 @@ void MapHandler::updateMeta(){
     plog->write("[MapHandler] UPDATE META : "+QString().sprintf("%d, %d, %d, %d, %d, %d, %d",pmap->map_rotate_angle, pmap->cut_map[0], pmap->cut_map[1], pmap->width,pmap->height, pmap->origin[0],pmap->origin[1]));
 }
 void MapHandler::setBoxPoint(int num, int x, int y){
+    qDebug() << "setBoxPoint";
     int min,max;
     if(x < 0) x = 0;
     if(y < 0) y = 0;
@@ -2259,6 +2242,7 @@ void MapHandler::drawTline(){
         cv::line(map_drawing,prev_pose,pose,cv::Scalar::all(255),1,8,0);
     }
     prev_pose = pose;
+    setMap();
 }
 
 void MapHandler::addLinePoint(int x, int y){
