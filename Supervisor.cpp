@@ -1144,7 +1144,7 @@ bool Supervisor::isExistRawMap(QString name){
 }
 bool Supervisor::isLoadMap(){
     //기본 설정된 맵파일 확인
-    qDebug() << getMapname() << getMapPath(getMapname()) <<QFile::exists(getMapPath(getMapname()));
+//    qDebug() << getMapname() << getMapPath(getMapname()) <<QFile::exists(getMapPath(getMapname()));
     if(QFile::exists(getMapPath(getMapname()))){
         return true;
     }

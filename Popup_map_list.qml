@@ -107,6 +107,12 @@ Popup{
                 radio_velmap.setEnabled(false);
             }
 
+            if(supervisor.isExistRawMap(model_maps.get(select_map_list).name))
+                radio_rawmap.setEnabled(true);
+            else{
+                radio_rawmap.setEnabled(false);
+            }
+
             if(supervisor.isExistMap(model_maps.get(select_map_list).name)){
                 radio_editmap.setEnabled(true);
                 radio_editmap.setOnoff(true);

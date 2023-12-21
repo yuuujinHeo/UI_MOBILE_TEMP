@@ -1514,9 +1514,10 @@ void MapHandler::update(){
     final_map = QPixmap(2000,2000);
     QPainter pp(&final_map);
     pp.fillRect(0,0,2000,2000,Qt::black);
-    if(map.width() > 0 && map.width() < draw_x + draw_width){
-        pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
-    }
+//    if(map.width() > 0 && map.width() < draw_x + draw_width){
+//        pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
+//    }
+    pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
     pp.drawPixmap(0,0,2000,2000,map_layer);
     pmap->map = final_map;
 }
