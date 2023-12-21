@@ -140,7 +140,7 @@ void ExtProcess::onTimer(){
                 plog->write("[ExtProcess] Done : Get System Volume "+QString::number(_return.params[0]));
                 probot->volume_system = _return.params[0];
             }else if(_return.command == PROCESS_CMD_GET_WIFI_LIST){
-                plog->write("[ExtProcess] Done : Get Wifi List " + QString::number(_return.params[0]));
+                plog->write("[ExtProcess] Done : Get Wifi List " + QString::number(_return.params[0]),false);
                 wifi_list_size = _return.params[0];
             }else if(_return.command == PROCESS_CMD_GET_WIFI_IP){
                 char temp[100];
@@ -335,9 +335,6 @@ void ExtProcess::onTimer(){
                     if(getSetting("setting","NETWORK","wifi_ssid") == ""){
                         setSetting("setting","NETWORK/wifi_ssid",temp_wifi.ssid);
                     }
-
-    //                qDebug() << "probot->wifidddssid : " << probot->wifi_ssid;
-    //                probot->wifi_ssid = temp_wifi.ssid;
                 }
             }
             prev_wifilist_tick = _wifilist.tick;

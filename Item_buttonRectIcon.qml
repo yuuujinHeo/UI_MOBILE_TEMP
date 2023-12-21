@@ -28,7 +28,7 @@ Item {
         height: parent.height
         radius: 20
         border.color: color_green
-        border.width: selected?3:0
+        border.width: selected?5:0
         color: parent.enabled?parent.color:parent.disable_color
         Column{
             anchors.centerIn: parent
@@ -56,6 +56,12 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 font.family: font_noto_r.name
                 font.pixelSize: 20
+                Component.onCompleted: {
+                    scale = 1;
+                    while(width*scale > btn.width*0.9){
+                        scale=scale-0.01;
+                    }
+                }
                 anchors.horizontalCenter: parent.horizontalCenter
             }
         }

@@ -49,6 +49,8 @@ public:
     void setMapOrin(QString type);
     //------------draw map--------------//
     Q_INVOKABLE void setMap();
+    Q_INVOKABLE void setMapTest();
+    Q_INVOKABLE void setMapLayer();
     Q_INVOKABLE void moveMap();
     Q_INVOKABLE void setFullScreen();
     Q_INVOKABLE void setMapDrawing();
@@ -69,16 +71,27 @@ public:
     }
     Q_INVOKABLE void setRobotFollowing(bool onoff){
         robot_following = onoff;
-        setZoomCenter();
+        if(onoff){
+            cv::Point2f robot_pose;
+            robot_pose = setAxis(probot->curPose.point);
+            setZoomCenter(robot_pose.x, robot_pose.y);
+        }
     }
 
+    Q_INVOKABLE void setShowObject(bool onoff){
+        show_object = onoff;
+    }
+    Q_INVOKABLE void setShowAvoideMap(bool onoff){
+        show_avoid = onoff;
+    }
+    Q_INVOKABLE void setShowRobot(bool onoff){
+        show_robot = onoff;
+    }
     Q_INVOKABLE void setShowTravelline(bool onoff){
         show_travelline = onoff;
-        setMap();
     }
     Q_INVOKABLE void setShowVelocitymap(bool onoff){
         show_velocitymap = onoff;
-        setMap();
     }
 
 
@@ -90,11 +103,14 @@ public:
     bool show_travelline = false;
     bool show_velocitymap = false;
 
+    bool show_number = true;
+
     bool show_brush = false;
     bool show_robot = false;
     bool show_global_path = false;
     bool show_local_path = false;
     bool show_lidar = false;
+    bool show_avoid = false;
     bool show_location = false;
     bool show_location_icon = false;
     bool show_object = false;
@@ -132,6 +148,7 @@ public:
     Q_INVOKABLE void rotateMapCCW();
 
     Q_INVOKABLE void saveObjectPNG();
+    Q_INVOKABLE void saveObsAreaPNG();
 
 //    //---------------------------------------------------Drawing
     QVector<cv::Point2f> line;
@@ -213,8 +230,8 @@ public:
     Q_INVOKABLE void saveTlineTemp();
     Q_INVOKABLE void saveVelmap();
     Q_INVOKABLE void setMapSize(int width, int height);
-    Q_INVOKABLE void zoomIn(int x, int y);
-    Q_INVOKABLE void zoomOut(int x, int y);
+    Q_INVOKABLE void zoomIn(int x, int y, float dist);
+    Q_INVOKABLE void zoomOut(int x, int y, float dist);
     Q_INVOKABLE void move(int x, int y);
     Q_INVOKABLE int getFileWidth(){return file_width;}
     Q_INVOKABLE int getX(){return draw_x;}
@@ -223,9 +240,9 @@ public:
 
     Q_INVOKABLE void setSize(int x, int y, float width);
 
-    void updateMeta();
     Q_INVOKABLE bool getCutBoxFlag();
 
+    void updateMeta();
     void setX(int newx);
     void setY(int newy);
     void setZoomCenter(int x=0, int y=0);
@@ -277,13 +294,18 @@ private:
     cv::Mat file_velocity;
     //map_object
     cv::Mat file_object;
+    //map_avoid
+    cv::Mat file_avoid;
 
     //현재 사용중인 map(raw | edited)
     cv::Mat map_orin;
+    cv::Mat map_layers;
     cv::Mat map_drawing;
     cv::Mat map_drawing_mask;
 
+    QImage map_image;
     QPixmap map;
+    QPixmap map_layer;
     QPixmap map_obs;
     QPixmap final_map;
 

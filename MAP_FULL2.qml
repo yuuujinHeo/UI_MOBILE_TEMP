@@ -21,11 +21,11 @@ Item {
     property string map_name: ""
     property bool map_loaded: false
     property bool touch_on: true
+    property bool show_ratio: true
     property bool show_connection: true
     property bool show_button_lidar: false
     property bool show_button_following: false
     property bool show_button_location: false
-    property bool show_costmap: false
     property bool show_brush: false
     property bool show_grid: false
 
@@ -72,7 +72,6 @@ Item {
         show_button_following = true;
         show_button_lidar = true;
         show_button_location = true;
-        show_costmap = false;
         show_grid = false;
         if(mode === "annot_drawing"){
             show_connection = false;
@@ -89,15 +88,15 @@ Item {
             show_button_following = false;
             show_button_lidar = false;
             show_button_location = false;
-        }else if(mode === "annot_tline"){
-            show_connection = false;
+        }else if(mode === "annot_tline" || mode === "annot_tline2"){
+            show_connection = true;
             show_button_location = true;
-            show_button_following = false;
+            show_button_following = true;
             show_button_lidar = false;
         }else if(mode === "annot_velmap"){
             show_connection = false;
             show_button_location = true;
-            show_button_following = false;
+            show_button_following = true;
             show_button_lidar = false;
         }else if(mode === "annot_location"){
 //            supervisor.setCostMap();
@@ -112,10 +111,9 @@ Item {
             show_button_location = false;
         }else if(mode === "annot_object"){
             show_connection = true;
-            show_button_following = false;
-            show_button_lidar = true;
+            show_button_following = true;
+            show_button_lidar = false;
             show_button_location = true;
-            show_costmap = true;
         }else if(mode === "current"){
 
         }else if(mode === "annot_rotate"){
@@ -129,13 +127,15 @@ Item {
             show_connection = true;
             show_button_following = false;
             show_button_lidar = false;
-            show_button_location = false;
+            show_button_location = true;
         }else if(mode === "annot_view"){
             show_grid = false;
             show_connection = false;
             show_button_following = false;
             show_button_lidar = false;
             show_button_location = false;
+        }else if(mode === "map_edit"){
+
         }
     }
 
@@ -256,6 +256,9 @@ Item {
 
         }else if(mode === "location"){
             supervisor.clearLocation();
+        }else if(mode === "rotate_cut"){
+            supervisor.initRotate();
+            supervisor.setMapOrin("RAW");
         }else if(mode==="all"){
             supervisor.endSpline(false);
             supervisor.clearDrawing();
@@ -313,14 +316,12 @@ Item {
             supervisor.saveEditedMap();
         }else if(mode==="tline"){
             supervisor.saveTline();
-            supervisor.slam_map_reload(supervisor.getMapname());
         }else if(mode==="tline_temp"){
             supervisor.saveTlineTemp();
         }else if(mode==="spline"){
             supervisor.endSpline(true);
         }else if(mode==="velmap"){
             supervisor.saveVelmap();
-            supervisor.slam_map_reload(supervisor.getMapname());
         }else if(mode==="rotate"){
             supervisor.saveRotateMap();
             supervisor.slam_map_reload(supervisor.getMapname());
@@ -343,17 +344,6 @@ Item {
        }
     }
 
-
-
-//    function savelocation(mode, type, name){
-//        if(mode==="cur_pose"){
-//            print(last_robot_x,last_robot_y,last_robot_th);
-//            supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
-//            supervisor.saveLocation(type,name);
-//        }else if(mode==="new_target"){
-//            supervisor.saveLocation(type,name);
-//        }
-//    }
 
     function setDrawingColor(color){
         supervisor.setLineColor(color);
@@ -481,6 +471,38 @@ Item {
                 ctx.stroke();
             }
         }
+
+
+        Rectangle{
+            id: rect_ratio
+            width: parent.width*0.1
+            visible: show_ratio
+            height: parent.width*0.02
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            anchors.right: parent.right
+            anchors.rightMargin: 20
+            color: color_dark_gray
+            Rectangle{
+                id: ratio
+                property var value:0
+                property var limit:0
+                width: parent.width*value
+                height: parent.height
+                Behavior on width{
+                    NumberAnimation{
+                        duration: 200
+                    }
+                }
+                color:{
+                    if(value < limit){
+                        color_red
+                    }else{
+                        color_green
+                    }
+                }
+            }
+        }
     }
     MouseArea{
         anchors.fill: parent
@@ -488,9 +510,9 @@ Item {
         enabled: touch_on
         onWheel: {
             if(wheel.angleDelta.y > 0){
-                supervisor.zoomIn(mouseX, mouseY);
+                supervisor.zoomIn(mouseX, mouseY, 30);
             }else{
-                supervisor.zoomOut(mouseX, mouseY);
+                supervisor.zoomOut(mouseX, mouseY, 30);
             }
         }
     }
@@ -508,7 +530,7 @@ Item {
         touchPoints: [TouchPoint{id:point1},TouchPoint{id:point2}]
         onPressed:{
             double_touch = false;
-            supervisor.setRobotFollowing(false);
+//            supervisor.setRobotFollowing(false);
             if(point1.pressed && point2.pressed){
                 double_touch = true;
             }else if(point1.pressed){
@@ -520,8 +542,8 @@ Item {
             }
             if(tool == "move"){
                 if(double_touch){
-                    firstX = supervisor.getX() + (point1.x+point2.x)*supervisor.getScale()*supervisor.getFileWidth()/width/2;
-                    firstY = supervisor.getY() + (point1.y+point2.y)*supervisor.getScale()*supervisor.getFileWidth()/width/2;
+                    firstX = supervisor.getX() + (point1.x)*supervisor.getScale()*supervisor.getFileWidth()/width;
+                    firstY = supervisor.getY() + (point1.y)*supervisor.getScale()*supervisor.getFileWidth()/width;
                     var dx = Math.abs(point1.x-point2.x);
                     var dy = Math.abs(point1.y-point2.y);
                     firstDist = Math.sqrt(dx*dx + dy*dy);
@@ -556,7 +578,6 @@ Item {
                 supervisor.addLocation(firstX, firstY,0);
             }else if( tool === "slam_init"){
                 supervisor.setInitFlag(true);
-//                print("Pressed : ",firstX,firstY,0);
                 supervisor.setInitPose(firstX,firstY,0);
             }else if(tool === "cut_map"){
                 select_point = supervisor.getPointBox(firstX,firstY);
@@ -621,29 +642,34 @@ Item {
                 if(tool == "move"){
                     if(double_touch){
                         if(point1.pressed && point2.pressed){
-                            newX = (point1.x + point2.x)*supervisor.getScale()/2;
-                            newY = (point1.y + point2.y)*supervisor.getScale()/2;
+                            newX = (point1.x)*supervisor.getScale();
+                            newY = (point1.y)*supervisor.getScale();
 
                             var dx = Math.abs(point1.x - point2.x)
                             var dy = Math.abs(point1.y - point2.y)
                             var dist = Math.sqrt(dx*dx + dy*dy);
                             var thres = 10;
 
-                            for(var i=0; i<(firstDist-dist)/thres; i++){
-//                                supervisor.scaledOut(1,1);
-                                supervisor.zoomOut(newX,newY);
+                            if(firstDist-dist > 0){
+                                supervisor.zoomOut(newX,newY,firstDist-dist);
                             }
-                            for(var i=0; i<(dist-firstDist)/thres; i++){
-//                                supervisor.scaledIn(1,1);
-                                supervisor.zoomIn(newX,newY);
+                            if(dist-firstDist > 0){
+                                supervisor.zoomIn(newX,newY,dist-firstDist);
                             }
+//                            for(var i=0; i<(firstDist-dist)/thres; i++){
+////                                supervisor.scaledOut(1,1);
+//                                supervisor.zoomOut(newX,newY);
+//                            }
+//                            for(var i=0; i<(dist-firstDist)/thres; i++){
+////                                supervisor.scaledIn(1,1);
+//                                supervisor.zoomIn(newX,newY);
+//                            }
+                            newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
+                            newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
                             firstDist = dist;
-
-//                            print("UPDATE : ",newX,newY,dist);
-                            supervisor.setRobotFollowing(false);
                             supervisor.move(firstX-newX, firstY-newY);
                         }else{
-                            double_touch = false;
+//                            double_touch = false;
                         }
                     }else{
                         if(point1.pressed){
@@ -653,7 +679,7 @@ Item {
                             newX = point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
                             newY = point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
                         }
-                        supervisor.setRobotFollowing(false);
+//                        supervisor.setRobotFollowing(false);
                         supervisor.move(firstX-newX, firstY-newY);
                     }
                 }else if(tool == "draw"){
@@ -684,9 +710,11 @@ Item {
                     supervisor.editLocation(firstX, firstY,angle);
                 }else if( tool === "slam_init"){
                     angle = Math.atan2((newY-firstY),(newX-firstX));
-//                    print("Update : ",firstX,firstY,angle);
+                    print("Update : ",firstX,firstY,angle);
                     supervisor.setInitPose(firstX,firstY,angle);
                 }
+            }else{
+                double_touch = false;
             }
         }
     }
@@ -715,7 +743,11 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    supervisor.setRobotFollowing(true);
+                    if(supervisor.getRobotFollowing()){
+                        supervisor.setRobotFollowing(false);
+                    }else{
+                        supervisor.setRobotFollowing(true);
+                    }
                 }
             }
         }
@@ -812,6 +844,8 @@ Item {
         repeat: true
         interval: 500
         onTriggered: {
+            ratio.value = supervisor.getICPRatio();
+            ratio.limit = parseFloat(supervisor.getSetting("setting","INITIALIZATION","icp_init_ratio"))
             btn_show_location.active = supervisor.getshowLocation();
             btn_robot_following.active = supervisor.getRobotFollowing();
             btn_show_lidar.active = supervisor.getShowLidar();
@@ -835,7 +869,7 @@ Item {
                         rect_notice.show_icon = false;
                     }else if(!is_slam_running && supervisor.getMode() !== "mapping"){
                         rect_notice.visible = true;
-                        rect_notice.msg =  qsTr("주행 활성화 안됨");
+                        rect_notice.msg =  qsTr("위치 찾을 수 없음");
                         rect_notice.color = color_red;
                         rect_notice.show_icon = true;
                     }else{
@@ -846,7 +880,6 @@ Item {
                 }
             }else{
                 if(show_connection){
-
                     rect_notice.visible = true;
                     rect_notice.msg =  qsTr("로봇 연결 안됨");
                     rect_notice.color = color_red;

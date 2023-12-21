@@ -1,6 +1,6 @@
 QT += core gui quick widgets network websockets sql quickcontrols2 serialport gui-private #multimedia
 
-CONFIG += c++11 qtquickcompiler
+CONFIG += c++11
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings

@@ -1,5 +1,8 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
+import QtGraphicalEffects 1.0
+import io.qt.Supervisor 1.0
+import QtMultimedia 5.12
 // 가능한 모든 맵 리스트 보여주기
 Popup{
     id: popup_map_list
@@ -12,9 +15,11 @@ Popup{
     bottomPadding: 0
     property string temp_name: ""
     property int select_map_list: -1
-    property bool show_location: false
-    property bool show_travelline: false
-    property bool show_velocitymap: false
+    property int cur_group: 0
+    property int table_num: 0
+    property string modify_date_str: ""
+    property string map_size_str: ""
+    property string grid_width_str: ""
     background:Rectangle{
         anchors.fill: parent
         color: "#282828"
@@ -29,6 +34,36 @@ Popup{
     onClosed:{
         map_list_view.enabled = false;
     }
+    onCur_groupChanged: {
+        update_group();
+    }
+
+    function update_group(){
+        model_group.clear();
+        print("update group ",supervisor.getLocationGroupNum());
+        for(var i=0; i<supervisor.getLocationGroupNum(); i++){
+            if(supervisor.getLocationGroupSize(i) > 0){
+                if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
+                    model_group.append({"num":i,"name":"그룹"});
+                }else{
+                    model_group.append({"num":i,"name":supervisor.getLocGroupname(i)});
+                }
+            }
+        }
+        if(model_group.count > 0){
+            table_num = supervisor.getLocationGroupSize(model_group.get(cur_group).num);
+            print("table_num : " +table_num);
+        }else
+            table_num = 0;
+        update_table();
+    }
+    function update_table(){
+        servings.clear();
+        for(var i=0; i<table_num; i++){
+            servings.append({"num":i,"available":true,"name":supervisor.getServingName(model_group.get(cur_group).num, i)});
+        }
+    }
+
 
     function update_list(){
         model_maps.clear();
@@ -43,20 +78,74 @@ Popup{
         if(select_map_list > -1){
             supervisor.readSetting(model_maps.get(select_map_list).name);
             model_details.clear();
-            show_velocitymap = false;
             supervisor.setShowLocation(false);
             supervisor.setShowTravelline(false);
             supervisor.setShowVelocitymap(false);
-            show_location = false;
-            show_travelline = false;
 
-            model_details.append({"name1":"맵 사이즈","name2":supervisor.getMapWidth().toString()+" px","show":false});
-            model_details.append({"name1":"픽셀 단위","name2":supervisor.getGridWidth().toFixed(2).toString()+" m","show":false});
-            model_details.append({"name1":"서빙 위치","name2":supervisor.getLocationNum("Serving").toString(),"show":true});
-            model_details.append({"name1":"대기 위치","name2":supervisor.getLocationNum("Resting").toString(),"show":false});
-            model_details.append({"name1":"충전 위치","name2":supervisor.getLocationNum("Charging").toString(),"show":false});
-            model_details.append({"name1":"이동 경로","name2":"","show":true});
-            model_details.append({"name1":"안전 속도","name2":"","show":true});
+            map_size_str = supervisor.getMapWidth().toString()+" px";
+            grid_width_str = supervisor.getGridWidth().toFixed(2).toString()+" m";
+            modify_date_str = supervisor.getAnnotModifiedDate();
+
+            if(supervisor.isExistRawMap(model_maps.get(select_map_list).name)){
+                radio_rawmap.setEnabled(true);
+            }else{
+                radio_rawmap.setEnabled(false);
+            }
+            if(supervisor.isExistMap(model_maps.get(select_map_list).name)){
+                radio_editmap.setEnabled(true);
+                radio_editmap.setOnoff(true);
+                radio_avoidmap.setOnoff(true);
+                radio_objectmap.setOnoff(true);
+                radio_tline.setOnoff(true);
+                radio_velmap.setOnoff(true);
+            }else{
+                radio_editmap.setEnabled(false);
+                radio_editmap.setOnoff(false);
+                radio_rawmap.setOnoff(true);
+                radio_avoidmap.setOnoff(false);
+                radio_objectmap.setOnoff(false);
+                radio_tline.setOnoff(false);
+                radio_velmap.setOnoff(false);
+            }
+
+            if(supervisor.isExistAvoidMap(model_maps.get(select_map_list).name)){
+                radio_avoidmap.setEnabled(true);
+            }else{
+                radio_avoidmap.setEnabled(false);
+            }
+            if(supervisor.isExistObjectMap(model_maps.get(select_map_list).name)){
+                radio_objectmap.setEnabled(true);
+            }else{
+                radio_objectmap.setEnabled(false);
+            }
+            if(supervisor.isExistTlineMap(model_maps.get(select_map_list).name)){
+                radio_tline.setEnabled(true);
+            }else{
+                radio_tline.setEnabled(false);
+            }
+            if(supervisor.isExistVelMap(model_maps.get(select_map_list).name)){
+                radio_velmap.setEnabled(true);
+            }else{
+                radio_velmap.setEnabled(false);
+            }
+
+            if(supervisor.getLocationNum("Charging") === 0){
+                state_charging.enabled = false;
+            }else{
+                state_charging.enabled = true;
+            }
+            if(supervisor.getLocationNum("Resting") === 0){
+                state_resting.enabled = false;
+            }else{
+                state_resting.enabled = true;
+            }
+            if(supervisor.getLocationNum("Cleaning") === 0){
+                state_cleaning.enabled = false;
+            }else{
+                state_cleaning.enabled = true;
+            }
+            update_group();
+            supervisor.setMap();
         }
     }
 
@@ -67,19 +156,20 @@ Popup{
         anchors.centerIn: parent
         color:"transparent"
         Column{
-            anchors.centerIn: parent
+            anchors.bottom: parent.bottom
             spacing: 5
             Rectangle{
                 id: rect_list_top
-                height: 120
+                height: 150
                 width: parentrect.width
                 color: color_dark_navy
                 Column{
-                    anchors.centerIn: parent
+                    anchors.left: parent.left
+                    anchors.leftMargin: 50
+                    anchors.verticalCenter: parent.verticalCenter
                     spacing: 5
                     Text{
                         id: text_list_title
-                        anchors.horizontalCenter: parent.horizontalCenter
                         color: "white"
                         font.family: font_noto_b.name
                         font.bold: true
@@ -88,59 +178,112 @@ Popup{
                     }
                     Text{
                         id: text_list_title2
-                        anchors.horizontalCenter: parent.horizontalCenter
                         color: "white"
                         font.family: font_noto_r.name
                         text: "사용 가능한 맵 파일을 모두 찾았습니다"
                         font.pixelSize: 20
                     }
                 }
-                Item_buttons{
-                    width: 60
-                    height: 60
-                    type: "circle_text"
-                    anchors.right: parent.right
-                    anchors.rightMargin: 200
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "?"
-                    onClicked: {
-                        click_sound.play();
-                        popup_maplist_help.setTitle("맵 불러오기");
-                        popup_maplist_help.open();
-                        popup_maplist_help.addLine("맵 불러오기란 무엇인가요?","현재 저장된 모든 맵 파일을 불러올 수 있습니다\n맵은 맵 이미지, 위치정보, 이동경로 맵으로 구성됩니다\n기존에 저장했던 맵 설정 정보를 불러오고 싶다면 맵 이름을 클릭한 뒤 사용 버튼을 누르세요");
-                        popup_maplist_help.addLine("잘못 불러오기를 했을 시 어떻게 하나요?","다시 이 페이지로 돌아와서 맵을 새로 불러오기하면 됩니다");
-                        popup_maplist_help.addLine("잘못해서 기존 맵을 삭제해버렸어요.","삭제된 맵 파일을 복구하는 방법은 없습니다.\n부디 삭제를 하실 때에는 신중하게 고려해주세요");
-                        popup_maplist_help.addLine("사용과 수정의 차이는 뭔가요?","맵 설정정보를 기존 그대로 사용하려면 [사용]을 누르세요\n추후 맵 수정하기 페이지에서 변경하실 수도 있습니다\n맵 설정정보가 없다면 [수정]버튼이 활성화 됩니다 맵 이미지 파일만 사용하고 맵은 처음부터 수정하셔야 합니다");
-                    }
-                }
-                Item_buttons{
-                    width: 140
-                    height: 60
-                    type: "round_text"
+                Row{
                     anchors.rightMargin: 30
                     anchors.right: parent.right
                     anchors.verticalCenter: parent.verticalCenter
-                    text: "취 소"
-                    onClicked: {
-                        click_sound.play();
-                        popup_map_list.close();
+                    spacing: 20
+                    Item_buttons{
+                        width: 130
+                        height: 60
+                        type: "round_text"
+                        text: "사 용"
+                        onClicked: {
+                            click_sound.play();
+                            if(select_map_list > -1){
+                                supervisor.writelog("[USER INPUT] Map used changed : " + model_maps.get(select_map_list).name);
+                                supervisor.setMap(model_maps.get(select_map_list).name);
+                                loader_page.item.init();
+                                popup_map_list.close();
+                            }
+                        }
                     }
+                    Item_buttons{
+                        width: 130
+                        height: 60
+                        type: "round_text"
+//                            visible: false
+                        text: "복 사"
+                        onClicked: {
+                            click_sound.play();
+                            if(select_map_list > -1){
+                                supervisor.writelog("[USER INPUT] Map used copied : " + model_maps.get(select_map_list).name);
+                                popup_copymap.open();
+                                popup_copymap.orin_name = model_maps.get(select_map_list).name;
+
+
+//                                    supervisor.setMap(model_maps.get(select_map_list).name);
+//                                    loader_page.item.init();
+//                                    popup_map_list.close();
+                            }
+                        }
+                    }
+                    Item_buttons{
+                        width: 130
+                        height: 60
+                        type: "round_text"
+                        visible: false
+                        text: "수 정"
+                        onClicked: {
+                            click_sound.play();
+                            if(select_map_list > -1){
+                                var name = model_maps.get(select_map_list).name;
+                                popup_map_list.close();
+                                loadPage(pannotation);
+                                loader_page.item.setMappingFlag();
+                            }
+                        }
+                    }
+                    Item_buttons{
+                        width: 130
+                        height: 60
+                        type: "round_text"
+                        text: "삭 제"
+                        onClicked: {
+                            click_sound.play();
+                            if(select_map_list > -1){
+                                supervisor.removeMap(model_maps.get(select_map_list).name);
+                                popup_map_list.update_list();
+                            }
+                        }
+                    }
+                    Item_buttons{
+                        width: 140
+                        height: 60
+                        type: "round_text"
+                        text: "취 소"
+                        onClicked: {
+                            click_sound.play();
+                            popup_map_list.close();
+                        }
+                    }
+
                 }
             }
             Row{
                 anchors.horizontalCenter: parent.horizontalCenter
                 Column{
+                    anchors.verticalCenter: parent.verticalCenter
                     spacing: 20
                     Rectangle{
+                        id: rect_ddd
                         color: "transparent"
-                        width: 500
-                        height: 500
+                        width: 600
+                        height: 800-150
                         Row{
                             anchors.centerIn: parent
+                            spacing: 20
                             Flickable{
                                 width: 200
                                 clip: true
-                                height: 500
+                                height: rect_ddd.height*0.8
+                                anchors.verticalCenter: parent.verticalCenter
                                 contentHeight: column_maps.height
                                 Column{
                                     id: column_maps
@@ -161,6 +304,12 @@ Popup{
                                                 font.pixelSize: 20
                                                 color: "white"
                                                 text: name
+                                                Component.onCompleted: {
+                                                    scale = 1;
+                                                    while(width*scale > parent.width*0.8){
+                                                        scale=scale-0.01;
+                                                    }
+                                                }
                                             }
                                             MouseArea{
                                                 anchors.fill: parent
@@ -177,11 +326,404 @@ Popup{
                                 }
                             }
                             Rectangle{
-                                width: 300
-                                height: 500
+                                id: rect_df
+                                width: 350
+                                height: rect_ddd.height
                                 visible: select_map_list > -1
                                 color: "transparent"
                                 Column{
+                                    anchors.centerIn: parent
+                                    spacing: 10
+                                    Rectangle{
+                                        id: area_map_view
+                                        color: "green"
+                                        width: rect_df.width
+                                        height: 180
+                                        Grid{
+                                            anchors.centerIn: parent
+                                            spacing: 20
+                                            columns: 2
+                                            rows: 3
+                                            Row{
+                                                spacing: 3
+                                                Text{
+                                                    text: "맵원본"
+                                                    font.family: font_noto_r.name
+                                                    color:"white"
+                                                    width: 60
+                                                }
+                                                Item_radioButton{
+                                                    id: radio_rawmap
+                                                    touchEnabled: true
+                                                    enabled: false
+                                                    isVertical: false
+                                                    small: 30
+                                                    big: 80
+                                                    onTurnon: {
+                                                        print("raw turn on")
+                                                        radio_editmap.setOnoff(false);
+                                                        radio_objectmap.setOnoff(false);
+                                                        radio_avoidmap.setOnoff(false);
+                                                        radio_velmap.setOnoff(false);
+                                                        radio_tline.setOnoff(false);
+                                                        supervisor.setShowLocation(false);
+                                                        supervisor.setMapOrin("RAW");
+                                                    }
+                                                }
+                                            }
+                                            Row{
+                                                spacing: 3
+                                                Text{
+                                                    text: "맵수정본"
+                                                    width: 60
+                                                    font.family: font_noto_r.name
+                                                    color:"white"
+                                                }
+                                                Item_radioButton{
+                                                    id: radio_editmap
+                                                    touchEnabled: true
+                                                    isVertical: false
+                                                    small: 30
+                                                    big: 80
+                                                    onTurnon: {
+                                                        print("edit turn on")
+                                                        radio_rawmap.setOnoff(false);
+                                                        radio_objectmap.setOnoff(true);
+                                                        radio_avoidmap.setOnoff(true);
+                                                        radio_velmap.setOnoff(true);
+                                                        radio_tline.setOnoff(true);
+                                                        supervisor.setShowLocation(true);
+                                                        supervisor.setMapOrin("EDITED");
+                                                    }
+
+                                                }
+                                            }
+                                            Row{
+                                                spacing: 3
+                                                Text{
+                                                    text: "이동경로"
+                                                    width: 60
+                                                    font.family: font_noto_r.name
+                                                    color:"white"
+                                                }
+                                                Item_radioButton{
+                                                    id: radio_tline
+                                                    touchEnabled: true
+                                                    isVertical: false
+                                                    small: 30
+                                                    big: 80
+                                                    onTurnon: {
+                                                        supervisor.setShowTravelline(true);
+                                                        supervisor.setMap();
+                                                    }
+                                                    onTurnoff: {
+                                                        supervisor.setShowTravelline(false);
+                                                        supervisor.setMap();
+                                                    }
+                                                }
+                                            }
+                                            Row{
+                                                spacing: 3
+                                                Text{
+                                                    text: "안전속도"
+                                                    width: 60
+                                                    font.family: font_noto_r.name
+                                                    color:"white"
+                                                }
+                                                Item_radioButton{
+                                                    id: radio_velmap
+                                                    touchEnabled: true
+                                                    isVertical: false
+                                                    small: 30
+                                                    big: 80
+                                                    onTurnon: {
+                                                        supervisor.setShowVelocitymap(true);
+                                                        supervisor.setMap();
+                                                    }
+                                                    onTurnoff: {
+                                                        supervisor.setShowVelocitymap(false);
+                                                        supervisor.setMap();
+                                                    }
+                                                }
+                                            }
+                                            Row{
+                                                spacing: 3
+                                                Text{
+                                                    text: "가상벽"
+                                                    width: 60
+                                                    font.family: font_noto_r.name
+                                                    color:"white"
+                                                }
+                                                Item_radioButton{
+                                                    id: radio_objectmap
+                                                    touchEnabled: true
+                                                    isVertical: false
+                                                    small: 30
+                                                    big: 80
+                                                    onTurnon: {
+                                                        supervisor.setShowObject(true);
+                                                        supervisor.setMap();
+                                                    }
+                                                    onTurnoff: {
+                                                        supervisor.setShowObject(false);
+                                                        supervisor.setMap();
+                                                    }
+                                                }
+                                            }
+                                            Row{
+                                                spacing: 3
+                                                Text{
+                                                    text: "회피구역"
+                                                    width: 60
+                                                    font.family: font_noto_r.name
+                                                    color:"white"
+                                                }
+                                                Item_radioButton{
+                                                    id: radio_avoidmap
+                                                    touchEnabled: true
+                                                    isVertical: false
+                                                    small: 30
+                                                    big: 80
+                                                    onTurnon: {
+                                                        supervisor.setShowAvoidmap(true);
+                                                        supervisor.setMap();
+                                                    }
+                                                    onTurnoff: {
+                                                        supervisor.setShowAvoidmap(false);
+                                                        supervisor.setMap();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Column{
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        spacing: 3
+                                        Rectangle{
+                                            id: area_loc_1
+                                            color: "transparent"
+                                            width: rect_df.width
+                                            height: 70
+                                            radius: 10
+                                            Rectangle{
+                                                radius: 10
+                                                anchors.fill: parent
+                                                color: color_dark_black
+                                                opacity: 0.7
+                                            }
+                                            Row{
+                                                anchors.centerIn: parent
+                                                spacing: 30
+                                                Rectangle{
+                                                    id: state_charging
+                                                    width:55
+                                                    height: width
+                                                    radius: width
+                                                    color: enabled?color_green:color_gray
+                                                    Text{
+                                                        anchors.centerIn: parent
+                                                        text: qsTr("충전\n위치")
+                                                        font.family: font_noto_r.name
+                                                        color: color_dark_black
+                                                    }
+                                                }
+                                                Rectangle{
+                                                    id: state_resting
+                                                    width:55
+                                                    height: width
+                                                    radius: width
+                                                    color: enabled?color_green:color_gray
+                                                    Text{
+                                                        anchors.centerIn: parent
+                                                        text: qsTr("대기\n위치")
+                                                        font.family: font_noto_r.name
+                                                        color: color_dark_black
+                                                    }
+                                                }
+                                                Rectangle{
+                                                    id: state_cleaning
+                                                    width:55
+                                                    height: width
+                                                    radius: width
+                                                    color: enabled?color_green:color_gray
+                                                    Text{
+                                                        anchors.centerIn: parent
+                                                        text: qsTr("퇴식\n위치")
+                                                        font.family: font_noto_r.name
+                                                        color: color_dark_black
+                                                    }
+                                                }
+                                            }
+                                        }
+
+                                        Rectangle{
+                                            id: area_group
+                                            color: "transparent"
+                                            width: rect_df.width
+                                            height: 60
+
+                                            Flickable{
+                                                id: flick_group
+                                                width: parent.width
+                                                height: parent.height
+                                                clip: true
+                                                contentWidth: row_group.width
+                                                Row{
+                                                    id: row_group
+                                                    anchors.centerIn: parent
+                                                    spacing: 10
+                                                    Repeater{
+                                                        id: column_table
+                                                        model: ListModel{id:model_group}
+                                                        Rectangle{
+                                                            width: 100
+                                                            height: 60
+                                                            color: "transparent"
+                                                            Text{
+                                                                id: textt3
+                                                                anchors.centerIn: parent
+                                                                font.family: font_noto_b.name
+                                                                font.pixelSize: 20
+                                                                text: name
+                                                                color: cur_group==index?color_green:color_dark_gray
+                                                            }
+                                                            Rectangle{
+                                                                anchors.bottom: parent.bottom
+                                                                width: parent.width*0.9
+                                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                                radius: 2
+                                                                height: 3
+                                                                color: cur_group==index?color_green:"transparent"
+                                                            }
+                                                            MouseArea{
+                                                                anchors.fill: parent
+                                                                onClicked:{
+                                                                    click_sound.play();
+                                                                    cur_group = index;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Rectangle{
+                                            id: area_loclist
+                                            color: "transparent"
+                                            width: rect_df.width
+                                            height: 220
+                                            Flickable{
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                anchors.fill: parent
+                                                clip: true
+                                                Column{
+                                                    id: cols_locations
+                                                    anchors.horizontalCenter: parent.horizontalCenter
+                                                    spacing: 1
+                                                    Repeater{
+                                                        model:ListModel{id:servings}
+                                                        Rectangle{
+                                                            anchors.horizontalCenter: parent.horizontalCenter
+                                                            width: 320
+                                                            radius: 10
+                                                            height: 40
+                                                            Row{
+                                                                anchors.centerIn: parent
+                                                                Rectangle{
+                                                                    width: 40
+                                                                    anchors.verticalCenter: parent.verticalCenter
+                                                                    height: 40
+                                                                    radius: 10
+                                                                    color: color_dark_black
+                                                                    Text{
+                                                                        anchors.centerIn: parent
+                                                                        font.family: font_noto_r.name
+                                                                        text: index
+                                                                        color: "white"
+                                                                    }
+                                                                }
+                                                                Rectangle{
+                                                                    width: 280
+                                                                    height: 40
+                                                                    color: "transparent"
+                                                                    Text{
+                                                                        anchors.centerIn: parent
+                                                                        font.family: font_noto_r.name
+                                                                        text: name
+                                                                    }
+                                                                }
+                                                            }
+
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle{
+                                        id: area_map_detail
+                                        color: "transparent"
+                                        width: rect_df.width
+                                        height: 100
+                                        Grid{
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            columns: 3
+                                            rows: 3
+                                            spacing: 5
+                                            horizontalItemAlignment: Grid.AlignHCenter
+                                            verticalItemAlignment: Grid.AlignVCenter
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: qsTr("맵 사이즈")
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: ":"
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: map_size_str
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: qsTr("픽셀 단위")
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: ":"
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: grid_width_str
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: qsTr("수정날짜")
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: ":"
+                                                color: "white"
+                                            }
+                                            Text{
+                                                font.family: font_noto_b.name
+                                                text: modify_date_str
+                                                color: "white"
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Column{
+                                    visible: false
                                     anchors.centerIn: parent
                                     spacing: 10
                                     Repeater{
@@ -282,84 +824,13 @@ Popup{
                             }
                         }
                     }
-
-
-                    Row{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 30
-                        Item_buttons{
-                            width: 130
-                            height: 60
-                            type: "round_text"
-                            text: "사 용"
-                            onClicked: {
-                                click_sound.play();
-                                if(select_map_list > -1){
-                                    supervisor.writelog("[USER INPUT] Map used changed : " + model_maps.get(select_map_list).name);
-                                    supervisor.setMap(model_maps.get(select_map_list).name);
-                                    loader_page.item.init();
-                                    popup_map_list.close();
-                                }
-                            }
-                        }
-                        Item_buttons{
-                            width: 130
-                            height: 60
-                            type: "round_text"
-                            visible: false
-                            text: "복사본만들기"
-                            onClicked: {
-                                click_sound.play();
-                                if(select_map_list > -1){
-                                    supervisor.writelog("[USER INPUT] Map used copied : " + model_maps.get(select_map_list).name);
-                                    popup_copymap.open();
-                                    popup_copymap.orin_name = model_maps.get(select_map_list).name;
-
-
-//                                    supervisor.setMap(model_maps.get(select_map_list).name);
-//                                    loader_page.item.init();
-//                                    popup_map_list.close();
-                                }
-                            }
-                        }
-                        Item_buttons{
-                            width: 130
-                            height: 60
-                            type: "round_text"
-                            visible: false
-                            text: "수 정"
-                            onClicked: {
-                                click_sound.play();
-                                if(select_map_list > -1){
-                                    var name = model_maps.get(select_map_list).name;
-                                    popup_map_list.close();
-                                    print(name);
-                                    loadPage(pannotation);
-                                    loader_page.item.setMappingFlag();
-                                }
-                            }
-                        }
-                        Item_buttons{
-                            width: 130
-                            height: 60
-                            type: "round_text"
-                            text: "삭 제"
-                            onClicked: {
-                                click_sound.play();
-                                if(select_map_list > -1){
-                                    supervisor.removeMap(model_maps.get(select_map_list).name);
-                                    popup_map_list.update_list();
-                                }
-                            }
-                        }
-                    }
                 }
                 MAP_FULL2{
                     id: map_list_view
                     enabled: false
                     objectName: "POPUP"
-                    width: 600
-                    height: 600
+                    width: height
+                    height: 800-150
                     show_connection: false
                     Component.onCompleted: {
                         setfullscreen();
@@ -431,7 +902,11 @@ Popup{
                         text:"확인"
                         onClicked:{
                             if(textfield_new_map.text != ""){
-                                supervisor.copyMap(popup_copymap.orin_name, textfield_new_map.text);
+                                if(supervisor.copyMap(popup_copymap.orin_name, textfield_new_map.text) === 0){
+                                    update_list();
+                                }else{
+
+                                }
                                 popup_copymap.close();
                             }
                         }

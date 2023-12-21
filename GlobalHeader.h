@@ -8,12 +8,10 @@
 #include "MapHeader.h"
 #include "cv_to_qt.h"
 
-
 extern Logger *plog;
 extern int ui_state;
 extern bool is_debug;
 extern QApplication *app;
-
 
 typedef struct{
     QString serial;
@@ -83,6 +81,7 @@ typedef struct{
     int edited_origin[2] = {0,};
     float robot_radius = 0.3;
 
+    QString annot_modified_date ="";
     float map_rotate_angle = 0;
     int cut_map[4];
     int mapping_width = 1000;
@@ -302,7 +301,8 @@ enum ROBOT_CMD{
     ROBOT_CMD_MAP_RELOAD,
     ROBOT_CMD_SETTING_RELOAD,
     ROBOT_CMD_SERVER_MAP_UPDATE,
-    ROBOT_CMD_CHECK_TRAVEL_LINE
+    ROBOT_CMD_CHECK_TRAVEL_LINE,
+    ROBOT_CMD_MAP_SOFT_RELOAD
 
 };
 

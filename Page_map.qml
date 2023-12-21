@@ -163,7 +163,7 @@ Item {
                                 supervisor.writelog("[UI] MAP : move to Localization")
                                 debug_mode = false;
                                 supervisor.resetLocalization();
-//                                loadPage(plocalization);
+//                                loadPage(건너뛰기zation);
                             }
                         }
                     }
@@ -176,7 +176,7 @@ Item {
     Item{
         id: map_cur
         objectName: "map_current"
-        width: parent.width - rect_menus.width
+        width: parent.width
         height: parent.height - statusbar.height
         anchors.left: rect_menus.right
         anchors.bottom: parent.bottom

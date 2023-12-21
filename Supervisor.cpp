@@ -380,6 +380,21 @@ QString Supervisor::getUpdateMessage(QString name){
 QString Supervisor::getLastUpdateDate(QString name){
     return server->version_list[name].date;
 }
+void Supervisor::checkCleaningLocation(){
+    if(getLocationNum("Cleaning") == 0){
+        plog->write("[ANNOTATION] Cleaning Mode : no found Location. make new");
+        LOCATION temp;
+        temp.point = getLocation(0,"Resting0").point;
+        temp.angle = getLocation(0,"Resting0").angle;
+        temp.type = "Cleaning";
+        temp.group = 0;
+        temp.group_name = "Cleaning";
+        temp.name = "Cleaning0";
+        temp.call_id = "";
+        pmap->locations.push_back(temp);
+        saveAnnotation("");
+    }
+}
 QString Supervisor::getCurrentCommit(QString name){
     return server->version_list[name].commit;
 }
@@ -405,9 +420,6 @@ void Supervisor::restartUpdate(){
     tempprocess->setWorkingDirectory(file);
     tempprocess->start(file2);
     tempprocess->waitForReadyRead(3000);
-
-    qDebug() << "done?";
-
 
 }
 void Supervisor::startUpdate(){
@@ -545,10 +557,13 @@ void Supervisor::readSetting(QString map_name){
     ini_path = getAnnotPath(map_name);
     QSettings setting_anot(ini_path, QSettings::IniFormat);
 
+    QFileInfo annot_info(ini_path);
+    QDateTime lastModified = annot_info.lastModified();
+    pmap->annot_modified_date = lastModified.toString("yyyy-MM-dd hh:mm:ss");
+
     pmap->locations.clear();
     LOCATION temp_loc;
 
-    qDebug() << "?";
     setting_anot.beginGroup("charging_locations");
     QString loc_str = setting_anot.value("loc0").toString();
     QStringList strlist = loc_str.split(",");
@@ -604,15 +619,14 @@ void Supervisor::readSetting(QString map_name){
                 temp_loc.call_id = "";
             pmap->locations.push_back(temp_loc);
         }else {
-            temp_loc.type = "Cleaning";
-            temp_loc.name = "Cleaning0";
-            temp_loc.call_id = "";
-            pmap->locations.push_back(temp_loc);
+//            temp_loc.type = "Cleaning";
+//            temp_loc.name = "Cleaning0";
+//            temp_loc.call_id = "";
+//            pmap->locations.push_back(temp_loc);
         }
         setting_anot.endGroup();
     }
 
-    qDebug() << "?";
     setting_anot.beginGroup("serving_locations");
     int total_serv_num = 0;
     int group_num = setting_anot.value("group").toInt();
@@ -626,8 +640,6 @@ void Supervisor::readSetting(QString map_name){
         total_serv_num +=serv_num;
         QString group_name = setting_anot.value("name").toString();
         pmap->location_groups.append(group_name);
-
-        qDebug() << "?????????????????" << serv_num;
 
         for(int j=0; j<serv_num; j++){
             QString loc_str = setting_anot.value("loc"+QString::number(j)).toString();
@@ -648,7 +660,6 @@ void Supervisor::readSetting(QString map_name){
         setting_anot.endGroup();
     }
 
-    qDebug() << "?";
     plog->write("[SUPERVISOR] READ SETTING : annot done");
 //    std::sort(pmap->locations.begin(),pmap->locations.end(),sortLocation2);
 
@@ -771,7 +782,18 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
             pmap->locations[overwrite_num] = temp;
         }else{
             plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations.insert(getLocationNum("Charging"),temp);
+            pmap->locations.push_back(temp);
+//            pmap->locations.insert(getLocationNum("Charging"),temp);
+        }
+        pmap->annot_edit_location = true;
+    }else if(type == "Cleaning"){
+        if(overwrite){
+            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            pmap->locations[overwrite_num] = temp;
+        }else{
+            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            pmap->locations.push_back(temp);
+//            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting")+getLocationNum("Cleaning"),temp);
         }
         pmap->annot_edit_location = true;
     }else if(type == "Resting"){
@@ -780,7 +802,8 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
             pmap->locations[overwrite_num] = temp;
         }else{
             plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting"),temp);
+            pmap->locations.push_back(temp);
+//            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting"),temp);
         }
         pmap->annot_edit_location = true;
     }
@@ -922,16 +945,22 @@ void Supervisor::drawingRunawayStop(){
     send_msg.cmd = ROBOT_CMD_DRAW_LINE_SAVE;
     ipc->set_cmd(send_msg);
 }
-void Supervisor::slam_map_reload(QString filename){
+void Supervisor::slam_map_reload(QString filename, int mode){
     ui_state = UI_STATE_NONE;
     probot->localization_state = 0;
     probot->motor[0].status = 0;
     probot->motor[1].status = 0;
     probot->localization_confirm = 0;
     IPCHandler::CMD send_msg;
-    send_msg.cmd = ROBOT_CMD_MAP_RELOAD;
-    memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
-    ipc->set_cmd(send_msg,"MAP RELOAD");
+    if(mode == 0){
+        send_msg.cmd = ROBOT_CMD_MAP_RELOAD;
+        memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
+        ipc->set_cmd(send_msg,"MAP HARD RELOAD");
+    }else{
+        send_msg.cmd = ROBOT_CMD_MAP_SOFT_RELOAD;
+        memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
+        ipc->set_cmd(send_msg,"MAP SOFT RELOAD");
+    }
 }
 void Supervisor::slam_ini_reload(){
     ui_state = UI_STATE_NONE;
@@ -996,7 +1025,6 @@ int Supervisor::getAvailableMap(){
     std::string path = QString(QDir::homePath()+"/RB_MOBILE/maps").toStdString();
     QDir directory(path.c_str());
     QStringList FileList = directory.entryList();
-    qDebug() << "FILELIST : " << FileList;
     map_list.clear();
     for(int i=0; i<FileList.size(); i++){
         if(FileList[i] == "." || FileList[i] == ".."){
@@ -1056,18 +1084,57 @@ bool Supervisor::isExistMap(QString name){
     }
 
     if(QFile::exists(getMapPath(name))){
-        if(QFile::exists(getRawMapPath(name))){
+//        if(QFile::exists(getRawMapPath(name))){
 
-        }else{
-            //make map_raw.png
-            QFile::copy(getMapPath(name),getRawMapPath(name));
-        }
+//        }else{
+//            //make map_raw.png
+//            QFile::copy(getMapPath(name),getRawMapPath(name));
+//        }
         return true;
     }else{
         return false;
     }
 }
-
+bool Supervisor::isExistTlineMap(QString name){
+    if(name==""){
+        name = getMapname();
+    }
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_travel_line.png")){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool Supervisor::isExistVelMap(QString name){
+    if(name==""){
+        name = getMapname();
+    }
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_velocity.png")){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool Supervisor::isExistObjectMap(QString name){
+    if(name==""){
+        name = getMapname();
+    }
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_obs.png")){
+        return true;
+    }else{
+        return false;
+    }
+}
+bool Supervisor::isExistAvoidMap(QString name){
+    if(name==""){
+        name = getMapname();
+    }
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_avoid.png")){
+        return true;
+    }else{
+        return false;
+    }
+}
 bool Supervisor::isExistRawMap(QString name){
     if(QFile::exists(getRawMapPath(name))){
         return true;
@@ -1077,6 +1144,7 @@ bool Supervisor::isExistRawMap(QString name){
 }
 bool Supervisor::isLoadMap(){
     //기본 설정된 맵파일 확인
+    qDebug() << getMapname() << getMapPath(getMapname()) <<QFile::exists(getMapPath(getMapname()));
     if(QFile::exists(getMapPath(getMapname()))){
         return true;
     }
@@ -1108,156 +1176,267 @@ bool Supervisor::checkINI(){
     }
 }
 void Supervisor::checkRobotINI(){
-    if(getSetting("setting","UI","group_row_num").toInt()==0)
-        setSetting("setting","UI/group_row_num","2");
-    if(getSetting("setting","UI","group_col_num").toInt()==0)
-        setSetting("setting","UI/group_col_num","4");
-    if(getSetting("setting","UI","table_row_num").toInt()==0)
-        setSetting("setting","UI/table_row_num","5");
-    if(getSetting("setting","UI","table_col_num").toInt()==0)
-        setSetting("setting","UI/table_col_num","1");
+    //1. Update_config==========================================================
+    if(getSetting("update","MOTOR","gear_ratio") == "")
+        setSetting("update","MOTOR/gear_ratio","1.0");
+    if(getSetting("update","MOTOR","k_d") == "")
+        setSetting("update","MOTOR/k_d","4400.0");
+    if(getSetting("update","MOTOR","k_i") == "")
+        setSetting("update","MOTOR/k_i","0.0");
+    if(getSetting("update","MOTOR","k_p") == "")
+        setSetting("update","MOTOR/k_p","100.0");
+    if(getSetting("update","MOTOR","left_id") == ""&&getSetting("update","MOTOR","right_id") == ""){
+        setSetting("update","MOTOR/left_id","1");
+        setSetting("update","MOTOR/right_id","0");
+    }
+    if(getSetting("update","MOTOR","limit_v") == "")
+        setSetting("update","MOTOR/limit_v","2");
+    if(getSetting("update","MOTOR","limit_v_acc") == "")
+        setSetting("update","MOTOR/limit_v_acc","1.5");
+    if(getSetting("update","MOTOR","limit_w") == "")
+        setSetting("update","MOTOR/limit_w","180.0");
+    if(getSetting("update","MOTOR","limit_w_acc") == "")
+        setSetting("update","MOTOR/limit_w_acc","180.0");
+    if(getSetting("update","MOTOR","wheel_dir") == "")
+        setSetting("update","MOTOR/wheel_dir","-1");
 
+
+    if(getSetting("update","DRIVING","cur_preset") == "")
+        setSetting("update","DRIVING/cur_preset","3");
+    if(getSetting("update","DRIVING","comeback_preset") == "")
+        setSetting("update","DRIVING/comeback_preset","3");
+    if(getSetting("update","DRIVING","pause_check_ms") == "")
+        setSetting("update","DRIVING/pause_check_ms","500");
+    if(getSetting("update","DRIVING","pause_motor_current") == "")
+        setSetting("update","DRIVING/pause_motor_current","3000");
+
+    if(getSetting("update","DRIVING","goal_dist") == "")
+        setSetting("update","DRIVING/goal_dist","0.05");
+    if(getSetting("update","DRIVING","goal_th") == "")
+        setSetting("update","DRIVING/goal_th","1");
+    if(getSetting("update","DRIVING","goal_near_dist") == "")
+        setSetting("update","DRIVING/goal_near_dist","0.3");
+    if(getSetting("update","DRIVING","goal_near_th") == "")
+        setSetting("update","DRIVING/goal_near_th","15");
+    if(getSetting("update","DRIVING","goal_v") == "")
+        setSetting("update","DRIVING/goal_v","0.05");
+    if(getSetting("update","DRIVING","k_curve") == "")
+        setSetting("update","DRIVING/k_curve","0.005");
+    if(getSetting("update","DRIVING","k_v") == "")
+        setSetting("update","DRIVING/k_v","1.5");
+    if(getSetting("update","DRIVING","k_w") == "")
+        setSetting("update","DRIVING/k_w","1.5");
+    if(getSetting("update","DRIVING","k_dd") == "")
+        setSetting("update","DRIVING/k_dd","1.25");
+    if(getSetting("update","DRIVING","path_out_dist") == "")
+        setSetting("update","DRIVING/path_out_dist","1");
+    if(getSetting("update","DRIVING","st_v") == "")
+        setSetting("update","DRIVING/st_v","0.05");
+    if(getSetting("update","DRIVING","look_ahead_dist") == "")
+        setSetting("update","DRIVING/look_ahead_dist","1");
+    if(getSetting("update","DRIVING","min_look_ahead_dist") == "")
+        setSetting("update","DRIVING/min_look_ahead_dist","0.1");
+    if(getSetting("update","DRIVING","path_delta_v_acc_gain") == "")
+        setSetting("update","DRIVING/path_delta_v_acc_gain","1");
+    if(getSetting("update","DRIVING","path_delta_v_dec_gain") == "")
+        setSetting("update","DRIVING/path_delta_v_dec_gain","0.5");
+    if(getSetting("update","DRIVING","path_ref_v_gain") == "")
+        setSetting("update","DRIVING/path_ref_v_gain","0.8");
+    if(getSetting("update","DRIVING","path_shifting_val") == "")
+        setSetting("update","DRIVING/path_shifting_val","0");
+
+    if(getSetting("update","SLAM","slam_submap_cnt") == "")
+        setSetting("update","SLAM/slam_submap_cnt","100");
+    if(getSetting("update","SLAM","slam_lc_dist") == "")
+        setSetting("update","SLAM/slam_lc_dist","10");
+    if(getSetting("update","SLAM","slam_lc_icp_dist") == "")
+        setSetting("update","SLAM/slam_lc_icp_dist","2");
+    if(getSetting("update","SLAM","map_size") == "")
+        setSetting("update","SLAM/map_size","1000");
+    if(getSetting("update","SLAM","grid_size") == "")
+        setSetting("update","SLAM/grid_size","0.05");
+
+
+    if(getSetting("update","LOCALIZATION","icp_dist") == "")
+        setSetting("update","LOCALIZATION/icp_dist","0.2");
+    if(getSetting("update","LOCALIZATION","icp_error") == "")
+        setSetting("update","LOCALIZATION/icp_error","0.1");
+    if(getSetting("update","LOCALIZATION","icp_near") == "")
+        setSetting("update","LOCALIZATION/icp_near","1");
+    if(getSetting("update","LOCALIZATION","icp_odometry_weight") == "")
+        setSetting("update","LOCALIZATION/icp_odometry_weight","0.8");
+    if(getSetting("update","LOCALIZATION","icp_ratio") == "")
+        setSetting("update","LOCALIZATION/icp_ratio","0.5");
+    if(getSetting("update","LOCALIZATION","icp_repeat_dist") == "")
+        setSetting("update","LOCALIZATION/icp_repeat_dist","0.1");
+    if(getSetting("update","LOCALIZATION","icp_repeat_time") == "")
+        setSetting("update","LOCALIZATION/icp_repeat_time","0.3");
+
+
+    //2. Setting_config=========================================================
+    if(getSetting("setting","UI","group_row_num") == "")
+        setSetting("setting","UI/group_row_num","2");
+    if(getSetting("setting","UI","group_col_num") == "")
+        setSetting("setting","UI/group_col_num","4");
+    if(getSetting("setting","UI","table_row_num") == "")
+        setSetting("setting","UI/table_row_num","5");
+    if(getSetting("setting","UI","table_col_num") == "")
+        setSetting("setting","UI/table_col_num","1");
+    if(getSetting("setting","UI","moving_face") == "")
+        setSetting("setting","UI/moving_face","true");
     if(getSetting("setting","UI","language") == "")
         setSetting("setting","UI/language","KR");
     if(getSetting("setting","UI","voice_mode") == "")
         setSetting("setting","UI/voice_mode","woman");
-    if(getSetting("setting","UI","volume_bgm").toInt()==0)
+    if(getSetting("setting","UI","volume_bgm") == "")
         setSetting("setting","UI/volume_bgm","50");
-    if(getSetting("setting","UI","volume_voice").toInt()==0)
+    if(getSetting("setting","UI","volume_voice") == "")
         setSetting("setting","UI/volume_voice","50");
-    if(getSetting("setting","UI","volume_button").toInt()==0)
+    if(getSetting("setting","UI","volume_button") == "")
         setSetting("setting","UI/volume_button","50");
+    if(getSetting("setting","UI","user_passwd") == "")
+        setSetting("setting","UI/user_passwd","1111");
 
-    if(getSetting("setting","CALL","call_maximum").toInt()==0)
+    if(getSetting("setting","CALL","call_maximum") == "")
         setSetting("setting","CALL/call_maximum","1");
 
     if(getSetting("setting","PRESET1","name")==""){
         setSetting("setting","PRESET1/name","매우느리게");
-        setSetting("setting","PRESET1/limit_pivot","30");
-        setSetting("setting","PRESET1/limit_pivot_acc","30");
-        setSetting("setting","PRESET1/limit_v","0.25");
-        setSetting("setting","PRESET1/limit_v_acc","0.25");
-        setSetting("setting","PRESET1/limit_w","30");
-        setSetting("setting","PRESET1/limit_w_acc","45");
+        setSetting("setting","PRESET1/limit_pivot","30.0");
+        setSetting("setting","PRESET1/limit_pivot_acc","60");
+        setSetting("setting","PRESET1/limit_v","0.2");
+        setSetting("setting","PRESET1/limit_v_acc","0.3");
+        setSetting("setting","PRESET1/limit_w","75");
+        setSetting("setting","PRESET1/limit_w_acc","90");
     }
     if(getSetting("setting","PRESET2","name")==""){
         setSetting("setting","PRESET2/name","느리게");
-        setSetting("setting","PRESET2/limit_pivot","50");
-        setSetting("setting","PRESET2/limit_pivot_acc","50");
-        setSetting("setting","PRESET2/limit_v","0.75");
-        setSetting("setting","PRESET2/limit_v_acc","0.4");
-        setSetting("setting","PRESET2/limit_w","50");
-        setSetting("setting","PRESET2/limit_w_acc","50");
+        setSetting("setting","PRESET2/limit_pivot","30");
+        setSetting("setting","PRESET2/limit_pivot_acc","60");
+        setSetting("setting","PRESET2/limit_v","0.4");
+        setSetting("setting","PRESET2/limit_v_acc","0.3");
+        setSetting("setting","PRESET2/limit_w","75");
+        setSetting("setting","PRESET2/limit_w_acc","90");
     }
     if(getSetting("setting","PRESET3","name")==""){
         setSetting("setting","PRESET3/name","보통");
-        setSetting("setting","PRESET3/limit_pivot","80");
-        setSetting("setting","PRESET3/limit_pivot_acc","80");
-        setSetting("setting","PRESET3/limit_v","1.0");
-        setSetting("setting","PRESET3/limit_v_acc","0.6");
-        setSetting("setting","PRESET3/limit_w","80");
-        setSetting("setting","PRESET3/limit_w_acc","80");
+        setSetting("setting","PRESET3/limit_pivot","30");
+        setSetting("setting","PRESET3/limit_pivot_acc","60");
+        setSetting("setting","PRESET3/limit_v","0.6");
+        setSetting("setting","PRESET3/limit_v_acc","0.3");
+        setSetting("setting","PRESET3/limit_w","75");
+        setSetting("setting","PRESET3/limit_w_acc","90");
     }
     if(getSetting("setting","PRESET4","name")==""){
         setSetting("setting","PRESET4/name","빠르게");
-        setSetting("setting","PRESET4/limit_pivot","95");
-        setSetting("setting","PRESET4/limit_pivot_acc","95");
-        setSetting("setting","PRESET4/limit_v","1.2");
-        setSetting("setting","PRESET4/limit_v_acc","0.8");
-        setSetting("setting","PRESET4/limit_w","95");
-        setSetting("setting","PRESET4/limit_w_acc","95");
+        setSetting("setting","PRESET4/limit_pivot","30");
+        setSetting("setting","PRESET4/limit_pivot_acc","60");
+        setSetting("setting","PRESET4/limit_v","0.8");
+        setSetting("setting","PRESET4/limit_v_acc","0.3");
+        setSetting("setting","PRESET4/limit_w","75");
+        setSetting("setting","PRESET4/limit_w_acc","90");
     }
     if(getSetting("setting","PRESET5","name")==""){
         setSetting("setting","PRESET5/name","매우빠르게");
-        setSetting("setting","PRESET5/limit_pivot","120");
-        setSetting("setting","PRESET5/limit_pivot_acc","120");
-        setSetting("setting","PRESET5/limit_v","1.5");
-        setSetting("setting","PRESET5/limit_v_acc","1.0");
-        setSetting("setting","PRESET5/limit_w","120");
-        setSetting("setting","PRESET5/limit_w_acc","120");
+        setSetting("setting","PRESET5/limit_pivot","30");
+        setSetting("setting","PRESET5/limit_pivot_acc","60");
+        setSetting("setting","PRESET5/limit_v","1.0");
+        setSetting("setting","PRESET5/limit_v_acc","0.3");
+        setSetting("setting","PRESET5/limit_w","75");
+        setSetting("setting","PRESET5/limit_w_acc","90");
     }
 
-    if(getSetting("setting","INITIALIZATION","icp_init_ratio") == "")
-        setSetting("setting","INITIALIZATION/icp_init_ratio","0.7");
-
-    if(getSetting("setting","INITIALIZATION","icp_init_error") == "")
-        setSetting("setting","INITIALIZATION/icp_init_error","0.2");
-
-
     if(getSetting("setting","ROBOT_TYPE","type") == "")
-        setSetting("setting","ROBOT_TYPE/type","SERVING");
+        setSetting("setting","ROBOT_TYPE/type","BOTH");
     if(getSetting("setting","ROBOT_TYPE","model") == "")
         setSetting("setting","ROBOT_TYPE/model","None");
+    if(getSetting("setting","ROBOT_TYPE","serial_num") == "")
+        setSetting("setting","ROBOT_TYPE/serial_num","0");
     if(getSetting("setting","ROBOT_TYPE","tray_num") == "")
         setSetting("setting","ROBOT_TYPE/tray_num","2");
 
-    if(getSetting("setting","SENSOR","cam_exposure").toFloat()==0)
+    if(getSetting("setting","USE_SLAM","use_uicmd") == "")
+        setSetting("setting","USE_SLAM/use_uicmd","true");
+    if(getSetting("setting","USE_SLAM","use_early_resting") == "")
+        setSetting("setting","USE_SLAM/use_early_resting","false");
+    if(getSetting("setting","USE_SLAM","use_early_serving") == "")
+        setSetting("setting","USE_SLAM/use_early_serving","false");
+    if(getSetting("setting","USE_SLAM","use_obs_preview") == "")
+        setSetting("setting","USE_SLAM/use_obs_preview","true");
+
+    if(getSetting("setting","SENSOR","cam_exposure")=="")
         setSetting("setting","SENSOR/cam_exposure","2000");
-    if(getSetting("setting","SENSOR","mask").toFloat()==0)
+    if(getSetting("setting","SENSOR","mask")=="")
         setSetting("setting","SENSOR/mask","10.0");
-    if(getSetting("setting","SENSOR","max_range").toFloat()==0)
+    if(getSetting("setting","SENSOR","max_range")=="")
         setSetting("setting","SENSOR/max_range","40.0");
 
-    //============================================================================================
+    if(getSetting("setting","OBSTACLE","obs_check_range")=="")
+        setSetting("setting","OBSTACLE/obs_check_range","2.5");
+    if(getSetting("setting","OBSTACLE","obs_deadzone")=="")
+        setSetting("setting","OBSTACLE/obs_deadzone","0.4");
+    if(getSetting("setting","OBSTACLE","obs_preview_time")=="")
+        setSetting("setting","OBSTACLE/obs_preview_time","3");
+    if(getSetting("setting","OBSTACLE","obs_wait_time")=="")
+        setSetting("setting","OBSTACLE/obs_wait_time","1");
+    if(getSetting("setting","OBSTACLE","obs_detect_area")=="")
+        setSetting("setting","OBSTACLE/obs_detect_area","2");
+    if(getSetting("setting","OBSTACLE","obs_detect_sensitivity")=="")
+        setSetting("setting","OBSTACLE/obs_detect_sensitivity","2");
+    if(getSetting("setting","OBSTACLE","obs_height_max")=="")
+        setSetting("setting","OBSTACLE/obs_height_max","0.5");
+    if(getSetting("setting","OBSTACLE","obs_height_min")=="")
+        setSetting("setting","OBSTACLE/obs_height_min","0.1");
+    if(getSetting("setting","OBSTACLE","obs_margin0")=="")
+        setSetting("setting","OBSTACLE/obs_margin0","0.05");
+    if(getSetting("setting","OBSTACLE","obs_margin1")=="")
+        setSetting("setting","OBSTACLE/obs_margin1","0.05");
+    if(getSetting("setting","OBSTACLE","obs_avoid_v")=="")
+        setSetting("setting","OBSTACLE/obs_avoid_v","0.2");
+    if(getSetting("setting","OBSTACLE","obs_avoid_width")=="")
+        setSetting("setting","OBSTACLE/obs_avoid_width","1");
+    if(getSetting("setting","OBSTACLE","obs_near")=="")
+        setSetting("setting","OBSTACLE/obs_near","1");
+    if(getSetting("setting","OBSTACLE","obs_early_stop_dist")=="")
+        setSetting("setting","OBSTACLE/obs_early_stop_dist","1");
+    if(getSetting("setting","OBSTACLE","obs_decel_gain")=="")
+        setSetting("setting","OBSTACLE/obs_decel_gain","0.8");
 
-    if(getSetting("update","MOTOR","gear_ratio").toFloat()==0)
-        setSetting("update","MOTOR/gear_ratio","1.0");
-    if(getSetting("update","MOTOR","k_d").toFloat()==0)
-        setSetting("update","MOTOR/k_d","4400.0");
-    if(getSetting("update","MOTOR","k_i").toFloat()==0)
-        setSetting("update","MOTOR/k_i","0.0");
-    if(getSetting("update","MOTOR","k_p").toFloat()==0)
-        setSetting("update","MOTOR/k_p","100.0");
-    if(getSetting("update","MOTOR","left_id").toInt()==0&&getSetting("update","MOTOR","right_id").toInt()==0){
-        setSetting("update","MOTOR/left_id","1");
-        setSetting("update","MOTOR/right_id","0");
-    }
-    if(getSetting("update","MOTOR","limit_v").toFloat()==0)
-        setSetting("update","MOTOR/limit_v","1.5");
-    if(getSetting("update","MOTOR","limit_v_acc").toFloat()==0)
-        setSetting("update","MOTOR/limit_v_acc","1.0");
-    if(getSetting("update","MOTOR","limit_w").toFloat()==0)
-        setSetting("update","MOTOR/limit_w","180.0");
-    if(getSetting("update","MOTOR","limit_w_acc").toFloat()==0)
-        setSetting("update","MOTOR/limit_w_acc","180.0");
-    if(getSetting("update","MOTOR","wheel_dir").toInt()==0)
-        setSetting("update","MOTOR/wheel_dir","-1");
-
-    if(getSetting("update","DRIVING","pause_check_ms").toInt()==0)
-        setSetting("update","DRIVING/pause_check_ms","500");
-    if(getSetting("update","DRIVING","pause_motor_current").toInt()==0)
-        setSetting("update","DRIVING/pause_motor_current","3000");
-    if(getSetting("update","DRIVING","cur_preset").toInt()==0)
-        setSetting("update","DRIVING/cur_preset","3");
-    if(getSetting("update","DRIVING","comeback_preset").toInt()==0)
-        setSetting("update","DRIVING/comeback_preset","3");
-
-    if(getSetting("update","SLAM","map_size").toInt()==0)
-        setSetting("update","SLAM/map_size","1000");
-    if(getSetting("update","SLAM","grid_size").toFloat()==0)
-        setSetting("update","SLAM/grid_size","0.05");
+    if(getSetting("setting","INITIALIZATION","icp_init_ratio") == "")
+        setSetting("setting","INITIALIZATION/icp_init_ratio","0.7");
+    if(getSetting("setting","INITIALIZATION","icp_init_error") == "")
+        setSetting("setting","INITIALIZATION/icp_init_error","0.2");
+    if(getSetting("setting","INITIALIZATION","icp_mapping_ratio") == "")
+        setSetting("setting","INITIALIZATION/icp_mapping_ratio","0.7");
+    if(getSetting("setting","INITIALIZATION","icp_mapping_error") == "")
+        setSetting("setting","INITIALIZATION/icp_mapping_error","0.2");
 
 
-    if(getSetting("static","ROBOT_HW","wheel_base").toFloat() == 0){
+    //3. Static_config==========================================================
+    if(getSetting("static","ROBOT_HW","wheel_base") == "")
         setSetting("static","ROBOT_HW/wheel_base","0.3542");
-    }
-    if(getSetting("static","ROBOT_HW","wheel_radius").toFloat() == 0){
+    if(getSetting("static","ROBOT_HW","wheel_radius") == "")
         setSetting("static","ROBOT_HW/wheel_radius","0.0635");
-    }
-    if(getSetting("static","ROBOT_HW","robot_radius").toFloat() == 0){
+    if(getSetting("static","ROBOT_HW","robot_radius") == "")
         setSetting("static","ROBOT_HW/robot_radius","0.3");
-    }
-    if(getSetting("static","ROBOT_HW","robot_length").toFloat() == 0){
-        setSetting("static","ROBOT_HW/robot_length","0.55");
-    }
+    if(getSetting("static","ROBOT_HW","robot_length") == "")
+        setSetting("static","ROBOT_HW/robot_length","0.52");
+
+    if(getSetting("static","SENSOR","lidar_offset_tf") == "")
+        setSetting("static","SENSOR/lidar_offset_tf","0.17,0.0,-178.0");
+    if(getSetting("static","SENSOR","left_camera_tf") == "")
+        setSetting("static","SENSOR/left_camera_tf","0.27,0.1,0.2,62.0,0.0,115.0");
+    if(getSetting("static","SENSOR","right_camera_tf") == "")
+        setSetting("static","SENSOR/right_camera_tf","0.27,-0.1,0.2,-62.0,0.0,-115.0");
+
 }
 void Supervisor::makeRobotINI(){
     QString updatep = getIniPath("update");
     QString settingp = getIniPath("setting");
     QString staticp = getIniPath("static");
-    QString robotp = getIniPath("server");
+    QString robotp = getIniPath("robot");
 
-    if(QFile::exists(updatep) && QFile::exists(settingp) && QFile::exists(staticp) && QFile::exists(robotp)){
+    if(QFile::exists(updatep) && QFile::exists(settingp) && QFile::exists(staticp)){
         plog->write("[SUPERVISOR] Make Robot Ini : Already good");
     }else{
         checkRobotINI();
@@ -1387,8 +1566,9 @@ int Supervisor::copyMap(QString orinname, QString newname){
         }else{
             if(QDir().mkdir(new_path)){
                 CopyPath(orin_path, new_path);
+                return 0;
             }else{
-                plog->write("[SETTING] Co        py Map failed : new Folder make failed");
+                plog->write("[SETTING] Copy Map failed : new Folder make failed");
                 return 2;
             }
         }
@@ -1427,7 +1607,8 @@ void Supervisor::restartSLAM(){
         }else{
             plog->write("[SUPERVISOR] RESTART SLAM -> RUNNING");
             QProcess *tempprocess = new QProcess(this);
-            tempprocess->start(QDir::homePath() + "/RB_MOBILE/sh/killslam.sh");
+            tempprocess->start(QDir::homePath() + "/RB_MOBILE/sh/killslam"
+                                                  "");
             tempprocess->waitForReadyRead(3000);
         }
         probot->localization_state = LOCAL_NOT_READY;
@@ -2198,16 +2379,16 @@ cv::Point2f setAxis(cv::Point2f _point){
 }
 cv::Point2f setAxisMapping(cv::Point2f _point){
     cv::Point2f temp;
-    float grid = pmap->mapping_gridwidth*pmap->mapping_width/1000;
-    temp.x = -_point.y/grid + 1000/2;
-    temp.y = -_point.x/grid + 1000/2;
+    float grid = pmap->mapping_gridwidth*pmap->mapping_width/pmap->mapping_width;
+    temp.x = -_point.y/grid + pmap->mapping_width/2;
+    temp.y = -_point.x/grid + pmap->mapping_width/2;
     return temp;
 }
 cv::Point2f setAxisObject(cv::Point2f _point){
     cv::Point2f temp;
-    float grid = pmap->gridwidth*pmap->width/1000;
-    temp.x = -_point.y/grid + 1000/2;
-    temp.y = -_point.x/grid + 1000/2;
+    float grid = pmap->gridwidth*pmap->width/pmap->mapping_width;
+    temp.x = -_point.y/grid + pmap->mapping_width/2;
+    temp.y = -_point.x/grid + pmap->mapping_width/2;
 //    qDebug() << temp.x << temp.y << pmap->width;
     return temp;
 }
@@ -2447,6 +2628,7 @@ bool Supervisor::saveAnnotation(QString filename){
             group_num[pmap->locations[i].group]++;
         }
     }
+
     settings.setValue("cleaning_locations/num",cleaning_num);
     settings.setValue("resting_locations/num",resting_num);
     settings.setValue("serving_locations/group",pmap->location_groups.size());
@@ -2891,10 +3073,45 @@ void Supervisor::moveToServingTest(int group, QString name){
             is_test_moving = false;
             plog->write("[COMMAND] Serving Test (Already Moving) : "+name+" (cur target is "+probot->trays[0].location.name+")");
         }
+    }else if(ui_state == UI_STATE_INITAILIZING){
+        if(getStateMoving() == READY && getMotorState() == READY && getLocalizationState() == LOCAL_READY){
+            if(name.left(8) == "Charging" || name == tr("충전위치")){
+                current_target = getLocation(0, "Charging0");
+                ui_state = UI_STATE_MOVING;
+                is_test_moving = true;
+                plog->write("[COMMAND] Serving Test : "+name);
+            }else if(name.left(7) == "Resting"|| name == tr("대기위치")){
+                current_target = getLocation(0, "Resting0");
+                ui_state = UI_STATE_MOVING;
+                is_test_moving = true;
+                plog->write("[COMMAND] Serving Test : "+name);
+            }else if(name.left(8) == "Cleaning"|| name == tr("퇴식위치")){
+                current_target = getLocation(0, "Cleaning0");
+                ui_state = UI_STATE_MOVING;
+                is_test_moving = true;
+                plog->write("[COMMAND] Serving Test : "+name);
+            }else if(probot->trays[0].empty){
+                LOCATION temp_loc = getLocation(group, name);
+                if(temp_loc.name == ""){
+                    plog->write("[COMMAND] Serving Test (Not found) : "+name);
+                    is_test_moving = false;
+                }else{
+                    probot->trays[0].empty = false;
+                    probot->trays[0].location = temp_loc;
+                    ui_state = UI_STATE_MOVING;
+                    is_test_moving = true;
+                    plog->write("[COMMAND] Serving Test : "+name);
+                }
+            }else{
+                is_test_moving = false;
+                plog->write("[COMMAND] Serving Test (Already Moving) : "+name+" (cur target is "+probot->trays[0].location.name+")");
+            }
+        }else{
+            plog->write("[COMMAND] Serving Test (state error on init) : "+name);
+            is_test_moving = false;
+            QMetaObject::invokeMethod(mMain,"movefail");
+        }
     }else{
-        is_test_moving = false;
-        QMetaObject::invokeMethod(mMain,"movefail");
-        plog->write("[COMMAND] Serving Test (state busy) : "+name+" ("+QString::number(ui_state)+")");
     }
 }
 void Supervisor::clearRotateList(){
@@ -2940,8 +3157,6 @@ void Supervisor::mapping_update(){
 void Supervisor::checkShellFiles(){
 //파일확인!
     QString file_path;
-
-
     QString path = QDir::homePath()+"/RB_MOBILE/log/ui_log";
     QDir directory(path);
     if(!directory.exists()){
@@ -3162,6 +3377,12 @@ void Supervisor::onTimer(){
         setWindow(qobject_cast<QQuickWindow*>(object));
     }
 
+    if(start_clear){
+        start_clear = false;
+        timer2 = new QTimer();
+        connect(timer2, SIGNAL(timeout()),this,SLOT(clear_all()));
+        timer2->start(500);
+    }
 
     //State 강제 변경조건
     if(!ipc->getConnection()){
@@ -3224,14 +3445,11 @@ void Supervisor::onTimer(){
         break;
     }
     case UI_STATE_INITAILIZING:{
-        //State : Initializing
-        //프로그램 루프 재 시작
-        //init 상태 체크
-//        qDebug() << "initializing";
         if(getMotorState() == READY && probot->localization_confirm == LOCAL_READY){
             if(probot->status_charge == 1){
                 ui_state = UI_STATE_CHARGING;
             }else{
+                call_queue.clear();
                 plog->write("[SUPERVISOR] Initializing Success -> Resting");
                 ui_state = UI_STATE_RESTING;
                 debug_mode = false;
@@ -4043,7 +4261,7 @@ void Supervisor::process_accept(int cmd){
 }
 
 void Supervisor::process_done(int cmd){
-    qDebug() << "Process done" << cmd;
+//    qDebug() << "Process done" << cmd;
     if(cmd == ExtProcess::PROCESS_CMD_SET_WIFI_IP){
 //        getWifiIP();
         QMetaObject::invokeMethod(mMain,"wifireset");
@@ -4206,7 +4424,7 @@ void Supervisor::getAllWifiList(){
             }
         }
     }
-    qDebug() << "default : " << defaultWifiConf.name() << defaultWifiConf.state();
+//    qDebug() << "default : " << defaultWifiConf.name() << defaultWifiConf.state();
     if(defaultWifiConf.name() != ""){
         probot->wifi_ssid = defaultWifiConf.name();
         probot->wifi_connection = WIFI_CONNECT;
@@ -4250,6 +4468,7 @@ int Supervisor::getCallQueueSize(){
 }
 
 void Supervisor::checkTravelline(){
+    pmap->tline_issue = 0;
     ipc->set_cmd(ROBOT_CMD_CHECK_TRAVEL_LINE,"Check Travelline");
 }
 
@@ -4343,39 +4562,102 @@ void Supervisor::resetLocalization(){
 
 }
 
-void Supervisor::resetClear(){
-    //log 삭제
-//    QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
-//    if(dir_log.removeRecursively()){
-//        plog->reset();
-//        plog->write("[SETTING] Reset Clear");
-//        plog->write("[SETTING] Reset Clear : Remove logs");
-//    }else{
-//        plog->write("[SETTING] Reset Clear");
-//        plog->write("[SETTING] Reset Clear : Remove logs failed");
-//    }
+void Supervisor::clear_all(){
+    timer2->stop();
+    //maps 폴더 지움.
+    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" maps directory : remove")),
+                              Q_ARG(QVariant,QVariant().fromValue(1)));
 
-//    //maps 폴더 지움.
-//    QDir dir_maps(QDir::homePath()+"/RB_MOBILE/maps");
-//    if(dir_maps.removeRecursively()){
-//        plog->write("[SETTING] Reset Clear : Remove maps");
-//    }else{
-//        plog->write("[SETTING] Reset Clear : Remove maps failed");
-//    }
+    QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
+    QDir dir_maps(path_maps);
+    if(dir_maps.removeRecursively()){
+        plog->write("[SETTING] Reset Clear : Remove maps");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" temp directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(2)));
+    }else{
+        plog->write("[SETTING] Reset Clear : Remove maps failed");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" temp directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(3)));
+    }
+    QDir().mkdir(path_maps);
 
-//    //temp 폴더 지움.
-//    QDir dir_temp(QDir::homePath()+"/RB_MOBILE/temp");
-//    if(dir_temp.removeRecursively()){
-//        plog->write("[SETTING] Reset Clear : Remove temp");
-//    }else{
-//        plog->write("[SETTING] Reset Clear : Remove temp failed");
-//    }
+    //temp 폴더 지움.
+
+    QString path_temp = QDir::homePath()+"/RB_MOBILE/temp";
+    QDir dir_temp(path_temp);
+    if(dir_temp.removeRecursively()){
+        plog->write("[SETTING] Reset Clear : Remove temp");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" config directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(2)));
+    }else{
+        plog->write("[SETTING] Reset Clear : Remove temp failed");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" config directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(3)));
+    }
 
 
     //myID 등  robot_config.ini 수정
+    //config 폴더 지움.
+    QString path_config = QDir::homePath()+"/RB_MOBILE/config";
+    QDir dir_config(path_config);
+    if(dir_config.removeRecursively()){
+        plog->write("[SETTING] Reset Clear : Remove config");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make config ini")),
+                                  Q_ARG(QVariant,QVariant().fromValue(2)));
+    }else{
+        plog->write("[SETTING] Reset Clear : Remove config failed");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make config ini")),
+                                  Q_ARG(QVariant,QVariant().fromValue(3)));
+    }
+    QDir().mkdir(path_config);
+    makeRobotINI();
+    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make shell files")),
+                              Q_ARG(QVariant,QVariant().fromValue(2)));
 
     //sh 파일 복구?
+    checkShellFiles();
+    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" log directory : remove")),
+                              Q_ARG(QVariant,QVariant().fromValue(2)));
 
+
+    //log 삭제
+    QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
+    if(dir_log.removeRecursively()){
+        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
+        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
+        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
+        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
+        plog->write("[SETTING] Reset Clear : Remove log Success");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" all done")),
+                                  Q_ARG(QVariant,QVariant().fromValue(2)));
+
+    }else{
+        if(!dir_log.exists()){
+            QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
+            QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
+            QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
+            QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
+        }
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" all done")),
+                                  Q_ARG(QVariant,QVariant().fromValue(3)));
+
+        plog->write("[SETTING] Reset Clear : Remove log Failed");
+    }
+}
+
+void Supervisor::resetClear(){
+    start_clear = true;
 
 }
 
@@ -4396,6 +4678,24 @@ bool Supervisor::getTravellineIssueFar(int num){
     return pmap->tline_issues[num].is_far;
 }
 bool Supervisor::getTravellineIssueBroken(int num){
-
     return pmap->tline_issues[num].is_broken;
+}
+
+void Supervisor::setVelmapView(bool onoff){
+    maph->setShowVelocitymap(onoff);
+}
+void Supervisor::setTlineView(bool onoff){
+    maph->setShowTravelline(onoff);
+}
+void Supervisor::setObjectView(bool onoff){
+    maph->setShowObject(onoff);
+}
+void Supervisor::setAvoidmapView(bool onoff){
+    maph->setShowAvoideMap(onoff);
+}
+void Supervisor::setLocationView(bool onoff){
+    maph->setShowLocation(onoff);
+}
+void Supervisor::setRobotView(bool onoff){
+    maph->setShowRobot(onoff);
 }

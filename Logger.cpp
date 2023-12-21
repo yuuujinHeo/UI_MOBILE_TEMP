@@ -30,11 +30,8 @@ void Logger::reset(){
         qDebug() << "[LOGGER] ui_log directory not found. make new";
     }
     filename = getFileName();
-    qDebug() << "1";
     file = new QFile;
-    qDebug() << "1";
     file->setFileName(filename);
-    qDebug() << "1";
     if(file->open(QIODevice::Append | QIODevice::Text)){
         write("[LOGGER] file opened");
     }else{

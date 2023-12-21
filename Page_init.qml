@@ -19,6 +19,7 @@ Item {
     property int init_mode: 0
 
     property bool show_debug: false
+    property bool wifi_update_auto: true
 
     Component.onCompleted: {
         init_mode = 0;
@@ -350,7 +351,6 @@ Item {
                         height: 2
                         color: color_dark_navy
                     }
-
                     Flickable{
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.top: dd3.bottom
@@ -575,6 +575,7 @@ Item {
             }
             function updatewifiState(){
                 wizard_ip.connection = supervisor.getWifiConnection(wizard_ip.select_ssd);
+//                print("update wifi state = ",wizard_ip.select_ssd, wizard_ip.connection);
 
             }
             function connect_fail(){
@@ -643,7 +644,7 @@ Item {
                 dnsmain_2.focus = false;
                 dnsmain_3.focus = false;
                 dnsmain_4.focus = false;
-                print("ip_update");
+//                print("ip_update");
             }
 
             SwipeView{
@@ -789,54 +790,7 @@ Item {
                         Row{
                             spacing: 80
                             anchors.horizontalCenter: parent.horizontalCenter
-                            Rectangle{
-                                width: 230
-                                height: 110
-                                radius: 60
-                                color: "transparent"
-                                border.width: 3
-                                border.color : color_green
-                                Text{
-                                    anchors.centerIn: parent
-                                    text: qsTr("서빙용")
-                                    font.pixelSize: 35
-                                    font.family: font_noto_r.name
-                                    color: color_dark_black
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO Serving")
-                                        supervisor.setSetting("setting","ROBOT_TYPE/type","SERVING");
-                                        swipeview_wizard.currentIndex++;
-                                    }
-                                }
-                            }
-                            Rectangle{
-                                width: 230
-                                height: 110
-                                radius: 60
-                                color: "transparent"
-                                border.width: 3
-                                border.color : color_green
-                                Text{
-                                    anchors.centerIn: parent
-                                    text: qsTr("호출용")
-                                    font.pixelSize: 35
-                                    font.family: font_noto_r.name
-                                    color: color_dark_black
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CALLING")
-                                        supervisor.setSetting("setting","ROBOT_TYPE/type","CALLING");
-                                        swipeview_wizard.currentIndex++;
-                                    }
-                                }
-                            }
+
                             Rectangle{
                                 width: 230
                                 height: 110
@@ -861,6 +815,79 @@ Item {
                                     }
                                 }
                             }
+
+                            Rectangle{
+                                width: 230
+                                height: 110
+                                radius: 60
+                                color: "transparent"
+                                border.width: 3
+                                border.color : color_green
+                                Text{
+                                    anchors.centerIn: parent
+                                    text: qsTr("서빙전용")
+                                    font.pixelSize: 35
+                                    font.family: font_noto_r.name
+                                    color: color_dark_black
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO Serving")
+                                        supervisor.setSetting("setting","ROBOT_TYPE/type","SERVING");
+                                        swipeview_wizard.currentIndex++;
+                                    }
+                                }
+                            }
+                            Rectangle{
+                                width: 230
+                                height: 110
+                                radius: 60
+                                color: "transparent"
+                                border.width: 3
+                                border.color : color_green
+                                Text{
+                                    anchors.centerIn: parent
+                                    text: qsTr("호출전용")
+                                    font.pixelSize: 35
+                                    font.family: font_noto_r.name
+                                    color: color_dark_black
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CALLING")
+                                        supervisor.setSetting("setting","ROBOT_TYPE/type","CALLING");
+                                        swipeview_wizard.currentIndex++;
+                                    }
+                                }
+                            }
+                            Rectangle{
+                                width: 230
+                                height: 110
+                                radius: 60
+                                color: "transparent"
+                                border.width: 3
+                                border.color : color_green
+                                Text{
+                                    anchors.centerIn: parent
+                                    text: qsTr("퇴식전용")
+                                    font.pixelSize: 35
+                                    font.family: font_noto_r.name
+                                    color: color_dark_black
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CLEANING")
+                                        supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                                        swipeview_wizard.currentIndex++;
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -869,6 +896,7 @@ Item {
                 Item{
                     id: wizard_name
                     function init(){
+
                     }
                     Column{
                         anchors.centerIn: parent
@@ -1385,13 +1413,12 @@ Item {
                     Timer{
                         id: timer_update_wifi
                         running: false
-                        repeat: true
+                        repeat: wifi_update_auto
                         interval: 3000
                         triggeredOnStart: true
                         onTriggered: {
                             supervisor.getAllWifiList();
                             model_wifis.clear();
-
                             for(var i=0; i<supervisor.getWifiNum(); i++){
                                 var ssid = supervisor.getWifiSSID(i);
                                 model_wifis.append({"ssid":ssid,"inuse":supervisor.getWifiInuse(ssid),"rate":supervisor.getWifiRate(ssid),"level":supervisor.getWifiLevel(ssid),"security":supervisor.getWifiSecurity(ssid)});
@@ -1406,8 +1433,72 @@ Item {
                         triggeredOnStart: true
                         onTriggered: {
                             wizard_ip.connection = supervisor.getWifiConnection(wizard_ip.select_ssd);
+                            print(wizard_ip.connection);
                         }
                     }
+
+                    Column{
+                        anchors.right: parent.right
+                        anchors.rightMargin: 60
+                        anchors.top: parent.top
+                        anchors.topMargin: 60 + statusbar.height
+                        visible: wizard_ip.setting_step ===0
+                        Grid{
+                            columns: 2
+                            rows: 2
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            horizontalItemAlignment: Grid.AlignHCenter
+                            verticalItemAlignment: Grid.AlignVCenter
+                            spacing: 10
+                            RadioButton{
+                                id: radio_update_always
+                                width: 30
+                                height: 30
+                                checked: wifi_update_auto
+                                onClicked: {
+                                    print(checked, wifi_update_auto);
+                                    if(!wifi_update_auto){
+                                        timer_update_wifi.start();
+                                        wifi_update_auto = true;
+                                    }
+                                }
+                            }
+                            RadioButton{
+                                id: radio_update_once
+                                width: 30
+                                height: 30
+                                checked: !wifi_update_auto
+                                onClicked: {
+                                    if(wifi_update_auto){
+                                        wifi_update_auto = false;
+                                    }
+                                }
+                            }
+                            Text{
+                                text:"자동검색"
+                                font.family: font_noto_r.name
+                            }
+                            Text{
+                                text:"수동검색"
+                                font.family: font_noto_r.name
+                            }
+                        }
+
+                        Item_buttons{
+                            type:"round_text"
+                            width: 150
+                            height: 50
+                            text: "재검색"
+                            fontsize: 20
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            visible: !wifi_update_auto
+                            onClicked:{
+                                popup_loading.open();
+                                timer_update_wifi.start();
+                            }
+                        }
+                    }
+
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.verticalCenter: parent.verticalCenter
@@ -1737,13 +1828,14 @@ Item {
                                 visible: !popup_loading.visible
                                 anchors.centerIn: parent
                                 spacing: 30
+
                                 Rectangle{
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     visible:{
                                         if(wizard_ip.select_security){
                                             if(wizard_ip.connection === 1){
                                                 false
-                                            }else if(wizard_ip.connection === 2){
+                                            }else if(wizard_ip.connection === 2 || wizard_ip.connection === 3){
                                                 true
                                             }else{
                                                 false
@@ -1752,6 +1844,7 @@ Item {
                                             true
                                         }
                                     }
+
                                     color:wizard_ip.connection===0?color_red:wizard_ip.connection===1?color_yellow:color_green
                                     width: 500
                                     height: 50
@@ -2581,15 +2674,14 @@ Item {
                                     wizard_ip.setting_step++;
                                     popup_loading.open();
                                     timer_update_wifi.stop();
-//                                    timer_update_state.start();
                                 }else if(wizard_ip.setting_step == 1){
                                     supervisor.writelog("[USER INPUT] INIT PAGE : IP SETTING NEXT 2");
                                     supervisor.getWifiIP();
                                     wizard_ip.setting_step++;
                                 }else{
-//                                    supervisor.save
                                     supervisor.writelog("[USER INPUT] INIT PAGE : SETTING DONE");
                                     swipeview_wizard.currentIndex++;
+                                    wizard_final.init();
                                 }
                             }
                         }
@@ -2615,9 +2707,11 @@ Item {
 
                     Timer{
                         id: timer_2sec
+                        running: false
                         interval: 2000
                         onTriggered: {
-                            init_mode = 2;
+                            init_mode = 3;
+                            print("init mode = 3");
                         }
                     }
 
@@ -2897,7 +2991,7 @@ Item {
                             parent.color = color_gray;
                         }
                         onReleased: {
-                            supervisor.passInit();
+                            popup_debug_onoff.open();
                             supervisor.writelog("[INIT] PASS IPC Connection")
                             parent.color = "transparent";
                         }
@@ -3031,490 +3125,17 @@ Item {
             Component.onCompleted: {
                 statusbar.visible = true;
             }
-            Component.onDestruction: {
-                map.setEnable(false);
-            }
-
-            SequentialAnimation{
-                id: ani_logo_up
-                running: true
-                ParallelAnimation{
-                    NumberAnimation{
-                        target: image_logo4;
-                        property: "anchors.topMargin";
-                        to: 100
-                        duration: 500
-                        easing.type: Easing.InCurve
-                    }
-                }
-                ParallelAnimation{
-                    NumberAnimation{
-                        target: text_notice4;
-                        property: "opacity";
-                        to: 1
-                        duration: 500
-                        easing.type: Easing.InCurve
-                    }
-                    NumberAnimation{
-                        target: btn_slam_do_init;
-                        property: "opacity";
-                        to: 1
-                        duration: 500
-                        easing.type: Easing.InCurve
-                    }
-                }
-            }
-
-            Timer{
-                id: timer_check_localization
-                running: false
-                repeat: true
-                interval: 500
-                onTriggered: {
-                    local_find_state = supervisor.getLocalizationState();
-                    print(local_find_state);
-                    if(local_find_state===0){//not ready
-                        if(!popup_loading.opened)
-                            popup_loading.open();
-                    }else if(local_find_state === 1){
-                        text_finding.text = qsTr("로봇의 위치를 찾고 있습니다")
-                        popup_loading.close();
-                        btn_init_success.visible = false;
-                        btn_init_reboot.visible = false;
-                        btn_init_manual.visible = false;
-                        btn_init_retry.visible = false;
-                    }else if(local_find_state === 2){//success
-                        text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
-                        popup_loading.close();
-                        btn_init_success.visible = true;
-                        btn_init_retry.visible = true;
-                        btn_init_manual.visible = true;
-                        btn_init_reboot.visible = false;
-//                        timer_check_localization.stop();
-                    }else if(local_find_state === 3){//failed
-                        text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
-                        popup_loading.close();
-                        btn_init_success.visible = false;
-                        btn_init_manual.visible = true;
-                        btn_init_reboot.visible = false;
-                        btn_init_retry.visible = true;
-                        timer_check_localization2.start();
-//                        timer_check_localization.stop();
-                    }else{
-                        text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
-                    }
-
-                    if(!supervisor.getIPCConnection()){
-                        local_find_state = 10;
-                        popup_loading.close();
-                        btn_init_reboot.visible = true;
-                        timer_check_localization.stop();
-                    }
-                }
-            }
-            Timer{
-                id: timer_check_localization2
-                running: false
-                repeat: true
-                interval: 500
-                onTriggered: {
-                    if(supervisor.getLocalizationState() === 2){//success
-//                        btn_right2.enabled = true;
-                        btn_do_autoinit.running = false;
-                    }else if(supervisor.getLocalizationState() === 1){
-                        btn_do_autoinit.running = true;
-//                        btn_right2.enabled = false;
-                    }else{
-                        btn_do_autoinit.running = false;
-//                        btn_right2.enabled = false;
-                    }
-                }
-            }
-
-            Rectangle{
-                id: initPage_main
-                visible: local_find_state === -1 || local_find_state === 0
+            Item_localization{
                 anchors.fill: parent
-                color: color_light_gray
-                Image{
-                    id: image_logo4
-                    sourceSize.width: 2245/6
-                    sourceSize.height: 1004/6
-                    anchors.top: parent.top
-                    anchors.topMargin: 200
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    source: Qt.resolvedUrl("qrc:/image/rainbow3.png")
+                start_mode: true
+                auto_init: false
+                onConfirmed: {
+                    supervisor.confirmLocalization();
+                    update_timer.start();
                 }
-                Text{
-                    id: text_notice4
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: image_logo4.bottom
-                    anchors.topMargin: 80
-                    opacity: 0
-                    horizontalAlignment: Text.AlignHCenter
-                    color: color_dark_gray
-                    font.family: font_noto_b.name
-                    text: qsTr("로봇을 지정된 대기위치로 이동시켜 주세요\n이동하신 후 시작버튼을 눌러주세요")
-                    font.pixelSize: 50
+                onPassed: {
+                    popup_debug_onoff.open();
                 }
-                Rectangle{
-                    id: btn_slam_do_init
-                    width: 300
-                    height: 120
-                    radius: 60
-                    opacity: 0
-                    color: color_green
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 100
-                    Text{
-                        id: text_slam_do_init
-                        anchors.centerIn: parent
-                        text: qsTr("시   작")
-                        color: "white"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 40
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            start_sound.play();
-                            parent.color = color_mid_green;
-                        }
-                        onReleased: {
-                            parent.color = color_green;
-                        }
-                        onClicked: {
-                            timer_check_localization.start();
-                            supervisor.writelog("[USER INPUT] INIT PAGE : DO LOCALIZATION")
-                            supervisor.slam_autoInit();
-                            update_timer.stop();
-                        }
-                    }
-                }
-                DropShadow{
-                    anchors.fill: btn_slam_do_init
-                    radius: 10
-                    color: color_dark_gray
-                    source: btn_slam_do_init
-                }
-                Rectangle{
-                    id: btn_slam_manual_init
-                    width: 188
-                    height: 100
-                    radius: 60
-                    color: "transparent"
-                    border.width: 3
-                    visible: show_debug
-                    border.color: "#e5e5e5"
-                    anchors.left: btn_slam_do_init.right
-                    anchors.leftMargin: 30
-                    anchors.verticalCenter: btn_slam_do_init.verticalCenter
-                    Column{
-                        spacing: 5
-                        anchors.centerIn: parent
-                        Image{
-                            width: 30
-                            height: 30
-                            source:"icon/btn_wait.png"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                        }
-                        Text{
-                            id: text_slam_pass
-                            text: qsTr("맵 새로만들기")
-                            font.family: font_noto_r.name
-                            font.pixelSize: 15
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            start_sound.play();
-                            supervisor.writelog("[USER INPUT] INIT PAGE : NEW MAPPING")
-                            loadPage(pmapping);
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_slam_pass
-                    width: 188
-                    height: 100
-                    radius: 60
-                    color: "transparent"
-                    border.width: 3
-                    visible: show_debug
-                    border.color: "#e5e5e5"
-                    anchors.left: btn_slam_manual_init.right
-                    anchors.leftMargin: 30
-                    anchors.verticalCenter: btn_slam_do_init.verticalCenter
-                    Column{
-                        spacing: 5
-                        anchors.centerIn: parent
-                        Image{
-                            id: image_charge1
-                            width: 30
-                            height: 30
-                            source:"icon/icon_remove.png"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                        }
-                        Text{
-                            text: qsTr("넘어가기")
-                            font.family: font_noto_r.name
-                            font.pixelSize: 15
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            print("1")
-                            click_sound.play();
-                            popup_debug_onoff.open();
-//                            supervisor.passInit();
-//                            debug_mode = true;
-                            supervisor.writelog("[USER INPUT] INIT PAGE : PASS LOCALIZATION")
-//                            loadPage(pkitchen);
-                        }
-                    }
-                }
-                MouseArea{
-                    id: area_debug
-                    width: 100
-                    height: 100
-                    anchors.right: parent.right
-                    anchors.bottom : parent.bottom
-                    z: 99
-                    property var password: 0
-                    onClicked: {
-                        click_sound2.play();
-                        password++;
-                        if(password > 4){
-                            password = 0;
-                            show_debug = true;
-                        }
-                    }
-                }
-            }
-
-            Rectangle{
-                id: iniPage_localization
-                visible: !initPage_main.visible
-                width: parent.width
-                height: parent.height - statusbar.height
-                anchors.bottom: parent.bottom
-                color: color_light_gray
-                Text{
-                    id: text_finding
-                    text: qsTr("로봇의 위치를 찾고 있습니다")
-                    color: color_dark_navy
-                    Behavior on opacity {
-                        NumberAnimation{
-                            duration : 500
-                        }
-                    }
-                    horizontalAlignment:Text.AlignHCenter
-                    font.pixelSize: 40
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.top
-                    anchors.topMargin: 50
-                    font.family: font_noto_b.name
-                }
-                Item_progressCircle{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: 50
-                }
-                Item_buttons{
-                    id: btn_init_success
-                    visible: false
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    text:qsTr("확 인")
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    anchors.bottomMargin: 50
-                    anchors.rightMargin: 50
-                    onClicked: {
-                        click_sound.play();
-                        supervisor.writelog("[ANNOTATION] Localization : Success");
-                        supervisor.confirmLocalization();
-                        update_timer.start();
-                    }
-                }
-                Item_buttons{
-                    id: btn_init_manual
-                    visible: false
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    text: qsTr("수동지정(전문가)")
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    anchors.bottomMargin: 150
-                    anchors.rightMargin: 50
-                    onClicked: {
-                        click_sound.play();
-                        supervisor.writelog("[ANNOTATION] Localization : Failed")
-                        popup_init_manual.open();
-                    }
-                }
-                Item_buttons{
-                    id: btn_init_retry
-                    visible: false
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    text: qsTr("다시시도")
-                    anchors.bottom: parent.bottom
-                    anchors.left: parent.left
-                    anchors.bottomMargin: 50
-                    anchors.leftMargin: 50
-                    onClicked: {
-                        click_sound.play();
-                        timer_check_localization.stop();
-                        local_find_state = -1;
-                        supervisor.writelog("[ANNOTATION] Localization : Retry");
-//                        timer_check_localization2.start();
-                    }
-                }
-                Item_buttons{
-                    id: btn_init_reboot
-                    visible: false
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    text: qsTr("프로그램 다시시작")
-                    anchors.bottom: parent.bottom
-                    anchors.right: parent.right
-                    anchors.bottomMargin: 50
-                    anchors.rightMargin: 50
-                    onClicked: {
-                        click_sound.play();
-                        supervisor.writelog("[ANNOTATION] Localization : Connection Failed. Restart");
-                        supervisor.programRestart();
-                    }
-                }
-            }
-
-            Popup{
-                id: popup_init_manual
-                width: parent.width
-                height: parent.height
-                onOpened: {
-                    map.setViewer("localization");
-                    map.setEnable(true);
-                }
-                onClosed:{
-                    map.setEnable(false);
-                }
-
-                Rectangle{
-                    id: manual_init
-                    width: parent.width
-                    height: parent.height// - statusbar.height
-                    anchors.bottom: parent.bottom
-                    color: color_navy
-                    Text{
-                        text:qsTr("로봇의 위치를 맵 상에서 표시해주세요")
-                        font.pixelSize: 30
-                        horizontalAlignment: Text.AlignHCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: parent.top
-                        anchors.topMargin: 30
-                        color: "white"
-                        font.family: font_noto_b.name
-                    }
-                    Item_buttons{
-                        id: btn_right23
-                        width: 200
-                        height: 80
-                        type: "round_text"
-                        text: qsTr("종 료")
-                        anchors.bottom: parent.bottom
-                        anchors.right: parent.right
-                        anchors.bottomMargin: 50
-                        anchors.rightMargin: 50
-                        onClicked: {
-                            click_sound.play();
-                            popup_init_manual.close();
-                        }
-                    }
-                    Column{
-                        anchors.left: parent.left
-                        anchors.leftMargin: 30
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 100
-                        spacing: 50
-                        Item_buttons{
-                            width: 200
-                            height: 80
-                            type: "round_text"
-                            selected: map.tool==="move"
-                            text: qsTr("이 동")
-                            onClicked: {
-                                click_sound.play();
-                                map.setTool("move");
-                            }
-                        }
-                        Item_buttons{
-                            width: 200
-                            height: 80
-                            type: "round_text"
-                            selected: map.tool==="slam_init"
-                            text:  qsTr("수동 지정")
-                            onClicked: {
-                                click_sound.play();
-                                map.setTool("slam_init");
-                                supervisor.setInitCurPos();
-                                supervisor.slam_setInit();
-                            }
-                        }
-                        Item_buttons{
-                            width: 200
-                            height: 80
-                            visible: false
-                            type: "round_text"
-                            text:  qsTr("다시 시도")
-                            onClicked: {
-                                click_sound.play();
-                                map.setTool("move");
-                                supervisor.slam_autoInit();
-                                timer_check_localization2.start();
-                            }
-                        }
-                        Item_buttons{
-                            id: btn_do_autoinit
-                            width: 200
-                            height: 100
-                            running: false
-                            type: "start_progress"
-                            text: qsTr("자동위치찾기\n(1분소요)")
-                            shadowcolor: color_dark_black
-                            onClicked: {
-                                click_sound.play();
-                                print("init autoinit");
-                                map.setTool("move");
-                                supervisor.slam_fullautoInit();
-                                timer_check_localization2.start();
-                            }
-                        }
-                    }
-                }
-                MAP_FULL2{
-                    id: map
-                    enabled: false
-                    objectName: "annot_local"
-//                    visible: local_find_state>1 && local_find_state<10
-//                    onVisibleChanged: {
-//                        print("map visible changed",visible,x,y,width,height);
-//                    }
-                    anchors.bottom: parent.bottom
-                    anchors.bottomMargin: 50
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: 600
-                    height: 600
-                }
-
             }
         }
     }
@@ -3602,7 +3223,7 @@ Item {
                     }
                     Text{
                         id: text_slam_pass
-                        text: qsTr("넘어가기 (DEBUG)")
+                        text: qsTr("넘어가기")
                         font.family: font_noto_r.name
                         font.pixelSize: 15
                     }
@@ -4424,13 +4045,18 @@ Item {
                 }
             }else if(init_mode == 1){
                 //=============================== Init Check 1 : IPC ==============================//
-                if(supervisor.getIPCConnection()){
-                    supervisor.writelog("[INIT] IPC Connection Check : Success");
+                if(testMode){
+                    supervisor.writelog("[INIT] IPC Connection Check : Success(DEBUG)");
                     init_mode = 2;
-//                    timer_wait_lcm.stop();
-                }else if(loader_init.item.objectName != "item_ipc"){
-                    loader_init.sourceComponent = item_ipc;
-                    supervisor.writelog("[INIT] IPC Connection Check : Failed");
+                }else{
+                    if(supervisor.getIPCConnection()){
+                        supervisor.writelog("[INIT] IPC Connection Check : Success");
+                        init_mode = 2;
+    //                    timer_wait_lcm.stop();
+                    }else if(loader_init.item.objectName != "item_ipc"){
+                        loader_init.sourceComponent = item_ipc;
+                        supervisor.writelog("[INIT] IPC Connection Check : Failed");
+                    }
                 }
             }else if(init_mode == 2){
                 //========================== Init Check 2 : Robot Config ==============================//

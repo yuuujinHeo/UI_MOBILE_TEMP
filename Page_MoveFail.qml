@@ -66,6 +66,7 @@ Item {
         notice_num = 0;
         statusbar.visible = true;
         popup_notice.open();
+        popup_notice.main_str = qsTr("목적지로 이동하는데 실패하였습니다\n로봇을 수동으로 이동시켜주세요")
         map.init();
         map.setViewer("current");
         map.setfullscreen();
@@ -104,7 +105,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     Text{
-                        text: "다시 시작"
+                        text: qsTr("다시 시작")
                         color:btn_reset.enabled?"black":"white"
                         font.family: font_noto_r.name
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -182,7 +183,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                     Text{
-                        text: "SLAM 재부팅"
+                        text: qsTr("SLAM 재부팅")
                         font.family: font_noto_r.name
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
@@ -227,7 +228,7 @@ Item {
                     font.family: font_noto_b.name
                     font.pixelSize: 30
                     color: "white"
-                    text:"현재 상태"
+                    text:qsTr("현재 상태")
                 }
             }
             Column{
@@ -881,6 +882,7 @@ Item {
                     Item_buttons{
                         id: btn_do_autoinit
                         width: 200
+                        visible: false
                         height: 100
                         running: false
                         type: "start_progress"
@@ -912,35 +914,8 @@ Item {
         anchors.topMargin: statusbar.height
     }
 
-    Popup{
+    Popup_notice{
         id: popup_notice
-        width: 1280
-        height: 400
-        anchors.centerIn: parent
-        background: Rectangle{
-            anchors.fill: parent
-            color:"transparent"
-        }
-        Rectangle{
-            width: 1280
-            height: 400
-            color:color_dark_navy
-            Text{
-                id: text
-                text:"목적지로 이동하는데 실패하였습니다\n로봇을 수동으로 이동시켜주세요"
-                anchors.centerIn: parent
-                horizontalAlignment: Text.AlignHCenter
-                font.family: font_noto_b.name
-                font.pixelSize: 40
-                color: "white"
-            }
-            MouseArea{
-                anchors.fill: parent
-                onClicked:{
-                    popup_notice.close();
-                }
-            }
-        }
     }
 
     Timer{

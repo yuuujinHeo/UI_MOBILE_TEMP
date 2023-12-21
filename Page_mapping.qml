@@ -20,7 +20,6 @@ Item {
     property string map_name : "TEST_1"
     property var grid_width: 3
     property var map_width: 1000
-
     function init(){
         mapping_pages.sourceComponent = page_mapping_start;
         map_name = "TEST_1";
@@ -206,15 +205,16 @@ Item {
                     }
                     onReleased: {
                         click_sound.play();
-                        backPage();
+                        if(pbefore === pannotation){
+                            loadPage(pinit);
+                        }else{
+                            backPage();
+                        }
                         parent.color = "transparent";
                     }
                 }
             }
-
         }
-
-
     }
     Component{
         id: page_mapping_set
@@ -592,6 +592,7 @@ Item {
             width: mapping_pages.width
             height: mapping_pages.height
             Component.onCompleted: {
+                mapping_view.setTool("move");
                 mapping_view.setViewer("mapping");
                 mapping_view.setEnable(true)
                 supervisor.startMapping(map_width,grid_width);
@@ -680,13 +681,27 @@ Item {
                     }
                     onReleased: {
                         click_sound.play();
-                        supervisor.writelog("[MAPPING] START Mapping : save mapping");
+                        popup_loading.open();
+                        supervisor.writelog("[MAPPING] Mapping : save mapping");
                         supervisor.saveMapping(map_name);
-                        mapping_pages.sourceComponent = page_mapping_done;
+                        timer_save_mapping.start();
                         parent.color = "transparent";
                     }
                 }
             }
+            Timer{
+                id: timer_save_mapping
+                running: false
+                interval: 1000
+                onTriggered:{
+                    popup_loading.close();
+                    supervisor.setMap(map_name);
+                    loadPage(pannotation);
+                    loader_page.item.setMappingFlag();
+                    supervisor.writelog("[MAPPING] Mapping : save mapping done");
+                }
+            }
+
             Rectangle{
                 id: btn_left
                 anchors.bottom: parent.bottom
@@ -728,6 +743,11 @@ Item {
             }
         }
     }
+
+
+
+
+
     Component{
         id: page_mapping_done
         Item{

@@ -38,7 +38,6 @@ public:
     explicit Supervisor(QObject *parent = nullptr);
     ~Supervisor();
 public:
-
     ////*********************************************  FLAGS   ***************************************************////
 
     //넘어가기(debug)사용 시 true -> slam auto kill 안함
@@ -48,6 +47,7 @@ public:
     int patrol_mode = PATROL_NONE;
     bool use_patrol_pickup = false;
     bool use_cleaning_location = false;
+    bool start_clear = false;
 
 
     ////*********************************************  STRUCT   ***************************************************////
@@ -148,16 +148,17 @@ public:
     Q_INVOKABLE void setRobotFollowing(bool onoff){maph->setRobotFollowing(onoff);}
     Q_INVOKABLE void setShowTravelline(bool onoff){maph->setShowTravelline(onoff);}
     Q_INVOKABLE void setShowVelocitymap(bool onoff){maph->setShowVelocitymap(onoff);}
-
+    Q_INVOKABLE void setShowObject(bool onoff){maph->setShowObject(onoff);}
     Q_INVOKABLE void setInitFlag(bool onoff){maph->setInitFlag(onoff);}
     Q_INVOKABLE bool getshowLocation(){return maph->getshowLocation();}
     Q_INVOKABLE bool getRobotFollowing(){return maph->getRobotFollowing();}
     Q_INVOKABLE bool getShowLidar(){return maph->getShowLidar();}
-
+    Q_INVOKABLE bool setShowAvoidmap(bool onoff){maph->setShowAvoideMap(onoff);}
 
     Q_INVOKABLE void setInitPose(int x, int y, float th){maph->setInitPose(x,y,th);}
     Q_INVOKABLE void clearInitPose(){maph->clearInitPose();}
 
+    Q_INVOKABLE QString getAnnotModifiedDate(){return pmap->annot_modified_date;}
 
     Q_INVOKABLE void startDrawingTline(){maph->startDrawingTline();}
     Q_INVOKABLE void stopDrawingTline(){maph->stopDrawingTline();}
@@ -174,7 +175,11 @@ public:
 
     Q_INVOKABLE void saveObjectPNG(){
         maph->saveObjectPNG();
-        slam_map_reload(getMapname());
+        slam_map_reload(getMapname(),1);
+    }
+    Q_INVOKABLE void saveObsAreaPNG(){
+        maph->saveObsAreaPNG();
+        slam_map_reload(getMapname(),1);
     }
 
     void clearRobot();
@@ -227,13 +232,20 @@ public:
     Q_INVOKABLE void saveTlineTemp(){maph->saveTlineTemp();}
     Q_INVOKABLE void saveVelmap(){maph->saveVelmap();}
     Q_INVOKABLE void setMapSize(int width, int height){maph->setMapSize(width, height);}
-    Q_INVOKABLE void zoomIn(int x, int y){maph->zoomIn(x,y);}
-    Q_INVOKABLE void zoomOut(int x, int y){maph->zoomOut(x,y);}
+    Q_INVOKABLE void zoomIn(int x, int y, float dist){maph->zoomIn(x,y,dist);}
+    Q_INVOKABLE void zoomOut(int x, int y, float dist){maph->zoomOut(x,y,dist);}
     Q_INVOKABLE void move(int x, int y){maph->move(x,y);}
     Q_INVOKABLE int getFileWidth(){return maph->getFileWidth();}
     Q_INVOKABLE int getX(){return maph->getX();}
     Q_INVOKABLE int getY(){return maph->getY();}
     Q_INVOKABLE float getScale(){return maph->getScale();}
+
+    Q_INVOKABLE void setVelmapView(bool onoff);
+    Q_INVOKABLE void setTlineView(bool onoff);
+    Q_INVOKABLE void setObjectView(bool onoff);
+    Q_INVOKABLE void setAvoidmapView(bool onoff);
+    Q_INVOKABLE void setLocationView(bool onoff);
+    Q_INVOKABLE void setRobotView(bool onoff);
 
     Q_INVOKABLE void setSystemVolume(int volume);
     Q_INVOKABLE void requestSystemVolume();
@@ -339,6 +351,8 @@ public:
     Q_INVOKABLE QString getUpdateMessage(QString name);
     Q_INVOKABLE QString getLastUpdateDate(QString name);
 
+    Q_INVOKABLE void checkCleaningLocation();
+
 
     Q_INVOKABLE void checkUpdate();
     Q_INVOKABLE bool checkNewUpdateProgram();
@@ -396,6 +410,10 @@ public:
     Q_INVOKABLE bool isLoadMap();
     Q_INVOKABLE bool isExistMap(QString name="");
     Q_INVOKABLE bool isExistRawMap(QString name);
+    Q_INVOKABLE bool isExistTlineMap(QString name="");
+    Q_INVOKABLE bool isExistAvoidMap(QString name="");
+    Q_INVOKABLE bool isExistVelMap(QString name="");
+    Q_INVOKABLE bool isExistObjectMap(QString name="");
     Q_INVOKABLE bool isExistTravelMap(QString name);
     Q_INVOKABLE bool isExistAnnotation(QString name);
     Q_INVOKABLE bool isExistRobotINI();
@@ -551,7 +569,7 @@ public:
     Q_INVOKABLE void drawingRunawayStop();
     Q_INVOKABLE int getRunawayState();
 
-    Q_INVOKABLE void slam_map_reload(QString filename);
+    Q_INVOKABLE void slam_map_reload(QString filename, int mode=0);
     Q_INVOKABLE void slam_ini_reload();
 
 
@@ -696,9 +714,11 @@ public slots:
     void process_timeout(int cmd);
     void update_success();
     void update_fail();
+    void clear_all();
 
 private:
     QTimer *timer;
+    QTimer *timer2;
     QTimer *wifiTimer;
     QNetworkSession *session;
     QQuickWindow *mMain;

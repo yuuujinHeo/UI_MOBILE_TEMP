@@ -27,39 +27,6 @@ Item {
     property bool wifi_update_auto: true
     property var debug_count: 0
 
-
-    function update_camera(){
-        if(popup_camera.opened)
-            popup_camera.update();
-    }
-    function wifi_set_failed(){
-        popup_loading.close();
-        init();
-    }
-    function git_failed(){
-        popup_loading.close();
-        popup_update.failed();
-    }
-    function git_newest(){
-        popup_loading.close();
-        popup_update.newest();
-    }
-
-    function wifistatein(){
-        popup_loading.close();
-        popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
-    }
-    function wifi_con_failed(){
-        popup_loading.close();
-        popup_wifi.connect_fail();
-    }
-    function wifi_con_success(){
-        popup_loading.close();
-        init();
-        popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
-        popup_wifi.ip_update();
-    }
-
     onIs_adminChanged: {
         if(is_admin){
             init();
@@ -77,12 +44,1004 @@ Item {
         init();
     }
 
+    function update_camera(){
+        if(popup_camera.opened)
+            popup_camera.update();
+    }
+    function setClear(name,state){
+        popup_clear.addClearState(name,state);
+    }
+
+    function wifi_set_failed(){
+        popup_loading.close();
+        init();
+    }
+    function git_failed(){
+        popup_loading.close();
+        popup_update.failed();
+    }
+    function git_newest(){
+        popup_loading.close();
+        popup_update.newest();
+    }
+    function wifistatein(){
+        popup_loading.close();
+        popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
+    }
+    function wifi_con_failed(){
+        popup_loading.close();
+        popup_wifi.connect_fail();
+    }
+    function wifi_con_success(){
+        popup_loading.close();
+        init();
+        popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
+        popup_wifi.ip_update();
+    }
+
     function set_category(num){
         select_category = num;
     }
-
     function set_call_done(){
         popup_change_call.close();
+    }
+    function save(){
+        supervisor.writelog("[USER INPUT] SETTING PAGE -> SETTING CHANGE");
+        if(platform_name.ischanged){
+            supervisor.setSetting("setting","ROBOT_TYPE/model",platform_name.text);
+        }
+
+        if(combo_platform_serial.ischanged){
+            supervisor.setSetting("setting","ROBOT_TYPE/serial_num",combo_platform_serial.currentText);
+        }
+
+        if(combo_max_calling.ischanged){
+            supervisor.setSetting("setting","CALL/call_maximum",combo_max_calling.currentText);
+        }
+
+        supervisor.setPreset(cur_preset);
+        if(combo_language.ischanged){
+            var str_lan;
+            if(combo_language.currentIndex === 0){
+                str_lan = "KR";
+
+            }else if(combo_language.currentIndex === 1){
+                str_lan = "US";
+            }
+            supervisor.setSetting("setting","UI/langauge",str_lan);
+            supervisor.setLangauge(str_lan);
+        }
+
+        if(combo_server_calling.ischanged){
+            if(combo_server_calling.currentIndex == 0){
+                supervisor.setSetting("setting","SERVER/use_server_call","false");
+            }else{
+                supervisor.setSetting("setting","SERVER/use_server_call","true");
+            }
+        }
+
+        if(combo_platform_type.ischanged){
+            if(combo_platform_type.currentIndex == 0){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","SERVING");
+            }else if(combo_platform_type.currentIndex == 1){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CALLING");
+            }else if(combo_platform_type.currentIndex == 2){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+            }else if(combo_platform_type.currentIndex == 3){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+            }
+        }
+
+        if(combo_tray_num.ischanged){
+            supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
+        }
+
+        if(slider_volume_bgm.ischanged){
+            supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value.toFixed(0));
+            volume_bgm = slider_volume_bgm.value.toFixed(0);
+        }
+
+        if(slider_volume_voice.ischanged){
+            supervisor.setSetting("setting","UI/volume_voice",slider_volume_voice.value.toFixed(0));
+            volume_voice = slider_volume_voice.value.toFixed(0);
+        }
+
+        if(slider_volume_button.ischanged){
+            supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value.toFixed(0));
+            volume_button = slider_volume_button.value.toFixed(0);
+        }
+        if(combo_movingpage.ischanged){
+            if(combo_movingpage.currentIndex == 0)
+                supervisor.setSetting("setting","UI/moving_face","false");
+            else
+                supervisor.setSetting("setting","UI/moving_face","true");
+        }
+
+        if(combo_comeback_preset.ischanged){
+            supervisor.setSetting("setting","UI/comeback_preset",combo_comeback_preset.currentIndex.toString());
+        }
+        if(combo_voice_mode.ischanged){
+            if(combo_voice_mode.currentIndex == 0){
+                supervisor.setSetting("setting","UI/voice_mode","child");
+            }else if(combo_voice_mode.currentIndex == 1){
+                supervisor.setSetting("setting","UI/voice_mode","woman");
+            }
+            readVoice();
+        }
+
+        if(combo_use_tray.ischanged){
+            if(combo_use_tray.currentIndex == 0)
+                supervisor.setSetting("setting","USE_UI/use_tray","false");
+            else
+                supervisor.setSetting("setting","USE_UI/use_tray","true");
+        }
+
+        if(combo_use_calling_notice.ischanged){
+            if(combo_use_calling_notice.currentIndex == 0){
+                supervisor.setSetting("setting","USE_UI/combo_use_calling_notice","false");
+            }else{
+                supervisor.setSetting("setting","USE_UI/combo_use_calling_notice","true");
+            }
+        }
+        if(combo_resting_lock.ischanged){
+            if(combo_resting_lock.currentIndex == 0){
+                supervisor.setSetting("setting","USE_UI/use_restinglock","false");
+            }else{
+                supervisor.setSetting("setting","USE_UI/use_restinglock","true");
+            }
+        }
+
+        if(fms_id.ischanged){
+            supervisor.setSetting("setting","SERVER/fms_id",fms_id.text);
+        }
+
+        if(fms_pw.ischanged){
+            supervisor.setSetting("setting","SERVER/fms_pw",fms_pw.text);
+        }
+
+        if(ip_1.ischanged||ip_2.ischanged||ip_3.ischanged||ip_4.ischanged){
+            var ip_str = ip_1.text + "." + ip_2.text + "." + ip_3.text + "." + ip_4.text;
+            supervisor.setSetting("setting","NETWORK/wifi_ip",ip_str);
+        }
+
+        if(gateway_1.ischanged||gateway_2.ischanged||gateway_3.ischanged||gateway_4.ischanged){
+            var ip_str = gateway_1.text + "." + gateway_2.text + "." + gateway_3.text + "." + gateway_4.text;
+            supervisor.setSetting("setting","NETWORK/wifi_gateway",ip_str);
+        }
+
+        if(dnsmain_1.ischanged||dnsmain_2.ischanged||dnsmain_3.ischanged||dnsmain_4.ischanged){
+            var ip_str = dnsmain_1.text + "." + dnsmain_2.text + "." + dnsmain_3.text + "." + dnsmain_4.text;
+            supervisor.setSetting("setting","NETWORK/wifi_dnsmain",ip_str);
+        }
+
+
+        if(wheel_base.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/wheel_base",wheel_base.text);
+        }
+        if(wheel_radius.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/wheel_radius",wheel_radius.text);
+        }
+        if(radius.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/robot_radius",radius.text);
+        }
+        if(radius.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/robot_radius",radius.text);
+        }
+        if(robot_length.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/robot_length",radius.text);
+        }
+
+
+
+        //OBSTACLE
+        if(obs_height_min.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_height_min",obs_height_min.text);
+        }
+        if(obs_height_max.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_height_max",obs_height_max.text);
+        }
+        if(obs_margin1.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_margin1",obs_margin1.text);
+        }
+        if(obs_margin0.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_margin0",obs_margin0.text);
+        }
+        if(obs_near.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_near",obs_near.text);
+        }
+        if(obs_decel_gain.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_decel_gain",obs_decel_gain.text);
+        }
+        if(obs_early_stop_dist.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_early_stop_dist",obs_early_stop_dist.text);
+        }
+        if(obs_detect_area.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_detect_area",obs_detect_area.text);
+        }
+        if(obs_detect_sensitivity.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_detect_sensitivity",obs_detect_sensitivity.text);
+        }
+        if(obs_preview_time.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_preview_time",obs_preview_time.text);
+        }
+        if(obs_deadzone.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_deadzone",obs_deadzone.text);
+        }
+        if(obs_wait_time.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_wait_time",obs_wait_time.text);
+        }
+        if(obs_check_range.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
+        }
+        if(obs_avoid_v.ischanged){
+            supervisor.setSetting("setting","OBSTACLE/obs_avoid_v",obs_avoid_v.text);
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+        if(max_range.ischanged){
+            supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
+        }
+
+        if(cam_exposure.ischanged){
+            supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
+        }
+
+        if(combo_auto_update.ischanged){
+            if(combo_auto_update.currentIndex === 0){
+                supervisor.setSetting("setting","USE_UI/auto_update",false);
+            }else{
+                supervisor.setSetting("setting","USE_UI/auto_update",true);
+            }
+        }
+
+
+        //USE_SLAM
+        if(combo_use_avoid.ischanged){
+            if(combo_use_avoid.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_avoid",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_avoid",true);
+            }
+        }
+        if(combo_use_earlystop_serving.ischanged){
+            if(combo_use_earlystop_serving.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_serving",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_serving",true);
+            }
+        }
+        if(combo_multirobot.ischanged){
+            if(combo_multirobot.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_multirobot","false");
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_multirobot","true");
+            }
+        }
+        if(combo_use_earlystop_resting.ischanged){
+            if(combo_use_earlystop_resting.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",true);
+            }
+        }
+
+        if(combo_use_obs_near.ischanged){
+            if(combo_use_obs_near.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_obs_near",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_obs_near",true);
+            }
+        }
+
+        if(combo_use_obs_preview.ischanged){
+            if(combo_use_obs_preview.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_obs_preview",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_obs_preview",true);
+            }
+        }
+        if(combo_use_pivot_obs.ischanged){
+            if(combo_use_pivot_obs.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",true);
+            }
+        }
+        if(combo_use_ignore_safetyzone_return.ischanged){
+            if(combo_use_ignore_safetyzone_return.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_ignore_safetyzone_return",false);
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_ignore_safetyzone_return",true);
+            }
+        }
+
+
+
+
+        if(st_v.ischanged){
+            supervisor.setSetting("update","DRIVING/st_v",st_v.text);
+        }
+
+        if(combo_wheel_dir.ischanged){
+            supervisor.setSetting("update","MOTOR/wheel_dir",combo_wheel_dir.currentText);
+        }
+
+        if(combo_left_id.ischanged){
+            supervisor.setSetting("update","MOTOR/left_id",combo_left_id.currentText);
+        }
+
+        if(combo_right_id.ischanged){
+            supervisor.setSetting("update","MOTOR/right_id",combo_right_id.currentText);
+        }
+
+        if(gear_ratio.ischanged){
+            supervisor.setSetting("update","MOTOR/gear_ratio",gear_ratio.text);
+        }
+
+        if(goal_near_th.ischanged){
+            supervisor.setSetting("update","DRIVING/goal_near_th",goal_near_th.text);
+        }
+        if(k_curve.ischanged){
+            supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
+        }
+        if(k_v.ischanged){
+            supervisor.setSetting("update","DRIVING/k_v",k_v.text);
+        }
+        if(k_w.ischanged){
+            supervisor.setSetting("update","DRIVING/k_w",k_w.text);
+        }
+        if(k_dd.ischanged){
+            supervisor.setSetting("update","DRIVING/k_dd",k_dd.text);
+        }
+        if(path_delta_v_acc_gain.ischanged){
+            supervisor.setSetting("update","DRIVING/path_delta_v_acc_gain",path_delta_v_acc_gain.text);
+        }
+        if(path_delta_v_dec_gain.ischanged){
+            supervisor.setSetting("update","DRIVING/path_delta_v_dec_gain",path_delta_v_dec_gain.text);
+        }
+        if(path_ref_v_gain.ischanged){
+            supervisor.setSetting("update","DRIVING/path_ref_v_gain",path_ref_v_gain.text);
+        }
+        if(path_shifting_val.ischanged){
+            supervisor.setSetting("update","DRIVING/path_shifting_val",path_shifting_val.text);
+        }
+        if(slam_submap_cnt.ischanged){
+            supervisor.setSetting("update","SLAM/slam_submap_cnt",slam_submap_cnt.text);
+        }
+        if(slam_lc_dist.ischanged){
+            supervisor.setSetting("update","SLAM/slam_lc_dist",slam_lc_dist.text);
+        }
+        if(icp_init_error.ischanged){
+            supervisor.setSetting("setting","INITIALIZATION/icp_init_error",icp_init_error.text);
+        }
+        if(icp_init_ratio.ischanged){
+            supervisor.setSetting("setting","INITIALIZATION/icp_init_ratio",icp_init_ratio.text);
+        }
+
+        if(slam_lc_icp_dist.ischanged){
+            supervisor.setSetting("update","SLAM/slam_lc_icp_dist",slam_lc_icp_dist.text);
+        }
+        if(map_size.ischanged){
+            supervisor.setSetting("update","SLAM/map_size",map_size.text);
+        }
+        if(grid_size.ischanged){
+            supervisor.setSetting("update","SLAM/grid_size",grid_size.text);
+        }
+
+
+//        if(combo_camera_model.ischanged){
+//            supervisor.setSetting("SENSOR/camera_model",Number(combo_camera_model.currentIndex));
+//        }
+
+        if(combo_use_motorcurrent.ischanged){
+            if(combo_use_motorcurrent.currentIndex == 0){
+                supervisor.setSetitng("setting","USE_UI/use_current_pause","false");
+            }else{
+                supervisor.setSetitng("setting","USE_UI/use_current_pause","true");
+            }
+        }
+
+        if(pause_check_ms.ischanged){
+            supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
+        }
+        if(pause_motor_current.ischanged){
+            supervisor.setSetting("update","DRIVING/pause_motor_current",pause_motor_current.text);
+        }
+
+        if(k_p.ischanged){
+            supervisor.setSetting("update","MOTOR/k_p",k_p.text);
+        }
+
+        if(k_i.ischanged){
+            supervisor.setSetting("update","MOTOR/k_i",k_i.text);
+        }
+
+        if(k_d.ischanged){
+            supervisor.setSetting("update","MOTOR/k_d",k_d.text);
+        }
+
+        if(motor_limit_v.ischanged){
+            supervisor.setSetting("update","MOTOR/limit_v",motor_limit_v.text);
+        }
+
+        if(motor_limit_v_acc.ischanged){
+            supervisor.setSetting("update","MOTOR/limit_v_acc",motor_limit_v_acc.text);
+        }
+
+        if(motor_limit_w.ischanged){
+            supervisor.setSetting("update","MOTOR/limit_w",motor_limit_w.text);
+        }
+
+        if(motor_limit_w_acc.ischanged){
+            supervisor.setSetting("update","MOTOR/limit_w_acc",motor_limit_w_acc.text);
+        }
+
+        if(look_ahead_dist.ischanged){
+            supervisor.setSetting("update","DRIVING/look_ahead_dist"         ,look_ahead_dist.text);
+        }
+
+        if(min_look_ahead_dist.ischanged){
+            supervisor.setSetting("update","DRIVING/min_look_ahead_dist"    ,min_look_ahead_dist.text);
+        }
+
+
+        if(path_out_dist.ischanged){
+            supervisor.setSetting("update","DRIVING/path_out_dist"          ,path_out_dist.text);
+        }
+
+        if(icp_dist.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_dist"               ,icp_dist.text);
+        }
+
+        if(icp_error.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_error"              ,icp_error.text);
+        }
+
+        if(icp_near.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_near"               ,icp_near.text);
+        }
+
+        if(icp_odometry_weight.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_odometry_weight"    ,icp_odometry_weight.text);
+        }
+
+        if(icp_ratio.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_ratio"              ,icp_ratio.text);
+        }
+
+        if(icp_repeat_dist.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_repeat_dist"        ,icp_repeat_dist.text);
+        }
+
+        if(icp_repeat_time.ischanged){
+            supervisor.setSetting("update","LOCALIZATION/icp_repeat_time"        ,icp_repeat_time.text);
+
+        }
+
+        if(goal_dist.ischanged){
+            supervisor.setSetting("update","DRIVING/goal_dist"              ,goal_dist.text);
+        }
+
+        if(goal_v.ischanged){
+            supervisor.setSetting("update","DRIVING/goal_v"                 ,goal_v.text);
+        }
+
+        if(goal_th.ischanged){
+            supervisor.setSetting("update","DRIVING/goal_th"                ,goal_th.text);
+        }
+
+        if(goal_near_dist.ischanged){
+            supervisor.setSetting("update","DRIVING/goal_near_dist"         ,goal_near_dist.text);
+        }
+
+        supervisor.readSetting();
+        if(is_reset_slam)
+            supervisor.slam_ini_reload();
+
+        is_reset_slam = false;
+
+        backPage();
+    }
+    function init(){
+        supervisor.writelog("[QML] SETTING PAGE init");
+        wifi_check();
+
+        cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
+        slider_volume_system.value = supervisor.getSystemVolume();
+        platform_name.text = supervisor.getSetting("setting","ROBOT_TYPE","model");
+        combo_platform_serial.currentIndex = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","serial_num"))
+        radius.text = supervisor.getSetting("static","ROBOT_HW","robot_radius");
+
+        combo_tray_num.currentIndex = supervisor.getSetting("setting","ROBOT_TYPE","tray_num")-1;
+
+
+        if(supervisor.getSetting("setting","SERVER","use_server_call")==="true"){
+            combo_server_calling.currentIndex = 1;
+        }else{
+            combo_server_calling.currentIndex = 0;
+        }
+
+        if(supervisor.getSetting("setting","UI","langauge") === "KR"){
+            combo_language.currentIndex = 0;
+        }else if(supervisor.getSetting("setting","UI","langauge") === "US"){
+            combo_language.currentIndex = 1;
+        }
+
+        if(supervisor.getSetting("setting","USE_UI","auto_update") === "true"){
+            combo_auto_update.currentIndex = 1;
+        }else if(supervisor.getSetting("setting","USE_UI","auto_update") === "false"){
+            combo_auto_update.currentIndex = 0;
+        }
+
+
+
+        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "SERVING"){
+            combo_platform_type.currentIndex = 0;
+        }else if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CALLING"){
+            combo_platform_type.currentIndex = 1;
+        }else if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "BOTH"){
+            combo_platform_type.currentIndex = 2;
+        }else if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+            combo_platform_type.currentIndex = 3;
+        }
+
+
+        fms_id.text = supervisor.getSetting("setting","SERVER","fms_id");
+        fms_pw.text = supervisor.getSetting("setting","SERVER","fms_pw");
+        combo_max_calling.currentIndex = parseInt(supervisor.getSetting("setting","CALL","call_maximum")) - 1;
+        wheel_base.text = supervisor.getSetting("static","ROBOT_HW","wheel_base");
+        wheel_radius.text = supervisor.getSetting("static","ROBOT_HW","wheel_radius");
+
+        left_camera_tf.text = supervisor.getSetting("static","SENSOR","left_camera_tf");
+        right_camera_tf.text = supervisor.getSetting("static","SENSOR","right_camera_tf");
+        cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
+
+        icp_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_dist");
+        icp_error.text = supervisor.getSetting("update","LOCALIZATION","icp_error");
+        icp_near.text = supervisor.getSetting("update","LOCALIZATION","icp_near");
+        icp_odometry_weight.text = supervisor.getSetting("update","LOCALIZATION","icp_odometry_weight");
+        icp_ratio.text = supervisor.getSetting("update","LOCALIZATION","icp_ratio");
+        icp_repeat_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_repeat_dist");
+        icp_repeat_time.text = supervisor.getSetting("update","LOCALIZATION","icp_repeat_time");
+
+        obs_deadzone.text = supervisor.getSetting("setting","OBSTACLE","obs_deadzone");
+        obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
+        obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
+        path_out_dist.text = supervisor.getSetting("update","DRIVING","path_out_dist");
+        st_v.text = supervisor.getSetting("update","DRIVING","st_v");
+        min_look_ahead_dist.text = supervisor.getSetting("update","DRIVING","min_look_ahead_dist");
+        goal_dist.text = supervisor.getSetting("update","DRIVING","goal_dist");
+        goal_th.text = supervisor.getSetting("update","DRIVING","goal_th");
+        goal_v.text = supervisor.getSetting("update","DRIVING","goal_v");
+        goal_near_dist.text = supervisor.getSetting("update","DRIVING","goal_near_dist");
+        goal_near_th.text = supervisor.getSetting("update","DRIVING","goal_near_th");
+        k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
+        k_v.text = supervisor.getSetting("update","DRIVING","k_v");
+        k_w.text = supervisor.getSetting("update","DRIVING","k_w");
+        k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
+        path_delta_v_acc_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_acc_gain");
+        path_delta_v_dec_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_dec_gain");
+        path_ref_v_gain.text = supervisor.getSetting("update","DRIVING","path_ref_v_gain");
+        path_shifting_val.text = supervisor.getSetting("update","DRIVING","path_shifting_val");
+
+
+        slam_submap_cnt.text = supervisor.getSetting("update","SLAM","slam_submap_cnt");
+        slam_lc_dist.text = supervisor.getSetting("update","SLAM","slam_lc_dist");
+        slam_lc_icp_dist.text = supervisor.getSetting("update","SLAM","slam_lc_icp_dist");
+        map_size.text = supervisor.getSetting("update","SLAM","map_size");
+        grid_size.text = supervisor.getSetting("update","SLAM","grid_size");
+        icp_init_ratio.text = supervisor.getSetting("setting","INITIALIZATION","icp_init_ratio");
+        icp_init_error.text = supervisor.getSetting("setting","INITIALIZATION","icp_init_error");
+
+        motor_limit_v.text = supervisor.getSetting("update","MOTOR","limit_v");
+        motor_limit_v_acc.text = supervisor.getSetting("update","MOTOR","limit_v_acc");
+        motor_limit_w.text = supervisor.getSetting("update","MOTOR","limit_w");
+        motor_limit_w_acc.text = supervisor.getSetting("update","MOTOR","limit_w_acc");
+        look_ahead_dist.text = supervisor.getSetting("update","DRIVING","look_ahead_dist");
+
+
+
+        //USE_SLAM
+        if(supervisor.getSetting("setting","USE_SLAM","use_obs_preview") === "true"){
+            combo_use_obs_preview.currentIndex = 1;
+        }else{
+            combo_use_obs_preview.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_avoid") === "true"){
+            combo_use_avoid.currentIndex = 1;
+        }else{
+            combo_use_avoid.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
+            combo_use_pivot_obs.currentIndex = 1;
+        }else{
+            combo_use_pivot_obs.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
+            combo_multirobot.currentIndex = 1;
+        }else{
+            combo_multirobot.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_ignore_safetyzone_return") === "true"){
+            combo_use_ignore_safetyzone_return.currentIndex = 1;
+        }else{
+            combo_use_ignore_safetyzone_return.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
+            combo_use_obs_near.currentIndex = 1;
+        }else{
+            combo_use_obs_near.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_resting") === "true"){
+            combo_use_earlystop_resting.currentIndex = 1;
+        }else{
+            combo_use_earlystop_resting.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_serving") === "true"){
+            combo_use_earlystop_serving.currentIndex = 1;
+        }else{
+            combo_use_earlystop_serving.currentIndex = 0;
+        }
+
+
+
+
+
+
+        slider_volume_bgm.value = Number(supervisor.getSetting("setting","UI","volume_bgm"));
+        slider_volume_voice.value = Number(supervisor.getSetting("setting","UI","volume_voice"));
+        slider_volume_button.value = Number(supervisor.getSetting("setting","UI","volume_button"));
+
+        text_preset_name_1.text = supervisor.getSetting("setting","PRESET1","name");
+        text_preset_name_2.text = supervisor.getSetting("setting","PRESET2","name");
+        text_preset_name_3.text = supervisor.getSetting("setting","PRESET3","name");
+        text_preset_name_4.text = supervisor.getSetting("setting","PRESET4","name");
+        text_preset_name_5.text = supervisor.getSetting("setting","PRESET5","name");
+
+        gear_ratio.text = supervisor.getSetting("update","MOTOR","gear_ratio");
+        k_d.text = supervisor.getSetting("update","MOTOR","k_d");
+        k_i.text = supervisor.getSetting("update","MOTOR","k_i");
+        k_p.text = supervisor.getSetting("update","MOTOR","k_p");
+
+        wifi_ssid.text = supervisor.getCurWifiSSID();
+//        wifi_passwd.text = supervisor.getSetting("setting","NETWORK","wifi_passwd");
+
+        combo_left_id.currentIndex = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
+        combo_right_id.currentIndex = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
+
+        if(supervisor.getSetting("update","MOTOR","wheel_dir") === "-1"){
+            combo_wheel_dir.currentIndex = 0;
+        }else{
+            combo_wheel_dir.currentIndex = 1;
+        }
+
+        pause_motor_current.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
+        pause_check_ms.text = supervisor.getSetting("update","DRIVING","pause_check_ms");
+        if(supervisor.getSetting("setting","USE_UI","use_current_pause") === "false"){
+            combo_use_motorcurrent.currentIndex = 0;
+        }else{
+            combo_use_motorcurrent.currentIndex = 1;
+        }
+
+        if(supervisor.getSetting("setting","UI","moving_face") === "true"){
+            combo_movingpage.currentIndex = 1;
+        }else{
+            combo_movingpage.currentIndex = 0;
+        }
+
+        if(supervisor.getSetting("setting","UI","voice_mode") === "woman"){
+            combo_voice_mode.currentIndex = 1;
+        }else{
+            combo_voice_mode.currentIndex = 0;
+        }
+
+        combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
+
+        if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
+            combo_use_tray.currentIndex = 1;
+        }else{
+            combo_use_tray.currentIndex = 0;
+        }
+
+        if(supervisor.getSetting("setting","USE_UI","combo_use_calling_notice") === "true"){
+            combo_use_calling_notice.currentIndex = 1;
+        }else{
+            combo_use_calling_notice.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","USE_UI","use_restinglock") === "true"){
+            combo_resting_lock.currentIndex = 1;
+        }else{
+            combo_resting_lock.currentIndex = 0;
+        }
+
+
+        //OBSTACLE
+        obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range");
+        obs_avoid_v.text = supervisor.getSetting("setting","OBSTACLE","obs_avoid_v");
+        obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
+        obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
+        obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
+        obs_early_stop_dist.text = supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
+        obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near");
+        obs_margin1.text = supervisor.getSetting("setting","OBSTACLE","obs_margin1");
+        obs_margin0.text = supervisor.getSetting("setting","OBSTACLE","obs_margin0");
+        obs_detect_area.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
+        obs_detect_sensitivity.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
+        obs_height_min.text = supervisor.getSetting("setting","OBSTACLE","obs_height_min");
+        obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
+
+
+
+
+
+        max_range.text = supervisor.getSetting("setting","SENSOR","max_range");
+        right_camera.text = supervisor.getSetting("static","SENSOR","right_camera_serial");
+        left_camera.text = supervisor.getSetting("static","SENSOR","left_camera_serial");
+
+//        var ip = supervisor.getSetting("setting","NETWORK","wifi_ip").split(".");
+        var ip = supervisor.getcurIP().split(".");
+        if(ip.length >3){
+            ip_1.text = ip[0];
+            ip_2.text = ip[1];
+            ip_3.text = ip[2];
+            ip_4.text = ip[3];
+        }
+        ip = supervisor.getSetting("setting","SERVER","fms_ip").split(".");
+        if(ip.length >3){
+            server_ip_1.text = ip[0];
+            server_ip_2.text = ip[1];
+            server_ip_3.text = ip[2];
+            server_ip_4.text = ip[3];
+        }
+        ip = supervisor.getSetting("setting","NETWORK","wifi_gateway").split(".");
+        ip = supervisor.getcurGateway().split(".");
+        if(ip.length >3){
+            gateway_1.text = ip[0];
+            gateway_2.text = ip[1];
+            gateway_3.text = ip[2];
+            gateway_4.text = ip[3];
+        }
+        ip = supervisor.getSetting("setting","NETWORK","wifi_dnsmain").split(".");
+        ip = supervisor.getcurDNS().split(".");
+        if(ip.length >3){
+            dnsmain_1.text = ip[0];
+            dnsmain_2.text = ip[1];
+            dnsmain_3.text = ip[2];
+            dnsmain_4.text = ip[3];
+        }
+
+        voice_test.source = supervisor.getVoice("start_serving");
+
+        //변수 초기화
+        platform_name.ischanged = false;
+        combo_platform_serial.ischanged = false;
+        combo_voice_mode.ischanged = false;
+        combo_platform_type.ischanged = false;
+        combo_tray_num.ischanged = false;
+
+
+//        slider_vxy.ischanged = false;
+        slider_volume_bgm.ischanged = false;
+        slider_volume_voice.ischanged = false;
+        slider_volume_button.ischanged = false;
+
+        combo_language.ischanged = false;
+        combo_movingpage.ischanged = false;
+        combo_comeback_preset.ischanged = false;
+//        wifi_passwd.ischanged = false;
+        ip_1.ischanged = false;
+        ip_2.ischanged = false;
+        ip_3.ischanged = false;
+        ip_4.ischanged = false;
+        gateway_1.ischanged = false;
+        gateway_2.ischanged = false;
+        gateway_3.ischanged = false;
+        gateway_4.ischanged = false;
+        dnsmain_1.ischanged = false;
+        dnsmain_2.ischanged = false;
+        dnsmain_3.ischanged = false;
+        dnsmain_4.ischanged = false;
+
+        combo_multirobot.ischanged = false;
+        server_ip_1.ischanged = false;
+        server_ip_2.ischanged = false;
+        combo_server_calling.ischanged = false;
+        server_ip_3.ischanged = false;
+        server_ip_4.ischanged = false;
+        fms_id.ischanged = false;
+        fms_pw.ischanged = false;
+
+        wheel_base.ischanged = false;
+        wheel_radius.ischanged = false;
+        radius.ischanged = false;
+
+
+        max_range.ischanged = false;
+        cam_exposure.ischanged = false;
+
+        st_v.ischanged = false;
+
+        obs_preview_time.ischanged = false;
+        combo_use_obs_near.ischanged = false;
+        combo_use_earlystop_resting.ischanged = false;
+        combo_use_earlystop_serving.ischanged = false;
+        combo_use_avoid.ischanged = false;
+        combo_use_obs_preview.ischanged = false;
+        combo_use_pivot_obs.ischanged = false;
+
+
+        combo_wheel_dir.ischanged = false;
+        combo_left_id.ischanged = false;
+        combo_right_id.ischanged = false;
+        gear_ratio.ischanged = false;
+        k_p.ischanged = false;
+        k_i.ischanged = false;
+        k_d.ischanged = false;
+        combo_use_motorcurrent.ischanged = false;
+        combo_camera_model.ischanged = false;
+        motor_limit_v.ischanged = false;
+        motor_limit_v_acc.ischanged = false;
+        motor_limit_w.ischanged = false;
+        motor_limit_w_acc.ischanged = false;
+        look_ahead_dist.ischanged = false;
+        min_look_ahead_dist.ischanged = false;
+        path_out_dist.ischanged = false;
+        icp_dist.ischanged = false;
+        icp_error.ischanged = false;
+        icp_near.ischanged = false;
+        icp_odometry_weight.ischanged = false;
+        icp_ratio.ischanged = false;
+        icp_repeat_dist.ischanged = false;
+        icp_repeat_time.ischanged = false;
+        goal_dist.ischanged = false;
+        goal_v.ischanged = false;
+        goal_th.ischanged = false;
+        pause_motor_current.ischanged = false;
+        pause_check_ms.ischanged = false;
+        goal_near_dist.ischanged = false;
+
+
+        goal_near_th.ischanged = false;
+        k_curve.ischanged = false;
+        k_v.ischanged = false;
+        k_w.ischanged = false;
+        k_dd.ischanged = false;
+        path_delta_v_acc_gain.ischanged = false;
+        path_delta_v_dec_gain.ischanged = false;
+        path_ref_v_gain.ischanged = false;
+        path_shifting_val.ischanged = false;
+
+        slam_submap_cnt.ischanged = false;
+        slam_lc_dist.ischanged = false;
+        slam_lc_icp_dist.ischanged = false;
+        icp_init_ratio.ischanged = false;
+        icp_init_error.ischanged = false;
+        map_size.ischanged = false;
+        grid_size.ischanged = false;
+        combo_auto_update.ischanged = false;
+
+
+        combo_max_calling.ischanged = false;
+        combo_use_tray.ischanged = false;
+        combo_resting_lock.ischanged = false;
+        combo_use_calling_notice.ischanged = false;
+
+
+        //OBSTACLE
+        obs_avoid_v.ischanged = false;
+        obs_check_range.ischanged = false;
+        obs_deadzone.ischanged = false;
+        obs_preview_time.ischanged = false;
+        obs_wait_time.ischanged = false;
+        obs_height_max.ischanged = false;
+        obs_height_min.ischanged = false;
+        obs_decel_gain.ischanged = false;
+        obs_margin1.ischanged = false;
+        obs_margin0.ischanged = false;
+        obs_near.ischanged = false;
+        obs_early_stop_dist.ischanged = false;
+        obs_detect_area.ischanged = false;
+        obs_detect_sensitivity.ischanged = false;
+
+
+
+
+
+        robot_length.ischanged = false;
+        is_reset_slam = false;
+    }
+    function check_update(){
+        var is_changed = false;
+
+        if(platform_name.ischanged) is_changed = true;
+        if(combo_platform_serial.ischanged) is_changed = true;
+        if(combo_platform_type.ischanged) is_changed = true;
+        if(combo_tray_num.ischanged) is_changed = true;
+//        if(slider_vxy.ischanged) is_changed = true;
+        if(slider_volume_bgm.ischanged) is_changed = true;
+        if(slider_volume_voice.ischanged) is_changed = true;
+        if(slider_volume_button.ischanged) is_changed = true;
+        if(ip_1.ischanged) is_changed = true;
+        if(ip_2.ischanged) is_changed = true;
+        if(ip_3.ischanged) is_changed = true;
+        if(ip_4.ischanged) is_changed = true;
+        if(combo_use_motorcurrent.ischanged) is_changed = true;
+        if(pause_motor_current.ischanged) is_changed = true;
+        if(pause_check_ms.ischanged) is_changed = true;
+        if(combo_camera_model.ischanged) is_changed = true;
+        if(gateway_1.ischanged) is_changed = true;
+        if(gateway_2.ischanged) is_changed = true;
+        if(gateway_3.ischanged) is_changed = true;
+        if(gateway_4.ischanged) is_changed = true;
+        if(dnsmain_1.ischanged) is_changed = true;
+        if(dnsmain_2.ischanged) is_changed = true;
+        if(dnsmain_3.ischanged) is_changed = true;
+        if(dnsmain_4.ischanged) is_changed = true;
+        if(wheel_base.ischanged) is_changed = true;
+        if(wheel_radius.ischanged) is_changed = true;
+        if(radius.ischanged) is_changed = true;
+        if(max_range.ischanged) is_changed = true;
+        if(cam_exposure.ischanged) is_changed = true;
+        if(st_v.ischanged) is_changed = true;
+        if(combo_wheel_dir.ischanged) is_changed = true;
+        if(combo_left_id.ischanged) is_changed = true;
+        if(combo_right_id.ischanged) is_changed = true;
+        if(gear_ratio.ischanged) is_changed = true;
+        if(k_p.ischanged) is_changed = true;
+        if(k_i.ischanged) is_changed = true;
+        if(k_d.ischanged) is_changed = true;
+        if(motor_limit_v.ischanged) is_changed = true;
+        if(motor_limit_v_acc.ischanged) is_changed = true;
+        if(motor_limit_w.ischanged) is_changed = true;
+        if(motor_limit_w_acc.ischanged) is_changed = true;
+        if(look_ahead_dist.ischanged) is_changed = true;
+        if(min_look_ahead_dist.ischanged) is_changed = true;
+        if(obs_deadzone.ischanged) is_changed = true;
+        if(obs_wait_time.ischanged) is_changed = true;
+        if(path_out_dist.ischanged) is_changed = true;
+        if(icp_dist.ischanged) is_changed = true;
+        if(icp_error.ischanged) is_changed = true;
+        if(icp_near.ischanged) is_changed = true;
+        if(icp_odometry_weight.ischanged) is_changed = true;
+        if(icp_ratio.ischanged) is_changed = true;
+        if(icp_repeat_dist.ischanged) is_changed = true;
+        if(icp_repeat_time.ischanged) is_changed = true;
+        if(goal_dist.ischanged) is_changed = true;
+        if(goal_v.ischanged) is_changed = true;
+        if(goal_th.ischanged) is_changed = true;
+        if(goal_near_dist.ischanged) is_changed = true;
+        if(goal_near_th.ischanged) is_changed = true;
+        if(k_curve.ischanged) is_changed = true;
+        if(k_v.ischanged) is_changed = true;
+        if(k_w.ischanged) is_changed = true;
+        if(k_dd.ischanged) is_changed = true;
+        if(path_delta_v_acc_gain.ischanged) is_changed = true;
+        if(path_delta_v_dec_gain.ischanged) is_changed = true;
+        if(path_ref_v_gain.ischanged) is_changed = true;
+        if(path_shifting_val.ischanged) is_changed = true;
+        if(slam_submap_cnt.ischanged) is_changed = true;
+        if(slam_lc_dist.ischanged) is_changed = true;
+        if(slam_lc_icp_dist.ischanged) is_changed = true;
+        if(icp_init_ratio.ischanged) is_changed = true;
+        if(icp_init_error.ischanged) is_changed = true;
+        if(map_size.ischanged) is_changed = true;
+        if(grid_size.ischanged) is_changed = true;
+        if(combo_auto_update.ischanged) is_changed = true;
+
+        return is_changed;
+    }
+    function wifi_check(){
+        supervisor.readWifiState("");
     }
 
     Tool_KeyPad{
@@ -119,7 +1078,6 @@ Item {
             isplaying = false;
         }
     }
-
 
     Rectangle{
         id: dfdfd
@@ -210,7 +1168,7 @@ Item {
                 id: rect_category_3
                 width: 264
                 height: 50
-                visible: is_admin || is_rainbow
+                visible: is_rainbow
                 color: "#647087"
                 Text{
                     anchors.centerIn: parent
@@ -4276,7 +5234,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 회피 속도"
+                                text:"장애물 검출 크기 [pixel]"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4324,7 +5282,7 @@ Item {
                     }
                 }
                 Rectangle{
-                    id: set_obs_avoid_width
+                    id: set_obs_check_range
                     width: 840
                     height: 50
                     visible: combo_use_avoid.currentIndex === 1
@@ -4338,7 +5296,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 회피 너비"
+                                text:"장애물 감지 너비"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4357,20 +5315,20 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             TextField{
-                                id: obs_avoid_width
+                                id: obs_check_range
                                 anchors.fill: parent
-                                objectName: "obs_detect_area"
-                                text:supervisor.getSetting("setting","OBSTACLE","obs_avoid_width");
+                                objectName: "obs_check_range"
+                                text:supervisor.getSetting("setting","OBSTACLE","obs_check_range");
                                 property bool ischanged: false
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
                                         if(keypad.is_opened){
-                                            keypad.owner = obs_avoid_width;
-                                            obs_avoid_width.selectAll();
+                                            keypad.owner = obs_check_range;
+                                            obs_check_range.selectAll();
                                         }else{
-                                            keypad.owner = obs_avoid_width;
-                                            obs_avoid_width.selectAll();
+                                            keypad.owner = obs_check_range;
+                                            obs_check_range.selectAll();
                                             keypad.open();
                                         }
                                     }
@@ -4385,7 +5343,6 @@ Item {
                         }
                     }
                 }
-
                 Rectangle{
                     id: set_use_pivot_obs
                     width: 840
@@ -4555,6 +5512,68 @@ Item {
                         }
                     }
                 }
+                Rectangle{
+                    id: set_obs_decel_gain
+                    width: 840
+                    height: 50
+                    visible: combo_use_obs_near.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"장애물 감속 게인"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: obs_decel_gain
+                                anchors.fill: parent
+                                objectName: "obs_decel_gain"
+                                text:supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
+                                property bool ischanged: false
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        if(keypad.is_opened){
+                                            keypad.owner = obs_decel_gain;
+                                            obs_decel_gain.selectAll();
+                                        }else{
+                                            keypad.owner = obs_decel_gain;
+                                            obs_decel_gain.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+
+                                }
+                            }
+                        }
+                    }
+                }
 
                 Rectangle{
                     id: set_use_earlystop_resting
@@ -4708,6 +5727,52 @@ Item {
                     }
                 }
 
+                Rectangle{
+                    id: set_use_ignore_safetyzone_return
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"복귀 시 안전구간 무시"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_use_ignore_safetyzone_return
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                model:["사용안함","사용"]
+                            }
+                        }
+                    }
+                }
+
 
                 Rectangle{
                     id: set_decmargin
@@ -4723,7 +5788,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"감지 거리 Level 1 [m]"
+                                text:"동적 장애물 마진 [m]"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4801,7 +5866,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"감지 거리 Level 0 [m]"
+                                text:"정적 장애물 마진 [m]"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4955,7 +6020,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 감지 민감도"
+                                text:"장애물 최소검출 누적횟수"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8968,6 +10033,237 @@ Item {
         }
     }
 
+    Timer{
+        running: true
+        interval: 500
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+
+            if(supervisor.getusbsize() > 0){
+                btn_usb_download.enabled = true;
+            }else{
+                btn_usb_download.enabled = false;
+            }
+
+            wifi_connection.connection = supervisor.getWifiConnection("");
+
+            if(wifi_connection.connection === 0 && supervisor.getCurWifiSSID() !== "" && supervisor.getcurIP() === ""){
+                supervisor.getWifiIP();
+            }
+            motor_left_id = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
+            motor_right_id = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
+
+
+
+
+            //로봇 상태 - 로봇 상태
+            if(supervisor.getIPCConnection()){
+                //로봇 상태 - 전원
+                status_power.state = 2;
+                if(supervisor.getBattery() < 30){
+                    status_power.state = 1;
+                    model_power_issue.append({"name":"배터리잔량 낮음","image":"image/warning.png"});
+                }
+
+                bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
+                bar_battery_out.value = supervisor.getBatteryOut().toFixed(2);
+                bar_battery_cur.value = supervisor.getBatteryCurrent().toFixed(2);
+
+                bar_power.value = supervisor.getPower().toFixed(3);
+                bar_powert.value = supervisor.getPowerTotal().toFixed(3);
+
+                //로봇 상태 - 상태 값
+                model_power_issue.clear();
+
+                if(supervisor.getEmoStatus() !== 0){
+                    model_power_issue.append({"name":"비상스위치 눌림","image":"image/warning.png"});
+                    status_power.state = 1;
+                }else if(supervisor.getRemoteStatus() === 0){
+                    model_power_issue.append({"name":"원격비상스위치 눌림","image":"image/warning.png"});
+                    status_power.state = 1;
+                }else if(supervisor.getPowerStatus() === 0){
+                    model_power_issue.append({"name":"전원 공급 안됨","image":"icon/icon_error.png"});
+                    status_power.state = 0;
+                }
+
+                var state = supervisor.getLocalizationState();
+                if(state === 0){
+                    model_power_issue.append({"name":"위치초기화 필요","image":"icon/icon_error.png"});
+                    text_robot.text = "초기화 안됨";
+                    status_localization.state = 0;
+                }else if(state === 1){
+                    model_power_issue.append({"name":"위치초기화 진행중","image":"image/warning.png"});
+                    text_robot.text = "초기화 중";
+                    status_localization.state = 1;
+                }else if(state === 2){
+                    text_robot.text = "초기화 완료";
+                    status_localization.state = 2;
+
+                    state = supervisor.getStateMoving();
+                    if(state === 0){
+                        model_power_issue.append({"name":"로봇주행 준비안됨","image":"image/warning.png"});
+                        text_robot.text = "준비 안됨";
+                    }else if(state === 1){
+                        text_robot.text = "준비";
+                    }else if(state === 2){
+                        text_robot.text = "이동 중";
+                    }else if(state === 3){
+                        text_robot.text = "대기 중";
+                    }else if(state === 4){
+                        text_robot.text = "일시정지 중";
+                    }
+
+                }else if(state === 3){
+                    status_localization.state = 0;
+                    model_power_issue.append({"name":"위치초기화 실패","image":"image/warning.png"});
+                    text_robot.text = "초기화 실패";
+                }
+
+
+                if(supervisor.getObsState() === 1){
+                    status_localization.state = 0;
+                    model_power_issue.append({"name":"장애물 겹침","image":"image/warning.png"});
+                }
+
+                //모터 상태 - 모터 1
+                var state1 = supervisor.getMotorConnection(0);
+                //모터 상태 - 모터 2
+                var state2 = supervisor.getMotorConnection(1);
+
+
+                if(!state1){
+                    model_power_issue.append({"name":"모터 1 연결안됨","image":"icon/icon_error.png"});
+                    status_motor_left.state = 0;
+                }else{
+                    status_motor_left.state = 2;
+                }
+
+                if(!state2){
+                    status_motor_right.state = 0;
+                    model_power_issue.append({"name":"모터 2 연결안됨","image":"icon/icon_error.png"});
+                }else{
+                    status_motor_right.state = 2;
+                }
+
+                if(state1 && state2){
+                    var lstate = supervisor.getLockStatus();
+                    if(supervisor.getChargeStatus() !== 0){
+                        status_motor_right.state = 1;
+                        status_motor_left.state = 1;
+                        model_power_issue.append({"name":"충전케이블 연결됨","image":"image/warning.png"});
+                    }else if(lstate === 0){
+                        status_motor_right.state = 1;
+                        status_motor_left.state = 1;
+                        model_power_issue.append({"name":"모터락 풀림","image":"image/warning.png"});
+                    }else{
+                        state1 = supervisor.getMotorStatus(0);
+                        if(state1 === 0){
+                            model_power_issue.append({"name":"모터 1 준비안됨","image":"icon/icon_error.png"});
+                            status_motor_left.state = 1;
+                        }else if(state1 === 1){
+                            status_motor_left.state = 2;
+                        }else{
+                            status_motor_left.state = 0;
+                            var str_error = "";
+                            if(state1 >= 128){
+                                str_error += "Unknown ";
+                                state1 -= 128;
+                            }
+                            if(state1 >= 64){
+                                str_error += "PS1,2 ";
+                                state1 -= 64;
+                            }
+                            if(state1 >= 32){
+                                str_error += "INPUT ";
+                                state1 -= 32;
+                            }
+                            if(state1 >= 16){
+                                str_error += "BIG ";
+                                state1 -= 16;
+                            }
+                            if(state1 >= 8){
+                                str_error += "CUR ";
+                                state1 -= 8;
+                            }
+                            if(state1 >= 4){
+                                str_error += "JAM ";
+                                state1 -= 4;
+                            }
+                            if(state1 >= 2){
+                                str_error += "MOD ";
+                                state1 -= 2;
+                            }
+                            model_power_issue.append({"name":"모터 1 "+str_error,"image":"icon/icon_error.png"});
+                        }
+
+                        state2 = supervisor.getMotorStatus(1);
+                        if(state2 === 0){
+                            status_motor_right.state = 1;
+                            model_power_issue.append({"name":"모터 2 준비안됨","image":"icon/icon_error.png"});
+                        }else if(state2 === 1){
+                            status_motor_right.state = 2;
+                        }else{
+                            status_motor_right.state = 0;
+                            var str_error = "";
+                            if(state2 >= 128){
+                                str_error += "Unknown ";
+                                state2 -= 128;
+                            }
+                            if(state2 >= 64){
+                                str_error += "PS1,2 ";
+                                state2 -= 64;
+                            }
+                            if(state2 >= 32){
+                                str_error += "INPUT ";
+                                state2 -= 32;
+                            }
+                            if(state2 >= 16){
+                                str_error += "BIG ";
+                                state2 -= 16;
+                            }
+                            if(state2 >= 8){
+                                str_error += "CUR ";
+                                state2 -= 8;
+                            }
+                            if(state2 >= 4){
+                                str_error += "JAM ";
+                                state2 -= 4;
+                            }
+                            if(state2 >= 2){
+                                str_error += "MOD ";
+                                state2 -= 2;
+                            }
+                            model_power_issue.append({"name":"모터 2 "+str_error,"image":"icon/icon_error.png"});
+
+                            bar_status2.background_color = color_red;
+                            text_status2.text = str_error;
+                        }
+                    }
+
+                    bar_temp1.value = supervisor.getMotorTemperature(0);
+                    bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
+                    bar_cur1.value = supervisor.getMotorCurrent(0);
+                    bar_temp2.value = supervisor.getMotorTemperature(1);
+                    bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
+                    bar_cur2.value = supervisor.getMotorCurrent(1);
+                }
+
+
+            }else{
+                status_power.state = 0;
+                status_motor_left.state = 0;
+                status_motor_right.state = 0;
+                status_localization.state = 0;
+                text_robot.text = "프로그램 연결 안됨"
+            }
+
+        }
+    }
+
+    Popup_help{
+        id: popup_help_setting
+    }
     Popup{
         id: popup_robot_details
         anchors.centerIn: parent
@@ -9540,1140 +10836,6 @@ Item {
             }
         }
     }
-
-    function save(){
-        supervisor.writelog("[USER INPUT] SETTING PAGE -> SETTING CHANGE");
-        if(platform_name.ischanged){
-            supervisor.setSetting("setting","ROBOT_TYPE/model",platform_name.text);
-        }
-
-        if(combo_platform_serial.ischanged){
-            supervisor.setSetting("setting","ROBOT_TYPE/serial_num",combo_platform_serial.currentText);
-        }
-
-        if(combo_max_calling.ischanged){
-            supervisor.setSetting("setting","CALL/call_maximum",combo_max_calling.currentText);
-        }
-
-        supervisor.setPreset(cur_preset);
-        if(combo_language.ischanged){
-            var str_lan;
-            if(combo_language.currentIndex === 0){
-                str_lan = "KR";
-
-            }else if(combo_language.currentIndex === 1){
-                str_lan = "US";
-            }
-            supervisor.setSetting("setting","UI/langauge",str_lan);
-            supervisor.setLangauge(str_lan);
-        }
-
-        if(combo_multirobot.ischanged){
-            if(combo_multirobot.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_multirobot","false");
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_multirobot","true");
-            }
-        }
-
-        if(combo_server_calling.ischanged){
-            if(combo_server_calling.currentIndex == 0){
-                supervisor.setSetting("setting","SERVER/use_server_call","false");
-            }else{
-                supervisor.setSetting("setting","SERVER/use_server_call","true");
-            }
-        }
-
-        if(combo_platform_type.ischanged){
-            if(combo_platform_type.currentIndex == 0){
-                supervisor.setSetting("setting","ROBOT_TYPE/type","SERVING");
-            }else if(combo_platform_type.currentIndex == 1){
-                supervisor.setSetting("setting","ROBOT_TYPE/type","CALLING");
-            }else if(combo_platform_type.currentIndex == 2){
-                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
-            }else if(combo_platform_type.currentIndex == 3){
-                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
-            }
-        }
-
-        if(combo_tray_num.ischanged){
-            supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
-        }
-
-        if(slider_volume_bgm.ischanged){
-            supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value.toFixed(0));
-            volume_bgm = slider_volume_bgm.value.toFixed(0);
-        }
-
-        if(slider_volume_voice.ischanged){
-            supervisor.setSetting("setting","UI/volume_voice",slider_volume_voice.value.toFixed(0));
-            volume_voice = slider_volume_voice.value.toFixed(0);
-        }
-
-        if(slider_volume_button.ischanged){
-            supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value.toFixed(0));
-            volume_button = slider_volume_button.value.toFixed(0);
-        }
-        if(combo_movingpage.ischanged){
-            if(combo_movingpage.currentIndex == 0)
-                supervisor.setSetting("setting","UI/moving_face","false");
-            else
-                supervisor.setSetting("setting","UI/moving_face","true");
-        }
-
-        if(combo_comeback_preset.ischanged){
-            supervisor.setSetting("setting","UI/comeback_preset",combo_comeback_preset.currentIndex.toString());
-        }
-        if(combo_voice_mode.ischanged){
-            if(combo_voice_mode.currentIndex == 0){
-                supervisor.setSetting("setting","UI/voice_mode","child");
-            }else if(combo_voice_mode.currentIndex == 1){
-                supervisor.setSetting("setting","UI/voice_mode","woman");
-            }
-            readVoice();
-        }
-
-        if(combo_use_tray.ischanged){
-            if(combo_use_tray.currentIndex == 0)
-                supervisor.setSetting("setting","USE_UI/use_tray","false");
-            else
-                supervisor.setSetting("setting","USE_UI/use_tray","true");
-        }
-
-        if(combo_use_calling_notice.ischanged){
-            if(combo_use_calling_notice.currentIndex == 0){
-                supervisor.setSetting("setting","USE_UI/combo_use_calling_notice","false");
-            }else{
-                supervisor.setSetting("setting","USE_UI/combo_use_calling_notice","true");
-            }
-        }
-        if(combo_resting_lock.ischanged){
-            if(combo_resting_lock.currentIndex == 0){
-                supervisor.setSetting("setting","USE_UI/use_restinglock","false");
-            }else{
-                supervisor.setSetting("setting","USE_UI/use_restinglock","true");
-            }
-        }
-
-        if(fms_id.ischanged){
-            supervisor.setSetting("setting","SERVER/fms_id",fms_id.text);
-        }
-
-        if(fms_pw.ischanged){
-            supervisor.setSetting("setting","SERVER/fms_pw",fms_pw.text);
-        }
-
-        if(ip_1.ischanged||ip_2.ischanged||ip_3.ischanged||ip_4.ischanged){
-            var ip_str = ip_1.text + "." + ip_2.text + "." + ip_3.text + "." + ip_4.text;
-            supervisor.setSetting("setting","NETWORK/wifi_ip",ip_str);
-        }
-
-        if(gateway_1.ischanged||gateway_2.ischanged||gateway_3.ischanged||gateway_4.ischanged){
-            var ip_str = gateway_1.text + "." + gateway_2.text + "." + gateway_3.text + "." + gateway_4.text;
-            supervisor.setSetting("setting","NETWORK/wifi_gateway",ip_str);
-        }
-
-        if(dnsmain_1.ischanged||dnsmain_2.ischanged||dnsmain_3.ischanged||dnsmain_4.ischanged){
-            var ip_str = dnsmain_1.text + "." + dnsmain_2.text + "." + dnsmain_3.text + "." + dnsmain_4.text;
-            supervisor.setSetting("setting","NETWORK/wifi_dnsmain",ip_str);
-        }
-
-
-        if(wheel_base.ischanged){
-            supervisor.setSetting("static","ROBOT_HW/wheel_base",wheel_base.text);
-        }
-        if(wheel_radius.ischanged){
-            supervisor.setSetting("static","ROBOT_HW/wheel_radius",wheel_radius.text);
-        }
-        if(radius.ischanged){
-            supervisor.setSetting("static","ROBOT_HW/robot_radius",radius.text);
-        }
-        if(radius.ischanged){
-            supervisor.setSetting("static","ROBOT_HW/robot_radius",radius.text);
-        }
-        if(robot_length.ischanged){
-            supervisor.setSetting("static","ROBOT_HW/robot_length",radius.text);
-        }
-
-        if(obs_height_min.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_height_min",obs_height_min.text);
-        }
-
-        if(obs_height_max.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_height_max",obs_height_max.text);
-        }
-
-        if(obs_margin1.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_margin1",obs_margin1.text);
-        }
-        if(obs_margin0.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_margin0",obs_margin0.text);
-        }
-        if(obs_near.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_near",obs_near.text);
-        }
-        if(obs_early_stop_dist.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_early_stop_dist",obs_early_stop_dist.text);
-        }
-
-        if(obs_detect_area.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_detect_area",obs_detect_area.text);
-        }
-
-        if(obs_detect_sensitivity.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_detect_sensitivity",obs_detect_sensitivity.text);
-        }
-
-        if(max_range.ischanged){
-            supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
-        }
-
-        if(cam_exposure.ischanged){
-            supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
-        }
-
-        if(obs_preview_time.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_preview_time",obs_preview_time.text);
-        }
-
-        if(combo_use_avoid.ischanged){
-            if(combo_use_avoid.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_avoid",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_avoid",true);
-            }
-        }
-        if(combo_auto_update.ischanged){
-            if(combo_auto_update.currentIndex === 0){
-                supervisor.setSetting("setting","USE_UI/auto_update",false);
-            }else{
-                supervisor.setSetting("setting","USE_UI/auto_update",true);
-            }
-        }
-
-        if(combo_use_earlystop_serving.ischanged){
-            if(combo_use_earlystop_serving.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_earlystop_serving",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_earlystop_serving",true);
-            }
-        }
-
-        if(combo_use_earlystop_resting.ischanged){
-            if(combo_use_earlystop_resting.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",true);
-            }
-        }
-
-        if(combo_use_obs_near.ischanged){
-            if(combo_use_obs_near.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_obs_near",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_obs_near",true);
-            }
-        }
-
-        if(combo_use_obs_preview.ischanged){
-            if(combo_use_obs_preview.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_obs_preview",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_obs_preview",true);
-            }
-        }
-        if(combo_use_pivot_obs.ischanged){
-            if(combo_use_pivot_obs.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",true);
-            }
-        }
-
-        if(st_v.ischanged){
-            supervisor.setSetting("update","DRIVING/st_v",st_v.text);
-        }
-
-        if(combo_wheel_dir.ischanged){
-            supervisor.setSetting("update","MOTOR/wheel_dir",combo_wheel_dir.currentText);
-        }
-
-        if(combo_left_id.ischanged){
-            supervisor.setSetting("update","MOTOR/left_id",combo_left_id.currentText);
-        }
-
-        if(combo_right_id.ischanged){
-            supervisor.setSetting("update","MOTOR/right_id",combo_right_id.currentText);
-        }
-
-        if(gear_ratio.ischanged){
-            supervisor.setSetting("update","MOTOR/gear_ratio",gear_ratio.text);
-        }
-
-        if(goal_near_th.ischanged){
-            supervisor.setSetting("update","DRIVING/goal_near_th",goal_near_th.text);
-        }
-        if(k_curve.ischanged){
-            supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
-        }
-        if(k_v.ischanged){
-            supervisor.setSetting("update","DRIVING/k_v",k_v.text);
-        }
-        if(k_w.ischanged){
-            supervisor.setSetting("update","DRIVING/k_w",k_w.text);
-        }
-        if(k_dd.ischanged){
-            supervisor.setSetting("update","DRIVING/k_dd",k_dd.text);
-        }
-        if(path_delta_v_acc_gain.ischanged){
-            supervisor.setSetting("update","DRIVING/path_delta_v_acc_gain",path_delta_v_acc_gain.text);
-        }
-        if(path_delta_v_dec_gain.ischanged){
-            supervisor.setSetting("update","DRIVING/path_delta_v_dec_gain",path_delta_v_dec_gain.text);
-        }
-        if(path_ref_v_gain.ischanged){
-            supervisor.setSetting("update","DRIVING/path_ref_v_gain",path_ref_v_gain.text);
-        }
-        if(path_shifting_val.ischanged){
-            supervisor.setSetting("update","DRIVING/path_shifting_val",path_shifting_val.text);
-        }
-        if(slam_submap_cnt.ischanged){
-            supervisor.setSetting("update","SLAM/slam_submap_cnt",slam_submap_cnt.text);
-        }
-        if(slam_lc_dist.ischanged){
-            supervisor.setSetting("update","SLAM/slam_lc_dist",slam_lc_dist.text);
-        }
-        if(icp_init_error.ischanged){
-            supervisor.setSetting("setting","INITIALIZATION/icp_init_error",icp_init_error.text);
-        }
-        if(icp_init_ratio.ischanged){
-            supervisor.setSetting("setting","INITIALIZATION/icp_init_ratio",icp_init_ratio.text);
-        }
-
-        if(slam_lc_icp_dist.ischanged){
-            supervisor.setSetting("update","SLAM/slam_lc_icp_dist",slam_lc_icp_dist.text);
-        }
-        if(map_size.ischanged){
-            supervisor.setSetting("update","SLAM/map_size",map_size.text);
-        }
-        if(grid_size.ischanged){
-            supervisor.setSetting("update","SLAM/grid_size",grid_size.text);
-        }
-
-
-//        if(combo_camera_model.ischanged){
-//            supervisor.setSetting("SENSOR/camera_model",Number(combo_camera_model.currentIndex));
-//        }
-
-        if(combo_use_motorcurrent.ischanged){
-            if(combo_use_motorcurrent.currentIndex == 0){
-                supervisor.setSetitng("setting","USE_UI/use_current_pause","false");
-            }else{
-                supervisor.setSetitng("setting","USE_UI/use_current_pause","true");
-            }
-        }
-
-        if(pause_check_ms.ischanged){
-            supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
-        }
-        if(pause_motor_current.ischanged){
-            supervisor.setSetting("update","DRIVING/pause_motor_current",pause_motor_current.text);
-        }
-
-        if(k_p.ischanged){
-            supervisor.setSetting("update","MOTOR/k_p",k_p.text);
-        }
-
-        if(k_i.ischanged){
-            supervisor.setSetting("update","MOTOR/k_i",k_i.text);
-        }
-
-        if(k_d.ischanged){
-            supervisor.setSetting("update","MOTOR/k_d",k_d.text);
-        }
-
-        if(motor_limit_v.ischanged){
-            supervisor.setSetting("update","MOTOR/limit_v",motor_limit_v.text);
-        }
-
-        if(motor_limit_v_acc.ischanged){
-            supervisor.setSetting("update","MOTOR/limit_v_acc",motor_limit_v_acc.text);
-        }
-
-        if(motor_limit_w.ischanged){
-            supervisor.setSetting("update","MOTOR/limit_w",motor_limit_w.text);
-        }
-
-        if(motor_limit_w_acc.ischanged){
-            supervisor.setSetting("update","MOTOR/limit_w_acc",motor_limit_w_acc.text);
-        }
-
-        if(look_ahead_dist.ischanged){
-            supervisor.setSetting("update","DRIVING/look_ahead_dist"         ,look_ahead_dist.text);
-        }
-
-        if(min_look_ahead_dist.ischanged){
-            supervisor.setSetting("update","DRIVING/min_look_ahead_dist"    ,min_look_ahead_dist.text);
-        }
-
-        if(obs_deadzone.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_deadzone"           ,obs_deadzone.text);
-        }
-
-        if(obs_wait_time.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_wait_time"          ,obs_wait_time.text);
-        }
-
-        if(path_out_dist.ischanged){
-            supervisor.setSetting("update","DRIVING/path_out_dist"          ,path_out_dist.text);
-        }
-
-        if(icp_dist.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_dist"               ,icp_dist.text);
-        }
-
-        if(icp_error.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_error"              ,icp_error.text);
-        }
-
-        if(icp_near.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_near"               ,icp_near.text);
-        }
-
-        if(icp_odometry_weight.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_odometry_weight"    ,icp_odometry_weight.text);
-        }
-
-        if(icp_ratio.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_ratio"              ,icp_ratio.text);
-        }
-
-        if(icp_repeat_dist.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_repeat_dist"        ,icp_repeat_dist.text);
-        }
-
-        if(icp_repeat_time.ischanged){
-            supervisor.setSetting("update","LOCALIZATION/icp_repeat_time"        ,icp_repeat_time.text);
-
-        }
-
-        if(goal_dist.ischanged){
-            supervisor.setSetting("update","DRIVING/goal_dist"              ,goal_dist.text);
-        }
-
-        if(goal_v.ischanged){
-            supervisor.setSetting("update","DRIVING/goal_v"                 ,goal_v.text);
-        }
-
-        if(goal_th.ischanged){
-            supervisor.setSetting("update","DRIVING/goal_th"                ,goal_th.text);
-        }
-
-        if(goal_near_dist.ischanged){
-            supervisor.setSetting("update","DRIVING/goal_near_dist"         ,goal_near_dist.text);
-        }
-
-        supervisor.readSetting();
-        if(is_reset_slam)
-            supervisor.slam_ini_reload();
-
-        is_reset_slam = false;
-
-        backPage();
-    }
-
-    function init(){
-        supervisor.writelog("[QML] SETTING PAGE init");
-        wifi_check();
-
-        cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
-        slider_volume_system.value = supervisor.getSystemVolume();
-        platform_name.text = supervisor.getSetting("setting","ROBOT_TYPE","model");
-        combo_platform_serial.currentIndex = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","serial_num"))
-        radius.text = supervisor.getSetting("static","ROBOT_HW","robot_radius");
-
-        combo_tray_num.currentIndex = supervisor.getSetting("setting","ROBOT_TYPE","tray_num")-1;
-
-        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
-            combo_multirobot.currentIndex = 1;
-        }else{
-            combo_multirobot.currentIndex = 0;
-        }
-
-        if(supervisor.getSetting("setting","SERVER","use_server_call")==="true"){
-            combo_server_calling.currentIndex = 1;
-        }else{
-            combo_server_calling.currentIndex = 0;
-        }
-
-        if(supervisor.getSetting("setting","UI","langauge") === "KR"){
-            combo_language.currentIndex = 0;
-        }else if(supervisor.getSetting("setting","UI","langauge") === "US"){
-            combo_language.currentIndex = 1;
-        }
-
-        if(supervisor.getSetting("setting","USE_UI","auto_update") === "true"){
-            combo_auto_update.currentIndex = 1;
-        }else if(supervisor.getSetting("setting","USE_UI","auto_update") === "false"){
-            combo_auto_update.currentIndex = 0;
-        }
-
-
-
-        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "SERVING"){
-            combo_platform_type.currentIndex = 0;
-        }else if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CALLING"){
-            combo_platform_type.currentIndex = 1;
-        }else if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "BOTH"){
-            combo_platform_type.currentIndex = 2;
-        }else if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-            combo_platform_type.currentIndex = 3;
-        }
-
-
-        fms_id.text = supervisor.getSetting("setting","SERVER","fms_id");
-        fms_pw.text = supervisor.getSetting("setting","SERVER","fms_pw");
-        combo_max_calling.currentIndex = parseInt(supervisor.getSetting("setting","CALL","call_maximum")) - 1;
-        wheel_base.text = supervisor.getSetting("static","ROBOT_HW","wheel_base");
-        wheel_radius.text = supervisor.getSetting("static","ROBOT_HW","wheel_radius");
-
-        left_camera_tf.text = supervisor.getSetting("static","SENSOR","left_camera_tf");
-        right_camera_tf.text = supervisor.getSetting("static","SENSOR","right_camera_tf");
-        cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
-
-        icp_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_dist");
-        icp_error.text = supervisor.getSetting("update","LOCALIZATION","icp_error");
-        icp_near.text = supervisor.getSetting("update","LOCALIZATION","icp_near");
-        icp_odometry_weight.text = supervisor.getSetting("update","LOCALIZATION","icp_odometry_weight");
-        icp_ratio.text = supervisor.getSetting("update","LOCALIZATION","icp_ratio");
-        icp_repeat_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_repeat_dist");
-        icp_repeat_time.text = supervisor.getSetting("update","LOCALIZATION","icp_repeat_time");
-
-        obs_deadzone.text = supervisor.getSetting("setting","OBSTACLE","obs_deadzone");
-        obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
-        obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
-        path_out_dist.text = supervisor.getSetting("update","DRIVING","path_out_dist");
-        st_v.text = supervisor.getSetting("update","DRIVING","st_v");
-        min_look_ahead_dist.text = supervisor.getSetting("update","DRIVING","min_look_ahead_dist");
-        goal_dist.text = supervisor.getSetting("update","DRIVING","goal_dist");
-        goal_th.text = supervisor.getSetting("update","DRIVING","goal_th");
-        goal_v.text = supervisor.getSetting("update","DRIVING","goal_v");
-        goal_near_dist.text = supervisor.getSetting("update","DRIVING","goal_near_dist");
-        goal_near_th.text = supervisor.getSetting("update","DRIVING","goal_near_th");
-        k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
-        k_v.text = supervisor.getSetting("update","DRIVING","k_v");
-        k_w.text = supervisor.getSetting("update","DRIVING","k_w");
-        k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
-        path_delta_v_acc_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_acc_gain");
-        path_delta_v_dec_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_dec_gain");
-        path_ref_v_gain.text = supervisor.getSetting("update","DRIVING","path_ref_v_gain");
-        path_shifting_val.text = supervisor.getSetting("update","DRIVING","path_shifting_val");
-
-
-        slam_submap_cnt.text = supervisor.getSetting("update","SLAM","slam_submap_cnt");
-        slam_lc_dist.text = supervisor.getSetting("update","SLAM","slam_lc_dist");
-        slam_lc_icp_dist.text = supervisor.getSetting("update","SLAM","slam_lc_icp_dist");
-        map_size.text = supervisor.getSetting("update","SLAM","map_size");
-        grid_size.text = supervisor.getSetting("update","SLAM","grid_size");
-        icp_init_ratio.text = supervisor.getSetting("setting","INITIALIZATION","icp_init_ratio");
-        icp_init_error.text = supervisor.getSetting("setting","INITIALIZATION","icp_init_error");
-
-        motor_limit_v.text = supervisor.getSetting("update","MOTOR","limit_v");
-        motor_limit_v_acc.text = supervisor.getSetting("update","MOTOR","limit_v_acc");
-        motor_limit_w.text = supervisor.getSetting("update","MOTOR","limit_w");
-        motor_limit_w_acc.text = supervisor.getSetting("update","MOTOR","limit_w_acc");
-        look_ahead_dist.text = supervisor.getSetting("update","DRIVING","look_ahead_dist");
-
-        if(supervisor.getSetting("setting","USE_SLAM","use_obs_preview") === "true"){
-            combo_use_obs_preview.currentIndex = 1;
-        }else{
-            combo_use_obs_preview.currentIndex = 0;
-        }
-        if(supervisor.getSetting("setting","USE_SLAM","use_avoid") === "true"){
-            combo_use_avoid.currentIndex = 1;
-        }else{
-            combo_use_avoid.currentIndex = 0;
-        }
-        if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
-            combo_use_pivot_obs.currentIndex = 1;
-        }else{
-            combo_use_pivot_obs.currentIndex = 0;
-        }
-        if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
-            combo_use_obs_near.currentIndex = 1;
-        }else{
-            combo_use_obs_near.currentIndex = 0;
-        }
-        if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_resting") === "true"){
-            combo_use_earlystop_resting.currentIndex = 1;
-        }else{
-            combo_use_earlystop_resting.currentIndex = 0;
-        }
-        if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_serving") === "true"){
-            combo_use_earlystop_serving.currentIndex = 1;
-        }else{
-            combo_use_earlystop_serving.currentIndex = 0;
-        }
-
-        slider_volume_bgm.value = Number(supervisor.getSetting("setting","UI","volume_bgm"));
-        slider_volume_voice.value = Number(supervisor.getSetting("setting","UI","volume_voice"));
-        slider_volume_button.value = Number(supervisor.getSetting("setting","UI","volume_button"));
-
-        text_preset_name_1.text = supervisor.getSetting("setting","PRESET1","name");
-        text_preset_name_2.text = supervisor.getSetting("setting","PRESET2","name");
-        text_preset_name_3.text = supervisor.getSetting("setting","PRESET3","name");
-        text_preset_name_4.text = supervisor.getSetting("setting","PRESET4","name");
-        text_preset_name_5.text = supervisor.getSetting("setting","PRESET5","name");
-
-        gear_ratio.text = supervisor.getSetting("update","MOTOR","gear_ratio");
-        k_d.text = supervisor.getSetting("update","MOTOR","k_d");
-        k_i.text = supervisor.getSetting("update","MOTOR","k_i");
-        k_p.text = supervisor.getSetting("update","MOTOR","k_p");
-
-        wifi_ssid.text = supervisor.getCurWifiSSID();
-//        wifi_passwd.text = supervisor.getSetting("setting","NETWORK","wifi_passwd");
-
-        combo_left_id.currentIndex = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
-        combo_right_id.currentIndex = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
-
-        if(supervisor.getSetting("update","MOTOR","wheel_dir") === "-1"){
-            combo_wheel_dir.currentIndex = 0;
-        }else{
-            combo_wheel_dir.currentIndex = 1;
-        }
-
-        pause_motor_current.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
-        pause_check_ms.text = supervisor.getSetting("update","DRIVING","pause_check_ms");
-        if(supervisor.getSetting("setting","USE_UI","use_current_pause") === "false"){
-            combo_use_motorcurrent.currentIndex = 0;
-        }else{
-            combo_use_motorcurrent.currentIndex = 1;
-        }
-
-//        if(supervisor.getSetting("setting","SENSOR","camera_model") === "0"){
-//            combo_camera_model.currentIndex = 0;
-//        }else{
-//            combo_camera_model.currentIndex = 1;
-//        }
-
-        if(supervisor.getSetting("setting","UI","moving_face") === "true"){
-            combo_movingpage.currentIndex = 1;
-        }else{
-            combo_movingpage.currentIndex = 0;
-        }
-
-        if(supervisor.getSetting("setting","UI","voice_mode") === "woman"){
-            combo_voice_mode.currentIndex = 1;
-        }else{
-            combo_voice_mode.currentIndex = 0;
-        }
-
-        combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
-
-        if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
-            combo_use_tray.currentIndex = 1;
-        }else{
-            combo_use_tray.currentIndex = 0;
-        }
-
-        if(supervisor.getSetting("setting","USE_UI","combo_use_calling_notice") === "true"){
-            combo_use_calling_notice.currentIndex = 1;
-        }else{
-            combo_use_calling_notice.currentIndex = 0;
-        }
-        if(supervisor.getSetting("setting","USE_UI","use_restinglock") === "true"){
-            combo_resting_lock.currentIndex = 1;
-        }else{
-            combo_resting_lock.currentIndex = 0;
-        }
-        obs_early_stop_dist.text = supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
-        obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near");
-        obs_margin1.text = supervisor.getSetting("setting","OBSTACLE","obs_margin1");
-        obs_margin0.text = supervisor.getSetting("setting","OBSTACLE","obs_margin0");
-        obs_detect_area.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
-        obs_detect_sensitivity.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
-        obs_height_min.text = supervisor.getSetting("setting","OBSTACLE","obs_height_min");
-        max_range.text = supervisor.getSetting("setting","SENSOR","max_range");
-        right_camera.text = supervisor.getSetting("static","SENSOR","right_camera_serial");
-        left_camera.text = supervisor.getSetting("static","SENSOR","left_camera_serial");
-
-//        var ip = supervisor.getSetting("setting","NETWORK","wifi_ip").split(".");
-        var ip = supervisor.getcurIP().split(".");
-        if(ip.length >3){
-            ip_1.text = ip[0];
-            ip_2.text = ip[1];
-            ip_3.text = ip[2];
-            ip_4.text = ip[3];
-        }
-        ip = supervisor.getSetting("setting","SERVER","fms_ip").split(".");
-        if(ip.length >3){
-            server_ip_1.text = ip[0];
-            server_ip_2.text = ip[1];
-            server_ip_3.text = ip[2];
-            server_ip_4.text = ip[3];
-        }
-        ip = supervisor.getSetting("setting","NETWORK","wifi_gateway").split(".");
-        ip = supervisor.getcurGateway().split(".");
-        if(ip.length >3){
-            gateway_1.text = ip[0];
-            gateway_2.text = ip[1];
-            gateway_3.text = ip[2];
-            gateway_4.text = ip[3];
-        }
-        ip = supervisor.getSetting("setting","NETWORK","wifi_dnsmain").split(".");
-        ip = supervisor.getcurDNS().split(".");
-        if(ip.length >3){
-            dnsmain_1.text = ip[0];
-            dnsmain_2.text = ip[1];
-            dnsmain_3.text = ip[2];
-            dnsmain_4.text = ip[3];
-        }
-
-        voice_test.source = supervisor.getVoice("start_serving");
-
-        //변수 초기화
-        platform_name.ischanged = false;
-        combo_platform_serial.ischanged = false;
-        combo_voice_mode.ischanged = false;
-        combo_platform_type.ischanged = false;
-        combo_tray_num.ischanged = false;
-
-//        slider_vxy.ischanged = false;
-        slider_volume_bgm.ischanged = false;
-        slider_volume_voice.ischanged = false;
-        slider_volume_button.ischanged = false;
-
-        combo_language.ischanged = false;
-        combo_movingpage.ischanged = false;
-        combo_comeback_preset.ischanged = false;
-//        wifi_passwd.ischanged = false;
-        ip_1.ischanged = false;
-        ip_2.ischanged = false;
-        ip_3.ischanged = false;
-        ip_4.ischanged = false;
-        gateway_1.ischanged = false;
-        gateway_2.ischanged = false;
-        gateway_3.ischanged = false;
-        gateway_4.ischanged = false;
-        dnsmain_1.ischanged = false;
-        dnsmain_2.ischanged = false;
-        dnsmain_3.ischanged = false;
-        dnsmain_4.ischanged = false;
-
-        combo_multirobot.ischanged = false;
-        server_ip_1.ischanged = false;
-        server_ip_2.ischanged = false;
-        combo_server_calling.ischanged = false;
-        server_ip_3.ischanged = false;
-        server_ip_4.ischanged = false;
-        fms_id.ischanged = false;
-        fms_pw.ischanged = false;
-
-        wheel_base.ischanged = false;
-        wheel_radius.ischanged = false;
-        radius.ischanged = false;
-
-
-        max_range.ischanged = false;
-        cam_exposure.ischanged = false;
-
-        st_v.ischanged = false;
-
-        obs_preview_time.ischanged = false;
-        combo_use_obs_near.ischanged = false;
-        combo_use_earlystop_resting.ischanged = false;
-        combo_use_earlystop_serving.ischanged = false;
-        combo_use_avoid.ischanged = false;
-        combo_use_obs_preview.ischanged = false;
-        combo_use_pivot_obs.ischanged = false;
-
-
-        combo_wheel_dir.ischanged = false;
-        combo_left_id.ischanged = false;
-        combo_right_id.ischanged = false;
-        gear_ratio.ischanged = false;
-        k_p.ischanged = false;
-        k_i.ischanged = false;
-        k_d.ischanged = false;
-        combo_use_motorcurrent.ischanged = false;
-        combo_camera_model.ischanged = false;
-        motor_limit_v.ischanged = false;
-        motor_limit_v_acc.ischanged = false;
-        motor_limit_w.ischanged = false;
-        motor_limit_w_acc.ischanged = false;
-        look_ahead_dist.ischanged = false;
-        min_look_ahead_dist.ischanged = false;
-        obs_deadzone.ischanged = false;
-        obs_wait_time.ischanged = false;
-        path_out_dist.ischanged = false;
-        icp_dist.ischanged = false;
-        icp_error.ischanged = false;
-        icp_near.ischanged = false;
-        icp_odometry_weight.ischanged = false;
-        icp_ratio.ischanged = false;
-        icp_repeat_dist.ischanged = false;
-        icp_repeat_time.ischanged = false;
-        goal_dist.ischanged = false;
-        goal_v.ischanged = false;
-        goal_th.ischanged = false;
-        pause_motor_current.ischanged = false;
-        pause_check_ms.ischanged = false;
-        goal_near_dist.ischanged = false;
-
-
-        goal_near_th.ischanged = false;
-        k_curve.ischanged = false;
-        k_v.ischanged = false;
-        k_w.ischanged = false;
-        k_dd.ischanged = false;
-        path_delta_v_acc_gain.ischanged = false;
-        path_delta_v_dec_gain.ischanged = false;
-        path_ref_v_gain.ischanged = false;
-        path_shifting_val.ischanged = false;
-
-        slam_submap_cnt.ischanged = false;
-        slam_lc_dist.ischanged = false;
-        slam_lc_icp_dist.ischanged = false;
-        icp_init_ratio.ischanged = false;
-        icp_init_error.ischanged = false;
-        map_size.ischanged = false;
-        grid_size.ischanged = false;
-        combo_auto_update.ischanged = false;
-
-
-        combo_max_calling.ischanged = false;
-        combo_use_tray.ischanged = false;
-        combo_resting_lock.ischanged = false;
-        combo_use_calling_notice.ischanged = false;
-        obs_height_max.ischanged = false;
-        obs_height_min.ischanged = false;
-        obs_margin1.ischanged = false;
-        obs_margin0.ischanged = false;
-        obs_near.ischanged = false;
-        obs_early_stop_dist.ischanged = false;
-        obs_detect_area.ischanged = false;
-        obs_detect_sensitivity.ischanged = false;
-        robot_length.ischanged = false;
-        is_reset_slam = false;
-    }
-
-    function check_update(){
-        var is_changed = false;
-
-        if(platform_name.ischanged) is_changed = true;
-        if(combo_platform_serial.ischanged) is_changed = true;
-        if(combo_platform_type.ischanged) is_changed = true;
-        if(combo_tray_num.ischanged) is_changed = true;
-//        if(slider_vxy.ischanged) is_changed = true;
-        if(slider_volume_bgm.ischanged) is_changed = true;
-        if(slider_volume_voice.ischanged) is_changed = true;
-        if(slider_volume_button.ischanged) is_changed = true;
-        if(ip_1.ischanged) is_changed = true;
-        if(ip_2.ischanged) is_changed = true;
-        if(ip_3.ischanged) is_changed = true;
-        if(ip_4.ischanged) is_changed = true;
-        if(combo_use_motorcurrent.ischanged) is_changed = true;
-        if(pause_motor_current.ischanged) is_changed = true;
-        if(pause_check_ms.ischanged) is_changed = true;
-        if(combo_camera_model.ischanged) is_changed = true;
-        if(gateway_1.ischanged) is_changed = true;
-        if(gateway_2.ischanged) is_changed = true;
-        if(gateway_3.ischanged) is_changed = true;
-        if(gateway_4.ischanged) is_changed = true;
-        if(dnsmain_1.ischanged) is_changed = true;
-        if(dnsmain_2.ischanged) is_changed = true;
-        if(dnsmain_3.ischanged) is_changed = true;
-        if(dnsmain_4.ischanged) is_changed = true;
-        if(wheel_base.ischanged) is_changed = true;
-        if(wheel_radius.ischanged) is_changed = true;
-        if(radius.ischanged) is_changed = true;
-        if(max_range.ischanged) is_changed = true;
-        if(cam_exposure.ischanged) is_changed = true;
-        if(st_v.ischanged) is_changed = true;
-        if(combo_wheel_dir.ischanged) is_changed = true;
-        if(combo_left_id.ischanged) is_changed = true;
-        if(combo_right_id.ischanged) is_changed = true;
-        if(gear_ratio.ischanged) is_changed = true;
-        if(k_p.ischanged) is_changed = true;
-        if(k_i.ischanged) is_changed = true;
-        if(k_d.ischanged) is_changed = true;
-        if(motor_limit_v.ischanged) is_changed = true;
-        if(motor_limit_v_acc.ischanged) is_changed = true;
-        if(motor_limit_w.ischanged) is_changed = true;
-        if(motor_limit_w_acc.ischanged) is_changed = true;
-        if(look_ahead_dist.ischanged) is_changed = true;
-        if(min_look_ahead_dist.ischanged) is_changed = true;
-        if(obs_deadzone.ischanged) is_changed = true;
-        if(obs_wait_time.ischanged) is_changed = true;
-        if(path_out_dist.ischanged) is_changed = true;
-        if(icp_dist.ischanged) is_changed = true;
-        if(icp_error.ischanged) is_changed = true;
-        if(icp_near.ischanged) is_changed = true;
-        if(icp_odometry_weight.ischanged) is_changed = true;
-        if(icp_ratio.ischanged) is_changed = true;
-        if(icp_repeat_dist.ischanged) is_changed = true;
-        if(icp_repeat_time.ischanged) is_changed = true;
-        if(goal_dist.ischanged) is_changed = true;
-        if(goal_v.ischanged) is_changed = true;
-        if(goal_th.ischanged) is_changed = true;
-        if(goal_near_dist.ischanged) is_changed = true;
-        if(goal_near_th.ischanged) is_changed = true;
-        if(k_curve.ischanged) is_changed = true;
-        if(k_v.ischanged) is_changed = true;
-        if(k_w.ischanged) is_changed = true;
-        if(k_dd.ischanged) is_changed = true;
-        if(path_delta_v_acc_gain.ischanged) is_changed = true;
-        if(path_delta_v_dec_gain.ischanged) is_changed = true;
-        if(path_ref_v_gain.ischanged) is_changed = true;
-        if(path_shifting_val.ischanged) is_changed = true;
-        if(slam_submap_cnt.ischanged) is_changed = true;
-        if(slam_lc_dist.ischanged) is_changed = true;
-        if(slam_lc_icp_dist.ischanged) is_changed = true;
-        if(icp_init_ratio.ischanged) is_changed = true;
-        if(icp_init_error.ischanged) is_changed = true;
-        if(map_size.ischanged) is_changed = true;
-        if(grid_size.ischanged) is_changed = true;
-        if(combo_auto_update.ischanged) is_changed = true;
-
-        return is_changed;
-    }
-
-    function wifi_check(){
-        supervisor.readWifiState("");
-    }
-
-    Timer{
-        running: true
-        interval: 500
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-
-            if(supervisor.getusbsize() > 0){
-                btn_usb_download.enabled = true;
-            }else{
-                btn_usb_download.enabled = false;
-            }
-
-            wifi_connection.connection = supervisor.getWifiConnection("");
-
-            if(wifi_connection.connection === 0 && supervisor.getCurWifiSSID() !== "" && supervisor.getcurIP() === ""){
-                supervisor.getWifiIP();
-            }
-            motor_left_id = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
-            motor_right_id = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
-
-
-
-
-            //로봇 상태 - 로봇 상태
-            if(supervisor.getIPCConnection()){
-                //로봇 상태 - 전원
-                status_power.state = 2;
-                if(supervisor.getBattery() < 30){
-                    status_power.state = 1;
-                    model_power_issue.append({"name":"배터리잔량 낮음","image":"image/warning.png"});
-                }
-
-                bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
-                bar_battery_out.value = supervisor.getBatteryOut().toFixed(2);
-                bar_battery_cur.value = supervisor.getBatteryCurrent().toFixed(2);
-
-                bar_power.value = supervisor.getPower().toFixed(3);
-                bar_powert.value = supervisor.getPowerTotal().toFixed(3);
-
-                //로봇 상태 - 상태 값
-                model_power_issue.clear();
-
-                if(supervisor.getEmoStatus() !== 0){
-                    model_power_issue.append({"name":"비상스위치 눌림","image":"image/warning.png"});
-                    status_power.state = 1;
-                }else if(supervisor.getRemoteStatus() === 0){
-                    model_power_issue.append({"name":"원격비상스위치 눌림","image":"image/warning.png"});
-                    status_power.state = 1;
-                }else if(supervisor.getPowerStatus() === 0){
-                    model_power_issue.append({"name":"전원 공급 안됨","image":"icon/icon_error.png"});
-                    status_power.state = 0;
-                }
-
-                var state = supervisor.getLocalizationState();
-                if(state === 0){
-                    model_power_issue.append({"name":"위치초기화 필요","image":"icon/icon_error.png"});
-                    text_robot.text = "초기화 안됨";
-                    status_localization.state = 0;
-                }else if(state === 1){
-                    model_power_issue.append({"name":"위치초기화 진행중","image":"image/warning.png"});
-                    text_robot.text = "초기화 중";
-                    status_localization.state = 1;
-                }else if(state === 2){
-                    text_robot.text = "초기화 완료";
-                    status_localization.state = 2;
-
-                    state = supervisor.getStateMoving();
-                    if(state === 0){
-                        model_power_issue.append({"name":"로봇주행 준비안됨","image":"image/warning.png"});
-                        text_robot.text = "준비 안됨";
-                    }else if(state === 1){
-                        text_robot.text = "준비";
-                    }else if(state === 2){
-                        text_robot.text = "이동 중";
-                    }else if(state === 3){
-                        text_robot.text = "대기 중";
-                    }else if(state === 4){
-                        text_robot.text = "일시정지 중";
-                    }
-
-                }else if(state === 3){
-                    status_localization.state = 0;
-                    model_power_issue.append({"name":"위치초기화 실패","image":"image/warning.png"});
-                    text_robot.text = "초기화 실패";
-                }
-
-
-                if(supervisor.getObsState() === 1){
-                    status_localization.state = 0;
-                    model_power_issue.append({"name":"장애물 겹침","image":"image/warning.png"});
-                }
-
-                //모터 상태 - 모터 1
-                var state1 = supervisor.getMotorConnection(0);
-                //모터 상태 - 모터 2
-                var state2 = supervisor.getMotorConnection(1);
-
-
-                if(!state1){
-                    model_power_issue.append({"name":"모터 1 연결안됨","image":"icon/icon_error.png"});
-                    status_motor_left.state = 0;
-                }else{
-                    status_motor_left.state = 2;
-                }
-
-                if(!state2){
-                    status_motor_right.state = 0;
-                    model_power_issue.append({"name":"모터 2 연결안됨","image":"icon/icon_error.png"});
-                }else{
-                    status_motor_right.state = 2;
-                }
-
-                if(state1 && state2){
-                    var lstate = supervisor.getLockStatus();
-                    if(supervisor.getChargeStatus() !== 0){
-                        status_motor_right.state = 1;
-                        status_motor_left.state = 1;
-                        model_power_issue.append({"name":"충전케이블 연결됨","image":"image/warning.png"});
-                    }else if(lstate === 0){
-                        status_motor_right.state = 1;
-                        status_motor_left.state = 1;
-                        model_power_issue.append({"name":"모터락 풀림","image":"image/warning.png"});
-                    }else{
-                        state1 = supervisor.getMotorStatus(0);
-                        if(state1 === 0){
-                            model_power_issue.append({"name":"모터 1 준비안됨","image":"icon/icon_error.png"});
-                            status_motor_left.state = 1;
-                        }else if(state1 === 1){
-                            status_motor_left.state = 2;
-                        }else{
-                            status_motor_left.state = 0;
-                            var str_error = "";
-                            if(state1 >= 128){
-                                str_error += "Unknown ";
-                                state1 -= 128;
-                            }
-                            if(state1 >= 64){
-                                str_error += "PS1,2 ";
-                                state1 -= 64;
-                            }
-                            if(state1 >= 32){
-                                str_error += "INPUT ";
-                                state1 -= 32;
-                            }
-                            if(state1 >= 16){
-                                str_error += "BIG ";
-                                state1 -= 16;
-                            }
-                            if(state1 >= 8){
-                                str_error += "CUR ";
-                                state1 -= 8;
-                            }
-                            if(state1 >= 4){
-                                str_error += "JAM ";
-                                state1 -= 4;
-                            }
-                            if(state1 >= 2){
-                                str_error += "MOD ";
-                                state1 -= 2;
-                            }
-                            model_power_issue.append({"name":"모터 1 "+str_error,"image":"icon/icon_error.png"});
-                        }
-
-                        state2 = supervisor.getMotorStatus(1);
-                        if(state2 === 0){
-                            status_motor_right.state = 1;
-                            model_power_issue.append({"name":"모터 2 준비안됨","image":"icon/icon_error.png"});
-                        }else if(state2 === 1){
-                            status_motor_right.state = 2;
-                        }else{
-                            status_motor_right.state = 0;
-                            var str_error = "";
-                            if(state2 >= 128){
-                                str_error += "Unknown ";
-                                state2 -= 128;
-                            }
-                            if(state2 >= 64){
-                                str_error += "PS1,2 ";
-                                state2 -= 64;
-                            }
-                            if(state2 >= 32){
-                                str_error += "INPUT ";
-                                state2 -= 32;
-                            }
-                            if(state2 >= 16){
-                                str_error += "BIG ";
-                                state2 -= 16;
-                            }
-                            if(state2 >= 8){
-                                str_error += "CUR ";
-                                state2 -= 8;
-                            }
-                            if(state2 >= 4){
-                                str_error += "JAM ";
-                                state2 -= 4;
-                            }
-                            if(state2 >= 2){
-                                str_error += "MOD ";
-                                state2 -= 2;
-                            }
-                            model_power_issue.append({"name":"모터 2 "+str_error,"image":"icon/icon_error.png"});
-
-                            bar_status2.background_color = color_red;
-                            text_status2.text = str_error;
-                        }
-                    }
-
-                    bar_temp1.value = supervisor.getMotorTemperature(0);
-                    bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
-                    bar_cur1.value = supervisor.getMotorCurrent(0);
-                    bar_temp2.value = supervisor.getMotorTemperature(1);
-                    bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
-                    bar_cur2.value = supervisor.getMotorCurrent(1);
-                }
-
-
-            }else{
-                status_power.state = 0;
-                status_motor_left.state = 0;
-                status_motor_right.state = 0;
-                status_localization.state = 0;
-                text_robot.text = "프로그램 연결 안됨"
-            }
-
-        }
-    }
-
-    Popup_help{
-        id: popup_help_setting
-    }
-
     Popup{
         id: popup_sensorview
         anchors.centerIn: parent
@@ -10690,11 +10852,10 @@ Item {
             color: color_dark_navy
         }
     }
-
     Popup{
         id: popup_manager
         width: 500
-        height: 500
+        height: 600
         anchors.centerIn: parent
         leftPadding: 0
         topPadding: 0
@@ -10706,34 +10867,31 @@ Item {
         }
 
         Rectangle{
-            radius: 20
+            radius: 10
             clip: true
             anchors.centerIn: parent
             width: parent.width*0.99
             height: parent.height*0.99
-            border.width: 3
-            border.color: color_dark_navy
             Rectangle{
-                radius: 20
+                color: color_dark_navy
+                radius: 10
                 id: rect_prd_top
                 width: parent.width
+                height: 80
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 Rectangle{
-                    width: parent.width
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    height: 20
                     color: color_dark_navy
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
                 }
-                height: 80
-                color: color_dark_navy
                 Text{
                     anchors.centerIn: parent
                     color: "white"
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    text: "관리자 메뉴"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("관리자 메뉴")
                 }
             }
             Grid{
@@ -10745,17 +10903,41 @@ Item {
                 spacing: 30
                 Rectangle{
                     id: btn_update
-                    width: 180
-                    height: 60
-                    radius: 10
-                    color:"transparent"
-                    border.width: 1
-                    border.color: "#7e7e7e"
-                    Text{
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
                         anchors.centerIn: parent
-                        text: "프로그램 업데이트"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/icon_researching.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("프로그램 업데이트")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -10765,20 +10947,46 @@ Item {
                         }
                     }
                 }
+
                 Rectangle{
                     id: btn_log
-                    width: 180
-                    height: 60
-                    radius: 10
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
                     visible: false
-                    color:"transparent"
-                    border.width: 1
-                    border.color: "#7e7e7e"
-                    Text{
+                    Rectangle{
                         anchors.centerIn: parent
-                        text: "Log"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/icon_bookmark.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "로그 확인"
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -10788,21 +10996,47 @@ Item {
                         }
                     }
                 }
+
+
                 Rectangle{
                     id: btn_usb_upload
-                    width: 180
-                    height: 60
-                    radius: 10
-                    color: enabled?"white":color_light_gray
-                    border.width: 1
-                    border.color: "#7e7e7e"
+                    width: 170
+                    height: 150
+                    radius: 20
                     visible: false
-                    Text{
+                    color: enabled?color_navy:color_light_gray
+                    Rectangle{
                         anchors.centerIn: parent
-                        text: "USB에 저장하기"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
-                        color: btn_usb_upload.enabled?"black":color_gray
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/save_r.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("USB에 저장하기")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -10812,22 +11046,47 @@ Item {
                         }
                     }
                 }
+
+
                 Rectangle{
                     id: btn_usb_download
-                    width: 180
-                    height: 60
-                    radius: 10
-                    enabled: false
-                    color:enabled?"white":color_light_gray
-                    border.width: 1
+                    width: 170
+                    height: 150
+                    radius: 20
                     visible: false
-                    border.color: "#7e7e7e"
-                    Text{
+                    color: enabled?color_navy:color_light_gray
+                    Rectangle{
                         anchors.centerIn: parent
-                        text: "USB에서 받아오기"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
-                        color: btn_usb_download.enabled?"black":color_gray
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/load_r.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("USB에서 받아오기")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -10841,19 +11100,45 @@ Item {
                         }
                     }
                 }
+
                 Rectangle{
                     id: btn_reset_slam
-                    width: 180
-                    height: 60
-                    radius: 10
-                    color:"transparent"
-                    border.width: 1
-                    border.color: "#7e7e7e"
-                    Text{
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
                         anchors.centerIn: parent
-                        text: "SLAM restart"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/icon_run.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("SLAM 재시작")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -10864,24 +11149,263 @@ Item {
                     }
                 }
                 Rectangle{
-                    id: btn_all_init
-                    width: 180
-                    height: 60
-                    radius: 10
-                    color:"transparent"
-                    border.width: 1
-                    border.color: "#7e7e7e"
-                    Text{
+                    id: btn_edit_passwd
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
                         anchors.centerIn: parent
-                        text: "공장 초기화"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/image_setting.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("비밀번호 변경")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
+                            popup_password.open();
+                            popup_password.is_editmode = true;
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: btn_all_init
+                    width: 170
+                    height: 150
+                    radius: 20
+                    visible: is_rainbow
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 2
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "icon/icon_researching.png"
+                                width: 40
+                                height: 40
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                ColorOverlay{
+                                    anchors.fill: parent
+                                    source: parent
+                                    color: "white"
+                                }
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("공장 초기화")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
                             supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
+                            popup_clear.open();
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Popup{
+        id: popup_clear
+        anchors.centerIn: parent
+        width: 1280
+        height: 400
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+        property var statenum: 0
+        onOpened:{
+            statenum = 0;
+            model_clear.clear();
+        }
+
+        function addClearState(name, prev_state){
+            var tt = name.split(" ");
+            if(model_clear.count > 0){
+                listview_clear.model.set(model_clear.count-1,{"done":prev_state});
+            }
+            if(tt[tt.length-1] === "done"){
+                listview_clear.model.append({"name":name,"done":2});
+                btn_clear_done.enabled = true;
+            }else{
+                listview_clear.model.append({"name":name,"done":1});
+            }
+            listview_clear.currentIndex = model_clear.count - 1;
+
+        }
+
+        Rectangle{
+            id: rect_clear_notice
+            visible: popup_clear.statenum === 0
+            width: parent.width
+            height: parent.height
+            color: color_dark_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Text{
+                    text:qsTr("정말로 공장초기화를 하시겠습니까?")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 70
+                    color: color_blue
+                }
+                Text{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text:qsTr("저장된 모든 맵, 로그파일이 지워지며 설정이 기본세팅으로 변경됩니다.")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 30
+                    color: "white"
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 60
+                    Item_buttons{
+                        type: "round_text"
+                        width: 180
+                        height: 80
+                        text: qsTr("초기화 시작")
+                        fontsize: 30
+                        onClicked: {
+                            popup_clear.statenum = 1;
                             supervisor.resetClear();
+                        }
+                    }
+                    Item_buttons{
+                        type: "round_text"
+                        width: 180
+                        height: 80
+                        text: qsTr("취소")
+                        fontsize: 30
+                        onClicked: {
+                            popup_clear.close();
+                        }
+                    }
+                }
+            }
+
+        }
+        Rectangle{
+            id: rect_clear_ing
+            visible: popup_clear.statenum === 1
+            width: parent.width
+            height: parent.height
+            color: color_dark_navy
+            Component{
+                id: contactDel
+                Item{
+                    width: 500
+                    height: 40
+                    Rectangle{
+                        width: 500
+                        height: 40
+                        color: "transparent"
+                        Row{
+                            spacing: 20
+                            Rectangle{
+                                width: 40
+                                height: 40
+                                color: "transparent"
+                                Image{
+                                    anchors.fill: parent
+                                    source: done===2?"icon/btn_yes.png":done===1?"icon/icon_run.png":"icon/icon_error.png"
+                                }
+                            }
+                            Rectangle{
+                                width: 500 - 40
+                                height: 40
+                                color: "transparent"
+                                Text{
+                                    color: "white"
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: name
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                ListView{
+                    id: listview_clear
+                    width: 500
+                    height: 200
+                    clip: true
+                    spacing: 10
+                    model:ListModel{
+                        id:model_clear
+                        onCountChanged: {
+                            print(count);
+                        }
+                    }
+                    delegate: contactDel
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 60
+                    Item_buttons{
+                        id: btn_clear_done
+                        type: "round_text"
+                        width: 180
+                        enabled: false
+                        height: 80
+                        text: qsTr("종 료")
+                        fontsize: 30
+                        onClicked: {
+                            supervisor.programRestart();
                         }
                     }
                 }
@@ -11051,8 +11575,6 @@ Item {
             }
         }
     }
-
-
     Popup{
         id: popup_usb_download
         anchors.centerIn: parent
@@ -11342,7 +11864,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_usb_select
         anchors.centerIn: parent
@@ -11629,7 +12150,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_change_call
         width: 400
@@ -11658,7 +12178,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_reset
         width: 400
@@ -11700,7 +12219,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_update
         width: 1280
@@ -12188,7 +12706,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_preset
         width: 1280
@@ -12754,9 +13271,7 @@ Item {
                     }
                 }
             }
-
         }
-
     }
     Popup{
         id: popup_preset_name
@@ -12831,7 +13346,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_preset_set
         anchors.centerIn: parent
@@ -12930,8 +13444,6 @@ Item {
             }
         }
     }
-
-
     Popup{
         id: popup_password
         anchors.centerIn: parent
@@ -12941,6 +13453,7 @@ Item {
             anchors.fill: parent
             color: "transparent"
         }
+        property bool is_editmode: false
         property string passwd: "2011"
         property string answer: ""
         property bool is_fail: false
@@ -12955,6 +13468,7 @@ Item {
         }
 
         onOpened:{
+            is_editmode = false;
             model_passwd.clear();
             is_fail = false
             model_passwd.append({"show":false,"failed":false})
@@ -13090,7 +13604,6 @@ Item {
                                     }
                                 }
                             }
-
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
@@ -13113,40 +13626,68 @@ Item {
                                         }
                                         popup_password.is_fail = false;
                                     }else{
-                                        if(popup_password.input_len === 4){
-                                            is_admin = false;
-                                            popup_password.is_fail = true;
-                                            supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN FAILED "+popup_password.answer);
-                                        }else{
+                                        if(popup_password.is_editmode){
                                             popup_password.is_fail = false;
                                             popup_password.answer += name;
                                             model_passwd.set(popup_password.input_len,{"show":true});
                                             popup_password.input_len++;
-                                            if(popup_password.answer===popup_password.passwd){
-                                                supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN SUCCESS");
+                                            if(popup_password.input_len === 4){
+                                                supervisor.writelog("[SETTING] Change User : "+supervisor.getSetting("setting","UI","user_passwd")+" -> "+popup_password.answer)
+                                                supervisor.setSetting("setting","UI/user_passwd",popup_password.answer);
                                                 is_admin = true;
-                                                popup_password.is_fail = true;
+                                                is_rainbow = false;
+                                                select_category = "status";
                                                 popup_password.close();
-                                            }else if(popup_password.input_len === 4){
-                                                is_admin = false;
-                                                popup_password.is_fail = true;
-                                                supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN FAILED "+popup_password.answer);
+                                                popup_manager.close();
+                                            }
+                                        }else{
+                                            if(popup_password.input_len === 4){
+                                                popup_password.is_fail = false;
+                                                popup_password.setfailclear();
+                                                popup_password.input_len = 0;
+                                                model_passwd.set(0,{"show":false});
+                                                model_passwd.set(1,{"show":false});
+                                                model_passwd.set(2,{"show":false});
+                                                model_passwd.set(3,{"show":false});
+                                                popup_password.answer = "";
+                                                popup_password.answer += name;
+                                                model_passwd.set(popup_password.input_len,{"show":true});
+                                                popup_password.input_len++;
                                             }else{
+                                                popup_password.is_fail = false;
+                                                popup_password.answer += name;
+                                                model_passwd.set(popup_password.input_len,{"show":true});
+                                                popup_password.input_len++;
+                                                if(popup_password.answer===popup_password.passwd){
+                                                    supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN SUCCESS");
+                                                    is_admin = true;
+                                                    is_rainbow = true;
+                                                    popup_password.is_fail = false;
+                                                    popup_password.close();
+                                                }else if(popup_password.answer===supervisor.getSetting("setting","UI","user_passwd")){
+                                                    supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN SUCCESS");
+                                                    is_admin = true;
+                                                    is_rainbow = false;
+                                                    popup_password.is_fail = false;
+                                                    popup_password.close();
+                                                }else if(popup_password.input_len === 4){
+                                                    is_admin = false;
+                                                    is_rainbow = false;
+                                                    popup_password.is_fail = true;
+                                                    supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN FAILED "+popup_password.answer);
+                                                }
                                             }
                                         }
+
                                     }
                                 }
                             }
                         }
                     }
                 }
-
             }
-
         }
-
     }
-
     Popup{
         id: popup_tf
         anchors.centerIn: parent
@@ -13177,13 +13718,9 @@ Item {
             tf_right_rz.text = right_strs[5];
             var lidar_str = supervisor.getSetting("static","SENSOR","lidar_offset_tf");
             var lidar_strs = lidar_str.split(",");
-
             tf_lidar_x.text = lidar_strs[0];
             tf_lidar_y.text = lidar_strs[1];
             tf_lidar_z.text = lidar_strs[2];
-            tf_lidar_rx.text = lidar_strs[3];
-            tf_lidar_ry.text = lidar_strs[4];
-            tf_lidar_rz.text = lidar_strs[5];
         }
 
         width: 1280
@@ -13344,6 +13881,7 @@ Item {
                         id: tf_lidar_rx
                         width: 100
                         height: 50
+                        enabled: false
                         font.family: font_noto_r.name
                         font.pixelSize: 15
                         horizontalAlignment: Text.AlignHCenter
@@ -13365,6 +13903,7 @@ Item {
                         id: tf_lidar_ry
                         width: 100
                         height: 50
+                        enabled: false
                         font.family: font_noto_r.name
                         font.pixelSize: 15
                         horizontalAlignment: Text.AlignHCenter
@@ -13386,6 +13925,7 @@ Item {
                         id: tf_lidar_rz
                         width: 100
                         height: 50
+                        enabled: false
                         font.family: font_noto_r.name
                         font.pixelSize: 15
                         horizontalAlignment: Text.AlignHCenter
@@ -13716,7 +14256,7 @@ Item {
                             onClicked:{
                                 supervisor.writelog("[USER INPUT] SETTING CAMERA TF CHANGED");
 
-                                var lidar_str = tf_lidar_x.text + "," + tf_lidar_y.text + "," + tf_lidar_z.text + "," + tf_lidar_rx.text + "," + tf_lidar_ry.text  + "," + tf_lidar_rz.text;
+                                var lidar_str = tf_lidar_x.text + "," + tf_lidar_y.text + "," + tf_lidar_z.text;
                                 var left_str = tf_left_x.text + "," + tf_left_y.text + "," + tf_left_z.text + "," + tf_left_rx.text + "," + tf_left_ry.text  + "," + tf_left_rz.text;
                                 var right_str = tf_right_x.text + "," + tf_right_y.text + "," + tf_right_z.text + "," + tf_right_rx.text + "," + tf_right_ry.text  + "," + tf_right_rz.text;
 
@@ -13733,7 +14273,6 @@ Item {
             }
         }
     }
-
     Popup{
         id: popup_wifi
         anchors.centerIn: parent
@@ -15124,25 +15663,6 @@ Item {
         }
 
     }
-
-
-
-
-
-//    function wifi_con_failed(){
-//        print("wifi_con_failed")
-//        popup_loading.close();
-//        passwd_wifi.color = color_red;
-//        text_wifi76788.visible = true;
-//    }
-//    function wifi_con_success(){
-//        print("wifi_con_success")
-//        popup_loading.close();
-//        popup_wifi_passwd.close();
-//        popup_wifi.close();
-//        init();
-//    }
-
     Popup{
         id: popup_changed
         anchors.centerIn: parent

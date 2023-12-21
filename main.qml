@@ -69,7 +69,7 @@ Window {
     property string psetting: "qrc:/Page_setting.qml"
     property string plog: "qrc:/Page_log.qml"
     property string pmapping: "qrc:/Page_mapping.qml"
-    property string plocalization: "qrc:/Page_localization.qml"
+//    property string 건너뛰기zation: "qrc:/Page_localization.qml"
     property string pannotation: "qrc:/Page_annotation.qml"
 
     property string robot_type: supervisor.getRobotType()
@@ -86,6 +86,11 @@ Window {
     function setVoice(str){
         next_sound = str;
     }
+    function setClear(name, state){
+        print("setClear" , name, state);
+        loader_page.item.setClear(name,state);
+    }
+
     function readVoice(){
         voice_movecharge.source = supervisor.getVoice("start_move_charge");
         voice_serving.source = supervisor.getVoice("start_serving");
@@ -248,10 +253,10 @@ Window {
                 loader_page.item.movefail(5);
             }if(supervisor.getEmoStatus()){
                 loader_page.item.movefail(2);
-            }else if(supervisor.getMotorState() === 0){
-                loader_page.item.movefail(4);
             }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
                 loader_page.item.movefail(1);
+            }else if(supervisor.getMotorState() === 0){
+                loader_page.item.movefail(4);
             }else if(supervisor.getStateMoving() === 0){
                 loader_page.item.movefail(0);
             }else{
@@ -524,6 +529,7 @@ Window {
     }
 
     function backPage(){
+        print("backpage start");
         print(pbefore);
         loader_page.source = pbefore;
     }

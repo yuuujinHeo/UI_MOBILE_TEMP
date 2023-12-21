@@ -70,7 +70,7 @@ Item{
             radius: 20
             color: selected?selectcolor:pressed?pushcolor:btncolor
             Text{
-                visible : !running
+//                visible : !running
                 Component.onCompleted: {
                     scale = 1;
                     while(width*scale > parent.width*0.8){
@@ -78,7 +78,10 @@ Item{
                     }
                 }
                 horizontalAlignment: Text.AlignHCenter
-                anchors.centerIn: parent
+//                anchors.centerIn: parent
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: running?10:0
+                anchors.horizontalCenter: parent.horizontalCenter
                 text : item_Buttons.text
                 font.family: font_noto_b.name
                 color: fontcolor
@@ -87,7 +90,9 @@ Item{
             Rectangle{
                 width: parent.width*0.8
                 height: 20
-                anchors.centerIn: parent
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: -10
                 color: "transparent"
                 Rectangle{
                     id: progress

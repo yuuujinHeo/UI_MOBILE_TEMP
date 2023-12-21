@@ -200,7 +200,6 @@
         <file>bgm/serving.mp3</file>
         <file>MAP_FULL2.qml</file>
         <file>Item_ProgressBar.qml</file>
-        <file>Page_localization.qml</file>
         <file>icon/cursor.png</file>
         <file>voice/woman_wait.mp3</file>
         <file>voice/woman_wait_robot_location.mp3</file>
@@ -290,5 +289,12 @@
         <file>Item_menubar.qml</file>
         <file>Item_progressCircle.qml</file>
         <file>Item_CircleP.qml</file>
+        <file>Item_localization.qml</file>
+        <file>Popup_notice.qml</file>
+        <file>icon/icon_avoid.png</file>
+        <file>icon/icon_reset.png</file>
+        <file>icon/icon_slowarea.png</file>
+        <file>icon/icon_wall.png</file>
+        <file>Item_radioButton.qml</file>
     </qresource>
 </RCC>
