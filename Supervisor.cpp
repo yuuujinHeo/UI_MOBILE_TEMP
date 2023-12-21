@@ -4694,7 +4694,7 @@ void Supervisor::setObjectView(bool onoff){
     maph->setShowObject(onoff);
 }
 void Supervisor::setAvoidmapView(bool onoff){
-    maph->setShowAvoideMap(onoff);
+    maph->setShowAvoidMap(onoff);
 }
 void Supervisor::setLocationView(bool onoff){
     maph->setShowLocation(onoff);

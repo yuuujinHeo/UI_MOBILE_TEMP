@@ -81,13 +81,32 @@ Popup{
             supervisor.setShowLocation(false);
             supervisor.setShowTravelline(false);
             supervisor.setShowVelocitymap(false);
-
-            print("71");
             map_size_str = supervisor.getMapWidth().toString()+" px";
             grid_width_str = supervisor.getGridWidth().toFixed(2).toString()+" m";
             modify_date_str = supervisor.getAnnotModifiedDate();
 
-            print("16");
+            print("15");
+            if(supervisor.isExistAvoidMap(model_maps.get(select_map_list).name)){
+                radio_avoidmap.setEnabled(true);
+            }else{
+                radio_avoidmap.setEnabled(false);
+            }
+            if(supervisor.isExistObjectMap(model_maps.get(select_map_list).name)){
+                radio_objectmap.setEnabled(true);
+            }else{
+                radio_objectmap.setEnabled(false);
+            }
+            if(supervisor.isExistTlineMap(model_maps.get(select_map_list).name)){
+                radio_tline.setEnabled(true);
+            }else{
+                radio_tline.setEnabled(false);
+            }
+            if(supervisor.isExistVelMap(model_maps.get(select_map_list).name)){
+                radio_velmap.setEnabled(true);
+            }else{
+                radio_velmap.setEnabled(false);
+            }
+
             if(supervisor.isExistMap(model_maps.get(select_map_list).name)){
                 radio_editmap.setEnabled(true);
                 radio_editmap.setOnoff(true);
@@ -113,27 +132,6 @@ Popup{
                 radio_velmap.setOnoff(false);
             }
 
-            print("15");
-            if(supervisor.isExistAvoidMap(model_maps.get(select_map_list).name)){
-                radio_avoidmap.setEnabled(true);
-            }else{
-                radio_avoidmap.setEnabled(false);
-            }
-            if(supervisor.isExistObjectMap(model_maps.get(select_map_list).name)){
-                radio_objectmap.setEnabled(true);
-            }else{
-                radio_objectmap.setEnabled(false);
-            }
-            if(supervisor.isExistTlineMap(model_maps.get(select_map_list).name)){
-                radio_tline.setEnabled(true);
-            }else{
-                radio_tline.setEnabled(false);
-            }
-            if(supervisor.isExistVelMap(model_maps.get(select_map_list).name)){
-                radio_velmap.setEnabled(true);
-            }else{
-                radio_velmap.setEnabled(false);
-            }
 
             print("14");
             if(supervisor.getLocationNum("Charging") === 0){
@@ -369,16 +367,19 @@ Popup{
                                                     small: 30
                                                     big: 80
                                                     onTurnon: {
-                                                        print("raw turn on")
-                                                        radio_editmap.setOnoff(false);
-                                                        radio_objectmap.setOnoff(false);
-                                                        radio_avoidmap.setOnoff(false);
-                                                        radio_velmap.setOnoff(false);
-                                                        radio_tline.setOnoff(false);
-                                                        supervisor.setShowLocation(false);
-                                                        print("?")
-                                                        supervisor.setMapOrin("RAW");
-                                                        print("!")
+                                                        if(enabled){
+
+                                                            print("raw turn on")
+                                                            radio_editmap.setOnoff(false);
+                                                            radio_objectmap.setOnoff(false);
+                                                            radio_avoidmap.setOnoff(false);
+                                                            radio_velmap.setOnoff(false);
+                                                            radio_tline.setOnoff(false);
+                                                            supervisor.setShowLocation(false);
+                                                            print("?")
+                                                            supervisor.setMapOrin("RAW");
+                                                            print("!")
+                                                        }
                                                     }
                                                 }
                                             }
@@ -397,21 +398,24 @@ Popup{
                                                     small: 30
                                                     big: 80
                                                     onTurnon: {
-                                                        print("edit turn on")
-                                                        radio_rawmap.setOnoff(false);
-                                                        print("???")
-                                                        radio_objectmap.setOnoff(true);
-                                                        print("???")
-                                                        radio_avoidmap.setOnoff(true);
-                                                        print("???")
-                                                        radio_velmap.setOnoff(true);
-                                                        print("???")
-                                                        radio_tline.setOnoff(true);
-                                                        print("???")
-                                                        supervisor.setShowLocation(true);
-                                                        print("???")
-                                                        supervisor.setMapOrin("EDITED");
-                                                        print("!!!")
+                                                        if(enabled){
+                                                            print("edit turn on")
+                                                            radio_rawmap.setOnoff(false);
+                                                            print("???")
+                                                            radio_objectmap.setOnoff(true);
+                                                            print("???")
+                                                            radio_avoidmap.setOnoff(true);
+                                                            print("???")
+                                                            radio_velmap.setOnoff(true);
+                                                            print("???")
+                                                            radio_tline.setOnoff(true);
+                                                            print("???")
+                                                            supervisor.setShowLocation(true);
+                                                            print("???")
+                                                            supervisor.setMapOrin("EDITED");
+                                                            print("!!!")
+                                                        }
+
                                                     }
                                                 }
                                             }
@@ -430,12 +434,17 @@ Popup{
                                                     small: 30
                                                     big: 80
                                                     onTurnon: {
-                                                        supervisor.setShowTravelline(true);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowTravelline(true);
+                                                            supervisor.setMap();
+                                                        }
+
                                                     }
                                                     onTurnoff: {
-                                                        supervisor.setShowTravelline(false);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowTravelline(false);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                 }
                                             }
@@ -454,12 +463,16 @@ Popup{
                                                     small: 30
                                                     big: 80
                                                     onTurnon: {
-                                                        supervisor.setShowVelocitymap(true);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowVelocitymap(true);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                     onTurnoff: {
-                                                        supervisor.setShowVelocitymap(false);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowVelocitymap(false);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                 }
                                             }
@@ -478,12 +491,16 @@ Popup{
                                                     small: 30
                                                     big: 80
                                                     onTurnon: {
-                                                        supervisor.setShowObject(true);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowObject(true);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                     onTurnoff: {
-                                                        supervisor.setShowObject(false);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowObject(false);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                 }
                                             }
@@ -502,12 +519,16 @@ Popup{
                                                     small: 30
                                                     big: 80
                                                     onTurnon: {
-                                                        supervisor.setShowAvoidmap(true);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowAvoidmap(true);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                     onTurnoff: {
-                                                        supervisor.setShowAvoidmap(false);
-                                                        supervisor.setMap();
+                                                        if(enabled){
+                                                            supervisor.setShowAvoidmap(false);
+                                                            supervisor.setMap();
+                                                        }
                                                     }
                                                 }
                                             }

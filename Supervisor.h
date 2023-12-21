@@ -153,7 +153,7 @@ public:
     Q_INVOKABLE bool getshowLocation(){return maph->getshowLocation();}
     Q_INVOKABLE bool getRobotFollowing(){return maph->getRobotFollowing();}
     Q_INVOKABLE bool getShowLidar(){return maph->getShowLidar();}
-    Q_INVOKABLE bool setShowAvoidmap(bool onoff){maph->setShowAvoideMap(onoff);}
+    Q_INVOKABLE bool setShowAvoidmap(bool onoff){maph->setShowAvoidMap(onoff);}
 
     Q_INVOKABLE void setInitPose(int x, int y, float th){maph->setInitPose(x,y,th);}
     Q_INVOKABLE void clearInitPose(){maph->clearInitPose();}

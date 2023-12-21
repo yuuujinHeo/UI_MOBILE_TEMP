@@ -79,18 +79,23 @@ public:
     }
 
     Q_INVOKABLE void setShowObject(bool onoff){
+        qDebug() << "setShowObject " << onoff;
         show_object = onoff;
     }
-    Q_INVOKABLE void setShowAvoideMap(bool onoff){
+    Q_INVOKABLE void setShowAvoidMap(bool onoff){
+        qDebug() << "setShowAvoidMap " << onoff;
         show_avoid = onoff;
     }
     Q_INVOKABLE void setShowRobot(bool onoff){
+        qDebug() << "setShowRobot " << onoff;
         show_robot = onoff;
     }
     Q_INVOKABLE void setShowTravelline(bool onoff){
+        qDebug() << "setShowTravelline " << onoff;
         show_travelline = onoff;
     }
     Q_INVOKABLE void setShowVelocitymap(bool onoff){
+        qDebug() << "setShowVelocitymap " << onoff;
         show_velocitymap = onoff;
     }
 
