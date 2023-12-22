@@ -2379,9 +2379,10 @@ cv::Point2f setAxis(cv::Point2f _point){
 }
 cv::Point2f setAxisMapping(cv::Point2f _point){
     cv::Point2f temp;
-    float grid = pmap->mapping_gridwidth*pmap->mapping_width/pmap->mapping_width;
-    temp.x = -_point.y/grid + pmap->mapping_width/2;
-    temp.y = -_point.x/grid + pmap->mapping_width/2;
+//    qDebug() << "mapping : " << pmap->mapping_gridwidth << pmap->mapping_width;
+    float grid = pmap->mapping_gridwidth*pmap->mapping_width/1000;
+    temp.x = -_point.y/grid + 1000/2;
+    temp.y = -_point.x/grid + 1000/2;
     return temp;
 }
 cv::Point2f setAxisObject(cv::Point2f _point){
