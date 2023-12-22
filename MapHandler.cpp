@@ -48,7 +48,7 @@ bool MapHandler::getCutBoxFlag(){
 }
 
 void MapHandler::loadFile(QString name, QString type){
-    qDebug() << "loadFile " << name << type;
+//    qDebug() << "loadFile " << name << type;
     QString file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_raw.png";
     QString log_str;
     if(QFile::exists(file_path)){
@@ -154,7 +154,6 @@ void MapHandler::loadFile(QString name, QString type){
         file_avoid = cv::imread(file_path.toStdString(), cv::IMREAD_COLOR);
         cv::flip(file_avoid,file_avoid,0);
         cv::rotate(file_avoid,file_avoid,cv::ROTATE_90_COUNTERCLOCKWISE);
-
 
         for(int i=0; i<file_avoid.cols; i++){
             for(int j=0; j<file_avoid.rows; j++){
@@ -1961,7 +1960,7 @@ void MapHandler::setZoomCenter(int x, int y){
     float newx = draw_x - file_width*(scale - prev_scale)*((float)x/canvas_width);
     float newy = draw_y - file_width*(scale - prev_scale)*((float)y/canvas_width);
 
-//    qDebug() << "setZoomCenter " << x << y << newx << newy;
+    qDebug() << "setZoomCenter " << x << y << draw_x << draw_y << newx << newy;
     setX(newx);
     setY(newy);
 

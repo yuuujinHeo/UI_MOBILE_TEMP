@@ -2045,34 +2045,6 @@ Item {
                             font.family: font_noto_r.name
                             font.pixelSize: 20
                             horizontalAlignment: Text.AlignHCenter
-                            onFocusChanged: {
-                                if(ltype === "Serving"){
-                                    keyboard.owner = tx_name;
-                                    tx_name.selectAll();
-                                    if(focus){
-                                        if(select_location == index){
-                                            select_location = -1;
-                                        }else{
-                                            print("name focus select_location",index);
-                                            select_location = index;
-                                        }
-                                        map_location_list.setCurrentLocation(select_location);
-                                        keyboard.open();
-                                    }else{
-                                        keyboard.close();
-                                        tx_name.select(0,0);
-                                    }
-                                }else{
-                                    if(focus){
-                                        if(select_location == index){
-                                            select_location = -1;
-                                        }else{
-                                            select_location = index;
-                                        }
-                                        map_location_list.setCurrentLocation(select_location);
-                                    }
-                                }
-                            }
                             onTextChanged: {
                                 name = text;
                                 if(locations.count > index){
@@ -2089,6 +2061,37 @@ Item {
                                 }
                                 clearLocationName();
                                 checkLocationName();
+                            }
+                            MouseArea{
+                                anchors.fill:parent
+                                onClicked: {
+                                    if(select_location == index){
+                                        select_location = -1;
+                                    }else{
+                                        select_location = index;
+                                    }
+                                    map_location_list.setCurrentLocation(select_location);
+
+                                }
+                                onDoubleClicked: {
+                                    if(ltype === "Serving"){
+                                        keyboard.owner = tx_name;
+                                        tx_name.selectAll();
+                                        if(focus){
+                                            if(select_location == index){
+                                                select_location = -1;
+                                            }else{
+                                                print("name focus select_location",index);
+                                                select_location = index;
+                                            }
+                                            map_location_list.setCurrentLocation(select_location);
+                                            keyboard.open();
+                                        }else{
+                                            keyboard.close();
+                                            tx_name.select(0,0);
+                                        }
+                                    }
+                                }
                             }
                         }
                         Image{
