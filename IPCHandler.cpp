@@ -270,7 +270,7 @@ void IPCHandler::onTimer(){
 
             pmap->tline_issues[i].is_far = tempp.is_far[i];
             pmap->tline_issues[i].is_broken = tempp.is_broken[i];
-            plog->write("[IPC] Travelline Issue : "+pmap->tline_issues[i].group+", "+pmap->tline_issues[i].name+" -> "+QString().sprintf("%d, %d",tempp.is_far[i],tempp.is_broken[i]));
+//            plog->write("[IPC] Travelline Issue : "+pmap->tline_issues[i].group+", "+pmap->tline_issues[i].name+" -> "+QString().sprintf("%d, %d",tempp.is_far[i],tempp.is_broken[i]));
 
         }
     }

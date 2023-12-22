@@ -938,7 +938,7 @@ Item {
             Component.onDestruction: {
                 map_location_view.setEnable(false);
                 if(!annotation_after_mapping){
-                    map_location_view.stopDrawingT();
+                    supervisor.stopDrawingTline();
                     map_location_view.save("tline");
                 }
             }
@@ -985,7 +985,7 @@ Item {
                 interval: 500
                 onTriggered:{
                     supervisor.drawingRunawayStart();
-                    map_location_view.startDrawingT();
+                    supervisor.startDrawingTline();
                 }
             }
             Timer{
@@ -2410,7 +2410,7 @@ Item {
                     print("save location");
                     supervisor.saveAnnotation(supervisor.getMapname());
                     supervisor.drawingRunawayStop();
-                    map_hide.stopDrawingT();
+//                    map_hide.stopDrawingT();
                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Check Done ");
                     if(annotation_after_mapping)
                         annot_pages.sourceComponent = page_annot_done;

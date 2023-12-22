@@ -526,8 +526,9 @@ Popup{
                                                     big: 80
                                                     onTurnon: {
                                                         if(enabled){
-                                                            supervisor.setShowAvoidmap(true);
-                                                            supervisor.setMap();
+                                                            print("?????????????")
+//                                                            supervisor.setShowAvoidmap(true);
+//                                                            supervisor.setMap();
                                                         }
                                                     }
                                                     onTurnoff: {

@@ -263,6 +263,7 @@ void MapHandler::setMapSize(int width, int height){
 void MapHandler::onTimer(){
     if(flag_drawing){
         show_robot = true;
+        show_travelline = true;
         robot_following = true;
         drawTline();
     }
@@ -512,7 +513,6 @@ void MapHandler::initLocation(){
     pmap->annot_edit_location = false;
     for(int i=0; i<pmap->locations.size(); i++){
         LOCATION temp;
-
         temp.group = pmap->locations[i].group;
         temp.call_id = pmap->locations[i].call_id;
         temp.group_name = pmap->locations[i].group_name;
@@ -556,6 +556,7 @@ void MapHandler::setMapLayer(){
     cv::Point2f robot_pose;
     if(mode == "mapping"){
         temp_robot_pose = setAxisMapping(probot->curPose.point);
+//        news = (float(map_layer.width())/draw_width)*1000/pmap->mapping_width;
     }else if(draw_object_flag){
         temp_robot_pose = setAxisObject(probot->curPose.point);
     }else{
@@ -566,7 +567,7 @@ void MapHandler::setMapLayer(){
     robot_pose.y = (temp_robot_pose.y - draw_y)*news;
     float robot_angle = setAxis(probot->curPose.angle);
 
-//    qDebug() << probot->curPose.point.x << setAxisMapping(probot->curPose.point).y << robot_pose.y;
+//    qDebug() << probot->curPose.point.y << temp_robot_pose.x << robot_pose.x;
 
     //위치
     if(show_location){
@@ -655,14 +656,22 @@ void MapHandler::setMapLayer(){
 
 
             if(show_number){
-                if(i>9){
-                    painter_layer.setFont(QFont("Times",rad));
-                }else if(i>99){
-                    painter_layer.setFont(QFont("Times",rad/1.52));
-                }else{
-                    painter_layer.setFont(QFont("Times",rad*1.5));
+                if(locations[i].type == "Serving"){
+                    int num;
+                    if(probot->type == "CLEANING"){
+                        num = i-2;
+                    }else{
+                        num = i-1;
+                    }
+                    if(num>9){
+                        painter_layer.setFont(QFont("Times",rad));
+                    }else if(num>99){
+                        painter_layer.setFont(QFont("Times",rad/1.52));
+                    }else{
+                        painter_layer.setFont(QFont("Times",rad*1.5));
+                    }
+                    painter_layer.drawText((loc_x-rad/2),(loc_y+rad/2),QString().sprintf("%d",num));
                 }
-                painter_layer.drawText((loc_x-rad/2),(loc_y+rad/2),QString().sprintf("%d",i));
             }
 
         }
@@ -790,7 +799,7 @@ void MapHandler::setMapLayer(){
             float y1 =  (next_y - distance2   * qCos(target_angle-th_dist));
             float x2 =  (next_x - distance2   * qSin(target_angle+th_dist));
             float y2 =  (next_y - distance2   * qCos(target_angle+th_dist));
-            float rad = pmap->robot_radius*2*news/grid_width;
+            float rad = pmap->robot_radius*news/grid_width;
 
             QPainterPath path;
             path.addRoundedRect((next_x-rad),(next_y-rad),rad*2,rad*2,rad,rad);
@@ -930,9 +939,10 @@ void MapHandler::setMapLayer(){
 }
 
 void MapHandler::setMapTest(){
-    qDebug() << "setMap:" << map_orin.rows;
+//    qDebug() << "setMap:" << map_orin.rows;
     if(mode == "mapping"){
         map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_mapping));
+        qDebug() << "mapping size = " << pmap->map_mapping.rows;
         grid_width = pmap->mapping_gridwidth*pmap->mapping_width/file_width;
         if(file_width != pmap->map_mapping.rows){
             file_width = pmap->map_mapping.rows;
@@ -978,11 +988,11 @@ void MapHandler::setMapTest(){
 //            cv::imshow("obj",temp_layer);
         }
         if(show_avoid){
-            if(mode == "annot_obs_area"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
-                cv::add(temp_avoid,map_drawing,temp_avoid);
-            }
-            cv::add(temp_layer,temp_avoid,temp_layer);
+//            if(mode == "annot_obs_area"){
+//                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
+//                cv::add(temp_avoid,map_drawing,temp_avoid);
+//            }
+//            cv::add(temp_layer,temp_avoid,temp_layer);
 //            cv::imshow("obs",temp_layer);
         }
 
@@ -990,7 +1000,7 @@ void MapHandler::setMapTest(){
             cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
         }
         if(show_travelline){
-            if(mode == "annot_tline"){
+            if(mode == "annot_tline" || mode == "annot_location"){
                 cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel,temp_travel);
                 cv::add(temp_travel,map_drawing,temp_travel);
                 cv::addWeighted(temp_orin,0.5,temp_travel,1,0,temp_orin);
@@ -1032,7 +1042,7 @@ void MapHandler::setMapTest(){
     }
     setMapLayer();
 
-    qDebug() << "setMAp done";
+//    qDebug() << "setMAp done";
 }
 
 void MapHandler::setMap(){
@@ -2241,6 +2251,7 @@ void MapHandler::drawTline(){
         //pass
     }else{
         cv::line(map_drawing,prev_pose,pose,cv::Scalar::all(255),1,8,0);
+        qDebug() << "drawTline" << pose.x << pose.y;
     }
     prev_pose = pose;
     setMap();
