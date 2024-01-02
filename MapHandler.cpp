@@ -653,24 +653,35 @@ void MapHandler::setMapLayer(){
                 }
             }
 
+            if(select_location > -1 && select_location < pmap->locations.size()){
+                if(locations[i].type == "Serving"){
+                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+                    painter_layer.setPen(QPen(Qt::white,3*news));
+
+                    painter_layer.fillPath(path,QBrush(QColor(hex_color_green)));
+
+                    painter_layer.drawPath(path);
+                    painter_layer.drawLine(x1,y1,x,y);
+                    painter_layer.drawLine(x,y,x2,y2);
+                }
+            }
 
             if(show_number){
-                if(locations[i].type == "Serving"){
-                    int num;
-                    if(probot->type == "CLEANING"){
-                        num = i-2;
-                    }else{
-                        num = i-1;
-                    }
-                    if(num>9){
-                        painter_layer.setFont(QFont("Times",rad));
-                    }else if(num>99){
-                        painter_layer.setFont(QFont("Times",rad/1.52));
-                    }else{
-                        painter_layer.setFont(QFont("Times",rad*1.5));
-                    }
-                    painter_layer.drawText((loc_x-rad/2),(loc_y+rad/2),QString().sprintf("%d",num));
+                int num;
+                if(probot->type == "CLEANING"){
+                    num = i-2;
+                }else{
+                    num = i-1;
                 }
+                if(num>9){
+                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/1.5));
+                }else if(num>99){
+                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/2));
+                }else{
+                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
+                }
+                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().sprintf("%d",num));
+
             }
 
         }
@@ -987,16 +998,19 @@ void MapHandler::setMapTest(){
 //            cv::imshow("obj",temp_layer);
         }
         if(show_avoid){
-//            if(mode == "annot_obs_area"){
-//                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
-//                cv::add(temp_avoid,map_drawing,temp_avoid);
-//            }
-//            cv::add(temp_layer,temp_avoid,temp_layer);
-//            cv::imshow("obs",temp_layer);
+            qDebug() << "show avoid 1";
+            if(mode == "annot_obs_area"){
+                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
+                cv::add(temp_avoid,map_drawing,temp_avoid);
+            }
+            cv::add(temp_layer,temp_avoid,temp_layer);
+            qDebug() << "show avoid 2";
         }
 
         if(show_velocitymap || show_object || show_avoid){
+            qDebug() << "show avoid 3";
             cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
+            qDebug() << "show avoid 4";
         }
         if(show_travelline){
             if(mode == "annot_tline" || mode == "annot_location"){
@@ -1926,7 +1940,6 @@ void MapHandler::rotateMapCW(){
 }
 
 void MapHandler::rotateMapCCW(){
-//    qDebug() << "rotate ccw " << rotate_angle << file_width;
     rotate_angle--;
     pmap->map_rotate_angle = rotate_angle;
     //맵 회전
@@ -2199,7 +2212,6 @@ void MapHandler::setMapDrawing(){
             cv::rectangle(map_drawing_mask,temp_rect[0],temp_rect[2],cv::Scalar::all(255),-1,8,0);
         }
     }
-
 }
 void MapHandler::addSpline(int x, int y){
     curPoint.x = x;
@@ -2250,7 +2262,7 @@ void MapHandler::drawTline(){
         //pass
     }else{
         cv::line(map_drawing,prev_pose,pose,cv::Scalar::all(255),1,8,0);
-        qDebug() << "drawTline" << pose.x << pose.y;
+//        qDebug() << "drawTline" << pose.x << pose.y;
     }
     prev_pose = pose;
     setMap();
@@ -2370,12 +2382,10 @@ void MapHandler::clearDrawing(){
 void MapHandler::undoLine(){
     line.clear();
     if(spline_dot.size() > 0){
-        //qDebug() << "undoLine(Spline)";
         dot_trash.push_back(spline_dot[spline_dot.size()-1]);
         spline_dot.pop_back();
         drawSpline();
     }else if(lines.size() > 0 || line.size() > 0){
-        //qDebug() << "undoLine";
         lines_trash.push_back(lines[lines.size()-1]);
         lines.pop_back();
         setMapDrawing();
@@ -2500,7 +2510,6 @@ void MapHandler::saveObjectPNG(){
 
     loadFile(map_name,"");
 }
-
 void MapHandler::saveObsAreaPNG(){
     initDrawing();
     QString file_path = QDir::homePath() + "/RB_MOBILE/maps/"+map_name + "/map_avoid.png";
@@ -2644,6 +2653,7 @@ void MapHandler::startDrawingRect(int x, int y){
     temp_rect.push_back(cv::Point2f(x,y));
     temp_rect.push_back(cv::Point2f(x,y));
     setMapDrawing();
+    setMap();
 }
 void MapHandler::setDrawingRect(int x, int y){
     if(temp_rect.size() > 3){
@@ -2663,6 +2673,8 @@ void MapHandler::endDrawingRect(){
     temp_line.type = 1;
     lines.push_back(temp_line);
     temp_rect.clear();
+    setMapDrawing();
+    setMap();
 }
 
 
@@ -2707,9 +2719,11 @@ void MapHandler::addLocationCur(int x, int y, float th){
 }
 void MapHandler::setTravellineIssue(int count, int num){
     travelline_issue[count]=num;
+    setMap();
 }
 void MapHandler::setSelectLocation(int num){
     select_location = num;
+    setMap();
 }
 void MapHandler::setLocation(int x, int y, float th){
     int num = select_location;

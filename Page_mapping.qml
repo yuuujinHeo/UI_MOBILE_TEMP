@@ -642,6 +642,7 @@ Item {
             MAP_FULL2{
                 id: mapping_view
                 enabled: true
+                show_ratio: false
                 objectName: "mappingview"
                 width: parent.height
                 height: parent.height

@@ -707,6 +707,7 @@ Item {
             MAP_FULL2{
                 id: map
                 enabled: false
+                show_ratio: false
                 objectName: "annot_rotate"
                 width: 600
                 height: width
@@ -2062,6 +2063,7 @@ Item {
                                 clearLocationName();
                                 checkLocationName();
                             }
+
                             MouseArea{
                                 anchors.fill:parent
                                 onClicked: {
@@ -2071,25 +2073,19 @@ Item {
                                         select_location = index;
                                     }
                                     map_location_list.setCurrentLocation(select_location);
-
                                 }
-                                onDoubleClicked: {
+                                onPressAndHold: {
                                     if(ltype === "Serving"){
                                         keyboard.owner = tx_name;
                                         tx_name.selectAll();
-                                        if(focus){
-                                            if(select_location == index){
-                                                select_location = -1;
-                                            }else{
-                                                print("name focus select_location",index);
-                                                select_location = index;
-                                            }
-                                            map_location_list.setCurrentLocation(select_location);
-                                            keyboard.open();
-                                        }else{
-                                            keyboard.close();
-                                            tx_name.select(0,0);
-                                        }
+//                                        if(select_location == index){
+//                                            select_location = -1;
+//                                        }else{
+//                                            print("name focus select_location",index);
+                                        select_location = index;
+//                                        }
+                                        map_location_list.setCurrentLocation(select_location);
+                                        keyboard.open();
                                     }
                                 }
                             }
@@ -2211,6 +2207,7 @@ Item {
                         MAP_FULL2{
                             id: map_location_list
                             width: 350
+                            show_ratio: false
                             anchors.horizontalCenter: parent.horizontalCenter
                             height: 350
                         }
@@ -2334,7 +2331,7 @@ Item {
                             property real refY: 0
                             property bool setting: false
                             onContentYChanged:{
-                                print("contenty : ",contentY, originY, contentHeight);
+//                                print("contenty : ",contentY, originY, contentHeight);
                                  if(!moving){
                                      if(setting){
                                          contentY = Math.max(0, Math.min(refY, contentHeight-height))+originY
@@ -2347,51 +2344,7 @@ Item {
                                  }
                                  lastY = contentY-originY
                             }
-                            Column{
-
-                                Text{
-                                    text: list_location_detail.originY
-                                }
-                                Text{
-                                    text: list_location_detail.contentY
-                                }
-                            }
-
                         }
-
-//                        Flickable{
-//                            id: flick_location
-//                            width: rect_list_column.width
-//                            height: 450-35
-//                            clip: true
-//                            anchors.horizontalCenter: parent.horizontalCenter
-//                            contentHeight: list_location_detail.height
-//                            ScrollBar.vertical: ScrollBar{
-//                                width: 25
-//                                anchors.right: parent.right
-//                                anchors.rightMargin: 10
-//                                policy: ScrollBar.AlwaysOn
-//                            }
-//                            onContentHeightChanged:{
-//                                print("content height changed",contentY,beforeY);
-//                                contentY = beforeY;
-//                            }
-
-//                            ListView{
-//                                id: list_location_detail
-//                                width: ddddd.width
-//                                height: parent.height
-//                                spacing: 5
-//                                anchors.horizontalCenter: parent.horizontalCenter
-//                                delegate: detaillocCompo
-//                                model:details
-//                                onModelChanged: {
-//                                    print("model changed",height);
-//                                    contentY = beforeY;
-//                                    parent.contentY = beforeY;
-//                                }
-//                            }
-//                        }
                     }
                 }
             }
@@ -4340,6 +4293,7 @@ Item {
                             id: map
                             objectName: "annot_mapeditor"
                             width: height
+                            show_ratio: false
                             height: annot_pages.height - 100
                         }
                     }
@@ -4437,6 +4391,7 @@ Item {
 
     MAP_FULL2{
         id: map_hide
+        show_ratio: false
         visible:false
         objectName: "annot_hide"
         enabled:false

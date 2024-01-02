@@ -113,6 +113,7 @@ Popup{
                 radio_rawmap.setEnabled(false);
             }
 
+            print("164");
             if(supervisor.isExistMap(model_maps.get(select_map_list).name)){
                 radio_editmap.setEnabled(true);
                 radio_editmap.setOnoff(true);
@@ -526,9 +527,9 @@ Popup{
                                                     big: 80
                                                     onTurnon: {
                                                         if(enabled){
-                                                            print("?????????????")
-//                                                            supervisor.setShowAvoidmap(true);
-//                                                            supervisor.setMap();
+//                                                            print("?????????????")
+                                                            supervisor.setShowAvoidmap(true);
+                                                            supervisor.setMap();
                                                         }
                                                     }
                                                     onTurnoff: {
@@ -874,6 +875,7 @@ Popup{
                     id: map_list_view
                     enabled: false
                     objectName: "POPUP"
+                    show_ratio: false
                     width: height
                     height: 800-150
                     show_connection: false

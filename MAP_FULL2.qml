@@ -473,27 +473,25 @@ Item {
         }
 
 
-        Rectangle{
-            id: rect_ratio
-            width: parent.width*0.1
+        Row{
             visible: show_ratio
-            height: parent.width*0.02
             anchors.top: parent.top
             anchors.topMargin: 20
             anchors.right: parent.right
             anchors.rightMargin: 20
-            color: color_dark_gray
-            Rectangle{
+            Text{
+                text: qsTr("위치정확도 : ")
+                font.family: font_noto_r.name
+                font.pixelSize: 20
+                color: "white"
+            }
+            Text{
                 id: ratio
                 property var value:0
                 property var limit:0
-                width: parent.width*value
-                height: parent.height
-                Behavior on width{
-                    NumberAnimation{
-                        duration: 200
-                    }
-                }
+                text: (value*100).toFixed(0)
+                font.family: font_noto_r.name
+                font.pixelSize: 20
                 color:{
                     if(value < limit){
                         color_red
@@ -503,6 +501,37 @@ Item {
                 }
             }
         }
+
+//        Rectangle{
+//            id: rect_ratio
+//            width: parent.width*0.1
+//            visible: show_ratio
+//            height: parent.width*0.02
+//            anchors.top: parent.top
+//            anchors.topMargin: 20
+//            anchors.right: parent.right
+//            anchors.rightMargin: 20
+//            color: color_dark_gray
+//            Rectangle{
+//                id: ratio
+//                property var value:0
+//                property var limit:0
+//                width: parent.width*value
+//                height: parent.height
+//                Behavior on width{
+//                    NumberAnimation{
+//                        duration: 200
+//                    }
+//                }
+//                color:{
+//                    if(value < limit){
+//                        color_red
+//                    }else{
+//                        color_green
+//                    }
+//                }
+//            }
+//        }
     }
     MouseArea{
         anchors.fill: parent
