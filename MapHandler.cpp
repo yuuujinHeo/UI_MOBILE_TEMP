@@ -440,7 +440,7 @@ void MapHandler::setMode(QString name){
         show_location_icon = true;
         robot_following = true;
         scale = 0.7;
-        setZoomCenter(0,0);
+        setZoomCenter(file_width/2, file_width/2);
     }else if(mode == "mapviewer"){
         file_width = map_orin.rows;
         show_robot = false;
@@ -1885,9 +1885,13 @@ void MapHandler::zoomIn(int x, int y, float dist){
     if(scale < 0.1){
         scale = 0.1;
     }
+    float realx = draw_x + (float)x * draw_width/canvas_width;//file_width*(scale - prev_scale)*((float)x/canvas_width);
+    float realy = draw_y + (float)y * draw_width/canvas_width;
+//    qDebug() << "zoomIn" << x << y << draw_width << canvas_width << realx << realy;
+
     draw_width = round(scale*file_width);
-    setZoomCenter(x,y);
     prev_scale = scale;
+    setZoomCenter(realx,realy);
     setMapLayer();
 //    update();
 }
@@ -1895,8 +1899,12 @@ void MapHandler::zoomOut(int x, int y, float dist){
     scale += dist*0.001;
     if(scale > 1)
         scale =1;
+    float realx = draw_x + (float)x * draw_width/canvas_width;//file_width*(scale - prev_scale)*((float)x/canvas_width);
+    float realy = draw_y + (float)y * draw_width/canvas_width;
+//    qDebug() << "zoomOut" << x << y << draw_width << canvas_width << realx << realy;
+
     draw_width = round(scale*file_width);
-    setZoomCenter(x,y);
+    setZoomCenter(realx,realy);
     prev_scale = scale;
     setMapLayer();
 //    update();
@@ -1980,10 +1988,12 @@ void MapHandler::setY(int newy){
 }
 
 void MapHandler::setZoomCenter(int x, int y){
-    float newx = draw_x - file_width*(scale - prev_scale)*((float)x/canvas_width);
-    float newy = draw_y - file_width*(scale - prev_scale)*((float)y/canvas_width);
+//    float newx = draw_x - file_width*(scale - prev_scale)*((float)x/canvas_width);
+//    float newy = draw_y - file_width*(scale - prev_scale)*((float)y/canvas_width);
+    float newx = (float)x-draw_width/2;//*(scale)*((float)x/file_width);
+    float newy = (float)y-draw_width/2;//*(scale)*((float)y/file_width);
 
-    qDebug() << "setZoomCenter " << x << y << draw_x << draw_y << newx << newy;
+//    qDebug() << "setZoomCenter " << file_width << draw_width << canvas_width << scale << x << y << draw_x << draw_y << newx << newy;
     setX(newx);
     setY(newy);
 
