@@ -10,6 +10,8 @@ Item {
     width: 1280
     height: 800
 
+
+    property bool setting_patrol_mode: false
     property bool motor_lock: false
     property string pos_name: ""
     property bool robot_paused: false
@@ -27,23 +29,33 @@ Item {
         playMusic.stop();
     }
 
+    function setTempText(t1, t2){
+        patrol_text_1.text = t1;
+        patrol_text_2.text = t2;
+    }
+
     function init(){
         supervisor.writelog("[QML] MOVING PAGE init")
 
         popup_pause.visible = false;
-        if(supervisor.getSetting("setting","UI","moving_face")==="true"){
-
-            face_image.play("image/temp.gif");
-            image_robot.visible = false;
-            show_face = true;
-        }else{
+        if(setting_patrol_mode){
             show_face = false;
             face_image.stop();
             image_robot.visible = true;
-        }
 
-        robot_paused = false;
-        playMusic.play();
+        }else{
+            if(supervisor.getSetting("setting","UI","moving_face")==="true"){
+                face_image.play("image/temp.gif");
+                image_robot.visible = false;
+                show_face = true;
+            }else{
+                show_face = false;
+                face_image.stop();
+                image_robot.visible = true;
+            }
+            robot_paused = false;
+            playMusic.play();
+        }
     }
     function checkPaused(){
         timer_check_pause.start();
@@ -95,25 +107,50 @@ Item {
     Image{
         id: image_robot
         source: {
-            if(pos_name == qsTr("충전 장소")){
+            if(pos_name === qsTr("충전 장소")){
                 "image/robot_move_charge.png"
-            }else if(pos_name == qsTr("대기 장소")){
+            }else if(pos_name === qsTr("대기 장소")){
                 "image/robot_move_wait.png"
             }else{
                 "image/robot_moving.png"
             }
         }
-        width: 300
-        height: 270
+        width: 300*parent.width/1280
+        height: 270*parent.height/800
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 200
+        anchors.topMargin: 160*page_moving.width/1280
+    }
+    Column{
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: image_robot.bottom
+        anchors.topMargin: 50*page_moving.width/1280
+        spacing: 20*page_moving.width/1280
+        Text{
+            id: patrol_text_1
+            text: supervisor.getSetting("setting","UI","patrol_text_1");
+            visible: setting_patrol_mode
+            font.pixelSize: 50*page_moving.width/1280
+            font.family: font_noto_b.name
+            anchors.horizontalCenter: parent.horizontalCenter
+            color: "white"
+        }
+        Text{
+            id: patrol_text_2
+            visible: setting_patrol_mode
+            text: supervisor.getSetting("setting","UI","patrol_text_2");
+            font.pixelSize: 40*page_moving.width/1280
+            font.family: font_noto_r.name
+            anchors.horizontalCenter: parent.horizontalCenter
+            color: "white"
+        }
+
     }
 
     Text{
         id: target_pos
         text: pos_name
-        visible: !show_face
+        visible: !show_face && !setting_patrol_mode
         font.pixelSize: 40
         font.family: font_noto_b.name
         anchors.right: parent.horizontalCenter
@@ -124,7 +161,7 @@ Item {
     }
     Text{
         id: text_mention
-        visible: !show_face
+        visible: !show_face&& !setting_patrol_mode
         text: qsTr("(으)로 이동 중입니다.")
         font.pixelSize: 40
         font.family: font_noto_r.name
@@ -572,23 +609,28 @@ Item {
         running: false
         repeat: true
         onTriggered: {
-            if(supervisor.getStateMoving() === 4){
-                robot_paused = true;
-                popup_pause.visible = true;
-                supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
-                timer_check_pause.stop();
-            }else if(supervisor.getStateMoving() === 0){
-                robot_paused = true;
-                popup_pause.visible = true;
-                supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
-                move_fail = true;
-                timer_check_pause.stop();
+            if(setting_patrol_mode){
+
             }else{
-                popup_pause.visible = false;
-                robot_paused = false;
-                supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
-                timer_check_pause.stop();
+                if(supervisor.getStateMoving() === 4){
+                    robot_paused = true;
+                    popup_pause.visible = true;
+                    supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
+                    timer_check_pause.stop();
+                }else if(supervisor.getStateMoving() === 0){
+                    robot_paused = true;
+                    popup_pause.visible = true;
+                    supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
+                    move_fail = true;
+                    timer_check_pause.stop();
+                }else{
+                    popup_pause.visible = false;
+                    robot_paused = false;
+                    supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
+                    timer_check_pause.stop();
+                }
             }
+
         }
     }
     Timer{
@@ -597,58 +639,63 @@ Item {
         running: true
         repeat: true
         onTriggered: {
-            if(supervisor.getLockStatus()===0){
-                if(motor_lock)
-                    supervisor.writelog("[QML] Motor Lock : false");
-                motor_lock = false;
-                popup_motor_lock.close();
-                popup_motor_lock_off.open();
+            if(setting_patrol_mode){
+
             }else{
-                if(!motor_lock){
-                    supervisor.writelog("[QML] Motor Lock : true");
-                }
-                motor_lock = true;
-                popup_motor_lock_off.close();
-                if(supervisor.getStateMoving() === 4){
-                    robot_paused = true;
-                    popup_pause.visible = true;
+                if(supervisor.getLockStatus()===0){
+                    if(motor_lock)
+                        supervisor.writelog("[QML] Motor Lock : false");
+                    motor_lock = false;
+                    popup_motor_lock.close();
+                    popup_motor_lock_off.open();
                 }else{
-                    robot_paused = false;
-                }
-            }
-
-            if(supervisor.getMultiState() === 2){
-                popup_waiting.visible = true;
-            }else{
-                popup_waiting.visible = false;
-            }
-
-            //DEBUG 230605
-            obs_in_path =supervisor.getObsinPath();
-
-            if(show_face){
-                if(obs_in_path == 0){
-                    if(face_image.cur_source !== "image/temp.gif"){
-                        supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
-                        face_image.play("image/temp.gif");
+                    if(!motor_lock){
+                        supervisor.writelog("[QML] Motor Lock : true");
                     }
-                }else if(obs_in_path == 1){
-                    flag_voice = true;
-                    if(face_image.cur_source !== "image/face_surprise.gif"){
-                        supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
-                        face_image.play("image/face_surprise.gif");
-                    }
-                }else if(obs_in_path == 2){
-                    flag_voice = true;
-                    if(face_image.cur_source !== "image/face_cry.gif"){
-                        supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
-                        face_image.play("image/face_cry.gif");
+                    motor_lock = true;
+                    popup_motor_lock_off.close();
+                    if(supervisor.getStateMoving() === 4){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                    }else{
+                        robot_paused = false;
                     }
                 }
-            }
 
-            text_debug_1.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
-            text_debug_2.text = supervisor.getMotorCurrent(0).toString() + ", " + supervisor.getMotorCurrent(1).toString();
+                if(supervisor.getMultiState() === 2){
+                    popup_waiting.visible = true;
+                }else{
+                    popup_waiting.visible = false;
+                }
+
+                //DEBUG 230605
+                obs_in_path =supervisor.getObsinPath();
+
+                if(show_face){
+                    if(obs_in_path == 0){
+                        if(face_image.cur_source !== "image/temp.gif"){
+                            supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
+                            face_image.play("image/temp.gif");
+                        }
+                    }else if(obs_in_path == 1){
+                        flag_voice = true;
+                        if(face_image.cur_source !== "image/face_surprise.gif"){
+                            supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
+                            face_image.play("image/face_surprise.gif");
+                        }
+                    }else if(obs_in_path == 2){
+                        flag_voice = true;
+                        if(face_image.cur_source !== "image/face_cry.gif"){
+                            supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
+                            face_image.play("image/face_cry.gif");
+                        }
+                    }
+                }
+
+                text_debug_1.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
+                text_debug_2.text = supervisor.getMotorCurrent(0).toString() + ", " + supervisor.getMotorCurrent(1).toString();
+
+            }
 
 //            text_debug_1.text = "Robot Auto State : " + supervisor.getStateMoving().toString();
 //            text_debug_2.text = "Robot OBS In Path State : " + supervisor.getObsinPath().toString();

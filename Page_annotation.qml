@@ -1972,7 +1972,22 @@ Item {
                             color:select_location === index?color_green:"white"
                             Text{
                                 anchors.centerIn: parent
-                                text: index
+                                text: {
+                                    if(supervisor.getRobotType() === "CLEANING"){
+                                        if(index > 2){
+                                            index-2
+                                        }else{
+                                            ""
+                                        }
+                                    }else{
+                                        if(index >1 ){
+                                            index-1
+                                        }else{
+                                            ""
+                                        }
+                                    }
+                                }
+
                                 font.family: font_noto_r.name
                             }
                             MouseArea{

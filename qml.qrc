@@ -296,5 +296,6 @@
         <file>icon/icon_slowarea.png</file>
         <file>icon/icon_wall.png</file>
         <file>Item_radioButton.qml</file>
+        <file>Popup_patrol_page.qml</file>
     </qresource>
 </RCC>

@@ -586,20 +586,7 @@ void MapHandler::setMapLayer(){
             float y2 =  (loc_y + distance2   * qSin(locations[i].angle+th_dist));
 
             QPainterPath path;
-            if(select_location == i){
-                if(locations[i].type == "Serving"){
-                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                    painter_layer.setPen(QPen(Qt::white,3*news));
-
-                    painter_layer.fillPath(path,QBrush(QColor(hex_color_green)));
-
-                    painter_layer.drawPath(path);
-                    painter_layer.drawLine(x1,y1,x,y);
-                    painter_layer.drawLine(x,y,x2,y2);
-                }else if(locations[i].type == "Resting"){
-                }else if(locations[i].type == "Charging"){
-                }
-            }else if(mode == "annot_tline" || mode == "annot_tline2"){
+            if(mode == "annot_tline" || mode == "annot_tline2"){
                 bool match = false;
                 for(int k=0; k<pmap->tline_issue; k++){
                     if(pmap->tline_issues[k].group == locations[i].group_name){
@@ -653,18 +640,6 @@ void MapHandler::setMapLayer(){
                 }
             }
 
-            if(select_location > -1 && select_location < pmap->locations.size()){
-                if(locations[i].type == "Serving"){
-                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                    painter_layer.setPen(QPen(Qt::white,3*news));
-
-                    painter_layer.fillPath(path,QBrush(QColor(hex_color_green)));
-
-                    painter_layer.drawPath(path);
-                    painter_layer.drawLine(x1,y1,x,y);
-                    painter_layer.drawLine(x,y,x2,y2);
-                }
-            }
 
             if(show_number){
                 int num;
@@ -730,16 +705,7 @@ void MapHandler::setMapLayer(){
 
             QPainterPath path;
             if(locations[i].type == "Resting"){
-                if(select_location == i){
-                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                    painter_layer.setPen(QPen(QColor(hex_color_green),3*news));
 
-                    painter_layer.drawPath(path);
-                    painter_layer.drawLine(x1,y1,x,y);
-                    painter_layer.drawLine(x,y,x2,y2);
-                    QImage image(":/icon/icon_home_1.png");
-                    painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-                }else{
                     path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
                     painter_layer.setPen(QPen(Qt::white,1*news));
 
@@ -749,19 +715,9 @@ void MapHandler::setMapLayer(){
                     painter_layer.drawPath(path);
                     QImage image(":/icon/icon_home_2.png");
                     painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-                }
+
             }else if(locations[i].type == "Charging"){
-                if(select_location == i){
-                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
 
-                    painter_layer.setPen(QPen(QColor(hex_color_green),3*news));
-
-                    painter_layer.drawPath(path);
-                    painter_layer.drawLine(x1,y1,x,y);
-                    painter_layer.drawLine(x,y,x2,y2);
-                    QImage image(":/icon/icon_charge_1.png");
-                    painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-                }else{
                     path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
 
                     painter_layer.setPen(QPen(Qt::white,1*news));
@@ -772,11 +728,78 @@ void MapHandler::setMapLayer(){
                     painter_layer.drawPath(path);
                     QImage image(":/icon/icon_charge_2.png");
                     painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-                }
+
             }
         }
     }
 
+    if(select_location > -1 && select_location < pmap->locations.size()){
+        float loc_x = (locations[select_location].point.x - draw_x)*news;
+        float loc_y = (locations[select_location].point.y - draw_y)*news;
+        float distance = (pmap->robot_radius/grid_width)*2*news;
+        float distance2 = distance*0.8;
+        float th_dist = (M_PI/8);
+        float rad = (pmap->robot_radius/grid_width)*news;
+
+        float x =   (loc_x + distance    * qCos(locations[select_location].angle));
+        float y =   (loc_y + distance    * qSin(locations[select_location].angle));
+        float x1 =  (loc_x + distance2   * qCos(locations[select_location].angle-th_dist));
+        float y1 =  (loc_y + distance2   * qSin(locations[select_location].angle-th_dist));
+        float x2 =  (loc_x + distance2   * qCos(locations[select_location].angle+th_dist));
+        float y2 =  (loc_y + distance2   * qSin(locations[select_location].angle+th_dist));
+
+        QPainterPath path;
+        if(locations[select_location].type == "Serving"){
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+            painter_layer.setPen(QPen(Qt::white,2*news));
+
+            painter_layer.fillPath(path,QBrush(QColor(hex_color_green)));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            if(show_number){
+                int num;
+                if(probot->type == "CLEANING"){
+                    num = select_location-2;
+                }else{
+                    num = select_location-1;
+                }
+                if(num>9){
+                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/1.5));
+                }else if(num>99){
+                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/2));
+                }else{
+                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
+                }
+                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().sprintf("%d",num));
+
+            }
+
+        }else if(locations[select_location].type == "Resting"){
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+            painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+            painter_layer.fillPath(path,QBrush("black"));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            QImage image(":/icon/icon_home_1.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }else if(locations[select_location].type == "Charging"){
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+
+            painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+            painter_layer.fillPath(path,QBrush("black"));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            QImage image(":/icon/icon_charge_1.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }
+
+    }
     //로봇 경로 표시
     if(show_global_path){
         painter_layer.setPen(QPen(QColor(hex_color_pink),2*news));

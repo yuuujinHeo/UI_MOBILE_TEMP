@@ -157,6 +157,10 @@ Item {
                 supervisor.setSetting("setting","UI/moving_face","true");
         }
 
+        if(combo_patrolpage.ischanged){
+            supervisor.setSetting("setting","UI/patrol_face",combo_patrolpage.currentIndex);
+        }
+
         if(combo_comeback_preset.ischanged){
             supervisor.setSetting("setting","UI/comeback_preset",combo_comeback_preset.currentIndex.toString());
         }
@@ -739,6 +743,9 @@ Item {
             combo_movingpage.currentIndex = 0;
         }
 
+        combo_patrolpage.currentIndex = parseInt(supervisor.getSetting("setting","UI","patrol_face"));
+
+
         if(supervisor.getSetting("setting","UI","voice_mode") === "woman"){
             combo_voice_mode.currentIndex = 1;
         }else{
@@ -837,6 +844,7 @@ Item {
 
         combo_language.ischanged = false;
         combo_movingpage.ischanged = false;
+        combo_patrolpage.ischanged = false;
         combo_comeback_preset.ischanged = false;
 //        wifi_passwd.ischanged = false;
         ip_1.ischanged = false;
@@ -2193,6 +2201,73 @@ Item {
                                     ischanged = true;
                                 }
                                 model:["목적지 표시", "귀여운 얼굴"]
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_patrolpage
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:"순회 중 화면"
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_patrolpage
+                                width: currentIndex === 2?parent.width - 100 : parent.width
+                                height: parent.height
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    ischanged = true;
+                                }
+                                model:["목적지 표시", "귀여운 얼굴", "커스텀 화면"]
+                            }
+                            Rectangle{
+                                width: 100
+                                height: parent.height
+                                anchors.right: parent.right
+                                visible: combo_patrolpage.currentIndex === 2
+                                radius: 5
+                                color: "black"
+                                Text{
+                                    anchors.centerIn: parent
+                                    color: "white"
+                                    text: qsTr("설정")
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 15
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        popup_setting_patrolpage.open();
+                                    }
+                                }
                             }
                         }
                     }
@@ -15746,6 +15821,10 @@ Item {
             }
         }
     }
+    Popup_patrol_page{
+        id: popup_setting_patrolpage
+    }
+
     Popup_map_list{
         id: popup_maplist
     }
