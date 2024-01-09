@@ -4,6 +4,7 @@ import "."
 import io.qt.Supervisor 1.0
 import QtMultimedia 5.12
 import QtQuick.Shapes 1.12
+import QtQuick.Dialogs 1.3
 import QtGraphicalEffects 1.0
 
 Item {
@@ -28,6 +29,9 @@ Item {
 
     Component.onCompleted: {
 //        statusbar.visible = true;
+    }
+    onVisibleChanged: {
+        print("statusbar visible ",visible);
     }
 
     Rectangle{

@@ -235,7 +235,7 @@ void IPCHandler::onTimer(){
         flag_rx = true;
         read_count = 0;
 
-        QVector<POSE> temp_path;
+        QList<POSE> temp_path;
         probot->pathSize = temp2.num;
         for(int i=0; i<probot->pathSize; i++){
             POSE temp;
@@ -270,7 +270,7 @@ void IPCHandler::onTimer(){
 
             pmap->tline_issues[i].is_far = tempp.is_far[i];
             pmap->tline_issues[i].is_broken = tempp.is_broken[i];
-//            plog->write("[IPC] Travelline Issue : "+pmap->tline_issues[i].group+", "+pmap->tline_issues[i].name+" -> "+QString().sprintf("%d, %d",tempp.is_far[i],tempp.is_broken[i]));
+//            plog->write("[IPC] Travelline Issue : "+pmap->tline_issues[i].group+", "+pmap->tline_issues[i].name+" -> "+QString().asprintf("%d, %d",tempp.is_far[i],tempp.is_broken[i]));
 
         }
     }
@@ -311,7 +311,7 @@ void IPCHandler::onTimer(){
 //        cv::Mat a(temp3.height, temp3.width, CV_32F, cv::Scalar::all(0.5));
 //        cv::cvtColor(colortemp,colortemp,cv::COLOR_BGR2GRAY);
 
-//        cv::blendLinear(map1,colortemp,a,a,map1);
+//        cv::bl"\n"inear(map1,colortemp,a,a,map1);
         pmap->map_objecting = map1;
 
         flag_objecting = true;
@@ -710,7 +710,7 @@ void IPCHandler::moveToLocation(LOCATION target_loc, int preset){
         probot->curLocation = target_loc;
         moveTo(target_loc.point.x, target_loc.point.y, target_loc.angle, preset);
     }else{
-        plog->write("[IPC] MOVE TO COMMAND (UNMATCHED): "+target_loc.name + QString().sprintf("(group : %d)",target_loc.group));
+        plog->write("[IPC] MOVE TO COMMAND (UNMATCHED): "+target_loc.name + QString().asprintf("(group : %d)",target_loc.group));
     }
     probot->curLocation = target_loc;
 }
@@ -720,7 +720,7 @@ void IPCHandler::moveToLocationTest(LOCATION target_loc, int preset){
         probot->curLocation = target_loc;
         moveToTest(target_loc.point.x, target_loc.point.y, target_loc.angle, preset);
     }else{
-        plog->write("[IPC] MOVE(TEST) TO COMMAND (UNMATCHED): "+target_loc.name + QString().sprintf("(group : %d)",target_loc.group));
+        plog->write("[IPC] MOVE(TEST) TO COMMAND (UNMATCHED): "+target_loc.name + QString().asprintf("(group : %d)",target_loc.group));
     }
     probot->curLocation = target_loc;
 }
@@ -778,7 +778,7 @@ void IPCHandler::moveTo(float x, float y, float th, int preset){
     probot->curTarget.point.x = x;
     probot->curTarget.point.y = y;
     probot->curTarget.angle = th;
-    set_cmd(send_msg,"Move Target to "+QString().sprintf("%f, %f, %f, %d",x,y,th,preset));
+    set_cmd(send_msg,"Move Target to "+QString().asprintf("%f, %f, %f, %d",x,y,th,preset));
 }
 void IPCHandler::moveToTest(float x, float y, float th, int preset){
     IPCHandler::CMD send_msg;
@@ -806,7 +806,7 @@ void IPCHandler::moveToTest(float x, float y, float th, int preset){
     probot->curTarget.point.x = x;
     probot->curTarget.point.y = y;
     probot->curTarget.angle = th;
-    set_cmd(send_msg,"Move Target to "+QString().sprintf("%f, %f, %f, %d",x,y,th,preset));
+    set_cmd(send_msg,"Move Target to "+QString().asprintf("%f, %f, %f, %d",x,y,th,preset));
 }
 void IPCHandler::movePause(){
     IPCHandler::CMD send_msg;
@@ -834,7 +834,7 @@ void IPCHandler::moveJog(){
     send_msg.params[6] = array[2];
     send_msg.params[7] = array[3];
 
-    set_cmd(send_msg, "MOVE JOYSTICK "+QString().sprintf("%f, %f",probot->joystick[0],probot->joystick[1]));
+    set_cmd(send_msg, "MOVE JOYSTICK "+QString().asprintf("%f, %f",probot->joystick[0],probot->joystick[1]));
 }
 void IPCHandler::moveStop(){
     IPCHandler::CMD send_msg;
@@ -866,7 +866,7 @@ void IPCHandler::setInitPose(float x, float y, float th){
     send_msg.params[10] = array[2];
     send_msg.params[11] = array[3];
 
-    set_cmd(send_msg, "SET INIT "+QString().sprintf("%f, %f, %f",x,y,th));
+    set_cmd(send_msg, "SET INIT "+QString().asprintf("%f, %f, %f",x,y,th));
 }
 void IPCHandler::saveMapping(QString name){
     IPCHandler::CMD send_msg;
@@ -889,7 +889,7 @@ void IPCHandler::startMapping(int map_size, float grid_size){
     send_msg.params[5] = array[1];
     send_msg.params[6] = array[2];
     send_msg.params[7] = array[3];
-    set_cmd(send_msg,"START MAPPING "+QString().sprintf("(map size = %d, grid size = %f)",map_size, grid_size));
+    set_cmd(send_msg,"START MAPPING "+QString().asprintf("(map size = %d, grid size = %f)",map_size, grid_size));
 }
 void IPCHandler::stopMapping(){
     IPCHandler::CMD send_msg;

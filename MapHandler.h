@@ -159,13 +159,13 @@ public:
     Q_INVOKABLE void saveObsAreaPNG();
 
 //    //---------------------------------------------------Drawing
-    QVector<cv::Point2f> line;
-    QVector<cv::Point2f> line_spline;
-    QVector<cv::Point2f> spline_dot;
-    QVector<cv::Point2f> dot_trash;
-    QVector<cv::Point2f> temp_rect;
-    QVector<LINE> lines;
-    QVector<LINE> lines_trash;
+    QList<cv::Point2f> line;
+    QList<cv::Point2f> line_spline;
+    QList<cv::Point2f> spline_dot;
+    QList<cv::Point2f> dot_trash;
+    QList<cv::Point2f> temp_rect;
+    QList<LINE> lines;
+    QList<LINE> lines_trash;
     int cur_line_color=255;
     int cur_line_width=3;
     bool new_straight_flag = false;
@@ -207,7 +207,7 @@ public:
     }
 
     //    //---------------------------------------------------Location
-    QVector<LOCATION> locations;
+    QList<LOCATION> locations;
     LOCATION new_location;
     int select_location = -1;
 //    QString select_location_type = "";
@@ -266,7 +266,7 @@ public:
     ///Object
     ///
     bool draw_object_flag = false;
-    QVector<OBJECT> objs;
+    QList<OBJECT> objs;
     bool new_obj_flag = false;
     OBJECT new_obj;
     int select_obj = -1;
@@ -307,12 +307,16 @@ private:
 
     //현재 사용중인 map(raw | edited)
     cv::Mat map_orin;
+    cv::Mat map_tlines;
+    cv::Mat map_objects;
     cv::Mat map_layers;
     cv::Mat map_drawing;
     cv::Mat map_drawing_mask;
 
     QImage map_image;
     QPixmap map;
+    QPixmap map_tline;
+    QPixmap map_object;
     QPixmap map_layer;
     QPixmap map_obs;
     QPixmap final_map;

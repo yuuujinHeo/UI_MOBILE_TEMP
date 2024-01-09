@@ -45,7 +45,7 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
             switch (m_parsingStatus) { // handle parsing steps
                 case AwaitingRequest: { // "command url version" × 1
                     QString str = line.trimmed();
-                    QStringList parts = str.split (SPACE, QString::SkipEmptyParts);
+                    QStringList parts = str.split (SPACE, Qt::SkipEmptyParts);
                     if (parts.size () == 3) {
                         QString command = parts.at (0);
                         QString url     = parts.at (1);
@@ -151,9 +151,9 @@ void QtHttpClientWrapper::onClientDataReceived (void) {
 void QtHttpClientWrapper::onReplySendHeadersRequested (void) {
     QtHttpReply * reply = qobject_cast<QtHttpReply *> (sender ());
     if (reply != Q_NULLPTR) {
-        QByteArray data;
+        QByteArray data = QtHttpServer::HTTP_VERSION.toUtf8();
         // HTTP Version + Status Code + Status Msg
-        data.append (QtHttpServer::HTTP_VERSION);
+//        data.append (QtHttpServer::HTTP_VERSION);
         data.append (SPACE);
         data.append (QByteArray::number(reply->getStatusCode ()));
         data.append (SPACE);

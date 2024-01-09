@@ -137,7 +137,7 @@ contains(QT_ARCH, x86_64){
     LIBS += -lz
 
     # USB
-    LIBS += -lusb
+    LIBS += -lusb-1.0
 }
 
 
@@ -164,7 +164,7 @@ contains(QT_ARCH, arm64) {
 
 
     # USB
-    LIBS += -lusb
+    LIBS += -lusb-1.0
 }
 
 DISTFILES += \

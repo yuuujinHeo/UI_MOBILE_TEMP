@@ -22,7 +22,8 @@ Item {
 
     Component.onCompleted: {
         init();
-        statusbar.visible = false;
+        if(!setting_patrol_mode)
+            statusbar.visible = false;
     }
 
     Component.onDestruction:  {
@@ -280,7 +281,7 @@ Item {
         }
         Image{
             id: image_warning
-            source: "icon/warning.png"
+            source: "icon/icon_warning.png"
             width: 160
             height: 160
             anchors.horizontalCenter: parent.horizontalCenter

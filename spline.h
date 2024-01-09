@@ -606,7 +606,7 @@ std::string spline::info() const
     std::stringstream ss;
     ss << "type " << m_type << ", left boundary deriv " << m_left << " = ";
     ss << m_left_value << ", right boundary deriv " << m_right << " = ";
-    ss << m_right_value << std::endl;
+    ss << m_right_value << std::"\n";
     if(m_made_monotonic) {
         ss << "(spline has been adjusted for piece-wise monotonicity)";
     }

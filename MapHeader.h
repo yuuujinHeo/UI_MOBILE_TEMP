@@ -35,7 +35,7 @@ typedef struct{
 }POSE;
 
 typedef struct{
-    QVector<cv::Point2f> points;
+    QList<cv::Point2f> points;
     int color;
     int width;
     int type=0;
@@ -44,7 +44,7 @@ typedef struct{
 typedef struct{
     QString type;
     bool is_rect;
-    QVector<cv::Point2f> points;
+    QList<cv::Point2f> points;
 }OBJECT;
 
 typedef struct{

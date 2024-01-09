@@ -115,7 +115,7 @@ const char zip_copyright[] =" zip 1.01 Copyright 1998-2004 Gilles Vollant - http
 #define CENTRALHEADERMAGIC  (0x02014b50)
 #define ENDHEADERMAGIC      (0x06054b50)
 #define ZIP64ENDHEADERMAGIC      (0x6064b50)
-#define ZIP64ENDLOCHEADERMAGIC   (0x7064b50)
+#define ZIP64endlOCHEADERMAGIC   (0x7064b50)
 
 #define FLAG_LOCALHEADER_OFFSET (0x06)
 #define CRC_LOCALHEADER_OFFSET  (0x0e)
@@ -1812,7 +1812,7 @@ int Write_Zip64EndOfCentralDirectoryLocator(zip64_internal* zi, ZPOS64_T zip64eo
   int err = ZIP_OK;
   ZPOS64_T pos = zip64eocd_pos_inzip - zi->add_position_when_writting_offset;
 
-  err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)ZIP64ENDLOCHEADERMAGIC,4);
+  err = zip64local_putValue(&zi->z_filefunc,zi->filestream,(uLong)ZIP64endlOCHEADERMAGIC,4);
 
   /*num disks*/
     if (err==ZIP_OK) /* number of the disk with the start of the central directory */

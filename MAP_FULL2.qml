@@ -194,11 +194,11 @@ Item {
     }
 
     function startDrawingT(){
-        supervisor.startDrawingTline();
+//        supervisor.startDrawingTline();
     }
 
     function stopDrawingT(){
-        supervisor.stopDrawingTline();
+//        supervisor.stopDrawingTline();
     }
 
     function getTFlag(){
@@ -772,6 +772,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
+
                     if(supervisor.getRobotFollowing()){
                         supervisor.setRobotFollowing(false);
                     }else{

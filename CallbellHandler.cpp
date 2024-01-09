@@ -50,7 +50,7 @@ void CallbellHandler::readData(){
 
     QString str;
     for(int i=0; i<data.size(); i++){
-        str += QString().sprintf("0x%02X ", uchar(data[i]));
+        str += QString().asprintf("0x%02X ", uchar(data[i]));
     }
 //    qDebug() << str;
 //    qDebug() << "CALLBELL" << data;
@@ -70,9 +70,9 @@ void CallbellHandler::readData(){
                     uint bell_id;
                     uint button_info;
                     uint bell_info;
-//                    qDebug() << QString().sprintf("Option: %04X", option);
-//                    qDebug() << QString().sprintf("Model: %04X", model_num);
-//                    qDebug() << QString().sprintf("Firmware: %04X", firmware_ver);
+//                    qDebug() << QString().asprintf("Option: %04X", option);
+//                    qDebug() << QString().asprintf("Model: %04X", model_num);
+//                    qDebug() << QString().asprintf("Firmware: %04X", firmware_ver);
 
                     if(size == 12){
                         // connection check
@@ -90,11 +90,11 @@ void CallbellHandler::readData(){
                         bell_id = (unsigned int)(uchar(datas[13]) | (uchar(datas[12])<<8) | (uchar(datas[11])<<16) | (uchar(datas[10])<<24));
                         button_info = uchar(datas[14]);
                         bell_info = uchar(datas[15]);
-//                        qDebug() << QString().sprintf("Bell ID: %08X", bell_id);
-//                        qDebug() << QString().sprintf("Button Info: %d", button_info);
-//                        qDebug() << QString().sprintf("Bell Info: %d", bell_info);
+//                        qDebug() << QString().asprintf("Bell ID: %08X", bell_id);
+//                        qDebug() << QString().asprintf("Button Info: %d", button_info);
+//                        qDebug() << QString().asprintf("Bell Info: %d", bell_info);
 
-                        QString bell_str = QString().sprintf("%08X", bell_id);
+                        QString bell_str = QString().asprintf("%08X", bell_id);
 
                         uchar checksum = uchar(datas[19]);
                         uchar temp_cs = CalcCheckSum(datas, size);
@@ -141,7 +141,7 @@ void CallbellHandler::SendConnectionCheckMessage(){
 
     QString strSend;
     for(int i=0; i<sendData.size(); i++){
-        strSend += QString().sprintf("0x%02X ", uchar(sendData[i]));
+        strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
     }
 //    qDebug() << strSend;
     m_serialPort->write(sendData);
@@ -160,7 +160,7 @@ void CallbellHandler::SendDataCheckMessage(){
 
     QString strSend;
     for(int i=0; i<sendData.size(); i++){
-        strSend += QString().sprintf("0x%02X ", uchar(sendData[i]));
+        strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
     }
 //    qDebug() << strSend;
     m_serialPort->write(sendData);

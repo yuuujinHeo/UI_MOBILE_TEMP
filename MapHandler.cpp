@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QSettings>
 #include <iostream>
+#include <QPainterPath>
 #include <exception>
 #include <QGuiApplication>
 #include <fstream>
@@ -24,7 +25,7 @@ MapHandler::MapHandler()
     map_drawing = cv::Mat(1000,1000,CV_8UC4,cv::Scalar::all(0));
     map_drawing_mask = cv::Mat(1000,1000,CV_8UC4,cv::Scalar::all(0));
     file_velocity = cv::Mat(1000,1000,CV_8UC3,cv::Scalar::all(0));
-    file_travelline = cv::Mat(1000,1000,CV_8U,cv::Scalar::all(0));
+    file_travelline = cv::Mat(1000,1000,CV_8UC3,cv::Scalar::all(0));
     file_object = cv::Mat(1000,1000,CV_8UC3,cv::Scalar::all(0));
     file_avoid = cv::Mat(1000,1000,CV_8UC3,cv::Scalar::all(0));
     grid_width = 0.03;
@@ -88,13 +89,24 @@ void MapHandler::loadFile(QString name, QString type){
     }
 
     if(QFile::exists(file_path)){
-        file_travelline = cv::imread(file_path.toStdString(), cv::IMREAD_GRAYSCALE);
+        file_travelline = cv::imread(file_path.toStdString(), cv::IMREAD_COLOR);
         cv::flip(file_travelline,file_travelline,0);
         cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_COUNTERCLOCKWISE);
+
+        for(int i=0; i<file_travelline.cols; i++){
+            for(int j=0; j<file_travelline.rows; j++){
+                if(file_travelline.at<cv::Vec3b>(i,j)[0] == 255){
+                    file_travelline.at<cv::Vec3b>(i,j)[0] = 80;
+                    file_travelline.at<cv::Vec3b>(i,j)[1] = 200;
+                    file_travelline.at<cv::Vec3b>(i,j)[2] = 255;
+                }
+            }
+        }
+
         log_str += ", TRAVELLINE(success "+QString::number(file_travelline.rows)+" ) ";
         exist_travelline = true;
     }else{
-        file_travelline = cv::Mat(file_width, file_width, CV_8U ,cv::Scalar::all(0));
+        file_travelline = cv::Mat(file_width, file_width, CV_8UC3 ,cv::Scalar::all(0));
         exist_travelline = false;
         log_str += ", TRAVELLINE(failed) ";
     }
@@ -175,7 +187,7 @@ void MapHandler::loadFile(QString name, QString type){
     draw_x = 0;
     draw_y = 0;
     draw_width = file_width;
-    log_str += QString().sprintf(", FILEWIDTH(%d)",draw_width);
+    log_str += QString().asprintf(", FILEWIDTH(%d)",draw_width);
     initDrawing();
     initRotate();
     setMap();
@@ -189,7 +201,7 @@ void MapHandler::setMapOrin(QString type){
         file_width = map_orin.rows;
         file_velocity = cv::Mat(file_width, file_width, CV_8UC3, cv::Scalar::all(0));
         file_avoid = cv::Mat(file_width, file_width, CV_8UC3, cv::Scalar::all(0));
-        file_travelline = cv::Mat(file_width, file_width, CV_8U, cv::Scalar::all(0));
+        file_travelline = cv::Mat(file_width, file_width, CV_8UC3, cv::Scalar::all(0));
         file_object = cv::Mat(file_width, file_width, CV_8UC3, cv::Scalar::all(0));
         show_location = false;
         show_avoid = false;
@@ -211,47 +223,48 @@ void MapHandler::setTline(){
     int radius = pmap->robot_radius*2/grid_width;
     for(int i=0; i<file_travelline.rows;i++){
         //1줄 당
-        for(int j=0; j<file_travelline.cols-1; j++){
-            //실마리 찾음
-            if(file_travelline.at<uchar>(i,j) == 255 && file_travelline.at<uchar>(i,j+1) == 0){
+//        for(int j=0; j<file_travelline.cols-1; j++){
+//            //실마리 찾음
+//            if(file_travelline.at<cv::Vec3b>(i,j) == 255 && file_travelline.at<uchar>(i,j+1) == 0){
 
-                //실마리 부터 시작해서 로봇 크기만큼 가까운 실이 있는 지 찾아봄(찾으면 그 사이 매꿈)
-                for(int k=j+1; k<j+radius; k++){
-                    if(k>=file_travelline.cols)
-                        break;
+//                //실마리 부터 시작해서 로봇 크기만큼 가까운 실이 있는 지 찾아봄(찾으면 그 사이 매꿈)
+//                for(int k=j+1; k<j+radius; k++){
+//                    if(k>=file_travelline.cols)
+//                        break;
 
-                    if(file_travelline.at<uchar>(i,k) == 255){
-                        for(int h=j+1; h<k+1; h++){
-                            file_travelline.at<uchar>(i,h) = 255;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
+//                    if(file_travelline.at<uchar>(i,k) == 255){
+//                        for(int h=j+1; h<k+1; h++){
+//                            file_travelline.at<uchar>(i,h) = 255;
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
+//        }
     }
 
-    for(int i=0; i<file_travelline.cols;i++){
-        //1줄 당
-        for(int j=0; j<file_travelline.rows-1; j++){
-            //실마리 찾음
-            if(file_travelline.at<uchar>(j,i) == 255 && file_travelline.at<uchar>(j+1,i) == 0){
+//    for(int i=0; i<file_travelline.cols;i++){
+//        //1줄 당
+//        for(int j=0; j<file_travelline.rows-1; j++){
+//            //실마리 찾음
+//            if(file_travelline.at<uchar>(j,i) == 255 && file_travelline.at<uchar>(j+1,i) == 0){
 
-                //실마리 부터 시작해서 로봇 크기만큼 가까운 실이 있는 지 찾아봄(찾으면 그 사이 매꿈)
-                for(int k=j+1; k<j+radius; k++){
-                    if(k>=file_travelline.rows)
-                        break;
+//                //실마리 부터 시작해서 로봇 크기만큼 가까운 실이 있는 지 찾아봄(찾으면 그 사이 매꿈)
+//                for(int k=j+1; k<j+radius; k++){
+//                    if(k>=file_travelline.rows)
+//                        break;
 
-                    if(file_travelline.at<uchar>(k,i) == 255){
-                        for(int h=j+1; h<k+1; h++){
-                            file_travelline.at<uchar>(h,i) = 255;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-    }
+//                    if(file_travelline.at<uchar>(k,i) == 255){
+//                        for(int h=j+1; h<k+1; h++){
+//                            file_travelline.at<uchar>(h,i) = 255;
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
+//        }
+//    }
+
 }
 
 void MapHandler::setMapSize(int width, int height){
@@ -263,7 +276,7 @@ void MapHandler::onTimer(){
     if(flag_drawing){
         show_robot = true;
         show_travelline = true;
-        robot_following = true;
+//        robot_following = true;
         drawTline();
     }
 //        else if(mode == "annot_tline"){
@@ -655,7 +668,7 @@ void MapHandler::setMapLayer(){
                 }else{
                     painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
                 }
-                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().sprintf("%d",num));
+                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
 
             }
 
@@ -772,7 +785,7 @@ void MapHandler::setMapLayer(){
                 }else{
                     painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
                 }
-                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().sprintf("%d",num));
+                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
 
             }
 
@@ -998,7 +1011,7 @@ void MapHandler::setMapTest(){
         cv::cvtColor(map_orin,temp_orin,cv::COLOR_GRAY2BGRA);
 
         cv::cvtColor(file_velocity,temp_velmap,cv::COLOR_BGR2BGRA);
-        cv::cvtColor(file_travelline,temp_travel,cv::COLOR_GRAY2BGRA);
+        cv::cvtColor(file_travelline,temp_travel,cv::COLOR_BGR2BGRA);
         cv::cvtColor(file_object,temp_obj,cv::COLOR_BGR2BGRA);
         cv::cvtColor(file_avoid,temp_avoid,cv::COLOR_BGR2BGRA);
 
@@ -1012,22 +1025,23 @@ void MapHandler::setMapTest(){
             cv::add(temp_layer,temp_velmap,temp_layer);
 //            cv::imshow("vel",temp_layer);
         }
-        if(show_object){
-            if(mode == "annot_object_png"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
-                cv::add(temp_obj,map_drawing,temp_obj);
-            }
-            cv::add(temp_layer,temp_obj,temp_layer);
-//            cv::imshow("obj",temp_layer);
-        }
         if(show_avoid){
-            qDebug() << "show avoid 1";
+//            qDebug() << "show avoid 1";
             if(mode == "annot_obs_area"){
                 cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
                 cv::add(temp_avoid,map_drawing,temp_avoid);
             }
             cv::add(temp_layer,temp_avoid,temp_layer);
-            qDebug() << "show avoid 2";
+//            qDebug() << "show avoid 2";
+        }
+        if(show_object){
+            if(mode == "annot_object_png"){
+                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
+                cv::add(temp_obj,map_drawing,temp_obj);
+            }
+            cv::multiply(cv::Scalar::all(1.0)-temp_obj,temp_layer,temp_layer);
+            cv::add(temp_layer,temp_obj,temp_layer);
+//            cv::imshow("obj",temp_layer);
         }
 
         if(show_velocitymap || show_object || show_avoid){
@@ -1275,7 +1289,7 @@ void MapHandler::setMap(){
 
 
             if(show_number){
-                painter.drawText((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),QString().sprintf("%d",i));
+                painter.drawText((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),QString().asprintf("%d",i));
             }
 
         }
@@ -1585,7 +1599,7 @@ void MapHandler::saveRotateMap(){
     cv::flip(map_edited_ui,map_edited_ui,0);
 
     QString path = QDir::homePath() + "/RB_MOBILE/maps/" + map_name + "/map_edited.png";
-    plog->write("[MapHandler] Save Map (Rotate) : "+tool+", "+QString().sprintf("%f,%f ~ %f,%f",cut_box[0].x,cut_box[0].y,cut_box[1].x,cut_box[1].y));
+    plog->write("[MapHandler] Save Map (Rotate) : "+tool+", "+QString().asprintf("%f,%f ~ %f,%f",cut_box[0].x,cut_box[0].y,cut_box[1].x,cut_box[1].y));
 
     //travel line 파일 없을 경우 대비해서 더미 제작
     if(!exist_travelline){
@@ -1661,15 +1675,15 @@ void MapHandler::editObject(int x, int y){
                 pmap->objects[num].points[2].y = pos.y;
                 pmap->objects[num].points[0].x = pos.x;
             }
-            plog->write("[MapHandler] edit Object : " + QString().sprintf("(%d, %d, %d, %d)",num,point,x,y));
+            plog->write("[MapHandler] edit Object : " + QString().asprintf("(%d, %d, %d, %d)",num,point,x,y));
         }else{
             if(point > -1 && point < pmap->objects[num].points.size()){
                 cv::Point2f pos = setAxisBack(cv::Point2f(x,y));
                 pmap->objects[num].points[point].x = pos.x;
                 pmap->objects[num].points[point].y = pos.y;
-                plog->write("[MapHandler] edit Object : "+ QString().sprintf("(%d, %d, %d, %d)",num,point,x,y));
+                plog->write("[MapHandler] edit Object : "+ QString().asprintf("(%d, %d, %d, %d)",num,point,x,y));
             }else{
-                plog->write("[MapHandler] edit Object : " + QString().sprintf("(%d, %d, %d, %d)",num,point,x,y) + " but pose size error");
+                plog->write("[MapHandler] edit Object : " + QString().asprintf("(%d, %d, %d, %d)",num,point,x,y) + " but pose size error");
             }
         }
 
@@ -1681,9 +1695,9 @@ void MapHandler::editObject(int x, int y){
 void MapHandler::saveObject(){
     OBJECT temp;
     if(new_obj.is_rect){
-        plog->write("[MapHandler] ADD Object (Rect) : "+QString().sprintf("(%f,%f) ,(%f,%f)",new_obj.points[0].x, new_obj.points[0].y, new_obj.points[2].x,new_obj.points[2].y));
+        plog->write("[MapHandler] ADD Object (Rect) : "+QString().asprintf("(%f,%f) ,(%f,%f)",new_obj.points[0].x, new_obj.points[0].y, new_obj.points[2].x,new_obj.points[2].y));
     }else{
-        plog->write("[MapHandler] ADD Object : "+QString().sprintf("%d",new_obj.points.size()));
+        plog->write("[MapHandler] ADD Object : "+QString().asprintf("%d",new_obj.points.size()));
     }
 
     temp.is_rect = new_obj.is_rect;
@@ -1788,7 +1802,7 @@ void MapHandler::updateMeta(){
     setting.setValue("map_metadata/map_edited_origin_v",QString::number(pmap->origin[1]));
     setting.setValue("map_metadata/map_edited_cut_u",QString::number(pmap->cut_map[0]));
     setting.setValue("map_metadata/map_edited_cut_v",QString::number(pmap->cut_map[1]));
-    plog->write("[MapHandler] UPDATE META : "+QString().sprintf("%d, %d, %d, %d, %d, %d, %d",pmap->map_rotate_angle, pmap->cut_map[0], pmap->cut_map[1], pmap->width,pmap->height, pmap->origin[0],pmap->origin[1]));
+    plog->write("[MapHandler] UPDATE META : "+QString().asprintf("%d, %d, %d, %d, %d, %d, %d",pmap->map_rotate_angle, pmap->cut_map[0], pmap->cut_map[1], pmap->width,pmap->height, pmap->origin[0],pmap->origin[1]));
 }
 void MapHandler::setBoxPoint(int num, int x, int y){
     qDebug() << "setBoxPoint";
@@ -2087,7 +2101,7 @@ void MapHandler::drawSpline(){
         d_list.push_back(sum_d);
         x_list.push_back(spline_dot[0].x);
         y_list.push_back(spline_dot[0].y);
-        for(size_t p = 1; p<spline_dot.toStdVector().size(); p++){
+        for(size_t p = 1; p<spline_dot.size(); p++){
             double x0 = spline_dot[p-1].x;
             double y0 = spline_dot[p-1].y;
             double x1 = spline_dot[p].x;
@@ -2294,7 +2308,7 @@ void MapHandler::drawTline(){
     if(prev_pose.x == 0 && prev_pose.y == 0){
         //pass
     }else{
-        cv::line(map_drawing,prev_pose,pose,cv::Scalar::all(255),1,8,0);
+        cv::line(map_drawing,prev_pose,pose,color_yellow,1,8,0);
 //        qDebug() << "drawTline" << pose.x << pose.y;
     }
     prev_pose = pose;
@@ -2362,7 +2376,7 @@ void MapHandler::endDrawing(int x, int y){
         d_list.push_back(sum_d);
         x_list.push_back(line[0].x);
         y_list.push_back(line[0].y);
-        for(size_t p = 1; p<line.toStdVector().size(); p++){
+        for(size_t p = 1; p<line.size(); p++){
             double x0 = line[p-1].x;
             double y0 = line[p-1].y;
             double x1 = line[p].x;
@@ -2623,6 +2637,15 @@ void MapHandler::saveTline(){
 
 //    setTline();
 
+    for(int i=0; i<file_travelline.cols; i++){
+        for(int j=0; j<file_travelline.rows; j++){
+            if(file_travelline.at<cv::Vec3b>(i,j)[0] == 80){
+                file_travelline.at<cv::Vec3b>(i,j)[0] = 255;
+                file_travelline.at<cv::Vec3b>(i,j)[1] = 255;
+                file_travelline.at<cv::Vec3b>(i,j)[2] = 255;
+            }
+        }
+    }
     cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_CLOCKWISE);
     cv::flip(file_travelline,file_travelline,0);
 
@@ -2646,11 +2669,21 @@ void MapHandler::saveTlineTemp(){
     cv::Mat temp_draw;
     cv::Mat temp_mask;
 
-    cv::cvtColor(map_drawing,temp_draw,cv::COLOR_BGRA2GRAY);
-    cv::cvtColor(map_drawing_mask,temp_mask,cv::COLOR_BGRA2GRAY);
+    cv::cvtColor(map_drawing,temp_draw,cv::COLOR_BGRA2BGR);
+    cv::cvtColor(map_drawing_mask,temp_mask,cv::COLOR_BGRA2BGR);
 
     cv::multiply(cv::Scalar::all(1.0)-temp_mask,file_travelline,file_travelline);
     cv::add(file_travelline,temp_draw,file_travelline);
+
+    for(int i=0; i<file_travelline.cols; i++){
+        for(int j=0; j<file_travelline.rows; j++){
+            if(file_travelline.at<cv::Vec3b>(i,j)[0] == 80){
+                file_travelline.at<cv::Vec3b>(i,j)[0] = 255;
+                file_travelline.at<cv::Vec3b>(i,j)[1] = 255;
+                file_travelline.at<cv::Vec3b>(i,j)[2] = 255;
+            }
+        }
+    }
 
 //    setTline();
 
@@ -2762,7 +2795,7 @@ void MapHandler::setLocation(int x, int y, float th){
     int num = select_location;
     new_location_flag = false;
     if(pmap->locations.size() > num && num > -1){
-        plog->write("[MapHandler] Edit Location "+QString().sprintf("%d : %f,%f,%f -> %f,%f,%f",num,pmap->locations[num].point.x, pmap->locations[num].point.y, pmap->locations[num].angle,setAxisBack(cv::Point2f(x,y)).x,setAxisBack(cv::Point2f(x,y)).y,setAxisBack(th)));
+        plog->write("[MapHandler] Edit Location "+QString().asprintf("%d : %f,%f,%f -> %f,%f,%f",num,pmap->locations[num].point.x, pmap->locations[num].point.y, pmap->locations[num].angle,setAxisBack(cv::Point2f(x,y)).x,setAxisBack(cv::Point2f(x,y)).y,setAxisBack(th)));
         pmap->locations[num].point = setAxisBack(cv::Point2f(x,y));
         pmap->locations[num].angle = setAxisBack(th);
 //        //qDebug() << pmap->locations[num].angle;

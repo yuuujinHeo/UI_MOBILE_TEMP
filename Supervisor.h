@@ -62,12 +62,12 @@ public:
     QStringList usb_file_full_list;
     QStringList usb_file_list;
     QStringList usb_backup_list;
-    QVector<QString> usb_map_list;
-    QVector<QString> map_list;
-    QVector<QString> map_detail_list;
+    QList<QString> usb_map_list;
+    QList<QString> map_list;
+    QList<QString> map_detail_list;
 
     int setting_call_num = -1;
-    QVector<QString> call_queue;
+    QList<QString> call_queue;
     int patrol_num = -1;
     LOCATION current_target;
 
@@ -388,7 +388,7 @@ public:
     Q_INVOKABLE QString getLogMessage(int num);
     Q_INVOKABLE void readLog(QDateTime date);
     Q_INVOKABLE QString getLocaleDate(int year, int month, int date){
-        return QString().sprintf("%d-%02d-%02d",year,month,date);
+        return QString().asprintf("%d-%02d-%02d",year,month,date);
     }
 
     ////*********************************************  USB 관련   ***************************************************////
@@ -578,7 +578,7 @@ public:
     Q_INVOKABLE void startServing();
     Q_INVOKABLE void setPreset(int preset);
     Q_INVOKABLE void confirmPickup();
-    Q_INVOKABLE QVector<int> getPickuptrays();
+    Q_INVOKABLE QList<int> getPickuptrays();
 
 
 
@@ -651,7 +651,7 @@ public:
     Q_INVOKABLE int getMapWidth();
     Q_INVOKABLE int getMapHeight();
     Q_INVOKABLE float getGridWidth();
-    Q_INVOKABLE QVector<int> getOrigin();
+    Q_INVOKABLE QList<int> getOrigin();
     Q_INVOKABLE int getMappingWidth(){return pmap->mapping_width;}
     Q_INVOKABLE float getMappingGridwidth(){return pmap->mapping_gridwidth;}
 

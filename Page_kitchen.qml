@@ -226,10 +226,10 @@ Item {
                     menubar.menu4_en = false;
                     rect_go.color = color_gray;
                     text_go.color = color_dark_gray;
-                    text_go.text = qsTr("로봇 전원 안켜짐")
+                    text_go.text = qsTr("모터 전원 안켜짐")
                     text_go.font.pixelSize = 35
-                    popup_notice.main_str = qsTr("로봇 전원이 꺼져있습니다")
-                    popup_notice.sub_str = ""
+                    popup_notice.main_str = qsTr("모터 전원이 꺼져있습니다")
+                    popup_notice.sub_str = qsTr("로봇을 재부팅해주세요")
                     popup_notice.show_localization = false
                     popup_notice.show_motorinit = false;
                     popup_notice.show_restart = true;

@@ -12,8 +12,9 @@
 #include <exception>
 #include <QGuiApplication>
 #include <zlib.h>
-#include <usb.h>
+#include <libusb-1.0/libusb.h>
 #include <QDir>
+#include <QProcess>
 #include <QFileSystemWatcher>
 #include <QtQuick/qquickimageprovider.h>
 #include <QtGui>
@@ -43,7 +44,7 @@ Supervisor::Supervisor(QObject *parent)
     QList<QString> path_home_str = QDir::homePath().split("/");
     QProcess *process = new QProcess(this);
     QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    process->start(file);
+    process->start(file,QStringList(),QProcess::ReadWrite);
     process->waitForReadyRead(3000);
 
 
@@ -150,7 +151,7 @@ void Supervisor::programRestart(){
     plog->write("[USER INPUT] PROGRAM RESTART");
     ipc->clearSharedMemory(ipc->shm_cmd);
     slam_process->kill();
-    QProcess::startDetached(QApplication::applicationFilePath());
+    QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
     QApplication::exit(12);
 }
 
@@ -416,10 +417,8 @@ void Supervisor::restartUpdate(){
     QProcess *tempprocess = new QProcess(this);
     setSetting("robot","SERVER/update","true");
     slam_process = new QProcess(this);
-    QString file2 = "xterm ./update.sh";
     tempprocess->setWorkingDirectory(file);
-    tempprocess->start(file2);
-    tempprocess->waitForReadyRead(3000);
+    tempprocess->start("xterm",QStringList()<<"./update.sh");
 
 }
 void Supervisor::startUpdate(){
@@ -720,7 +719,7 @@ void Supervisor::readSetting(QString map_name){
 }
 
 void Supervisor::editLocation(int num){
-    plog->write("[ANNOTATION] Edit Location "+QString::number(num)+" : "+QString().sprintf("(%f,%f,%f) -> (%f,%f,%f)",
+    plog->write("[ANNOTATION] Edit Location "+QString::number(num)+" : "+QString().asprintf("(%f,%f,%f) -> (%f,%f,%f)",
                                                                                            pmap->locations[num].point.x,pmap->locations[num].point.y,pmap->locations[num].angle,
                                                                                                  probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
     pmap->locations[num].point = probot->lastPose.point;
@@ -773,35 +772,35 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
         }
     }
     if(type == "Serving"){
-        plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+        plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
         pmap->locations.push_back(temp);
         pmap->annot_edit_location = true;
     }else if(type == "Charging"){
         if(overwrite){
-            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->locations[overwrite_num] = temp;
         }else{
-            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->locations.push_back(temp);
 //            pmap->locations.insert(getLocationNum("Charging"),temp);
         }
         pmap->annot_edit_location = true;
     }else if(type == "Cleaning"){
         if(overwrite){
-            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->locations[overwrite_num] = temp;
         }else{
-            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->locations.push_back(temp);
 //            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting")+getLocationNum("Cleaning"),temp);
         }
         pmap->annot_edit_location = true;
     }else if(type == "Resting"){
         if(overwrite){
-            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->locations[overwrite_num] = temp;
         }else{
-            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().sprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+            plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->locations.push_back(temp);
 //            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting"),temp);
         }
@@ -936,11 +935,13 @@ void Supervisor::requestCamera(){
     ipc->set_cmd(send_msg);
 }
 void Supervisor::drawingRunawayStart(){
+    maph->startDrawingTline();
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_DRAW_LINE_START;
     ipc->set_cmd(send_msg);
 }
 void Supervisor::drawingRunawayStop(){
+    maph->stopDrawingTline();
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_DRAW_LINE_SAVE;
     ipc->set_cmd(send_msg);
@@ -1587,7 +1588,7 @@ void Supervisor::restartSLAM(){
     plog->write("[USER INPUT] Restart SLAM");
     ipc->clearSharedMemory(ipc->shm_cmd);
     if(slam_process != nullptr){
-        plog->write("[SUPERVISOR] RESTART SLAM -> PID : "+QString::number(slam_process->pid()));
+        plog->write("[SUPERVISOR] RESTART SLAM -> PID : "+QString::number(slam_process->processId()));
         if(slam_process->state() == QProcess::NotRunning){
             plog->write("[SUPERVISOR] RESTART SLAM -> NOT RUNNING -> KILL");
             slam_process->kill();
@@ -1599,16 +1600,15 @@ void Supervisor::restartSLAM(){
             probot->status_remote = 0;
             QString file = "xterm ./startslam.sh";
             slam_process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-            slam_process->start(file);
+            slam_process->start(file,QStringList(),QProcess::ReadWrite);
             slam_process->waitForReadyRead(3000);
-            plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->pid()));
+            plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->processId()));
         }else if(slam_process->state() == QProcess::Starting){
             plog->write("[SUPERVISOR] RESTART SLAM -> STARTING");
         }else{
             plog->write("[SUPERVISOR] RESTART SLAM -> RUNNING");
             QProcess *tempprocess = new QProcess(this);
-            tempprocess->start(QDir::homePath() + "/RB_MOBILE/sh/killslam"
-                                                  "");
+            tempprocess->start(QDir::homePath() + "/RB_MOBILE/sh/killslam.sh",QStringList(),QProcess::ReadWrite);
             tempprocess->waitForReadyRead(3000);
         }
         probot->localization_state = LOCAL_NOT_READY;
@@ -1619,11 +1619,9 @@ void Supervisor::restartSLAM(){
     }else{
         plog->write("[SUPERVISOR] RESTART SLAM -> SLAM PROCESS IS NEW ");
         slam_process = new QProcess(this);
-        QString file = "xterm ./startslam.sh";
         slam_process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-        slam_process->start(file);
-        slam_process->waitForReadyRead(3000);
-        plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->pid()));
+        slam_process->start("xterm",QStringList() << "./startslam.sh");
+        plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->processId()));
     }
     probot->localization_state = LOCAL_NOT_READY;
     probot->status_charge = 0;
@@ -1653,12 +1651,10 @@ void Supervisor::startSLAM(){
     probot->status_remote = 0;
 
     slam_process = new QProcess(this);
-    QString file = "xterm ./startslam.sh";
     slam_process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    slam_process->start(file);
-    slam_process->waitForReadyRead(3000);
+    slam_process->start("xterm",QStringList() << "./startslam.sh");
     ipc->update();
-    plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->pid()));
+    plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->processId()));
 }
 
 ////*******************************************  SLAM(LOCALIZATION) 관련   ************************************************////
@@ -1710,14 +1706,14 @@ void Supervisor::setSLAMMode(int mode){
 }
 void Supervisor::setInitCurPos(){
     pmap->init_pose = probot->curPose;
-    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().sprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
+    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
 }
 
 void Supervisor::setInitPos(int x, int y, float th){
     qDebug() << "INIT" << x << y << setAxisBack(cv::Point2f(x,y)).x << setAxisBack(cv::Point2f(x,y)).y;
     pmap->init_pose.point = setAxisBack(cv::Point2f(x,y));
     pmap->init_pose.angle = setAxisBack(th);
-    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().sprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
+    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
 }
 float Supervisor::getInitPoseX(){
     cv::Point2f temp = setAxis(pmap->init_pose.point);
@@ -1731,7 +1727,7 @@ float Supervisor::getInitPoseTH(){
     return setAxis(pmap->init_pose.angle);
 }
 void Supervisor::slam_setInit(){
-    plog->write("[SLAM] SLAM SET INIT : "+QString().sprintf("%f, %f, %f",pmap->init_pose.point.x,pmap->init_pose.point.y,pmap->init_pose.angle));
+    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x,pmap->init_pose.point.y,pmap->init_pose.angle));
 //    if(probot->localization_confirm == LOCAL_READY){
 //        ui_state = UI_STATE_INITAILIZING;
 //        probot->localization_confirm = 0;
@@ -1906,20 +1902,20 @@ void Supervisor::updateUSB(){
         QFile file(file_name);
         if(file.open(QIODevice::ReadWrite)){
             QTextStream stream(&file);
-            stream << "#!/bin/bash" << endl << endl;
+            stream << "#!/bin/bash" << "\n" << "\n";
 
-            stream << "/home/odroid/RB_MOBILE/sh/updateusb.sh" << endl;
+            stream << "/home/odroid/RB_MOBILE/sh/updateusb.sh" << "\n";
         }
         file.close();
         //Chmod
         QProcess process;
         process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-        process.start("chmod +x updatedummy.sh");
+        process.start("chmod +x updatedummy.sh",QStringList(),QProcess::ReadWrite);
         process.waitForReadyRead(200);
     }
     QProcess process;
     process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("xterm ./updatedummy.sh");
+    process.start("xterm ./updatedummy.sh",QStringList(),QProcess::ReadWrite);
     process.waitForReadyRead(3000);
 }
 
@@ -1928,24 +1924,24 @@ void Supervisor::makeExtProcessShell(){
     QFile file(file_name);
     if(file.open(QIODevice::ReadWrite)){
         QTextStream stream(&file);
-        stream << "#!/bin/bash" << endl << endl;
-        stream << "while [ 1 ]"<<endl;
-        stream << "do"<<endl;
-        stream << "     pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "     if [ -z $pid ]" << endl;
-        stream << "     then" << endl;
-        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << endl;
-        stream << "     else" << endl;
-        stream << "         kill -9 $pid" << endl;
-        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << endl;
-        stream << "     fi" << endl;
-        stream << "done" << endl;
+        stream << "#!/bin/bash" << "\n" << "\n";
+        stream << "while [ 1 ]"<<"\n";
+        stream << "do"<<"\n";
+        stream << "     pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "     if [ -z $pid ]" << "\n";
+        stream << "     then" << "\n";
+        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
+        stream << "     else" << "\n";
+        stream << "         kill -9 $pid" << "\n";
+        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
+        stream << "     fi" << "\n";
+        stream << "done" << "\n";
     }
     file.close();
     //Chmod
     QProcess process;
     process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x startextproc.sh");
+    process.start("chmod +x startextproc.sh",QStringList(),QProcess::ReadWrite);
     process.waitForReadyRead(200);
 
 }
@@ -1954,55 +1950,55 @@ void Supervisor::makeUSBShell(){
 //    QFile file(file_name);
 //    if(file.open(QIODevice::ReadWrite)){
 //        QTextStream stream(&file);
-//        stream << "#!/bin/bash" << endl << endl;
-//        stream << "cd /home/odroid/RB_MOBILE" << endl;
+//        stream << "#!/bin/bash" << "\n" << "\n";
+//        stream << "cd /home/odroid/RB_MOBILE" << "\n";
 
-//        stream << "if [ -d \"config\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp config/robot_config.ini /home/odroid/RB_MOBILE/config/robot_config.ini" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"config\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp config/robot_config.ini /home/odroid/RB_MOBILE/config/robot_config.ini" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"sn_log\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R sn_log /home/odroid/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"sn_log\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R sn_log /home/odroid/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"ui_log\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R ui_log /home/odroid/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"ui_log\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R ui_log /home/odroid/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"maps\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R maps /home/odroid/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"maps\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R maps /home/odroid/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"SLAMNAV\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R SLAMNAV /home/odroid/code/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"SLAMNAV\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R SLAMNAV /home/odroid/code/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"build-SLAMNAV-Desktop-Release\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R SLAMNAV_release /home/odroid/code/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"build-SLAMNAV-Desktop-Release\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R SLAMNAV_release /home/odroid/code/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"build-SLAMNAV-Desktop-Debug\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R build-SLAMNAV-Desktop-Debug /home/odroid/code/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"build-SLAMNAV-Desktop-Debug\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R build-SLAMNAV-Desktop-Debug /home/odroid/code/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "if [ -d \"UI_MOBILE_release\" ]" << endl;
-//        stream << "then" << endl;
-//        stream << "    cp -R UI_MOBILE_release /home/odroid/" << endl;
-//        stream << "fi" << endl;
+//        stream << "if [ -d \"UI_MOBILE_release\" ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "    cp -R UI_MOBILE_release /home/odroid/" << "\n";
+//        stream << "fi" << "\n";
 
-//        stream << "cd /home/odroid" << endl;
-//        stream << "rm -R tempBackup" << endl;
-//        stream << "rm tempBackup.zip" << endl;
+//        stream << "cd /home/odroid" << "\n";
+//        stream << "rm -R tempBackup" << "\n";
+//        stream << "rm tempBackup.zip" << "\n";
 
-//        stream << "/home/odroid/auto_kill.sh" << endl;
-//        stream << "/home/odroid/UI_MOBILE_release/autostart.sh" << endl;
+//        stream << "/home/odroid/auto_kill.sh" << "\n";
+//        stream << "/home/odroid/UI_MOBILE_release/autostart.sh" << "\n";
 //    }
 //    file.close();
 //    //Chmod
@@ -2106,7 +2102,7 @@ QString Supervisor::getLocationCallID(int num){
 void Supervisor::setLocationGroup(int num, int group){
     if(num > -1 && num < pmap->locations.size()){
         pmap->locations[num].group = group;
-        plog->write("[ANNOTATION] SET Location Group "+QString().sprintf("%d : %d",num,group));
+        plog->write("[ANNOTATION] SET Location Group "+QString().asprintf("%d : %d",num,group));
     }
 }
 QString Supervisor::getLocationGroup(int num){
@@ -2269,7 +2265,7 @@ void Supervisor::setLocation(int num, QString name, int group, int tablenum){
                     pmap->locations[i].group = group;
 //                    pmap->locations[i].number = tablenum;
                     pmap->annot_edit_location = true;
-                    plog->write("[SUPERVISOR] SET LOCATION : "+QString().sprintf("(%d) group : %d, number : %d, name : ",num,group,tablenum)+name);
+                    plog->write("[SUPERVISOR] SET LOCATION : "+QString().asprintf("(%d) group : %d, number : %d, name : ",num,group,tablenum)+name);
                 }
                 count++;
             }
@@ -2555,14 +2551,14 @@ void Supervisor::saveLocations(){
 void Supervisor::removeObject(int num){
 //    clear_all();
     if(num > -1 && num < pmap->objects.size()){
-        pmap->objects.remove(num);
+        pmap->objects.removeAt(num);
         setObjPose();
         pmap->annotation_edited = true;
         maph->clearObject();
         QMetaObject::invokeMethod(mMain, "updateobject");
-        plog->write("[ANNOTATION - ERROR] removeObject " + QString().sprintf("(%d)",num));
+        plog->write("[ANNOTATION - ERROR] removeObject " + QString().asprintf("(%d)",num));
     }else{
-        plog->write("[ANNOTATION - ERROR] removeObject " + QString().sprintf("(%d)",num) + " but size error");
+        plog->write("[ANNOTATION - ERROR] removeObject " + QString().asprintf("(%d)",num) + " but size error");
     }
 }
 
@@ -2611,20 +2607,20 @@ bool Supervisor::saveAnnotation(QString filename){
     //name,x,y,th,num,locnum,callid
     for(int i=0; i<pmap->locations.size(); i++){
         if(pmap->locations[i].type == "Charging"){
-            str_name = pmap->locations[i].name + QString().sprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
             settings.setValue("charging_locations/loc"+QString::number(charging_num),str_name);
             charging_num++;
         }else if(pmap->locations[i].type == "Resting"){
-            str_name = pmap->locations[i].name + QString().sprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
             settings.setValue("resting_locations/loc"+QString::number(resting_num),str_name);
             resting_num++;
         }else if(pmap->locations[i].type == "Cleaning"){
-            str_name = pmap->locations[i].name + QString().sprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
             settings.setValue("cleaning_locations/loc"+QString::number(cleaning_num),str_name);
             cleaning_num++;
         }else if(pmap->locations[i].type == "Serving"){
             QString groupname = "serving_" + QString::number(pmap->locations[i].group);
-            str_name = pmap->locations[i].name + QString().sprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
             settings.setValue(groupname+"/loc"+QString::number(group_num[pmap->locations[i].group]),str_name);
             group_num[pmap->locations[i].group]++;
         }
@@ -2651,7 +2647,7 @@ bool Supervisor::saveAnnotation(QString filename){
         }
 
         for(int j=0; j<pmap->objects[i].points.size(); j++){
-            str += QString().sprintf(",%f:%f",pmap->objects[i].points[j].x,pmap->objects[i].points[j].y);
+            str += QString().asprintf(",%f:%f",pmap->objects[i].points[j].x,pmap->objects[i].points[j].y);
 
         }
         settings.setValue("objects/poly"+QString::number(i),str);
@@ -2709,7 +2705,7 @@ void Supervisor::confirmPickup(){
         plog->write("[COMMAND] Pickup Confirm (ui_state "+QString::number(ui_state)+")");
     }
 }
-QVector<int> Supervisor::getPickuptrays(){
+QList<int> Supervisor::getPickuptrays(){
     return probot->pickupTrays;
 }
 
@@ -3034,8 +3030,8 @@ int Supervisor::getMapHeight(){
 float Supervisor::getGridWidth(){
     return pmap->gridwidth;
 }
-QVector<int> Supervisor::getOrigin(){
-    QVector<int> temp;
+QList<int> Supervisor::getOrigin(){
+    QList<int> temp;
     temp.push_back(pmap->origin[0]);
     temp.push_back(pmap->origin[1]);
     return temp;
@@ -3205,20 +3201,20 @@ void Supervisor::makeKillShell(){
     QFile file(file_name);
     if(file.open(QIODevice::ReadWrite)){
         QTextStream stream(&file);
-        stream << "#!/bin/bash" << endl << endl;
-        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"SLAMNAV is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "#!/bin/bash" << "\n" << "\n";
+        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"SLAMNAV is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
     }
     file.close();
     //Chmod
     QProcess process;
     process.setWorkingDirectory(QDir::homePath());
-    process.start("chmod +x kill_slam.sh");
+    process.start("chmod +x kill_slam.sh",QStringList(),QProcess::ReadWrite);
     process.waitForReadyRead(200);
 }
 void Supervisor::checkUpdate(){
@@ -3248,20 +3244,20 @@ void Supervisor::makeKillSlam(){
     QFile file(file_name);
     if(file.open(QIODevice::ReadWrite)){
         QTextStream stream(&file);
-        stream << "#!/bin/bash" << endl << endl;
-        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"SLAMNAV is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "#!/bin/bash" << "\n" << "\n";
+        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"SLAMNAV is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
     }
     file.close();
     //Chmod
     QProcess process;
     process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x restartslam.sh");
+    process.start("chmod +x restartslam.sh",QStringList(),QProcess::ReadWrite);
     process.waitForReadyRead(200);
 
 }
@@ -3273,25 +3269,25 @@ void Supervisor::makeStartShell(){
 
     if(file.open(QIODevice::ReadWrite)){
         QTextStream stream(&file);
-        stream << "#!/bin/bash" << endl << endl;
-        stream << "while [ 1 ]"<<endl;
-        stream << "do"<<endl;
-        stream << "     pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "     if [ -z $pid ]" << endl;
-        stream << "     then" << endl;
-        stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << endl;
-        stream << "     else" << endl;
-        stream << "         kill -9 $pid" << endl;
-        stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << endl;
-        stream << "     fi" << endl;
-        stream << "done" << endl;
+        stream << "#!/bin/bash" << "\n" << "\n";
+        stream << "while [ 1 ]"<<"\n";
+        stream << "do"<<"\n";
+        stream << "     pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "     if [ -z $pid ]" << "\n";
+        stream << "     then" << "\n";
+        stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << "\n";
+        stream << "     else" << "\n";
+        stream << "         kill -9 $pid" << "\n";
+        stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << "\n";
+        stream << "     fi" << "\n";
+        stream << "done" << "\n";
     }
 
     file.close();
     //Chmod
     QProcess process;
     process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x startslam.sh");
+    process.start("chmod +x startslam.sh",QStringList(),QProcess::ReadWrite);
     process.waitForReadyRead(200);
 
 }
@@ -3301,55 +3297,55 @@ void Supervisor::makeAllKillShell(){
     QFile file(file_name);
     if(file.open(QIODevice::ReadWrite)){
         QTextStream stream(&file);
-        stream << "#!/bin/bash" << endl << endl;
+        stream << "#!/bin/bash" << "\n" << "\n";
 
 
-        stream << "pid=`ps -ef | grep \"startslam.sh\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"startslam.sh is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "pid=`ps -ef | grep \"startslam.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"startslam.sh is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
 
-        stream << "pid=`ps -ef | grep \"startextproc.sh\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"startextproc.sh is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "pid=`ps -ef | grep \"startextproc.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"startextproc.sh is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
 
 
-        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"SLAMNAV is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"SLAMNAV is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
 
-        stream << "pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"ExtProcess is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"ExtProcess is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
 
-        stream << "pid=`ps -ef | grep \"MAIN_MOBILE\" | grep -v 'grep' | awk '{print $2}'`"<<endl;
-        stream << "if [ -z $pid ]" << endl;
-        stream << "then" << endl;
-        stream << "     echo \"MAIN_MOBILE is not running\"" << endl;
-        stream << "else" << endl;
-        stream << "     kill -9 $pid" << endl;
-        stream << "fi" << endl;
+        stream << "pid=`ps -ef | grep \"MAIN_MOBILE\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+        stream << "if [ -z $pid ]" << "\n";
+        stream << "then" << "\n";
+        stream << "     echo \"MAIN_MOBILE is not running\"" << "\n";
+        stream << "else" << "\n";
+        stream << "     kill -9 $pid" << "\n";
+        stream << "fi" << "\n";
     }
     file.close();
     //Chmod
     QProcess process;
     process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x killall.sh");
+    process.start("chmod +x killall.sh",QStringList(),QProcess::ReadWrite);
     process.waitForReadyRead(200);
 }
 
@@ -3494,7 +3490,7 @@ void Supervisor::onTimer(){
             QMetaObject::invokeMethod(mMain, "docharge");
         }else if(getLocalizationState() != LOCAL_READY || probot->motor[0].status > 1 || probot->motor[1].status > 1){
             ui_state = UI_STATE_INITAILIZING;
-            plog->write("[SUPERVISOR] STATE Detect : Failed "+QString().sprintf("%d, %d, %d",getLocalizationState(),probot->motor[0].status,probot->motor[1].status));
+            plog->write("[SUPERVISOR] STATE Detect : Failed "+QString().asprintf("%d, %d, %d",getLocalizationState(),probot->motor[0].status,probot->motor[1].status));
             if(debug_mode){
 
             }else{
@@ -3629,7 +3625,7 @@ void Supervisor::onTimer(){
                     if(current_cnt++ > check_count){
                         //MOTOR THRESHOLD IN. PAUSED!
                         if(probot->running_state != ROBOT_MOVING_PAUSED){
-                            plog->write("[SUPERVISOR] AUTO PAUSED : Motor Current Over "+QString().sprintf("(0 : %f, 1 : %f, limit: %f)",probot->motor[0].current,probot->motor[1].current,current_threshold));
+                            plog->write("[SUPERVISOR] AUTO PAUSED : Motor Current Over "+QString().asprintf("(0 : %f, 1 : %f, limit: %f)",probot->motor[0].current,probot->motor[1].current,current_threshold));
                             ipc->movePause();
                             is_test_moving = false;
                         }
@@ -3809,9 +3805,9 @@ void Supervisor::onTimer(){
                                         if(patrol_list.size() > 0){
                                             if(patrol_mode == PATROL_RANDOM){
                                                 //패트롤 위치 랜덤하게 지정
-                                                int temp = qrand();
+                                                int temp = QRandomGenerator::global()->generate();
                                                 while(patrol_num == temp%(patrol_list.size())){
-                                                    temp = qrand();
+                                                    temp = QRandomGenerator::global()->generate();
                                                     qDebug() << "Next temp = " << temp << temp%(patrol_list.size());
                                                 }
                                                 plog->write("[SUPERVISOR] MOVING (PATROL RANDOM) : CUR ("+QString::number(temp%(patrol_list.size()))+") LAST ("+QString::number(patrol_num)+")");
@@ -3846,7 +3842,7 @@ void Supervisor::onTimer(){
                                                     patrol_mode = PATROL_NONE;
                                                 }
                                             }else{
-                                                plog->write("[SUPERVISOR] PATROL LIST IS NOT EMPTY BUT MODE IS NONE "+QString().sprintf("(mode: %d, list size : %d)",patrol_mode,patrol_list.size()));
+                                                plog->write("[SUPERVISOR] PATROL LIST IS NOT EMPTY BUT MODE IS NONE "+QString().asprintf("(mode: %d, list size : %d)",patrol_mode,patrol_list.size()));
                                                 patrol_list.clear();
                                             }
                                         }
@@ -4141,14 +4137,14 @@ void Supervisor::goServing(int group, int table){
             }
         }
         if(target_num > -1){
-            plog->write("[COMMAND] START Serving : "+target.name+QString().sprintf(" (group : %d, table : %d)", group, table));
+            plog->write("[COMMAND] START Serving : "+target.name+QString().asprintf(" (group : %d, table : %d)", group, table));
             for(int i=0; i<probot->trays.size(); i++){
                 probot->trays[i].empty = false;
                 probot->trays[i].location = target;
             }
             ui_state = UI_STATE_MOVING;
         }else{
-            plog->write("[COMMAND] START Serving (target not found) : "+QString().sprintf(" (group : %d, table : %d)", group, table));
+            plog->write("[COMMAND] START Serving (target not found) : "+QString().asprintf(" (group : %d, table : %d)", group, table));
         }
     }else{
         plog->write("[COMMAND] START Serving (State not ready) : "+QString::number(ui_state));
@@ -4283,7 +4279,7 @@ void Supervisor::process_done(int cmd){
         setSetting("robot","VERSION/last_update_mode","git");
         setSetting("robot","VERSION/last_update_date",probot->program_date);
         readSetting();
-        QProcess::startDetached(QApplication::applicationFilePath());
+        QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
         QApplication::exit(12);
     }else if(cmd == ExtProcess::PROCESS_CMD_UNZIP){
         plog->write("[UPDATE] Unzip Success");

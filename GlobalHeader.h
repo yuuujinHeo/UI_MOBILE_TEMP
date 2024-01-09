@@ -59,14 +59,14 @@ enum{
 typedef struct{
     int chunkSize = 0;
     int imageSize = 0;
-    QVector<int> data;
-    QVector<int> data_objecting;
+    QList<int> data;
+    QList<int> data_objecting;
     QPixmap test_mapping;
     cv::Mat map_mapping;
     cv::Mat map_objecting;
     QPixmap test_objecting;
 
-    QVector<ST_CAMERA> camera_info;
+    QList<ST_CAMERA> camera_info;
     QString left_camera;
     QString right_camera;
 
@@ -89,11 +89,11 @@ typedef struct{
 
     QStringList location_groups;
     QList<LOCATION> locations;
-    QVector<QVector<cv::Point2f>> tlines;
-    QVector<OBJECT> objects;
+    QList<QList<cv::Point2f>> tlines;
+    QList<OBJECT> objects;
 
-    QVector<cv::Point2f> list_obj_uL;
-    QVector<cv::Point2f> list_obj_dR;
+    QList<cv::Point2f> list_obj_uL;
+    QList<cv::Point2f> list_obj_dR;
 
     float margin;
     bool use_uicmd;
@@ -149,7 +149,7 @@ typedef struct{
     int status_charge = 0;
     int status_lock = 0;
 
-    QVector<float> bat_list;
+    QList<float> bat_list;
     int battery_percent = 0;
     float battery = 0.;
     float battery_in = 0;
@@ -177,11 +177,11 @@ typedef struct{
 
     POSE curPose;
     POSE lastPose;
-    QVector<int> pickupTrays;
+    QList<int> pickupTrays;
     POSE curTarget;
 
     int pathSize =0;
-    QVector<POSE> curPath;
+    QList<POSE> curPath;
     int localpathSize =0;
     POSE localPath[4];
 
@@ -193,13 +193,13 @@ typedef struct{
     QString type = "SERVING";
     float velocity = 1.0;
 
-    QVector<ST_TRAY> trays;
+    QList<ST_TRAY> trays;
     bool is_calling=false;
     bool is_patrol = false;
     LOCATION curLocation;
     int cur_preset=3;
     int comeback_preset=3;
-//    QVector<QString> call_list;
+//    QList<QString> call_list;
 
     int call_moving_count=0;
     int max_moving_count;
@@ -214,7 +214,7 @@ typedef struct{
     QString program_version;
     QString program_date;
     QString program_message;
-    QVector<ST_GIT> gitList;
+    QList<ST_GIT> gitList;
 
     QMap<QString, ST_WIFI> wifi_map;
     int wifi_connection = 0;
@@ -244,7 +244,7 @@ typedef struct{
 }ST_PATROL;
 
 typedef struct{
-    QVector<ST_PATROL> path;
+    QList<ST_PATROL> path;
     QString filename;
     int mode;
 }ST_PATROLMODE;

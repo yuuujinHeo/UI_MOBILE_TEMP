@@ -73,7 +73,7 @@ ExtProcess::ExtProcess(QObject *parent)
     command_list.clear();
     program = new QProcess();
     program->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    program->start("xterm ./startextproc.sh");
+    program->start("xterm",QStringList() << "./startextproc.sh",QProcess::ReadWrite);
 //    program->start(QDir::homePath()+"/start_extproc.sh");
 
     timer = new QTimer();

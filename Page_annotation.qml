@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-import QtQuick.Dialogs 1.2
+//import QtQuick.Dialogs 1.2
 import Qt.labs.platform 1.0 as Platform
 import QtQuick.Shapes 1.12
 import QtGraphicalEffects 1.0
@@ -875,6 +875,7 @@ Item {
                                 text: qsTr("확인")
                                 width: 180
                                 height: 100
+                                btncolor: color_green
                                 onClicked:{
                                     click_sound.play();
                                     map.save("rotate");
@@ -939,7 +940,7 @@ Item {
             Component.onDestruction: {
                 map_location_view.setEnable(false);
                 if(!annotation_after_mapping){
-                    supervisor.stopDrawingTline();
+//                    supervisor.stopDrawingTline();
                     map_location_view.save("tline");
                 }
             }
@@ -986,7 +987,7 @@ Item {
                 interval: 500
                 onTriggered:{
                     supervisor.drawingRunawayStart();
-                    supervisor.startDrawingTline();
+//                    supervisor.startDrawingTline();
                 }
             }
             Timer{
@@ -1652,6 +1653,7 @@ Item {
                         type: "round_text"
                         width: 180
                         height: 80
+                        btncolor: color_green
                         text: qsTr("확인")
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 50
@@ -1827,6 +1829,7 @@ Item {
                 running: true
                 onTriggered:{
                     supervisor.drawingRunawayStop();
+//                    supervisor.draw
                 }
             }
             Timer{
@@ -2217,15 +2220,16 @@ Item {
 
                                 }
                             }
-
                         }
+
                         MAP_FULL2{
                             id: map_location_list
-                            width: 350
+                            width: 300
                             show_ratio: false
                             anchors.horizontalCenter: parent.horizontalCenter
-                            height: 350
+                            height: 300
                         }
+
                         Row{
                             anchors.horizontalCenter: parent.horizontalCenter
                             spacing: 30
@@ -3174,7 +3178,7 @@ Item {
                     }else{
                         if(map.getTFlag()){
                             supervisor.writelog("[ANNOTATION] Map Editor : Localization Failed -> Stop Travelline Drawing");
-                            supervisor.stopDrawingTline();
+//                            supervisor.stopDrawingTline();
                             popup_notice.open();
                             popup_notice.main_str = qsTr("위치를 찾을 수 없습니다.")
                             popup_notice.show_localization = true;
@@ -3241,6 +3245,7 @@ Item {
                                 text: "저장하고 변경"
                                 width: 140
                                 height: 60
+                                btncolor: color_green
                                 fontsize: 20
                                 onClicked:{
                                     is_edited = false;
@@ -4370,6 +4375,7 @@ Item {
                                 text: qsTr("저장")
                                 width: 180
                                 height: 60
+                                btncolor: color_green
                                 onClicked:{
                                     click_sound.play();
                                     save();

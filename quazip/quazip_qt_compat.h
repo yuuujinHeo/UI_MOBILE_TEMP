@@ -138,7 +138,7 @@ inline qint64 quazip_to_time64_t(const QDateTime &time) {
 #if QT_VERSION >= QT_VERSION_CHECK(5, 15, 0)
 const auto quazip_endl = Qt::endl;
 #else
-const auto quazip_endl = endl;
+const auto quazip_"\n" = "\n";
 #endif
 
 #endif // QUAZIP_QT_COMPAT_H
