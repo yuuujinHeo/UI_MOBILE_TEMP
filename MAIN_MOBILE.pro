@@ -1,4 +1,4 @@
-QT += core gui quick widgets network websockets sql quickcontrols2 serialport gui-private #multimedia
+QT += core gui quick widgets network websockets sql quickcontrols2 serialport gui-private multimedia
 
 CONFIG += c++11 quickcompiler
 

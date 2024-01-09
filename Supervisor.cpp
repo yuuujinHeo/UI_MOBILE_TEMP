@@ -13,6 +13,7 @@
 #include <QGuiApplication>
 #include <zlib.h>
 #include <libusb-1.0/libusb.h>
+#include <QMediaPlayer>
 #include <QDir>
 #include <QProcess>
 #include <QFileSystemWatcher>
@@ -1775,6 +1776,13 @@ bool Supervisor::getMappingflag(){
     }
 }
 
+void Supervisor::playVoice(QString voice){
+    QMediaPlayer player;
+    player.setMedia(QUrl("qrc:/voice/woman_start_mapping.mp3"));
+    player.setVolume(100);
+    player.play();
+    plog->write("[SUPERVISOR] Play Voice : "+voice);
+}
 
 bool Supervisor::getObjectingflag(){
     return ipc->flag_objecting;
@@ -2086,7 +2094,6 @@ int Supervisor::getLocationGroupNum(int num){
     return 0;
 }
 QString Supervisor::getLocationCallID(int num){
-    int count = 0;
     if(num>-1 && num < pmap->locations.size()){
         return pmap->locations[num].call_id;
     }
