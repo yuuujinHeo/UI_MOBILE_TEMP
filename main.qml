@@ -118,6 +118,10 @@ Window {
 
     function playVoice(str){
         supervisor.writelog("[UI] Play Voice : "+str);
+<<<<<<< HEAD
+        print("playVoice ",str);
+=======
+>>>>>>> refs/remotes/origin/master
         if(str === "startServing"){
             if(voice_serving.isplaying){
             }else{

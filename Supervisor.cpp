@@ -807,12 +807,16 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
         }
         pmap->annot_edit_location = true;
     }
+
     pmap->annot_edit_location = true;
 //    std::sort(pmap->locations.begin(),pmap->locations.end(),sortLocation2);
     pmap->annot_edit_location = true;
 
+    plog->write("[SUPERVISOR] Save Location 1");
     saveAnnotation(maph->map_name);
+    plog->write("[SUPERVISOR] Save Location 2");
     maph->initLocation();
+    plog->write("[SUPERVISOR] Save Location 3");
 
 }
 ////*********************************************  OBJECTING 관련   ***************************************************////
@@ -2578,7 +2582,7 @@ bool Supervisor::isOdroid(){
     }
 }
 bool Supervisor::saveAnnotation(QString filename){
-    plog->write("[SUPERVISOR] SAVE Annotation "+filename);
+    plog->write("[SUPERVISOR] SAVdE Annotation "+filename);
     //기존 파일 백업
     QString backup = QDir::homePath()+"/RB_MOBILE/maps/"+filename+"/annotation_backup.ini";
     QString origin = getAnnotPath(filename);
@@ -2775,6 +2779,18 @@ void Supervisor::moveToWait(){
         is_test_moving = false;
         QMetaObject::invokeMethod(mMain,"movefail");
         plog->write("[COMMAND] Move to Resting (State busy "+QString::number(ui_state)+")");
+    }
+}
+void Supervisor::moveToCleaning(){
+    if(ui_state == UI_STATE_RESTING|| ui_state == UI_STATE_MOVEFAIL || ui_state == UI_STATE_CLEANING){
+        plog->write("[COMMAND] Move to Cleaning");
+        current_target = getLocation(0, "Cleaning0");
+        ui_state = UI_STATE_MOVING;
+        is_test_moving = false;
+    }else{
+        is_test_moving = false;
+        QMetaObject::invokeMethod(mMain,"movefail");
+        plog->write("[COMMAND] Move to Cleaning (State busy "+QString::number(ui_state)+")");
     }
 }
 QString Supervisor::getcurLoc(){

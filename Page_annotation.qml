@@ -153,6 +153,8 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(3+i),
+                                     "callerror":false,
+                                     "nameerror":false,
                                "error":false});
             }
         }else{
@@ -160,6 +162,8 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(2+i),
+                                     "callerror":false,
+                                     "nameerror":false,
                                "error":false});
             }
         }
@@ -191,7 +195,9 @@ Item {
                                "nameerror":false,
                                "call_id":supervisor.getLocationCallID(2)});
         }
+        print("locations count = ",locations.count);
         for(var i=0; i<locations.count; i++){
+            print("locations append = ",i,locations.count);
             details.append({"ltype":"Serving",
                             "name":locations.get(i).name,
                            "group":locations.get(i).group,

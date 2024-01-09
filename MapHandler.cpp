@@ -49,7 +49,7 @@ bool MapHandler::getCutBoxFlag(){
 }
 
 void MapHandler::loadFile(QString name, QString type){
-//    qDebug() << "loadFile " << name << type;
+    qDebug() << "loadFile " << name << type;
     QString file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_raw.png";
     QString log_str;
     if(QFile::exists(file_path)){
@@ -437,7 +437,7 @@ void MapHandler::setMode(QString name){
         show_location = true;
         show_location_icon = true;
         show_travelline = false;
-        robot_following = true;
+        robot_following = false;
         pmap->annotation_edited = false;
         pmap->annot_edit_drawing = false;
         pmap->annot_edit_location = false;
@@ -537,7 +537,7 @@ void MapHandler::initLocation(){
             temp.point = setAxis(pmap->locations[i].point);
             temp.angle = setAxis(pmap->locations[i].angle);
         }
-//        qDebug() <<"locations push " << temp.type << temp.number;
+        qDebug() <<"locations push " << temp.type << temp.name;
         locations.push_back(temp);
     }
 }
@@ -2626,11 +2626,12 @@ void MapHandler::saveEditedMap(){
     loadFile(map_name,"");
 }
 void MapHandler::saveTline(){
+    plog->write("[MAPHANDLER] SAVETLINE");
     cv::Mat temp_draw;
     cv::Mat temp_mask;
 
-    cv::cvtColor(map_drawing,temp_draw,cv::COLOR_BGRA2GRAY);
-    cv::cvtColor(map_drawing_mask,temp_mask,cv::COLOR_BGRA2GRAY);
+    cv::cvtColor(map_drawing,temp_draw,cv::COLOR_BGRA2BGR);
+    cv::cvtColor(map_drawing_mask,temp_mask,cv::COLOR_BGRA2BGR);
 
     cv::multiply(cv::Scalar::all(1.0)-temp_mask,file_travelline,file_travelline);
     cv::add(file_travelline,temp_draw,file_travelline);

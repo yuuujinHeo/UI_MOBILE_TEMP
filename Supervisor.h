@@ -591,6 +591,7 @@ public:
     Q_INVOKABLE void moveStop();
     Q_INVOKABLE void moveToCharge();
     Q_INVOKABLE void moveToWait();
+    Q_INVOKABLE void moveToCleaning();
     Q_INVOKABLE QString getcurLoc();
     Q_INVOKABLE QString getcurTable();
 
