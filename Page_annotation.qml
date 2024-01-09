@@ -153,6 +153,8 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(3+i),
+                                     "callerror":false,
+                                     "nameerror":false,
                                "error":false});
             }
         }else{
@@ -160,6 +162,8 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(2+i),
+                                     "callerror":false,
+                                     "nameerror":false,
                                "error":false});
             }
         }
@@ -192,7 +196,9 @@ Item {
                                "nameerror":false,
                                "call_id":supervisor.getLocationCallID(2)});
         }
+        print("locations count = ",locations.count);
         for(var i=0; i<locations.count; i++){
+            print("locations append = ",i,locations.count);
             details.append({"ltype":"Serving",
                             "name":locations.get(i).name,
                            "group":locations.get(i).group,
@@ -1473,7 +1479,6 @@ Item {
                                             textfield_loc_name.color = color_red;
                                             text_loc_check.text = qsTr("이미 중복되는 이름이 있습니다");
                                         }else{
-
                                             click_sound.play();
                                             map_hide.savelocation("location_cur","Serving", popup_add_serving.cur_group, textfield_loc_name.text);
                                             supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving -> "+popup_add_serving.cur_group+", "+textfield_loc_name.text);

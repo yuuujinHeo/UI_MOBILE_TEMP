@@ -31,7 +31,7 @@ Item {
 
     Timer{
         id: update_timer
-        interval: 1000
+        interval: 100
         running: true
         repeat: true
         onTriggered:{

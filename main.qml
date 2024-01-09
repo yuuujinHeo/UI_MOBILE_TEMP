@@ -115,6 +115,7 @@ Window {
 
 
     function playVoice(str){
+        supervisor.writelog("[UI] Play Voice : "+str);
         print("playVoice ",str);
         if(str === "startServing"){
             if(voice_serving.isplaying){
