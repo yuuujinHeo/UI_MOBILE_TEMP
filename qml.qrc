@@ -10,10 +10,6 @@
         <file>Page_setting.qml</file>
         <file>bgm/song.mp3</file>
         <file>Page_charge.qml</file>
-        <file>bgm/voice_start_serving.mp3</file>
-        <file>bgm/voice_pickup.mp3</file>
-        <file>bgm/voice_move_charge.mp3</file>
-        <file>bgm/voice_avoid.mp3</file>
         <file>Page_init.qml</file>
         <file>image/warning.png</file>
         <file>Page_MoveFail.qml</file>
@@ -116,11 +112,6 @@
         <file>icon/keyboard_up.png</file>
         <file>Popup_map_list.qml</file>
         <file>Tool_Keyboard.qml</file>
-        <file>bgm/voice_movefail.mp3</file>
-        <file>bgm/voice_move_wait.mp3</file>
-        <file>bgm/voice_start_charge.mp3</file>
-        <file>bgm/voice_stop_charge.mp3</file>
-        <file>bgm/voice_thanks.mp3</file>
         <file>icon/bat_large_1.png</file>
         <file>icon/bat_large_2.png</file>
         <file>icon/bat_large_3.png</file>
@@ -132,13 +123,6 @@
         <file>icon/motor_power_off.png</file>
         <file>icon/motor_power_on.png</file>
         <file>icon/icon_local_error.png</file>
-        <file>bgm/voice_charging.mp3</file>
-        <file>bgm/voice_emergency.mp3</file>
-        <file>bgm/voice_local_fail.mp3</file>
-        <file>bgm/voice_motor_error.mp3</file>
-        <file>bgm/voice_obs_too_close.mp3</file>
-        <file>bgm/voice_start_mapping.mp3</file>
-        <file>bgm/voice_stop_mapping.mp3</file>
         <file>icon/icon_test_play.png</file>
         <file>icon/icon_random.png</file>
         <file>icon/icon_obj_yes.png</file>
@@ -163,17 +147,8 @@
         <file>icon/icon_local_manual.png</file>
         <file>icon/icon_local_auto.png</file>
         <file>icon/icon_init.png</file>
-        <file>video/slam_help.gif</file>
-        <file>video/rotate_help.gif</file>
-        <file>video/obj_help.gif</file>
-        <file>video/loc_help.gif</file>
-        <file>video/draw_help.gif</file>
-        <file>video/tline_help.gif</file>
-        <file>bgm/voice_start_calling.mp3</file>
-        <file>bgm/voice_pickup_calling.mp3</file>
         <file>bgm/battery.mp3</file>
         <file>Page_log.qml</file>
-        <file>video/loading_row.gif</file>
         <file>icon/icon_bookmark.png</file>
         <file>icon/icon_location.png</file>
         <file>icon/icon_trashcan.png</file>

@@ -1771,12 +1771,13 @@ bool Supervisor::getMappingflag(){
         return ipc->flag_mapping;
     }
 }
-
+QMediaPlayer *player_global;
 void Supervisor::playVoice(QString voice){
     QMediaPlayer player;
-    player.setMedia(QUrl("qrc:/voice/woman_start_mapping.mp3"));
-    player.setVolume(100);
-    player.play();
+    player_global = new QMediaPlayer();
+    player_global->setMedia(QUrl("qrc:/voice/woman_start_mapping.mp3"));
+    player_global->setVolume(100);
+    player_global->play();
     plog->write("[SUPERVISOR] Play Voice : "+voice);
 }
 
