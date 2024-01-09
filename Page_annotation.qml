@@ -163,7 +163,6 @@ Item {
                                "error":false});
             }
         }
-
         update();
     }
 
@@ -1473,7 +1472,6 @@ Item {
                                             textfield_loc_name.color = color_red;
                                             text_loc_check.text = qsTr("이미 중복되는 이름이 있습니다");
                                         }else{
-
                                             click_sound.play();
                                             map_hide.savelocation("location_cur","Serving", popup_add_serving.cur_group, textfield_loc_name.text);
                                             supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving -> "+popup_add_serving.cur_group+", "+textfield_loc_name.text);

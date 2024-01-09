@@ -134,6 +134,7 @@ public:
     Q_INVOKABLE void setFullScreen(){maph->setFullScreen();}
     Q_INVOKABLE void setMapDrawing(){maph->setMapDrawing();}
 
+    Q_INVOKABLE void playVoice(QString voice);
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
     Q_INVOKABLE void setName(QString name){maph->setName(name);}

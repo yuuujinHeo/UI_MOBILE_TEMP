@@ -103,6 +103,8 @@ Window {
         voice_motor_error.source = supervisor.getVoice("error_call_manager");
         voice_emergency.source = supervisor.getVoice("error_emo");
         voice_battery.source = supervisor.getVoice("low_battery");
+
+        voice_start_mapping2.source = supervisor.getVoice("start_mapping");
     }
 
 
@@ -115,7 +117,7 @@ Window {
 
 
     function playVoice(str){
-        print("playVoice ",str);
+        supervisor.writelog("[UI] Play Voice : "+str);
         if(str === "startServing"){
             if(voice_serving.isplaying){
             }else{
@@ -139,6 +141,13 @@ Window {
             }else{
                 voice_all_stop();
                 voice_movecharge.play();
+            }
+        }else if(str === "startMapping"){
+            if(voice_start_mapping2.isplaying){
+
+            }else{
+                voice_all_stop();
+                voice_start_mapping2.play();
             }
         }else if(str === "noBattery"){
             if(voice_battery.isplaying){
@@ -304,6 +313,7 @@ Window {
         voice_calling.stop();
         voice_battery.stop();
         voice_wait.stop();
+        voice_start_mapping2.stop();
     }
 
     function lessbattery(){
@@ -764,6 +774,31 @@ Window {
         }
         onPlaying:{
             isplaying = true;
+        }
+    }
+    Audio{
+        id: voice_start_mapping2
+        autoPlay: false
+        volume: volume_voice/100
+        source: supervisor.getVoice("start_mapping");
+        property bool isplaying: false
+        onStopped: {
+            isplaying = false;
+        }
+        onStatusChanged: {
+            print("status : ",status);
+        }
+        onPositionChanged: {
+            print("position : ",position);
+        }
+
+        onPlaying:{
+            print("play start mapping");
+            isplaying = true;
+        }
+        onPlaylistChanged: {
+            if(playing) playingSound = true;
+            else playingSound = false;
         }
     }
     Audio{

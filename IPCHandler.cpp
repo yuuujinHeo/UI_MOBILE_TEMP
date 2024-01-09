@@ -290,6 +290,7 @@ void IPCHandler::onTimer(){
         pmap->map_mapping = map1;
 
         if(is_mapping){
+//            qDebug() << "flag mapping true";
             flag_mapping = true;
         }
         prev_tick_map = temp3.tick;

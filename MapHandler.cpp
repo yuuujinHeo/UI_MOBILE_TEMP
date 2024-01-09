@@ -988,7 +988,7 @@ void MapHandler::setMapTest(){
 //    qDebug() << "setMap:" << map_orin.rows;
     if(mode == "mapping"){
         map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_mapping));
-        qDebug() << "mapping size = " << pmap->map_mapping.rows;
+//        qDebug() << "mapping size = " << pmap->map_mapping.rows;
         grid_width = pmap->mapping_gridwidth*pmap->mapping_width/file_width;
         if(file_width != pmap->map_mapping.rows){
             file_width = pmap->map_mapping.rows;
