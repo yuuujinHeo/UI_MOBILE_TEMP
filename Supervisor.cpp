@@ -48,11 +48,12 @@ Supervisor::Supervisor(QObject *parent)
     process->start(file,QStringList(),QProcess::ReadWrite);
     process->waitForReadyRead(3000);
 
-
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
     timer->start(MAIN_THREAD);
 
+    voice_player = new QMediaPlayer();
+    bgm_player = new QMediaPlayer();
     mMain = nullptr;
     usb_list.clear();
     usb_backup_list.clear();
@@ -82,7 +83,6 @@ Supervisor::Supervisor(QObject *parent)
     checkRobotINI();
     readSetting();
     startSLAM();
-
 
     //Test USB
     QFileSystemWatcher *FSwatcher;
@@ -1775,14 +1775,33 @@ bool Supervisor::getMappingflag(){
         return ipc->flag_mapping;
     }
 }
-QMediaPlayer *player_global;
+QMediaPlayer *player;
 void Supervisor::playVoice(QString voice){
-    QMediaPlayer player;
-    player_global = new QMediaPlayer();
-    player_global->setMedia(QUrl("qrc:/voice/woman_start_mapping.mp3"));
-    player_global->setVolume(100);
-    player_global->play();
+    player = new QMediaPlayer();
+//    voice_player = new QMediaPlayer();
+    voice_player->stop();
+//    voice_player->setMedia(QUrl("qrc:/voice/woman_start_mapping.mp3"));
+    voice_player->setMedia(QUrl("qrc:/"+getVoice(voice,"")));//woman_start_mapping.mp3"));
+    voice_player->setVolume(100);
+    voice_player->play();
     plog->write("[SUPERVISOR] Play Voice : "+voice);
+}
+
+bool Supervisor::isplayBGM(){
+    if(bgm_player->state() == QMediaPlayer::PlayingState){
+        return true;
+    }else{
+        return false;
+    }
+}
+void Supervisor::playBGM(){
+    bgm_player->setMedia(QUrl("qrc:/bgm/song.mp3"));
+    bgm_player->setVolume(getSetting("setting","UI","volume_bgm").toInt());
+    bgm_player->play();
+}
+
+void Supervisor::stopBGM(){
+    bgm_player->stop();
 }
 
 bool Supervisor::getObjectingflag(){

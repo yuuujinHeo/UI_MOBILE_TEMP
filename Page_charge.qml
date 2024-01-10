@@ -80,16 +80,18 @@ Item {
             if(supervisor.getChargeStatus()){
                 if(!is_charging){
                     timer_bat.start();
-                    voice_stop_charge.stop();
-                    voice_charging.play();
+//                    voice_stop_charge.stop();
+//                    voice_charging.play();
+                    supervisor.playVoice("charging");
                     is_charging = true;
                 }
                 text_mention.text = qsTr("충전 중입니다")
             }else{
                 if(is_charging){
                     init();
-                    voice_charging.stop();
-                    voice_stop_charge.play();
+                    supervisor.playVoice("stop_charging");
+//                    voice_charging.stop();
+//                    voice_stop_charge.play();
                     if(is_init){
                         is_init = false;
                         loadPage(pinit);
@@ -323,45 +325,6 @@ Item {
                     loadPage(pkitchen);
                 }
             }
-        }
-    }
-    Audio{
-        id: voice_charging
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("charging");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_start_charge
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_charging");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_stop_charge
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("stop_charging");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
         }
     }
 }

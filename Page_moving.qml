@@ -27,7 +27,8 @@ Item {
     }
 
     Component.onDestruction:  {
-        playMusic.stop();
+//        playMusic.stop();
+        supervisor.stopBGM();
     }
 
     function setTempText(t1, t2){
@@ -55,7 +56,8 @@ Item {
                 image_robot.visible = true;
             }
             robot_paused = false;
-            playMusic.play();
+            supervisor.playBGM();
+//            playMusic.play();
         }
     }
     function checkPaused(){

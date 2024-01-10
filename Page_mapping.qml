@@ -38,17 +38,16 @@ Item {
             if(supervisor.getMappingflag()){
                 if(!is_mapping){
                     supervisor.writelog("[UI] Play Voice : start mapping");
-                    voice_stop_mapping.stop();
-                    supervisor.playVoice("startMapping");
-//                    playVoice("startMapping");
-//                    voice_start_mapping.play();
+//                    voice_stop_mapping.stop();
+                    supervisor.playVoice("start_mapping");
                     is_mapping = true;
                 }
             }else{
                 if(is_mapping){
                     supervisor.writelog("[UI] Play Voice : stop mapping");
-                    voice_stop_mapping.play();
-                    voice_start_mapping.stop();
+//                    voice_stop_mapping.play();
+//                    voice_start_mapping.stop();
+                    supervisor.playVoice("stop_mapping");
                     is_mapping = false;
                 }
             }
@@ -849,38 +848,6 @@ Item {
                     }
                 }
             }
-        }
-    }
-
-    Audio{
-        id: voice_start_mapping
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_mapping");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            print("play start mapping");
-            isplaying = true;
-        }
-        onPlaylistChanged: {
-            if(playing) print("playing")
-            else print("no playing")
-        }
-    }
-    Audio{
-        id: voice_stop_mapping
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("stop_mapping");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
         }
     }
 

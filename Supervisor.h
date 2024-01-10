@@ -10,6 +10,7 @@
 #include "ZIPHandler.h"
 #include "IPCHandler.h"
 #include "ServerHandler.h"
+#include <QMediaPlayer>
 #include "MapView.h"
 #include "MapHandler.h"
 #include "ExtProcess.h"
@@ -134,6 +135,11 @@ public:
     Q_INVOKABLE void setFullScreen(){maph->setFullScreen();}
     Q_INVOKABLE void setMapDrawing(){maph->setMapDrawing();}
 
+    QMediaPlayer *bgm_player;
+    QMediaPlayer *voice_player;
+    Q_INVOKABLE void playBGM();
+    Q_INVOKABLE void stopBGM();
+    Q_INVOKABLE bool isplayBGM();
     Q_INVOKABLE void playVoice(QString voice);
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
