@@ -827,7 +827,7 @@ Item {
             dnsmain_4.text = ip[3];
         }
 
-        voice_test.source = supervisor.getVoice("start_serving");
+//        voice_test.source = supervisor.getVoice("start_serving");
 
         //변수 초기화
         platform_name.ischanged = false;
@@ -1060,32 +1060,32 @@ Item {
         id: keyboard
     }
 
-    Audio{
-        id: voice_test
-        autoPlay: false
-        volume: slider_volume_voice.value/100
-        source: supervisor.getVoice("start_serving");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: bgm_test
-        property bool isplaying: false
-        autoPlay: false
-        volume: slider_volume_bgm.value/100
-        source: "bgm/song.mp3"
-        onPlaying: {
-            isplaying = true;
-        }
-        onStopped: {
-            isplaying = false;
-        }
-    }
+//    Audio{
+//        id: voice_test
+//        autoPlay: false
+//        volume: slider_volume_voice.value/100
+//        source: supervisor.getVoice("start_serving");
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: bgm_test
+//        property bool isplaying: false
+//        autoPlay: false
+//        volume: slider_volume_bgm.value/100
+//        source: "bgm/song.mp3"
+//        onPlaying: {
+//            isplaying = true;
+//        }
+//        onStopped: {
+//            isplaying = false;
+//        }
+//    }
 
     Rectangle{
         id: dfdfd
@@ -2310,11 +2310,11 @@ Item {
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
-                                    if(currentIndex == 0){
-                                        voice_test.source = supervisor.getVoice("start_serving","child");
-                                    }else if(currentIndex == 1){
-                                        voice_test.source = supervisor.getVoice("start_serving","woman");
-                                    }
+//                                    if(currentIndex == 0){
+//                                        voice_test.source = supervisor.getVoice("start_serving","child");
+//                                    }else if(currentIndex == 1){
+//                                        voice_test.source = supervisor.getVoice("start_serving","woman");
+//                                    }
                                 }
                                 model:["어린이", "여성"]
                             }
@@ -2475,11 +2475,13 @@ Item {
                                         anchors.fill: parent
                                         onClicked: {
                                             click_sound.play();
-                                            if(bgm_test.isplaying){
-                                                bgm_test.stop();
+                                            if(supervisor.isplayBGM()){
+//                                                bgm_test.stop();
+                                                supervisor.stopBGM();
                                                 ttet2132.source = "icon/icon_test_play.png";
                                             }else{
-                                                bgm_test.play();
+//                                                bgm_test.play();e
+                                                supervisor.playBGM(slider_volume_bgm.value);
                                                 ttet2132.source = "icon/icon_test_stop.png";
                                             }
                                         }
@@ -2564,7 +2566,7 @@ Item {
                                         onClicked: {
                                             click_sound.play();
                                             print("test play")
-                                            voice_test.play();
+                                            supervisor.playVoice("start_serving",slider_volume_voice.value);//voice_test.play();
                                         }
                                     }
                                 }

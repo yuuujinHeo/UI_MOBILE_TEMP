@@ -91,21 +91,21 @@ Window {
         loader_page.item.setClear(name,state);
     }
 
-    function readVoice(){
-        voice_movecharge.source = supervisor.getVoice("start_move_charge");
-        voice_serving.source = supervisor.getVoice("start_serving");
-        voice_calling.source = supervisor.getVoice("start_calling");
-        voice_avoid.source = supervisor.getVoice("serving");
-        voice_wait.source = supervisor.getVoice("wait");
-        voice_movefail.source = supervisor.getVoice("error_no_path");
-        voice_movewait.source = supervisor.getVoice("start_move_resting");
-        voice_localfail.source = supervisor.getVoice("error_localization");
-        voice_motor_error.source = supervisor.getVoice("error_call_manager");
-        voice_emergency.source = supervisor.getVoice("error_emo");
-        voice_battery.source = supervisor.getVoice("low_battery");
+//    function readVoice(){
+//        voice_movecharge.source = supervisor.getVoice("start_move_charge");
+//        voice_serving.source = supervisor.getVoice("start_serving");
+//        voice_calling.source = supervisor.getVoice("start_calling");
+//        voice_avoid.source = supervisor.getVoice("serving");
+//        voice_wait.source = supervisor.getVoice("wait");
+//        voice_movefail.source = supervisor.getVoice("error_no_path");
+//        voice_movewait.source = supervisor.getVoice("start_move_resting");
+//        voice_localfail.source = supervisor.getVoice("error_localization");
+//        voice_motor_error.source = supervisor.getVoice("error_call_manager");
+//        voice_emergency.source = supervisor.getVoice("error_emo");
+//        voice_battery.source = supervisor.getVoice("low_battery");
 
-        voice_start_mapping2.source = supervisor.getVoice("start_mapping");
-    }
+//        voice_start_mapping2.source = supervisor.getVoice("start_mapping");
+//    }
 
 
     function gitfailed(){
@@ -116,92 +116,91 @@ Window {
     }
 
 
-    function playVoice(str){
-        supervisor.writelog("[UI] Play Voice : "+str);
+//    function playVoice(str){
+//        supervisor.writelog("[UI] Play Voice : "+str);
+//        if(str === "startServing"){
+//            if(voice_serving.isplaying){
 
-        print("playVoice ",str);
-        if(str === "startServing"){
-            if(voice_serving.isplaying){
-            }else{
-                voice_all_stop();
-                voice_serving.play();
-            }
-        }else if(str === "startCalling"){
-            if(voice_calling.isplaying){
-            }else{
-                voice_all_stop();
-                voice_calling.play();
-            }
-        }else if(str === "moveResting"){
-            if(voice_movewait.isplaying){
-            }else{
-                voice_all_stop();
-                voice_movewait.play();
-            }
-        }else if(str === "moveCharging"){
-            if(voice_movecharge.isplaying){
-            }else{
-                voice_all_stop();
-                voice_movecharge.play();
-            }
-        }else if(str === "startMapping"){
-            if(voice_start_mapping2.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_serving.play();
+//            }
+//        }else if(str === "startCalling"){
+//            if(voice_calling.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_calling.play();
+//            }
+//        }else if(str === "moveResting"){
+//            if(voice_movewait.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_movewait.play();
+//            }
+//        }else if(str === "moveCharging"){
+//            if(voice_movecharge.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_movecharge.play();
+//            }
+//        }else if(str === "startMapping"){
+//            if(voice_start_mapping2.isplaying){
 
-            }else{
-                voice_all_stop();
-                voice_start_mapping2.play();
-            }
-        }else if(str === "noBattery"){
-            if(voice_battery.isplaying){
-            }else{
-                voice_all_stop();
-                voice_battery.play();
-            }
-        }else if(str === "moveWait"){
-            if(voice_wait.isplaying){
-            }else{
-                voice_all_stop();
-                voice_wait.play();
-            }
-        }else if(str === "excuseMe"){
-            if(voice_avoid.isplaying){
-            }else{
-                voice_all_stop();
-                voice_avoid.play();
-            }
-        }else if(str === "errorEMO"){
-            if(voice_emergency.isplaying){
-            }else{
-                voice_all_stop();
-                voice_emergency.play();
-            }
-        }else if(str === "errorLocal"){
-            if(voice_localfail.isplaying){
-            }else{
-                voice_all_stop();
-                voice_localfail.play();
-            }
-        }else if(str === "errorMotor"){
-            if(voice_motor_error.isplaying){
-            }else{
-                voice_all_stop();
-                voice_motor_error.play();
-            }
-        }else if(str === "errorPath"){
-            if(voice_movefail.isplaying){
-            }else{
-                voice_all_stop();
-                voice_movefail.play();
-            }
-        }
-        prev_sound = str;
-    }
-    function stopVoice(){
-        voice_all_stop();
-        playingSound = false;
-        cur_sound = "";
-        next_sound = "";
-    }
+//            }else{
+//                voice_all_stop();
+//                voice_start_mapping2.play();
+//            }
+//        }else if(str === "noBattery"){
+//            if(voice_battery.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_battery.play();
+//            }
+//        }else if(str === "moveWait"){
+//            if(voice_wait.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_wait.play();
+//            }
+//        }else if(str === "excuseMe"){
+//            if(voice_avoid.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_avoid.play();
+//            }
+//        }else if(str === "errorEMO"){
+//            if(voice_emergency.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_emergency.play();
+//            }
+//        }else if(str === "errorLocal"){
+//            if(voice_localfail.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_localfail.play();
+//            }
+//        }else if(str === "errorMotor"){
+//            if(voice_motor_error.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_motor_error.play();
+//            }
+//        }else if(str === "errorPath"){
+//            if(voice_movefail.isplaying){
+//            }else{
+//                voice_all_stop();
+//                voice_movefail.play();
+//            }
+//        }
+//        prev_sound = str;
+//    }
+//    function stopVoice(){
+//        voice_all_stop();
+//        playingSound = false;
+//        cur_sound = "";
+//        next_sound = "";
+//    }
 
 
     Timer{
@@ -281,42 +280,42 @@ Window {
                 supervisor.writelog("[UI] Force Page Change MoveFail : Emergency Switch");
                 loadPage(pmovefail);
                 loader_page.item.setNotice(2);
-                playVoice("errorEMO");
+                supervisor.playVoice("error_emo");
             }else if(supervisor.getMotorState() === 0){
                 supervisor.writelog("[UI] Force Page Change MoveFail : Motor not ready");
                 loadPage(pmovefail);
                 loader_page.item.setNotice(4);
-                stopVoice();
+//                stopVoice();
             }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
                 supervisor.writelog("[UI] Force Page Change MoveFail : Localization not ready");
                 loadPage(pmovefail);
                 loader_page.item.setNotice(1);
-                playVoice("errorLocal");
+                supervisor.playVoice("error_localization");
             }else if(supervisor.getStateMoving() === 0){
                 supervisor.writelog("[UI] Force Page Change MoveFail : Robot not running");
                 loadPage(pmovefail);
                 loader_page.item.setNotice(0);
-                playVoice("errorPath");
+                supervisor.playVoice("error_no_path");
             }else{
                 supervisor.writelog("[UI] Force Page Change MoveFail : Unknown state ("+supervisor.getStateMoving().toString()+","+supervisor.getLocalizationState().toString()+","+supervisor.getMotorState().toString()+")");
             }
         }
     }
 
-    function voice_all_stop(){
-        voice_avoid.stop();
-        voice_emergency.stop();
-        voice_localfail.stop();
-        voice_motor_error.stop();
-        voice_movecharge.stop();
-        voice_movefail.stop();
-        voice_movewait.stop();
-        voice_serving.stop();
-        voice_calling.stop();
-        voice_battery.stop();
-        voice_wait.stop();
-        voice_start_mapping2.stop();
-    }
+//    function voice_all_stop(){
+//        voice_avoid.stop();
+//        voice_emergency.stop();
+//        voice_localfail.stop();
+//        voice_motor_error.stop();
+//        voice_movecharge.stop();
+//        voice_movefail.stop();
+//        voice_movewait.stop();
+//        voice_serving.stop();
+//        voice_calling.stop();
+//        voice_battery.stop();
+//        voice_wait.stop();
+//        voice_start_mapping2.stop();
+//    }
 
     function lessbattery(){
         supervisor.writelog("[UI] Play Voice : less battery");
@@ -334,18 +333,18 @@ Window {
 //        voice_all_stop();
         if(cur_location == "Charging0"){
             cur_location = qsTr("충전 장소");
-            playVoice("moveCharging");
+            supervisor.playVoice("start_move_charge");
         }else if(cur_location == "Resting0"){
             cur_location = qsTr("대기 장소");
-            playVoice("moveResting");
+            supervisor.playVoice("start_move_resting");
         }else if(cur_location == "Cleaning0"){
             cur_location = qsTr("퇴식 장소");
-            playVoice("moveResting");
+            supervisor.playVoice("start_move_resting");
         }else{
             if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                playVoice("startCalling");
+                supervisor.playVoice("start_calling");
             }else{
-                playVoice("startServing");
+                supervisor.playVoice("start_serving");
             }
         }
 
@@ -499,11 +498,11 @@ Window {
     }
 
     function excuseme(){
-        playVoice("excuseMe");
+        supervisor.playVoice("serving");
         print("excuseme");
     }
     function movewait(){
-        playVoice("moveWait");
+        supervisor.playVoice("wait");
     }
 
     function pull_success(){
@@ -608,218 +607,218 @@ Window {
         source: "font/NotoSansKR-Light.otf"
     }
 
-    Audio{
-        id: voice_movecharge
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_move_charge");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_serving
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_serving");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_calling
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_calling");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_avoid
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("serving");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_wait
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("wait");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_movefail
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("error_no_path");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_movewait
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_move_resting");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_localfail
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("error_localization");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_motor_error
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("error_call_manager");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_emergency
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("error_emo");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_start_mapping2
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("start_mapping");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onStatusChanged: {
-            print("status : ",status);
-        }
-        onPositionChanged: {
-            print("position : ",position);
-        }
+//    Audio{
+//        id: voice_movecharge
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("start_move_charge");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_serving
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("start_serving");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_calling
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("start_calling");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_avoid
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("serving");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_wait
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("wait");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_movefail
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("error_no_path");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_movewait
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("start_move_resting");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_localfail
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("error_localization");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_motor_error
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("error_call_manager");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_emergency
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("error_emo");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
+//    Audio{
+//        id: voice_start_mapping2
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("start_mapping");
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onStatusChanged: {
+//            print("status : ",status);
+//        }
+//        onPositionChanged: {
+//            print("position : ",position);
+//        }
 
-        onPlaying:{
-            print("play start mapping");
-            isplaying = true;
-        }
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-    }
-    Audio{
-        id: voice_battery
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("low_battery");
-        onPlaylistChanged: {
-            if(playing) playingSound = true;
-            else playingSound = false;
-        }
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
+//        onPlaying:{
+//            print("play start mapping");
+//            isplaying = true;
+//        }
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//    }
+//    Audio{
+//        id: voice_battery
+//        autoPlay: false
+//        volume: volume_voice/100
+//        source: supervisor.getVoice("low_battery");
+//        onPlaylistChanged: {
+//            if(playing) playingSound = true;
+//            else playingSound = false;
+//        }
+//        property bool isplaying: false
+//        onStopped: {
+//            isplaying = false;
+//        }
+//        onPlaying:{
+//            isplaying = true;
+//        }
+//    }
 
     Popup{
         id: popup_loading

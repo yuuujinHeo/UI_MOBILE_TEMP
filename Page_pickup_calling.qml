@@ -21,7 +21,7 @@ Item {
         text_mention.visible = true;
         target_pos.visible = true;
         btn_confirm.visible = true;
-        voice_pickup.play();
+        supervisor.playVoice("pickup_calling")
         text_hello.visible = false;
         statusbar.visible = false;
         timer_hello.stop();
@@ -105,8 +105,8 @@ Item {
                     onClicked: {
                         click_sound.play();
                         console.log("UI : CONFIRM");
-                        voice_pickup.stop();
-                        voice_thanks.play();
+                        supervisor.playVoice("thank");
+//                        voice_thanks.play();
                         column_pickup.visible = false;
                         text_mention.visible = false;
                         target_pos.visible = false;
@@ -129,33 +129,6 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
         }
     }
-    Audio{
-        id: voice_pickup
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("pickup_calling");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-    Audio{
-        id: voice_thanks
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("thank");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-
     MouseArea{
         id: area_debug
         width: 150

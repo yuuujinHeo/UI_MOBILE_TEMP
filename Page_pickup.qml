@@ -30,7 +30,8 @@ Item {
         btn_confirm.visible = true;
         text_hello.visible = false;
         timer_hello.stop();
-        voice_pickup.play();
+//        voice_pickup.play();
+        supervisor.playVoice("pickup_confirm");
         statusbar.visible = false;
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
         if(tray_num === 2){
@@ -192,8 +193,9 @@ Item {
                         //click_start.play();
                         click_sound.play();
                         supervisor.writelog("[USER INPUT] PICKUP CONFIRM clicked");
-                        voice_pickup.stop();
-                        voice_thanks.play();
+//                        voice_pickup.stop();
+                        supervisor.playVoice("thank");
+//                        voice_thanks.play();
                         column_pickup.visible = false;
                         text_mention.visible = false;
                         text_mention3.visible = false;
@@ -235,62 +237,6 @@ Item {
         }
     }
 
-
-    Audio{
-        id: voice_pickup
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("pickup_confirm");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-
-    Audio{
-        id: voice_tray_1
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("pickup_1");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-
-    Audio{
-        id: voice_tray_2
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("pickup_2");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
-
-    Audio{
-        id: voice_thanks
-        autoPlay: false
-        volume: volume_voice/100
-        source: supervisor.getVoice("thank");
-        property bool isplaying: false
-        onStopped: {
-            isplaying = false;
-        }
-        onPlaying:{
-            isplaying = true;
-        }
-    }
 
     Timer{
         id: timer_hello
