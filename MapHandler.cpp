@@ -668,7 +668,8 @@ void MapHandler::setMapLayer(){
                 }else{
                     painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
                 }
-                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
+                if(num>0)
+                    painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
 
             }
 

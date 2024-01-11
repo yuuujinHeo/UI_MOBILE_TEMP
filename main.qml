@@ -83,172 +83,16 @@ Window {
     property string next_sound: ""
     property string prev_sound: ""
 
-    function setVoice(str){
-        next_sound = str;
-    }
     function setClear(name, state){
         print("setClear" , name, state);
         loader_page.item.setClear(name,state);
     }
-
-//    function readVoice(){
-//        voice_movecharge.source = supervisor.getVoice("start_move_charge");
-//        voice_serving.source = supervisor.getVoice("start_serving");
-//        voice_calling.source = supervisor.getVoice("start_calling");
-//        voice_avoid.source = supervisor.getVoice("serving");
-//        voice_wait.source = supervisor.getVoice("wait");
-//        voice_movefail.source = supervisor.getVoice("error_no_path");
-//        voice_movewait.source = supervisor.getVoice("start_move_resting");
-//        voice_localfail.source = supervisor.getVoice("error_localization");
-//        voice_motor_error.source = supervisor.getVoice("error_call_manager");
-//        voice_emergency.source = supervisor.getVoice("error_emo");
-//        voice_battery.source = supervisor.getVoice("low_battery");
-
-//        voice_start_mapping2.source = supervisor.getVoice("start_mapping");
-//    }
-
 
     function gitfailed(){
         loader_page.item.git_failed();
     }
     function gitnewest(){
         loader_page.item.git_newest();
-    }
-
-
-//    function playVoice(str){
-//        supervisor.writelog("[UI] Play Voice : "+str);
-//        if(str === "startServing"){
-//            if(voice_serving.isplaying){
-
-//            }else{
-//                voice_all_stop();
-//                voice_serving.play();
-//            }
-//        }else if(str === "startCalling"){
-//            if(voice_calling.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_calling.play();
-//            }
-//        }else if(str === "moveResting"){
-//            if(voice_movewait.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_movewait.play();
-//            }
-//        }else if(str === "moveCharging"){
-//            if(voice_movecharge.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_movecharge.play();
-//            }
-//        }else if(str === "startMapping"){
-//            if(voice_start_mapping2.isplaying){
-
-//            }else{
-//                voice_all_stop();
-//                voice_start_mapping2.play();
-//            }
-//        }else if(str === "noBattery"){
-//            if(voice_battery.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_battery.play();
-//            }
-//        }else if(str === "moveWait"){
-//            if(voice_wait.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_wait.play();
-//            }
-//        }else if(str === "excuseMe"){
-//            if(voice_avoid.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_avoid.play();
-//            }
-//        }else if(str === "errorEMO"){
-//            if(voice_emergency.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_emergency.play();
-//            }
-//        }else if(str === "errorLocal"){
-//            if(voice_localfail.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_localfail.play();
-//            }
-//        }else if(str === "errorMotor"){
-//            if(voice_motor_error.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_motor_error.play();
-//            }
-//        }else if(str === "errorPath"){
-//            if(voice_movefail.isplaying){
-//            }else{
-//                voice_all_stop();
-//                voice_movefail.play();
-//            }
-//        }
-//        prev_sound = str;
-//    }
-//    function stopVoice(){
-//        voice_all_stop();
-//        playingSound = false;
-//        cur_sound = "";
-//        next_sound = "";
-//    }
-
-
-    Timer{
-        id: timer_voice
-        interval: 200
-        repeat: true
-        running: true
-        onTriggered: {
-            if(playingSound){
-                cur_sound = "";
-            }else{
-                if(cur_sound === ""){
-                    if(next_sound === ""){
-
-                    }else{
-                        cur_sound = next_sound;
-                        next_sound = "";
-                    }
-                }else{
-                    print("use this???");
-//                    voice_all_stop();
-//                    if(cur_sound == "startServing"){
-//                        voice_serving.play();
-//                    }else if(cur_sound == "startCalling"){
-//                        voice_calling.play();
-//                    }else if(cur_sound == "moveResting"){
-//                        voice_movewait.play();
-//                    }else if(cur_sound == "moveCharging"){
-//                        voice_movecharge.play();
-//                    }else if(cur_sound == "noBattery"){
-//                        voice_battery.play();
-//                    }else if(cur_sound == "moveWait"){
-//                        voice_wait.play();
-//                    }else if(cur_sound == "excuseMe"){
-//                        voice_avoid.play();
-//                    }else if(cur_sound == "errorEMO"){
-//                        voice_emergency.play();
-//                    }else if(cur_sound == "errorLocal"){
-//                        voice_localfail.play();
-//                    }else if(cur_sound == "errorMotor"){
-//                        voice_motor_error.play();
-//                    }else if(cur_sound == "errorPath"){
-//                        voice_movefail.play();
-//                    }
-                    playingSound = true;
-                }
-            }
-        }
     }
 
     function movefail_wake(){
@@ -258,47 +102,58 @@ Window {
     }
 
     function movefail(){
-        if(loader_page.item.objectName == "page_annotation"){
+        if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_kitchen"){
             if(supervisor.getIPCConnection() === false){
+//                supervisor.playVoice("sorry");
+                supervisor.playVoice("sorry");
                 loader_page.item.movefail(5);
             }if(supervisor.getEmoStatus()){
+                supervisor.playVoice("error_emo");
                 loader_page.item.movefail(2);
             }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+
+                supervisor.playVoice("error_localization");
                 loader_page.item.movefail(1);
             }else if(supervisor.getMotorState() === 0){
+//                supervisor.playVoice("error_");
+                supervisor.playVoice("sorry");
                 loader_page.item.movefail(4);
             }else if(supervisor.getStateMoving() === 0){
+//                supervisor.playVoice("sorry");
+                supervisor.playVoice("sorry");
                 loader_page.item.movefail(0);
             }else{
+                supervisor.playVoice("sorry");
+                loader_page.item.movefail(6);
                 supervisor.writelog("[MOVEFAIL] WEIRED MOVEFAIL : "+supervisor.getStateMoving().toString()+","+supervisor.getLocalizationState().toString()+","+supervisor.getMotorState().toString())
             }
         }else if(loader_page.item.objectName == "page_mapping" || loader_page.item.objectName == "page_init" || loader_page.item.objectName == "page_movefail" || loader_page.item.objectName == "page_map" || loader_page.item.objectName == "page_setting"){
 
         }else{
-            //0: no path /1: local fail /2: emergency /3: user stop /4: motor error
-            if(supervisor.getEmoStatus()){
-                supervisor.writelog("[UI] Force Page Change MoveFail : Emergency Switch");
-                loadPage(pmovefail);
-                loader_page.item.setNotice(2);
-                supervisor.playVoice("error_emo");
-            }else if(supervisor.getMotorState() === 0){
-                supervisor.writelog("[UI] Force Page Change MoveFail : Motor not ready");
-                loadPage(pmovefail);
-                loader_page.item.setNotice(4);
-//                stopVoice();
-            }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
-                supervisor.writelog("[UI] Force Page Change MoveFail : Localization not ready");
-                loadPage(pmovefail);
-                loader_page.item.setNotice(1);
-                supervisor.playVoice("error_localization");
-            }else if(supervisor.getStateMoving() === 0){
-                supervisor.writelog("[UI] Force Page Change MoveFail : Robot not running");
-                loadPage(pmovefail);
-                loader_page.item.setNotice(0);
-                supervisor.playVoice("error_no_path");
-            }else{
-                supervisor.writelog("[UI] Force Page Change MoveFail : Unknown state ("+supervisor.getStateMoving().toString()+","+supervisor.getLocalizationState().toString()+","+supervisor.getMotorState().toString()+")");
-            }
+//            //*/0: no path /1: local fail /2: emergency /3: user stop /4: motor error
+//            if(supervisor.getEmoStatus()){
+//                supervisor.writelog("[UI] Force Page Change MoveFail : Emergency Switch");
+//                loadPage(pmovefail);
+//                loader_page.item.setNotice(2);
+//                supervisor.playVoice("error_emo");
+//            }else if(supervisor.getMotorState() === 0){
+//                supervisor.writelog("[UI] Force Page Change MoveFail : Motor not ready");
+//                loadPage(pmovefail);
+//                loader_page.item.setNotice(4);
+////                stopVoice();
+//            }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+//                supervisor.writelog("[UI] Force Page Change MoveFail : Localization not ready");
+//                loadPage(pmovefail);
+//                loader_page.item.setNotice(1);
+//                supervisor.playVoice("error_localization");
+//            }else if(supervisor.getStateMoving() === 0){
+//                supervisor.writelog("[UI] Force Page Change MoveFail : Robot not running");
+//                loadPage(pmovefail);
+//                loader_page.item.setNotice(0);
+//                supervisor.playVoice("error_no_path");
+//            }else{
+//                supervisor.writelog("[UI] Force Page Change MoveFail : Unknown state ("+supervisor.getStateMoving().toString()+","+supervisor.getLocalizationState().toString()+","+supervisor.getMotorState().toString()+")");
+//            }*/
         }
     }
 
@@ -319,7 +174,7 @@ Window {
 
     function lessbattery(){
         supervisor.writelog("[UI] Play Voice : less battery");
-        setVoice("noBattery");
+        supervisor.playVoice("low_battery");
     }
 
     function checkwifidone(){
@@ -330,7 +185,6 @@ Window {
 
     function movelocation(){
         cur_location = supervisor.getcurLoc();
-//        voice_all_stop();
         if(cur_location == "Charging0"){
             cur_location = qsTr("충전 장소");
             supervisor.playVoice("start_move_charge");
@@ -498,10 +352,12 @@ Window {
     }
 
     function excuseme(){
+        //로봇이 서빙중입니다
         supervisor.playVoice("serving");
         print("excuseme");
     }
     function movewait(){
+        //죄송합니다 잠시만 지나가겠습니다
         supervisor.playVoice("wait");
     }
 
@@ -607,218 +463,6 @@ Window {
         source: "font/NotoSansKR-Light.otf"
     }
 
-//    Audio{
-//        id: voice_movecharge
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("start_move_charge");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_serving
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("start_serving");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_calling
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("start_calling");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_avoid
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("serving");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_wait
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("wait");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_movefail
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("error_no_path");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_movewait
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("start_move_resting");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_localfail
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("error_localization");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_motor_error
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("error_call_manager");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_emergency
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("error_emo");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: voice_start_mapping2
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("start_mapping");
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onStatusChanged: {
-//            print("status : ",status);
-//        }
-//        onPositionChanged: {
-//            print("position : ",position);
-//        }
-
-//        onPlaying:{
-//            print("play start mapping");
-//            isplaying = true;
-//        }
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//    }
-//    Audio{
-//        id: voice_battery
-//        autoPlay: false
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("low_battery");
-//        onPlaylistChanged: {
-//            if(playing) playingSound = true;
-//            else playingSound = false;
-//        }
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
 
     Popup{
         id: popup_loading
@@ -920,7 +564,13 @@ Window {
 
     SoundEffect{
         id: click_sound
-        source: "bgm/click.wav"
+        source: "bgm/click_start.wav"
+        onVolumeChanged:{
+            print("volume : ",volume);
+        }
+        onStatusChanged: {
+            print(status);
+        }
         volume: volume_button/100
     }
     SoundEffect{

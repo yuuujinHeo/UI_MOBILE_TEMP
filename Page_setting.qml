@@ -2209,6 +2209,7 @@ Item {
                     id: set_patrolpage
                     width: 840
                     height: 50
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2324,6 +2325,7 @@ Item {
                 Rectangle{
                     id: set_system_volume
                     width: 840
+                    visible: false
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -2365,6 +2367,7 @@ Item {
                                         anchors.fill: parent
                                         onClicked: {
                                             click_sound.play();
+
                                             if(slider_volume_system.value == 0){
                                                 slider_volume_system.value  = 50;
                                             }else{
@@ -2619,6 +2622,7 @@ Item {
                                         anchors.fill: parent
                                         onClicked: {
                                             click_sound.play();
+//                                            click_sound.play();
                                             if(slider_volume_button.value == 0){
                                                 slider_volume_button.value  = Number(supervisor.getSetting("setting","UI","volume_button"));
                                             }else{
@@ -2647,7 +2651,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            start_sound.play();
+                                            click_sound.play();
                                         }
                                     }
                                 }

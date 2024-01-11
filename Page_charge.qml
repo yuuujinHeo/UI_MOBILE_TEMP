@@ -157,7 +157,7 @@ Item {
     MouseArea{
         anchors.fill: parent
         onClicked: {
-            click_sound.play();
+            click_sound.play();;
             timer_bat.stop();
             popup_question.visible = true;
         }
@@ -251,7 +251,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         timer_bat.start();
                         popup_question.visible = false;
                     }
@@ -289,7 +289,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         supervisor.moveToWait();
                         popup_question.visible = false;
                     }
@@ -302,7 +302,7 @@ Item {
             anchors.fill: parent
             enabled: false
             onClicked: {
-                click_sound.play();
+                click_sound.play();;
                 timer_bat.start();
                 popup_question.visible = false;
 
@@ -316,7 +316,7 @@ Item {
             anchors.bottom : parent.bottom
             z: 99
             onClicked: {
-                click_sound2.play();
+                click_sound.play();
                 password++;
                 print(password);
                 if(password > 4){

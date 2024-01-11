@@ -247,7 +247,7 @@ Item {
                             parent.color = color_gray;
                         }
                         onReleased: {
-                            click_sound.play();
+                            click_sound.play();;
                             supervisor.writelog("[INIT] Show Update Popup")
                             popup_show_update.open();
                             parent.color = "transparent";
@@ -279,7 +279,7 @@ Item {
                             parent.color = color_gray;
                         }
                         onReleased: {
-                            click_sound.play();
+                            click_sound.play();;
                             supervisor.writelog("[INIT] Program Update Pass")
                             init_mode = 1;
                             parent.color = "transparent";
@@ -528,7 +528,7 @@ Item {
                             parent.color = color_gray;
                         }
                         onReleased: {
-                            click_sound.play();
+                            click_sound.play();;
                             supervisor.writelog("[INIT] PASS IPC Connection")
                             popup_debug_onoff.open();
                             parent.color = "transparent";
@@ -548,7 +548,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound2.play();
+                    click_sound.play();;
                     password++;
                     if(password > 4){
                         password = 0;
@@ -713,7 +713,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        click_sound.play();;
                                         supervisor.writelog("[USER INPUT] INIT PAGE : LOAD MAP FROM USB")
                                         popup_usb_download.open();
                                     }
@@ -763,7 +763,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        click_sound.play();;
                                         popup_debug_onoff.open();
                                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS CONNECTION")
                                         update_timer.stop();
@@ -808,7 +808,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        click_sound.play();;
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO BOTH")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
                                         swipeview_wizard.currentIndex++;
@@ -833,7 +833,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        click_sound.play();;
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO Serving")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","SERVING");
                                         swipeview_wizard.currentIndex++;
@@ -857,7 +857,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        click_sound.play();;
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CALLING")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","CALLING");
                                         swipeview_wizard.currentIndex++;
@@ -881,7 +881,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        click_sound.play();;
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CLEANING")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
                                         swipeview_wizard.currentIndex++;
@@ -1018,7 +1018,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
                                 supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
                                 swipeview_wizard.currentIndex--;
                             }
@@ -1043,7 +1043,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
                                 supervisor.setSetting("setting","ROBOT_TYPE/model",textfield_name.text);
                                 supervisor.setSetting("setting","ROBOT_TYPE/serial_num",combobox_serialnum.currentText);
                                 supervisor.writelog("[USER INPUT] INIT PAGE : NEXT")
@@ -1224,7 +1224,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            click_sound.play();;
                                             supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA Position Switch")
                                             wizard_camera.is_switched = true;
                                             var temp_id = wizard_camera.left_id;
@@ -1317,7 +1317,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        click_sound.play();;
                                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS SETTING CAMERA");
                                         swipeview_wizard.currentIndex++;
                                     }
@@ -1347,7 +1347,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
                                 supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
                                 swipeview_wizard.currentIndex--;
                             }
@@ -1372,7 +1372,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
                                 if(!rect_no_camera.visible){
                                     supervisor.writelog("[USER INPUT] INIT PAGE : NEXT")
                                     supervisor.setCamera(text_camera_1.text,text_camera_2.text);
@@ -1657,7 +1657,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    click_sound.play();;
                                                     col_wifis.select_wifi = index;
                                                     wizard_ip.select_ssd = ssid;
                                                     wizard_ip.select_inuse = inuse;
@@ -1921,7 +1921,7 @@ Item {
                                         MouseArea{
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                click_sound.play();;
                                                 if(wizard_ip.show_passwd){
                                                     wizard_ip.show_passwd = false;
                                                 }else{
@@ -1948,7 +1948,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            click_sound.play();;
                                             if(wizard_ip.select_security){
                                                 if(passwd_wifi.text == ""){
                                                     text_wifi76788.visible = true;
@@ -2518,7 +2518,7 @@ Item {
                                         MouseArea{
                                             anchors.fill: parent
                                             onClicked: {
-                                                click_sound.play();
+                                                click_sound.play();;
                                                 if(supervisor.getcurIP() === "")
                                                     supervisor.getWifiIP();
 
@@ -2542,7 +2542,7 @@ Item {
                                         MouseArea{
                                             anchors.fill: parent
                                             onClicked: {
-                                                click_sound.play();
+                                                click_sound.play();;
                                                 ip_1.ischanged = false;
                                                 ip_2.ischanged = false;
                                                 ip_3.ischanged = false;
@@ -2594,7 +2594,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
                                 if(wizard_ip.setting_step > 0){
                                     wizard_ip.setting_step--;
                                 }else{
@@ -2625,7 +2625,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
                                 supervisor.writelog("[USER INPUT] INIT PAGE : SKIP WIFI SETTING");
                                 swipeview_wizard.currentIndex++;
                             }
@@ -2661,7 +2661,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onPressed:{
-                                click_sound.play();
+                                click_sound.play();;
                                 parent.color = color_mid_green;
                             }
                             onReleased: {
@@ -2735,7 +2735,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound2.play();
+                    click_sound.play();;
                     password++;
                     if(password > 4){
                         password = 0;
@@ -2941,7 +2941,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();
+                            click_sound.play();;
                             parent.color = color_gray;
                         }
                         onReleased: {
@@ -2987,7 +2987,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();
+                            click_sound.play();;
                             parent.color = color_gray;
                         }
                         onReleased: {
@@ -3009,7 +3009,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound2.play();
+                    click_sound.play();;
                     password++;
                     if(password > 4){
                         password = 0;
@@ -3231,7 +3231,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         popup_debug_onoff.open();
                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS ROBOT INIT")
 
@@ -3247,7 +3247,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound2.play();
+                    click_sound.play();;
                     password++;
                     if(password > 4){
                         password = 0;
@@ -3498,7 +3498,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound2.play();
+                    click_sound.play();;
                     password++;
                     if(password > 4){
                         password = 0;
@@ -3621,7 +3621,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            click_sound.play();;
                             supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
                             popup_usb_notice.mode = "extract_recent";
                             popup_usb_notice.open();
@@ -3659,7 +3659,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                click_sound.play();;
 //                                popup_usb_download.index = 1;
 //                                popup_usb_download.set_name = name;
                             }
@@ -3685,7 +3685,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_usb_download.is_ui = !popup_usb_download.is_ui;
                         }
                     }
@@ -3704,7 +3704,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_usb_download.is_slam = !popup_usb_download.is_slam;
                         }
                     }
@@ -3723,7 +3723,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_usb_download.is_config = !popup_usb_download.is_config;
                         }
                     }
@@ -3742,7 +3742,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_usb_download.is_map = !popup_usb_download.is_map;
                         }
                     }
@@ -3761,7 +3761,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_usb_download.is_log = !popup_usb_download.is_log;
                         }
                     }
@@ -3786,7 +3786,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
                         popup_usb_download.close();
                         popup_usb_notice.open();
@@ -3951,7 +3951,7 @@ Item {
                         anchors.fill: parent
                         onClicked:{
 
-                            click_sound.play();
+                            click_sound.play();;
                             if(popup_usb_notice.mode== "compress"){
 
                             }else{

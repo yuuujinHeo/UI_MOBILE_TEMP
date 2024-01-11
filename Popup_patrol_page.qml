@@ -59,7 +59,7 @@ Popup {
                         type: "round_text"
                         text: qsTr("저 장")
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_setting_patrolpage.close();
                         }
                     }
@@ -70,7 +70,7 @@ Popup {
 //                            visible: false
                         text: qsTr("초기화")
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                         }
                     }
                     Item_buttons{
@@ -79,7 +79,7 @@ Popup {
                         type: "round_text"
                         text: "취 소"
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_setting_patrolpage.close();
                         }
                     }
@@ -151,7 +151,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    click_sound.play();;
                                     move_page.setTempText(tfield_1.text, tfield_2.text);
                                 }
                             }

@@ -117,7 +117,7 @@ Popup{
                 anchors.fill: parent
                 onPressed:{
                     parent.color = color_dark_black
-                    click_sound.play()
+                    click_sound.play();
                 }
                 onReleased:{
                     parent.color = "transparent"
@@ -150,7 +150,7 @@ Popup{
                 anchors.fill: parent
                 onPressed:{
                     parent.color = color_dark_black
-                    click_sound.play()
+                    click_sound.play();
                 }
                 onReleased:{
                     parent.color = "transparent"

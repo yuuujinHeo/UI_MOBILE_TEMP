@@ -246,7 +246,7 @@ Item {
                     z: 99
                     propagateComposedEvents: true
                     onPressed:{
-                        click_sound.play();
+                        click_sound.play();;
                         parent.color = color_dark_navy
                     }
                     onReleased:{
@@ -333,7 +333,7 @@ Item {
                     anchors.fill: parent
                     z: 99
                     onClicked:{
-                        click_sound.play();
+                        click_sound.play();;
                         popup_motor_lock.open();
 
 //                        if(!motor_lock){
@@ -361,7 +361,7 @@ Item {
                     z: 99
                     propagateComposedEvents: true
                     onPressed:{
-                        click_sound.play();
+                        click_sound.play();;
                         parent.color = color_dark_navy
                     }
                     onReleased:{
@@ -392,7 +392,7 @@ Item {
                     anchors.fill: parent
                     z: 99
                     onClicked:{
-                        click_sound.play();
+                        click_sound.play();;
                         supervisor.writelog("[USER INPUT] MOVING PAUSED : RESUME");
                         supervisor.moveResume();
                         timer_check_pause.start();
@@ -466,7 +466,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();
+                            click_sound.play();;
                             parent.color = color_dark_black;
                         }
                         onReleased:{
@@ -493,7 +493,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();
+                            click_sound.play();;
                             parent.color = color_dark_black;
                         }
                         onReleased:{
@@ -561,7 +561,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();
+                            click_sound.play();;
                             parent.color = color_dark_black;
                         }
                         onReleased:{
@@ -588,14 +588,14 @@ Item {
         anchors.right: parent.right
         z: 99
         onClicked: {
-            click_sound2.play();
+            click_sound.play();;
             password++;
             supervisor.writelog("[USER INPUT] MOVING PASSWORD "+Number(password));
             if(password > 4){
                 password = 0;
                 supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
-                loadPage(pmovefail);
-                loader_page.item.setNotice(3);
+                loadPage(pkitchen);
+//                loader_page.item.setNotice(3);
             }
         }
         onPressAndHold: {
@@ -745,7 +745,7 @@ Item {
         anchors.fill: parent
         visible: !robot_paused
         onClicked: {
-            click_sound.play();
+            click_sound.play();;
             if(robot_paused){
 //                supervisor.writelog("[USER INPUT] MOVING RESUME 2")
 //                supervisor.moveResume();

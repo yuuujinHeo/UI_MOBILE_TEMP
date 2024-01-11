@@ -63,11 +63,15 @@ public:
     Q_INVOKABLE void setEnable(bool en){enable = en;}
     Q_INVOKABLE QString getMode(){return mode;}
     Q_INVOKABLE void setShowBrush(bool onoff){show_brush = onoff;}
-    Q_INVOKABLE void setShowLidar(bool onoff){show_lidar = onoff;}
+    Q_INVOKABLE void setShowLidar(bool onoff){
+        show_lidar = onoff;
+        setMap();
+    }
     Q_INVOKABLE void setShowLocation(bool onoff){
         show_location = onoff;
         show_location_icon = onoff;
         initLocation();
+        setMap();
     }
     Q_INVOKABLE void setRobotFollowing(bool onoff){
         robot_following = onoff;
@@ -81,6 +85,7 @@ public:
     Q_INVOKABLE void setShowObject(bool onoff){
 //        qDebug() << "setShowObject " << onoff;
         show_object = onoff;
+        setMap();
     }
     Q_INVOKABLE void setShowAvoidMap(bool onoff){
         qDebug() << "setShowAvoidMap " << onoff;

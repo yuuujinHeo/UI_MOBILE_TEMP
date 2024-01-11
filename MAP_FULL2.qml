@@ -75,29 +75,21 @@ Item {
         show_grid = false;
         if(mode === "annot_drawing"){
             show_connection = false;
-            show_button_following = false;
-            show_button_lidar = false;
-            show_button_location = false;
         }else if(mode === "serving_list"){
             show_connection = false;
-            show_button_following = false;
-            show_button_lidar = false;
-            show_button_location = false;
+        }else if(mode === "annot_object_png"){
+            show_connection = false;
+        }else if(mode === "annot_obs_area"){
+            show_connection = false;
         }else if(mode === "map_list"){
             show_connection = false;
             show_button_following = false;
-            show_button_lidar = false;
-            show_button_location = false;
+            show_button_lidar = true;
+            show_button_location = true;
         }else if(mode === "annot_tline" || mode === "annot_tline2"){
             show_connection = true;
-            show_button_location = true;
-            show_button_following = true;
-            show_button_lidar = false;
         }else if(mode === "annot_velmap"){
             show_connection = false;
-            show_button_location = true;
-            show_button_following = true;
-            show_button_lidar = false;
         }else if(mode === "annot_location"){
 //            supervisor.setCostMap();
         }else if(mode === "mapping"){
@@ -108,12 +100,9 @@ Item {
             show_connection = false;
             show_button_following = false;
             show_button_lidar = false;
-            show_button_location = false;
+            show_button_location = true;
         }else if(mode === "annot_object"){
             show_connection = true;
-            show_button_following = true;
-            show_button_lidar = false;
-            show_button_location = true;
         }else if(mode === "current"){
 
         }else if(mode === "annot_rotate"){
@@ -125,15 +114,9 @@ Item {
         }else if(mode === "localization"){
             show_grid = false;
             show_connection = true;
-            show_button_following = false;
-            show_button_lidar = false;
-            show_button_location = true;
         }else if(mode === "annot_view"){
             show_grid = false;
             show_connection = false;
-            show_button_following = false;
-            show_button_lidar = false;
-            show_button_location = false;
         }else if(mode === "map_edit"){
 
         }

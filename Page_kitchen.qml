@@ -86,6 +86,38 @@ Item {
 //        }
     }
 
+    function movefail(errnum){
+        supervisor.stopBGM();
+        popup_notice.show_localization = false;
+        popup_notice.show_motorinit = false;
+        if(errnum === 0){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+        }else if(errnum === 1){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.show_localization = true;
+            popup_notice.show_motorinit = false;
+        }else if(errnum === 2){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+        }else if(errnum === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+        }else if(errnum === 4){
+            popup_notice.main_str = qsTr("모터가 초기화 되지 않았습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 눌렀다 풀어주세요");
+        }else if(errnum === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+        }else if(errnum === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+        }
+        popup_notice.open();
+        print("kitchen move fail : ",errnum);
+    }
+
     function cleaning(){
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             popup_clean_calling.cleaninglocation = true;
@@ -1795,7 +1827,7 @@ Item {
                                         supervisor.startPatrol(popup_patrol_list.mode,false);
 
                                     }else{
-                                        click_sound2.play();
+                                        click_sound.play();
                                     }
 
                                     popup_patrol_list.close();

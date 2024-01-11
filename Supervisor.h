@@ -135,8 +135,13 @@ public:
     Q_INVOKABLE void setFullScreen(){maph->setFullScreen();}
     Q_INVOKABLE void setMapDrawing(){maph->setMapDrawing();}
 
+    QMediaPlayer *click_sound;
+    QMediaPlayer *click_no_sound;
+    QMediaPlayer *click_2_sound;
+    QMediaPlayer *click_start_sound;
     QMediaPlayer *bgm_player;
     QMediaPlayer *voice_player;
+    Q_INVOKABLE void clicksound(QString mode, int volume = -1);
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();

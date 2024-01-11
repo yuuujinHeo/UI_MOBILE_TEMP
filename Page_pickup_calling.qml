@@ -138,13 +138,13 @@ Item {
         z: 99
         property var password: 0
         onClicked: {
-            click_sound2.play();
+            click_sound.play();
             password++;
             if(password > 4){
                 password = 0;
                 supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
-                loadPage(pmovefail);
-                loader_page.item.setNotice(3);
+                loadPage(pkitchen);
+//                loader_page.item.setNotice(3);
             }
         }
     }

@@ -252,7 +252,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     passed();
                 }
             }
@@ -301,7 +301,7 @@ Item{
                 type: "round_text"
                 text:qsTr("넘어가기")
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Localization : Pass");
                     passed();
                 }
@@ -314,7 +314,7 @@ Item{
                 type: "round_text"
                 text:qsTr("프로그램 재시작")
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Localization : Restart");
                     supervisor.programRestart();
                 }
@@ -327,7 +327,7 @@ Item{
                 type: "round_text"
                 text:qsTr("맵 다시생성")
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Localization : pass to mapping");
                     loadPage(pmapping);
                 }
@@ -340,7 +340,7 @@ Item{
                 type: "round_text"
                 text: qsTr("수동지정(전문가)")
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Localization : Failed")
                     popup_init_manual.open();
                 }
@@ -353,7 +353,7 @@ Item{
                 type: "round_text"
                 text:qsTr("확 인")
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Localization : Success");
                     confirmed();
 
@@ -372,7 +372,7 @@ Item{
             anchors.bottomMargin: 50
             anchors.leftMargin: 50
             onClicked: {
-                click_sound.play();
+                click_sound.play();;
                 if(auto_init){
                     timer_check_localization.start();
                     supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
@@ -441,7 +441,7 @@ Item{
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     popup_init_manual.close();
                 }
             }
@@ -458,7 +458,7 @@ Item{
                     selected: map.tool==="move"
                     text: qsTr("이 동")
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         map.setTool("move");
                     }
                 }
@@ -469,7 +469,7 @@ Item{
                     selected: map.tool==="slam_init"
                     text:  qsTr("수동 지정")
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         map.setTool("slam_init");
                         supervisor.setInitCurPos();
                         supervisor.slam_setInit();
@@ -482,7 +482,7 @@ Item{
                     type: "round_text"
                     text:  qsTr("다시 시도")
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         map.setTool("move");
                         supervisor.slam_autoInit();
                         timer_check_localization2.start();
@@ -498,7 +498,7 @@ Item{
                     text: qsTr("자동위치찾기\n(1분소요)")
                     shadowcolor: color_dark_black
                     onClicked: {
-                        click_sound.play();
+                        click_sound.play();;
                         print("init autoinit");
                         map.setTool("move");
                         supervisor.slam_fullautoInit();

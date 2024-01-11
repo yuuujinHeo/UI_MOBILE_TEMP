@@ -54,6 +54,14 @@ Supervisor::Supervisor(QObject *parent)
 
     voice_player = new QMediaPlayer();
     bgm_player = new QMediaPlayer();
+    click_sound = new QMediaPlayer();
+    click_sound->setMedia(QUrl("qrc:/bgm/click.wav"));
+    click_no_sound = new QMediaPlayer();
+    click_no_sound->setMedia(QUrl("qrc:/bgm/click_error.wav"));
+    click_2_sound = new QMediaPlayer();
+    click_2_sound->setMedia(QUrl("qrc:/bgm/click2.wav"));
+    click_start_sound = new QMediaPlayer();
+    click_start_sound->setMedia(QUrl("qrc:/bgm/click_start.wav"));
     mMain = nullptr;
     usb_list.clear();
     usb_backup_list.clear();
@@ -1801,7 +1809,44 @@ void Supervisor::playBGM(int volume){
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
+void Supervisor::clicksound(QString mode, int volume){
+    if(volume == -1){
+        volume = getSetting("setting","UI","volume_button").toInt();
+    }
 
+    if(mode == "1"){
+        click_sound->stop();
+
+        if(click_sound->volume() != volume)
+            click_sound->setVolume(volume);
+
+        qDebug() << click_sound->mediaStatus() << click_sound->state();
+
+        if(click_sound->mediaStatus() == QMediaPlayer::NoMedia)
+            click_sound->setMedia(QUrl("qrc:/bgm/click3.mp3"));
+
+        click_sound->play();
+    }else if(mode == "no"){
+        click_no_sound->stop();
+
+        if(click_no_sound->volume() != volume)
+            click_no_sound->setVolume(volume);
+
+        click_no_sound->setMedia(QUrl("qrc:/bgm/click_error.wav"));
+
+        click_no_sound->play();
+    }else if(mode == "start"){
+        click_start_sound->stop();
+
+        if(click_start_sound->volume() != volume)
+            click_start_sound->setVolume(volume);
+
+        click_start_sound->setMedia(QUrl("qrc:/bgm/click_start.wav"));
+
+        click_start_sound->play();
+
+    }
+}
 void Supervisor::stopBGM(){
     bgm_player->stop();
 }
@@ -2787,6 +2832,7 @@ void Supervisor::moveToCharge(){
     }else{
         is_test_moving = false;
         QMetaObject::invokeMethod(mMain,"movefail");
+
         plog->write("[COMMAND] Move to Charging (State busy "+QString::number(ui_state)+")");
     }
 }
@@ -3973,24 +4019,21 @@ void Supervisor::onTimer(){
                 plog->write("[SUPERVISOR] PATH NOT FOUND -> UI_STATE = UI_STATE_MOVEFAIL");
                 QMetaObject::invokeMethod(mMain, "movefail");
                 ui_state = UI_STATE_MOVEFAIL;
-            }else if(probot->running_state == ROBOT_MOVING_WAIT){
+            }else{
                 if(!flag_movewait){
-                    plog->write("[SCHEDULER] ROBOT ERROR : MOVE WAIT");
-                    QMetaObject::invokeMethod(mMain, "movewait");
-                    count_movewait = 0;
-                    flag_movewait = true;
+                    if(probot->running_state == ROBOT_MOVING_WAIT){
+                        plog->write("[SCHEDULER] ROBOT ERROR : MOVE WAIT");
+                        QMetaObject::invokeMethod(mMain, "movewait");
+                        count_movewait = 0;
+                        flag_movewait = true;
+                    }else if(probot->obs_in_path_state != 0 && probot->running_state == ROBOT_MOVING_MOVING){
+                        plog->write("[SCHEDULER] ROBOT ERROR : EXCUSE ME");
+                        QMetaObject::invokeMethod(mMain, "excuseme");
+                        count_movewait = 0;
+                        flag_movewait = true;
+                    }
                 }
             }
-
-            if(probot->obs_in_path_state != 0 && probot->running_state == ROBOT_MOVING_MOVING){
-                if(!flag_excuseme){
-                    plog->write("[SCHEDULER] ROBOT ERROR : EXCUSE ME");
-                    QMetaObject::invokeMethod(mMain, "excuseme");
-                    count_excuseme = 0;
-                    flag_excuseme = true;
-                }
-            }
-
         }
         break;
     }

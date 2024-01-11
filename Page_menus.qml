@@ -53,7 +53,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     loadPage(pmap);
                 }
             }
@@ -70,7 +70,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    click_sound.play();;
                     loadPage(psetting);
                 }
             }
@@ -90,16 +90,16 @@ Item {
             addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
         }
         onMenu1_clicked: {
-            click_sound.play();
+            click_sound.play();;
             loadPage(pkitchen);
         }
         onMenu2_clicked: {
-            click_sound.play();
+            click_sound.play();;
             supervisor.writelog("[USER INPUT] Screen Minimized.");
             mainwindow.showMinimized();
         }
         onMenu3_clicked: {
-            click_sound.play();
+            click_sound.play();;
             popup_program_exit.open();
         }
     }
@@ -165,7 +165,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             popup_program_exit.close();
                         }
                     }
@@ -201,7 +201,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             supervisor.programExit();
                             popup_program_exit.close();
                         }
@@ -238,7 +238,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            click_sound.play();;
                             supervisor.programRestart();
                             popup_program_exit.close();
                         }

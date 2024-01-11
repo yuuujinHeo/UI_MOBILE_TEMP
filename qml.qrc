@@ -272,5 +272,7 @@
         <file>icon/icon_wall.png</file>
         <file>Item_radioButton.qml</file>
         <file>Popup_patrol_page.qml</file>
+        <file>bgm/click3.mp3</file>
+        <file>bgm/click3.wav</file>
     </qresource>
 </RCC>
