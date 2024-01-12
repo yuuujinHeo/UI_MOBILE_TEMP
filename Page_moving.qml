@@ -131,14 +131,73 @@ Item {
 
     Rectangle{
         id: rect_robot
+        width: 300
+        height: 400
+        visible: !setting_patrol_mode
+        color: "transparent"
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: parent.left
+        anchors.leftMargin: 50
+
+        Image{
+            id: image_robot
+            source: {
+                if(pos_name === qsTr("충전 장소")){
+                    "image/robot_move_charge.png"
+                }else if(pos_name === qsTr("대기 장소")){
+                    "image/robot_move_wait.png"
+                }else{
+                    "image/robot_moving.png"
+                }
+            }
+            function setSize(){
+                if(sourceSize.width > sourceSize.height){
+                    if(sourceSize.width > setting_patrol_image_width){
+                        width = setting_patrol_image_width*page_moving.width/1280;
+                        height = sourceSize.height * setting_patrol_image_width*page_moving.width/1280 / sourceSize.width;
+                    }else{
+                        width = sourceSize.width*page_moving.width/1280;
+                        height = sourceSize.height*page_moving.width/1280;
+                    }
+                }else{
+                }
+                print("source changed ", sourceSize.width,sourceSize.height,width,height);
+            }
+            Component.onCompleted: {
+                if(sourceSize.width > sourceSize.height){
+                    if(sourceSize.width > 300){
+                        width = 300*page_moving.width/1280;
+                        height = sourceSize.height * 300*page_moving.width/1280 / sourceSize.width;
+                    }else{
+                        width = sourceSize.width*page_moving.width/1280;
+                        height = sourceSize.height*page_moving.width/1280;
+                    }
+                }else{
+                    if(sourceSize.width > 300){
+                        width = 300*page_moving.width/1280;
+                        height = sourceSize.height * 300*page_moving.width/1280 / sourceSize.width;
+                    }else{
+                        width = sourceSize.width*page_moving.width/1280;
+                        height = sourceSize.height*page_moving.width/1280;
+                    }
+                }
+            }
+            anchors.centerIn: parent
+        }
+    }
+
+    Rectangle{
+        id: rect_robot_set
         width: setting_patrol_image_width
         height: setting_patrol_image_height
+        visible: setting_patrol_mode
         color: "red"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 160*page_moving.width/1280
+
         Image{
-            id: image_robot
+            id: image_robot_set
             source: {
                 if(setting_patrol_mode){
                     setting_patrol_image
@@ -161,7 +220,7 @@ Item {
                         width = sourceSize.width*page_moving.width/1280;
                         height = sourceSize.height*page_moving.width/1280;
                     }
-                }else{me
+                }else{
                 }
                 print("source changed ", sourceSize.width,sourceSize.height,width,height);
             }
@@ -175,7 +234,7 @@ Item {
 
     Column{
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: rect_robot.bottom
+        anchors.top: rect_robot_set.bottom
         anchors.topMargin: 50*page_moving.width/1280
         spacing: 20*page_moving.width/1280
         Text{
@@ -199,41 +258,27 @@ Item {
 
     }
 
-    Text{
-        id: target_pos
-        text: pos_name
-        visible: !show_face && !setting_patrol_mode
-        font.pixelSize: 40
-        font.family: font_noto_b.name
-        anchors.right: parent.horizontalCenter
-        anchors.top: rect_robot.bottom
-        anchors.topMargin: 80
-        anchors.rightMargin: 40
-        color: "#12d27c"
-    }
-    Text{
-        id: text_mention
+    Column{
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: rect_robot.right
+        anchors.leftMargin: 50
         visible: !show_face&& !setting_patrol_mode
-        text: qsTr("(으)로 이동 중입니다.")
-        font.pixelSize: 40
-        font.family: font_noto_r.name
-        anchors.left: parent.horizontalCenter
-        anchors.top: rect_robot.bottom
-        anchors.topMargin: 80
-        anchors.leftMargin: 40
-        color: "white"
+        Text{
+            id: target_pos
+            text: pos_name
+            font.pixelSize: 60
+            font.family: font_noto_b.name
+            color: "#12d27c"
+        }
+        Text{
+            id: text_mention
+            text: qsTr("(으)로 이동 중입니다.")
+            font.pixelSize: 55
+            font.family: font_noto_r.name
+            color: "white"
+        }
     }
-    Text{
-        id: target_posname
-        text: pos_name
-        visible: false//!show_face
-        font.pixelSize: 40
-        font.family: font_noto_b.name
-        color: "#12d27c"
-        anchors.horizontalCenter: target_pos.horizontalCenter
-        anchors.top: target_pos.bottom
-        anchors.topMargin: 10
-    }
+
 
     Item{
         id: popup_waiting

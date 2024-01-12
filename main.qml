@@ -420,8 +420,13 @@ Window {
 //        height: parent.height
 //    }
 
+    Page_moving{
+        anchors.fill: parent
+        pos_name : qsTr("대기위치")
+    }
+
     Loader{
-//        visible: false
+        visible: false
         id: loader_page
         focus: true
         anchors.fill: parent
