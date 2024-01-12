@@ -9,6 +9,7 @@
 #include "CallbellHandler.h"
 #include "ZIPHandler.h"
 #include "IPCHandler.h"
+#include <QMediaPlaylist>
 #include "ServerHandler.h"
 #include <QMediaPlayer>
 #include "MapView.h"
@@ -141,6 +142,7 @@ public:
     QMediaPlayer *click_start_sound;
     QMediaPlayer *bgm_player;
     QMediaPlayer *voice_player;
+    QMediaPlaylist *list_bgm;
     Q_INVOKABLE void clicksound(QString mode, int volume = -1);
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
