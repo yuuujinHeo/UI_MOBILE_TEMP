@@ -158,23 +158,8 @@ Window {
     }
 
     Component.onCompleted: {
-        popup_patrol.open();
+//        popup_patrol.open();
     }
-
-//    function voice_all_stop(){
-//        voice_avoid.stop();
-//        voice_emergency.stop();
-//        voice_localfail.stop();
-//        voice_motor_error.stop();
-//        voice_movecharge.stop();
-//        voice_movefail.stop();
-//        voice_movewait.stop();
-//        voice_serving.stop();
-//        voice_calling.stop();
-//        voice_battery.stop();
-//        voice_wait.stop();
-//        voice_start_mapping2.stop();
-//    }
 
     function lessbattery(){
         supervisor.writelog("[UI] Play Voice : less battery");
@@ -429,14 +414,14 @@ Window {
         id: emitter
     }
 
-    Popup_patrol_page{
-        id: popup_patrol
-        width: parent.width
-        height: parent.height
-    }
+//    Popup_patrol_page{
+//        id: popup_patrol
+//        width: parent.width
+//        height: parent.height
+//    }
 
     Loader{
-        visible: false
+//        visible: false
         id: loader_page
         focus: true
         anchors.fill: parent

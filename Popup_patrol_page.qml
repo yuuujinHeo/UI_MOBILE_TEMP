@@ -137,40 +137,115 @@ Popup {
                             height: 50
                         }
                         Column{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 3
                             Row{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 20
+                                CheckBox{
+                                    id: cb_resolution
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    checked: supervisor.getSetting("setting","UI","patrol_image_fix")==="true"
+                                    onCheckedChanged: {
+                                        if(checked){
+                                            tfield_image_height.enabled = false;
+                                            tfield_image_height.text = move_page.setImageHeight();
+                                        }else{
+                                            tfield_image_height.enabled = true;
+                                            tfield_image_height.text = move_page.setImageHeight();
+                                        }
+                                    }
+                                }
                                 Text{
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    text: qsTr("원본비율 유지")
+                                }
+                            }
+
+                            Row{
+                                spacing: 10
+                                Text{
+                                    anchors.verticalCenter: parent.verticalCenter
                                     text:qsTr("이미지 너비")
                                 }
                                 TextField{
                                     id: tfield_image_width
                                     width: 120
-                                    height: 50
-                                    text: parseInt(supervisor.getSetting("setting","UI","patrol_image_width"));
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    height: 40
+                                    horizontalAlignment: TextField.AlignHCenter
+                                    text: move_page.setting_patrol_image_width
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            click_sound.play();
+                                            if(keypad.is_opened){
+                                                keypad.owner = tfield_image_width;
+                                                tfield_image_width.selectAll();
+                                            }else{
+                                                keypad.owner = tfield_image_width;
+                                                tfield_image_width.selectAll();
+                                                keypad.open();
+                                            }
+                                        }
+                                    }
+                                    onTextChanged: {
+                                        var widthvalue = parseInt(text);
+                                        if(widthvalue > 0 && widthvalue < 1281){
+                                            if(cb_resolution.checked){
+                                                tfield_image_height.text = move_page.getImageHeight(widthvalue);
+                                            }
+                                        }
+                                    }
                                 }
                                 Item_buttons{
                                     width: 70
-                                    height: 50
+                                    height: 40
+                                    anchors.verticalCenter: parent.verticalCenter
                                     type: "round_text"
                                     text: qsTr("적용")
+                                    fontsize: 15
                                     onClicked:{
                                         move_page.setting_patrol_image_width = parseInt(tfield_image_width.text);
                                     }
                                 }
                             }
                             Row{
+                                spacing: 10
                                 Text{
+                                    anchors.verticalCenter: parent.verticalCenter
                                     text:qsTr("이미지 높이")
                                 }
                                 TextField{
                                     id: tfield_image_height
                                     width: 120
-                                    height: 50
-                                    text: parseInt(supervisor.getSetting("setting","UI","patrol_image_height"));
+                                    horizontalAlignment: TextField.AlignHCenter
+                                    enabled: !cb_resolution.checked
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    height: 45
+                                    text: move_page.setting_patrol_image_height
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onClicked: {
+                                            click_sound.play();
+                                            if(keypad.is_opened){
+                                                keypad.owner = tfield_image_height;
+                                                tfield_image_height.selectAll();
+                                            }else{
+                                                keypad.owner = tfield_image_height;
+                                                tfield_image_height.selectAll();
+                                                keypad.open();
+                                            }
+                                        }
+                                    }
                                 }
                                 Item_buttons{
                                     width: 70
-                                    height: 50
+                                    height: 40
+                                    enabled: !cb_resolution.checked
+                                    anchors.verticalCenter: parent.verticalCenter
                                     type: "round_text"
+                                    fontsize: 15
                                     text: qsTr("적용")
                                     onClicked:{
                                         move_page.setting_patrol_image_height = parseInt(tfield_image_height.text);
@@ -264,5 +339,9 @@ Popup {
 
     Tool_Keyboard{
         id: keyboard
+    }
+
+    Tool_KeyPad{
+        id: keypad
     }
 }
