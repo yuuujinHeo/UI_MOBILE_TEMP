@@ -10,7 +10,6 @@ Item {
     width: 1280
     height: 800
 
-
     property bool setting_patrol_mode: false
     property string setting_patrol_image: "image/robot_moving.png"
     property int setting_patrol_image_width: 300
@@ -26,8 +25,23 @@ Item {
 
     Component.onCompleted: {
         init();
-        if(!setting_patrol_mode)
+
+        if(setting_patrol_mode){
+            var ww = parseInt(supervisor.getSetting("setting","UI","patrol_image_width"));
+            var hh = parseInt(supervisor.getSetting("setting","UI","patrol_image_heigth"));
+            if(ww > 0 && ww < 1280){
+                setting_patrol_image_width = ww;
+            }else{
+                setting_patrol_image_width = 300;
+            }
+            if(hh > 0 && hh < 1280){
+                setting_patrol_image_height = hh;
+            }else{
+                setting_patrol_image_height = 300;
+            }
+        }else{
             statusbar.visible = false;
+        }
     }
 
     onSetting_patrol_image_widthChanged: {
@@ -42,6 +56,19 @@ Item {
         supervisor.stopBGM();
     }
 
+    function setImageHeight(){
+        if(setting_patrol_mode){
+            setting_patrol_image_height = (image_robot.sourceSize.height * setting_patrol_image_width / image_robot.sourceSize.width).toFixed(0);
+            return setting_patrol_image_height;
+        }
+    }
+
+    function getImageHeight(ww){
+        var hh = image_robot.sourceSize.height * ww / image_robot.sourceSize.width;
+        print(ww,hh)
+        return hh.toFixed(0);
+    }
+
     function setTempText(t1, t2){
         patrol_text_1.text = t1;
         patrol_text_2.text = t2;
@@ -49,13 +76,11 @@ Item {
 
     function init(){
         supervisor.writelog("[QML] MOVING PAGE init")
-
         popup_pause.visible = false;
         if(setting_patrol_mode){
             show_face = false;
             face_image.stop();
             image_robot.visible = true;
-
         }else{
             if(supervisor.getSetting("setting","UI","moving_face")==="true"){
                 face_image.play("image/temp.gif");
@@ -68,9 +93,9 @@ Item {
             }
             robot_paused = false;
             supervisor.playBGM();
-//            playMusic.play();
         }
     }
+
     function checkPaused(){
         timer_check_pause.start();
     }
@@ -79,21 +104,6 @@ Item {
         robot_paused = true;
         move_fail = true;
     }
-
-//    Audio{
-//        id: playMusic
-//        autoPlay: false
-//        volume: volume_bgm/100
-//        source: "bgm/song.mp3"
-//        loops: 99
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
 
     Rectangle{
         id: rect_background
@@ -118,11 +128,12 @@ Item {
         source:  ""
         anchors.fill: parent
     }
+
     Rectangle{
         id: rect_robot
         width: setting_patrol_image_width
         height: setting_patrol_image_height
-        color: "transparent"
+        color: "red"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 160*page_moving.width/1280
@@ -141,7 +152,6 @@ Item {
                     }
                 }
             }
-
             function setSize(){
                 if(sourceSize.width > sourceSize.height){
                     if(sourceSize.width > setting_patrol_image_width){
@@ -151,14 +161,7 @@ Item {
                         width = sourceSize.width*page_moving.width/1280;
                         height = sourceSize.height*page_moving.width/1280;
                     }
-                }else{
-                    if(sourceSize.height > setting_patrol_image_height){
-                        height = setting_patrol_image_height*page_moving.width/1280;
-                        width = sourceSize.width * setting_patrol_image_height *page_moving.width/1280 / sourceSize.height;
-                    }else{
-                        width = sourceSize.width*page_moving.width/1280;
-                        height = sourceSize.height*page_moving.width/1280;
-                    }
+                }else{me
                 }
                 print("source changed ", sourceSize.width,sourceSize.height,width,height);
             }
@@ -629,7 +632,7 @@ Item {
         id: btn_password_1
         width: 100
         height: 100
-//        enabled: robot_paused
+        enabled: !setting_patrol_mode
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         z: 99

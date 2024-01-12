@@ -402,13 +402,13 @@ Popup {
                                                 }else{
                                                     mode = "special";
                                                 }
-                                                mode = "special";
-                                            }else if(mode === "korean" && (modelData != "_" && modelData != "&" && modelData != "|")){
+                                            }else if(mode === "korean" && (modelData !== "_" && modelData !== "&" && modelData !== "|")){
                                                 emitter.setHangul(owner,modelData);
                                             }else{
                                                 emitter.keyPressed(owner,modelData);
                                                 emitter.initHangul();
                                             }
+
                                             if(!is_capslock)
                                                 is_shift = false;
                                         }
