@@ -10,6 +10,7 @@
 #include <QTextCodec>
 #include <QSslSocket>
 #include <exception>
+#include <QMediaPlaylist>
 #include <QGuiApplication>
 #include <zlib.h>
 #include <libusb-1.0/libusb.h>
@@ -1802,10 +1803,15 @@ bool Supervisor::isplayBGM(){
     }
 }
 void Supervisor::playBGM(int volume){
-    bgm_player->setMedia(QUrl("qrc:/bgm/song.mp3"));
+    QMediaPlaylist *playlist = new QMediaPlaylist();
+    playlist->addMedia(QUrl("qrc:/bgm/song.mp3"));
+    playlist->setPlaybackMode(QMediaPlaylist::Loop);
+    bgm_player->setPlaylist(playlist);
+//    bgm_player->setMedia(QUrl("qrc:/bgm/song.mp3"));
     if(volume == -1){
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
+//    bgm_player->
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
