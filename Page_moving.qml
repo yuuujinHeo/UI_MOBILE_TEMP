@@ -150,20 +150,7 @@ Item {
                     "image/robot_moving.png"
                 }
             }
-            function setSize(){
-                if(sourceSize.width > sourceSize.height){
-                    if(sourceSize.width > setting_patrol_image_width){
-                        width = setting_patrol_image_width*page_moving.width/1280;
-                        height = sourceSize.height * setting_patrol_image_width*page_moving.width/1280 / sourceSize.width;
-                    }else{
-                        width = sourceSize.width*page_moving.width/1280;
-                        height = sourceSize.height*page_moving.width/1280;
-                    }
-                }else{
-                }
-                print("source changed ", sourceSize.width,sourceSize.height,width,height);
-            }
-            Component.onCompleted: {
+            onSourceChanged: {
                 if(sourceSize.width > sourceSize.height){
                     if(sourceSize.width > 300){
                         width = 300*page_moving.width/1280;
