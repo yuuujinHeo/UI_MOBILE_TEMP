@@ -12,6 +12,10 @@ Item {
 
 
     property bool setting_patrol_mode: false
+    property string setting_patrol_image: "image/robot_moving.png"
+    property int setting_patrol_image_width: 300
+    property int setting_patrol_image_height: 300
+
     property bool motor_lock: false
     property string pos_name: ""
     property bool robot_paused: false
@@ -24,6 +28,13 @@ Item {
         init();
         if(!setting_patrol_mode)
             statusbar.visible = false;
+    }
+
+    onSetting_patrol_image_widthChanged: {
+        image_robot.setSize();
+    }
+    onSetting_patrol_image_heightChanged: {
+        image_robot.setSize();
     }
 
     Component.onDestruction:  {
@@ -107,26 +118,61 @@ Item {
         source:  ""
         anchors.fill: parent
     }
-    Image{
-        id: image_robot
-        source: {
-            if(pos_name === qsTr("충전 장소")){
-                "image/robot_move_charge.png"
-            }else if(pos_name === qsTr("대기 장소")){
-                "image/robot_move_wait.png"
-            }else{
-                "image/robot_moving.png"
-            }
-        }
-        width: 300*parent.width/1280
-        height: 270*parent.height/800
+    Rectangle{
+        id: rect_robot
+        width: setting_patrol_image_width
+        height: setting_patrol_image_height
+        color: "transparent"
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 160*page_moving.width/1280
+        Image{
+            id: image_robot
+            source: {
+                if(setting_patrol_mode){
+                    setting_patrol_image
+                }else{
+                    if(pos_name === qsTr("충전 장소")){
+                        "image/robot_move_charge.png"
+                    }else if(pos_name === qsTr("대기 장소")){
+                        "image/robot_move_wait.png"
+                    }else{
+                        "image/robot_moving.png"
+                    }
+                }
+            }
+
+            function setSize(){
+                if(sourceSize.width > sourceSize.height){
+                    if(sourceSize.width > setting_patrol_image_width){
+                        width = setting_patrol_image_width*page_moving.width/1280;
+                        height = sourceSize.height * setting_patrol_image_width*page_moving.width/1280 / sourceSize.width;
+                    }else{
+                        width = sourceSize.width*page_moving.width/1280;
+                        height = sourceSize.height*page_moving.width/1280;
+                    }
+                }else{
+                    if(sourceSize.height > setting_patrol_image_height){
+                        height = setting_patrol_image_height*page_moving.width/1280;
+                        width = sourceSize.width * setting_patrol_image_height *page_moving.width/1280 / sourceSize.height;
+                    }else{
+                        width = sourceSize.width*page_moving.width/1280;
+                        height = sourceSize.height*page_moving.width/1280;
+                    }
+                }
+                print("source changed ", sourceSize.width,sourceSize.height,width,height);
+            }
+
+            anchors.centerIn: parent
+            onSourceChanged: {
+                setSize();
+            }
+        }
     }
+
     Column{
         anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: image_robot.bottom
+        anchors.top: rect_robot.bottom
         anchors.topMargin: 50*page_moving.width/1280
         spacing: 20*page_moving.width/1280
         Text{
@@ -157,7 +203,7 @@ Item {
         font.pixelSize: 40
         font.family: font_noto_b.name
         anchors.right: parent.horizontalCenter
-        anchors.top: image_robot.bottom
+        anchors.top: rect_robot.bottom
         anchors.topMargin: 80
         anchors.rightMargin: 40
         color: "#12d27c"
@@ -169,7 +215,7 @@ Item {
         font.pixelSize: 40
         font.family: font_noto_r.name
         anchors.left: parent.horizontalCenter
-        anchors.top: image_robot.bottom
+        anchors.top: rect_robot.bottom
         anchors.topMargin: 80
         anchors.leftMargin: 40
         color: "white"

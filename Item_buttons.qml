@@ -267,6 +267,7 @@ Item{
         enabled: item_Buttons.enabled
         anchors.fill: parent
         onPressed:{
+            click_sound.play();
             item_Buttons.pressed = true;
         }
         onReleased:{

@@ -1297,7 +1297,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("플랫폼 이름");
                                     popup_help_setting.addLine("플랫폼을 지칭하는 이름을 적어주세요");
@@ -1326,6 +1325,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         keyboard.owner = platform_name;
                                         keyboard.owner_text = "platform_name";
                                         platform_name.selectAll();
@@ -1372,7 +1372,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("플랫폼 넘버");
                                     popup_help_setting.addLine("로봇을 여러대 구동하며 동일한 로봇 이름을 사용하는 경우 사용합니다");
@@ -1434,7 +1433,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("플랫폼 타입");
                                     popup_help_setting.addLine("지정하기 전, 지원되는 모델인지 확인하세요");
@@ -1511,7 +1509,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("이동 속도 (프리셋)");
                                     popup_help_setting.addLine("이동속도는 5단계로 분류됩니다");
@@ -1730,7 +1727,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("복귀 속도 지정");
                                     popup_help_setting.addLine("로봇이 서빙 후 대기위치로 이동할 때 속도를 지정합니다");
@@ -1898,7 +1894,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("대기장소 모터 락 해제");
                                     popup_help_setting.addLine("로봇이 대기장소에서 대기하고 있을 때 사람이 밀어서 움직일 수 있는지 설정합니다");
@@ -2019,7 +2014,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("트레이 별 서빙");
                                     popup_help_setting.addLine("트레이 별로 각각의 서빙위치를 지정하려면 사용하세요");
@@ -2176,7 +2170,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("이동 중 화면");
                                     popup_help_setting.addLine("로봇이 이동 중에 화면에 표시될 것을 고르세요");
@@ -2859,6 +2852,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
+                                            click_sound.play();
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_1;
                                                 server_ip_1.selectAll();
@@ -2896,6 +2890,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
+                                            click_sound.play();
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_2;
                                                 server_ip_2.selectAll();
@@ -2936,6 +2931,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
+                                            click_sound.play();
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_3;
                                                 server_ip_3.selectAll();
@@ -2976,6 +2972,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
+                                            click_sound.play();
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_4;
                                                 server_ip_4.selectAll();
@@ -3076,6 +3073,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keyboard.is_opened){
                                             keyboard.owner = fms_id;
                                             fms_id.selectAll();
@@ -3136,6 +3134,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keyboard.is_opened){
                                             keyboard.owner = fms_pw;
                                             fms_pw.selectAll();
@@ -3212,6 +3211,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = radius;
                                             radius.selectAll();
@@ -3273,6 +3273,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = robot_length;
                                             robot_length.selectAll();
@@ -3334,6 +3335,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = wheel_base;
                                             wheel_base.selectAll();
@@ -3395,6 +3397,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = wheel_radius;
                                             wheel_radius.selectAll();
@@ -3576,6 +3579,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_1;
                                                             ip_1.selectAll();
@@ -3614,6 +3618,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_2;
                                                             ip_2.selectAll();
@@ -3655,6 +3660,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_3;
                                                             ip_3.selectAll();
@@ -3696,6 +3702,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_4;
                                                             ip_4.selectAll();
@@ -3807,6 +3814,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_1;
                                                             gateway_1.selectAll();
@@ -3845,6 +3853,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_2;
                                                             gateway_2.selectAll();
@@ -3886,6 +3895,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_3;
                                                             gateway_3.selectAll();
@@ -3927,6 +3937,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_4;
                                                             gateway_4.selectAll();
@@ -4037,6 +4048,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_1;
                                                             dnsmain_1.selectAll();
@@ -4075,6 +4087,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_2;
                                                             dnsmain_2.selectAll();
@@ -4116,6 +4129,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_3;
                                                             dnsmain_3.selectAll();
@@ -4157,6 +4171,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
+                                                        click_sound.play();
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_4;
                                                             dnsmain_4.selectAll();
@@ -4244,7 +4259,6 @@ Item {
                                         width: 120
                                         height: 50
                                         onClicked:{
-                                            click_sound.play();
                                             ip_1.ischanged = false;
                                             ip_2.ischanged = false;
                                             ip_3.ischanged = false;
@@ -4467,6 +4481,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = cam_exposure;
                                             cam_exposure.selectAll();
@@ -4543,6 +4558,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
+                                        click_sound.play();
                                         popup_camera.open();
                                     }
                                 }
@@ -4577,6 +4593,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
 
                                 }
                             }
@@ -4612,6 +4629,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
+                                            click_sound.play();
                                             popup_camera.open();
                                         }
                                     }
@@ -4675,6 +4693,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_tf.open();
                                     }
                                 }
@@ -4738,6 +4757,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_tf.open();
                                     }
                                 }
@@ -4801,6 +4821,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_tf.open();
                                     }
                                 }
@@ -4841,7 +4862,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("최소 인식 높이");
                                     popup_help_setting.addLine("장애물 감지에 사용되는 카메라 3D 데이터값의 최소높이값입니다");
@@ -4865,6 +4885,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_height_min;
                                             obs_height_min.selectAll();
@@ -4917,7 +4938,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("최대 인식 높이");
                                     popup_help_setting.addLine("장애물 감지에 사용되는 카메라 3D 데이터값의 최대높이값입니다");
@@ -4942,6 +4962,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_height_max;
                                             obs_height_max.selectAll();
@@ -4993,7 +5014,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("데이터 최대 거리");
                                     popup_help_setting.addLine("연산에 사용되는 라이다 데이터의 최대값입니다");
@@ -5017,6 +5037,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = max_range;
                                             max_range.selectAll();
@@ -5070,7 +5091,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("데이터 최소 거리");
                                     popup_help_setting.addLine("연산에 사용되는 라이다 데이터의 최소값(로봇 중심기준)입니다");
@@ -5097,6 +5117,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_near;
                                             icp_near.selectAll();
@@ -5212,7 +5233,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로추종 최대거리");
                                     popup_help_setting.addLine("로봇과 로봇이 추종하는 경로 상 한 점 사이 최대 거리입니다");
@@ -5238,6 +5258,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_preview_time;
                                             obs_preview_time.selectAll();
@@ -5342,6 +5363,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_avoid_v;
                                             obs_avoid_v.selectAll();
@@ -5404,6 +5426,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_check_range;
                                             obs_check_range.selectAll();
@@ -5547,7 +5570,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("감지 거리 Level 1");
                                     popup_help_setting.addLine("주행 중 장애물을 감지하는 범위의 level 1 값입니다");
@@ -5573,6 +5595,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_near;
                                             obs_near.selectAll();
@@ -5635,6 +5658,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_decel_gain;
                                             obs_decel_gain.selectAll();
@@ -5788,6 +5812,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_early_stop_dist;
                                             obs_early_stop_dist.selectAll();
@@ -5887,7 +5912,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("감지 거리 Level 1");
                                     popup_help_setting.addLine("주행 중 장애물을 감지하는 범위의 level 1 값입니다");
@@ -5913,6 +5937,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_margin1;
                                             obs_margin1.selectAll();
@@ -5965,7 +5990,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("감지 거리 Level 0");
                                     popup_help_setting.addLine("주행 중 장애물을 감지하는 범위의 level 0 값입니다");
@@ -5991,6 +6015,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_margin0;
                                             obs_margin0.selectAll();
@@ -6042,7 +6067,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("장애물 넓이");
                                     popup_help_setting.addLine("감지되는 동적 센서 데이타가 이 값만큼 뭉쳐있다면 장애물로 판단합니다");
@@ -6067,6 +6091,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_detect_area;
                                             obs_detect_area.selectAll();
@@ -6119,7 +6144,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("장애물 감지 민감도");
                                     popup_help_setting.addLine("동적장애물로 판단하는 픽셀의 민감도 입니다");
@@ -6143,6 +6167,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_detect_sensitivity;
                                             obs_detect_sensitivity.selectAll();
@@ -6195,7 +6220,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("즉시정지 거리");
                                     popup_help_setting.addLine("로봇 중심 기준으로 동적장애물로 판단되는 것이 이 범위 안에 들어오면");
@@ -6222,6 +6246,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_deadzone;
                                             obs_deadzone.selectAll();
@@ -6270,7 +6295,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("감지 후 대기시간");
                                     popup_help_setting.addLine("장애물을 감지 후 로봇이 멈춘 뒤 다시 출발할 때 까지 걸리는 대기시간입니다");
@@ -6296,6 +6320,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = obs_wait_time;
                                             obs_wait_time.selectAll();
@@ -6346,7 +6371,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로추종 최대거리");
                                     popup_help_setting.addLine("로봇과 로봇이 추종하는 경로 상 한 점 사이 최대 거리입니다");
@@ -6372,6 +6396,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = look_ahead_dist;
                                             look_ahead_dist.selectAll();
@@ -6421,7 +6446,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로추종 최대거리");
                                     popup_help_setting.addLine("로봇과 로봇이 추종하는 경로 상 한 점 사이 최소 거리입니다");
@@ -6447,6 +6471,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = min_look_ahead_dist;
                                             min_look_ahead_dist.selectAll();
@@ -6497,7 +6522,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로이탈 거리");
                                     popup_help_setting.addLine("로봇이 경로에서 이 값 이상 떨어지면 경로를 이탈했다고 판단합니다");
@@ -6523,6 +6547,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = path_out_dist;
                                             path_out_dist.selectAll();
@@ -6596,6 +6621,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_init_ratio;
                                             icp_init_ratio.selectAll();
@@ -6655,6 +6681,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_init_error;
                                             icp_init_error.selectAll();
@@ -6705,7 +6732,6 @@ Item {
                                 text: "?"
                                 onClicked:
                                 {
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("Inlier 판단거리");
                                     popup_help_setting.addLine("로봇이 위치추정할 때, 실제 라이다데이터와 맵상 대응점과의 위치차이가");
@@ -6733,6 +6759,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_dist;
                                             icp_dist.selectAll();
@@ -6783,7 +6810,6 @@ Item {
                                 text: "?"
                                 onClicked:
                                 {
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("평균오차 최소값(icp_error)");
                                     popup_help_setting.addLine("Inlier 판단된 데이터들의 실제 라이다데이터와 맵상 대응점과의 위치차이의 평균이");
@@ -6811,6 +6837,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_error;
                                             icp_error.selectAll();
@@ -6861,7 +6888,6 @@ Item {
                                 text: "?"
                                 onClicked:
                                 {
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("Inlier 비율 (icp_ratio)");
                                     popup_help_setting.addLine("전체 라이다데이터 대비 lnlier 판단된 데이터 값의 비율입니다");
@@ -6889,6 +6915,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_ratio;
                                             icp_ratio.selectAll();
@@ -6938,7 +6965,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("모터 위치추정 비율");
                                     popup_help_setting.addLine("모터의 엔코더값으로 계산되는 위치추정 값을 얼마나 사용할지의 비율입니다");
@@ -6966,6 +6992,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_odometry_weight;
                                             icp_odometry_weight.selectAll();
@@ -7015,7 +7042,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("위치추정 최소 거리");
                                     popup_help_setting.addLine("로봇이 주행하며 이 거리 이상 움직이면 위치추정을 시도합니다");
@@ -7041,6 +7067,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_repeat_dist;
                                             icp_repeat_dist.selectAll();
@@ -7090,7 +7117,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("위치추정 최소 시간");
                                     popup_help_setting.addLine("로봇은 이 시간 간격으로 자동으로 위치추정을 시도합니다");
@@ -7116,6 +7142,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = icp_repeat_time;
                                             icp_repeat_time.selectAll();
@@ -7183,7 +7210,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7211,6 +7237,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = goal_dist;
                                             goal_dist.selectAll();
@@ -7260,7 +7287,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7288,6 +7314,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = goal_th;
                                             goal_th.selectAll();
@@ -7338,7 +7365,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로탐색 최소거리");
                                     popup_help_setting.addLine("출발점과 도착점이 이 값보다 작으면 경로를 탐색하지 않고");
@@ -7365,6 +7391,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = goal_near_dist;
                                             goal_near_dist.selectAll();
@@ -7414,7 +7441,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로탐색 최소거리");
                                     popup_help_setting.addLine("출발점과 도착점이 이 값보다 작으면 경로를 탐색하지 않고");
@@ -7441,6 +7467,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = goal_near_th;
                                             goal_near_th.selectAll();
@@ -7505,7 +7532,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7533,6 +7559,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = slam_submap_cnt;
                                             slam_submap_cnt.selectAll();
@@ -7582,7 +7609,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7610,6 +7636,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = slam_lc_dist;
                                             slam_lc_dist.selectAll();
@@ -7659,7 +7686,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7687,6 +7713,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = slam_lc_icp_dist;
                                             slam_lc_icp_dist.selectAll();
@@ -7736,7 +7763,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7764,6 +7790,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = map_size;
                                             map_size.selectAll();
@@ -7813,7 +7840,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착점 허용 오차");
                                     popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
@@ -7841,6 +7867,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = grid_size;
                                             grid_size.selectAll();
@@ -7934,7 +7961,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("모터전류 감지");
                                     popup_help_setting.addLine("로봇이 주행 중, 충돌했다고 판단할만큼 모터의 전류가 높다면 자동으로 일시정지합니다");
@@ -8005,6 +8031,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = pause_motor_current;
                                             pause_motor_current.selectAll();
@@ -8064,6 +8091,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = pause_check_ms;
                                             pause_check_ms.selectAll();
@@ -8134,7 +8162,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("출발 속도(st_v)");
                                     popup_help_setting.addLine("로봇이 출발할 때, 처음으로 주어지는 속도값입니다");
@@ -8161,6 +8188,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = st_v;
                                             st_v.selectAll();
@@ -8210,7 +8238,6 @@ Item {
                                 anchors.rightMargin: 20
                                 text: "?"
                                 onClicked:{
-                                    click_sound.play();
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("도착 속도(goal_v)");
                                     popup_help_setting.addLine("로봇이 목적지에 인접했을 때, 감속되는 최종 속도값입니다");
@@ -8236,6 +8263,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = goal_v;
                                             goal_v.selectAll();
@@ -8317,6 +8345,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_curve;
                                             k_curve.selectAll();
@@ -8377,6 +8406,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_v;
                                             k_v.selectAll();
@@ -8437,6 +8467,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_w;
                                             k_w.selectAll();
@@ -8497,6 +8528,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_dd;
                                             k_dd.selectAll();
@@ -8557,6 +8589,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = path_delta_v_acc_gain;
                                             path_delta_v_acc_gain.selectAll();
@@ -8617,6 +8650,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = path_delta_v_dec_gain;
                                             path_delta_v_dec_gain.selectAll();
@@ -8677,6 +8711,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = path_ref_v_gain;
                                             path_ref_v_gain.selectAll();
@@ -8737,6 +8772,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = path_shifting_val;
                                             path_shifting_val.selectAll();
@@ -8950,6 +8986,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = gear_ratio;
                                             gear_ratio.selectAll();
@@ -9010,6 +9047,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_p;
                                             k_p.selectAll();
@@ -9070,6 +9108,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_i;
                                             k_i.selectAll();
@@ -9130,6 +9169,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = k_d;
                                             k_d.selectAll();
@@ -9190,6 +9230,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_v;
                                             motor_limit_v.selectAll();
@@ -9250,6 +9291,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_v_acc;
                                             motor_limit_v_acc.selectAll();
@@ -9310,6 +9352,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_w;
                                             motor_limit_w.selectAll();
@@ -9370,6 +9413,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_w_acc;
                                             motor_limit_w_acc.selectAll();
@@ -10057,6 +10101,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
+                        click_sound.play();
                         supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANAGER MENU");
                         if(is_admin){
                             popup_manager.open();
@@ -10084,6 +10129,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
+                        click_sound.play();
                         supervisor.writelog("[USER INPUT] SETTING PAGE -> RESET DEFAULT");
                         init();
                     }
@@ -10107,6 +10153,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
+                        click_sound.play();
                         save();
                     }
                 }
@@ -11023,6 +11070,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
                             popup_update.open();
                         }
@@ -11072,6 +11120,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
                             loader_page.source = plog;
                         }
@@ -11122,6 +11171,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
                             popup_usb_select.open();
                         }
@@ -11172,6 +11222,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
                             if(is_admin){
                                 popup_usb_download.open();
@@ -11224,6 +11275,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> KILL SLAM");
                             supervisor.restartSLAM();
                         }
@@ -11271,6 +11323,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
                             popup_password.open();
                             popup_password.is_editmode = true;
@@ -11321,6 +11374,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
                             popup_clear.open();
                         }
@@ -11644,7 +11698,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-
+                            click_sound.play();
                             if(popup_usb_notice.mode== "compress"){
 
                             }else{
@@ -11767,6 +11821,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
                             popup_usb_notice.mode = "extract_recent";
                             popup_usb_notice.open();
@@ -11804,6 +11859,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
 //                                popup_usb_download.index = 1;
 //                                popup_usb_download.set_name = name;
                             }
@@ -11829,6 +11885,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_usb_download.is_ui = !popup_usb_download.is_ui;
                         }
                     }
@@ -11847,6 +11904,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_usb_download.is_slam = !popup_usb_download.is_slam;
                         }
                     }
@@ -11865,6 +11923,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_usb_download.is_config = !popup_usb_download.is_config;
                         }
                     }
@@ -11883,6 +11942,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_usb_download.is_map = !popup_usb_download.is_map;
                         }
                     }
@@ -11901,6 +11961,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_usb_download.is_log = !popup_usb_download.is_log;
                         }
                     }
@@ -11925,6 +11986,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
+                        click_sound.play();
                         popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
                         popup_usb_download.close();
                         popup_usb_notice.open();
@@ -12101,6 +12163,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
+                                        click_sound.play();
                                         text_no_usb.visible = false;
                                         popup_usb_select.index = 1;
                                         popup_usb_select.set_name = name;
@@ -12127,6 +12190,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
                                     popup_usb_select.is_ui = !popup_usb_select.is_ui;
                                 }
                             }
@@ -12145,6 +12209,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
                                     popup_usb_select.is_slam = !popup_usb_select.is_slam;
                                 }
                             }
@@ -12163,6 +12228,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
                                     popup_usb_select.is_config = !popup_usb_select.is_config;
                                 }
                             }
@@ -12181,6 +12247,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
                                     popup_usb_select.is_map = !popup_usb_select.is_map;
                                 }
                             }
@@ -12199,6 +12266,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
                                     popup_usb_select.is_log = !popup_usb_select.is_log;
                                 }
                             }
@@ -12221,6 +12289,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
                                 popup_usb_select.close();
                                 popup_usb_notice.open();
@@ -12291,6 +12360,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] RESET HOME FOLDERS")
                             supervisor.resetHomeFolders();
                             popup_reset.close();
@@ -12453,6 +12523,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
                                 supervisor.updateProgram();
                                 popup_update.close();
@@ -12477,6 +12548,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 popup_update.close();
                             }
                         }
@@ -12499,6 +12571,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 popup_loading.open();
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update(Git Pull) Start");
                                 supervisor.updateProgramGitPull();
@@ -12516,6 +12589,7 @@ Item {
                 anchors.right: parent.right
                 property var count: 0
                 onClicked:{
+                    click_sound.play();
                     if(++count > 4){
                         count = 0;
                         supervisor.writelog("[USER INPUT] SETTING : Show Git Pull Button");
@@ -12722,6 +12796,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 if(popup_camera.is_switched){
                                     is_reset_slam = true;
                                     supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA SWITCH LEFT("+text_camera_1.text+") RIGHT("+text_camera_2.text+")");
@@ -12754,6 +12829,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA Position Switch")
                                 popup_camera.is_switched = true;
                                 var temp_id = popup_camera.left_id;
@@ -12779,6 +12855,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
+                                click_sound.play();
                                 popup_camera.close();
                             }
                         }
@@ -12884,6 +12961,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
+                                            click_sound.play();
                                             popup_preset.update();
                                         }
                                     }
@@ -12901,6 +12979,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
+                                            click_sound.play();
                                             popup_preset_name.open();
                                         }
                                     }
@@ -12930,6 +13009,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_preset.select_preset = 1;
                                         popup_preset.update();
                                     }
@@ -12959,6 +13039,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_preset.select_preset = 2;
                                         popup_preset.update();
                                     }
@@ -12988,6 +13069,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_preset.select_preset = 3;
                                         popup_preset.update();
                                     }
@@ -13017,6 +13099,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_preset.select_preset = 4;
                                         popup_preset.update();
                                     }
@@ -13046,6 +13129,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_preset.select_preset = 5;
                                         popup_preset.update();
                                     }
@@ -13085,6 +13169,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_preset.close();
                                     }
                                 }
@@ -13104,6 +13189,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         if(popup_preset.select_preset === 1){
                                             supervisor.setSetting("setting","PRESET1/name",text_preset_1.text);
                                         }else if(popup_preset.select_preset === 2){
@@ -13160,6 +13246,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_pivot;
                                             preset_limit_pivot.selectAll();
@@ -13197,6 +13284,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_pivot_acc;
                                             preset_limit_pivot_acc.selectAll();
@@ -13231,6 +13319,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_v;
                                             preset_limit_v.selectAll();
@@ -13266,6 +13355,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_vacc;
                                             preset_limit_vacc.selectAll();
@@ -13301,6 +13391,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_w;
                                             preset_limit_w.selectAll();
@@ -13337,6 +13428,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
+                                        click_sound.play();
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_wacc;
                                             preset_limit_wacc.selectAll();
@@ -13376,6 +13468,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
+                        click_sound.play();
                         if(keyboard.is_opened){
                             keyboard.owner = preset_name;
                             preset_name.selectAll();
@@ -13402,6 +13495,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             popup_preset_name.close();
                         }
                     }
@@ -13418,6 +13512,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
+                            click_sound.play();
                             supervisor.setSetting("setting","PRESET"+Number(popup_preset.select_preset)+"/name",preset_name.text);
                             popup_preset.update();
                             popup_preset_name.close();
@@ -13498,6 +13593,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 popup_preset_set.close();
                             }
                         }
@@ -13515,6 +13611,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 supervisor.setSetting("update","DRIVING/cur_preset",Number(popup_preset_set.preset_num));
                                 is_reset_slam = true;
                                 popup_preset_set.close();
@@ -13688,6 +13785,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
+                                    click_sound.play();
                                     if(name==="clear"){
                                         popup_password.setfailclear();
                                         popup_password.is_fail = false;
@@ -13905,6 +14003,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_x;
                                     tf_lidar_x.selectAll();
@@ -13926,6 +14025,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_y;
                                     tf_lidar_y.selectAll();
@@ -13947,6 +14047,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_z;
                                     tf_lidar_z.selectAll();
@@ -13969,6 +14070,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_rx;
                                     tf_lidar_rx.selectAll();
@@ -13991,6 +14093,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_ry;
                                     tf_lidar_ry.selectAll();
@@ -14013,6 +14116,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_rz;
                                     tf_lidar_rz.selectAll();
@@ -14042,6 +14146,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_x;
                                     tf_left_x.selectAll();
@@ -14063,6 +14168,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_y;
                                     tf_left_y.selectAll();
@@ -14084,6 +14190,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_z;
                                     tf_left_z.selectAll();
@@ -14105,6 +14212,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_rx;
                                     tf_left_rx.selectAll();
@@ -14126,6 +14234,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_ry;
                                     tf_left_ry.selectAll();
@@ -14147,6 +14256,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_rz;
                                     tf_left_rz.selectAll();
@@ -14178,6 +14288,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_x;
                                     tf_right_x.selectAll();
@@ -14199,6 +14310,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_y;
                                     tf_right_y.selectAll();
@@ -14220,6 +14332,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_z;
                                     tf_right_z.selectAll();
@@ -14241,6 +14354,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_rx;
                                     tf_right_rx.selectAll();
@@ -14262,6 +14376,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_ry;
                                     tf_right_ry.selectAll();
@@ -14283,6 +14398,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
+                                click_sound.play();
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_rz;
                                     tf_right_rz.selectAll();
@@ -14315,6 +14431,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 popup_tf.close();
                             }
                         }
@@ -14335,6 +14452,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 supervisor.writelog("[USER INPUT] SETTING CAMERA TF CHANGED");
 
                                 var lidar_str = tf_lidar_x.text + "," + tf_lidar_y.text + "," + tf_lidar_z.text;
@@ -14925,6 +15043,7 @@ Item {
                                         MouseArea{
                                             anchors.fill:parent
                                             onClicked: {
+                                                click_sound.play();
                                                 if(keyboard.is_opened){
                                                     keyboard.owner = passwd_wifi;
                                                     passwd_wifi.selectAll();
@@ -15059,6 +15178,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = ip__1;
                                                         ip__1.selectAll();
@@ -15096,6 +15216,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = ip__2;
                                                         ip__2.selectAll();
@@ -15136,6 +15257,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = ip__3;
                                                         ip__3.selectAll();
@@ -15176,6 +15298,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = ip__4;
                                                         ip__4.selectAll();
@@ -15241,6 +15364,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = gateway__1;
                                                         gateway__1.selectAll();
@@ -15278,6 +15402,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = gateway__2;
                                                         gateway__2.selectAll();
@@ -15318,6 +15443,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = gateway__3;
                                                         gateway__3.selectAll();
@@ -15358,6 +15484,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = gateway__4;
                                                         gateway__4.selectAll();
@@ -15424,6 +15551,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = dns_1;
                                                         dns_1.selectAll();
@@ -15461,6 +15589,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = dns_2;
                                                         dns_2.selectAll();
@@ -15501,6 +15630,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = dns_3;
                                                         dns_3.selectAll();
@@ -15541,6 +15671,7 @@ Item {
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked: {
+                                                    click_sound.play();
                                                     if(keypad.is_opened){
                                                         keypad.owner = dns_4;
                                                         dns_4.selectAll();
@@ -15801,6 +15932,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 backPage();
                             }
                         }
@@ -15818,6 +15950,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 save();
                                 backPage();
                             }

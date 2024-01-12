@@ -1186,7 +1186,7 @@ Item {
                         click_sound_no.play();
                         count_resting = 0;
                     }else{
-                        start_sound.play();
+                        click_sound.play();
                         count_resting = 0;
                     }
                 }else{
@@ -1546,7 +1546,7 @@ Item {
             id: btn_go2
             anchors.fill: parent
             onClicked: {
-                start_sound.play();
+                click_sound.play();
                 popup_patrol_list.open();
 //                count_resting = 0;
                 go_patrol = true;
@@ -1984,16 +1984,16 @@ Item {
                 onClicked: {
                     count_resting = 0;
                     if(go_wait){
-                        start_sound.play();
+                        click_sound.play();
                         supervisor.moveToWait();
                     }else if(go_cleaning){
-                        start_sound.play();
+                        click_sound.play();
                         supervisor.moveToCleaning();
                     }else if(go_charge){
-                        start_sound.play();
+                        click_sound.play();
                         supervisor.moveToCharge();
                     }else if(go_patrol){
-                        start_sound.play();
+                        click_sound.play();
                     }else{
                         click_sound_no.play();
                     }
@@ -2379,6 +2379,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             supervisor.cleanTray();
                             popup_clean_calling.close();
                         }

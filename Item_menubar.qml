@@ -128,7 +128,6 @@ Item {
                         anchors.fill: parent
                         onPressed:{
                             btn.color = color_light_gray;
-//                            click_sound.play();
                         }
                         onReleased:{
                             btn.color = "transparent";

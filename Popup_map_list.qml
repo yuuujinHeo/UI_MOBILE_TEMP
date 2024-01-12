@@ -209,7 +209,6 @@ Popup{
                         type: "round_text"
                         text: "사 용"
                         onClicked: {
-                            click_sound.play();;
                             if(select_map_list > -1){
                                 supervisor.writelog("[USER INPUT] Map used changed : " + model_maps.get(select_map_list).name);
                                 supervisor.setMap(model_maps.get(select_map_list).name);
@@ -225,7 +224,6 @@ Popup{
 //                            visible: false
                         text: "복 사"
                         onClicked: {
-                            click_sound.play();;
                             if(select_map_list > -1){
                                 supervisor.writelog("[USER INPUT] Map used copied : " + model_maps.get(select_map_list).name);
                                 popup_copymap.open();
@@ -245,7 +243,6 @@ Popup{
                         visible: false
                         text: "수 정"
                         onClicked: {
-                            click_sound.play();;
                             if(select_map_list > -1){
                                 var name = model_maps.get(select_map_list).name;
                                 popup_map_list.close();
@@ -260,7 +257,6 @@ Popup{
                         type: "round_text"
                         text: "삭 제"
                         onClicked: {
-                            click_sound.play();;
                             if(select_map_list > -1){
                                 supervisor.removeMap(model_maps.get(select_map_list).name);
                                 popup_map_list.update_list();
@@ -273,7 +269,6 @@ Popup{
                         type: "round_text"
                         text: "취 소"
                         onClicked: {
-                            click_sound.play();;
                             popup_map_list.close();
                         }
                     }
@@ -328,6 +323,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
+                                                    click_sound.play();
                                                     if(select_map_list === index){
                                                         select_map_list = -1;
                                                     }else{
@@ -829,6 +825,7 @@ Popup{
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
+                                                            click_sound.play();
                                                             if(index == 2){
                                                                 if(show_location){
                                                                     parent.color = "black";
@@ -920,6 +917,7 @@ Popup{
                     MouseArea{
                         anchors.fill:parent
                         onClicked: {
+                            click_sound.play();
                             keyboard.owner = textfield_new_map;
                             keyboard.owner_text = "textfield_new_map";
                             textfield_new_map.selectAll();

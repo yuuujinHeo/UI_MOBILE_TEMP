@@ -83,6 +83,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    click_sound.play();
                                     emitter.keyPressed(owner,modelData);
                                 }
                             }
@@ -109,6 +110,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    click_sound.play();
                                     emitter.keyPressed(owner,modelData);
 
                                 }
@@ -136,6 +138,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    click_sound.play();
                                     emitter.keyPressed(owner,modelData);
                                 }
                             }
@@ -160,6 +163,7 @@ Popup {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 emitter.keyPressed(owner,"0");
 
                             }
@@ -179,6 +183,7 @@ Popup {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
+                                click_sound.play();
                                 emitter.keyPressed(owner,".");
                             }
                         }

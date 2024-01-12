@@ -62,6 +62,7 @@ void MapHandler::loadFile(QString name, QString type){
         exist_raw = true;
     }else{
         exist_raw = false;
+        file_raw = cv::Mat(file_width,file_width,CV_8U,cv::Scalar::all(0));
         log_str = "RAW(failed) ";
     }
 
@@ -76,9 +77,12 @@ void MapHandler::loadFile(QString name, QString type){
         file_edited.copyTo(map_orin);
     }else{
         exist_edited = false;
+        file_edited = cv::Mat(file_width,file_width,CV_8U,cv::Scalar::all(0));
         log_str += ", EDITED(failed) ";
         if(exist_raw){
             file_raw.copyTo(map_orin);
+        }else{
+            map_orin = cv::Mat(file_width,file_width,CV_8U,cv::Scalar::all(0));
         }
     }
 
@@ -220,8 +224,8 @@ void MapHandler::setMapOrin(QString type){
 
 //****setTline : 경로 좁은 사이 매꾸기 -> 미사용
 void MapHandler::setTline(){
-    int radius = pmap->robot_radius*2/grid_width;
-    for(int i=0; i<file_travelline.rows;i++){
+//    int radius = pmap->robot_radius*2/grid_width;
+//    for(int i=0; i<file_travelline.rows;i++){
         //1줄 당
 //        for(int j=0; j<file_travelline.cols-1; j++){
 //            //실마리 찾음
@@ -241,7 +245,7 @@ void MapHandler::setTline(){
 //                }
 //            }
 //        }
-    }
+//    }
 
 //    for(int i=0; i<file_travelline.cols;i++){
 //        //1줄 당
@@ -276,14 +280,8 @@ void MapHandler::onTimer(){
     if(flag_drawing){
         show_robot = true;
         show_travelline = true;
-//        robot_following = true;
         drawTline();
     }
-//        else if(mode == "annot_tline"){
-//            show_robot = false;
-//            robot_following = false;
-//        }
-
 //        setMap();
 
     //Robot Following
@@ -292,7 +290,6 @@ void MapHandler::onTimer(){
         robot_pose = setAxis(probot->curPose.point);
         setZoomCenter(robot_pose.x, robot_pose.y);
     }
-
 }
 
 
@@ -306,7 +303,7 @@ void MapHandler::setMode(QString name){
     draw_object_flag = false;
     show_velocitymap = false;
     if(mode == "none"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -336,7 +333,7 @@ void MapHandler::setMode(QString name){
         robot_following = false;
         setFullScreen();
     }else if(mode == "current"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = true;
         show_local_path = true;
@@ -347,7 +344,7 @@ void MapHandler::setMode(QString name){
         robot_following = true;
         setFullScreen();
     }else if(mode == "annot_view"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = false;
         show_global_path = false;
         show_local_path = false;
@@ -358,7 +355,7 @@ void MapHandler::setMode(QString name){
         robot_following = false;
         setFullScreen();
     }else if(mode == "annot_drawing" || mode == "annot_rotate"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = false;
         show_global_path = false;
         show_local_path = false;
@@ -372,7 +369,7 @@ void MapHandler::setMode(QString name){
         robot_following = false;
         setFullScreen();
     }else if(mode == "serving_list"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = false;
         show_global_path = false;
         show_local_path = false;
@@ -384,7 +381,7 @@ void MapHandler::setMode(QString name){
 
         setFullScreen();
     }else if(mode == "annot_velmap"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = false;
         show_global_path = false;
         show_local_path = false;
@@ -396,7 +393,7 @@ void MapHandler::setMode(QString name){
         show_travelline = true;
         setFullScreen();
     }else if(mode == "annot_location"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -407,7 +404,7 @@ void MapHandler::setMode(QString name){
         show_travelline = true;
 //        setFullScreen();
     }else if(mode == "annot_tline"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = false;
         show_global_path = false;
         show_local_path = false;
@@ -418,7 +415,7 @@ void MapHandler::setMode(QString name){
         show_travelline = true;
         setFullScreen();
     }else if(mode == "annot_tline2"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -429,7 +426,7 @@ void MapHandler::setMode(QString name){
         show_travelline = true;
         setFullScreen();
     }else if(mode == "localization"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -444,7 +441,7 @@ void MapHandler::setMode(QString name){
         pmap->annot_edit_tline = false;
         setFullScreen();
     }else if(mode == "local_view"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -455,7 +452,7 @@ void MapHandler::setMode(QString name){
         scale = 0.7;
         setZoomCenter(file_width/2, file_width/2);
     }else if(mode == "mapviewer"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = false;
         show_global_path = false;
         show_local_path = false;
@@ -465,7 +462,7 @@ void MapHandler::setMode(QString name){
         robot_following = false;
         setFullScreen();
     }else if(mode == "annot_object"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -478,7 +475,7 @@ void MapHandler::setMode(QString name){
         initObject();
         setFullScreen();
     }else if(mode == "annot_object_png"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -491,7 +488,7 @@ void MapHandler::setMode(QString name){
         initObject();
         setFullScreen();
     }else if(mode == "annot_obs_area"){
-        file_width = map_orin.rows;
+//        file_width = map_orin.rows;
         show_robot = true;
         show_global_path = false;
         show_local_path = false;
@@ -747,7 +744,7 @@ void MapHandler::setMapLayer(){
         }
     }
 
-    if(select_location > -1 && select_location < pmap->locations.size()){
+    if(select_location > -1 && select_location < locations.size()){
         float loc_x = (locations[select_location].point.x - draw_x)*news;
         float loc_y = (locations[select_location].point.y - draw_y)*news;
         float distance = (pmap->robot_radius/grid_width)*2*news;
@@ -976,20 +973,16 @@ void MapHandler::setMapLayer(){
             painter_layer.drawLine(QLine(x1,y1,x,y));
             painter_layer.drawLine(QLine(x2,y2,x,y));
         }
-
     }
-
-
-
     update();
-
 }
 
 void MapHandler::setMapTest(){
-//    qDebug() << "setMap:" << map_orin.rows;
+}
+
+void MapHandler::setMap(){
     if(mode == "mapping"){
         map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_mapping));
-//        qDebug() << "mapping size = " << pmap->map_mapping.rows;
         grid_width = pmap->mapping_gridwidth*pmap->mapping_width/file_width;
         if(file_width != pmap->map_mapping.rows){
             file_width = pmap->map_mapping.rows;
@@ -1010,7 +1003,6 @@ void MapHandler::setMapTest(){
 
         cv::Mat temp_layer = cv::Mat(file_width,file_width,CV_8UC4,cv::Scalar::all(0));
         cv::cvtColor(map_orin,temp_orin,cv::COLOR_GRAY2BGRA);
-
         cv::cvtColor(file_velocity,temp_velmap,cv::COLOR_BGR2BGRA);
         cv::cvtColor(file_travelline,temp_travel,cv::COLOR_BGR2BGRA);
         cv::cvtColor(file_object,temp_obj,cv::COLOR_BGR2BGRA);
@@ -1059,16 +1051,14 @@ void MapHandler::setMapTest(){
                 cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
             }
         }
+
         if(!show_object && !show_velocitymap && !show_travelline && !show_avoid){
             cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
             cv::add(temp_orin,map_drawing,temp_orin);
-
         }
 
         //orin
-        map = QPixmap::fromImage(mat_to_qimage_cpy(temp_orin));//.copy(draw_x,draw_y,draw_width,draw_width).scaledToWidth(1000);
-        //test
-//        map_image = mat_to_qimage_cpy(temp_orin);
+        map = QPixmap::fromImage(mat_to_qimage_cpy(temp_orin));
     }
 
     QPainter painter(&map);
@@ -1093,491 +1083,11 @@ void MapHandler::setMapTest(){
     }
     setMapLayer();
 
-//    qDebug() << "setMAp done";
-}
-
-void MapHandler::setMap(){
-    //debug
-    setMapTest();
-
-/*
-
-    if(mode == "mapping"){
-        map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_mapping));
-        grid_width = pmap->mapping_gridwidth*pmap->mapping_width/file_width;
-        if(file_width != pmap->map_mapping.rows){
-            file_width = pmap->map_mapping.rows;
-            setFullScreen();
-        }
-    }else if(draw_object_flag){
-        map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_objecting));
-        grid_width = pmap->mapping_gridwidth*pmap->width/file_width;
-        if(file_width != pmap->map_objecting.rows){
-            file_width = pmap->map_objecting.rows;
-            setFullScreen();
-        }
-    }else if(map_orin.rows > 0){
-        file_width = map_orin.rows;
-        grid_width = pmap->gridwidth;
-        cv::Mat temp_orin, temp_travel, temp_velmap;
-        cv::Mat temp_obj, temp_avoid;
-
-        cv::Mat temp_layer = cv::Mat(file_width,file_width,CV_8UC4,cv::Scalar::all(0));
-        cv::cvtColor(map_orin,temp_orin,cv::COLOR_GRAY2BGRA);
-
-        cv::cvtColor(file_velocity,temp_velmap,cv::COLOR_BGR2BGRA);
-        cv::cvtColor(file_travelline,temp_travel,cv::COLOR_GRAY2BGRA);
-        cv::cvtColor(file_object,temp_obj,cv::COLOR_BGR2BGRA);
-        cv::cvtColor(file_avoid,temp_avoid,cv::COLOR_BGR2BGRA);
-
-//        qDebug() << show_velocitymap << show_avoid << show_robot << show_object << show_travelline;
-
-        if(show_velocitymap){
-            if(mode == "annot_velmap"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
-                cv::add(temp_velmap,map_drawing,temp_velmap);
-            }
-            cv::add(temp_layer,temp_velmap,temp_layer);
-//            cv::imshow("vel",temp_layer);
-        }
-        if(show_object){
-            if(mode == "annot_object_png"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
-                cv::add(temp_obj,map_drawing,temp_obj);
-            }
-            cv::add(temp_layer,temp_obj,temp_layer);
-//            cv::imshow("obj",temp_layer);
-        }
-        if(show_avoid){
-            if(mode == "annot_obs_area"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
-                cv::add(temp_avoid,map_drawing,temp_avoid);
-            }
-            cv::add(temp_layer,temp_avoid,temp_layer);
-//            cv::imshow("obs",temp_layer);
-        }
-
-        if(show_velocitymap || show_object || show_avoid){
-            cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
-        }
-        if(show_travelline){
-            if(mode == "annot_tline"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel,temp_travel);
-                cv::add(temp_travel,map_drawing,temp_travel);
-                cv::addWeighted(temp_orin,0.5,temp_travel,1,0,temp_orin);
-            }else{
-                cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
-            }
-        }
-        if(!show_object && !show_velocitymap && !show_travelline && !show_avoid){
-            cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
-            cv::add(temp_orin,map_drawing,temp_orin);
-
-        }
-
-        //orin
-        map = QPixmap::fromImage(mat_to_qimage_cpy(temp_orin));
-
-        //test
-//        map_image = mat_to_qimage_cpy(temp_orin);
-    }
-//    map_image.scaledToWidth(3000);
-//    float news = 3000/file_width;
-
-//    QPainter painter(&map_image);
-    QPainter painter(&map);
-    painter.setRenderHint(QPainter::Antialiasing, true);
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
-//    painter.setRenderHint(QPainter::)
-
-
-    //공용 변수
-    cv::Point2f robot_pose;
-    if(mode == "mapping"){
-        robot_pose = setAxisMapping(probot->curPose.point);
-    }else if(draw_object_flag){
-        robot_pose = setAxisObject(probot->curPose.point);
-    }else{
-    }
-    robot_pose = setAxis(probot->curPose.point);
-    float robot_angle = setAxis(probot->curPose.angle);
-
-    //위치
-    if(show_location){
-//        qDebug() << "location : " << locations.size() << pmap->locations.size();
-//        qDebug() << "setmap : " << select_location;
-        for(int i=0; i<locations.size(); i++){
-
-            float distance = (pmap->robot_radius/grid_width)*2;
-            float distance2 = distance*0.8;
-            float th_dist = M_PI/8;
-
-            float x =   (locations[i].point.x + distance    * qCos(locations[i].angle));
-            float y =   (locations[i].point.y + distance    * qSin(locations[i].angle));
-            float x1 =  (locations[i].point.x + distance2   * qCos(locations[i].angle-th_dist));
-            float y1 =  (locations[i].point.y + distance2   * qSin(locations[i].angle-th_dist));
-            float x2 =  (locations[i].point.x + distance2   * qCos(locations[i].angle+th_dist));
-            float y2 =  (locations[i].point.y + distance2   * qSin(locations[i].angle+th_dist));
-
-            float rad = pmap->robot_radius*2*res/grid_width;
-            QPainterPath path;
-            if(select_location == i){
-                if(locations[i].type == "Serving"){
-                    path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-                    painter.setPen(QPen(Qt::white,3));
-
-                    painter.fillPath(path,QBrush(QColor(hex_color_green)));
-
-                    painter.drawPath(path);
-                    painter.drawLine(x1,y1,x,y);
-                    painter.drawLine(x,y,x2,y2);
-                }else if(locations[i].type == "Resting"){
-                }else if(locations[i].type == "Charging"){
-                }
-            }else if(mode == "annot_tline" || mode == "annot_tline2"){
-                bool match = false;
-                for(int k=0; k<pmap->tline_issue; k++){
-                    if(pmap->tline_issues[k].group == locations[i].group_name){
-                        if(pmap->tline_issues[k].name == locations[i].name){
-                            match = true;
-                            break;
-                        }
-                    }
-                }
-
-                if(match){
-                    if(locations[i].type == "Serving"){
-                        path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-                        painter.setPen(QPen(Qt::red,3));
-                        painter.drawPath(path);
-                        painter.drawLine(x1,y1,x,y);
-                        painter.drawLine(x,y,x2,y2);
-                    }else if(locations[i].type == "Resting"){
-                    }else if(locations[i].type == "Charging"){
-                    }
-                }else{
-                    if(locations[i].type == "Serving"){
-                        path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-                        painter.setPen(QPen(Qt::white,1));
-
-                        painter.drawPath(path);
-                        painter.setPen(QPen(Qt::white,1.5));
-                        painter.drawLine(QLine(x1,y1,x,y));
-                        painter.drawLine(QLine(x2,y2,x,y));
-                    }else if(locations[i].type == "Resting"){
-                    }else if(locations[i].type == "Charging"){
-                    }
-                }
-            }else{
-                if(locations[i].type == "Serving"){
-                    path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-                    painter.setPen(QPen(Qt::white,1));
-
-                    if(mode == "annot_tline" || mode == "annot_tline2"){
-
-                    }else{
-                        painter.fillPath(path,QBrush(QColor(hex_color_pink)));
-                    }
-
-                    painter.drawPath(path);
-                    painter.setPen(QPen(Qt::white,1.5));
-                    painter.drawLine(QLine(x1,y1,x,y));
-                    painter.drawLine(QLine(x2,y2,x,y));
-                }else if(locations[i].type == "Resting"){
-                }else if(locations[i].type == "Charging"){
-                }
-            }
-
-
-            if(show_number){
-                painter.drawText((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),QString().asprintf("%d",i));
-            }
-
-        }
-        if(new_location_flag){
-            float distance = (pmap->robot_radius/grid_width)*2;
-            float distance2 = distance*0.8;
-            float th_dist = M_PI/8;
-
-            float x =   (new_location.point.x + distance    * qCos(new_location.angle));
-            float y =   (new_location.point.y + distance    * qSin(new_location.angle));
-            float x1 =  (new_location.point.x + distance2   * qCos(new_location.angle-th_dist));
-            float y1 =  (new_location.point.y + distance2   * qSin(new_location.angle-th_dist));
-            float x2 =  (new_location.point.x + distance2   * qCos(new_location.angle+th_dist));
-            float y2 =  (new_location.point.y + distance2   * qSin(new_location.angle+th_dist));
-            float rad = pmap->robot_radius*2*res/grid_width;
-            QPainterPath path;
-            path.addRoundedRect((new_location.point.x-rad/2),(new_location.point.y-rad/2),rad,rad,rad,rad);
-            painter.setPen(QPen(Qt::white,3));
-
-            painter.fillPath(path,QBrush(QColor(hex_color_blue)));
-
-            painter.drawPath(path);
-            painter.drawLine(QLine(x1,y1,x,y));
-            painter.drawLine(QLine(x2,y2,x,y));
-        }
-    }
-
-    if(show_location_icon){
-        for(int i=0; i<locations.size(); i++){
-            float distance = (pmap->robot_radius/grid_width)*2;
-            float distance2 = distance*0.8;
-            float th_dist = M_PI/8;
-            float rad = pmap->robot_radius*2*res/grid_width;
-
-            float x =   (locations[i].point.x + distance    * qCos(locations[i].angle));
-            float y =   (locations[i].point.y + distance    * qSin(locations[i].angle));
-            float x1 =  (locations[i].point.x + distance2   * qCos(locations[i].angle-th_dist));
-            float y1 =  (locations[i].point.y + distance2   * qSin(locations[i].angle-th_dist));
-            float x2 =  (locations[i].point.x + distance2   * qCos(locations[i].angle+th_dist));
-            float y2 =  (locations[i].point.y + distance2   * qSin(locations[i].angle+th_dist));
-
-            QPainterPath path;
-            if(locations[i].type == "Resting"){
-                if(select_location == i){
-                    path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-                    painter.setPen(QPen(QColor(hex_color_green),3));
-
-                    painter.drawPath(path);
-                    painter.drawLine(x1,y1,x,y);
-                    painter.drawLine(x,y,x2,y2);
-                    QImage image(":/icon/icon_home_1.png");
-                    painter.drawImage(QRectF((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad),image,QRectF(0,0,image.width(),image.height()));
-                }else{
-                    path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-
-                    painter.setPen(QPen(Qt::white,1));
-
-                    painter.drawPath(path);
-                    painter.drawLine(x1,y1,x,y);
-                    painter.drawLine(x,y,x2,y2);
-                    painter.drawPath(path);
-                    QImage image(":/icon/icon_home_2.png");
-                    painter.drawImage(QRectF((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad),image,QRectF(0,0,image.width(),image.height()));
-                }
-            }else if(locations[i].type == "Charging"){
-                if(select_location == i){
-                    path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-
-                    painter.setPen(QPen(QColor(hex_color_green),3));
-
-                    painter.drawPath(path);
-                    painter.drawLine(x1,y1,x,y);
-                    painter.drawLine(x,y,x2,y2);
-                    QImage image(":/icon/icon_charge_1.png");
-                    painter.drawImage(QRectF((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad),image,QRectF(0,0,image.width(),image.height()));
-                }else{
-                    path.addRoundedRect((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad,rad,rad);
-
-                    painter.setPen(QPen(Qt::white,1));
-
-                    painter.drawPath(path);
-                    painter.drawLine(x1,y1,x,y);
-                    painter.drawLine(x,y,x2,y2);
-                    painter.drawPath(path);
-                    QImage image(":/icon/icon_charge_2.png");
-                    painter.drawImage(QRectF((locations[i].point.x-rad/2),(locations[i].point.y-rad/2),rad,rad),image,QRectF(0,0,image.width(),image.height()));
-                }
-            }
-        }
-    }
-
-    //잘라내기 박스 표시
-    if(tool == "cut_map"){
-        QPainterPath path;
-        painter.setPen(QPen(Qt::red,10));
-        path.addRect(QRectF(QPointF(cut_box[0].x,cut_box[0].y),QPointF(cut_box[1].x,cut_box[1].y)));
-        painter.drawPath(path);
-
-        QPainterPath circles;
-        for(int j=0; j<2; j++){
-            int rad = 30*res;
-            int xx = cut_box[j].x*res - rad;
-            int yy = cut_box[j].y*res - rad;
-            circles.addRect(xx,yy,rad*2,rad*2);
-            painter.fillPath(circles,Qt::white);
-        }
-    }
-
-    //로봇 경로 표시
-    if(show_global_path){
-        painter.setPen(QPen(QColor(hex_color_pink),2));
-        cv::Point2f cur_path;
-        cv::Point2f next_path;
-        float target_angle=0;
-        for(int i=0; i<probot->curPath.size()-1; i++){
-            cur_path = setAxis(probot->curPath[i].point);
-            next_path = setAxis(probot->curPath[i+1].point);
-            target_angle = setAxis(probot->curPath[i+1].angle);
-            painter.drawLine(cur_path.x,cur_path.y,next_path.x,next_path.y);
-        }
-
-        if(probot->curPath.size() > 0){
-            float distance = (pmap->robot_radius/grid_width)*2;
-            float distance2 = distance*0.8;
-            float th_dist = M_PI/8;
-
-            float x =   (next_path.x - distance    * qSin(target_angle));
-            float y =   (next_path.y - distance    * qCos(target_angle));
-            float x1 =  (next_path.x - distance2   * qSin(target_angle-th_dist));
-            float y1 =  (next_path.y - distance2   * qCos(target_angle-th_dist));
-            float x2 =  (next_path.x - distance2   * qSin(target_angle+th_dist));
-            float y2 =  (next_path.y - distance2   * qCos(target_angle+th_dist));
-            float rad = pmap->robot_radius*2/grid_width;
-            QPainterPath path;
-            path.addRoundedRect((next_path.x-rad/2),(next_path.y-rad/2),rad,rad,rad,rad);
-            painter.setPen(QPen(QColor(hex_color_pink),2));
-            painter.fillPath(path,QBrush(QColor("white")));
-            painter.drawPath(path);
-            painter.drawLine(QLine(x1,y1,x,y));
-            painter.drawLine(QLine(x2,y2,x,y));
-
-
-            if(show_local_path){
-                QPainterPath circles;
-                for(int i=0; i<probot->localpathSize; i++){
-                    int rad = 2;
-                    int xx = setAxis(probot->localPath[i].point).x - rad;
-                    int yy = setAxis(probot->localPath[i].point).y - rad;
-                    circles.addRoundedRect(xx,yy,rad*2,rad*2,rad,rad);
-                    painter.fillPath(circles,Qt::white);
-                }
-            }
-        }
-    }
-
-    //로봇 현재 위치 표시(매핑 중이거나 위치 초기화 성공했을 때만)
-//    qDebug() << "show robot " << show_robot << ", " << set_init_flag;
-    if(show_robot){
-        if(probot->localization_state == LOCAL_READY || mode == "mapping" || draw_object_flag){
-            float distance = (pmap->robot_radius/grid_width)*2;
-            float distance2 = distance*0.8;
-            float th_dist = M_PI/8;
-
-            float x =   (robot_pose.x + distance    * qCos(robot_angle));
-            float y =   (robot_pose.y + distance    * qSin(robot_angle));
-            float x1 =  (robot_pose.x + distance2   * qCos(robot_angle-th_dist));
-            float y1 =  (robot_pose.y + distance2   * qSin(robot_angle-th_dist));
-            float x2 =  (robot_pose.x + distance2   * qCos(robot_angle+th_dist));
-            float y2 =  (robot_pose.y + distance2   * qSin(robot_angle+th_dist));
-            float rad = pmap->robot_radius*2/grid_width;
-            QPainterPath path;
-            QPolygonF polygon;
-            polygon << QPointF(x1,y1) << QPointF(x2,y2) << QPointF(x,y) << QPointF(x1,y1);
-            path.addRoundedRect((robot_pose.x-rad/2),(robot_pose.y-rad/2),rad,rad,rad,rad);
-            painter.setPen(QPen(QColor("white"),2));
-            painter.fillPath(path,QBrush(QColor("red")));
-            painter.drawPath(path);
-            QPainterPath direction;
-            direction.addPolygon(polygon);
-            painter.fillPath(direction,QBrush(QColor("red")));
-
-            if(set_init_pressed){
-                cv::Point2f init_pose = set_init_pose.point;
-                float init_angle = set_init_pose.angle;
-                float distance = (pmap->robot_radius/grid_width)*2;
-                float distance2 = distance*0.8;
-                float th_dist = M_PI/8;
-
-                float x =   (init_pose.x + distance    * qCos(init_angle));
-                float y =   (init_pose.y + distance    * qSin(init_angle));
-                float x1 =  (init_pose.x + distance2   * qCos(init_angle-th_dist));
-                float y1 =  (init_pose.y + distance2   * qSin(init_angle-th_dist));
-                float x2 =  (init_pose.x + distance2   * qCos(init_angle+th_dist));
-                float y2 =  (init_pose.y + distance2   * qSin(init_angle+th_dist));
-                float rad = pmap->robot_radius*2*res/grid_width;
-                QPainterPath path;
-                path.addRoundedRect((init_pose.x-rad/2),(init_pose.y-rad/2),rad,rad,rad,rad);
-                painter.setPen(QPen(QColor("white"),2));
-                painter.fillPath(path,QBrush(QColor(hex_color_green)));
-                painter.drawPath(path);
-                painter.drawLine(QLine(x1,y1,x,y));
-                painter.drawLine(QLine(x2,y2,x,y));
-            }
-        }else if(set_init_flag){
-            cv::Point2f init_pose = set_init_pose.point;
-            float init_angle = set_init_pose.angle;
-            float distance = (pmap->robot_radius/grid_width)*2;
-            float distance2 = distance*0.8;
-            float th_dist = M_PI/8;
-
-            float x =   (init_pose.x + distance    * qCos(init_angle));
-            float y =   (init_pose.y + distance    * qSin(init_angle));
-            float x1 =  (init_pose.x + distance2   * qCos(init_angle-th_dist));
-            float y1 =  (init_pose.y + distance2   * qSin(init_angle-th_dist));
-            float x2 =  (init_pose.x + distance2   * qCos(init_angle+th_dist));
-            float y2 =  (init_pose.y + distance2   * qSin(init_angle+th_dist));
-            float rad = pmap->robot_radius*2*res/grid_width;
-            QPainterPath path;
-            path.addRoundedRect((init_pose.x-rad/2),(init_pose.y-rad/2),rad,rad,rad,rad);
-            painter.setPen(QPen(QColor("white"),2));
-            painter.fillPath(path,QBrush(QColor(hex_color_green)));
-            painter.drawPath(path);
-            painter.drawLine(QLine(x1,y1,x,y));
-            painter.drawLine(QLine(x2,y2,x,y));
-        }
-
-    }
-
-    //로봇 현재 위치 기준으로 라이다 표시
-    if(show_lidar){
-        if(mode == "local_view"){
-            painter.setPen(QPen(QColor(hex_color_blue),3));
-            float x1, y1;
-            int num=0;
-            float limit = pmap->robot_radius;
-            for(int i=0; i<360; i++){
-                if(probot->lidar_data[i] > limit){
-                    x1 = (robot_pose.x + (probot->lidar_data[i]/grid_width)*cos((-M_PI*(i))/180 + robot_angle));
-                    y1 = (robot_pose.y + (probot->lidar_data[i]/grid_width)*sin((-M_PI*(i))/180 + robot_angle));
-                    num = i;
-                    break;
-                }
-            }
-            for(int i=num+1; i<360; i++){
-                if(probot->lidar_data[i] > limit){
-                    float x2 = (robot_pose.x + (probot->lidar_data[i]/grid_width)*cos((-M_PI*i)/180 + robot_angle));
-                    float y2 = (robot_pose.y + (probot->lidar_data[i]/grid_width)*sin((-M_PI*i)/180 + robot_angle));
-                    painter.drawLine(round(x1), round(y1), round(x2), round(y2));
-                    x1 = x2;
-                    y1 = y2;
-                }
-            }
-        }else{
-            for(int i=0; i<360; i++){
-                painter.setPen(QPen(QColor("red"),2));
-                if(probot->lidar_data[i] > grid_width){
-                    float x = (robot_pose.x + (probot->lidar_data[i]/grid_width)*cos((-M_PI*i)/180 + robot_angle));
-                    float y = (robot_pose.y + (probot->lidar_data[i]/grid_width)*sin((-M_PI*i)/180 + robot_angle));
-                    painter.drawPoint(round(x),round(y));
-                }
-            }
-        }
-    }
-
-    //Cur Brush View
-    if(show_brush){
-        if(cur_line_color == 255){
-            painter.setPen(QPen(Qt::black,1));
-            painter.drawRoundedRect(curPoint.x-cur_line_width/2,curPoint.y-cur_line_width/2,cur_line_width,cur_line_width,cur_line_width,cur_line_width);
-        }else{
-            painter.setPen(QPen(Qt::white,1));
-            painter.drawRoundedRect(curPoint.x-cur_line_width/2,curPoint.y-cur_line_width/2,cur_line_width,cur_line_width,cur_line_width,cur_line_width);
-        }
-    }
-
-//    map = QPixmap::fromImage(map_image);
-    final_map = map.copy(draw_x,draw_y,draw_width,draw_width);
-    update();
-*/
 }
 void MapHandler::update(){
     final_map = QPixmap(2000,2000);
     QPainter pp(&final_map);
     pp.fillRect(0,0,2000,2000,Qt::black);
-//    if(map.width() > 0 && map.width() < draw_x + draw_width){
-//        pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
-//    }
     pp.drawPixmap(0,0,2000,2000,map,draw_x,draw_y,draw_width,draw_width);
     pp.drawPixmap(0,0,2000,2000,map_layer);
     pmap->map = final_map;
@@ -1746,7 +1256,6 @@ int MapHandler::getObjectNum(int x, int y){
 int MapHandler::getObjectPointNum(int x, int y){
     cv::Point2f pos = setAxisBack(cv::Point2f(x,y));
     int num = select_obj;
-//    qDebug() << "check obj" << num;// << pmap->objects[num].points.size();
     if(num < pmap->objects.size() && num > -1){
         if(num != -1){
             for(int j=0; j<pmap->objects[num].points.size(); j++){
@@ -1791,11 +1300,6 @@ void MapHandler::updateMeta(){
     pmap->height = cut_box[1].y - cut_box[0].y;
     pmap->origin[0] = round(pmap->width/2);
     pmap->origin[1] = round(pmap->height/2);
-//    setting.setValue("map_metadata/map_w",QString::number(pmap->width));
-//    setting.setValue("map_metadata/map_h",QString::number(pmap->height));
-//    setting.setValue("map_metadata/map_origin_u",QString::number(pmap->origin[0]));
-//    setting.setValue("map_metadata/map_origin_v",QString::number(pmap->origin[1]));
-
     setting.setValue("map_metadata/map_edited_angle",QString::number(pmap->map_rotate_angle));
     setting.setValue("map_metadata/map_edited_w",QString::number(pmap->width));
     setting.setValue("map_metadata/map_edited_h",QString::number(pmap->height));
@@ -1806,7 +1310,6 @@ void MapHandler::updateMeta(){
     plog->write("[MapHandler] UPDATE META : "+QString().asprintf("%d, %d, %d, %d, %d, %d, %d",pmap->map_rotate_angle, pmap->cut_map[0], pmap->cut_map[1], pmap->width,pmap->height, pmap->origin[0],pmap->origin[1]));
 }
 void MapHandler::setBoxPoint(int num, int x, int y){
-    qDebug() << "setBoxPoint";
     int min,max;
     if(x < 0) x = 0;
     if(y < 0) y = 0;
@@ -1891,8 +1394,8 @@ void MapHandler::removeLocation(int num){
             count++;
         }
     }
+    initLocation();
     setMapLayer();
-//    setMap();
 }
 
 void MapHandler::setTableNumberAuto(){
@@ -1967,8 +1470,10 @@ void MapHandler::rotateMap(int angle){
         file_edited.copyTo(map_orin);
     else if(exist_raw)
         file_raw.copyTo(map_orin);
-    cv::warpAffine(map_orin,map_orin,rot,map_orin.size(),cv::INTER_NEAREST);
+    else
+        map_orin = cv::Mat(1000,1000,CV_8U,cv::Scalar::all(0));
 
+    cv::warpAffine(map_orin,map_orin,rot,map_orin.size(),cv::INTER_NEAREST);
     setMap();
 }
 
@@ -1981,6 +1486,9 @@ void MapHandler::rotateMapCW(){
         file_edited.copyTo(map_orin);
     else if(exist_raw)
         file_raw.copyTo(map_orin);
+    else
+        map_orin = cv::Mat(1000,1000,CV_8U,cv::Scalar::all(0));
+
     cv::warpAffine(map_orin,map_orin,rot,map_orin.size(),cv::INTER_NEAREST);
     setMap();
 }
@@ -1995,6 +1503,8 @@ void MapHandler::rotateMapCCW(){
         file_edited.copyTo(map_orin);
     else if(exist_raw)
         file_raw.copyTo(map_orin);
+    else
+        map_orin = cv::Mat(1000,1000,CV_8U,cv::Scalar::all(0));
     cv::warpAffine(map_orin,map_orin,rot,map_orin.size(),cv::INTER_NEAREST);
     setMap();
 }
@@ -2002,7 +1512,6 @@ void MapHandler::rotateMapCCW(){
 void MapHandler::move(int x, int y){
     setX(x);
     setY(y);
-//    moveMap();
     setMapLayer();
 }
 

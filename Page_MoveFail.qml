@@ -122,6 +122,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
+                        click_sound.play();
                         supervisor.writelog("[USER INPUT] MOVEFAIL PAGE : RESTART")
                         supervisor.moveStop();
                     }
@@ -159,6 +160,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
+                        click_sound.play();
                         if(select_localmode){
                             supervisor.writelog("[USER INPUT] MOVEFAIL PAGE : LOCALIZATION STOP")
                             select_localmode = false;
@@ -198,6 +200,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
+                        click_sound.play();
                         supervisor.writelog("[USER INPUT] MOVEFAIL PAGE : RESTART SLAM")
                         supervisor.restartSLAM();
                     }
@@ -850,7 +853,6 @@ Item {
                         selected: map.tool==="move"
                         text: "이 동"
                         onClicked: {
-                            click_sound.play();;
                             map.setTool("move");
                         }
                     }
@@ -861,7 +863,6 @@ Item {
                         selected: map.tool==="slam_init"
                         text: "수동 지정"
                         onClicked: {
-                            click_sound.play();;
                             map.setTool("slam_init");
                             supervisor.setInitCurPos();
                             supervisor.slam_setInit();
@@ -873,7 +874,6 @@ Item {
                         type: "round_text"
                         text:  "다시 시도"
                         onClicked: {
-                            click_sound.play();;
                             map.setTool("move");
                             supervisor.slam_autoInit();
                             timer_check_localization2.start();
@@ -889,7 +889,6 @@ Item {
                         text: "자동위치찾기\n(1분소요)"
                         shadowcolor: color_dark_black
                         onClicked: {
-                            click_sound.play();;
                             map.setTool("move");
                             supervisor.slam_fullautoInit();
                             timer_check_localization2.start();

@@ -75,6 +75,10 @@ public:
     }
     Q_INVOKABLE void setRobotFollowing(bool onoff){
         robot_following = onoff;
+        if(mode == "annot_drawing" || mode == "annot_velmap" || mode == "annot_location" || mode == "annot_tline" || mode == "annot_tline2"){
+            show_robot = robot_following;
+        }
+
         if(onoff){
             cv::Point2f robot_pose;
             robot_pose = setAxis(probot->curPose.point);

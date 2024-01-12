@@ -91,6 +91,7 @@ Popup{
         MouseArea{
             anchors.fill: parent
             onClicked:{
+                click_sound.play();
                 popup_notice.close();
             }
         }

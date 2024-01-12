@@ -23,10 +23,9 @@ Popup {
     property var owner
     property string owner_text: ""
 
-    property bool is_ko: true
+    property string mode: "korean"
     property bool is_shift: false
     property bool is_capslock: false
-    property bool only_en: false
 
     property var keysize: 55
     property var keytopmargin: 15
@@ -41,61 +40,70 @@ Popup {
     property color color_highlight: "#12d27c"
 
     Component.onCompleted: {
-        setHanEn();
+        setMode();
     }
 
 
-    onIs_koChanged: {
-        setHanEn();
+    onModeChanged: {
+        setMode();
     }
 
-    function setHanEn(){
-        if(only_en)
-            is_ko = false;
-
+    function setMode(){
         is_shift = false;
         is_capslock = false;
-        if(is_ko){
-            text_ko_en.text = "한글";
+        if(mode === "korean"){
+            text_ko_en.text = qsTr("한글");
             keys_2.model = ["ㅂ","ㅈ","ㄷ","ㄱ","ㅅ","ㅛ","ㅕ","ㅑ","ㅐ","ㅔ"];
             keys_3.model = ["ㅁ","ㄴ","ㅇ","ㄹ","ㅎ","ㅗ","ㅓ","ㅏ","ㅣ"];
-            keys_4.model = ["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ","_","!"];
-        }else{
-            text_ko_en.text = "영어";
+            keys_4.model = ["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ","_","♣"];
+        }else if(mode === "english"){
+            text_ko_en.text = qsTr("영어");
             keys_2.model = ["q","w","e","r","t","y","u","i","o","p"];
             keys_3.model = ["a","s","d","f","g","h","j","k","l"];
-            keys_4.model = ["z","x","c","v","b","n","m","_","!"];
+            keys_4.model = ["z","x","c","v","b","n","m","_","♣"];
+        }else if(mode === "special"){
+            text_ko_en.text = qsTr("특수문자");
+            keys_2.model = ["!","@","#","$","%","^","&","*","(",")"];
+            keys_3.model = ["-","_","+","=","[","]",":",";",","];
+            keys_4.model = [".","?","/","~","<",">","'","\"","♣"];
         }
     }
 
     onIs_shiftChanged: {
-        if(only_en)
-            is_ko = false;
-
         if(is_shift){
             btn_shift.color =color_highlight;
-//            keys_1.model= ["!","@","#","*","_","-","+","/","&","|"]
-            if(is_ko){
+            if(mode === "korean"){
                 keys_2.model = ["ㅃ","ㅉ","ㄸ","ㄲ","ㅆ","ㅛ","ㅕ","ㅑ","ㅒ","ㅖ"];
                 keys_3.model = ["ㅁ","ㄴ","ㅇ","ㄹ","ㅎ","ㅗ","ㅓ","ㅏ","ㅣ"];
-                keys_4.model = ["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ","&","|"];
-            }else{
+                keys_4.model = ["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ","&","♣"];
+            }else if(mode === "english"){
                 keys_2.model = ["Q","W","E","R","T","Y","U","I","O","P"];
                 keys_3.model = ["A","S","D","F","G","H","J","K","L"];
-                keys_4.model = ["Z","X","C","V","B","N","M","&","|"];
+                keys_4.model = ["Z","X","C","V","B","N","M","&","♣"];
+            }else if(mode === "special"){
+                text_ko_en.text = qsTr("특수문자");
+                keys_2.model = ["|","\\","`","¿","。","…","『","』","《 ","》"];
+                keys_3.model = ["♂","♀","℃","♡","♥","☏","☎","♪","♬"];
+                keys_4.model = ["㈜","※","★ ","½","⅓","⅔","→","←","♣"];
             }
         }else{
             is_capslock = false;
             btn_shift.color = color_default;
-//            keys_1.model= [1,2,3,4,5,6,7,8,9,0]
-            if(is_ko){
+            if(mode === "korean"){
+                text_ko_en.text = qsTr("한글");
                 keys_2.model = ["ㅂ","ㅈ","ㄷ","ㄱ","ㅅ","ㅛ","ㅕ","ㅑ","ㅐ","ㅔ"];
                 keys_3.model = ["ㅁ","ㄴ","ㅇ","ㄹ","ㅎ","ㅗ","ㅓ","ㅏ","ㅣ"];
-                keys_4.model = ["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ","_","!"];
-            }else{
+                keys_4.model = ["ㅋ","ㅌ","ㅊ","ㅍ","ㅠ","ㅜ","ㅡ","_","♣"];
+            }else if(mode === "english"){
+                text_ko_en.text = qsTr("영어");
                 keys_2.model = ["q","w","e","r","t","y","u","i","o","p"];
                 keys_3.model = ["a","s","d","f","g","h","j","k","l"];
-                keys_4.model = ["z","x","c","v","b","n","m","_","!"];
+                keys_4.model = ["z","x","c","v","b","n","m","_","♣"];
+            }else if(mode === "special"){
+                text_ko_en.text = qsTr("특수문자");
+                keys_2.model = ["!","@","#","$","%","^","&","*","(",")"];
+                keys_3.model = ["-","_","+","=","[","]",":",";",","];
+                keys_4.model = [".","?","/","~","<",">","'","\"","♣"];
             }
         }
     }
@@ -116,7 +124,7 @@ Popup {
         width: parent.width
         height: parent.height - rect_keyboard.height
         onClicked: {
-            //click.play();
+            click_sound.play();
             tool_keyboard.close();
             owner.focus = false;
         }
@@ -172,7 +180,6 @@ Popup {
                     Rectangle{
                         width: 100
                         height: keysize
-                        visible: !only_en
                         radius: 5
                         color: "transparent"
                         Text{
@@ -190,7 +197,7 @@ Popup {
                     property var firstHeight: keyboard_height
                     property var firstPos: 0
                     onClicked: {
-                        //click.play();
+                        click_sound.play();
                         if(on_bottom){
                             on_bottom = false;
                         }else{
@@ -228,8 +235,8 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            //click.play();
-                                            if(is_ko){
+                                            click_sound.play();
+                                            if(mode === "korean"){
                                                 emitter.setHangul(owner, modelData);
                                             }else{
                                                 emitter.keyPressed(owner,modelData);
@@ -255,13 +262,13 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                        click_sound.play();
                                         emitter.keyPressed(owner,Qt.Key_Backspace);
                                         if(!is_capslock)
                                             is_shift = false;
                                     }
                                     onPressAndHold: {
-                                        //click.play();
+                                        click_sound.play();
                                         timer_backspace.start();
                                     }
                                     onReleased: {
@@ -301,8 +308,8 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            //click.play();
-                                            if(is_ko){
+                                            click_sound.play();
+                                            if(mode === "korean"){
                                                 emitter.setHangul(owner, modelData);
                                             }else{
                                                 emitter.keyPressed(owner,modelData);
@@ -327,7 +334,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                        click_sound.play();
                                         owner.focus = false;
                                         tool_keyboard.close();
                                         emitter.initHangul();
@@ -353,7 +360,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                        click_sound.play();
                                         if(is_shift){
                                             is_capslock = false;
                                             is_shift = false;
@@ -362,7 +369,7 @@ Popup {
                                         }
                                     }
                                     onPressAndHold: {
-                                        //click.play();
+                                        click_sound.play();
                                         is_shift = true;
                                         is_capslock = true;
                                     }
@@ -370,7 +377,7 @@ Popup {
                             }
                             Repeater{
                                 id: keys_4
-                                model: ["z","x","c","v","b","n","m","_","!"]
+                                model: ["z","x","c","v","b","n","m","_","♣"]
                                 Rectangle{
                                     width: keysize
                                     height: width
@@ -385,8 +392,18 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            //click.play();
-                                            if(is_ko && (modelData != "_" && modelData != "!" && modelData != "&" && modelData != "|")){
+                                            click_sound.play();
+                                            if(modelData === "♣"){
+                                                emitter.initHangul();
+                                                is_capslock = false;
+                                                is_shift = false;
+                                                if(mode === "special"){
+                                                    mode = "korean";
+                                                }else{
+                                                    mode = "special";
+                                                }
+                                                mode = "special";
+                                            }else if(mode === "korean" && (modelData != "_" && modelData != "&" && modelData != "|")){
                                                 emitter.setHangul(owner,modelData);
                                             }else{
                                                 emitter.keyPressed(owner,modelData);
@@ -410,21 +427,21 @@ Popup {
                                 color: "#D0D0D0"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "<-"
+                                    text: "←"
                                     font.family: font_noto_r.name
                                     font.pixelSize: textsize
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                        click_sound.play();
                                         emitter.keyPressed(owner,Qt.Key_Left);
                                         emitter.initHangul();
                                         if(!is_capslock)
                                             is_shift = false;
                                     }
                                     onPressAndHold: {
-                                        //click.play();
+                                        click_sound.play();
                                         timer_left.start();
                                     }
                                     onReleased: {
@@ -452,7 +469,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                        click_sound.play();
                                         emitter.keyPressed(owner,Qt.Key_Space);
                                         emitter.initHangul();
                                         if(!is_capslock)
@@ -475,11 +492,12 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
-                                        if(is_ko)
-                                            is_ko = false;
-                                        else
-                                            is_ko  = true;
+                                        click_sound.play();
+                                        if(mode === "korean"){
+                                            mode = "english";
+                                        }else{
+                                            mode = "korean";
+                                        }
                                     }
                                 }
                             }
@@ -491,21 +509,21 @@ Popup {
                                 color: "#D0D0D0"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "->"
+                                    text: "→"
                                     font.family: font_noto_r.name
                                     font.pixelSize: textsize
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                        click_sound.play();
                                         emitter.keyPressed(owner,Qt.Key_Right);
                                         emitter.initHangul();
                                         if(!is_capslock)
                                             is_shift = false;
                                     }
                                     onPressAndHold: {
-                                        //click.play();
+                                        click_sound.play();
                                         timer_right.start();
                                     }
                                     onReleased: {
@@ -549,7 +567,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            //click.play();
+                                            click_sound.play();
                                             emitter.keyPressed(owner,modelData);
                                             emitter.initHangul();
                                             if(!is_capslock)
@@ -579,7 +597,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            //click.play();
+                                             click_sound.play();
                                             emitter.keyPressed(owner,modelData);
                                             emitter.initHangul();
                                             if(!is_capslock)
@@ -609,7 +627,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            //click.play();
+                                             click_sound.play();
                                             emitter.keyPressed(owner,modelData);
                                             emitter.initHangul();
                                             if(!is_capslock)
@@ -637,7 +655,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                         click_sound.play();
                                         emitter.keyPressed(owner,"0");
                                         emitter.initHangul();
                                         if(!is_capslock)
@@ -659,7 +677,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        //click.play();
+                                         click_sound.play();
                                         emitter.keyPressed(owner,".");
                                         emitter.initHangul();
                                         if(!is_capslock)
@@ -686,7 +704,7 @@ Popup {
         enabled: false
         height: parent.height - rect_keyboard.height
         onClicked: {
-            //click.play();
+             click_sound.play();
             tool_keyboard.close();
             owner.focus = false;
         }

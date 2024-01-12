@@ -146,7 +146,7 @@ Item {
                             rect_btn.color = color_gray;
                         }
                         onReleased:{
-                            click_sound.play();;
+                            click_sound.play();
                             rect_btn.color = "white";
                             if(modelData == "맵 새로만들기"){
                                 supervisor.writelog("[UI] MAP : move to Mapping");

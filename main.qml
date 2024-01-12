@@ -157,6 +157,10 @@ Window {
         }
     }
 
+    Component.onCompleted: {
+        popup_patrol.open();
+    }
+
 //    function voice_all_stop(){
 //        voice_avoid.stop();
 //        voice_emergency.stop();
@@ -425,7 +429,14 @@ Window {
         id: emitter
     }
 
+    Popup_patrol_page{
+        id: popup_patrol
+        width: parent.width
+        height: parent.height
+    }
+
     Loader{
+        visible: false
         id: loader_page
         focus: true
         anchors.fill: parent
@@ -507,7 +518,7 @@ Window {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound2.play();
+                    click_sound.play();
                     password++;
                     if(password > 4){
                         password = 0;
@@ -551,6 +562,7 @@ Window {
         MouseArea{
             anchors.fill: parent
             onClicked: {
+                click_sound.play();
                 rect_resting.close();
                 count_resting = 0;
             }

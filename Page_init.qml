@@ -2735,7 +2735,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound.play();;
+                    click_sound.play();
                     password++;
                     if(password > 4){
                         password = 0;
@@ -2755,19 +2755,6 @@ Item {
             Component.onCompleted: {
                 statusbar.visible = true;
             }
-            function enable_rawmap(){
-//                notice_map_raw.enabled = true;
-            }
-            function disable_rawmap(){
-                notice_map_raw.enabled = false;
-            }
-            function enable_availablemap(){
-//                notice_map_edited.enabled = true;
-            }
-            function disable_availablemap(){
-                notice_map_edited.enabled = false;
-            }
-
             function enable_usb(){
                 btn_usb_load.enabled = true;
             }
@@ -2845,7 +2832,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            start_sound.play();
+                            click_sound.play();
                             parent.color = color_mid_navy;
                         }
                         onReleased: {
@@ -3017,101 +3004,6 @@ Item {
                     }
                 }
             }
-
-            Rectangle{
-                id: notice_map_edited
-                width: 250
-                height: 60
-                radius: 10
-                border.width: 3
-                border.color: "#E7584D"
-                color: "white"
-                enabled: false
-                anchors.right: parent.right
-                anchors.rightMargin: -20
-                visible: (y<300)?true:false
-                y: enabled?200:800
-                Behavior on y{
-                    SpringAnimation{
-                        duration: 1000
-                        spring: 1
-                        damping: 0.2
-                    }
-                }
-
-                Image{
-                    width: 30
-                    height: 27
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 15
-                    source: "icon/icon_error.png"
-                }
-                Text{
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10 + 20
-                    color: "#E7584D"
-                    font.family: font_noto_b.name
-                    text: qsTr("설정중이던 맵이 있습니다")
-                    font.bold: true
-                    font.pixelSize: 15
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        supervisor.writelog("[USER INPUT] INIT PAGE : OPEN MAP LIST")
-                        popup_map_list.open();
-                    }
-                }
-            }
-            Rectangle{
-                id: notice_map_raw
-                width: 250
-                height: 60
-                radius: 10
-                border.width: 3
-                border.color: "#E7584D"
-                color: "white"
-                enabled: false
-                anchors.right: parent.right
-                anchors.rightMargin: -20
-                visible: (y<400)?true:false
-                y: enabled?300:800
-                Behavior on y{
-                    SpringAnimation{
-                        duration: 1000
-                        spring: 1
-                        damping: 0.2
-                    }
-                }
-                Image{
-                    width: 30
-                    height: 27
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 15
-                    source: "icon/icon_error.png"
-                }
-                Text{
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10 + 20
-                    color: "#E7584D"
-                    font.family: font_noto_b.name
-                    text: qsTr("사용가능한 맵이 있습니다")
-                    font.bold: true
-                    font.pixelSize: 12
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        supervisor.writelog("[USER INPUT] INIT PAGE : SHOW UNSETTING MAP")
-                        //popup_show_map.is_server = false;
-                        //popup_show_map.open();
-                    }
-                }
-            }
         }
     }
 
@@ -3231,7 +3123,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();;
+                        click_sound.play();
                         popup_debug_onoff.open();
                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS ROBOT INIT")
 
@@ -3498,7 +3390,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound.play();;
+                    click_sound.play();
                     password++;
                     if(password > 4){
                         password = 0;
@@ -3742,7 +3634,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            click_sound.play();
                             popup_usb_download.is_map = !popup_usb_download.is_map;
                         }
                     }
@@ -3761,7 +3653,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            click_sound.play();
                             popup_usb_download.is_log = !popup_usb_download.is_log;
                         }
                     }
@@ -3786,7 +3678,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();;
+                        click_sound.play();
                         popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
                         popup_usb_download.close();
                         popup_usb_notice.open();
@@ -3950,8 +3842,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-
-                            click_sound.play();;
+                            click_sound.play();
                             if(popup_usb_notice.mode== "compress"){
 
                             }else{
@@ -4071,6 +3962,7 @@ Item {
                 }
             }else if(init_mode == 3){
                 if(supervisor.getLockStatus()===1){
+                    print("now 3")
                     supervisor.setMotorLock(false);
                 }
                 //=============================== Init Check 3 : 맵 확인 ==============================//
@@ -4111,6 +4003,7 @@ Item {
                 }
             }else if(init_mode == 4){
                 if(supervisor.getLockStatus()===1){
+                    print("now 4")
                     supervisor.setMotorLock(false);
                 }
                 //======================= Init Check 4 : 로봇 상태 확인(Charging. Localization) =========================//
@@ -4159,5 +4052,4 @@ Item {
     Tool_KeyPad{
         id: keypad
     }
-
 }

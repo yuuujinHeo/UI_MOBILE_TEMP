@@ -52,10 +52,12 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onPressAndHold: {
+                    click_sound.play();
                     supervisor.writelog("[USER INPUT] Screen Minimized.");
                     mainwindow.showMinimized()
                 }
                 onDoubleClicked: {
+                    click_sound.play();
                     popup_menu.open();
                 }
             }
@@ -247,6 +249,7 @@ Item {
         MouseArea{
             anchors.fill: rows_icon
             onClicked: {
+                click_sound.play();
                 update_detail();
                 popup_status_detail.open();
             }
@@ -316,6 +319,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_terminate.close();
                             popup_menu.close();
                         }
@@ -362,6 +366,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] STATUS BAR : PROGRAM RESTART")
                             supervisor.programRestart();
                         }
@@ -408,6 +413,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] STATUS BAR : PROGRAM EXIT")
                             supervisor.programExit();
                         }
@@ -472,6 +478,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             if(show_cursor){
                                 supervisor.writelog("[USER INPUT] STATUS BAR : CURSOR UNSHOW");
                                 supervisor.setCursorView(false);
@@ -507,6 +514,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             supervisor.writelog("[USER INPUT] Screen Minimized.");
                             mainwindow.showMinimized();
                         }
@@ -533,6 +541,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
+                            click_sound.play();
                             popup_terminate.open();
                         }
                     }

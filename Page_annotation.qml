@@ -330,7 +330,6 @@ Item {
                 anchors.bottomMargin: 150
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Charging pass");
                     annot_pages.sourceComponent = page_annot_menu;
                 }
@@ -345,7 +344,6 @@ Item {
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Charging Exit");
                     backPage();
                 }
@@ -422,6 +420,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         supervisor.writelog("[ANNOTATION] MENU : Clear and New Annotation");
                                         annot_pages.sourceComponent = page_annot_start;
                                         supervisor.deleteEditedMap();
@@ -445,6 +444,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
+                                        click_sound.play();
                                         popup_ask_reset.close();
                                     }
                                 }
@@ -493,7 +493,6 @@ Item {
                     type: "round_text"
                     text:qsTr("맵 회전\n잘라내기")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] MENU : Rotate / Cut Map");
                         annot_pages.sourceComponent = page_annot_start;
                     }
@@ -506,7 +505,6 @@ Item {
                     type: "round_text"
                     text: qsTr("위치 수정")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] MENU : Change Location");
                         annot_pages.sourceComponent = page_annot_location_serving_done;
                     }
@@ -518,7 +516,6 @@ Item {
                     type: "round_text"
                     text: qsTr("맵 세부수정")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor2;
                     }
@@ -542,7 +539,6 @@ Item {
                 anchors.bottomMargin: 150
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Load Map");
 
                     if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
@@ -562,7 +558,6 @@ Item {
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] All Done");
                     loadPage(pmenu);
                 }
@@ -640,7 +635,6 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 50
                 onClicked:{
-                    click_sound.play();;
                     popup_annot_help.open();
                     popup_annot_help.setTitle(qsTr("맵 회전 / 잘라내기"));
                     popup_annot_help.addLine(qsTr("매장에 대한 로봇의 방향을 직관적으로 알 수 있도록 맵을 회전시켜주세요\n맵을 회전하지 않아도 로봇 주행에는 문제가 없습니다\n이미 사용중인 맵을 회전시키면 기존에 설정한 위치들이 전부 삭제되므로 신중하게 결정해주세요"));
@@ -669,6 +663,7 @@ Item {
 //                        map.rotate("ccw");
 //                    }
                     onPressed: {
+                        click_sound.play();
                         timer_rotate.cw = false;
                         timer_rotate.start();
                     }
@@ -705,6 +700,7 @@ Item {
 //                        map.rotate("cw");
 //                    }
                     onPressed: {
+                        click_sound.play();
                         timer_rotate.cw = true;
                         timer_rotate.start();
                     }
@@ -738,7 +734,6 @@ Item {
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
                     if(map.tool == "cut_map"){
                         if(map.getCutFlag() && !annotation_after_mapping){
                             popup_save_rotate.open();
@@ -779,7 +774,6 @@ Item {
                 type: "round_text"
                 text: qsTr("맵\n다시그리기")
                 onClicked: {
-                    click_sound.play();;
                     supervisor.writelog("[ANNOTATION] Mapping Restart");
                     loadPage(pmapping);
                 }
@@ -798,7 +792,6 @@ Item {
                     selected: map.tool==="move"
                     text: qsTr("이 동")
                     onClicked: {
-                        click_sound.play();;
                         map.setTool("move");
                     }
                 }
@@ -809,7 +802,6 @@ Item {
                     text: qsTr("맵 잘라내기")
                     selected: map.tool==="cut_map"
                     onClicked: {
-                        click_sound.play();;
                         map.setTool("cut_map");
                     }
                 }
@@ -819,7 +811,6 @@ Item {
                     type: "round_text"
                     text: qsTr("초기화")
                     onClicked: {
-                        click_sound.play();;
                         map.clear("rotate_cut");
                     }
                 }
@@ -868,7 +859,6 @@ Item {
                                 width: 180
                                 height: 100
                                 onClicked:{
-                                    click_sound.play();;
                                     map.setTool("move");
                                     map.save("rotate");
                                     if(annotation_after_mapping){
@@ -888,7 +878,6 @@ Item {
                                 height: 100
                                 btncolor: color_green
                                 onClicked:{
-                                    click_sound.play();;
                                     map.save("rotate");
                                     annotation_after_mapping = true;
                                     page_after_localization = page_annot_location;
@@ -1091,7 +1080,6 @@ Item {
                     type: "round_text"
                     text: show_map?qsTr("맵 끄기"):qsTr("맵 표시")
                     onClicked: {
-                        click_sound.play();;
                         if(show_map){
                             show_map = false;
                         }else{
@@ -1106,7 +1094,6 @@ Item {
                     type: "round_text"
                     text: qsTr("목록 보기")
                     onClicked: {
-                        click_sound.play();;
                         popup_serving_list.open();
                     }
                 }
@@ -1128,7 +1115,6 @@ Item {
                     type: "round_text"
                     text: qsTr("충전위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Charging "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_save_location.loc = "Charging";
                         popup_save_location.open();
@@ -1143,7 +1129,6 @@ Item {
                     type: "round_text"
                     text: qsTr("대기위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Resting "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_save_location.loc = "Resting";
                         popup_save_location.open();
@@ -1159,7 +1144,6 @@ Item {
                     type: "round_text"
                     text: qsTr("퇴식위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Cleaning "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_save_location.loc = "Cleaning";
                         popup_save_location.open();
@@ -1171,7 +1155,6 @@ Item {
                     type: "round_text"
                     text: qsTr("서빙위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_add_serving.open();
                     }
@@ -1196,7 +1179,6 @@ Item {
                     type: "round_text"
                     text: qsTr("충전위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Charging "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_save_location.loc = "Charging";
                         popup_save_location.open();
@@ -1211,7 +1193,6 @@ Item {
                     type: "round_text"
                     text: qsTr("대기위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Resting "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_save_location.loc = "Resting";
                         popup_save_location.open();
@@ -1227,7 +1208,6 @@ Item {
                     type: "round_text"
                     text: qsTr("퇴식위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Cleaning "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_save_location.loc = "Cleaning";
                         popup_save_location.open();
@@ -1239,7 +1219,6 @@ Item {
                     type: "round_text"
                     text: qsTr("서빙위치로\n저 장")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                         popup_add_serving.open();
                     }
@@ -1256,7 +1235,6 @@ Item {
                 type: "round_text"
                 text: qsTr("전부 완료했습니다")
                 onClicked: {
-                    click_sound.play();;
                     if(supervisor.getLocationNum("Charging") === 0){
                         popup_notice.open();
                         popup_notice.show_localization = false
@@ -1427,8 +1405,7 @@ Item {
                                                     type: "round_text"
                                                     text:  "+"
                                                     btncolor: "black"
-                                                    onClicked: {
-                                                        click_sound.play();;
+                                                    onClicked:{
                                                         popup_add_location_group.open();
                                                     }
                                                 }
@@ -1441,7 +1418,6 @@ Item {
                                                         type: "round_text"
                                                         text: name
                                                         onClicked: {
-                                                            click_sound.play();;
                                                             popup_add_serving.cur_group = index
                                                         }
                                                     }
@@ -1465,7 +1441,6 @@ Item {
                                     type: "round_text"
                                     text: qsTr("취소")
                                     onClicked: {
-                                        click_sound.play();;
                                         popup_add_serving.close();
                                     }
                                 }
@@ -1483,7 +1458,6 @@ Item {
                                             textfield_loc_name.color = color_red;
                                             text_loc_check.text = qsTr("이미 중복되는 이름이 있습니다");
                                         }else{
-                                            click_sound.play();;
                                             map_hide.savelocation("location_cur","Serving", popup_add_serving.cur_group, textfield_loc_name.text);
                                             supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving -> "+popup_add_serving.cur_group+", "+textfield_loc_name.text);
                                             supervisor.writelog("[ANNOTATION] LOCAION SAVE : Serving "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
@@ -1564,7 +1538,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("취소")
                                 onClicked: {
-                                    click_sound.play();;
                                     popup_add_location_group.close();
                                 }
                             }
@@ -1577,7 +1550,6 @@ Item {
                                     if(tfield_group.text == ""){
                                         click_sound_no.play();
                                     }else{
-                                        click_sound.play();;
                                         supervisor.addLocationGroup(tfield_group.text);
                                         supervisor.writelog("[QML] MAP PAGE : ADD LOCATION GROUP -> "+tfield_group.text);
                                         popup_add_serving.update();
@@ -1900,7 +1872,7 @@ Item {
             Component{
                 id: detaillocCompo
                 Item{
-                    width: parent.width
+                    width: parent.width!==null?parent.width:0
                     height: 50
                     Column{
                         anchors.right: rowsss.left
@@ -1918,7 +1890,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();;
+                                    click_sound.play();
                                     if(supervisor.getRobotType() === "CLEANING"){
                                         if(select_location>3){
                                             beforeY = list_location_detail.contentY - 55
@@ -1957,7 +1929,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();;
+                                    click_sound.play();
                                     if(select_location<details.count-1){
                                         beforeY = list_location_detail.contentY + 55
                                         list_location_detail.setting = true;
@@ -2005,6 +1977,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    click_sound.play();
                                     if(select_location == index){
                                         select_location = -1;
                                     }else{
@@ -2094,6 +2067,7 @@ Item {
                             MouseArea{
                                 anchors.fill:parent
                                 onClicked: {
+                                    click_sound.play();
                                     if(select_location == index){
                                         select_location = -1;
                                     }else{
@@ -2102,6 +2076,7 @@ Item {
                                     map_location_list.setCurrentLocation(select_location);
                                 }
                                 onPressAndHold: {
+                                    click_sound.play();
                                     if(ltype === "Serving"){
                                         keyboard.owner = tx_name;
                                         tx_name.selectAll();
@@ -2136,6 +2111,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    click_sound.play();
                                     if(select_location == index){
                                         select_location = -1;
                                     }else{
@@ -2184,7 +2160,6 @@ Item {
                                 text: qsTr("호출벨 설정")
                                 fontsize: 20
                                 onClicked: {
-                                    click_sound.play();;
                                     popup_add_callbell.calltype = details.get(select_location).ltype;
                                     popup_add_callbell.callid = select_location;
                                     popup_add_callbell.open();
@@ -2198,7 +2173,6 @@ Item {
                                 text: qsTr("테스트 주행")
                                 fontsize: 20
                                 onClicked: {
-                                    click_sound.play();;
                                     supervisor.writelog("[ANNOTATION] TEST MOVING : "+details.get(select_location).name);
                                     supervisor.moveToServingTest(details.get(select_location).group, details.get(select_location).name);
                                 }
@@ -2211,7 +2185,6 @@ Item {
                                 text: qsTr("삭제")
                                 fontsize: 20
                                 onClicked: {
-                                    click_sound.play();;
                                     popup_remove_location.open();
                                 }
                             }
@@ -2223,7 +2196,6 @@ Item {
                                 text: qsTr("위치 수정")
                                 fontsize: 20
                                 onClicked: {
-                                    click_sound.play();;
                                     supervisor.writelog("[ANNOTATION] Location Edit : "+details.get(select_location).name);
                                     popup_edit_serving.open();
 
@@ -2248,7 +2220,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("위치추가")
                                 onClicked: {
-                                    click_sound.play();;
                                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Back to SaveLocation");
                                     annot_pages.sourceComponent = page_annot_location;
                                 }
@@ -2259,7 +2230,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("그룹추가")
                                 onClicked: {
-                                    click_sound.play();;
                                     popup_add_location_group.open();
                                 }
                             }
@@ -2271,7 +2241,6 @@ Item {
                                 enabled: supervisor.getLocationNum("Resting") > 0;
                                 text: qsTr("퇴식모드")
                                 onClicked: {
-                                    click_sound.play();;
                                     select_location = -1;
                                     popup_cleaning.open();
                                 }
@@ -2390,7 +2359,6 @@ Item {
                 enabled: false
                 text: qsTr("저 장")
                 onClicked: {
-                    click_sound.play();;
                     print("save location");
                     supervisor.saveAnnotation(supervisor.getMapname());
                     supervisor.drawingRunawayStop();
@@ -2415,7 +2383,6 @@ Item {
                 anchors.rightMargin: 280
                 text: qsTr("취 소")
                 onClicked: {
-                    click_sound.play();;
                     annot_pages.sourceComponent = page_annot_menu;
                 }
             }
@@ -2435,7 +2402,6 @@ Item {
                         for(var i=0; i<details.count-2; i++){
                             supervisor.setLocation(i,details.get(i+2).name,details.get(i+2).group,details.get(i+2).number);
                         }
-                        click_sound.play();;
                         map_hide.setTableNumberAuto();
                         readSetting();
                     }
@@ -2497,7 +2463,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("예")
                                 onClicked: {
-                                    click_sound.play();;
                                     supervisor.checkCleaningLocation();
                                     supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
                                     supervisor.readSetting();
@@ -2511,7 +2476,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("아니오")
                                 onClicked: {
-                                    click_sound.play();;
                                     supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
                                     supervisor.readSetting();
                                     readSetting();
@@ -2573,7 +2537,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("예")
                                 onClicked: {
-                                    click_sound.play();;
                                     supervisor.removeLocation(select_location);
                                     select_location = -1;
                                     readSetting();
@@ -2586,7 +2549,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("아니오")
                                 onClicked: {
-                                    click_sound.play();;
                                     popup_remove_location.close();
                                 }
                             }
@@ -2763,7 +2725,6 @@ Item {
                                 type: "round_text"
                                 text: qsTr("취소")
                                 onClicked: {
-                                    click_sound.play();;
                                     popup_add_location_group.close();
                                 }
                             }
@@ -2776,7 +2737,6 @@ Item {
                                     if(tfield_group.text == ""){
                                         click_sound_no.play();
                                     }else{
-                                        click_sound.play();;
                                         supervisor.addLocationGroup(tfield_group.text);
                                         supervisor.writelog("[QML] MAP PAGE : ADD LOCATION GROUP -> "+tfield_group.text);
                                         update();
@@ -2897,7 +2857,6 @@ Item {
                 anchors.bottomMargin: 150
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
                     supervisor.slam_map_reload(supervisor.getMapname(),1);
                     supervisor.writelog("[ANNOTATION] Early Done");
                     loadPage(pinit);
@@ -2920,7 +2879,6 @@ Item {
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 50
                 onClicked: {
-                    click_sound.play();;
 //                    supervisor.slam_map_reload(supervisor.getMapname());
                     supervisor.writelog("[ANNOTATION] Next to Additional");
                     annot_pages.sourceComponent = page_annot_menu;
@@ -3381,7 +3339,6 @@ Item {
                                 height: 60
                                 text:qsTr("초기화")
                                 onClicked:{
-                                    click_sound.play();;
                                     supervisor.writelog("[ANNOTATION] Map Editor : Clear All");
                                     clear();
                                 }
@@ -3392,7 +3349,6 @@ Item {
                                 height: 60
                                 text:qsTr("저장")
                                 onClicked:{
-                                    click_sound.play();;
                                     supervisor.writelog("[MAPPING] Map Editor : Save");
                                     popup_save_map.open();
                                     popup_save_map.back_page = false;
@@ -3404,7 +3360,6 @@ Item {
                                 height: 60
                                 text:qsTr("종료")
                                 onClicked:{
-                                    click_sound.play();;
                                     supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
                                     if(is_edited){
                                         popup_save_map.open()
@@ -3446,7 +3401,7 @@ Item {
                                                 anchors.fill: parent
                                                 enabled: menu_rect.enabled
                                                 onClicked:{
-                                                    click_sound.play();;
+                                                    click_sound.play();
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = false;
@@ -3482,7 +3437,7 @@ Item {
                                                 enabled: menu_rect.enabled
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();;
+                                                    click_sound.play();
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = true;
@@ -3519,6 +3474,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
+                                                        click_sound.play();
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -3541,6 +3497,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
+                                                        click_sound.play();
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -3592,6 +3549,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
+                                                        click_sound.play();
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -3627,7 +3585,6 @@ Item {
                                                         width: 40
                                                         height: 40
                                                         onClicked:{
-                                                            click_sound.play();;
                                                             supervisor.writelog("[ANNOTATION] Map Editor : UNDO")
                                                             map.drawing_undo();
                                                         }
@@ -3640,7 +3597,6 @@ Item {
                                                         width: 40
                                                         height: 40
                                                         onClicked:{
-                                                            click_sound.play();;
                                                             supervisor.writelog("[ANNOTATION] Map Editor : REDO")
                                                             map.drawing_redo();
                                                         }
@@ -3685,6 +3641,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set tool to draw");
                                                                 map.clear("spline");
                                                                 map.setTool("draw");
@@ -3733,6 +3690,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 is_edited = true;
                                                                 if(select_mode === 2){
                                                                     if(select_preset === 1){
@@ -3784,6 +3742,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 is_edited = true;
                                                                 supervisor.writelog("[ANNOTATION] Object : Set tool to straight")
                                                                 map.setTool("straight");
@@ -3835,6 +3794,7 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onClicked:{
+                                                                        click_sound.play();
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase");
                                                                         map.clear("spline");
@@ -3881,6 +3841,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 is_edited = true;
                                                                 map.setDrawingColor(255);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3912,6 +3873,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 is_edited = true;
                                                                 map.setDrawingColor(127);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3944,6 +3906,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 is_edited = true;
                                                                 map.setDrawingColor(0);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3996,6 +3959,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 select_preset = 1;
                                                                 is_edited = true;
                                                                 map.setDrawingColor(100);
@@ -4038,6 +4002,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
+                                                                click_sound.play();
                                                                 is_edited = true;
                                                                 select_preset = 2;
                                                                 map.setDrawingColor(200);
@@ -4063,7 +4028,6 @@ Item {
                                                         text: qsTr("취소")
                                                         fontsize: 20
                                                         onClicked:{
-                                                            click_sound.play();;
                                                             supervisor.writelog("[ANNOTATION] Map Editor : Cancel dot spline");
                                                             map.clear("spline");
                                                             map.setTool("draw");
@@ -4077,7 +4041,6 @@ Item {
                                                         text: qsTr("저장")
                                                         onClicked:{
                                                             is_edited = false;
-                                                            click_sound.play();;
                                                             supervisor.writelog("[ANNOTATION] Map Editor : Save dot spline");
                                                             map.save("spline");
                                                             map.setTool("draw");
@@ -4186,7 +4149,6 @@ Item {
                                                             onClicked:{
                                                                 map.setTool("move");
                                                                 if(running){
-                                                                    click_sound.play();;
                                                                     is_edited = false;
                                                                     supervisor.writelog("[QML] MAP PAGE : SAVE TRAVELLINE ");
                                                                     map.stopDrawingT();
@@ -4195,7 +4157,6 @@ Item {
                                                                     map.save("tline");
                                                                 }else{
                                                                     if(supervisor.getLocalizationState() === 2){
-                                                                        click_sound.play();;
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Travel Line : Drawing Start");
                                                                         map.startDrawingT();
@@ -4275,6 +4236,7 @@ Item {
                                                                     MouseArea{
                                                                         anchors.fill: parent
                                                                         onPressed:{
+                                                                            click_sound.play();
                                                                             parent.color = color_light_gray
                                                                         }
                                                                         onReleased: {
@@ -4372,7 +4334,6 @@ Item {
                                 width: 180
                                 height: 60
                                 onClicked:{
-                                    click_sound.play();;
                                     clear();
                                     popup_save_map.close();
                                     if(popup_save_map.back_page)
@@ -4386,7 +4347,6 @@ Item {
                                 height: 60
                                 btncolor: color_green
                                 onClicked:{
-                                    click_sound.play();;
                                     save();
                                     if(popup_save_map.back_page){
                                         supervisor.slam_map_reload(supervisor.getMapname());
@@ -4468,7 +4428,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();;
+                            click_sound.play();
                             supervisor.sendMapServer();
                             popup_ask_mapload.close();
                         }
@@ -4493,7 +4453,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();;
+                            click_sound.play();
                             supervisor.loadMapServer();
                             popup_ask_mapload.close();
                         }
@@ -4600,7 +4560,6 @@ Item {
                     type: "round_text"
                     text: qsTr("사용안함")
                     onClicked: {
-                        click_sound.play();;
                         supervisor.clear_call();
                         popup_add_callbell.close();
                     }
@@ -4678,7 +4637,6 @@ Item {
                         bordercolor: color_blue
                         text: qsTr("경로 재개")
                         onClicked:{
-                            click_sound.play();;
                             supervisor.writelog("[ANNOTATION] Test Moving : Resume")
                             supervisor.moveResume();
                             timer_check_pause.start();
@@ -4693,7 +4651,6 @@ Item {
                         bordercolor: color_blue
                         text: qsTr("경로 취소")
                         onClicked:{
-                            click_sound.play();;
                             supervisor.writelog("[ANNOTATION] Test Moving : Path Cancled")
                             supervisor.moveStop();
                             supervisor.stopBGM();
@@ -4706,7 +4663,7 @@ Item {
                 anchors.fill: parent
                 visible: !robot_paused
                 onClicked:{
-                    click_sound.play();;
+                    click_sound.play();
                     if(robot_paused){
 //                        supervisor.writelog("[USER INPUT] MOVING RESUME 2")
 //                        supervisor.moveResume();
