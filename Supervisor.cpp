@@ -56,6 +56,7 @@ Supervisor::Supervisor(QObject *parent)
     voice_player = new QMediaPlayer();
     bgm_player = new QMediaPlayer();
     click_sound = new QMediaPlayer();
+    list_bgm = new QMediaPlaylist();
     click_sound->setMedia(QUrl("qrc:/bgm/click.wav"));
     click_no_sound = new QMediaPlayer();
     click_no_sound->setMedia(QUrl("qrc:/bgm/click_error.wav"));
@@ -1803,10 +1804,9 @@ bool Supervisor::isplayBGM(){
     }
 }
 void Supervisor::playBGM(int volume){
-    QMediaPlaylist *playlist = new QMediaPlaylist();
-    playlist->addMedia(QUrl("qrc:/bgm/song.mp3"));
-    playlist->setPlaybackMode(QMediaPlaylist::Loop);
-    bgm_player->setPlaylist(playlist);
+    list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
+    list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
+    bgm_player->setPlaylist(list_bgm);
 //    bgm_player->setMedia(QUrl("qrc:/bgm/song.mp3"));
     if(volume == -1){
         volume = getSetting("setting","UI","volume_bgm").toInt();
