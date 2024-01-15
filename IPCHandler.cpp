@@ -273,6 +273,7 @@ void IPCHandler::onTimer(){
 //            plog->write("[IPC] Travelline Issue : "+pmap->tline_issues[i].group+", "+pmap->tline_issues[i].name+" -> "+QString().asprintf("%d, %d",tempp.is_far[i],tempp.is_broken[i]));
 
         }
+        emit mapreset();
     }
 
     IPCHandler::MAP temp3 = get_map();

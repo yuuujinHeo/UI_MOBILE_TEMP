@@ -73,6 +73,7 @@ Item {
         show_button_lidar = true;
         show_button_location = true;
         show_grid = false;
+//        setDrawingColor("white");
         if(mode === "annot_drawing"){
             show_connection = false;
         }else if(mode === "serving_list"){

@@ -2104,7 +2104,7 @@ Item {
         }
     }
 
-    Popup{
+     Popup{
         id: popup_clean_calling
         anchors.centerIn: parent
         width: 1280

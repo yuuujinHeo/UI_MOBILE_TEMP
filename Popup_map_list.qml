@@ -269,6 +269,7 @@ Popup{
                         type: "round_text"
                         text: "취 소"
                         onClicked: {
+                            supervisor.readSetting();
                             popup_map_list.close();
                         }
                     }

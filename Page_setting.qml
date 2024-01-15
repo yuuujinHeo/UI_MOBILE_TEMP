@@ -182,9 +182,9 @@ Item {
 
         if(combo_use_calling_notice.ischanged){
             if(combo_use_calling_notice.currentIndex == 0){
-                supervisor.setSetting("setting","USE_UI/combo_use_calling_notice","false");
+                supervisor.setSetting("setting","USE_UI/use_calling_notice","false");
             }else{
-                supervisor.setSetting("setting","USE_UI/combo_use_calling_notice","true");
+                supervisor.setSetting("setting","USE_UI/use_calling_notice","true");
             }
         }
         if(combo_resting_lock.ischanged){
@@ -760,7 +760,7 @@ Item {
             combo_use_tray.currentIndex = 0;
         }
 
-        if(supervisor.getSetting("setting","USE_UI","combo_use_calling_notice") === "true"){
+        if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             combo_use_calling_notice.currentIndex = 1;
         }else{
             combo_use_calling_notice.currentIndex = 0;
