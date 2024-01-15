@@ -45,10 +45,23 @@ Item {
     }
 
     onSetting_patrol_image_widthChanged: {
-        image_robot.setSize();
+        image_robot_set.setSize();
     }
     onSetting_patrol_image_heightChanged: {
-        image_robot.setSize();
+        image_robot_set.setSize();
+    }
+
+    onPos_nameChanged: {
+        if(!setting_patrol_mode){
+            if(pos_name === qsTr("충전 장소")){
+                image_robot.source = "image/robot_move_charge.png"
+            }else if(pos_name === qsTr("대기 장소")){
+                image_robot.source = "image/robot_move_wait.png"
+            }else{
+                image_robot.source = "image/robot_moving.png"
+            }
+        }
+//        image_robot.setsize();
     }
 
     Component.onDestruction:  {
@@ -139,23 +152,16 @@ Item {
         anchors.leftMargin: 100
         Image{
             id: image_robot
-            source: {
-                if(pos_name === qsTr("충전 장소")){
-                    "image/robot_move_charge.png"
-                }else if(pos_name === qsTr("대기 장소")){
-                    "image/robot_move_wait.png"
-                }else{
-                    "image/robot_moving.png"
-                }
-            }
-            onSourceChanged: {
+            source: "image/robot_moving.png"
+            function setsize(){
                 if(sourceSize.width > sourceSize.height){
-                    width = 300*page_moving.width/1280;
-                    height = sourceSize.height * 300/ sourceSize.width;
+                    width = 400;
+                    height = sourceSize.height * 400/sourceSize.width;
                 }else{
-                    width = 300*page_moving.width/1280;
-                    height = sourceSize.height * 300/ sourceSize.width;
-                }
+                    height = 400;
+                    width = sourceSize.width * 400/sourceSize.height;
+                 }
+                print("====>>> ",sourceSize.width, sourceSize.height, width, height)
             }
             anchors.centerIn: parent
         }
