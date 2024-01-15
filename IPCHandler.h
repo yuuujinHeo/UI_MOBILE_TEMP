@@ -382,6 +382,7 @@ signals:
     void mappingin();
     void objectingin();
     void cameraupdate();
+    void mapreset();
 
 private slots:
     void onTimer();

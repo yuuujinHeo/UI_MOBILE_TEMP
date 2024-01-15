@@ -193,6 +193,7 @@ void MapHandler::loadFile(QString name, QString type){
     draw_width = file_width;
     log_str += QString().asprintf(", FILEWIDTH(%d)",draw_width);
     initDrawing();
+    initLocation();
     initRotate();
     setMap();
     plog->write("[MapHandler] load File "+name+" : "+log_str);
@@ -290,7 +291,7 @@ void MapHandler::onTimer(){
         setZoomCenter(robot_pose.x, robot_pose.y);
     }else{
         if(show_robot || show_lidar){
-            setMap();
+            setMapLayer();
         }
     }
 }
@@ -743,7 +744,20 @@ void MapHandler::setMapLayer(){
                     QImage image(":/icon/icon_charge_2.png");
                     painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
 
-            }
+            }else if(locations[i].type == "Cleaning"){
+
+                path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+
+                painter_layer.setPen(QPen(Qt::white,1*news));
+
+                painter_layer.drawPath(path);
+                painter_layer.drawLine(x1,y1,x,y);
+                painter_layer.drawLine(x,y,x2,y2);
+                painter_layer.drawPath(path);
+                QImage image(":/icon/icon_home_2.png");
+                painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+
+        }
         }
     }
 
@@ -810,6 +824,17 @@ void MapHandler::setMapLayer(){
             painter_layer.drawLine(x1,y1,x,y);
             painter_layer.drawLine(x,y,x2,y2);
             QImage image(":/icon/icon_charge_1.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }else if(locations[select_location].type == "Cleaning"){
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+
+            painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+            painter_layer.fillPath(path,QBrush("black"));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            QImage image(":/icon/icon_home_1.png");
             painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
         }
 
@@ -1711,6 +1736,11 @@ void MapHandler::setMapDrawing(){
                         cv::line(map_drawing_mask,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar::all(255),lines[line].width,8,0);
                     }
                 }
+            }else if(mode == "annot_tline" || mode == "annot_tline2"){
+                for(int i=0; i<lines[line].points.size()-1; i++){
+                    cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),color_yellow,lines[line].width,8,0);
+                    cv::line(map_drawing_mask,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar::all(255),lines[line].width,8,0);
+                }
             }else{
                 for(int i=0; i<lines[line].points.size()-1; i++){
                     cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar(lines[line].color,lines[line].color,lines[line].color,255),lines[line].width,8,0);
@@ -1859,12 +1889,13 @@ void MapHandler::addLinePoint(int x, int y){
             cv::line(map_drawing,line[line.size()-2],line[line.size()-1],color_green,cur_line_width,8,0);
             cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
         }
+    }else if(mode == "annot_tline" || mode == "annot_tline2"){
+        cv::line(map_drawing,line[line.size()-2],line[line.size()-1],color_yellow,cur_line_width,8,0);
+        cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
     }else{
         cv::line(map_drawing,line[line.size()-2],line[line.size()-1],cv::Scalar(cur_line_color,cur_line_color,cur_line_color,255),cur_line_width,8,0);
         cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
     }
-
-//    setMapDrawing();
     setMap();
 }
 
@@ -1905,6 +1936,7 @@ void MapHandler::endDrawing(int x, int y){
                 y_list.push_back(line[p].y);
             }
         }
+
         tk::spline::spline_type type = tk::spline::cspline_hermite;
         tk::spline sx, sy;
         if(d_list.size() > 2 && x_list.size() > 2 && y_list.size() > 2){

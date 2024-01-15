@@ -2362,6 +2362,7 @@ Item {
                     print("save location");
                     supervisor.saveAnnotation(supervisor.getMapname());
                     supervisor.drawingRunawayStop();
+                    supervisor.stopDrawingTline();
 //                    map_hide.stopDrawingT();
                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Check Done ");
                     if(annotation_after_mapping)
@@ -2785,7 +2786,8 @@ Item {
                 interval: 500
                 onTriggered:{
                     supervisor.drawingRunawayStop();
-                    map_hide.stopDrawingT();
+//                    map_hide.stopDrawingT();
+                    supervisor.stopDrawingTline();
                 }
             }
             Text{
@@ -3039,7 +3041,8 @@ Item {
             }
             function clear(){
                 is_edited = false;
-                map.stopDrawingT();
+                supervisor.stopDrawingTline();
+//                map.stopDrawingT();
                 map.clear("all");
                 map.clear("spline");
                 map.clear("tline");
@@ -3061,7 +3064,8 @@ Item {
                     supervisor.saveObjectPNG();
                 }else if(select_mode === 4){
                     supervisor.writelog("[ANNOTATION] Map Editor : Save Map (Travelline)");
-                    map.stopDrawingT();
+//                    map.stopDrawingT();
+                    supervisor.stopDrawingTline();
                     map.save("tline");
                     supervisor.slam_map_reload(supervisor.getMapname(),1);
                     timer_check_tline.start();
@@ -4151,7 +4155,8 @@ Item {
                                                                 if(running){
                                                                     is_edited = false;
                                                                     supervisor.writelog("[QML] MAP PAGE : SAVE TRAVELLINE ");
-                                                                    map.stopDrawingT();
+//                                                                    map.stopDrawingT();
+                                                                    supervisor.stopDrawingTline();
                                                                     is_edited = false;
 //                                                                    timer_check_tline.stop();
                                                                     map.save("tline");
@@ -4159,8 +4164,9 @@ Item {
                                                                     if(supervisor.getLocalizationState() === 2){
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Travel Line : Drawing Start");
-                                                                        map.startDrawingT();
-                                                                        timer_check_drawing.start();
+//                                                                        map.startDrawingT();
+                                                                        supervisor.startDrawingTline();
+//                                                                        timer_check_drawing.start();
                                                                     }else{
                                                                         popup_notice.open();
                                                                         popup_notice.main_str = qsTr("위치초기화가 필요합니다");

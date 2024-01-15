@@ -67,7 +67,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onPressed:{
-                click_sound.play();
+//                click_sound.play();
                 btn.color = push_color;
             }
             onReleased: {

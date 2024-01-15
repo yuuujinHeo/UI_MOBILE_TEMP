@@ -86,6 +86,7 @@ Supervisor::Supervisor(QObject *parent)
     connect(call, SIGNAL(new_call()),this,SLOT(new_call()));
     connect(ipc, SIGNAL(pathchanged()),this,SLOT(path_changed()));
     connect(ipc, SIGNAL(mappingin()),this,SLOT(mapping_update()));
+    connect(ipc, SIGNAL(mapreset()),this,SLOT(map_reset()));
     connect(ipc, SIGNAL(cameraupdate()),this,SLOT(camera_update()));
     connect(server, SIGNAL(updatefail()),this,SLOT(update_fail()));
     connect(server, SIGNAL(updatesuccess()),this,SLOT(update_success()));
@@ -171,6 +172,7 @@ void Supervisor::programExit(){
     slam_process->kill();
     QCoreApplication::quit();
 }
+
 void Supervisor::writelog(QString msg){
     plog->write(msg);
 }
@@ -211,6 +213,7 @@ void Supervisor::loadMapServer(){
 //    if(getSetting("SERVER",))
 //    ipc->sendCommand(ROBOT_CMD_SERVER_MAP_LOAD);
 }
+
 void Supervisor::sendMapServer(){
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 }
@@ -225,6 +228,7 @@ bool Supervisor::checkLocationName(int group, QString name){
     }
     return true;
 }
+
 ////*********************************************  CALLING 관련   ***************************************************////
 void Supervisor::clear_call(){
     if(setting_call_num > -1){
@@ -234,6 +238,7 @@ void Supervisor::clear_call(){
         QMetaObject::invokeMethod(mMain, "call_setting");
     }
 }
+
 void Supervisor::new_call(){
     if(setting_call_num > -1){
         plog->write("[SETTING] Call Id ("+QString::number(setting_call_num)+")"+pmap->locations[setting_call_num].type + ", "  + pmap->locations[setting_call_num].name + " : "+call->getBellID());
@@ -532,7 +537,6 @@ void Supervisor::readSetting(QString map_name){
         map_name = pmap->map_name;
     }
 
-    maph->loadFile(map_name,"");
 
     pmap->annot_edit_location = false;
     pmap->annot_edit_tline = false;
@@ -725,6 +729,7 @@ void Supervisor::readSetting(QString map_name){
         ST_TRAY temp;
         probot->trays.push_back(temp);
     }
+    maph->loadFile(map_name,"");
 
     QMetaObject::invokeMethod(mMain, "update_ini");
 }
@@ -735,6 +740,10 @@ void Supervisor::editLocation(int num){
                                                                                                  probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
     pmap->locations[num].point = probot->lastPose.point;
     pmap->locations[num].angle = probot->lastPose.angle;
+}
+
+void Supervisor::map_reset(){
+    maph->setMapLayer();
 }
 
 void Supervisor::setSystemVolume(int volume){
@@ -962,16 +971,15 @@ void Supervisor::drawingRunawayStop(){
     ipc->set_cmd(send_msg);
 }
 void Supervisor::slam_map_reload(QString filename, int mode){
-    ui_state = UI_STATE_NONE;
-    probot->localization_state = 0;
-    probot->motor[0].status = 0;
-    probot->motor[1].status = 0;
-    probot->localization_confirm = 0;
     IPCHandler::CMD send_msg;
     if(mode == 0){
         send_msg.cmd = ROBOT_CMD_MAP_RELOAD;
         memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
         ipc->set_cmd(send_msg,"MAP HARD RELOAD");
+        probot->localization_state = 0;
+        probot->motor[0].status = 0;
+        probot->motor[1].status = 0;
+        probot->localization_confirm = 0;
     }else{
         send_msg.cmd = ROBOT_CMD_MAP_SOFT_RELOAD;
         memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
@@ -3674,6 +3682,13 @@ void Supervisor::onTimer(){
                 plog->write("[SUPERVISOR] MOVING (No Target) : Back to CleaningLocation");
                 probot->call_moving_count = 0;
                 current_target = getLocation(0,"Cleaning0");
+                if(current_target.name == ""){
+                    LOCATION temp_cleaning = getLocation(0,"Resting0");
+                    temp_cleaning.name = "Cleaning0";
+                    temp_cleaning.type = "Cleaning";
+                    temp_cleaning.group_name = "Cleaning";
+                    current_target = temp_cleaning;
+                }
                 ui_state = UI_STATE_MOVING;
             }else{
                 //세팅 되지 않음 -> 고 홈
@@ -4499,7 +4514,7 @@ void Supervisor::setWifiSSD(QString ssid){
 void Supervisor::getWifiIP(){
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_IP;
-//    qDebug() << "getwifiip " << probot->wifi_ssid;
+    qDebug() << "getwifiip " << probot->wifi_ssid;
     if(probot->wifi_ssid == ""){
 
     }else{

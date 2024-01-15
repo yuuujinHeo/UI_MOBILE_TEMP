@@ -729,6 +729,7 @@ public slots:
     void update_success();
     void update_fail();
     void clear_all();
+    void map_reset();
 
 private:
     QTimer *timer;
