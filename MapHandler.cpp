@@ -282,13 +282,16 @@ void MapHandler::onTimer(){
         show_travelline = true;
         drawTline();
     }
-//        setMap();
 
     //Robot Following
     if(robot_following){
         cv::Point2f robot_pose;
         robot_pose = setAxis(probot->curPose.point);
         setZoomCenter(robot_pose.x, robot_pose.y);
+    }else{
+        if(show_robot || show_lidar){
+            setMap();
+        }
     }
 }
 
