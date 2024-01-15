@@ -1373,10 +1373,10 @@ void Supervisor::checkRobotINI(){
 
     if(getSetting("setting","USE_SLAM","use_uicmd") == "")
         setSetting("setting","USE_SLAM/use_uicmd","true");
-    if(getSetting("setting","USE_SLAM","use_early_resting") == "")
-        setSetting("setting","USE_SLAM/use_early_resting","false");
-    if(getSetting("setting","USE_SLAM","use_early_serving") == "")
-        setSetting("setting","USE_SLAM/use_early_serving","false");
+    if(getSetting("setting","USE_SLAM","use_early_stop_resting") == "")
+        setSetting("setting","USE_SLAM/use_early_stop_resting","false");
+    if(getSetting("setting","USE_SLAM","use_early_stop_serving") == "")
+        setSetting("setting","USE_SLAM/use_early_stop_serving","false");
     if(getSetting("setting","USE_SLAM","use_obs_preview") == "")
         setSetting("setting","USE_SLAM/use_obs_preview","true");
 
@@ -3696,9 +3696,22 @@ void Supervisor::onTimer(){
         }
 
         if(probot->ui_fail_state == 1){
+            //local fail, no path, charging, motor error, motor connection
 //            ui_state = UI_STATE_NONE;
-            ui_state = UI_STATE_INITAILIZING;
+            if(!getMotorConnection(0) || !getMotorConnection(1)){
+                plog->write("[SUPERVISOR] UI FAIL STATE -> Motor Connection Error");
+            }else if(getMotorState()==0){
+                plog->write("[SUPERVISOR] UI FAIL STATE -> Motor Error");
+            }else if(getLocalizationState()!=2){
+                plog->write("[SUPERVISOR] UI FAIL STATE -> Localization Not ready");
+            }else if(getChargeStatus()){
+                plog->write("[SUPERVISOR] UI FAIL STATE -> Charging");
+            }else{
+                plog->write("[SUPERVISOR] UI FAIL STATE -> No Path ?");
+            }
+
             plog->write("[SUPERVISOR] UI FAIL STATE -> KILL SLAM");
+            ui_state = UI_STATE_INITAILIZING;
             killSLAM();
         }else if(getMotorState() == 0){
             if(probot->status_lock){
