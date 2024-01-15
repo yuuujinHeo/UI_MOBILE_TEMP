@@ -1811,7 +1811,6 @@ void Supervisor::playBGM(int volume){
     if(volume == -1){
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
-//    bgm_player->
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
@@ -3902,9 +3901,9 @@ void Supervisor::onTimer(){
                                         if(patrol_list.size() > 0){
                                             if(patrol_mode == PATROL_RANDOM){
                                                 //패트롤 위치 랜덤하게 지정
-                                                int temp = QRandomGenerator::global()->generate();
+                                                int temp = QRandomGenerator::global()->bounded(0,1000);
                                                 while(patrol_num == temp%(patrol_list.size())){
-                                                    temp = QRandomGenerator::global()->generate();
+                                                    temp = QRandomGenerator::global()->bounded(0,1000);
                                                     qDebug() << "Next temp = " << temp << temp%(patrol_list.size());
                                                 }
                                                 plog->write("[SUPERVISOR] MOVING (PATROL RANDOM) : CUR ("+QString::number(temp%(patrol_list.size()))+") LAST ("+QString::number(patrol_num)+")");

@@ -4717,7 +4717,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"좌측 카메라 TF"
+                                text:"왼쪽 카메라 TF"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4781,7 +4781,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"우측 카메라 TF"
+                                text:"오른쪽 카메라 TF"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5325,7 +5325,7 @@ Item {
                     id: set_obs_avoid_v
                     width: 840
                     height: 50
-                    visible: combo_use_avoid.currentIndex === 1
+                    visible: false//combo_use_avoid.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7347,7 +7347,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로탐색 최소거리 [m]"
+                                text:"목적지 미리 도달거리 [m]"
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -7412,7 +7412,7 @@ Item {
                     id: set_goal_near_th
                     width: 840
                     height: 50
-                    visible: is_rainbow
+                    visible: false//is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8305,7 +8305,7 @@ Item {
                     id: set_k_curve
                     width: 840
                     height: 50
-                    visible: is_rainbow
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{

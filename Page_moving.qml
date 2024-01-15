@@ -80,16 +80,15 @@ Item {
         if(setting_patrol_mode){
             show_face = false;
             face_image.stop();
-            image_robot.visible = true;
         }else{
             if(supervisor.getSetting("setting","UI","moving_face")==="true"){
                 face_image.play("image/temp.gif");
-                image_robot.visible = false;
+                rect_robot.visible = false;
                 show_face = true;
             }else{
                 show_face = false;
                 face_image.stop();
-                image_robot.visible = true;
+                rect_robot.visible = true;
             }
             robot_paused = false;
             supervisor.playBGM();
@@ -131,14 +130,13 @@ Item {
 
     Rectangle{
         id: rect_robot
-        width: 300
+        width: 400
         height: 400
         visible: !setting_patrol_mode
         color: "transparent"
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
-        anchors.leftMargin: 50
-
+        anchors.leftMargin: 100
         Image{
             id: image_robot
             source: {
@@ -152,21 +150,11 @@ Item {
             }
             onSourceChanged: {
                 if(sourceSize.width > sourceSize.height){
-                    if(sourceSize.width > 300){
-                        width = 300*page_moving.width/1280;
-                        height = sourceSize.height * 300*page_moving.width/1280 / sourceSize.width;
-                    }else{
-                        width = sourceSize.width*page_moving.width/1280;
-                        height = sourceSize.height*page_moving.width/1280;
-                    }
+                    width = 300*page_moving.width/1280;
+                    height = sourceSize.height * 300/ sourceSize.width;
                 }else{
-                    if(sourceSize.width > 300){
-                        width = 300*page_moving.width/1280;
-                        height = sourceSize.height * 300*page_moving.width/1280 / sourceSize.width;
-                    }else{
-                        width = sourceSize.width*page_moving.width/1280;
-                        height = sourceSize.height*page_moving.width/1280;
-                    }
+                    width = 300*page_moving.width/1280;
+                    height = sourceSize.height * 300/ sourceSize.width;
                 }
             }
             anchors.centerIn: parent
@@ -248,19 +236,19 @@ Item {
     Column{
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: rect_robot.right
-        anchors.leftMargin: 50
+        anchors.leftMargin: 100
         visible: !show_face&& !setting_patrol_mode
         Text{
             id: target_pos
             text: pos_name
-            font.pixelSize: 60
+            font.pixelSize: 80
             font.family: font_noto_b.name
             color: "#12d27c"
         }
         Text{
             id: text_mention
             text: qsTr("(으)로 이동 중입니다.")
-            font.pixelSize: 55
+            font.pixelSize: 60
             font.family: font_noto_r.name
             color: "white"
         }
@@ -370,6 +358,13 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 200
+            MouseArea{
+                anchors.fill: parent
+                z: 99
+                onClicked:{
+                    popup_pause.visible = false;
+                }
+            }
         }
         Text{
             id: teee
@@ -676,7 +671,6 @@ Item {
                 password = 0;
                 supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
                 loadPage(pkitchen);
-//                loader_page.item.setNotice(3);
             }
         }
         onPressAndHold: {
