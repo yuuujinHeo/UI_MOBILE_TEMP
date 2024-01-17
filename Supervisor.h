@@ -371,7 +371,7 @@ public:
     Q_INVOKABLE bool checkNewUpdateProgram();
 //    Q_INVOKABLE QString
 
-    Q_INVOKABLE void setLangauge(QString lan);
+    Q_INVOKABLE void setlanguage(QString lan);
 
     ////*********************************************  MOVING 관련   *************************************************////
     Q_INVOKABLE bool isCallingMode(){return probot->is_calling;}

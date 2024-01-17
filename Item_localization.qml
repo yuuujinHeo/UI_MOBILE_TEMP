@@ -58,7 +58,7 @@ Item{
         running: true
         interval: 1000
         onTriggered:{
-            print("now 5")
+            //print("now 5")
             supervisor.setMotorLock(false);
         }
     }

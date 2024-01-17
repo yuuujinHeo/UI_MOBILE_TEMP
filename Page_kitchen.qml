@@ -292,7 +292,7 @@ Item {
         for(var i=0; i<supervisor.getLocationGroupNum(); i++){
             if(supervisor.getLocationGroupSize(i) > 0){
                 if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
-                    model_group.append({"num":i,"name":"그룹"});
+                    model_group.append({"num":i,"name":qsTr("그룹")});
                 }else{
 
                     model_group.append({"num":i,"name":supervisor.getLocGroupname(i)});
@@ -961,7 +961,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                                 color: "white"
-                                text: "가로줄개수"
+                                text: qsTr("가로줄개수")
                             }
                             Text{
                                 font.family: font_noto_r.name
@@ -1034,7 +1034,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                                 color: "white"
-                                text: "세로열개수"
+                                text: qsTr("세로열개수")
                             }
                             Text{
                                 font.family: font_noto_r.name
@@ -1291,7 +1291,7 @@ Item {
                         font.family: font_noto_r.name
                         font.pixelSize: 25
                         color: "white"
-                        text: "속도설정"
+                        text: qsTr("속도설정")
                     }
                     Rectangle{
                         width: 1

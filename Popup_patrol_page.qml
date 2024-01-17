@@ -79,7 +79,7 @@ Popup {
                         width: 140
                         height: 60
                         type: "round_text"
-                        text: "취 소"
+                        text: qsTr("취 소")
                         onClicked: {
                             popup_setting_patrolpage.close();
                         }

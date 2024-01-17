@@ -144,7 +144,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 Text{
                     color: color_dark_black
-                    text: "실패지수 : "
+                    text: qsTr("실패지수 : ")
                     font.pixelSize: 15
                     font.family: font_noto_r.name
                 }

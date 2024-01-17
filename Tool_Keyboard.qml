@@ -186,7 +186,7 @@ Popup {
                             id: text_ko_en
                             anchors.centerIn: parent
                             color: "white"
-                            text: "한글"
+                            text: qsTr("한글")
                             font.family: font_noto_r.name
                             font.pixelSize: textsize
                         }

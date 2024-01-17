@@ -112,7 +112,6 @@ Popup {
                                 onClicked:{
                                     click_sound.play();
                                     emitter.keyPressed(owner,modelData);
-
                                 }
                             }
                         }

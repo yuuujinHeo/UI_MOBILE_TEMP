@@ -1737,9 +1737,16 @@ void MapHandler::setMapDrawing(){
                     }
                 }
             }else if(mode == "annot_tline" || mode == "annot_tline2"){
-                for(int i=0; i<lines[line].points.size()-1; i++){
-                    cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),color_yellow,lines[line].width,8,0);
-                    cv::line(map_drawing_mask,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar::all(255),lines[line].width,8,0);
+                if(lines[line].color == 255){
+                    for(int i=0; i<lines[line].points.size()-1; i++){
+                        cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),color_yellow,lines[line].width,8,0);
+                        cv::line(map_drawing_mask,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar::all(255),lines[line].width,8,0);
+                    }
+                }else{
+                    for(int i=0; i<lines[line].points.size()-1; i++){
+                        cv::line(map_drawing,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar(lines[line].color,lines[line].color,lines[line].color,255),lines[line].width,8,0);
+                        cv::line(map_drawing_mask,cv::Point2f(lines[line].points[i].x,lines[line].points[i].y),cv::Point2f(lines[line].points[i+1].x,lines[line].points[i+1].y),cv::Scalar::all(255),lines[line].width,8,0);
+                    }
                 }
             }else{
                 for(int i=0; i<lines[line].points.size()-1; i++){
@@ -1778,6 +1785,9 @@ void MapHandler::setMapDrawing(){
         }else if(mode == "annot_object_png"){
 
             cv::line(map_drawing,straight[0],straight[1],color_blue,cur_line_width,8,0);
+            cv::line(map_drawing_mask,straight[0],straight[1],cv::Scalar::all(255),cur_line_width,8,0);
+        }else if(mode == "annot_tline" || mode == "annot_tline2"){
+            cv::line(map_drawing,straight[0],straight[1],color_yellow,cur_line_width,8,0);
             cv::line(map_drawing_mask,straight[0],straight[1],cv::Scalar::all(255),cur_line_width,8,0);
         }else{
             cv::line(map_drawing,straight[0],straight[1],cv::Scalar(cur_line_color,cur_line_color,cur_line_color,255),cur_line_width,8,0);
@@ -1851,8 +1861,7 @@ void MapHandler::drawTline(){
     if(prev_pose.x == 0 && prev_pose.y == 0){
         //pass
     }else{
-        cv::line(map_drawing,prev_pose,pose,color_yellow,1,8,0);
-//        qDebug() << "drawTline" << pose.x << pose.y;
+        cv::line(map_drawing,prev_pose,pose,cur_line_color,1,8,0);
     }
     prev_pose = pose;
     setMap();
@@ -1890,8 +1899,13 @@ void MapHandler::addLinePoint(int x, int y){
             cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
         }
     }else if(mode == "annot_tline" || mode == "annot_tline2"){
-        cv::line(map_drawing,line[line.size()-2],line[line.size()-1],color_yellow,cur_line_width,8,0);
-        cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
+        if(cur_line_color == -1){
+            cv::line(map_drawing,line[line.size()-2],line[line.size()-1],cv::Scalar(-1,-1,-1,255),cur_line_width,8,0);
+            cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
+        }else{
+            cv::line(map_drawing,line[line.size()-2],line[line.size()-1],color_yellow,cur_line_width,8,0);
+            cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);
+        }
     }else{
         cv::line(map_drawing,line[line.size()-2],line[line.size()-1],cv::Scalar(cur_line_color,cur_line_color,cur_line_color,255),cur_line_width,8,0);
         cv::line(map_drawing_mask,line[line.size()-2],line[line.size()-1],cv::Scalar::all(255),cur_line_width,8,0);

@@ -106,9 +106,11 @@ signals:
     void updatefail();
     void updatesuccess();
 private slots:
+    void onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply);
     void onTimer();
 private:
     QNetworkAccessManager   *manager;
+    QtHttpServer *call_server;
     QTimer  *timer;
 };
 

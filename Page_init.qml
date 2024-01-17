@@ -318,13 +318,13 @@ Item {
                         anchors.topMargin: 30
                         anchors.horizontalCenter: parent.horizontalCenter
                         Text{
-                            text: "업데이트"
+                            text: qsTr("업데이트")
                             font.family: font_noto_r.name
                             font.pixelSize: 50
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Text{
-                            text: "요청 날짜 : " + popup_show_update.date
+                            text: qsTr("요청 날짜 : ") + popup_show_update.date
                             font.family: font_noto_r.name
                             font.pixelSize: 20
                             anchors.bottom: parent.bottom
@@ -395,22 +395,22 @@ Item {
                                                 anchors.verticalCenter: parent.verticalCenter
 
                                                 Text{
-                                                    text: "업데이트 버전 : " + commit
+                                                    text: qsTr("업데이트 버전 : ") + commit
                                                     font.family: font_noto_r.name
                                                     font.pixelSize: 15
                                                 }
                                                 Text{
-                                                    text: "기존 버전 : " + orin_commit
+                                                    text: qsTr("기존 버전 : ") + orin_commit
                                                     font.family: font_noto_r.name
                                                     font.pixelSize: 15
                                                 }
                                                 Text{
-                                                    text: "마지막 업데이트 : " + last_date
+                                                    text: qsTr("마지막 업데이트 : ") + last_date
                                                     font.family: font_noto_r.name
                                                     font.pixelSize: 15
                                                 }
                                                 Text{
-                                                    text: "메시지 : " + message
+                                                    text: qsTr("메시지 : ") + message
                                                     font.family: font_noto_r.name
                                                     font.pixelSize: 15
                                                 }
@@ -1475,11 +1475,11 @@ Item {
                                 }
                             }
                             Text{
-                                text:"자동검색"
+                                text:qsTr("자동검색")
                                 font.family: font_noto_r.name
                             }
                             Text{
-                                text:"수동검색"
+                                text:qsTr("수동검색")
                                 font.family: font_noto_r.name
                             }
                         }
@@ -1488,7 +1488,7 @@ Item {
                             type:"round_text"
                             width: 150
                             height: 50
-                            text: "재검색"
+                            text: qsTr("재검색")
                             fontsize: 20
                             anchors.horizontalCenter: parent.horizontalCenter
                             visible: !wifi_update_auto
@@ -3170,14 +3170,14 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     spacing: 10
                     Text{
-                        text:"초기화를 건너뛰겠습니까?"
+                        text:qsTr("초기화를 건너뛰겠습니까?")
                         anchors.horizontalCenter: parent.horizontalCenter
                         font.family: font_noto_r.name
                         font.pixelSize: 50
                         color: "white"
                     }
                     Text{
-                        text:"초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다"
+                        text:qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
                         font.family: font_noto_r.name
                         font.pixelSize: 25
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -3187,7 +3187,7 @@ Item {
                 }
                 Item_buttons{
                     type: "round_text"
-                    text:"전환"
+                    text:qsTr("전환")
                     width: 200
                     height: 80
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -3220,39 +3220,39 @@ Item {
         onStateChanged: {
             if(state === 0){
                 //처음 시작. 파일 받아오는 중
-                text_update_state.text = "파일 받아오는 중..."
+                text_update_state.text = qsTr("파일 받아오는 중...")
                 image_upate_state.visible = false;
                 loadi2.play("image/loading_rb.gif");
             }else if(state === 1){
                 //파일 받아오기 실패
                 loadi2.stop();
-                text_update_state.text = "서버로부터 파일을 받아오지 못했습니다";
+                text_update_state.text = qsTr("서버로부터 파일을 받아오지 못했습니다");
                 image_upate_state.visible = true;
                 image_upate_state.color_ov = color_red;
                 image_upate_state.source = "image/robot_head_sleep.png";
             }else if(state === 2){
                 //파일 받아오기 성공
                 loadi2.stop();
-                text_update_state.text = "업데이트 파일을 다운로드 했습니다";
+                text_update_state.text = qsTr("업데이트 파일을 다운로드 했습니다");
                 image_upate_state.visible = true;
                 image_upate_state.color_ov = color_green;
                 image_upate_state.source = "image/robot_head.png";
             }else if(state === 3){
                 //집 풀기 중
-                text_update_state.text = "파일 설치하는 중..."
+                text_update_state.text = qsTr("파일 설치하는 중...")
                 image_upate_state.visible = false;
                 loadi2.play("image/loading_rb.gif");
             }else if(state === 4){
                 //집 풀기 실패
                 loadi2.stop();
-                text_update_state.text = "서버로부터 파일을 받아오지 못했습니";
+                text_update_state.text = qsTr("서버로부터 파일을 받아오지 못했습니");
                 image_upate_state.visible = true;
                 image_upate_state.color_ov = 다color_red;
                 image_upate_state.source = "image/robot_head_sleep.png";
             }else if(state === 5){
                 //집 풀기 성공
                 loadi2.stop();
-                text_update_state.text = "업데이트 파일을 설치 했습니다";
+                text_update_state.text = qsTr("업데이트 파일을 설치 했습니다");
                 image_upate_state.visible = true;
                 image_upate_state.color_ov = color_green;
                 image_upate_state.source = "image/robot_head.png";
@@ -3261,7 +3261,7 @@ Item {
 
         onOpened:{
             state = 0;
-            text_update_state.text = "파일 받아오는 중..."
+            text_update_state.text = qsTr("파일 받아오는 중...")
             image_upate_state.visible = false;
             loadi2.play("image/loading_rb.gif");
         }
@@ -3323,7 +3323,7 @@ Item {
                     Text{
                         id: text_update_state
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: "파일 받아오는 중..."
+                        text: qsTr("파일 받아오는 중...")
                         color: color_dark_gray
                         font.family: font_noto_r.name
                         font.pixelSize: 40
@@ -3336,7 +3336,7 @@ Item {
                     Item_buttons{
                         visible: popup_updating.state === 2
                         type: "round_text"
-                        text: "업데이트 시작"
+                        text: qsTr("업데이트 시작")
                         width: 250
                         height: 100
                         onClicked:{
@@ -3347,7 +3347,7 @@ Item {
                     Item_buttons{
                         visible: popup_updating.state === 5
                         type: "round_text"
-                        text: "재시작"
+                        text: qsTr("재시작")
                         width: 250
                         height: 100
                         onClicked:{
@@ -3357,7 +3357,7 @@ Item {
                     Item_buttons{
                         visible: popup_updating.state === 1
                         type: "round_text"
-                        text: "취소"
+                        text: qsTr("취소")
                         width: 200
                         height: 100
                         onClicked:{
@@ -3367,7 +3367,7 @@ Item {
                     Item_buttons{
                         visible: popup_updating.state === 1
                         type: "round_text"
-                        text: "재시도"
+                        text: qsTr("재시도")
                         width: 200
                         height: 100
                         onClicked:{
@@ -3986,19 +3986,19 @@ Item {
                         }
 
                         //설정 된 맵은 있지만 annotation은 없는 경우
-                        if(supervisor.isLoadMap()){
-                            loader_init.item.enable_rawmap();
-                        }else{
-                            loader_init.item.disable_rawmap();
-                        }
+//                        if(supervisor.isLoadMap()){
+//                            loader_init.item.enable_rawmap();
+//                        }else{
+//                            loader_init.item.disable_rawmap();
+//                        }
 
                         //가능한 다른 맵이 있는 경우
-                        var available_map_num = supervisor.getAvailableMap();
-                        if(available_map_num > 0){
-                            loader_init.item.enable_availablemap();
-                        }else{
-                            loader_init.item.disable_availablemap();
-                        }
+//                        var available_map_num = supervisor.getAvailableMap();
+//                        if(available_map_num > 0){
+//                            loader_init.item.enable_availablemap();
+//                        }else{
+//                            loader_init.item.disable_availablemap();
+//                        }
                     }
                 }
             }else if(init_mode == 4){
