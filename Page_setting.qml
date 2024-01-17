@@ -103,13 +103,13 @@ Item {
         if(combo_language.ischanged){
             var str_lan;
             if(combo_language.currentIndex === 0){
-                str_lan = "KR";
+                str_lan = "korean";
 
             }else if(combo_language.currentIndex === 1){
-                str_lan = "US";
+                str_lan = "english";
             }
-            supervisor.setSetting("setting","UI/langauge",str_lan);
-            supervisor.setLangauge(str_lan);
+            supervisor.setSetting("setting","UI/language",str_lan);
+            supervisor.setlanguage(str_lan);
         }
 
         if(combo_server_calling.ischanged){
@@ -277,20 +277,6 @@ Item {
         if(obs_check_range.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
         }
-        if(obs_avoid_v.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_avoid_v",obs_avoid_v.text);
-        }
-
-
-
-
-
-
-
-
-
-
-
 
         if(max_range.ischanged){
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
@@ -442,11 +428,6 @@ Item {
             supervisor.setSetting("update","SLAM/grid_size",grid_size.text);
         }
 
-
-//        if(combo_camera_model.ischanged){
-//            supervisor.setSetting("SENSOR/camera_model",Number(combo_camera_model.currentIndex));
-//        }
-
         if(combo_use_motorcurrent.ischanged){
             if(combo_use_motorcurrent.currentIndex == 0){
                 supervisor.setSetitng("setting","USE_UI/use_current_pause","false");
@@ -575,9 +556,9 @@ Item {
             combo_server_calling.currentIndex = 0;
         }
 
-        if(supervisor.getSetting("setting","UI","langauge") === "KR"){
+        if(supervisor.getSetting("setting","UI","language") === "korean"){
             combo_language.currentIndex = 0;
-        }else if(supervisor.getSetting("setting","UI","langauge") === "US"){
+        }else if(supervisor.getSetting("setting","UI","language") === "english"){
             combo_language.currentIndex = 1;
         }
 
@@ -774,7 +755,6 @@ Item {
 
         //OBSTACLE
         obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range");
-        obs_avoid_v.text = supervisor.getSetting("setting","OBSTACLE","obs_avoid_v");
         obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
@@ -946,7 +926,6 @@ Item {
 
 
         //OBSTACLE
-        obs_avoid_v.ischanged = false;
         obs_check_range.ischanged = false;
         obs_deadzone.ischanged = false;
         obs_preview_time.ischanged = false;
@@ -1060,33 +1039,6 @@ Item {
         id: keyboard
     }
 
-//    Audio{
-//        id: voice_test
-//        autoPlay: false
-//        volume: slider_volume_voice.value/100
-//        source: supervisor.getVoice("start_serving");
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-//    Audio{
-//        id: bgm_test
-//        property bool isplaying: false
-//        autoPlay: false
-//        volume: slider_volume_bgm.value/100
-//        source: "bgm/song.mp3"
-//        onPlaying: {
-//            isplaying = true;
-//        }
-//        onStopped: {
-//            isplaying = false;
-//        }
-//    }
-
     Rectangle{
         id: dfdfd
         width: parent.width
@@ -1105,7 +1057,7 @@ Item {
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
-                    text: "설정"
+                    text: qsTr("설정")
                     font.pixelSize: 25
                 }
                 MouseArea{
@@ -1125,7 +1077,7 @@ Item {
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
-                    text: "현재상태"
+                    text: qsTr("현재상태")
                     font.pixelSize: 25
                 }
                 MouseArea{
@@ -1153,7 +1105,7 @@ Item {
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
-                    text: "로봇"
+                    text: qsTr("로봇")
                     font.pixelSize: 25
                 }
                 MouseArea{
@@ -1182,7 +1134,7 @@ Item {
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
-                    text: "주행"
+                    text: qsTr("주행")
                     font.pixelSize: 25
                 }
                 MouseArea{
@@ -1211,7 +1163,7 @@ Item {
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
-                    text: "인식"
+                    text: qsTr("인식")
                     font.pixelSize: 25
                 }
                 MouseArea{
@@ -1260,7 +1212,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"로봇 기본 정보"
+                        text:qsTr("로봇 기본 정보")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -1279,29 +1231,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"플랫폼 이름 (영문)"
+                                text:qsTr("플랫폼 이름 (영문)")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("플랫폼 이름");
-                                    popup_help_setting.addLine("플랫폼을 지칭하는 이름을 적어주세요");
-                                    popup_help_setting.addLine("반드시 영문이어야 합니다");
-                                    popup_help_setting.addLine("한글이나 특수문자가 들어가면 로봇이 움직이지 않을 수 있습니다");
                                 }
                             }
                         }
@@ -1354,7 +1290,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"플랫폼 넘버 (중복주의)"
+                                text:qsTr("플랫폼 넘버 (중복주의)")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -1370,13 +1306,12 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.right: parent.right
                                 anchors.rightMargin: 20
-                                text: "?"
+                                text:qsTr("?")
                                 onClicked:{
                                     popup_help_setting.open();
-                                    popup_help_setting.setTitle("플랫폼 넘버");
-                                    popup_help_setting.addLine("로봇을 여러대 구동하며 동일한 로봇 이름을 사용하는 경우 사용합니다");
-                                    popup_help_setting.addLine("로봇을 여러대 구동할 경우 각각 지정해줘야 합니다");
-                                    popup_help_setting.addLine("각 로봇의 이름을 다르게 지정한 경우 지정하지 않으셔도 됩니다");
+                                    popup_help_setting.setTitle(qsTr("플랫폼 넘버"));
+                                    popup_help_setting.addLine(qsTr("동일한 이름으로 설정된 로봇을 여러대 구동할 때 구분용으로 사용됩니다"));
+                                    popup_help_setting.addLine(qsTr("중복에 유의하여 설정해주세요"));
                                 }
                             }
                         }
@@ -1415,7 +1350,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"플랫폼 타입"
+                                text:qsTr("플랫폼 타입")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -1431,15 +1366,15 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.right: parent.right
                                 anchors.rightMargin: 20
-                                text: "?"
+                                text:qsTr("?")
                                 onClicked:{
                                     popup_help_setting.open();
-                                    popup_help_setting.setTitle("플랫폼 타입");
-                                    popup_help_setting.addLine("지정하기 전, 지원되는 모델인지 확인하세요");
-                                    popup_help_setting.addLine("서빙용 : 호출기능을 사용하지 않고 각 테이블을 서빙만 합니다");
-                                    popup_help_setting.addLine("호출용 : 서빙기능을 사용하지 않고 로봇이 대기하다가 호출이 울리면 이동합니다");
-                                    popup_help_setting.addLine("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 서빙을 우선적으로 진행합니다");
-                                    popup_help_setting.addLine("퇴식전용 : 서빙+호출용과 동일하지만 서빙(호출)위치를 다녀온 뒤 퇴식위치로 이동합니다");
+                                    popup_help_setting.setTitle(qsTr("플랫폼 타입"));
+                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 확인하세요"));
+                                    popup_help_setting.addLine(qsTr("서빙용 : 각 테이블에 서빙을 합니다 (기본)"));
+                                    popup_help_setting.addLine(qsTr("호출용 : 호출벨이 울리면 이동합니다 (지원가능여부확인)"));
+                                    popup_help_setting.addLine(qsTr("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 (서빙 우선)"));
+                                    popup_help_setting.addLine(qsTr("퇴식전용 : 퇴식위치를 별도로 사용합니다 (그 외 서빙+호출용과 동일)"));
                                 }
                             }
                         }
@@ -1458,7 +1393,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["서빙용","호출용","서빙+호출용", "퇴식전용"]
+                                model:[qsTr("서빙용"),qsTr("호출용"),qsTr("서빙+호출용"), qsTr("퇴식전용")]
                             }
                         }
                     }
@@ -1472,7 +1407,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"기능 설정"
+                        text:qsTr("기능 설정")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -1491,29 +1426,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"이동 속도"
+                                text:qsTr("이동 속도")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("이동 속도 (프리셋)");
-                                    popup_help_setting.addLine("이동속도는 5단계로 분류됩니다");
-                                    popup_help_setting.addLine("각각의 이동속도와 이름을 변경하실 수도 있습니다");
-                                    popup_help_setting.addLine("안전속도맵을 사용하시는 경우, 기본 프리셋 기준 아주느리게, 느리게로 지정됩니다");
                                 }
                             }
                         }
@@ -1536,7 +1455,7 @@ Item {
                                     Text{
                                         id: text_preset_name_1
                                         anchors.centerIn: parent
-                                        text: "preset 1"
+                                        text:qsTr("preset 1")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 13
                                         color: cur_preset===1?color_green:color_mid_black
@@ -1564,7 +1483,7 @@ Item {
                                     Text{
                                         id: text_preset_name_2
                                         anchors.centerIn: parent
-                                        text: "preset 2"
+                                        text:qsTr("preset 2")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 13
                                         color: cur_preset===2?color_green:color_mid_black
@@ -1592,7 +1511,7 @@ Item {
                                     Text{
                                         id: text_preset_name_3
                                         anchors.centerIn: parent
-                                        text: "preset 3"
+                                        text:qsTr("preset 3")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 13
                                         color: cur_preset===3?color_green:color_mid_black
@@ -1620,7 +1539,7 @@ Item {
                                     Text{
                                         id: text_preset_name_4
                                         anchors.centerIn: parent
-                                        text: "preset 4"
+                                        text:qsTr("preset 4")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 13
                                         color: cur_preset===4?color_green:color_mid_black
@@ -1649,7 +1568,7 @@ Item {
                                     Text{
                                         id: text_preset_name_5
                                         anchors.centerIn: parent
-                                        text: "preset 5"
+                                        text:qsTr("preset 5")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 13
                                         color: cur_preset===5?color_green:color_mid_black
@@ -1677,7 +1596,7 @@ Item {
                                     color: color_dark_navy
                                     Text{
                                         anchors.centerIn: parent
-                                        text: "변경"
+                                        text: qsTr("변경")
                                         color: "white"
                                         font.family: font_noto_r.name
                                         font.pixelSize: 13
@@ -1709,7 +1628,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"복귀 속도 지정"
+                                text:qsTr("복귀 속도 지정")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -1725,13 +1644,13 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.right: parent.right
                                 anchors.rightMargin: 20
-                                text: "?"
+                                text:qsTr("?")
                                 onClicked:{
                                     popup_help_setting.open();
-                                    popup_help_setting.setTitle("복귀 속도 지정");
-                                    popup_help_setting.addLine("로봇이 서빙 후 대기위치로 이동할 때 속도를 지정합니다");
-                                    popup_help_setting.addLine("사용하지 않으면 서빙 때 지정한 속도 그대로 사용합니다");
-                                    popup_help_setting.addLine("안전속도 구간에 진입하면 속도가 자동으로 저하됩니다");
+                                    popup_help_setting.setTitle(qsTr("복귀 속도 지정"));
+                                    popup_help_setting.addLine(qsTr("로봇이 서빙 후 대기위치로 복귀할 때 속도를 지정합니다"));
+                                    popup_help_setting.addLine(qsTr("사용하지 않으면 기본속도 그대로 이동합니다"));
+                                    popup_help_setting.addLine(qsTr("안전속도 구간에 진입하면 속도가 자동으로 저하됩니다"));
                                 }
                             }
                         }
@@ -1750,7 +1669,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["사용 안함", "아주느리게","느리게", "보통", "빠르게", "아주빠르게"]
+                                model:[qsTr("사용 안함"), qsTr("아주느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("아주빠르게")]
                             }
                         }
                     }
@@ -1769,7 +1688,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"최대 호출 횟수"
+                                text:qsTr("최대 호출 횟수")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -1785,14 +1704,14 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.right: parent.right
                                 anchors.rightMargin: 20
-                                text: "?"
+                                text:qsTr("?")
                                 onClicked:{
                                     popup_help_setting.open();
-                                    popup_help_setting.setTitle("최대 호출 횟수");
-                                    popup_help_setting.addLine("지정하기 전, 지원되는 모델인지 확인하세요");
-                                    popup_help_setting.addLine("로봇이 한 번 이동에 호출되는 최대 횟수입니다");
-                                    popup_help_setting.addLine("대기 위치에서 출발한 뒤 해당 횟수만큼 테이블을 이동하면");
-                                    popup_help_setting.addLine("추가적인 호출명령이 있어도 우선 대기위치로 돌아옵니다");
+                                    popup_help_setting.setTitle(qsTr("최대 호출 횟수"));
+                                    popup_help_setting.addLine(qsTr("호출벨 전용 기능입니다 지원되는 모델인지 확인하세요"));
+                                    popup_help_setting.addLine(qsTr("로봇이 한 번 이동에 호출되는 최대 횟수입니다"));
+                                    popup_help_setting.addLine(qsTr("대기 위치에서 출발한 뒤 해당 횟수만큼 테이블을 이동하면"));
+                                    popup_help_setting.addLine(qsTr("추가적인 호출명령이 있어도 우선 대기위치로 돌아옵니다"));
                                 }
                             }
                         }
@@ -1830,13 +1749,30 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"호출복귀 후 재정비"
+                                text:qsTr("호출복귀 후 재정비")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                }
+                            }
+                            Item_buttons{
+                                type: "circle_text"
+                                width: parent.height*0.8
+                                height: width
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.right: parent.right
+                                anchors.rightMargin: 20
+                                text:qsTr("?")
+                                onClicked:{
+                                    popup_help_setting.open();
+                                    popup_help_setting.setTitle(qsTr("호출복귀 후 재정비"));
+                                    popup_help_setting.addLine(qsTr("호출벨 전용 기능입니다 지원되는 모델인지 확인하세요"));
+                                    popup_help_setting.addLine(qsTr("로봇이 복귀 후 재정비가 필요한 지 여부를 선택하세요"));
+                                    popup_help_setting.addLine(qsTr("사용 시 복귀 후 사용자 입력이 있을 때 까지 대기하며"));
+                                    popup_help_setting.addLine(qsTr("미사용 시 복귀 하자마자 다른 호출이 들어오면 출발할 수 있습니다"));
                                 }
                             }
                         }
@@ -1855,7 +1791,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["사용안함", "사용"]
+                                model:[qsTr("사용안함"), qsTr("사용")]
 
                             }
                         }
@@ -1876,7 +1812,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"대기장소 모터 락 해제"
+                                text:qsTr("대기장소 모터 락 해제")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -1892,13 +1828,12 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.right: parent.right
                                 anchors.rightMargin: 20
-                                text: "?"
+                                text:qsTr("?")
                                 onClicked:{
                                     popup_help_setting.open();
-                                    popup_help_setting.setTitle("대기장소 모터 락 해제");
-                                    popup_help_setting.addLine("로봇이 대기장소에서 대기하고 있을 때 사람이 밀어서 움직일 수 있는지 설정합니다");
-                                    popup_help_setting.addLine("매장 바닥 상황에 따라 로봇이 굴러서 저절로 이동할 수 있으니 기본적으론 사용 안함으로 이용해주세요");
-                                    popup_help_setting.addLine("사용 시에도 서빙을 보내기 전 대기장소와 너무 떨어지지 않도록 유의해주세요");
+                                    popup_help_setting.setTitle(qsTr("대기장소 모터 락 해제"));
+                                    popup_help_setting.addLine(qsTr("로봇이 대기장소에서 대기하고 있을 때 사람이 밀어서 움직일 수 있는지 설정합니다"));
+                                    popup_help_setting.addLine(qsTr("매장 바닥 상황에 따라 로봇이 굴러서 저절로 이동할 수 있습니다"));
                                 }
                             }
                         }
@@ -1917,7 +1852,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["사용안함", "사용"]
+                                model:[qsTr("사용안함"), qsTr("사용")]
 
                             }
                         }
@@ -1937,7 +1872,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"시작시 업데이트 검사"
+                                text:qsTr("시작시 업데이트 검사")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -1962,7 +1897,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["사용 안함", "사용"]
+                                model:[qsTr("사용 안함"), qsTr("사용")]
                             }
                         }
                     }
@@ -1976,7 +1911,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"UI 설정"
+                        text:qsTr("UI 설정")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -1996,29 +1931,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"트레이 별 서빙"
+                                text:qsTr("트레이 별 서빙")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("트레이 별 서빙");
-                                    popup_help_setting.addLine("트레이 별로 각각의 서빙위치를 지정하려면 사용하세요");
-                                    popup_help_setting.addLine("사용할 경우 서빙순서는 1번 트레이를 우선으로 이동합니다");
-                                    popup_help_setting.addLine("대기화면이 변경되며 그룹을 사용하지 않고 각 테이블 번호로 이동합니다");
                                 }
                             }
                         }
@@ -2042,7 +1961,7 @@ Item {
                                         use_tray = true;
                                     }
                                 }
-                                model:["사용안함", "사용"]
+                                model:[qsTr("사용안함"), qsTr("사용")]
 
                             }
                         }
@@ -2063,7 +1982,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"트레이 개수"
+                                text:qsTr("트레이 개수")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2097,7 +2016,7 @@ Item {
                     id: set_language
                     width: 840
                     height: 50
-                    visible: false
+//                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2108,7 +2027,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"언어"
+                                text:qsTr("언어")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2133,7 +2052,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["한국어", "영어"]
+                                model:[qsTr("한국어"), qsTr("영어")]
                             }
                         }
                     }
@@ -2152,29 +2071,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"이동 중 화면"
+                                text:qsTr("이동 중 화면")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("이동 중 화면");
-                                    popup_help_setting.addLine("로봇이 이동 중에 화면에 표시될 것을 고르세요");
-                                    popup_help_setting.addLine("목적지 표시 : 목적지가 화면에 표시됩니다");
-                                    popup_help_setting.addLine("귀여운 얼굴 : 귀여운 표정이 화면 가득 표시됩니다");
                                 }
                             }
                         }
@@ -2193,7 +2096,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["목적지 표시", "귀여운 얼굴"]
+                                model:[qsTr("목적지 표시"), qsTr("귀여운 얼굴")]
                             }
                         }
                     }
@@ -2213,7 +2116,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"순회 중 화면"
+                                text:qsTr("순회 중 화면")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2239,7 +2142,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["목적지 표시", "귀여운 얼굴", "커스텀 화면"]
+                                model:[qsTr("목적지 표시"), qsTr("귀여운 얼굴"), qsTr("커스텀 화면")]
                             }
                             Rectangle{
                                 width: 100
@@ -2280,7 +2183,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"음성"
+                                text:qsTr("음성")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2310,7 +2213,7 @@ Item {
 //                                        voice_test.source = supervisor.getVoice("start_serving","woman");
 //                                    }
                                 }
-                                model:["어린이", "여성"]
+                                model:[qsTr("어린이"), qsTr("여성")]
                             }
                         }
                     }
@@ -2330,7 +2233,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"시스템 볼륨"
+                                text:qsTr("시스템 볼륨")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2409,7 +2312,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"음악 볼륨"
+                                text:qsTr("음악 볼륨")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2501,7 +2404,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"음성 볼륨"
+                                text:qsTr("음성 볼륨")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2585,7 +2488,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"버튼클릭 볼륨"
+                                text:qsTr("버튼클릭 볼륨")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2652,51 +2555,6 @@ Item {
                         }
                     }
                 }
-                Rectangle{
-                    id: set_tableview
-                    width: 840
-                    height: 50
-                    visible: false
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:"테이블 표시"
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            ComboBox{
-                                id: combo_tableview
-                                anchors.fill: parent
-                                property bool ischanged: false
-                                onCurrentIndexChanged: {
-                                    ischanged = true;
-                                }
-                                model:["테이블 번호로 표시", "테이블 별칭으로 표시", "테이블 맵으로 표시(설정 필요)"]
-                            }
-                        }
-                    }
-                }
 
                 Rectangle{
                     width: 1100
@@ -2707,7 +2565,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"멀티로봇"
+                        text:qsTr("멀티로봇")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -2727,7 +2585,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"멀티로봇 사용"
+                                text:qsTr("멀티로봇 사용")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2757,7 +2615,7 @@ Item {
                                         use_multirobot = true;
                                     }
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -2778,7 +2636,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"서버 호출 사용"
+                                text:qsTr("서버 호출 사용")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2803,7 +2661,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -2823,7 +2681,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"서버 IP"
+                                text:qsTr("서버 IP")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3010,7 +2868,7 @@ Item {
                                         anchors.centerIn: parent
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        text: "변경"
+                                        text: qsTr("변경")
                                     }
                                     MouseArea{
                                         anchors.fill: parent
@@ -3044,7 +2902,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"FMS 아이디"
+                                text:qsTr("FMS 아이디")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3105,7 +2963,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"FMS 비밀번호"
+                                text:qsTr("FMS 비밀번호")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3162,7 +3020,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"로봇 하드웨어 설정"
+                        text:qsTr("로봇 하드웨어 설정")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -3182,7 +3040,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"로봇 반지름 반경 [m]"
+                                text:qsTr("로봇 반지름 반경 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3244,7 +3102,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"로봇 길이 [m]"
+                                text:qsTr("로봇 길이 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3306,7 +3164,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"휠 베이스 반경 [m]"
+                                text:qsTr("휠 베이스 반경 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3368,7 +3226,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"휠 반지름 반경 [m]"
+                                text:qsTr("휠 반지름 반경 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3425,7 +3283,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"무선 와이파이 설정"
+                        text:qsTr("무선 와이파이 설정")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -3445,7 +3303,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"WIFI 연결상태"
+                                text:qsTr("WIFI 연결상태")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3488,13 +3346,13 @@ Item {
                                         font.pixelSize:20
                                         text:{
                                             if(wifi_connection.connection === 1){
-                                                "연결중"
+                                                qsTr("연결중")
                                             }else if(wifi_connection.connection === 2){
-                                                "연결됨(인터넷 연결안됨)"
+                                                qsTr("연결됨(인터넷 연결안됨)")
                                             }else if(wifi_connection.connection === 3){
-                                                "연결됨"
+                                                qsTr("연결됨")
                                             }else{
-                                                "연결안됨"
+                                                qsTr("연결안됨")
                                             }
                                         }
                                         color: "white"
@@ -3511,7 +3369,7 @@ Item {
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
-                                            text:"WIFI SSID"
+                                            text:qsTr("WIFI SSID")
                                             font.pixelSize: 20
                                             Component.onCompleted: {
                                                 scale = 1;
@@ -3549,7 +3407,7 @@ Item {
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
-                                            text:"IP"
+                                            text:qsTr("IP")
                                             font.pixelSize: 20
                                             Component.onCompleted: {
                                                 scale = 1;
@@ -3741,7 +3599,7 @@ Item {
                                                     anchors.centerIn: parent
                                                     color: "white"
                                                     font.family: font_noto_r.name
-                                                    text: "변경"
+                                                    text: qsTr("변경")
                                                 }
                                                 MouseArea{
                                                     anchors.fill: parent
@@ -3784,7 +3642,7 @@ Item {
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
-                                            text:"Gateway"
+                                            text:qsTr("Gateway")
                                             font.pixelSize: 20
                                             Component.onCompleted: {
                                                 scale = 1;
@@ -3975,7 +3833,7 @@ Item {
                                                     anchors.centerIn: parent
                                                     color: "white"
                                                     font.family: font_noto_r.name
-                                                    text: "변경"
+                                                    text:qsTr("변경")
                                                 }
                                                 MouseArea{
                                                     anchors.fill: parent
@@ -4018,7 +3876,7 @@ Item {
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
-                                            text:"DNS"
+                                            text:qsTr("DNS")
                                             font.pixelSize: 20
                                             Component.onCompleted: {
                                                 scale = 1;
@@ -4209,7 +4067,7 @@ Item {
                                                     anchors.centerIn: parent
                                                     color: "white"
                                                     font.family: font_noto_r.name
-                                                    text: "변경"
+                                                    text:qsTr("변경")
                                                 }
                                                 MouseArea{
                                                     anchors.fill: parent
@@ -4246,7 +4104,7 @@ Item {
                                     spacing: 30
                                     Item_buttons{
                                         type: "round_text"
-                                        text: "WIFI선택"
+                                        text:qsTr("WIFI선택")
                                         width: 120
                                         height: 50
                                         onClicked:{
@@ -4255,7 +4113,7 @@ Item {
                                     }
                                     Item_buttons{
                                         type: "round_text"
-                                        text: "변경값적용"
+                                        text:qsTr("변경값적용")
                                         width: 120
                                         height: 50
                                         onClicked:{
@@ -4304,7 +4162,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"초기화"
+                                text:qsTr("초기화")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4332,7 +4190,7 @@ Item {
                                     color: "white"
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
-                                    text: "공용폴더 덮어씌우기"
+                                    text:qsTr("공용폴더 덮어씌우기")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -4378,7 +4236,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"카메라 설정"
+                        text:qsTr("카메라 설정")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -4404,7 +4262,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"카메라 모델"
+                                text:qsTr("카메라 모델")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4435,7 +4293,7 @@ Item {
 //                                        is_realsense = false;
                                     }
                                 }
-                                model:["리얼센스","제미니"]
+                                model:[qsTr("리얼센스"),qsTr("제미니")]
                             }
                         }
                     }
@@ -4455,7 +4313,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"노출 시간 [ms]"
+                                text:qsTr("노출 시간 [ms]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4516,7 +4374,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"왼쪽 카메라 시리얼"
+                                text:qsTr("왼쪽 카메라 시리얼")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4551,7 +4409,7 @@ Item {
                                 color: "#d0d0d0"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "viewer"
+                                    text:qsTr("viewer")
                                     font.pixelSize: 15
                                     font.family: font_noto_r.name
                                 }
@@ -4581,7 +4439,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"오른쪽 카메라 시리얼"
+                                text:qsTr("오른쪽 카메라 시리얼")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4623,7 +4481,7 @@ Item {
                                 color: "#d0d0d0"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "viewer"
+                                    text:qsTr("viewer")
                                     font.pixelSize: 15
                                     font.family: font_noto_r.name
                                     MouseArea{
@@ -4653,7 +4511,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"라이다 TF"
+                                text:qsTr("라이다 TF")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4687,7 +4545,7 @@ Item {
                                 color: "black"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "change"
+                                    text:qsTr("change")
                                     color: "white"
                                 }
                                 MouseArea{
@@ -4717,7 +4575,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"왼쪽 카메라 TF"
+                                text:qsTr("왼쪽 카메라 TF")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4751,7 +4609,7 @@ Item {
                                 color: "black"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "change"
+                                    text:qsTr("change")
                                     color: "white"
                                 }
                                 MouseArea{
@@ -4781,7 +4639,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"오른쪽 카메라 TF"
+                                text:qsTr("오른쪽 카메라 TF")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -4815,7 +4673,7 @@ Item {
                                 color: "black"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "change"
+                                    text:qsTr("change")
                                     color: "white"
                                 }
                                 MouseArea{
@@ -4844,27 +4702,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"3D카메라 감지 최소높이 [m]"
+                                text:qsTr("3D카메라 감지 최소높이 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("최소 인식 높이");
-                                    popup_help_setting.addLine("장애물 감지에 사용되는 카메라 3D 데이터값의 최소높이값입니다");
                                 }
                             }
                         }
@@ -4920,27 +4764,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"3D카메라 감지 최대높이 [m]"
+                                text:qsTr("3D카메라 감지 최대높이 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("최대 인식 높이");
-                                    popup_help_setting.addLine("장애물 감지에 사용되는 카메라 3D 데이터값의 최대높이값입니다");
                                 }
                             }
                         }
@@ -4996,28 +4826,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"라이다데이터 최대 거리 [m]"
+                                text:qsTr("라이다데이터 최대 거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("데이터 최대 거리");
-                                    popup_help_setting.addLine("연산에 사용되는 라이다 데이터의 최대값입니다");
-                                    popup_help_setting.addLine("이 값을 초과하는 라이다 데이터는 무시합니다");
                                 }
                             }
                         }
@@ -5073,28 +4888,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"라이다데이터 최소 거리 [m]"
+                                text:qsTr("라이다데이터 최소 거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("데이터 최소 거리");
-                                    popup_help_setting.addLine("연산에 사용되는 라이다 데이터의 최소값(로봇 중심기준)입니다");
-                                    popup_help_setting.addLine("이 값보다 작은 라이다 데이터는 무시합니다");
                                 }
                             }
                         }
@@ -5143,7 +4943,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"주행 중 감지"
+                        text:qsTr("주행 중 감지")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -5168,7 +4968,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 예측 사용"
+                                text:qsTr("장애물 예측 사용")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5194,7 +4994,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5214,28 +5014,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 예측 시간 [초]"
+                                text:qsTr("장애물 예측 시간 [초]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                visible: false
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("경로추종 최대거리");
-                                    popup_help_setting.addLine("로봇과 로봇이 추종하는 경로 상 한 점 사이 최대 거리입니다");
                                 }
                             }
                         }
@@ -5290,7 +5075,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 회피"
+                                text:qsTr("장애물 회피")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5316,70 +5101,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    id: set_obs_avoid_v
-                    width: 840
-                    height: 50
-                    visible: false//combo_use_avoid.currentIndex === 1
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:"장애물 검출 크기 [pixel]"
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            TextField{
-                                id: obs_avoid_v
-                                anchors.fill: parent
-                                objectName: "obs_detect_area"
-                                text:supervisor.getSetting("setting","OBSTACLE","obs_avoid_v");
-                                property bool ischanged: false
-                                MouseArea{
-                                    anchors.fill:parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        if(keypad.is_opened){
-                                            keypad.owner = obs_avoid_v;
-                                            obs_avoid_v.selectAll();
-                                        }else{
-                                            keypad.owner = obs_avoid_v;
-                                            obs_avoid_v.selectAll();
-                                            keypad.open();
-                                        }
-                                    }
-                                }
-                                color:ischanged?color_red:"black"
-                                onTextChanged: {
-                                    ischanged = true;
-                                    is_reset_slam = true;
-
-                                }
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5399,7 +5121,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 감지 너비"
+                                text:qsTr("장애물 감지 너비")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5461,7 +5183,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"제자리회전 장애물감지"
+                                text:qsTr("제자리회전 장애물감지")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5487,7 +5209,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5506,7 +5228,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"근접 장애물 감속"
+                                text:qsTr("근접 장애물 감속")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5532,7 +5254,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5552,29 +5274,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"근접 장애물 거리"
+                                text:qsTr("근접 장애물 거리")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("감지 거리 Level 1");
-                                    popup_help_setting.addLine("주행 중 장애물을 감지하는 범위의 level 1 값입니다");
-                                    popup_help_setting.addLine("로봇 중심 기준으로 동적장애물로 판단되는 것이 이 범위 안에 들어오면");
-                                    popup_help_setting.addLine("감속하고 놀란 표정을 띄웁니다.(바닥의 LED 색은 보라색)");
                                 }
                             }
                         }
@@ -5631,7 +5337,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 감속 게인"
+                                text:qsTr("장애물 감속 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5694,7 +5400,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"대기위치 근처 장애물 미리 정지"
+                                text:qsTr("대기위치 근처 장애물 미리 정지")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5720,7 +5426,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5739,7 +5445,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"서빙위치 근처 장애물 미리 정지"
+                                text:qsTr("서빙위치 근처 장애물 미리 정지")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5765,7 +5471,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5785,7 +5491,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"근처 장애물 정지 거리"
+                                text:qsTr("근처 장애물 정지 거리")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5847,7 +5553,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"복귀 시 안전구간 무시"
+                                text:qsTr("복귀 시 안전구간 무시")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -5873,7 +5579,7 @@ Item {
                                     is_reset_slam = true;
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -5894,29 +5600,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"동적 장애물 마진 [m]"
+                                text:qsTr("동적 장애물 마진 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("감지 거리 Level 1");
-                                    popup_help_setting.addLine("주행 중 장애물을 감지하는 범위의 level 1 값입니다");
-                                    popup_help_setting.addLine("로봇 중심 기준으로 동적장애물로 판단되는 것이 이 범위 안에 들어오면");
-                                    popup_help_setting.addLine("감속하고 놀란 표정을 띄웁니다.(바닥의 LED 색은 보라색)");
                                 }
                             }
                         }
@@ -5972,29 +5662,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"정적 장애물 마진 [m]"
+                                text:qsTr("정적 장애물 마진 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("감지 거리 Level 0");
-                                    popup_help_setting.addLine("주행 중 장애물을 감지하는 범위의 level 0 값입니다");
-                                    popup_help_setting.addLine("로봇 중심 기준으로 동적장애물로 판단되는 것이 이 범위 안에 들어오면");
-                                    popup_help_setting.addLine("로봇을 즉시 정지하며 우는 표정을 띄웁니다.(바닥의 LED 색은 붉은색)");
                                 }
                             }
                         }
@@ -6049,28 +5723,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 넓이 [pixel]"
+                                text:qsTr("장애물 넓이 [pixel]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("장애물 넓이");
-                                    popup_help_setting.addLine("감지되는 동적 센서 데이타가 이 값만큼 뭉쳐있다면 장애물로 판단합니다");
-                                    popup_help_setting.addLine("단위는 pixel로 현재 설정된 픽셀 당 크기 값을 참조하세요");
                                 }
                             }
                         }
@@ -6126,27 +5785,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"장애물 최소검출 누적횟수"
+                                text:qsTr("장애물 최소검출 누적횟수")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("장애물 감지 민감도");
-                                    popup_help_setting.addLine("동적장애물로 판단하는 픽셀의 민감도 입니다");
                                 }
                             }
                         }
@@ -6202,28 +5847,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"즉시정지 거리 [m]"
+                                text:qsTr("즉시정지 거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("즉시정지 거리");
-                                    popup_help_setting.addLine("로봇 중심 기준으로 동적장애물로 판단되는 것이 이 범위 안에 들어오면");
-                                    popup_help_setting.addLine("로봇을 즉시 정지하며 우는 표정을 띄웁니다.(바닥의 LED 색은 붉은색)");
                                 }
                             }
                         }
@@ -6277,27 +5907,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"감지 후 대기시간 [sec]"
+                                text:qsTr("감지 후 대기시간 [sec]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("감지 후 대기시간");
-                                    popup_help_setting.addLine("장애물을 감지 후 로봇이 멈춘 뒤 다시 출발할 때 까지 걸리는 대기시간입니다");
                                 }
                             }
                         }
@@ -6353,7 +5969,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로추종 최대거리 [m]"
+                                text:qsTr("경로추종 최대거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -6369,7 +5985,7 @@ Item {
                                 anchors.verticalCenter: parent.verticalCenter
                                 anchors.right: parent.right
                                 anchors.rightMargin: 20
-                                text: "?"
+                                text:qsTr("?")
                                 onClicked:{
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle("경로추종 최대거리");
@@ -6428,27 +6044,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로추종 최소거리 [m]"
+                                text:qsTr("경로추종 최소거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("경로추종 최대거리");
-                                    popup_help_setting.addLine("로봇과 로봇이 추종하는 경로 상 한 점 사이 최소 거리입니다");
                                 }
                             }
                         }
@@ -6504,27 +6106,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로이탈 거리 [m]"
+                                text:qsTr("경로이탈 거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("경로이탈 거리");
-                                    popup_help_setting.addLine("로봇이 경로에서 이 값 이상 떨어지면 경로를 이탈했다고 판단합니다");
                                 }
                             }
                         }
@@ -6573,7 +6161,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"위치 추정"
+                        text:qsTr("위치 추정")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -6592,7 +6180,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"초기화 성공기준 [0~1]"
+                                text:qsTr("초기화 성공기준 [0~1]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -6652,7 +6240,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"초기화 에러기준 [0~1]"
+                                text:qsTr("초기화 에러기준 [0~1]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -6713,30 +6301,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"Inlier 판단거리 [m]"
+                                text:qsTr("Inlier 판단거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:
-                                {
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("Inlier 판단거리");
-                                    popup_help_setting.addLine("로봇이 위치추정할 때, 실제 라이다데이터와 맵상 대응점과의 위치차이가");
-                                    popup_help_setting.addLine("이 값보다 작다면 inlier(일치)한다고 판단합니다");
-                                    popup_help_setting.addLine("이 값이 작을 수록 위치추정이 정밀하지만 위치추정에 실패할 가능성도 높아집니다");
                                 }
                             }
                         }
@@ -6791,30 +6362,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"평균오차 최소값 [m]"
+                                text:qsTr("평균오차 최소값 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:
-                                {
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("평균오차 최소값(icp_error)");
-                                    popup_help_setting.addLine("Inlier 판단된 데이터들의 실제 라이다데이터와 맵상 대응점과의 위치차이의 평균이");
-                                    popup_help_setting.addLine("이 값보다 작다면 위치추정에 성공했다고 판단합니다");
-                                    popup_help_setting.addLine("위치추정은 평균오차의 최소값과 Inlier 비율이 모두 기준에 부합해야 성공으로 간주합니다");
                                 }
                             }
                         }
@@ -6869,30 +6423,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"Inlier 비율 [%]"
+                                text:qsTr("Inlier 비율 [%]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:
-                                {
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("Inlier 비율 (icp_ratio)");
-                                    popup_help_setting.addLine("전체 라이다데이터 대비 lnlier 판단된 데이터 값의 비율입니다");
-                                    popup_help_setting.addLine("실제 값이 이 기준보다 높아야 위치추정에 성공했다고 판단합니다");
-                                    popup_help_setting.addLine("위치추정은 평균오차의 최소값과 Inlier 비율이 모두 기준에 부합해야 성공으로 간주합니다");
                                 }
                             }
                         }
@@ -6947,29 +6484,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text: "모터 위치추정 비율 [%]"
+                                text:qsTr("모터 위치추정 비율 [%]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("모터 위치추정 비율");
-                                    popup_help_setting.addLine("모터의 엔코더값으로 계산되는 위치추정 값을 얼마나 사용할지의 비율입니다");
-                                    popup_help_setting.addLine("값이 0에 가까울 수록 라이다데이타로 추정하는 ICP를 신뢰하고");
-                                    popup_help_setting.addLine("값이 1에 가까울 수록 라이다데이타는 사용하지 않습니다");
                                 }
                             }
                         }
@@ -7024,27 +6545,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"위치추정 최소 거리 [m]"
+                                text:qsTr("위치추정 최소 거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("위치추정 최소 거리");
-                                    popup_help_setting.addLine("로봇이 주행하며 이 거리 이상 움직이면 위치추정을 시도합니다");
                                 }
                             }
                         }
@@ -7099,27 +6606,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"위치추정 최소 시간[sec]"
+                                text:qsTr("위치추정 최소 시간[sec]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("위치추정 최소 시간");
-                                    popup_help_setting.addLine("로봇은 이 시간 간격으로 자동으로 위치추정을 시도합니다");
                                 }
                             }
                         }
@@ -7172,7 +6665,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"도착점 판단"
+                        text:qsTr("도착점 판단")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -7192,29 +6685,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"도착점 허용 오차 [m]"
+                                text:qsTr("도착점 허용 오차 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7269,29 +6746,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"도착점 허용 오차 [deg]"
+                                text:qsTr("도착점 허용 오차 [deg]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7347,28 +6808,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"목적지 미리 도달거리 [m]"
+                                text:qsTr("목적지 미리 도달거리 [m]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("경로탐색 최소거리");
-                                    popup_help_setting.addLine("출발점과 도착점이 이 값보다 작으면 경로를 탐색하지 않고");
-                                    popup_help_setting.addLine("point to point 방식으로 이동합니다");
                                 }
                             }
                         }
@@ -7423,28 +6869,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로탐색 최소거리 [deg]"
+                                text:qsTr("경로탐색 최소거리 [deg]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("경로탐색 최소거리");
-                                    popup_help_setting.addLine("출발점과 도착점이 이 값보다 작으면 경로를 탐색하지 않고");
-                                    popup_help_setting.addLine("point to point 방식으로 이동합니다");
                                 }
                             }
                         }
@@ -7494,7 +6925,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"지도 작성"
+                        text:qsTr("지도 작성")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -7514,29 +6945,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"서브맵 프레임 개수"
+                                text:qsTr("서브맵 프레임 개수")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7591,29 +7006,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"루프클로징 시도거리"
+                                text:qsTr("루프클로징 시도거리")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7668,29 +7067,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"루프클로징 매칭범위"
+                                text:qsTr("루프클로징 매칭범위")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7745,29 +7128,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"지도 기본 크기"
+                                text:qsTr("지도 기본 크기")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7822,29 +7189,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"기본 격자 크기"
+                                text:qsTr("기본 격자 크기")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착점 허용 오차");
-                                    popup_help_setting.addLine("로봇의 현재 위치와 목적지의 위치차이가 이 값보다 작으면 목적지에 도착했다고 판단합니다");
-                                    popup_help_setting.addLine("값이 작을 수록 목작지에 정확하게 도달하지만 조금만 틀어져도 목적지에 도착했다고 판단하지 않아서");
-                                    popup_help_setting.addLine("주행실패하거나 이상동작을 할 수 있습니다");
                                 }
                             }
                         }
@@ -7917,7 +7268,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"주행 중"
+                        text:qsTr("주행 중")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -7943,28 +7294,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 과전류 시 일시정지"
+                                text:qsTr("모터 과전류 시 일시정지")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("모터전류 감지");
-                                    popup_help_setting.addLine("로봇이 주행 중, 충돌했다고 판단할만큼 모터의 전류가 높다면 자동으로 일시정지합니다");
-                                    popup_help_setting.addLine("감도를 올리거나 내리고 싶다면 모터전류 제한값을 변경해 주세요");
                                 }
                             }
                         }
@@ -7983,7 +7319,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:["사용안함","사용"]
+                                model:[qsTr("사용안함"),qsTr("사용")]
                             }
                         }
                     }
@@ -8003,7 +7339,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터전류 제한값 [mA]"
+                                text:qsTr("모터전류 제한값 [mA]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8063,7 +7399,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터전류 제한시간 [ms]"
+                                text:qsTr("모터전류 제한시간 [ms]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8118,7 +7454,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"속도 제한"
+                        text:qsTr("속도 제한")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -8144,7 +7480,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"출발 시 처음속도 [m/s]"
+                                text:qsTr("출발 시 처음속도 [m/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8153,21 +7489,7 @@ Item {
                                     }
                                 }
                             }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("출발 속도(st_v)");
-                                    popup_help_setting.addLine("로봇이 출발할 때, 처음으로 주어지는 속도값입니다");
-                                    popup_help_setting.addLine("작을 수록 천천히 출발합니다");
-                                }
-                            }
+
                         }
                         Rectangle{
                             width: 1
@@ -8220,27 +7542,13 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"도착지점 속도 [m/s]"
+                                text:qsTr("도착지점 속도 [m/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text: "?"
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle("도착 속도(goal_v)");
-                                    popup_help_setting.addLine("로봇이 목적지에 인접했을 때, 감속되는 최종 속도값입니다");
                                 }
                             }
                         }
@@ -8290,7 +7598,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"게인 수정"
+                        text:qsTr("게인 수정")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -8316,7 +7624,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"k_curve"
+                                text:qsTr("k_curve")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8377,7 +7685,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"k_v"
+                                text:qsTr("k_v")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8438,7 +7746,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"k_w"
+                                text:qsTr("k_w")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8499,7 +7807,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"k_dd"
+                                text:qsTr("k_dd")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8560,7 +7868,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로 가속 게인"
+                                text:qsTr("경로 가속 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8621,7 +7929,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로 감속 게인"
+                                text:qsTr("경로 감속 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8682,7 +7990,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로 속도 게인"
+                                text:qsTr("경로 속도 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8743,7 +8051,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"경로 시프팅 게인"
+                                text:qsTr("경로 시프팅 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8799,7 +8107,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"모터 세팅 값"
+                        text:qsTr("모터 세팅 값")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -8819,7 +8127,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"바퀴 회전 방향"
+                                text:qsTr("바퀴 회전 방향")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8865,7 +8173,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"왼쪽 모터 ID"
+                                text:qsTr("왼쪽 모터 ID")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8911,7 +8219,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"오른쪽 모터 ID"
+                                text:qsTr("오른쪽 모터 ID")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -8957,7 +8265,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 기어비"
+                                text:qsTr("모터 기어비")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9018,7 +8326,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 P 게인"
+                                text:qsTr("모터 P 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9079,7 +8387,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 I 게인"
+                                text:qsTr("모터 I 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9140,7 +8448,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 D 게인"
+                                text:qsTr("모터 D 게인")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9201,7 +8509,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"최대 속도 [m/s]"
+                                text:qsTr("최대 속도 [m/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9262,7 +8570,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"최대 가속도 [m/s^2]"
+                                text:qsTr("최대 가속도 [m/s^2]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9323,7 +8631,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"최대 각속도 [deg/s]"
+                                text:qsTr("최대 각속도 [deg/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9384,7 +8692,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"최대 각가속도 [deg/s^2]"
+                                text:qsTr("최대 각가속도 [deg/s^2]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9478,7 +8786,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
                                 color: "white"
-                                text: "모터 1"
+                                text:qsTr("모터 1")
                             }
                         }
                     }
@@ -9506,7 +8814,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
                                 color: "white"
-                                text: "모터 2"
+                                text:qsTr("모터 2")
                             }
                         }
                     }
@@ -9531,7 +8839,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
                                 color: "white"
-                                text: "전원"
+                                text:qsTr("전원")
                             }
                         }
                         Item_ProgressBar{
@@ -9583,7 +8891,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_b.name
                                 font.pixelSize: 40
-                                text: "로봇 운영 중"
+                                text:qsTr("로봇 운영 중")
                             }
                         }
                         Rectangle{
@@ -9688,7 +8996,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 연결상태"
+                                text:qsTr("모터 연결상태")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9756,7 +9064,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 상태"
+                                text:qsTr("모터 상태")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9808,7 +9116,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 온도"
+                                text:qsTr("모터 온도")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9860,7 +9168,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 내부 온도"
+                                text:qsTr("모터 내부 온도")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9912,7 +9220,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"모터 전류"
+                                text:qsTr("모터 전류")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9960,7 +9268,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:"로봇 상태"
+                        text:qsTr("로봇 상태")
                         color: "white"
                         font.pixelSize: 20
                     }
@@ -9979,7 +9287,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:"상태값"
+                                text:qsTr("상태값")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -10001,7 +9309,7 @@ Item {
                                 id: text_status_charging
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
-                                text:"Charging : "+supervisor.getChargeStatus().toString()
+                                text:qsTr("Charging : ")+supervisor.getChargeStatus().toString()
                                 font.pixelSize: 15
                             }
                         }
@@ -10012,7 +9320,7 @@ Item {
                                 id: text_status_power
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
-                                text:"Power : "+supervisor.getPowerStatus().toString()
+                                text:qsTr("Power : ")+supervisor.getPowerStatus().toString()
                                 font.pixelSize: 15
                             }
                         }
@@ -10023,7 +9331,7 @@ Item {
                                 id: text_status_emo
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
-                                text:"Emo : "+supervisor.getEmoStatus().toString()
+                                text:qsTr("Emo : ")+supervisor.getEmoStatus().toString()
                                 font.pixelSize: 15
                             }
                         }
@@ -10034,7 +9342,7 @@ Item {
                                 id: text_status_remote
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
-                                text:"Remote : "+supervisor.getRemoteStatus().toString()
+                                text:qsTr("Remote : ")+supervisor.getRemoteStatus().toString()
                                 font.pixelSize: 15
                             }
                         }
@@ -10094,7 +9402,7 @@ Item {
                 border.color: "#7e7e7e"
                 Text{
                     anchors.centerIn: parent
-                    text: "관리자 메뉴"
+                    text:qsTr("관리자 메뉴")
                     font.family: font_noto_r.name
                     font.pixelSize: 20
                 }
@@ -10122,7 +9430,7 @@ Item {
                 border.color: "#7e7e7e"
                 Text{
                     anchors.centerIn: parent
-                    text: "설정 초기화"
+                    text:qsTr("설정 초기화")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                 }
@@ -10145,7 +9453,7 @@ Item {
                 border.color: "#12d27c"
                 Text{
                     anchors.centerIn: parent
-                    text: "Confirm"
+                    text:qsTr("Confirm")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "white"
@@ -10418,7 +9726,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
-                            text:"전  원"
+                            text:qsTr("전  원")
                             color: "white"
                             font.pixelSize: 20
                         }
@@ -10433,27 +9741,27 @@ Item {
                             verticalItemAlignment: Grid.AlignVCenter
                             spacing: 5
                             Text{
-                                text: "입력전원"
+                                text:qsTr("입력전원")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "출력전원"
+                                text:qsTr("출력전원")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "전   류"
+                                text:qsTr("전   류")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "순간전력"
+                                text:qsTr("순간전력")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "누적전력"
+                                text:qsTr("누적전력")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
@@ -10541,32 +9849,32 @@ Item {
                             verticalItemAlignment: Grid.AlignVCenter
                             spacing: 5
                             Text{
-                                text: "충전 상태"
+                                text:qsTr("충전 상태")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "전원 공급"
+                                text:qsTr("전원 공급")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "비상스위치"
+                                text:qsTr("비상스위치")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "원격스위치"
+                                text:qsTr("원격스위치")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "모터 락"
+                                text:qsTr("모터 락")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
                             Text{
-                                text: "그리기"
+                                text:qsTr("그리기")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
                             }
@@ -10577,7 +9885,7 @@ Item {
                                 Text{
                                     id: text_charging
                                     anchors.centerIn: parent
-                                    text: "연결 안됨"
+                                    text:qsTr("연결 안됨")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10590,7 +9898,7 @@ Item {
                                 Text{
                                     id: text_powerstate
                                     anchors.centerIn: parent
-                                    text: "공급 안됨"
+                                    text:qsTr("공급 안됨")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10603,7 +9911,7 @@ Item {
                                 Text{
                                     id: text_emo
                                     anchors.centerIn: parent
-                                    text: "안 눌림"
+                                    text:qsTr("안 눌림")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10616,7 +9924,7 @@ Item {
                                 Text{
                                     id: text_remote
                                     anchors.centerIn: parent
-                                    text: "안 눌림"
+                                    text:qsTr("안 눌림")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10629,7 +9937,7 @@ Item {
                                 Text{
                                     id: text_motorlock
                                     anchors.centerIn: parent
-                                    text: "풀림"
+                                    text:qsTr("풀림")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10642,7 +9950,7 @@ Item {
                                 Text{
                                     id: text_drawing
                                     anchors.centerIn: parent
-                                    text: "멈춤"
+                                    text:qsTr("멈춤")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10662,7 +9970,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
-                            text:"모터 상태"
+                            text:qsTr("모터 상태")
                             color: "white"
                             font.pixelSize: 20
                         }
@@ -10678,7 +9986,7 @@ Item {
                                 radius: 10
                                 anchors.verticalCenter: parent.verticalCenter
                                 Text{
-                                    text: "모터 1"
+                                    text:qsTr("모터 1")
                                     anchors.centerIn: parent
                                     font.family: font_noto_r.name
                                     font.pixelSize: 25
@@ -10692,27 +10000,27 @@ Item {
                                 verticalItemAlignment: Grid.AlignVCenter
                                 spacing: 5
                                 Text{
-                                    text: "연결상태"
+                                    text:qsTr("연결상태")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "상 태"
+                                    text:qsTr("상 태")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "제어기 온도"
+                                    text:qsTr("제어기 온도")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "모터 온도"
+                                    text:qsTr("모터 온도")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "전  류"
+                                    text:qsTr("전  류")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10724,7 +10032,7 @@ Item {
                                     Text{
                                         id: text_con1
                                         anchors.centerIn: parent
-                                        text: "연결 안됨"
+                                        text:qsTr("연결 안됨")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -10737,7 +10045,7 @@ Item {
                                     Text{
                                         id: text_status1
                                         anchors.centerIn: parent
-                                        text: "준비 안됨"
+                                        text:qsTr("준비 안됨")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -10753,7 +10061,7 @@ Item {
                                     Text{
                                         id: text_temp1
                                         anchors.centerIn: parent
-                                        text: parent.value + " 도"
+                                        text: parent.value + qsTr(" 도")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
 
@@ -10805,7 +10113,7 @@ Item {
                                 color: "transparent"
 
                                 Text{
-                                    text: "모터 2"
+                                    text:qsTr("모터 2")
                                     anchors.centerIn: parent
                                     font.family: font_noto_r.name
                                     font.pixelSize: 25
@@ -10818,27 +10126,27 @@ Item {
                                 verticalItemAlignment: Grid.AlignVCenter
                                 spacing: 5
                                 Text{
-                                    text: "연결상태"
+                                    text:qsTr("연결상태")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "상 태"
+                                    text:qsTr("상 태")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "제어기 온도"
+                                    text:qsTr("제어기 온도")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "모터 온도"
+                                    text:qsTr("모터 온도")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
                                 Text{
-                                    text: "전  류"
+                                    text:qsTr("전  류")
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
                                 }
@@ -10850,7 +10158,7 @@ Item {
                                     Text{
                                         id: text_con2
                                         anchors.centerIn: parent
-                                        text: "연결 안됨"
+                                        text:qsTr("연결 안됨")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -10863,7 +10171,7 @@ Item {
                                     Text{
                                         id: text_status2
                                         anchors.centerIn: parent
-                                        text: "준비 안됨"
+                                        text:qsTr("준비 안됨")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -10931,14 +10239,14 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
-                            text:"센서 상태"
+                            text:qsTr("센서 상태")
                             color: "white"
                             font.pixelSize: 20
                         }
                     }
                     Item_buttons{
                         type: "round_text"
-                        text:"뷰 어"
+                        text:qsTr("뷰 어")
                         fontsize: 30
                         anchors.centerIn: parent
                         width: 150
@@ -11109,7 +10417,7 @@ Item {
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: "로그 확인"
+                                text:qsTr("로그 확인")
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -11133,7 +10441,7 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-                    visible: false
+//                    visible: false
                     color: enabled?color_navy:color_light_gray
                     Rectangle{
                         anchors.centerIn: parent
@@ -11663,7 +10971,7 @@ Item {
                     color: "white"
                     font.pixelSize: 30
                     horizontalAlignment: Text.AlignHCenter
-                    text:"잠시만 기다려주세요"
+                    text:qsTr("잠시만 기다려주세요")
                 }
                 Repeater{
                     model: ListModel{id:model_usb_error}
@@ -11782,7 +11090,7 @@ Item {
                     color: color_navy
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
-                        text: "가장 최신 파일"
+                        text:qsTr("가장 최신 파일")
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
@@ -11800,7 +11108,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: ""
+                        text:""
                     }
                 }
                 Rectangle{
@@ -11816,7 +11124,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: "확인"
+                        text:qsTr("확인")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -11836,7 +11144,7 @@ Item {
                     color: color_navy
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
-                        text: "그 외 발견한 파일 목록"
+                        text:qsTr("그 외 발견한 파일 목록")
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
@@ -11880,7 +11188,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: "UI"
+                        text:qsTr("UI")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -11899,7 +11207,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: "SLAMNAV"
+                        text:qsTr("SLAMNAV")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -11918,7 +11226,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: "robot_config"
+                        text:qsTr("robot_config")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -11937,7 +11245,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: "maps"
+                        text:qsTr("maps")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -11956,7 +11264,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text: "Log"
+                        text:qsTr("Log")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -11981,7 +11289,7 @@ Item {
                     font.family: font_noto_r.name
                     font.pixelSize: 15
                     color:"white"
-                    text: "확인"
+                    text:qsTr("확인")
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -12123,7 +11431,7 @@ Item {
                     font.pixelSize: 25
                     horizontalAlignment: Text.AlignHCenter
                     color: color_red
-                    text: "** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다"
+                    text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다")
                 }
                 Column{
                     anchors.centerIn: parent
@@ -12142,7 +11450,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text: "저장소 목록"
+                                text:qsTr("저장소 목록")
                             }
                         }
                         Repeater{
@@ -12185,7 +11493,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text: "UI 실행파일"
+                                text:qsTr("UI 실행파일")
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -12204,7 +11512,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text: "슬램 네비게이션 실행파일"
+                                text:qsTr("슬램 네비게이션 실행파일")
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -12223,7 +11531,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text: "설정파일"
+                                text:qsTr("설정파일")
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -12242,7 +11550,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text: "맵 폴더"
+                                text:qsTr("맵 폴더")
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -12261,7 +11569,7 @@ Item {
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text: "로그"
+                                text:qsTr("로그")
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -12284,7 +11592,7 @@ Item {
                             font.family: font_noto_r.name
                             font.pixelSize: 15
                             color:"white"
-                            text: "확인"
+                            text:qsTr("확인")
                         }
                         MouseArea{
                             anchors.fill: parent
@@ -12322,7 +11630,7 @@ Item {
             anchors.fill: parent
             Text{
                 anchors.centerIn: parent
-                text: "변경하실 호출벨을 눌러주세요"
+                text:qsTr("변경하실 호출벨을 눌러주세요")
                 font.family: font_noto_r.name
                 font.pixelSize: 25
             }
@@ -12343,7 +11651,7 @@ Item {
                 anchors.centerIn: parent
                 spacing: 20
                 Text{
-                    text: "정말 덮어씌우시겠습니까?"
+                    text:qsTr("정말 덮어씌우시겠습니까?")
                     font.family: font_noto_b.name
                     font.pixelSize: 20
                 }
@@ -12354,7 +11662,7 @@ Item {
                     radius: 5
                     Text{
                         anchors.centerIn: parent
-                        text: "확인"
+                        text:qsTr("확인")
                         font.family: font_noto_r.name
                     }
                     MouseArea{
@@ -12470,7 +11778,7 @@ Item {
                             font.family: font_noto_r.name
                             font.pixelSize: 25
                             color: "white"
-                            text: "현재 버전 : "
+                            text:qsTr("현재 버전 : ")
                         }
                         Text{
                             width: 500
@@ -12490,7 +11798,7 @@ Item {
                             font.family: font_noto_r.name
                             font.pixelSize: 25
                             color: "white"
-                            text: "최신 버전 : "
+                            text:qsTr("최신 버전 : ")
                         }
                         Text{
                             width: 500
@@ -12685,7 +11993,7 @@ Item {
                     color: "white"
                     font.family: font_noto_r.name
                     font.pixelSize: 40
-                    text: "카메라 정보를 확인한 후, 위치를 지정하여주세요"
+                    text:qsTr("카메라 정보를 확인한 후, 위치를 지정하여주세요")
                 }
                 Row{
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -12694,7 +12002,7 @@ Item {
                         spacing: 10
                         Text{
                             id: text_left
-                            text: "왼쪽"
+                            text:qsTr("왼쪽")
                             font.family: font_noto_b.name
                             font.pixelSize: 30
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -12736,7 +12044,7 @@ Item {
                         spacing: 10
                         Text{
                             id: text_right
-                            text: "오른쪽"
+                            text:qsTr("오른쪽")
                             font.family: font_noto_b.name
                             font.pixelSize: 30
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -12788,7 +12096,7 @@ Item {
                         enabled: popup_camera.is_load
                         Text{
                             anchors.centerIn: parent
-                            text: "확인"
+                            text:qsTr("확인")
                             font.family: font_noto_r.name
                             font.pixelSize: 25
                             color: "white"
@@ -12821,7 +12129,7 @@ Item {
                         border.color: "#7e7e7e"
                         Text{
                             anchors.centerIn: parent
-                            text: "위치 바꾸기"
+                            text:qsTr("위치 바꾸기")
                             color: "white"
                             font.family: font_noto_r.name
                             font.pixelSize: 25
@@ -12848,7 +12156,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             color: "white"
-                            text: "취소"
+                            text:qsTr("취소")
                             font.family: font_noto_r.name
                             font.pixelSize: 25
                         }
@@ -12914,7 +12222,7 @@ Item {
                         font.family: font_noto_r.name
                         font.pixelSize: 30
                         font.bold: true
-                        text: "로봇 프리셋 설정"
+                        text:qsTr("로봇 프리셋 설정")
                     }
                     Rectangle{
                         anchors.bottom: parent.bottom
@@ -12956,7 +12264,7 @@ Item {
                                         anchors.centerIn: parent
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
-                                        text: "초기화"
+                                        text:qsTr("초기화")
                                     }
                                     MouseArea{
                                         anchors.fill: parent
@@ -12974,7 +12282,7 @@ Item {
                                         anchors.centerIn: parent
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
-                                        text: "이름변경"
+                                        text:qsTr("이름변경")
                                     }
                                     MouseArea{
                                         anchors.fill: parent
@@ -12998,7 +12306,7 @@ Item {
                                     font.family: font_noto_r.name
                                     font.pixelSize: 20
                                     font.bold: true
-                                    text: "프리셋 1"
+                                    text:qsTr("프리셋 1")
                                     Component.onCompleted: {
                                         scale = 1;
                                         while(width*scale > parent.width*0.8){
@@ -13034,7 +12342,7 @@ Item {
                                         }
                                     }
                                     font.bold: true
-                                    text: "프리셋 2"
+                                    text:qsTr("프리셋 2")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -13064,7 +12372,7 @@ Item {
                                         }
                                     }
                                     font.bold: true
-                                    text: "프리셋 3"
+                                    text:qsTr("프리셋 3")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -13094,7 +12402,7 @@ Item {
                                         }
                                     }
                                     font.bold: true
-                                    text: "프리셋 4"
+                                    text:qsTr("프리셋 4")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -13124,7 +12432,7 @@ Item {
                                         }
                                     }
                                     font.bold: true
-                                    text: "프리셋 5"
+                                    text:qsTr("프리셋 5")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -13164,7 +12472,7 @@ Item {
                                     anchors.centerIn: parent
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
-                                    text: "나가기"
+                                    text:qsTr("나가기")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -13184,7 +12492,7 @@ Item {
                                     anchors.centerIn: parent
                                     font.family: font_noto_r.name
                                     font.pixelSize: 15
-                                    text: "저장"
+                                    text:qsTr("저장")
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -13226,7 +12534,7 @@ Item {
                             verticalItemAlignment: Grid.AlignVCenter
                             Text{
                                 font.family: font_noto_r.name
-                                text:"제자리 회전 속도 [deg/s]"
+                                text:qsTr("제자리 회전 속도 [deg/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -13258,11 +12566,11 @@ Item {
                                     }
                                 }
                                 height: 50
-                                text:"";
+                                text:""
                             }
                             Text{
                                 font.family: font_noto_r.name
-                                text:"제자리 회전 가속도 [deg/s^2]"
+                                text:qsTr("제자리 회전 가속도 [deg/s^2]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -13280,7 +12588,7 @@ Item {
                                 id: preset_limit_pivot_acc
                                 width: 200
                                 height: 50
-                                text:"";
+                                text:""
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
@@ -13298,7 +12606,7 @@ Item {
                             }
                             Text{
                                 font.family: font_noto_r.name
-                                text:"주행 속도 [m/s]"
+                                text:qsTr("주행 속도 [m/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -13330,11 +12638,11 @@ Item {
                                         }
                                     }
                                 }
-                                text:"";
+                                text:""
                             }
                             Text{
                                 font.family: font_noto_r.name
-                                text:"주행 가속도 [m/s^2]"
+                                text:qsTr("주행 가속도 [m/s^2]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -13366,11 +12674,11 @@ Item {
                                         }
                                     }
                                 }
-                                text:"";
+                                text:""
                             }
                             Text{
                                 font.family: font_noto_r.name
-                                text:"주행 회전속도 [deg/s]"
+                                text:qsTr("주행 회전속도 [deg/s]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -13402,11 +12710,11 @@ Item {
                                         }
                                     }
                                 }
-                                text:"";
+                                text:""
                             }
                             Text{
                                 font.family: font_noto_r.name
-                                text:"주행 회전 가속도 [deg/s^2]"
+                                text:qsTr("주행 회전 가속도 [deg/s^2]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -13424,7 +12732,7 @@ Item {
                                 id: preset_limit_wacc
                                 width: 200
                                 height: 50
-                                text:"";
+                                text:""
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
@@ -13489,7 +12797,7 @@ Item {
                     radius: 5
                     Text{
                         anchors.centerIn: parent
-                        text: "취소"
+                        text:qsTr("취소")
                         font.family: font_noto_r.name
                     }
                     MouseArea{
@@ -13506,7 +12814,7 @@ Item {
                     radius: 5
                     Text{
                         anchors.centerIn: parent
-                        text: "확인"
+                        text:qsTr("확인")
                         font.family: font_noto_r.name
                     }
                     MouseArea{
@@ -13560,7 +12868,7 @@ Item {
 
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "선택하신 프리셋으로 세팅을 변경하시겠습니까?"
+                    text:qsTr("선택하신 프리셋으로 세팅을 변경하시겠습니까?")
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     font.family: font_noto_r.name
@@ -13587,7 +12895,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_r.name
-                            text: "취소"
+                            text:qsTr("취소")
                             color: "white"
                         }
                         MouseArea{
@@ -13606,7 +12914,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_r.name
-                            text: "확인"
+                            text:qsTr("확인")
                         }
                         MouseArea{
                             anchors.fill: parent
@@ -13914,7 +13222,7 @@ Item {
                 Text{
                     id: text_tf
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "라이다/카메라 TF 설정"
+                    text:qsTr("라이다/카메라 TF 설정")
                     color: "white"
                     font.family: font_noto_r.name
                     font.pixelSize: 40
@@ -13929,7 +13237,7 @@ Item {
                     verticalItemAlignment: Grid.AlignVCenter
                     spacing: 15
                     Text{
-                        text: ""
+                        text:""
                         width: 100
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13937,7 +13245,7 @@ Item {
                         font.pixelSize: 18
                     }
                     Text{
-                        text: "X"
+                        text:"X"
                         width: 50
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13945,7 +13253,7 @@ Item {
                         font.pixelSize: 20
                     }
                     Text{
-                        text: "Y"
+                        text:"Y"
                         width: 50
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13953,7 +13261,7 @@ Item {
                         font.pixelSize: 20
                     }
                     Text{
-                        text: "Z"
+                        text:"Z"
                         width: 50
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13961,7 +13269,7 @@ Item {
                         font.pixelSize: 20
                     }
                     Text{
-                        text: "RX"
+                        text:"RX"
                         width: 50
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13969,7 +13277,7 @@ Item {
                         font.pixelSize: 20
                     }
                     Text{
-                        text: "RY"
+                        text:"RY"
                         width: 50
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13977,7 +13285,7 @@ Item {
                         font.pixelSize: 20
                     }
                     Text{
-                        text: "RZ"
+                        text:"RZ"
                         width: 50
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -13986,7 +13294,7 @@ Item {
                     }
 
                     Text{
-                        text: "라이다"
+                        text:qsTr("라이다")
                         width: 150
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -14129,7 +13437,7 @@ Item {
                         }
                     }
                     Text{
-                        text: "왼쪽카메라"
+                        text:qsTr("왼쪽카메라")
                         width: 150
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -14271,7 +13579,7 @@ Item {
 
 
                     Text{
-                        text: "오른쪽카메라"
+                        text:qsTr("오른쪽카메라")
                         width: 150
                         horizontalAlignment: Text.AlignHCenter
                         color: "white"
@@ -14426,7 +13734,7 @@ Item {
                             color: color_dark_navy
                             font.family: font_noto_r.name
                             font.pixelSize: 20
-                            text: "취소"
+                            text:qsTr("취소")
                         }
                         MouseArea{
                             anchors.fill: parent
@@ -14447,7 +13755,7 @@ Item {
                             color: color_dark_navy
                             font.family: font_noto_r.name
                             font.pixelSize: 20
-                            text: "확인"
+                            text:qsTr("확인")
                         }
                         MouseArea{
                             anchors.fill: parent
@@ -14612,7 +13920,7 @@ Item {
                         color: color_dark_black
                         font.family: font_noto_r.name
                         font.pixelSize: 40
-                        text: "무선 WIFI를 설정해주세요"
+                        text:qsTr("무선 WIFI를 설정해주세요")
                     }
                     Rectangle{
                         width: 1280
@@ -14647,7 +13955,7 @@ Item {
                                             }
                                             Text{
                                                 font.family: font_noto_r.name
-                                                text: "(사용중)"
+                                                text:qsTr("(사용중)")
                                                 color: color_red
                                                 visible: inuse
                                                 font.pixelSize: 15
@@ -14809,11 +14117,11 @@ Item {
                             }
                         }
                         Text{
-                            text:"자동검색"
+                            text:qsTr("자동검색")
                             font.family: font_noto_r.name
                         }
                         Text{
-                            text:"수동검색"
+                            text:qsTr("수동검색")
                             font.family: font_noto_r.name
                         }
                     }
@@ -14822,7 +14130,7 @@ Item {
                         type:"round_text"
                         width: 150
                         height: 50
-                        text: "재검색"
+                        text:qsTr("재검색")
                         fontsize: 20
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: !wifi_update_auto
@@ -14843,7 +14151,7 @@ Item {
                         color: color_dark_black
                         font.family: font_noto_r.name
                         font.pixelSize: 40
-                        text: "무선 WIFI에 연결합니다."
+                        text:qsTr("무선 WIFI에 연결합니다.")
                     }
                     Rectangle{
                         width: 1280
@@ -14864,7 +14172,7 @@ Item {
                                 }
                                 Text{
                                     font.family: font_noto_r.name
-                                    text: "(사용중)"
+                                    text:qsTr("(사용중)")
                                     color: color_red
                                     visible: popup_wifi.select_inuse
                                     font.pixelSize: 15
@@ -15000,14 +14308,14 @@ Item {
                                     anchors.centerIn: parent
                                     font.family: font_noto_r.name
                                     color:popup_wifi.connection===0?"black":"white"
-                                    text:popup_wifi.connection===0?"연결 안됨":popup_wifi.connection===1?"연결 중":"연결 성공"
+                                    text:popup_wifi.connection===0?qsTr("연결 안됨"):popup_wifi.connection===1?qsTr("연결 중"):qsTr("연결 성공")
                                     font.pixelSize: 20
                                 }
                             }
                             Text{
                                 visible: !popup_wifi.connection&&popup_wifi.select_security
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: "비밀번호를 입력해주세요"
+                                text:qsTr("비밀번호를 입력해주세요")
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
                             }
@@ -15027,7 +14335,7 @@ Item {
                                         }
 
                                         anchors.horizontalCenter: parent.horizontalCenter
-                                        text: "비밀번호가 틀렸습니다"
+                                        text:qsTr("비밀번호가 틀렸습니다")
                                         color: color_red
                                         font.family: font_noto_r.name
                                         font.pixelSize: 17
@@ -15097,7 +14405,7 @@ Item {
                                 color: "black"
                                 Text{
                                     anchors.centerIn: parent
-                                    text: "연결"
+                                    text:qsTr("연결")
                                     font.pixelSize: 35
                                     font.family: font_noto_r.name
                                     color: "white"
@@ -15135,7 +14443,7 @@ Item {
                         color: color_dark_black
                         font.family: font_noto_r.name
                         font.pixelSize: 40
-                        text: "무선 WIFI의 IP를 세팅합니다"
+                        text:qsTr("무선 WIFI의 IP를 세팅합니다")
                     }
                     Rectangle{
                         width: 1280
@@ -15156,7 +14464,7 @@ Item {
                                         anchors.left: parent.left
                                         anchors.leftMargin: 50
                                         font.family: font_noto_r.name
-                                        text:"IP"
+                                        text:qsTr("IP")
                                         font.pixelSize: 20
                                     }
                                 }
@@ -15713,7 +15021,7 @@ Item {
                                     border.width: 1
                                     Text{
                                         anchors.centerIn: parent
-                                        text: "초기화"
+                                        text:qsTr("초기화")
                                         font.pixelSize: 35
                                         font.family: font_noto_r.name
                                     }
@@ -15736,7 +15044,7 @@ Item {
                                     color: "black"
                                     Text{
                                         anchors.centerIn: parent
-                                        text: "변경"
+                                        text:qsTr("변경")
                                         font.pixelSize: 35
                                         font.family: font_noto_r.name
                                         color: "white"
@@ -15899,7 +15207,7 @@ Item {
 
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "세팅값 변경 감지"
+                    text:qsTr("세팅값 변경 감지")
                     color: "white"
                     font.family: font_noto_r.name
                     font.pixelSize: 30
@@ -15907,7 +15215,7 @@ Item {
 
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
-                    text: "변경한 값으로 저장하시려면 확인 버튼을 눌러주세요\n취소하시면 저장되지 않습니다"
+                    text:qsTr("변경한 값으로 저장하시려면 확인 버튼을 눌러주세요\n취소하시면 저장되지 않습니다")
                     color: "white"
                     horizontalAlignment: Text.AlignHCenter
                     font.family: font_noto_r.name
@@ -15926,7 +15234,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_r.name
-                            text: "취소"
+                            text:qsTr("취소")
                             color: "white"
                         }
                         MouseArea{
@@ -15945,7 +15253,7 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_r.name
-                            text: "확인"
+                            text:qsTr("확인")
                         }
                         MouseArea{
                             anchors.fill: parent

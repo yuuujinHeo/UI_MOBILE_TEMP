@@ -105,7 +105,7 @@ Supervisor::Supervisor(QObject *parent)
     usb_detect();
 
     translator = new QTranslator();
-    setLangauge(getSetting("setting","UI","langauge"));
+    setlanguage(getSetting("setting","UI","language"));
 }
 
 Supervisor::~Supervisor(){
@@ -1309,7 +1309,7 @@ void Supervisor::checkRobotINI(){
     if(getSetting("setting","UI","moving_face") == "")
         setSetting("setting","UI/moving_face","true");
     if(getSetting("setting","UI","language") == "")
-        setSetting("setting","UI/language","KR");
+        setSetting("setting","UI/language","korean");
     if(getSetting("setting","UI","voice_mode") == "")
         setSetting("setting","UI/voice_mode","woman");
     if(getSetting("setting","UI","volume_bgm") == "")
@@ -3324,8 +3324,8 @@ void Supervisor::makeKillShell(){
 void Supervisor::checkUpdate(){
 //    server->checkUpdate();
 }
-void Supervisor::setLangauge(QString lan){
-    plog->write("[SUPERVISOR] SET LANGAUGE : "+lan);
+void Supervisor::setlanguage(QString lan){
+    plog->write("[SUPERVISOR] SET language : "+lan);
     app->removeTranslator(translator);
     if(lan == "KR"){
     }else if(lan=="US"){

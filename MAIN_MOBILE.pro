@@ -107,8 +107,10 @@ HEADERS += \
     websocket/QtHttpHeader.h \
     websocket/QtHttpClientWrapper.h
 
-TRANSLATIONS += lang_en.ts
-OTHER_FILES += lang_en.qm
+TRANSLATIONS += lang_en.ts\
+            lang_eddn.ts
+OTHER_FILES += lang_en.qm\
+            lang_eddn.qm
 
 # Libraries setting (for x86_64)
 contains(QT_ARCH, x86_64){

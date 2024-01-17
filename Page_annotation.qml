@@ -3196,14 +3196,14 @@ Item {
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 font.family: font_noto_r.name
-                                text: "모드를 변경하시겠습니까?"
+                                text: qsTr("모드를 변경하시겠습니까?")
                                 font.pixelSize: 20
                                 color: "white"
                             }
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 font.family: font_noto_r.name
-                                text: "저장되지 않은 내용은 사라집니다"
+                                text: qsTr("저장되지 않은 내용은 사라집니다")
                                 font.pixelSize: 20
                                 color: "white"
                             }
@@ -3213,7 +3213,7 @@ Item {
                             spacing: 30
                             Item_buttons{
                                 type: "round_text"
-                                text: "저장하고 변경"
+                                text: qsTr("저장하고 변경")
                                 width: 140
                                 height: 60
                                 btncolor: color_green
@@ -3231,7 +3231,7 @@ Item {
                             }
                             Item_buttons{
                                 type: "round_text"
-                                text: "저장안함"
+                                text: qsTr("저장안함")
                                 width: 140
                                 height: 60
                                 fontsize: 20

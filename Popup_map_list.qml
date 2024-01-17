@@ -44,7 +44,7 @@ Popup{
         for(var i=0; i<supervisor.getLocationGroupNum(); i++){
             if(supervisor.getLocationGroupSize(i) > 0){
                 if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
-                    model_group.append({"num":i,"name":"그룹"});
+                    model_group.append({"num":i,"name":qsTr("그룹")});
                 }else{
                     model_group.append({"num":i,"name":supervisor.getLocGroupname(i)});
                 }
@@ -187,14 +187,14 @@ Popup{
                         color: "white"
                         font.family: font_noto_b.name
                         font.bold: true
-                        text: "확인된 맵 목록"
+                        text: qsTr("확인된 맵 목록")
                         font.pixelSize: 40
                     }
                     Text{
                         id: text_list_title2
                         color: "white"
                         font.family: font_noto_r.name
-                        text: "사용 가능한 맵 파일을 모두 찾았습니다"
+                        text: qsTr("사용 가능한 맵 파일을 모두 찾았습니다")
                         font.pixelSize: 20
                     }
                 }
@@ -207,7 +207,7 @@ Popup{
                         width: 130
                         height: 60
                         type: "round_text"
-                        text: "사 용"
+                        text: qsTr("사 용")
                         onClicked: {
                             if(select_map_list > -1){
                                 supervisor.writelog("[USER INPUT] Map used changed : " + model_maps.get(select_map_list).name);
@@ -222,7 +222,7 @@ Popup{
                         height: 60
                         type: "round_text"
 //                            visible: false
-                        text: "복 사"
+                        text: qsTr("복 사")
                         onClicked: {
                             if(select_map_list > -1){
                                 supervisor.writelog("[USER INPUT] Map used copied : " + model_maps.get(select_map_list).name);
@@ -241,7 +241,7 @@ Popup{
                         height: 60
                         type: "round_text"
                         visible: false
-                        text: "수 정"
+                        text: qsTr("수 정")
                         onClicked: {
                             if(select_map_list > -1){
                                 var name = model_maps.get(select_map_list).name;
@@ -255,7 +255,7 @@ Popup{
                         width: 130
                         height: 60
                         type: "round_text"
-                        text: "삭 제"
+                        text: qsTr("삭 제")
                         onClicked: {
                             if(select_map_list > -1){
                                 supervisor.removeMap(model_maps.get(select_map_list).name);
@@ -267,7 +267,7 @@ Popup{
                         width: 140
                         height: 60
                         type: "round_text"
-                        text: "취 소"
+                        text: qsTr("취 소")
                         onClicked: {
                             supervisor.readSetting();
                             popup_map_list.close();
@@ -358,7 +358,7 @@ Popup{
                                             Row{
                                                 spacing: 3
                                                 Text{
-                                                    text: "맵원본"
+                                                    text: qsTr("맵원본")
                                                     font.family: font_noto_r.name
                                                     color:"white"
                                                     width: 60
@@ -390,7 +390,7 @@ Popup{
                                             Row{
                                                 spacing: 3
                                                 Text{
-                                                    text: "맵수정본"
+                                                    text: qsTr("맵수정본")
                                                     width: 60
                                                     font.family: font_noto_r.name
                                                     color:"white"
@@ -426,7 +426,7 @@ Popup{
                                             Row{
                                                 spacing: 3
                                                 Text{
-                                                    text: "이동경로"
+                                                    text: qsTr("이동경로")
                                                     width: 60
                                                     font.family: font_noto_r.name
                                                     color:"white"
@@ -455,7 +455,7 @@ Popup{
                                             Row{
                                                 spacing: 3
                                                 Text{
-                                                    text: "안전속도"
+                                                    text: qsTr("안전속도")
                                                     width: 60
                                                     font.family: font_noto_r.name
                                                     color:"white"
@@ -483,7 +483,7 @@ Popup{
                                             Row{
                                                 spacing: 3
                                                 Text{
-                                                    text: "가상벽"
+                                                    text: qsTr("가상벽")
                                                     width: 60
                                                     font.family: font_noto_r.name
                                                     color:"white"
@@ -511,7 +511,7 @@ Popup{
                                             Row{
                                                 spacing: 3
                                                 Text{
-                                                    text: "회피구역"
+                                                    text: qsTr("회피구역")
                                                     width: 60
                                                     font.family: font_noto_r.name
                                                     color:"white"
@@ -821,7 +821,7 @@ Popup{
                                                         font.family: font_noto_r.name
                                                         font.pixelSize: 20
                                                         color: "white"
-                                                        text: "보기"
+                                                        text: qsTr("보기")
                                                     }
                                                     MouseArea{
                                                         anchors.fill: parent
@@ -936,7 +936,7 @@ Popup{
                         type: "round_text"
                         width: 160
                         height: 40
-                        text:"취소"
+                        text:qsTr("취소")
                         onClicked:{
                             popup_copymap.close();
                         }
@@ -945,7 +945,7 @@ Popup{
                         type: "round_text"
                         width: 160
                         height: 40
-                        text:"확인"
+                        text:qsTr("확인")
                         onClicked:{
                             if(textfield_new_map.text != ""){
                                 if(supervisor.copyMap(popup_copymap.orin_name, textfield_new_map.text) === 0){
@@ -985,7 +985,7 @@ Popup{
                 Column{
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
-                        text: "기존 맵 설정이 삭제됩니다"
+                        text: qsTr("기존 맵 설정이 삭제됩니다")
                         font.family: font_noto_r.name
                         font.pixelSize: 20
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -1004,7 +1004,7 @@ Popup{
                         border.color: "#7e7e7e"
                         Text{
                             anchors.centerIn: parent
-                            text: "취소"
+                            text: qsTr("취소")
                             font.family: font_noto_r.name
                             font.pixelSize: 25
 
@@ -1027,7 +1027,7 @@ Popup{
                         border.color: "#12d27c"
                         Text{
                             anchors.centerIn: parent
-                            text: "확인"
+                            text: qsTr("확인")
                             font.family: font_noto_r.name
                             font.pixelSize: 25
                             color: "white"

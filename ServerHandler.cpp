@@ -13,6 +13,11 @@ ServerHandler::ServerHandler()
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
     timer->start(TIMER_MS);
 
+    call_server = new QtHttpServer(this);
+    connect(call_server, SIGNAL(requestNeedsReply(QtHttpRequest*,QtHttpReply*)), this, SLOT(onCallRequestReply(QtHttpRequest*,QtHttpReply*)));
+    call_server->start(8000);
+    qDebug() << "CALL SERVER";
+
     myID = getSetting("robot","SERVER","my_id");
     checkUpdate();
 //    sendRobotConfig();
@@ -40,6 +45,26 @@ void ServerHandler::onTimer(){
         }else{
             postStatus();
         }
+    }
+}
+
+void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply){
+    QByteArray rcvData = request->getRawData();
+    QJsonObject jin = QJsonDocument::fromJson(rcvData).object();
+    qDebug() << "JSON IN : " << jin;
+    QString msgType = jin["command"].toString();
+
+    if(msgType == "calling"){
+        //check locations
+        int num = -1;
+        for(int i=0; i<pmap->locations.size(); i++){
+            if(pmap->locations[i].name == jin["table"].toString()){
+                num = i;
+                break;
+            }
+        }
+    }else if(msgType == "state"){
+
     }
 }
 
