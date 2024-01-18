@@ -530,7 +530,7 @@ distdir: FORCE
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents CallbellHandler.h CameraView.h ExtProcess.h GlobalHeader.h IPCHandler.h MapHandler.h MapViewer.h ServerHandler.h spline.h Keyemitter.h Logger.h MapHeader.h automata.h ZIPHandler.h cv_to_qt.h Supervisor.h quazip/JlCompress.h quazip/ioapi.h quazip/minizip_crypt.h quazip/quaadler32.h quazip/quachecksum32.h quazip/quacrc32.h quazip/quagzipfile.h quazip/quaziodevice.h quazip/quazip.h quazip/quazip_global.h quazip/quazip_qt_compat.h quazip/quazipdir.h quazip/quazipfile.h quazip/quazipfileinfo.h quazip/quazipnewinfo.h quazip/unzip.h quazip/zip.h websocket/QtHttpServer.h websocket/QtHttpReply.h websocket/QtHttpRequest.h websocket/QtHttpHeader.h websocket/QtHttpClientWrapper.h $(DISTDIR)/
 	$(COPY_FILE) --parents CallbellHandler.cpp CameraView.cpp ExtProcess.cpp IPCHandler.cpp MapHandler.cpp MapViewer.cpp ServerHandler.cpp ZIPHandler.cpp automata.cpp cv_to_qt.cpp Logger.cpp Supervisor.cpp main.cpp quazip/JlCompress.cpp quazip/qioapi.cpp quazip/quaadler32.cpp quazip/quachecksum32.cpp quazip/quacrc32.cpp quazip/quagzipfile.cpp quazip/quaziodevice.cpp quazip/quazip.cpp quazip/quazipdir.cpp quazip/quazipfile.cpp quazip/quazipfileinfo.cpp quazip/quazipnewinfo.cpp quazip/unzip.c quazip/zip.c websocket/QtHttpServer.cpp websocket/QtHttpReply.cpp websocket/QtHttpRequest.cpp websocket/QtHttpHeader.cpp websocket/QtHttpClientWrapper.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents lang_en.ts $(DISTDIR)/
+	$(COPY_FILE) --parents lang_en.ts lang_eddn.ts $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -561,6 +561,7 @@ qrc_qml.cpp: qml.qrc \
 		/usr/lib/qt5/bin/rcc \
 		Page_init.qml \
 		Item_menubar.qml \
+		lang_eddn.qm \
 		Item_progressCircle.qml \
 		Page_menus.qml \
 		Popup_notice.qml \

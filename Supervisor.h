@@ -69,9 +69,7 @@ public:
     QList<QString> map_detail_list;
 
     int setting_call_num = -1;
-    QList<QString> call_queue;
     int patrol_num = -1;
-    LOCATION current_target;
 
     int foundCount;
     QNetworkConfiguration netcfg;
@@ -494,14 +492,15 @@ public:
     Q_INVOKABLE int getCallQueueSize();
     Q_INVOKABLE void cleanTray();
     Q_INVOKABLE QString getCallName(int id){
-        if(id > -1 && id < call_queue.size()){
-            return getCallLocation(call_queue[id]).name;
-        }else{
-            return "";
-        }
+        return pmap->call_queue[id];
+//        if(id > -1 && id < pmap->call_queue.size()){
+//            return getCallLocation(pmap->call_queue[id]).name;
+//        }else{
+//            return "";
+//        }
     }
     Q_INVOKABLE void clearCallQueue(){
-        call_queue.clear();
+        pmap->call_queue.clear();
     }
     Q_INVOKABLE QString getCall(int id){return pmap->locations[id].call_id;}
     Q_INVOKABLE LOCATION getCallLocation(QString id);
@@ -730,6 +729,7 @@ public slots:
     void update_fail();
     void clear_all();
     void map_reset();
+    void new_call_order(QString name);
 
 private:
     QTimer *timer;

@@ -53,20 +53,140 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
     QJsonObject jin = QJsonDocument::fromJson(rcvData).object();
     qDebug() << "JSON IN : " << jin;
     QString msgType = jin["command"].toString();
+    QString table = jin["table"].toString();
 
     if(msgType == "calling"){
         //check locations
         int num = -1;
         for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].name == jin["table"].toString()){
+            if(pmap->locations[i].name == table){
                 num = i;
                 break;
             }
         }
-    }else if(msgType == "state"){
 
+        if(num > -1){
+            //Queue 중복 확인
+            for(int i=0; i<pmap->call_queue.size(); i++){
+                if(pmap->call_queue[i] == table){
+                    //already queue in
+                    QJsonObject jout;
+                    jout["command"] = jin["command"];
+                    jout["table"] = jin["table"];
+                    jout["robot_name"] = probot->name;
+                    jout["result"] = "duplicate";
+                    jout["error_state"] = 0;
+                    QByteArray json_string = QJsonDocument(jout).toJson();
+                    generalReply(reply, json_string);
+                    return;
+                }
+            }
+            //Robot State 확인
+            if(ui_state == UI_STATE_CHARGING){
+                QJsonObject jout;
+                jout["command"] = jin["command"];
+                jout["table"] = jin["table"];
+                jout["robot_name"] = "";
+                jout["result"] = "none";
+                jout["error_state"] = 2;
+                QByteArray json_string = QJsonDocument(jout).toJson();
+                generalReply(reply, json_string);
+            }else if(ui_state == UI_STATE_NONE || ui_state == UI_STATE_INITAILIZING || ui_state == UI_STATE_MOVEFAIL){
+                QJsonObject jout;
+                jout["command"] = jin["command"];
+                jout["table"] = jin["table"];
+                jout["robot_name"] = "";
+                jout["result"] = "none";
+                jout["error_state"] = 1;
+                QByteArray json_string = QJsonDocument(jout).toJson();
+                generalReply(reply, json_string);
+            }else{
+                QJsonObject jout;
+                jout["command"] = jin["command"];
+                jout["table"] = jin["table"];
+                jout["robot_name"] = probot->name;
+                jout["result"] = "confirm";
+                jout["error_state"] = 0;
+                emit newCallOrder(table);
+                QByteArray json_string = QJsonDocument(jout).toJson();
+                generalReply(reply, json_string);
+            }
+        }else{
+            QJsonObject jout;
+            jout["command"] = jin["command"];
+            jout["table"] = jin["table"];
+            jout["robot_name"] = "";
+            jout["result"] = "none";
+            jout["error_state"] = 3;
+            QByteArray json_string = QJsonDocument(jout).toJson();
+            generalReply(reply, json_string);
+        }
+    }else if(msgType == "state"){
+        QJsonObject jout;
+        jout["command"] = jin["command"];
+        jout["table"] = jin["table"];
+        jout["robot_name"] = probot->name;
+
+        //call_queue에 있는 지 여부 확인
+        bool match = false;
+        for(int i=0; i<pmap->call_queue.size(); i++){
+            if(pmap->call_queue[i] == table){
+                match = true;
+                break;
+            }
+        }
+
+        if(match){
+            //현재 목표가 맞는지 확인
+            if(probot->current_target.name == table){
+                if(ui_state == UI_STATE_MOVING){
+                    if(probot->running_state == ROBOT_MOVING_NOT_READY){
+                        jout["state"] = "error";
+                        jout["error_state"] = 3;
+                    }else if(probot->running_state == ROBOT_MOVING_READY){
+                        jout["state"] = "wait";
+                        jout["error_state"] = 0;
+                    }else{
+                        //moving, wait, paused
+                        jout["state"] = "moving";
+                        jout["error_state"] = 0;
+                    }
+                }else if(ui_state == UI_STATE_PICKUP){
+                    jout["state"] = "arrived";
+                    jout["error_state"] = 0;
+                }else{
+                    jout["state"] = "error";
+                    jout["error_state"] = 2;
+                }
+            }else{
+                jout["state"] = "wait";
+                jout["error_state"] = 0;
+            }
+        }else{
+            jout["state"] = "none";
+            jout["error_state"] = 0;
+        }
+        QByteArray json_string = QJsonDocument(jout).toJson();
+        generalReply(reply, json_string);
     }
 }
+
+void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
+    QByteArray postDataSize = QByteArray::number(post_data.size());
+
+    qDebug() << "REPLY : " << post_data;
+
+    reply->addHeader(QtHttpHeader::ContentType, QByteArrayLiteral("application/json"));
+    reply->addHeader(QtHttpHeader::ContentLength, postDataSize);
+    reply->addHeader(QtHttpHeader::Connection, QByteArrayLiteral("Keep-Alive"));
+    reply->addHeader(QtHttpHeader::AcceptEncoding, QByteArrayLiteral("gzip, deflate"));
+    reply->addHeader(QtHttpHeader::AcceptLanguage, QByteArrayLiteral("ko-KR,en,*"));
+
+    reply->appendRawData(post_data);
+    emit reply->requestSendHeaders();
+    emit reply->requestSendData();
+}
+
 
 void ServerHandler::postStatus(){
     ClearJson(json_out);
