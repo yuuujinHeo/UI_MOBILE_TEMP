@@ -51,7 +51,7 @@ void ServerHandler::onTimer(){
 void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply){
     QByteArray rcvData = request->getRawData();
     QJsonObject jin = QJsonDocument::fromJson(rcvData).object();
-    qDebug() << "JSON IN : " << jin;
+//    qDebug() << "JSON IN : " << jin;
     QString msgType = jin["command"].toString();
     QString table = jin["table"].toString();
 
@@ -64,6 +64,8 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
                 break;
             }
         }
+
+//        qDebug() << "num " << num;
 
         if(num > -1){
             //Queue 중복 확인
@@ -81,6 +83,7 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
                     return;
                 }
             }
+            qDebug() << "ui state = " << ui_state;
             //Robot State 확인
             if(ui_state == UI_STATE_CHARGING){
                 QJsonObject jout;
@@ -138,6 +141,7 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
 
         if(match){
             //현재 목표가 맞는지 확인
+//            qDebug() << probot->current_target.name << table << probot->running_state << ui_state;
             if(probot->current_target.name == table){
                 if(ui_state == UI_STATE_MOVING){
                     if(probot->running_state == ROBOT_MOVING_NOT_READY){
@@ -145,7 +149,7 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
                         jout["error_state"] = 3;
                     }else if(probot->running_state == ROBOT_MOVING_READY){
                         jout["state"] = "wait";
-                        jout["error_state"] = 0;
+                        jout["error_state"] = 1;
                     }else{
                         //moving, wait, paused
                         jout["state"] = "moving";
@@ -159,8 +163,13 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
                     jout["error_state"] = 2;
                 }
             }else{
-                jout["state"] = "wait";
-                jout["error_state"] = 0;
+                if(pmap->call_queue.size() == 0){
+                    jout["state"] = "none";
+                    jout["error_state"] = 0;
+                }else{
+                    jout["state"] = "wait";
+                    jout["error_state"] = 0;
+                }
             }
         }else{
             jout["state"] = "none";
@@ -174,7 +183,7 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
 void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
     QByteArray postDataSize = QByteArray::number(post_data.size());
 
-    qDebug() << "REPLY : " << post_data;
+//    qDebug() << "REPLY : " << post_data;
 
     reply->addHeader(QtHttpHeader::ContentType, QByteArrayLiteral("application/json"));
     reply->addHeader(QtHttpHeader::ContentLength, postDataSize);

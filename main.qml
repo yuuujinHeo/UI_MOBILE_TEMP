@@ -96,7 +96,7 @@ Window {
     }
 
     function movefail_wake(){
-        if(loader_page.item.objectName == "page_annotation"){
+        if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_moving"){
             loader_page.item.movedone();
         }
     }
@@ -129,6 +129,24 @@ Window {
             }
         }else if(loader_page.item.objectName == "page_mapping" || loader_page.item.objectName == "page_init" || loader_page.item.objectName == "page_movefail" || loader_page.item.objectName == "page_map" || loader_page.item.objectName == "page_setting"){
 
+        }else if(loader_page.item.objectName == "page_moving"){
+            if(supervisor.getEmoStatus()){
+                supervisor.writelog("[UI] Emergency Switch");
+                loader_page.item.setNotice(2);
+                supervisor.playVoice("error_emo");
+            }else if(supervisor.getMotorState() === 0){
+                supervisor.writelog("[UI] Motor not ready");
+                loader_page.item.setNotice(4);
+                  stopVoice();
+            }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+                supervisor.writelog("[UI] Localization not ready");
+                loader_page.item.setNotice(1);
+                supervisor.playVoice("error_localization");
+            }else if(supervisor.getStateMoving() === 0){
+                supervisor.writelog("[UI] Robot not running");
+                loader_page.item.setNotice(0);
+                supervisor.playVoice("error_no_path");
+            }
         }else{
 //            //*/0: no path /1: local fail /2: emergency /3: user stop /4: motor error
 //            if(supervisor.getEmoStatus()){

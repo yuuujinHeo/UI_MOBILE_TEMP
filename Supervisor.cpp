@@ -2808,11 +2808,16 @@ void Supervisor::setPreset(int preset){
 }
 void Supervisor::confirmPickup(){
     if(ui_state == UI_STATE_PICKUP){
+        if(pmap->call_queue.size() > 0){
+            plog->write("[SCHEDULER] CALLING MOVE ARRIVED "+pmap->call_queue[0]);
+            pmap->call_queue.pop_front();
+        }
         plog->write("[COMMAND] Pickup Confirm : (ui_state = MOVING)");
         ui_state = UI_STATE_MOVING;
     }else{
         plog->write("[COMMAND] Pickup Confirm (ui_state "+QString::number(ui_state)+")");
     }
+    probot->current_target.name = "";
 }
 QList<int> Supervisor::getPickuptrays(){
     return probot->pickupTrays;
@@ -3797,6 +3802,7 @@ void Supervisor::onTimer(){
                             plog->write("[SCHEDULER] GO CHARGE MOVING DONE -> docharge");
                             QMetaObject::invokeMethod(mMain, "docharge");
                         }
+                        probot->current_target.name = "";
                     }else if(probot->current_target.name == "Resting0"){
                         if(probot->is_patrol){
                             ui_state = UI_STATE_MOVING;
@@ -3821,6 +3827,7 @@ void Supervisor::onTimer(){
                             ipc->handsup();
                             ui_state = UI_STATE_RESTING;
                         }
+                        probot->current_target.name = "";
                     }else if(probot->current_target.name == "Cleaning0"){
                         if(probot->is_patrol){
                             ui_state = UI_STATE_MOVING;
@@ -3845,12 +3852,9 @@ void Supervisor::onTimer(){
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
                             ui_state = UI_STATE_CLEANING;
                         }
+                        probot->current_target.name = "";
                     }else{
                         if(probot->is_calling){
-                            if(pmap->call_queue.size() > 0){
-                                plog->write("[SCHEDULER] CALLING MOVE ARRIVED "+pmap->call_queue[0]);
-                                pmap->call_queue.pop_front();
-                            }
                             probot->call_moving_count++;
                             ui_state = UI_STATE_PICKUP;
                             QMetaObject::invokeMethod(mMain, "showpickup");
@@ -3860,6 +3864,7 @@ void Supervisor::onTimer(){
                                 ui_state = UI_STATE_PICKUP;
                                 QMetaObject::invokeMethod(mMain, "showpickup");
                             }else{
+                                probot->current_target.name = "";
                                 ui_state = UI_STATE_MOVING;
                                 count_pass = 0;
                                 plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
@@ -3891,7 +3896,6 @@ void Supervisor::onTimer(){
                         }
                     }
                     cmd_accept = false;
-                    probot->current_target.name = "";
                 }else{
                     if(probot->current_target.name == ""){
                         LOCATION cur_target;
@@ -3913,7 +3917,7 @@ void Supervisor::onTimer(){
                             plog->write("[SUPERVISOR] MOVING (SERVING) : "+cur_target.name+" ( tray num : "+QString::number(tray_num)+" )");
                         }else{
                             //최대 이동 횟수 초과 시 -> 대기장소로 이동
-                            if(probot->call_moving_count > probot->max_moving_count){
+                            if(probot->call_moving_count + 1 > probot->max_moving_count){
                                 probot->is_calling = true;
                                 plog->write("[SUPERVISOR] MOVING (CALL MAX) : Call Move Count is Max "+QString::number(probot->call_moving_count)+","+QString::number(probot->max_moving_count));
                             }else{
@@ -4115,11 +4119,13 @@ void Supervisor::onTimer(){
             if(use_patrol_pickup){
                 count_pass++;
                 if(count_pass > 30){
+                    probot->current_target.name = "";
                     ui_state = UI_STATE_MOVING;
                     count_pass = 0;
                     plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
                 }
             }else{
+                probot->current_target.name = "";
                 ui_state = UI_STATE_MOVING;
                 count_pass = 0;
                 plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
@@ -4129,20 +4135,22 @@ void Supervisor::onTimer(){
             if(pmap->call_queue[i].left(7) == "Resting" && getSetting("setting","CALL","force_resting") == "true"){
                 plog->write("[SCHEDULER] PICKUP -> FORCE MOVE RESTING");
                 count_pass = 0;
-                ui_state = UI_STATE_MOVING;
+                probot->current_target.name = "";
                 cmd_accept = false;
                 QString temp = pmap->call_queue[i];
                 pmap->call_queue.clear();
                 pmap->call_queue.append(temp);
+                ui_state = UI_STATE_MOVING;
                 break;
             }else if(pmap->call_queue[i].left(8) == "Cleaning" && getSetting("setting","CALL","force_cleaning") == "true"){
                 plog->write("[SCHEDULER] PICKUP -> FORCE MOVE CLEANING");
                 count_pass = 0;
-                ui_state = UI_STATE_MOVING;
                 cmd_accept = false;
+                probot->current_target.name = "";
                 QString temp = pmap->call_queue[i];
                 pmap->call_queue.clear();
                 pmap->call_queue.append(temp);
+                ui_state = UI_STATE_MOVING;
                 break;
             }
         }
