@@ -23,6 +23,14 @@ Item {
     property int obs_in_path : 0
     property bool show_face: false
 
+    function movedone(){
+        loadPage(pkitchen);
+    }
+
+    function setNotice(num){
+        popup_motor_lock_off.open();
+    }
+
     Component.onCompleted: {
         init();
 
@@ -726,7 +734,7 @@ Item {
             if(setting_patrol_mode){
 
             }else{
-                if(supervisor.getLockStatus()===0){
+                if(supervisor.getLockStatus()===0 || supervisor.getEmoStatus()){
                     if(motor_lock)
                         supervisor.writelog("[QML] Motor Lock : false");
                     motor_lock = false;
