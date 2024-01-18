@@ -65,6 +65,7 @@ public:
     bool need_update();
     void rename_all();
 
+    void generalReply(QtHttpReply *reply, QByteArray post_data);
     void parsingReply(QString type, QString url, QNetworkReply *reply);
     QString getSetting(QString file, QString group, QString name);
     QJsonObject json_in;
@@ -105,6 +106,8 @@ public:
 signals:
     void updatefail();
     void updatesuccess();
+    void newCallOrder(QString table);
+
 private slots:
     void onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply);
     void onTimer();

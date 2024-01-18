@@ -95,6 +95,8 @@ typedef struct{
     QList<cv::Point2f> list_obj_uL;
     QList<cv::Point2f> list_obj_dR;
 
+    QList<QString> call_queue;
+
     float margin;
     bool use_uicmd;
     bool map_loaded;
@@ -209,6 +211,8 @@ typedef struct{
 
     int server_call_size=0;
     int server_call_location=-1;
+
+    LOCATION current_target;
 
     int volume_system = 50;
     QString program_version;

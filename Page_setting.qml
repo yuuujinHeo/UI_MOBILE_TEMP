@@ -14357,7 +14357,6 @@ Item {
                                                     passwd_wifi.selectAll();
                                                 }else{
                                                     keyboard.owner = passwd_wifi;
-                                                    keyboard.is_ko = false;
                                                     passwd_wifi.selectAll();
                                                     keyboard.open();
                                                 }
