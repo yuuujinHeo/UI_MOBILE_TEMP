@@ -9,12 +9,26 @@ Popup{
     property string main_str: ""
     property string sub_str: ""
     property string style: "warning"
-    property bool show_localization: false
-    property bool show_motorinit: false
-    property bool show_restart: false
-    property bool show_btn1: false
-    property bool show_btn2: false
-    property bool show_btn3: false
+
+    property bool closemode: true
+
+
+    property string cur_btn: ""
+    signal clicked
+
+    function init(){
+        closemode = true;
+        model_btn.clear();
+    }
+
+    function addButton(text){
+        model_btn.append({"name":text});
+    }
+
+    ListModel{
+        id: model_btn
+    }
+
     background:Rectangle{
         anchors.fill: parent
         color: "transparent"
@@ -90,73 +104,45 @@ Popup{
         }
         MouseArea{
             anchors.fill: parent
+            enabled: closemode
             onClicked:{
                 click_sound.play();
                 popup_notice.close();
             }
         }
-        Rectangle{
-            width:  120
-            height: 60
-            anchors.right: parent.right
-            anchors.rightMargin: 20
+        Row{
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 20
-            color: "transparent"
-            border.color: color_red
-            border.width: 3
-            radius: 10
-            visible: popup_notice.show_localization
-            Text{
-                anchors.centerIn: parent
-                color: color_red
-                font.family: font_noto_r.name
-                font.pixelSize: 20
-                text: qsTr("위치초기화")
-            }
-            MouseArea{
-                anchors.fill: parent
-                onPressed:{
-                    parent.color = color_dark_black
-                    click_sound.play();
-                }
-                onReleased:{
-                    parent.color = "transparent"
-                    annot_pages.sourceComponent = page_annot_localization;
-                    popup_notice.close();
-//                        loadPage(건너뛰기zation);
-                }
-            }
-        }
-        Rectangle{
-            width:  120
-            height: 60
-            color: "transparent"
-            border.color: color_red
-            border.width: 3
-            anchors.right: parent.right
-            anchors.rightMargin: 20
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 20
-            radius: 10
-            visible: popup_notice.show_motorinit
-            Text{
-                anchors.centerIn: parent
-                color: color_red
-                font.family: font_noto_r.name
-                font.pixelSize: 20
-                text: qsTr("모터초기화")
-            }
-            MouseArea{
-                anchors.fill: parent
-                onPressed:{
-                    parent.color = color_dark_black
-                    click_sound.play();
-                }
-                onReleased:{
-                    parent.color = "transparent"
-                    supervisor.setMotorLock(true);
-                    popup_notice.close();
+            Repeater{
+                model : model_btns
+
+                Rectangle{
+                    width:  120
+                    height: 60
+                    color: "transparent"
+                    border.color: color_red
+                    border.width: 3
+                    radius: 10
+                    Text{
+                        anchors.centerIn: parent
+                        color: color_red
+                        font.family: font_noto_r.name
+                        font.pixelSize: 20
+                        text: name
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onPressed:{
+                            parent.color = color_dark_black
+                            click_sound.play();
+                        }
+                        onReleased:{
+                            parent.color = "transparent"
+                            cur_btn = name;
+                            clicked();
+                        }
+                    }
                 }
             }
         }

@@ -106,11 +106,8 @@ public:
     Q_INVOKABLE void setWifiSSD(QString ssid);
 
     Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
-    Q_INVOKABLE void checkMoveFail();
     Q_INVOKABLE void passInit();
 
-//    QProcess *wifi_process;
-//    QProcess *wifi_check_process;
     ////*********************************************  CLASS   ***************************************************////
     ZIPHandler *zip;
     MapHandler *maph;

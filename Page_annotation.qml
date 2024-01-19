@@ -76,25 +76,22 @@ Item {
         popup_moving.open();
     }
     function movedone(){
-//        playMusic.stop();
         supervisor.stopBGM();
         test_move_state = 0;
         popup_moving.close();
         popup_notice.close();
     }
-    function movefail(errnum){
-        supervisor.stopBGM();
-        popup_notice.show_localization = false;
-        popup_notice.show_motorinit = false;
+    function setNotice(errnum){
         popup_moving.close();
+        popup_notice.init();
+        popup_notice.style = "warning";
         if(errnum === 0){
             popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
             popup_notice.sub_str = "";
         }else if(errnum === 1){
             popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
-            popup_notice.show_localization = true;
-            popup_notice.show_motorinit = false;
+            popup_notice.addButton(qsTr("위치초기화"));
         }else if(errnum === 2){
             popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
             popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
@@ -110,7 +107,11 @@ Item {
         }else if(errnum === 6){
             popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
             popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+        }else if(errnum === 7){
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
         }
+
         popup_notice.open();
         print("annotation move fail : ",errnum);
     }
@@ -1235,27 +1236,19 @@ Item {
                 type: "round_text"
                 text: qsTr("전부 완료했습니다")
                 onClicked: {
+                    popup_notice.init();
                     if(supervisor.getLocationNum("Charging") === 0){
-                        popup_notice.open();
-                        popup_notice.show_localization = false
-                        popup_notice.show_motorinit = false;
-                        popup_notice.show_restart = false;
                         popup_notice.sub_str = ""
                         popup_notice.main_str = qsTr("충전위치가 지정되지 않았습니다");
-                    }else if(supervisor.getLocationNum("Resting") === 0){
                         popup_notice.open();
-                        popup_notice.show_localization = false
-                        popup_notice.show_motorinit = false;
-                        popup_notice.show_restart = false;
+                    }else if(supervisor.getLocationNum("Resting") === 0){
                         popup_notice.sub_str = ""
                         popup_notice.main_str = qsTr("대기위치가 지정되지 않았습니다");
-                    }else if(supervisor.getLocationNum("Cleaning") === 0 && supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                         popup_notice.open();
-                        popup_notice.show_localization = false
-                        popup_notice.show_motorinit = false;
-                        popup_notice.show_restart = false;
+                    }else if(supervisor.getLocationNum("Cleaning") === 0 && supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                         popup_notice.sub_str = ""
                         popup_notice.main_str = qsTr("퇴식위치가 지정되지 않았습니다");
+                        popup_notice.open();
                     }else{
                         annot_pages.sourceComponent = page_annot_location_serving_done;
                     }
@@ -3150,9 +3143,10 @@ Item {
                         if(map.getTFlag()){
                             supervisor.writelog("[ANNOTATION] Map Editor : Localization Failed -> Stop Travelline Drawing");
 //                            supervisor.stopDrawingTline();
-                            popup_notice.open();
+                            popup_notice.init();
                             popup_notice.main_str = qsTr("위치를 찾을 수 없습니다.")
-                            popup_notice.show_localization = true;
+                            popup_notice.addButton(qsTr("위치초기화"));
+                            popup_notice.open();
                         }
 //                        btn_tline_drawing.enabled = false;
                     }
@@ -4499,6 +4493,12 @@ Item {
 
     Popup_notice{
         id: popup_notice
+        onClicked:{
+            if(cur_btn === qsTr("위치초기화")){
+                annot_pages.sourceComponent = page_annot_localization;
+                popup_notice.close();
+            }
+        }
     }
 
     Popup{
@@ -4681,70 +4681,6 @@ Item {
                     }
                 }
             }
-            Rectangle{
-                width:  120
-                height: 60
-                anchors.right: parent.right
-                anchors.rightMargin: 20
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 20
-                color: "transparent"
-                border.color: color_red
-                border.width: 3
-                radius: 10
-                visible: popup_notice.show_localization
-                Text{
-                    anchors.centerIn: parent
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 20
-                    text: qsTr("위치초기화")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onPressed:{
-                        parent.color = color_dark_black
-                        click_sound.play();
-                    }
-                    onReleased:{
-                        parent.color = "transparent"
-                        page_after_localization = page_annot_location_serving_done;
-                        annot_pages.sourceComponent = page_annot_localization;
-                        popup_moving.close();
-                    }
-                }
-            }
-            Rectangle{
-                width:  120
-                height: 60
-                color: "transparent"
-                border.color: color_red
-                border.width: 3
-                anchors.right: parent.right
-                anchors.rightMargin: 20
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 20
-                radius: 10
-                visible: false//popup_notice.show_motorinit
-                Text{
-                    anchors.centerIn: parent
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 20
-                    text: qsTr("모터초기화")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onPressed:{
-                        parent.color = color_dark_black
-                        click_sound.play();
-                    }
-                    onReleased:{
-                        parent.color = "transparent"
-                        popup_notice.close();
-                    }
-                }
-            }
         }
     }
     Timer{
@@ -4783,18 +4719,4 @@ Item {
     Tool_Keyboard{
         id: keyboard
     }
-    //    Audio{
-    //        id: playMusic
-    //        autoPlay: false
-    //        volume: volume_bgm/100
-    //        source: "bgm/song.mp3"
-    //        loops: 99
-    //        property bool isplaying: false
-    //        onStopped: {
-    //            isplaying = false;
-    //        }
-    //        onPlaying:{
-    //            isplaying = true;
-    //        }
-    //    }
 }
