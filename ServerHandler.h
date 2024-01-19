@@ -50,7 +50,6 @@ public:
     void checkUpdate();
     void doUpdate();
 
-
     void uploadRelease(QString file, QString message);
 
     void getNewID();
@@ -97,7 +96,6 @@ public:
     QString program_str;
     QString maps_str;
     QString message;
-
 
     int TIMER_MS = 1000;
     QString serverURL = "http://rbyujin.com:8080";

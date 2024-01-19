@@ -101,77 +101,55 @@ Window {
         }
     }
 
-    function movefail(){
-        if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_kitchen"){
-            if(supervisor.getIPCConnection() === false){
-//                supervisor.playVoice("sorry");
-                supervisor.playVoice("sorry");
-                loader_page.item.movefail(5);
-            }if(supervisor.getEmoStatus()){
-                supervisor.playVoice("error_emo");
-                loader_page.item.movefail(2);
-            }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+    function movenotready(){
+        supervisor.playVoice("sorry");
+        supervisor.writelog("[UI] Robot not ready to move");
+        loader_page.item.setNotice(6);
+    }
 
-                supervisor.playVoice("error_localization");
-                loader_page.item.movefail(1);
-            }else if(supervisor.getMotorState() === 0){
-//                supervisor.playVoice("error_");
-                supervisor.playVoice("sorry");
-                loader_page.item.movefail(4);
-            }else if(supervisor.getStateMoving() === 0){
-//                supervisor.playVoice("sorry");
-                supervisor.playVoice("sorry");
-                loader_page.item.movefail(0);
-            }else{
-                supervisor.playVoice("sorry");
-                loader_page.item.movefail(6);
-                supervisor.writelog("[MOVEFAIL] WEIRED MOVEFAIL : "+supervisor.getStateMoving().toString()+","+supervisor.getLocalizationState().toString()+","+supervisor.getMotorState().toString())
-            }
-        }else if(loader_page.item.objectName == "page_mapping" || loader_page.item.objectName == "page_init" || loader_page.item.objectName == "page_movefail" || loader_page.item.objectName == "page_map" || loader_page.item.objectName == "page_setting"){
+    function moveposeerror(){
+        supervisor.playVoice("sorry");
+        supervisor.writelog("[UI] Location not found");
+        loader_page.item.setNotice(7);
+    }
+
+    function movefail(){
+        supervisor.stopBGM();
+        if(supervisor.getIPCConnection() === false){
+            supervisor.playVoice("sorry");
+            supervisor.writelog("[UI] IPC Disconnected");
+            loader_page.item.setNotice(5);
+
+        }else if(supervisor.getEmoStatus()){
+            supervisor.playVoice("error_emo");
+            supervisor.writelog("[UI] Emergency Switch");
+            loader_page.item.setNotice(2);
+
+        }else if(supervisor.getMotorState() === 0){
+            supervisor.writelog("[UI] Motor not ready");
+            loader_page.item.setNotice(4);
+            stopVoice();
+
+        }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+            supervisor.playVoice("error_localization");
+            supervisor.writelog("[UI] Localization not ready");
+            loader_page.item.setNotice(1);
+
+        }else if(supervisor.getStateMoving() === 0){
+            supervisor.playVoice("error_no_path");
+            supervisor.writelog("[UI] Robot not running");
+            loader_page.item.setNotice(0);
+        }
+
+
+
+
+        if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_kitchen"){
+
+        }else if(loader_page.item.objectName == "page_mapping" || loader_page.item.objectName == "page_init" || loader_page.item.objectName == "page_map" || loader_page.item.objectName == "page_setting"){
 
         }else if(loader_page.item.objectName == "page_moving"){
-            if(supervisor.getEmoStatus()){
-                supervisor.writelog("[UI] Emergency Switch");
-                loader_page.item.setNotice(2);
-                supervisor.playVoice("error_emo");
-            }else if(supervisor.getMotorState() === 0){
-                supervisor.writelog("[UI] Motor not ready");
-                loader_page.item.setNotice(4);
-                  stopVoice();
-            }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
-                supervisor.writelog("[UI] Localization not ready");
-                loader_page.item.setNotice(1);
-                supervisor.playVoice("error_localization");
-            }else if(supervisor.getStateMoving() === 0){
-                supervisor.writelog("[UI] Robot not running");
-                loader_page.item.setNotice(0);
-                supervisor.playVoice("error_no_path");
-            }
-        }else{
-//            //*/0: no path /1: local fail /2: emergency /3: user stop /4: motor error
-//            if(supervisor.getEmoStatus()){
-//                supervisor.writelog("[UI] Force Page Change MoveFail : Emergency Switch");
-//                loadPage(pmovefail);
-//                loader_page.item.setNotice(2);
-//                supervisor.playVoice("error_emo");
-//            }else if(supervisor.getMotorState() === 0){
-//                supervisor.writelog("[UI] Force Page Change MoveFail : Motor not ready");
-//                loadPage(pmovefail);
-//                loader_page.item.setNotice(4);
-////                stopVoice();
-//            }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
-//                supervisor.writelog("[UI] Force Page Change MoveFail : Localization not ready");
-//                loadPage(pmovefail);
-//                loader_page.item.setNotice(1);
-//                supervisor.playVoice("error_localization");
-//            }else if(supervisor.getStateMoving() === 0){
-//                supervisor.writelog("[UI] Force Page Change MoveFail : Robot not running");
-//                loadPage(pmovefail);
-//                loader_page.item.setNotice(0);
-//                supervisor.playVoice("error_no_path");
-//            }else{
-//                supervisor.writelog("[UI] Force Page Change MoveFail : Unknown state ("+supervisor.getStateMoving().toString()+","+supervisor.getLocalizationState().toString()+","+supervisor.getMotorState().toString()+")");
-//            }*/
+
         }
     }
 

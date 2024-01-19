@@ -18,7 +18,6 @@ Item {
     property bool motor_lock: false
     property string pos_name: ""
     property bool robot_paused: false
-    property bool move_fail: false
     property int password: 0
     property int obs_in_path : 0
     property bool show_face: false
@@ -27,8 +26,45 @@ Item {
         loadPage(pkitchen);
     }
 
-    function setNotice(num){
-        popup_motor_lock_off.open();
+    function setNotice(errnum){
+        robot_paused = true;
+        popup_notice.init();
+        if(errnum === 0){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+        }else if(errnum === 1){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+        }else if(errnum === 2){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+        }else if(errnum === 3){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+        }else if(errnum === 4){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터가 초기화 되지 않았습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 눌렀다 풀어주세요");
+        }else if(errnum === 5){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+        }else if(errnum === 6){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+        }else if(errnum === 7){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+        }
+        popup_notice.open();
+        print("moving fail : ",errnum);
     }
 
     Component.onCompleted: {
@@ -69,11 +105,9 @@ Item {
                 image_robot.source = "image/robot_moving.png"
             }
         }
-//        image_robot.setsize();
     }
 
     Component.onDestruction:  {
-//        playMusic.stop();
         supervisor.stopBGM();
     }
 
@@ -114,15 +148,6 @@ Item {
             robot_paused = false;
             supervisor.playBGM();
         }
-    }
-
-    function checkPaused(){
-        timer_check_pause.start();
-    }
-
-    function movefail(){
-        robot_paused = true;
-        move_fail = true;
     }
 
     Rectangle{
@@ -388,7 +413,7 @@ Item {
             font.family: font_noto_b.name
             font.pixelSize: 50
             color: "#e2574c"
-            text: move_fail?qsTr("경로를 찾을 수 없습니다"):qsTr("일시정지 됨")
+            text: qsTr("일시정지 됨")
         }
         Text{
             anchors.horizontalCenter: parent.horizontalCenter
@@ -416,18 +441,21 @@ Item {
                     color: color_red
                     font.family: font_noto_r.name
                     font.pixelSize: 30
-//                    text: motor_lock?"수동 이동":"원래대로"
                     text: qsTr("수동 이동")
                 }
                 MouseArea{
                     anchors.fill: parent
                     z: 99
                     onClicked:{
-                        click_sound.play();;
-                        popup_motor_lock.open();
-
-//                        if(!motor_lock){
-//                        }
+                        click_sound.play();
+                        popup_notice.init();
+                        popup_notice.closemode = false;
+                        popup_notice.style = "warning";
+                        popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
+                        popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
+                        popup_notice.addButton(qsTr("수동이동"));
+                        popup_notice.addButton(qsTr("취소"));
+                        popup_notice.open();
                     }
                 }
             }
@@ -491,210 +519,30 @@ Item {
             }
         }
     }
-    Popup{
-        id: popup_motor_lock
-        anchors.centerIn: parent
-        width: parent.width
-        height: parent.height
-        background:Rectangle{
-            anchors.fill: parent
-            color: color_dark_black
-            opacity: 0.8
-        }
-        Rectangle{
-            width: parent.width
-            height: 300
-            anchors.centerIn: parent
-            color: color_dark_black
-            Image{
-                id: image_warn
-                source: "image/warning.png"
-                width: 120
-                height: 120
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 50
+
+    Popup_notice{
+        id: popup_notice
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.setMotorLock(!motor_lock);
+            }else if(cur_btn === qsTr("취소")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.setMotorLock(true);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                annot_pages.sourceComponent = page_annot_localization;
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.setMotorLock(!motor_lock);
+                supervisor.moveStopFlag();
+                supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK EANBLE");
             }
-            Column{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: image_warn.right
-                anchors.leftMargin: 50
-                spacing: 5
-                Text{
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 35
-                    text: qsTr("로봇을 수동으로 이동하시겠습니까?")
-                }
-                Text{
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    text: qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
-                }
-            }
-            Row{
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 30
-                anchors.right: parent.right
-                anchors.rightMargin: 30
-                spacing: 50
-                Rectangle{
-                    width: 140
-                    height: 70
-                    radius: 10
-                    color: "transparent"
-                    border.color: color_red
-                    border.width: 3
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 25
-                        color: color_red
-                        text: qsTr("수동이동")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            click_sound.play();;
-                            parent.color = color_dark_black;
-                        }
-                        onReleased:{
-                            parent.color = "transparent";
-                            supervisor.setMotorLock(!motor_lock);
-                            supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK DISABLE");
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 140
-                    height: 70
-                    radius: 10
-                    color: "transparent"
-                    border.color: color_red
-                    border.width: 3
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 25
-                        color: color_red
-                        text: qsTr("취 소")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            click_sound.play();;
-                            parent.color = color_dark_black;
-                        }
-                        onReleased:{
-                            parent.color = "transparent";
-                            popup_motor_lock.close();
-//                            supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK DISABLE");
-                        }
-                    }
-                }
-            }
-
-        }
-
-    }
-
-    Popup{
-        id: popup_motor_lock_off
-        anchors.centerIn: parent
-        width: parent.width
-        height: parent.height
-        background:Rectangle{
-            anchors.fill: parent
-            color: color_dark_black
-            opacity: 0.8
-        }
-        Rectangle{
-            width: parent.width
-            height: 300
-            anchors.centerIn: parent
-            color: color_dark_black
-            Image{
-                id: image_warn2
-                source: "image/warning.png"
-                width: 120
-                height: 120
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 50
-            }
-            Column{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.horizontalCenterOffset: 50
-                spacing: 50
-                Text{
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 35
-                    text: qsTr("로봇이 수동이동 중입니다")
-                }
-                Rectangle{
-                    width: 140
-                    height: 70
-                    radius: 10
-                    color: "transparent"
-                    border.color: color_red
-                    border.width: 3
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 25
-                        color: color_red
-                        text: qsTr("원래대로")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            click_sound.play();;
-                            parent.color = color_dark_black;
-                        }
-                        onReleased:{
-                            parent.color = "transparent";
-                            supervisor.setMotorLock(!motor_lock);
-                            supervisor.moveStopFlag();
-                            supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK EANBLE");
-                        }
-                    }
-                }
-            }
-
-        }
-
-    }
-
-
-    MouseArea{
-        id: btn_password_1
-        width: 100
-        height: 100
-        enabled: !setting_patrol_mode
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        z: 99
-        onClicked: {
-            click_sound.play();;
-            password++;
-            supervisor.writelog("[USER INPUT] MOVING PASSWORD "+Number(password));
-            if(password > 4){
-                password = 0;
-                supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
-                loadPage(pkitchen);
-            }
-        }
-        onPressAndHold: {
-            password = 0;
-            mainwindow.showMinimized();
         }
     }
 
     property bool flag_voice: false
-    property var count_voice: 0
+    property int count_voice: 0
     Timer{
         id: timer_check_pause
         interval: 500
@@ -722,7 +570,6 @@ Item {
                     timer_check_pause.stop();
                 }
             }
-
         }
     }
     Timer{
@@ -738,14 +585,20 @@ Item {
                     if(motor_lock)
                         supervisor.writelog("[QML] Motor Lock : false");
                     motor_lock = false;
-                    popup_motor_lock.close();
-                    popup_motor_lock_off.open();
+
+                    popup_notice.init();
+                    popup_notice.closemode = false;
+                    popup_notice.style = "warning";
+                    popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
+                    popup_notice.sub_str = ""
+                    popup_notice.addButton(qsTr("원래대로"));
+                    popup_notice.open();
                 }else{
                     if(!motor_lock){
                         supervisor.writelog("[QML] Motor Lock : true");
                     }
                     motor_lock = true;
-                    popup_motor_lock_off.close();
+                    popup_notice.close();
                     if(supervisor.getStateMoving() === 4){
                         robot_paused = true;
                         popup_pause.visible = true;
@@ -783,63 +636,16 @@ Item {
                         }
                     }
                 }
-
-                text_debug_1.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
-                text_debug_2.text = supervisor.getMotorCurrent(0).toString() + ", " + supervisor.getMotorCurrent(1).toString();
-
             }
-
-//            text_debug_1.text = "Robot Auto State : " + supervisor.getStateMoving().toString();
-//            text_debug_2.text = "Robot OBS In Path State : " + supervisor.getObsinPath().toString();
         }
     }
-
-//    Audio{
-//        id: voice_serving
-//        volume: volume_voice/100
-//        source: supervisor.getVoice("serving");
-//        property bool isplaying: false
-//        onStopped: {
-//            isplaying = false;
-//        }
-//        onPlaying:{
-//            isplaying = true;
-//        }
-//    }
-
-    Column{
-        visible: false
-        anchors.left: parent.left
-        anchors.bottom: parent.bottom
-        spacing: 20
-        anchors.leftMargin: 50
-        anchors.bottomMargin: 50
-        Text{
-            id: text_debug_1
-            color: "white"
-            text: "Robot Auto State : "
-            font.pixelSize: 20
-        }
-        Text{
-            id: text_debug_2
-            color: "white"
-            text: "Robot OBS In Path State : "
-            font.pixelSize: 20
-        }
-    }
-
-
     MouseArea{
         id: btn_page
         anchors.fill: parent
-        visible: !robot_paused
+        visible: !robot_paused  && !setting_patrol_mode
         onClicked: {
-            click_sound.play();;
-            if(robot_paused){
-//                supervisor.writelog("[USER INPUT] MOVING RESUME 2")
-//                supervisor.moveResume();
-//                timer_check_pause.start();
-            }else{
+            click_sound.play();
+            if(!robot_paused){
                 supervisor.writelog("[USER INPUT] MOVING PAUSE 2")
                 supervisor.movePause();
                 timer_check_pause.start();
@@ -847,8 +653,29 @@ Item {
             }
         }
     }
-//    SoundEffect{
-//        id: click
-//        source: "bgm/click.wav"
-//    }
+
+    MouseArea{
+        id: btn_password_1
+        width: 100
+        height: 100
+        enabled: !setting_patrol_mode
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        z: 99
+        onClicked: {
+            click_sound.play();
+            password++;
+            supervisor.writelog("[USER INPUT] MOVING PASSWORD "+Number(password));
+            if(password > 4){
+                password = 0;
+                supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
+                loadPage(pkitchen);
+            }
+        }
+        onPressAndHold: {
+            password = 0;
+            mainwindow.showMinimized();
+        }
+    }
+
 }
