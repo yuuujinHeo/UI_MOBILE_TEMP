@@ -1830,6 +1830,7 @@ bool Supervisor::isplayBGM(){
     }
 }
 void Supervisor::playBGM(int volume){
+    qDebug() << "playBGM";
     list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
     list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
     bgm_player->setPlaylist(list_bgm);
@@ -1879,6 +1880,7 @@ void Supervisor::clicksound(QString mode, int volume){
     }
 }
 void Supervisor::stopBGM(){
+    qDebug() << "stopBGM";
     bgm_player->stop();
 }
 
@@ -2845,6 +2847,9 @@ void Supervisor::moveStopFlag(){
     plog->write("[COMMAND] Move Stop Flag");
     probot->is_patrol = false;
     pmap->call_queue.clear();
+    for(int i=0; i<probot->trays.size(); i++){
+        probot->trays[i].empty = true;
+    }
 //    ui_state = UI_STATE_NONE;
     QMetaObject::invokeMethod(mMain, "movestopped");
 }
@@ -2855,6 +2860,9 @@ void Supervisor::moveStop(){
     ipc->moveStop();
     probot->is_patrol = false;
     pmap->call_queue.clear();
+    for(int i=0; i<probot->trays.size(); i++){
+        probot->trays[i].empty = true;
+    }
     ui_state = UI_STATE_NONE;
     QMetaObject::invokeMethod(mMain, "movestopped");
 }

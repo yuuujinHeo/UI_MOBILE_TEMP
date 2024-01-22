@@ -35,11 +35,13 @@ Item {
             popup_notice.sub_str = "";
         }else if(errnum === 1){
             popup_notice.style = "warning";
+            popup_notice.closemode = false;
             popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
             popup_notice.addButton(qsTr("위치초기화"));
         }else if(errnum === 2){
             popup_notice.style = "warning";
+            popup_notice.closemode = false;
             popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
             popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
         }else if(errnum === 3){
@@ -48,8 +50,10 @@ Item {
             popup_notice.sub_str = "";
         }else if(errnum === 4){
             popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("모터가 초기화 되지 않았습니다");
-            popup_notice.sub_str = qsTr("비상스위치를 눌렀다 풀어주세요");
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
         }else if(errnum === 5){
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
@@ -529,9 +533,11 @@ Item {
                 popup_notice.close();
             }else if(cur_btn === qsTr("모터초기화")){
                 supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
                 popup_notice.close();
             }else if(cur_btn === qsTr("위치초기화")){
-                annot_pages.sourceComponent = page_annot_localization;
+                loadPage(pinit);
+                supervisor.moveStopFlag();
                 popup_notice.close();
             }else if(cur_btn === qsTr("원래대로")){
                 supervisor.setMotorLock(!motor_lock);
@@ -561,7 +567,7 @@ Item {
                     robot_paused = true;
                     popup_pause.visible = true;
                     supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
-                    move_fail = true;
+//                    move_fail = true;
                     timer_check_pause.stop();
                 }else{
                     popup_pause.visible = false;
@@ -581,7 +587,7 @@ Item {
             if(setting_patrol_mode){
 
             }else{
-                if(supervisor.getLockStatus()===0 || supervisor.getEmoStatus()){
+                if(supervisor.getLockStatus()===0){
                     if(motor_lock)
                         supervisor.writelog("[QML] Motor Lock : false");
                     motor_lock = false;
@@ -598,7 +604,6 @@ Item {
                         supervisor.writelog("[QML] Motor Lock : true");
                     }
                     motor_lock = true;
-                    popup_notice.close();
                     if(supervisor.getStateMoving() === 4){
                         robot_paused = true;
                         popup_pause.visible = true;

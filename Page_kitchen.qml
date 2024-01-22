@@ -86,18 +86,17 @@ Item {
 //        }
     }
 
-    function movefail(errnum){
+    function setNotice(errnum){
         supervisor.stopBGM();
-        popup_notice.show_localization = false;
-        popup_notice.show_motorinit = false;
+        popup_notice.init();
+        popup_notice.style = "warning";
         if(errnum === 0){
             popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
             popup_notice.sub_str = "";
         }else if(errnum === 1){
             popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
-            popup_notice.show_localization = true;
-            popup_notice.show_motorinit = false;
+            popup_notice.addButton(qsTr("위치초기화"));
         }else if(errnum === 2){
             popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
             popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
@@ -105,14 +104,21 @@ Item {
             popup_notice.main_str = qsTr("경로가 취소되었습니다");
             popup_notice.sub_str = "";
         }else if(errnum === 4){
-            popup_notice.main_str = qsTr("모터가 초기화 되지 않았습니다");
-            popup_notice.sub_str = qsTr("비상스위치를 눌렀다 풀어주세요");
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
         }else if(errnum === 5){
             popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
             popup_notice.sub_str = "";
         }else if(errnum === 6){
             popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
             popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+        }else if(errnum === 7){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
         }
         popup_notice.open();
         print("kitchen move fail : ",errnum);
@@ -190,7 +196,7 @@ Item {
             is_con_robot = supervisor.getIPCConnection();
             is_emergency = supervisor.getEmoStatus();
             is_motor_power = supervisor.getPowerStatus();
-
+            popup_notice.init();
             if(is_con_robot){
                 if(is_motor_power){
                     if(is_emergency){
@@ -203,9 +209,6 @@ Item {
                         text_go.font.pixelSize = 25
                         popup_notice.main_str = qsTr("비상스위치가 눌려있습니다")
                         popup_notice.sub_str = qsTr("비상스위치를 풀어주세요")
-                        popup_notice.show_localization = false
-                        popup_notice.show_motorinit = false;
-                        popup_notice.show_restart = false;
                     }else if(supervisor.getMotorState() === 0){
                         btn_go.active = false;
                         menubar.menu2_en = false;
@@ -217,10 +220,7 @@ Item {
                         text_go.font.pixelSize = 25
                         popup_notice.main_str = qsTr("모터 락이 해제되었습니다.")
                         popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요")
-                        popup_notice.show_motorinit = true;
-                        popup_notice.show_localization = false;
-                        popup_notice.show_restart = false;
-
+                        popup_notice.addButton(qsTr("모터초기화"));
                     }else if(supervisor.getLocalizationState() === 2){
                         btn_go.active = true;
                         menubar.menu2_en = true;
@@ -231,11 +231,6 @@ Item {
                         text_go.color = "white";
                         text_go.text = qsTr("서빙 시작")
                         text_go.font.pixelSize = 35
-                        popup_notice.main_str = ""
-                        popup_notice.sub_str = ""
-                        popup_notice.show_localization = false
-                        popup_notice.show_motorinit = false;
-                        popup_notice.show_restart = false;
                     }else{
                         btn_go.active = false;
                         menubar.menu2_en = false;
@@ -247,9 +242,7 @@ Item {
                         text_go.font.pixelSize = 30
                         popup_notice.main_str = qsTr("위치를 찾을 수 없습니다")
                         popup_notice.sub_str = qsTr("위치 초기화를 다시 해주세요")
-                        popup_notice.show_localization = true;
-                        popup_notice.show_motorinit = false;
-                        popup_notice.show_restart = false;
+                        popup_notice.addButton(qsTr("위치초기화"));
                     }
                 }else{
                     btn_go.active = false;
@@ -262,9 +255,6 @@ Item {
                     text_go.font.pixelSize = 35
                     popup_notice.main_str = qsTr("모터 전원이 꺼져있습니다")
                     popup_notice.sub_str = qsTr("로봇을 재부팅해주세요")
-                    popup_notice.show_localization = false
-                    popup_notice.show_motorinit = false;
-                    popup_notice.show_restart = true;
                 }
             }else{
                 btn_go.active = false;
@@ -277,9 +267,7 @@ Item {
                 text_go.font.pixelSize = 35
                 popup_notice.main_str = qsTr("로봇이 연결되지 않았습니다")
                 popup_notice.sub_str = qsTr("프로그램을 재시작 해주세요")
-                popup_notice.show_localization = false;
-                popup_notice.show_motorinit = false;
-                popup_notice.show_restart = true;
+                popup_notice.addButton(qsTr("재시작"));
             }
 
 
@@ -1906,6 +1894,22 @@ Item {
 
     Popup_notice{
         id: popup_notice
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.setMotorLock(!motor_lock);
+            }else if(cur_btn === qsTr("취소")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.setMotorLock(true);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                loadPage(pinit);
+//                annot_pages.sourceComponent = page_annot_localization;
+                popup_notice.close();
+            }else if(cur_btn === qsTr("재시작")){
+                supervisor.programRestart();
+            }
+        }
     }
 
     Item{
