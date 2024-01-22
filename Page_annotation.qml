@@ -85,6 +85,8 @@ Item {
         popup_moving.close();
         popup_notice.init();
         popup_notice.style = "warning";
+        supervisor.moveStopFlag();
+        supervisor.moveStopFlag();
         if(errnum === 0){
             popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
             popup_notice.sub_str = "";
@@ -92,6 +94,7 @@ Item {
             popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
             popup_notice.addButton(qsTr("위치초기화"));
+            supervisor.moveStopFlag();
         }else if(errnum === 2){
             popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
             popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
@@ -99,9 +102,12 @@ Item {
             popup_notice.main_str = qsTr("경로가 취소되었습니다");
             popup_notice.sub_str = "";
         }else if(errnum === 4){
-            popup_notice.main_str = qsTr("모터가 초기화 되지 않았습니다");
-            popup_notice.sub_str = qsTr("비상스위치를 눌렀다 풀어주세요");
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
         }else if(errnum === 5){
+            popup_notice.style = "warning";
             popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
             popup_notice.sub_str = "";
         }else if(errnum === 6){
@@ -4496,6 +4502,9 @@ Item {
         onClicked:{
             if(cur_btn === qsTr("위치초기화")){
                 annot_pages.sourceComponent = page_annot_localization;
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.setMotorLock(true);
                 popup_notice.close();
             }
         }

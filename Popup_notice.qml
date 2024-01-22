@@ -4,8 +4,8 @@ import QtQuick.Controls 2.12
 Popup{
     id: popup_notice
     anchors.centerIn: parent
-    width: 1000
-    height: 300
+    width: 1280
+    height: 800
     property string main_str: ""
     property string sub_str: ""
     property string style: "warning"
@@ -31,7 +31,8 @@ Popup{
 
     background:Rectangle{
         anchors.fill: parent
-        color: "transparent"
+        color: color_dark_black
+        opacity: 0.7
     }
     onOpened:{
         if(style == "notice"){
@@ -59,17 +60,26 @@ Popup{
 
     Rectangle{
         id: back
-        width: parent.width
-        height: parent.height
+        width: 1280
+        height: 400
+        anchors.centerIn: parent
         opacity: 0.9
         radius: 10
         color: color_dark_black
     }
+    MouseArea{
+        anchors.fill: parent
+        enabled: closemode
+        onClicked:{
+            click_sound.play();
+            popup_notice.close();
+        }
+    }
     Rectangle{
         id: rect_border
         anchors.centerIn: parent
-        width: parent.width-20
-        height: parent.height-20
+        width: back.width-20
+        height: back.height-20
         radius: 10
         color: "transparent"
         border.color: color_red
@@ -102,21 +112,13 @@ Popup{
                 text: popup_notice.sub_str
             }
         }
-        MouseArea{
-            anchors.fill: parent
-            enabled: closemode
-            onClicked:{
-                click_sound.play();
-                popup_notice.close();
-            }
-        }
         Row{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
+            spacing: 40
             anchors.bottomMargin: 20
             Repeater{
-                model : model_btns
-
+                model : model_btn
                 Rectangle{
                     width:  120
                     height: 60
@@ -140,7 +142,7 @@ Popup{
                         onReleased:{
                             parent.color = "transparent"
                             cur_btn = name;
-                            clicked();
+                            popup_notice.clicked();
                         }
                     }
                 }

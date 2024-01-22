@@ -102,9 +102,21 @@ Window {
     }
 
     function movenotready(){
-        supervisor.playVoice("sorry");
-        supervisor.writelog("[UI] Robot not ready to move");
-        loader_page.item.setNotice(6);
+        if(supervisor.getEmoStatus()){
+            supervisor.playVoice("error_emo");
+            supervisor.writelog("[UI] Emergency Switch");
+            loader_page.item.setNotice(2);
+        }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+            supervisor.playVoice("error_localization");
+            supervisor.writelog("[UI] Localization not ready");
+            loader_page.item.setNotice(1);
+
+        }else{
+            supervisor.playVoice("sorry");
+            supervisor.writelog("[UI] Robot not ready to move");
+            loader_page.item.setNotice(6);
+        }
+
     }
 
     function moveposeerror(){
@@ -303,6 +315,8 @@ Window {
             if(loader_page.item.objectName != "page_annotation" && loader_page.item.objectName != "page_mapping"&& loader_page.item.objectName != "page_init"){
                 supervisor.writelog("[UI] Force Page Change : Robot disconnected");
                 loadPage(pinit);
+            }else if(loader_page.item.objectName == "page_annotation"){
+                movefail();
             }
         }
     }
