@@ -271,40 +271,58 @@ Window {
             supervisor.writelog("[UI] Annotation Check : Moving Done (Serving Pickup) ");
             loader_page.item.movedone();
         }else{
-            if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                supervisor.writelog("[UI] Force Page Change Pickup(Calling) : "+ loader_page.item.pos_name);
-                loadPage(ppickupCall);
-                loader_page.item.init();
-            }else{
-                supervisor.writelog("[UI] Force Page Change Pickup : "+ loader_page.item.pos_name);
-                loadPage(ppickup);
-                loader_page.item.init();
 
-                var trays = supervisor.getPickuptrays();
-                if(trays.length === parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))){
+            if(isPatrolPage()){
+                if(supervisor.getPatrolArriveMode() === "pickup"){
+                    supervisor.writelog("[UI] Force Page Change Pickup(Patrol) : "+ loader_page.item.pos_name);
+                    loadPage(ppickup);
+                    loader_page.item.init();
                     loader_page.item.pos = "";
                     loader_page.item.pickup_1 = true;
                     loader_page.item.pickup_2 = true;
                     loader_page.item.pickup_3 = true;
+                }else if(supervisor.getPatrolArriveMode() === "calling"){
+                    supervisor.writelog("[UI] Force Page Change CallPickup(Patrol) : "+ loader_page.item.pos_name);
+                    loadPage(ppickupCall);
+                    loader_page.item.init();
+                }
+            }else{
+                if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                    supervisor.writelog("[UI] Force Page Change Pickup(Calling) : "+ loader_page.item.pos_name);
+                    loadPage(ppickupCall);
+                    loader_page.item.init();
                 }else{
-                    var tempstr = "";
-                    for(var i=0; i<trays.length; i++){
-                        if(tempstr === ""){
-                            tempstr = Number(trays[i])+qsTr("번");
-                        }else{
-                            tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
+                    supervisor.writelog("[UI] Force Page Change Pickup : "+ loader_page.item.pos_name);
+                    loadPage(ppickup);
+                    loader_page.item.init();
+
+                    var trays = supervisor.getPickuptrays();
+                    if(trays.length === parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))){
+                        loader_page.item.pos = "";
+                        loader_page.item.pickup_1 = true;
+                        loader_page.item.pickup_2 = true;
+                        loader_page.item.pickup_3 = true;
+                    }else{
+                        var tempstr = "";
+                        for(var i=0; i<trays.length; i++){
+                            if(tempstr === ""){
+                                tempstr = Number(trays[i])+qsTr("번");
+                            }else{
+                                tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
+                            }
+                            if(trays[i] === 1){
+                                loader_page.item.pickup_1 = true;
+                            }else if(trays[i] === 2){
+                                loader_page.item.pickup_2 = true;
+                            }else if(trays[i] === 3){
+                                loader_page.item.pickup_3 = true;
+                            }
                         }
-                        if(trays[i] === 1){
-                            loader_page.item.pickup_1 = true;
-                        }else if(trays[i] === 2){
-                            loader_page.item.pickup_2 = true;
-                        }else if(trays[i] === 3){
-                            loader_page.item.pickup_3 = true;
-                        }
+                        loader_page.item.pos = tempstr;
                     }
-                    loader_page.item.pos = tempstr;
                 }
             }
+
 
         }
     }
@@ -436,7 +454,7 @@ Window {
 //    }
 
     Loader{
-//        visible: false
+        //visible: false
         id: loader_page
         focus: true
         anchors.fill: parent
@@ -599,6 +617,12 @@ Window {
         id: start_sound
         source: "bgm/click_start.wav"
         volume: volume_button/100
+    }
+    Tool_KeyPad{
+        id: keypad
+        onOpened: {
+            print("keypad open");
+        }
     }
 
 }

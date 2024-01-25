@@ -30,7 +30,8 @@
 enum{
     PATROL_NONE = 0,
     PATROL_RANDOM,
-    PATROL_SEQUENCE
+    PATROL_SEQUENCE,
+    PATROL_NEW
 };
 
 class Supervisor : public QObject
@@ -46,17 +47,14 @@ public:
     bool debug_mode = false;
 
     //순회 모드, 순회 중 픽업해주세요 화면 띄울건지.
-    int patrol_mode = PATROL_NONE;
-    bool use_patrol_pickup = false;
     bool use_cleaning_location = false;
     bool start_clear = false;
-
 
     ////*********************************************  STRUCT   ***************************************************////
     ST_MAP map;
     ST_ROBOT robot;
     ST_SETTING setting;
-    ST_PATROLMODE patrol;
+//    ST_PATROLMODE patrol;
     ServerHandler *server;
 
     ////*********************************************  VARIABLE   ***************************************************////
@@ -76,6 +74,8 @@ public:
     QStringList WiFisList;
     QList<QNetworkConfiguration> netcfgList;
     QNetworkConfiguration defaultWifiConf;
+
+    void initPatrol();
 
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
@@ -107,6 +107,47 @@ public:
 
     Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
     Q_INVOKABLE void passInit();
+
+
+
+    ////*********************************************  Patrol   *********************************************////
+    int patrol_mode = PATROL_NONE;
+    int patrol_wait_count = 0;
+    QList<ST_PATROL> patrols;
+    ST_PATROL current_patrol;
+    Q_INVOKABLE void readPatrol();
+    Q_INVOKABLE int getPatrolSize();
+    Q_INVOKABLE QString getPatrolName(int num);
+    Q_INVOKABLE QString getPatrolType(int num);
+    Q_INVOKABLE QString getPatrolLocation(int num);
+    Q_INVOKABLE QString getPatrolMovingPage(int num);
+    Q_INVOKABLE QString getPatrolArrivePage(int num);
+    Q_INVOKABLE int getPatrolWaitTime(int num);
+    Q_INVOKABLE QString getPatrolVoice(int num);
+    Q_INVOKABLE QString getPatrolVoiceMode(int num);
+
+    Q_INVOKABLE bool isPatrolPage();
+    Q_INVOKABLE QString getPatrolMovingMode();
+    Q_INVOKABLE QString getPatrolArriveMode();
+
+    Q_INVOKABLE void setCurrentPatrol(int num);
+    Q_INVOKABLE int getPatrolLocationSize(int num);
+    Q_INVOKABLE QString getPatrolLocation(int num, int loc);
+
+    Q_INVOKABLE void clearPatrolLocation(QString mode);
+    Q_INVOKABLE void addPatrolLocation(QString name);
+    Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
+    Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
+    Q_INVOKABLE void setPatrolVoice(QString text, QString param1="", QString param2="", QString param3="");
+
+    Q_INVOKABLE void setPatrol(int num, QString name, QString type, int wait_time);
+    Q_INVOKABLE void savePatrol(QString name, QString type, int wait_time);
+    Q_INVOKABLE void deletePatrol(int num);
+    Q_INVOKABLE void startPatrol(int num);
+
+
+
+
 
     ////*********************************************  CLASS   ***************************************************////
     ZIPHandler *zip;
@@ -219,6 +260,7 @@ public:
     Q_INVOKABLE void stopDrawingLine(int x, int y){maph->stopDrawingLine(x,y);}
     Q_INVOKABLE void setLineColor(int color){maph->setLineColor(color);}
     Q_INVOKABLE void setLineWidth(int width){maph->setLineWidth(width);}
+
 
 
     Q_INVOKABLE int getLocationNum(QString group, QString name);
@@ -374,6 +416,7 @@ public:
     Q_INVOKABLE LOCATION getLocationbyCall(QString call);
     Q_INVOKABLE LOCATION getLocation(int group, QString name);
     Q_INVOKABLE LOCATION getLocationbyID(int id);
+    Q_INVOKABLE LOCATION getLocation(QString name);
 
     Q_INVOKABLE void setUiState(int state){
         ui_state = state;

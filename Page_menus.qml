@@ -53,8 +53,8 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();;
-                    loadPage(pmap);
+                    click_sound.play();
+                    popup_password.open();
                 }
             }
         }
@@ -70,7 +70,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();;
+                    click_sound.play();
                     loadPage(psetting);
                 }
             }
@@ -94,7 +94,7 @@ Item {
             loadPage(pkitchen);
         }
         onMenu2_clicked: {
-            click_sound.play();;
+            click_sound.play();
             supervisor.writelog("[USER INPUT] Screen Minimized.");
             mainwindow.showMinimized();
         }
@@ -104,6 +104,18 @@ Item {
         }
     }
 
+    Popup_password{
+        id: popup_password
+        onLogined:{
+            loadPage(pmap);
+            popup_password.close();
+        }
+        onLogin_rainbow:{
+            loadPage(pmap);
+            popup_password.close();
+        }
+
+    }
 
     Popup{
         id: popup_program_exit
