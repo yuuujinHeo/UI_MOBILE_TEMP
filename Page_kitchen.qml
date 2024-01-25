@@ -786,44 +786,87 @@ Item {
                         radius: 3
                         color: color_dark_gray
                     }
-                    Row{
-                        spacing: 5
-                        Repeater{
-                            model: model_group
-                            Rectangle{
-                                width: 150
-                                height: 70
-                                color: "transparent"
-                                DropShadow{
-                                    anchors.fill: textt
-                                    source: textt
-                                    visible: cur_group==index
-                                    radius: 3
-                                    color: color_more_gray
-                                }
-                                Text{
-                                    id: textt
-                                    anchors.centerIn: parent
-                                    font.family: font_noto_b.name
-                                    font.pixelSize: 30
-                                    text: name
-                                    color: cur_group==index?color_green:color_dark_gray
-                                }
+                    Flickable{
+                        height: parent.height
+                        clip: true
+                        width: parent.width - 185
+//                        color: "transparent"
+                        contentWidth: efkf.width
+                        Row{
+                            id: efkf
+                            spacing: 5
+                            Repeater{
+                                model: model_group
                                 Rectangle{
-                                    anchors.bottom: parent.bottom
-                                    width: parent.width*0.9
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    radius: 2
-                                    height: 3
-                                    color: cur_group==index?color_green:"transparent"
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked:{
-                                        click_sound.play();
-                                        cur_group = index;
+                                    width: 180
+                                    height: 70
+                                    color: "transparent"
+                                    DropShadow{
+                                        anchors.fill: textt
+                                        source: textt
+                                        visible: false//cur_group===index
+                                        radius: 3
+                                        color: color_more_gray
+                                    }
+                                    Text{
+                                        id: textt
+                                        anchors.centerIn: parent
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 30
+                                        text: name
+                                        horizontalAlignment: Text.AlignHCenter
+                                        color: cur_group===index?color_green:color_dark_gray
+                                        Component.onCompleted: {
+                                            scale = 1;
+                                            while(scale*width > 180){
+                                                scale -=0.05;
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        anchors.bottom: parent.bottom
+                                        width: parent.width*0.9
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        radius: 2
+                                        height: 3
+                                        color: cur_group===index?color_green:"transparent"
+                                    }
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onClicked:{
+                                            click_sound.play();
+                                            cur_group = index;
+                                        }
                                     }
                                 }
+                            }
+                        }
+                    }
+                    Rectangle{
+                        width: 180
+                        height: 70
+                        color: "transparent"
+                        anchors.right: parent.right
+                        Text{
+                            anchors.centerIn: parent
+                            font.family: font_noto_b.name
+                            font.pixelSize: 30
+                            text: "Patrol"
+                            color: color_blue
+                        }
+                        Rectangle{
+                            anchors.bottom: parent.bottom
+                            width: parent.width*0.9
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            radius: 2
+                            height: 3
+                            color: color_blue
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                popup_patrol.open();
                             }
                         }
                     }
@@ -1092,7 +1135,6 @@ Item {
                                 }
                             }
                         }
-
                         Rectangle{
                             id: btn_confirm_tables_group
                             color: "#282828"
@@ -1117,12 +1159,9 @@ Item {
                                 }
                             }
                         }
-
                     }
                 }
-
             }
-
         }
     }
     Rectangle{
@@ -2108,6 +2147,9 @@ Item {
         }
     }
 
+    Popup_patrol{
+        id: popup_patrol
+    }
      Popup{
         id: popup_clean_calling
         anchors.centerIn: parent

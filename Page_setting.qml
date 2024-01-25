@@ -1756,6 +1756,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                             Item_buttons{
@@ -1819,6 +1820,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                             Item_buttons{
@@ -1879,6 +1881,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -1938,6 +1941,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -1989,6 +1993,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -3047,6 +3052,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -3109,6 +3115,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -3171,6 +3178,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -3233,6 +3241,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -3310,6 +3319,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4582,6 +4592,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4646,6 +4657,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4709,6 +4721,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4771,6 +4784,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4833,6 +4847,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4895,6 +4910,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -4951,6 +4967,7 @@ Item {
                             while(width*scale > parent.width*0.8){
                                 scale=scale-0.01;
                             }
+                            anchors.leftMargin = 30 - width*(1-scale)/2
                         }
                     }
                 }
@@ -4975,6 +4992,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5021,6 +5039,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5082,6 +5101,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5128,6 +5148,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5190,6 +5211,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5235,6 +5257,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5281,6 +5304,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5344,6 +5368,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5407,6 +5432,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5452,6 +5478,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5498,6 +5525,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5560,6 +5588,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5607,6 +5636,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5669,6 +5699,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5730,6 +5761,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5792,6 +5824,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5854,6 +5887,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5914,6 +5948,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -5976,6 +6011,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                             Item_buttons{
@@ -6051,6 +6087,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -6113,6 +6150,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -6187,6 +6225,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -8699,6 +8738,7 @@ Item {
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
                                 }
                             }
                         }
@@ -9414,8 +9454,8 @@ Item {
                         if(is_admin){
                             popup_manager.open();
                         }else{
-                            popup_password.open();
                             popup_password.open_menu = true;
+                            popup_password.open();
                         }
                     }
                 }
@@ -9499,7 +9539,7 @@ Item {
                 status_power.state = 2;
                 if(supervisor.getBattery() < 30){
                     status_power.state = 1;
-                    model_power_issue.append({"name":"배터리잔량 낮음","image":"image/warning.png"});
+                    model_power_issue.append({"name":qsTr("배터리잔량 낮음"),"image":"image/warning.png"});
                 }
 
                 bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
@@ -9513,53 +9553,53 @@ Item {
                 model_power_issue.clear();
 
                 if(supervisor.getEmoStatus() !== 0){
-                    model_power_issue.append({"name":"비상스위치 눌림","image":"image/warning.png"});
+                    model_power_issue.append({"name":qsTr("비상스위치 눌림"),"image":"image/warning.png"});
                     status_power.state = 1;
                 }else if(supervisor.getRemoteStatus() === 0){
-                    model_power_issue.append({"name":"원격비상스위치 눌림","image":"image/warning.png"});
+                    model_power_issue.append({"name":qsTr("원격비상스위치 눌림"),"image":"image/warning.png"});
                     status_power.state = 1;
                 }else if(supervisor.getPowerStatus() === 0){
-                    model_power_issue.append({"name":"전원 공급 안됨","image":"icon/icon_error.png"});
+                    model_power_issue.append({"name":qsTr("전원 공급 안됨"),"image":"icon/icon_error.png"});
                     status_power.state = 0;
                 }
 
                 var state = supervisor.getLocalizationState();
                 if(state === 0){
-                    model_power_issue.append({"name":"위치초기화 필요","image":"icon/icon_error.png"});
-                    text_robot.text = "초기화 안됨";
+                    model_power_issue.append({"name":qsTr("위치초기화 필요"),"image":"icon/icon_error.png"});
+                    text_robot.text = qsTr("초기화 안됨");
                     status_localization.state = 0;
                 }else if(state === 1){
-                    model_power_issue.append({"name":"위치초기화 진행중","image":"image/warning.png"});
-                    text_robot.text = "초기화 중";
+                    model_power_issue.append({"name":qsTr("위치초기화 진행중"),"image":"image/warning.png"});
+                    text_robot.text = qsTr("초기화 중");
                     status_localization.state = 1;
                 }else if(state === 2){
-                    text_robot.text = "초기화 완료";
+                    text_robot.text = qsTr("초기화 완료");
                     status_localization.state = 2;
 
                     state = supervisor.getStateMoving();
                     if(state === 0){
-                        model_power_issue.append({"name":"로봇주행 준비안됨","image":"image/warning.png"});
-                        text_robot.text = "준비 안됨";
+                        model_power_issue.append({"name":qsTr("로봇주행 준비안됨"),"image":"image/warning.png"});
+                        text_robot.text = qsTr("준비 안됨");
                     }else if(state === 1){
-                        text_robot.text = "준비";
+                        text_robot.text = qsTr("준비");
                     }else if(state === 2){
-                        text_robot.text = "이동 중";
+                        text_robot.text = qsTr("이동 중");
                     }else if(state === 3){
-                        text_robot.text = "대기 중";
+                        text_robot.text = qsTr("대기 중");
                     }else if(state === 4){
-                        text_robot.text = "일시정지 중";
+                        text_robot.text = qsTr("일시정지 중");
                     }
 
                 }else if(state === 3){
                     status_localization.state = 0;
-                    model_power_issue.append({"name":"위치초기화 실패","image":"image/warning.png"});
-                    text_robot.text = "초기화 실패";
+                    model_power_issue.append({"name":qsTr("위치초기화 실패"),"image":"image/warning.png"});
+                    text_robot.text = qsTr("초기화 실패");
                 }
 
 
                 if(supervisor.getObsState() === 1){
                     status_localization.state = 0;
-                    model_power_issue.append({"name":"장애물 겹침","image":"image/warning.png"});
+                    model_power_issue.append({"name":qsTr("장애물 겹침"),"image":"image/warning.png"});
                 }
 
                 //모터 상태 - 모터 1
@@ -9569,7 +9609,7 @@ Item {
 
 
                 if(!state1){
-                    model_power_issue.append({"name":"모터 1 연결안됨","image":"icon/icon_error.png"});
+                    model_power_issue.append({"name":qsTr("모터 1 연결안됨"),"image":"icon/icon_error.png"});
                     status_motor_left.state = 0;
                 }else{
                     status_motor_left.state = 2;
@@ -9577,7 +9617,7 @@ Item {
 
                 if(!state2){
                     status_motor_right.state = 0;
-                    model_power_issue.append({"name":"모터 2 연결안됨","image":"icon/icon_error.png"});
+                    model_power_issue.append({"name":qsTr("모터 2 연결안됨"),"image":"icon/icon_error.png"});
                 }else{
                     status_motor_right.state = 2;
                 }
@@ -9587,15 +9627,15 @@ Item {
                     if(supervisor.getChargeStatus() !== 0){
                         status_motor_right.state = 1;
                         status_motor_left.state = 1;
-                        model_power_issue.append({"name":"충전케이블 연결됨","image":"image/warning.png"});
+                        model_power_issue.append({"name":qsTr("충전케이블 연결됨"),"image":"image/warning.png"});
                     }else if(lstate === 0){
                         status_motor_right.state = 1;
                         status_motor_left.state = 1;
-                        model_power_issue.append({"name":"모터락 풀림","image":"image/warning.png"});
+                        model_power_issue.append({"name":qsTr("모터락 풀림"),"image":"image/warning.png"});
                     }else{
                         state1 = supervisor.getMotorStatus(0);
                         if(state1 === 0){
-                            model_power_issue.append({"name":"모터 1 준비안됨","image":"icon/icon_error.png"});
+                            model_power_issue.append({"name":qsTr("모터 1 준비안됨"),"image":"icon/icon_error.png"});
                             status_motor_left.state = 1;
                         }else if(state1 === 1){
                             status_motor_left.state = 2;
@@ -9630,13 +9670,13 @@ Item {
                                 str_error += "MOD ";
                                 state1 -= 2;
                             }
-                            model_power_issue.append({"name":"모터 1 "+str_error,"image":"icon/icon_error.png"});
+                            model_power_issue.append({"name":qsTr("모터 1 ")+str_error,"image":"icon/icon_error.png"});
                         }
 
                         state2 = supervisor.getMotorStatus(1);
                         if(state2 === 0){
                             status_motor_right.state = 1;
-                            model_power_issue.append({"name":"모터 2 준비안됨","image":"icon/icon_error.png"});
+                            model_power_issue.append({"name":qsTr("모터 2 준비안됨"),"image":"icon/icon_error.png"});
                         }else if(state2 === 1){
                             status_motor_right.state = 2;
                         }else{
@@ -9670,7 +9710,7 @@ Item {
                                 str_error += "MOD ";
                                 state2 -= 2;
                             }
-                            model_power_issue.append({"name":"모터 2 "+str_error,"image":"icon/icon_error.png"});
+                            model_power_issue.append({"name":qsTr("모터 2 ")+str_error,"image":"icon/icon_error.png"});
 
                             bar_status2.background_color = color_red;
                             text_status2.text = str_error;
@@ -9691,7 +9731,7 @@ Item {
                 status_motor_left.state = 0;
                 status_motor_right.state = 0;
                 status_localization.state = 0;
-                text_robot.text = "프로그램 연결 안됨"
+                text_robot.text = qsTr("프로그램 연결 안됨")
             }
 
         }
@@ -10078,7 +10118,7 @@ Item {
                                     Text{
                                         id: text_mtemp1
                                         anchors.centerIn: parent
-                                        text: parent.value + " 도"
+                                        text: parent.value + qsTr(" 도")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
 
@@ -10187,7 +10227,7 @@ Item {
                                     Text{
                                         id: text_temp2
                                         anchors.centerIn: parent
-                                        text: parent.value + " 도"
+                                        text: parent.value + qsTr(" 도")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -10203,7 +10243,7 @@ Item {
                                     Text{
                                         id: text_mtemp2
                                         anchors.centerIn: parent
-                                        text: parent.value + " 도"
+                                        text: parent.value + qsTr(" 도")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -10906,23 +10946,23 @@ Item {
 
                 if(supervisor.getzipstate() === 1){
                     if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = "파일을 압축하여 저장 중..";
+                        text_usb_state.text = qsTr("파일을 압축하여 저장 중..");
                     }else{
-                        text_usb_state.text = "파일을 가져오는 중..";
+                        text_usb_state.text = qsTr("파일을 가져오는 중..");
                     }
                 }else if(supervisor.getzipstate() === 2){
                     if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = "저장에 성공하였습니다";
+                        text_usb_state.text = qsTr("저장에 성공하였습니다");
                     }else{
                         btn_usb_confirm.visible = true;
-                        text_usb_state.text = "파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다";
+                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
                     }
 
                 }else if(supervisor.getzipstate() === 3){
                     if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = "저장에 성공하였지만 일부 과정에서 에러가 발생했습니다";
+                        text_usb_state.text = qsTr("저장에 성공하였지만 일부 과정에서 에러가 발생했습니다");
                     }else{
-                        text_usb_state.text = "파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다";
+                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다");
                         btn_usb_confirm.visible = true;
                     }
                     model_usb_error.clear();
@@ -10932,9 +10972,9 @@ Item {
                 }else if(supervisor.getzipstate() === 4){
                     text_usb_state.color = color_red;
                     if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = "저장에 실패했습니다";
+                        text_usb_state.text = qsTr("저장에 실패했습니다");
                     }else{
-                        text_usb_state.text = "파일을 가져오지 못했습니다";
+                        text_usb_state.text = qsTr("파일을 가져오지 못했습니다");
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -10942,7 +10982,7 @@ Item {
                     }
                 }else{
                     print(supervisor.getzipstate());
-                    text_usb_state.text = "잠시만 기다려주세요";
+                    text_usb_state.text = qsTr("잠시만 기다려주세요");
                 }
             }
         }
@@ -10950,7 +10990,7 @@ Item {
             timer_usb_check.start();
             model_usb_error.clear();
             btn_usb_confirm.visible = false;
-            text_usb_state.text = "잠시만 기다려주세요";
+            text_usb_state.text = qsTr("잠시만 기다려주세요");
             is_new = true;
         }
         onClosed: {
@@ -11072,9 +11112,9 @@ Item {
                     color: "white"
                     text: {
                         if(popup_usb_download.index === 0)
-                            "가져오실 파일 목록을 선택해주세요"
+                            qsTr("가져오실 파일 목록을 선택해주세요")
                         else if(popup_usb_download.index === 1)
-                            "가져오실 목록을 선택해주세요"
+                            qsTr("가져오실 목록을 선택해주세요")
                     }
                 }
             }
@@ -11318,8 +11358,8 @@ Item {
     Popup{
         id: popup_usb_select
         anchors.centerIn: parent
-        width: 500
-        height: 500
+        width: 700
+        height: 600
         leftPadding: 0
         topPadding: 0
         bottomPadding: 0
@@ -11410,9 +11450,9 @@ Item {
                     color: "white"
                     text: {
                         if(popup_usb_select.index === 0)
-                            "저장소를 선택해주세요"
+                            qsTr("저장소를 선택해주세요")
                         else if(popup_usb_select.index === 1)
-                            "저장할 목록을 선택해주세요"
+                            qsTr("저장할 목록을 선택해주세요")
                     }
                 }
             }
@@ -11428,7 +11468,7 @@ Item {
                     anchors.topMargin: 20
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.family: font_noto_r.name
-                    font.pixelSize: 25
+                    font.pixelSize: 20
                     horizontalAlignment: Text.AlignHCenter
                     color: color_red
                     text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다")
@@ -12930,251 +12970,48 @@ Item {
             }
         }
     }
-    Popup{
+
+    Popup_password{
         id: popup_password
-        anchors.centerIn: parent
-        width: 360
-        height: 550
-        background: Rectangle{
-            anchors.fill: parent
-            color: "transparent"
+        onEdited: {
+            select_category = "status";
+            popup_password.close();
+            popup_manager.close();
         }
-        property bool is_editmode: false
-        property string passwd: "2011"
-        property string answer: ""
-        property bool is_fail: false
-        property var input_len: 0
-        property bool open_menu: false
-        onIs_failChanged: {
-            if(is_fail){
-                setfailed();
-            }else{
-                setfailclear();
-            }
-        }
-
-        onOpened:{
-            is_editmode = false;
-            model_passwd.clear();
-            is_fail = false
-            model_passwd.append({"show":false,"failed":false})
-            model_passwd.append({"show":false,"failed":false})
-            model_passwd.append({"show":false,"failed":false})
-            model_passwd.append({"show":false,"failed":false})
-
-            model_pad.clear();
-            model_pad.append({"name":"1"});
-            model_pad.append({"name":"2"});
-            model_pad.append({"name":"3"});
-            model_pad.append({"name":"4"});
-            model_pad.append({"name":"5"});
-            model_pad.append({"name":"6"});
-            model_pad.append({"name":"7"});
-            model_pad.append({"name":"8"});
-            model_pad.append({"name":"9"});
-            model_pad.append({"name":"clear"});
-            model_pad.append({"name":"0"});
-            model_pad.append({"name":"<-"});
-            answer = "";
-            input_len = 0;
-        }
-
-        function setfailed(){
-            for(var i=0; i<model_passwd.count; i++){
-                model_passwd.get(i).failed = true;
-            }
-        }
-        function setfailclear(){
-            for(var i=0; i<model_passwd.count; i++){
-                model_passwd.get(i).failed = false;
-            }
-        }
-
         onClosed:{
-            if(is_admin && popup_update.opened){
-                supervisor.writelog("[USER INPUT] Program Update : Password Correct -> pull start")
-                supervisor.updateProgram();
-                popup_update.close();
-            }
             if(open_menu){
                 popup_manager.open();
                 open_menu = false;
             }
         }
-
-        Rectangle{
-            radius: 40
-            clip: true
-            anchors.centerIn: parent
-            width: parent.width
-            height: parent.height
-            color: color_dark_navy
-            Column{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenterOffset: -20
-                spacing: 50
-                Rectangle{
-                    width: 260
-                    color: color_dark_navy
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    height: 60
-                    Row{
-                        anchors.centerIn: parent
-                        spacing: 15
-                        Repeater{
-                            model: ListModel{id: model_passwd}
-                            Rectangle{
-                                width: 50
-                                height: 50
-                                radius: 50
-                                color: "transparent"
-                                Rectangle{
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    visible: show
-                                    width: 46
-                                    height: width
-                                    radius: width
-                                    color: failed ? color_red : color_green
-                                }
-                                Rectangle{
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    anchors.bottom: parent.bottom
-                                    anchors.bottomMargin: -10
-                                    width: 50
-                                    height: 2
-                                    color: color_gray
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Grid{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 17
-                    rows: 4
-                    columns: 3
-                    Repeater{
-                        model: ListModel{id: model_pad}
-                        Rectangle{
-                            width: 70
-                            height: width
-                            radius: 70
-                            color: color_navy
-                            Text{
-                                text: name
-                                visible:name!=="clear"&&name!=="<-"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 30
-                                anchors.centerIn: parent
-                                color: "white"
-                            }
-                            Image{
-                                anchors.centerIn: parent
-                                width: {
-                                    if(name=="clear"){
-                                        50
-                                    }else{
-                                        50
-                                    }
-                                }
-
-                                height: width
-                                visible:name==="clear"||name==="<-"
-                                source:{
-                                    if(name=="clear"){
-                                        "icon/icon_trashcan.png"
-                                    }else{
-                                        "icon/btn_reset.png"
-                                    }
-                                }
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    if(name==="clear"){
-                                        popup_password.setfailclear();
-                                        popup_password.is_fail = false;
-                                        popup_password.input_len = 0;
-                                        model_passwd.set(0,{"show":false});
-                                        model_passwd.set(1,{"show":false});
-                                        model_passwd.set(2,{"show":false});
-                                        model_passwd.set(3,{"show":false});
-                                        popup_password.answer = "";
-                                    }else if(name==="<-"){
-                                        if(popup_password.input_len === 0){
-
-                                        }else{
-                                            popup_password.input_len--;
-                                            model_passwd.set(popup_password.input_len,{"show":false});
-                                            popup_password.answer = popup_password.answer.slice(0,popup_password.input_len);
-                                        }
-                                        popup_password.is_fail = false;
-                                    }else{
-                                        if(popup_password.is_editmode){
-                                            popup_password.is_fail = false;
-                                            popup_password.answer += name;
-                                            model_passwd.set(popup_password.input_len,{"show":true});
-                                            popup_password.input_len++;
-                                            if(popup_password.input_len === 4){
-                                                supervisor.writelog("[SETTING] Change User : "+supervisor.getSetting("setting","UI","user_passwd")+" -> "+popup_password.answer)
-                                                supervisor.setSetting("setting","UI/user_passwd",popup_password.answer);
-                                                is_admin = true;
-                                                is_rainbow = false;
-                                                select_category = "status";
-                                                popup_password.close();
-                                                popup_manager.close();
-                                            }
-                                        }else{
-                                            if(popup_password.input_len === 4){
-                                                popup_password.is_fail = false;
-                                                popup_password.setfailclear();
-                                                popup_password.input_len = 0;
-                                                model_passwd.set(0,{"show":false});
-                                                model_passwd.set(1,{"show":false});
-                                                model_passwd.set(2,{"show":false});
-                                                model_passwd.set(3,{"show":false});
-                                                popup_password.answer = "";
-                                                popup_password.answer += name;
-                                                model_passwd.set(popup_password.input_len,{"show":true});
-                                                popup_password.input_len++;
-                                            }else{
-                                                popup_password.is_fail = false;
-                                                popup_password.answer += name;
-                                                model_passwd.set(popup_password.input_len,{"show":true});
-                                                popup_password.input_len++;
-                                                if(popup_password.answer===popup_password.passwd){
-                                                    supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN SUCCESS");
-                                                    is_admin = true;
-                                                    is_rainbow = true;
-                                                    popup_password.is_fail = false;
-                                                    popup_password.close();
-                                                }else if(popup_password.answer===supervisor.getSetting("setting","UI","user_passwd")){
-                                                    supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN SUCCESS");
-                                                    is_admin = true;
-                                                    is_rainbow = false;
-                                                    popup_password.is_fail = false;
-                                                    popup_password.close();
-                                                }else if(popup_password.input_len === 4){
-                                                    is_admin = false;
-                                                    is_rainbow = false;
-                                                    popup_password.is_fail = true;
-                                                    supervisor.writelog("[USER INPUT] SETTING PAGE -> ADMIN LOGIN FAILED "+popup_password.answer);
-                                                }
-                                            }
-                                        }
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+        onLogined:{
+            is_admin = true;
+            is_rainbow = false;
+            if(popup_update.opened){
+                supervisor.writelog("[USER INPUT] Program Update : Password Correct -> pull start")
+                supervisor.updateProgram();
+                popup_update.close();
             }
+            popup_password.is_fail = false;
+            popup_password.close();
+        }
+        onLogin_rainbow: {
+            is_admin = true;
+            is_rainbow = true;
+            if(popup_update.opened){
+                supervisor.writelog("[USER INPUT] Program Update : Password Correct -> pull start")
+                supervisor.updateProgram();
+                popup_update.close();
+            }
+            popup_password.is_fail = false;
+            popup_password.close();
+        }
+        onFailed:{
+            is_admin = false;
+            is_rainbow = false;
         }
     }
+
     Popup{
         id: popup_tf
         anchors.centerIn: parent
@@ -15095,7 +14932,7 @@ Item {
                     border.color: color_green
                     Text{
                         anchors.centerIn: parent
-                        text: popup_wifi.setting_step == 0 ?"취소":"이전"
+                        text: popup_wifi.setting_step == 0 ?qsTr("취소"):qsTr("이전")
                         font.pixelSize: 35
                         font.family: font_noto_r.name
                         color: color_dark_black
@@ -15136,7 +14973,7 @@ Item {
                     anchors.rightMargin: 50
                     Text{
                         anchors.centerIn: parent
-                        text: popup_wifi.setting_step < 2 ?"다음":"설정 완료"
+                        text: popup_wifi.setting_step < 2 ?qsTr("다음"):qsTr("설정 완료")
                         font.pixelSize: 35
                         font.family: font_noto_r.name
                         color: "white"

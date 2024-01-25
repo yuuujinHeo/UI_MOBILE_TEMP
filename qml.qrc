@@ -138,7 +138,6 @@
         <file>image/battery_1.png</file>
         <file>icon/icon_test_stop.png</file>
         <file>image/loading.gif</file>
-        <file>image/temp.gif</file>
         <file>icon/image_emergency_push.png</file>
         <file>icon/image_emergency.png</file>
         <file>icon/icon_obs.png</file>
@@ -275,5 +274,13 @@
         <file>bgm/click3.mp3</file>
         <file>bgm/click3.wav</file>
         <file>lang_eddn.qm</file>
+        <file>Popup_password.qml</file>
+        <file>Popup_patrol.qml</file>
+        <file>icon/icon_repeat_b.png</file>
+        <file>icon/icon_random_b.png</file>
+        <file>image/face_surprise2.gif</file>
+        <file>image/face_normal2.gif</file>
+        <file>image/face_normal.gif</file>
+        <file>image/face_cry2.gif</file>
     </qresource>
 </RCC>

@@ -140,6 +140,7 @@ typedef struct{
     int prev_state=0;
 }ST_WIFI;
 
+
 typedef struct{
     bool ipc_use = false;
     //from Robot
@@ -242,16 +243,43 @@ typedef struct{
 }ST_UPDATE;
 
 typedef struct{
-    QString type;
-    QString location;
-    POSE pose;
-}ST_PATROL;
+    QString type = "";
+    QString source = "";
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
+    int fontsize = 0;
+    QString color = "";
+}ST_PAGE_OBJECT;
 
 typedef struct{
-    QList<ST_PATROL> path;
-    QString filename;
-    int mode;
-}ST_PATROLMODE;
+    //arrive : pass, calling, pickup
+    //moving : face, location
+    QString mode = "";
+    QString background = "";
+    QString color = "";
+    QString image = "";
+    QString video = "";
+    QList<ST_PAGE_OBJECT> objects;
+}ST_PAGE;
+
+typedef struct{
+    QString name = "";
+    QString filename = "";
+    //random, sequence
+    QString type = "";
+    //woman, child, none
+    QString voice_mode = "";
+    QString voice_file = "";
+    int voice_volume = 0;
+    int wait_time = 0;
+    //all, serving, custom
+    QString location_mode = "";
+    QList<LOCATION> location;
+    ST_PAGE moving_page;
+    ST_PAGE arrive_page;
+}ST_PATROL;
 
 typedef struct{
     int tray_num;

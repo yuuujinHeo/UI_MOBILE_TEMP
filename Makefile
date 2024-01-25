@@ -559,42 +559,55 @@ compiler_rcc_clean:
 	-$(DEL_FILE) qrc_qml.cpp
 qrc_qml.cpp: qml.qrc \
 		/usr/lib/qt5/bin/rcc \
-		Page_init.qml \
-		Item_menubar.qml \
-		lang_eddn.qm \
-		Item_progressCircle.qml \
-		Page_menus.qml \
 		Popup_notice.qml \
-		Item_buttonRectIcon.qml \
-		Item_ProgressBar.qml \
-		Tool_KeyPad.qml \
-		MAP_FULL2.qml \
-		Item_button.qml \
-		Page_log.qml \
-		Page_mapping.qml \
-		Item_statusbar.qml \
-		Page_annotation.qml \
-		Popup_help.qml \
-		Page_pickup.qml \
-		Popup_map_list.qml \
-		Item_localization.qml \
-		Item_buttons.qml \
-		Popup_patrol_page.qml \
-		Page_setting.qml \
-		Page_moving.qml \
 		Item_radioButton.qml \
-		main.qml \
-		Page_map.qml \
-		Item_CircleP.qml \
-		Page_pickup_calling.qml \
-		Page_MoveFail.qml \
-		Page_kitchen.qml \
+		Popup_patrol.qml \
+		lang_eddn.qm \
+		Popup_password.qml \
+		Page_moving.qml \
 		Page_charge.qml \
 		Tool_Keyboard.qml \
+		Item_button.qml \
+		Item_menubar.qml \
+		Popup_help.qml \
+		Page_pickup.qml \
+		Page_MoveFail.qml \
+		Item_buttons.qml \
+		Item_statusbar.qml \
+		Page_setting.qml \
+		MAP_FULL2.qml \
+		main.qml \
+		Page_init.qml \
+		Item_localization.qml \
+		Item_progressCircle.qml \
+		Page_kitchen.qml \
+		Popup_patrol_page.qml \
+		Page_mapping.qml \
+		Page_menus.qml \
+		Tool_KeyPad.qml \
+		Page_pickup_calling.qml \
+		Popup_map_list.qml \
+		Item_ProgressBar.qml \
+		Page_log.qml \
+		Page_map.qml \
+		Item_CircleP.qml \
+		Item_buttonRectIcon.qml \
+		Page_annotation.qml \
+		bgm/battery.mp3 \
+		bgm/click.wav \
+		bgm/serving.mp3 \
+		bgm/song.mp3 \
+		bgm/click3.wav \
+		bgm/click3.mp3 \
+		bgm/click_start.wav \
+		bgm/click2.wav \
+		bgm/click_error.wav \
 		image/image_robot_temp.png \
+		image/face_normal.gif \
 		image/battery_1.png \
 		image/robot_head_sleep.png \
 		image/battery_2.png \
+		image/face_cry2.gif \
 		image/warning.png \
 		image/battery_3.png \
 		image/robot_clear.png \
@@ -602,7 +615,8 @@ qrc_qml.cpp: qml.qrc \
 		image/icon_warning.png \
 		image/loading.gif \
 		image/joy_finger.png \
-		image/temp.gif \
+		image/face_surprise2.gif \
+		image/face_normal2.gif \
 		image/robot_moving.png \
 		image/robot_callme.png \
 		image/robot_move_wait.png \
@@ -622,17 +636,6 @@ qrc_qml.cpp: qml.qrc \
 		image/rainbow3.png \
 		image/joy_background.png \
 		image/image_localization_reset.png \
-		font/NotoSansKR-Medium.otf \
-		font/NotoSansKR-Light.otf \
-		bgm/battery.mp3 \
-		bgm/click.wav \
-		bgm/serving.mp3 \
-		bgm/song.mp3 \
-		bgm/click3.wav \
-		bgm/click3.mp3 \
-		bgm/click_start.wav \
-		bgm/click2.wav \
-		bgm/click_error.wav \
 		icon/icon_server_disconnect.png \
 		icon/btn_reset2.png \
 		icon/clock.png \
@@ -701,6 +704,7 @@ qrc_qml.cpp: qml.qrc \
 		icon/bat_large_charge.png \
 		icon/icon_redo.png \
 		icon/btn_yes.png \
+		icon/icon_random_b.png \
 		icon/icon_lcm_discon.png \
 		icon/bat_3.png \
 		icon/icon_warning.png \
@@ -740,6 +744,7 @@ qrc_qml.cpp: qml.qrc \
 		icon/btn_charge.png \
 		icon/keyboard_right.png \
 		icon/icon_run.png \
+		icon/icon_repeat_b.png \
 		icon/icon-drawing-curve.png \
 		icon/icon_add.png \
 		icon/patrol_down.png \
@@ -833,7 +838,9 @@ qrc_qml.cpp: qml.qrc \
 		voice/child_pickup_2.mp3 \
 		voice/woman_wait_other_robot.mp3 \
 		voice/child_start_charging.mp3 \
-		voice/woman_wait_robot_location.mp3
+		voice/woman_wait_robot_location.mp3 \
+		font/NotoSansKR-Medium.otf \
+		font/NotoSansKR-Light.otf
 	/usr/lib/qt5/bin/rcc -name qml qml.qrc -o qrc_qml.cpp
 
 compiler_moc_predefs_make_all: moc_predefs.h

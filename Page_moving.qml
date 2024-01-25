@@ -140,14 +140,26 @@ Item {
             show_face = false;
             face_image.stop();
         }else{
-            if(supervisor.getSetting("setting","UI","moving_face")==="true"){
-                face_image.play("image/temp.gif");
-                rect_robot.visible = false;
-                show_face = true;
+            if(supervisor.isPatrolPage()){
+                if(supervisor.getPatrolMovingMode() === "face"){
+                    face_image.play("image/face_normal2.gif");
+                    rect_robot.visible = false;
+                    show_face = true;
+                }else{
+                    show_face = false;
+                    face_image.stop();
+                    rect_robot.visible = true;
+                }
             }else{
-                show_face = false;
-                face_image.stop();
-                rect_robot.visible = true;
+                if(supervisor.getSetting("setting","UI","moving_face")==="true"){
+                    face_image.play("image/face_normal2.gif");
+                    rect_robot.visible = false;
+                    show_face = true;
+                }else{
+                    show_face = false;
+                    face_image.stop();
+                    rect_robot.visible = true;
+                }
             }
             robot_paused = false;
             supervisor.playBGM();
@@ -623,21 +635,21 @@ Item {
 
                 if(show_face){
                     if(obs_in_path == 0){
-                        if(face_image.cur_source !== "image/temp.gif"){
+                        if(face_image.cur_source !== "image/face_normal2.gif"){
                             supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
-                            face_image.play("image/temp.gif");
+                            face_image.play("image/face_normal2.gif");
                         }
                     }else if(obs_in_path == 1){
                         flag_voice = true;
-                        if(face_image.cur_source !== "image/face_surprise.gif"){
+                        if(face_image.cur_source !== "image/face_surprise2.gif"){
                             supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
-                            face_image.play("image/face_surprise.gif");
+                            face_image.play("image/face_surprise2.gif");
                         }
                     }else if(obs_in_path == 2){
                         flag_voice = true;
-                        if(face_image.cur_source !== "image/face_cry.gif"){
+                        if(face_image.cur_source !== "image/face_cry2.gif"){
                             supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
-                            face_image.play("image/face_cry.gif");
+                            face_image.play("image/face_cry2.gif");
                         }
                     }
                 }

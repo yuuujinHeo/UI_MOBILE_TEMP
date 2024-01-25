@@ -2163,7 +2163,7 @@ QString Supervisor::getServingName(int group, int num){
             }
         }
     }
-    return "설정 안됨";
+    return tr("설정 안됨");
 }
 int Supervisor::getLocationNum(QString type){
     if(type==""){
@@ -2288,7 +2288,7 @@ QString Supervisor::getLocationName(int num, QString type){
                 count++;
             }
         }
-        return "설정 안됨";
+        return tr("설정 안됨");
     }
 }
 
@@ -3219,8 +3219,14 @@ void Supervisor::setRotateList(QString name){
     patrol_list.append(name);
     plog->write("[SUPERVISOR] Set Patrol List : "+name + " (size = "+QString::number(patrol_list.size())+")");
 }
+void Supervisor::startPatrol(int num){
+    if(num > -1 && num < patrols.size()){
+        current_patrol = patrols[num];
+        ui_state = UI_STATE_MOVING;
+        patrol_mode = PATROL_NEW;
+    }
+}
 void Supervisor::startPatrol(QString mode, bool pickup){
-    use_patrol_pickup = pickup;
     QString pickstr = pickup?"true":"false";
     if(patrol_list.size() > 1){
         if(mode == "random"){
@@ -3817,15 +3823,15 @@ void Supervisor::onTimer(){
                             QMetaObject::invokeMethod(mMain, "showpickup");
                         }else if(probot->is_patrol){
                             plog->write("[SCHEDULER] PATROLLING MOVE ARRIVED "+probot->current_target.name);
-                            if(use_patrol_pickup){
-                                ui_state = UI_STATE_PICKUP;
-                                QMetaObject::invokeMethod(mMain, "showpickup");
-                            }else{
-                                probot->current_target.name = "";
-                                ui_state = UI_STATE_MOVING;
-                                count_pass = 0;
-                                plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
+
+                            //Play Voice
+                            if(current_patrol.voice_file != ""){
+                                if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
+                                    QString file = getVoice(current_patrol.voice_file,current_patrol.voice_mode);
+                                    playVoice(file, current_patrol.voice_volume);
+                                }
                             }
+                            ui_state = UI_STATE_PICKUP;
                         }else{
                             LOCATION curLoc;
                             bool match = false;
@@ -3915,7 +3921,8 @@ void Supervisor::onTimer(){
 
                                     }else{
                                         //3. PATROLLING
-                                        if(patrol_list.size() > 0){
+//                                        if(patrol_list.size() > 0){
+                                        if(patrol_mode != PATROL_NONE){
                                             if(patrol_mode == PATROL_RANDOM){
                                                 //패트롤 위치 랜덤하게 지정
                                                 int temp = QRandomGenerator::global()->bounded(0,1000);
@@ -3954,8 +3961,49 @@ void Supervisor::onTimer(){
                                                     plog->write("[SUPERVISOR] MOVING (PATROL SEQUENCE) : Name Wrong ("+patrol_list[patrol_num]+")");
                                                     patrol_mode = PATROL_NONE;
                                                 }
+                                            }else if(patrol_mode == PATROL_NEW){
+                                                if(current_patrol.type == "random"){
+                                                    //패트롤 위치 랜덤하게 지정
+                                                    int temp = QRandomGenerator::global()->bounded(0,1000);
+                                                    while(patrol_num == temp%(current_patrol.location.size())){
+                                                        temp = QRandomGenerator::global()->bounded(0,1000);
+                                                        qDebug() << "Next temp = " << temp << temp%(current_patrol.location.size());
+                                                    }
+                                                    plog->write("[SUPERVISOR] MOVING (PATROL RANDOM) : CUR ("+QString::number(temp%(current_patrol.location.size()))+") LAST ("+QString::number(patrol_num)+")");
+                                                    patrol_num = temp%(current_patrol.location.size());
+
+                                                    //패트롤 위치가 유효한 지 체크
+                                                    LOCATION temp_loc = current_patrol.location[patrol_num];//getLocation(0, patrol_list[patrol_num]);
+                                                    if(temp_loc.name != ""){
+                                                        cur_target = temp_loc;
+                                                        probot->is_calling = false;
+                                                        probot->is_patrol = true;
+                                                        plog->write("[SUPERVISOR] MOVING (PATROL RANDOM) : "+temp_loc.name);
+                                                    }else{
+                                                        plog->write("[SUPERVISOR] MOVING (PATROL RANDOM) : Name Wrong ("+patrol_list[patrol_num]+")");
+                                                        patrol_mode = PATROL_NONE;
+                                                    }
+                                                }else{
+                                                    if(++patrol_num >= current_patrol.location.size())
+                                                        patrol_num = 0;
+
+                                                    plog->write("[SUPERVISOR] MOVING (PATROL SEQUENCE) : CUR ("+QString::number(patrol_num)+")");
+
+                                                    //패트롤 위치가 유효한 지 체크
+                                                    LOCATION temp_loc = current_patrol.location[patrol_num];
+                                                    if(temp_loc.name != ""){
+                                                        cur_target = temp_loc;
+                                                        probot->is_calling = false;
+                                                        probot->is_patrol = true;
+                                                        plog->write("[SUPERVISOR] MOVING (PATROL SEQUENCE) : "+temp_loc.name);
+                                                    }else{
+                                                        plog->write("[SUPERVISOR] MOVING (PATROL SEQUENCE) : Name Wrong ()");
+                                                        patrol_mode = PATROL_NONE;
+                                                    }
+                                                }
+
                                             }else{
-                                                plog->write("[SUPERVISOR] PATROL LIST IS NOT EMPTY BUT MODE IS NONE "+QString().asprintf("(mode: %d, list size : %d)",patrol_mode,patrol_list.size()));
+                                                plog->write("[SUPERVISOR] PATROL LIST IS NOT EMPTY BUT MODE IS NONE "+QString().asprintf("(mode: %d, list size : %d)",patrol_mode,current_patrol.location.size()));
                                                 patrol_list.clear();
                                             }
                                         }
@@ -4035,6 +4083,7 @@ void Supervisor::onTimer(){
                             plog->write("[SUPERVISOR] SERVING : MOVE START");
                         }
                     }
+
                     QMetaObject::invokeMethod(mMain, "movelocation");
                 }
             }else if(probot->running_state == ROBOT_MOVING_NOT_READY){
@@ -4072,22 +4121,7 @@ void Supervisor::onTimer(){
                 ipc->moveResume();
             }
         }
-        if(patrol_mode != PATROL_NONE){
-            if(use_patrol_pickup){
-                count_pass++;
-                if(count_pass > 30){
-                    probot->current_target.name = "";
-                    ui_state = UI_STATE_MOVING;
-                    count_pass = 0;
-                    plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
-                }
-            }else{
-                probot->current_target.name = "";
-                ui_state = UI_STATE_MOVING;
-                count_pass = 0;
-                plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
-            }
-        }
+        //Call 강제귀환
         for(int i=0; i<pmap->call_queue.size(); i++){
             if(pmap->call_queue[i].left(7) == "Resting" && getSetting("setting","CALL","force_resting") == "true"){
                 plog->write("[SCHEDULER] PICKUP -> FORCE MOVE RESTING");
@@ -4109,6 +4143,30 @@ void Supervisor::onTimer(){
                 pmap->call_queue.append(temp);
                 ui_state = UI_STATE_MOVING;
                 break;
+            }
+        }
+
+        if(patrol_mode != PATROL_NONE){
+            if(current_patrol.arrive_page.mode == "calling" || current_patrol.arrive_page.mode == "pickup"){
+                if(patrol_wait_count == 0){
+                    QMetaObject::invokeMethod(mMain, "showpickup");
+                }
+
+                if(patrol_wait_count++ < current_patrol.wait_time*1000/MAIN_THREAD){
+                    break;
+                }else{
+                    initPatrol();
+                    probot->current_target.name = "";
+                    ui_state = UI_STATE_MOVING;
+                    count_pass = 0;
+                    plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
+                }
+            }else{//pass
+                initPatrol();
+                probot->current_target.name = "";
+                ui_state = UI_STATE_MOVING;
+                count_pass = 0;
+                plog->write("[SCHEDULER] PICKUP -> AUTO PASS");
             }
         }
         break;
@@ -4278,6 +4336,14 @@ LOCATION Supervisor::getLocation(int group, QString name){
     }
     return LOCATION();
 }
+LOCATION Supervisor::getLocation(QString name){
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].name == name){
+            return pmap->locations[i];
+        }
+    }
+    return LOCATION();
+}
 
 int Supervisor::getzipstate(){
     return zip->process;
@@ -4287,7 +4353,7 @@ void Supervisor::usbsave(QString usb, bool _ui, bool _slam, bool _config, bool _
     std::string user = getenv("USER");
     std::string path = "/media/" + user;
     qDebug() << _ui << _slam;
-    if(usb == "Destkop"){
+    if(usb == "Desktop"){
         plog->write("[USER INPUT] USB SAVE : Desktop");
         zip->makeZip(QDir::homePath()+"/Desktop",_ui,_slam,_config,_map,_log);
     }else if(usb == ""){
@@ -4446,6 +4512,17 @@ void Supervisor::process_error(int cmd, int param){
     }
 }
 
+void Supervisor::initPatrol(){
+    patrol_wait_count = 0;
+    current_patrol.name = "";
+    current_patrol.location.clear();
+    current_patrol.filename = "";
+    current_patrol.wait_time = 0;
+    current_patrol.voice_file = "";
+    current_patrol.voice_mode = "none";
+    current_patrol.arrive_page = ST_PAGE();
+    current_patrol.moving_page = ST_PAGE();
+}
 void Supervisor::process_timeout(int cmd){
     QMetaObject::invokeMethod(mMain, "checkwifidone");
 }
@@ -4717,6 +4794,7 @@ void Supervisor::clear_all(){
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make config ini")),
                                   Q_ARG(QVariant,QVariant().fromValue(3)));
     }
+
     QDir().mkdir(path_config);
     makeRobotINI();
     QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
@@ -4799,4 +4877,266 @@ void Supervisor::setLocationView(bool onoff){
 }
 void Supervisor::setRobotView(bool onoff){
     maph->setShowRobot(onoff);
+}
+
+void Supervisor::readPatrol(){
+    patrols.clear();
+    QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+    if(!QFile::exists(path)){
+        QDir().mkdir(path);
+    }else{
+        QDir dir(path);
+        QStringList files = dir.entryList();
+        for(QString file:files){
+            if(file.split(".").size() > 1){
+                if(file.left(7) == "patrol_" && file.split(".")[1] == "ini"){
+                    QSettings patrol(path+"/"+file, QSettings::IniFormat);
+                    ST_PATROL temp;
+                    patrol.beginGroup("SETTING");
+                    if(patrol.value("name").toString() == ""){
+
+                    }else{
+                        temp.name = patrol.value("name").toString();
+                        temp.filename = patrol.value("filename").toString();
+                        temp.type = patrol.value("type").toString();
+                        temp.wait_time = patrol.value("wait_time").toInt();
+                        temp.moving_page.mode = patrol.value("moving_page").toString();
+                        temp.arrive_page.mode = patrol.value("arrive_page").toString();
+                        temp.voice_mode = patrol.value("voice_mode").toString();
+                        temp.voice_file = patrol.value("voice_file").toString();
+                        temp.voice_volume = patrol.value("voice_volume").toInt();
+                        temp.location_mode = patrol.value("location_mode").toString();
+
+                        int loc_num = patrol.value("location_num").toInt();
+
+                        patrol.endGroup();
+                        patrol.beginGroup("LOCATION");
+                        for(int i=0; i<loc_num; i++){
+                            LOCATION temp_loc = getLocation(patrol.value("loc"+QString::number(i)).toString());
+                            if(temp_loc.name != ""){
+                                temp.location.append(temp_loc);
+                            }
+                        }
+                        patrol.endGroup();
+
+                        if(temp.moving_page.mode == "custom"){
+                            patrol.beginGroup("MOVING_PAGE");
+                            temp.moving_page.background = patrol.value("background").toString();
+                            if(temp.moving_page.background == "color"){
+                                temp.moving_page.color = patrol.value("background_color").toString();
+                            }else if(temp.moving_page.background == "image"){
+                                temp.moving_page.image = patrol.value("background_image").toString();
+                            }else if(temp.moving_page.background == "video"){
+                                temp.moving_page.video = patrol.value("background_video").toString();
+                            }
+
+                            //object reading...(to be continue..)
+                        }
+
+                        //arrive_page 도 똑같이
+
+                        qDebug() << "PATROL APPEND : " << temp.name << temp.type << temp.location.size() << temp.voice_mode;
+                        patrols.append(temp);
+                    }
+                }
+            }
+        }
+    }
+}
+
+int Supervisor::getPatrolSize(){
+    return patrols.size();
+}
+QString Supervisor::getPatrolName(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].name;
+    else
+        return "";
+}
+
+QString Supervisor::getPatrolType(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].type;
+    else
+        return "";
+}
+QString Supervisor::getPatrolLocation(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].location_mode;
+    else
+        return "";
+}
+QString Supervisor::getPatrolMovingPage(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].moving_page.mode;
+    else
+        return "";
+}
+QString Supervisor::getPatrolArrivePage(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].arrive_page.mode;
+    else
+        return "";
+}
+int Supervisor::getPatrolWaitTime(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].wait_time;
+    else
+        return -1;
+}
+QString Supervisor::getPatrolVoiceMode(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].voice_mode;
+    else
+        return "";
+}
+bool Supervisor::isPatrolPage(){
+    if(patrol_mode != PATROL_NONE && current_patrol.name != ""){
+        return true;
+    }else{
+        return false;
+    }
+}
+QString Supervisor::getPatrolMovingMode(){
+    return current_patrol.moving_page.mode;
+}
+QString Supervisor::getPatrolArriveMode(){
+    return current_patrol.arrive_page.mode;
+}
+QString Supervisor::getPatrolVoice(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].voice_file;
+    else
+        return "";
+}
+
+int Supervisor::getPatrolLocationSize(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].location.size();
+    else
+        return 0;
+}
+
+void Supervisor::setCurrentPatrol(int num){
+    if(num > -1 && num < patrols.size()){
+        current_patrol.location.clear();
+        current_patrol = patrols[num];
+    }
+}
+QString Supervisor::getPatrolLocation(int num, int loc){
+    if(num > -1 && num < patrols.size()){
+        if(loc > -1 && loc < patrols[num].location.size()){
+            return patrols[num].location[loc].name;
+        }else{
+            return "";
+        }
+    }else{
+        return "";
+    }
+}
+
+void Supervisor::clearPatrolLocation(QString mode){
+    current_patrol.location.clear();
+    current_patrol.location_mode = mode;
+}
+
+void Supervisor::addPatrolLocation(QString name){
+    if(getLocation(name).name != ""){
+        current_patrol.location.append(getLocation(name));
+    }
+}
+void Supervisor::setPatrolMovingPage(QString mode, QString param1, QString param2, QString param3){
+    if(mode == "custom"){
+
+    }else{
+        current_patrol.moving_page.mode = mode;
+    }
+}
+void Supervisor::setPatrolArrivePage(QString mode, QString param1, QString param2, QString param3){
+    if(mode == "custom"){
+
+    }else{
+        current_patrol.arrive_page.mode = mode;
+    }
+}
+void Supervisor::setPatrolVoice(QString text, QString param1, QString param2, QString param3){
+    qDebug() << "setPatrolVoice" << text << param1 << param2;
+    current_patrol.voice_mode = param1;
+    current_patrol.voice_file = text;
+    current_patrol.voice_volume = param2.toInt();
+}
+void Supervisor::setPatrol(int num, QString name, QString type, int wait_time){
+    if(num > -1 && num < patrols.size()){
+        QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+        QString filename = patrols[num].filename;
+        QSettings file(path+"/"+filename, QSettings::IniFormat);
+        file.clear();
+        file.setValue("SETTING/name",name);
+        file.setValue("SETTING/filename",filename);
+        file.setValue("SETTING/type",type);
+        file.setValue("SETTING/wait_time",wait_time);
+
+        file.setValue("SETTING/moving_page",current_patrol.moving_page.mode);
+        file.setValue("SETTING/arrive_page",current_patrol.arrive_page.mode);
+        file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+        file.setValue("SETTING/voice_file",current_patrol.voice_file);
+        file.setValue("SETTING/location_mode",current_patrol.location_mode);
+        file.setValue("SETTING/location_num",current_patrol.location.size());
+
+        for(int i=0; i<current_patrol.location.size(); i++){
+            file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
+        }
+    }
+}
+
+void Supervisor::deletePatrol(int num){
+    if(num > -1 && num < patrols.size()){
+        QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+        QString filename = patrols[num].filename;
+        QFile *file = new QFile(path+"/"+filename);
+        if(file->remove()){
+            qDebug() << "success";
+        }else{
+            qDebug() << "failed";
+        }
+//        readPatrol();
+    }
+}
+
+void Supervisor::savePatrol(QString name, QString type, int wait_time){
+    QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+    if(!QFile::exists(path)){
+        QDir().mkdir(path);
+    }
+
+    QDir dir(path);
+    QStringList files = dir.entryList();
+    int size = 0;
+    for(QString file:files){
+        int tempsize = file.split(".")[0].remove(0,7).toInt();
+        if(tempsize > size)
+            size = tempsize;
+    }
+    QString filename = "patrol_" + QString::number(size+1) + ".ini";
+
+    QSettings file(path+"/"+filename, QSettings::IniFormat);
+    file.clear();
+    file.setValue("SETTING/name",name);
+    file.setValue("SETTING/filename",filename);
+    file.setValue("SETTING/type",type);
+    file.setValue("SETTING/wait_time",wait_time);
+
+    file.setValue("SETTING/moving_page",current_patrol.moving_page.mode);
+    file.setValue("SETTING/arrive_page",current_patrol.arrive_page.mode);
+    file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+    file.setValue("SETTING/voice_volume",current_patrol.voice_volume);
+    file.setValue("SETTING/voice_file",current_patrol.voice_file);
+    file.setValue("SETTING/location_mode",current_patrol.location_mode);
+    file.setValue("SETTING/location_num",current_patrol.location.size());
+
+    for(int i=0; i<current_patrol.location.size(); i++){
+        file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
+    }
+
+
 }
