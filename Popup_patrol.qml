@@ -7,6 +7,7 @@ Popup{
     property string mode: "sequence"
     property int select_pos_mode: 0
     property int waittime: 0
+    property int passtime: 0
     property int select_preset: -1
     leftPadding: 0
     rightPadding: 0
@@ -46,6 +47,7 @@ Popup{
                                 "moving":supervisor.getPatrolMovingPage(i),
                                 "arrive":supervisor.getPatrolArrivePage(i),
                                 "wait_time":supervisor.getPatrolWaitTime(i),
+                                "pass_time":supervisor.getPatrolPassTime(i),
                                 "voice":supervisor.getPatrolVoice(i),
                                 "location_size":supervisor.getPatrolLocationSize(i)});
 
@@ -182,9 +184,9 @@ Popup{
         }
 
         if(savemode==="save"){
-            supervisor.savePatrol(name,mode,parseInt(tfield_waittime.text));
+            supervisor.savePatrol(name,mode,popup_patrol.waittime,popup_patrol.passtime);
         }else{
-            supervisor.setPatrol(popup_patrol.select_preset,name,mode,parseInt(tfield_waittime.text));
+            supervisor.setPatrol(popup_patrol.select_preset,name,mode,popup_patrol.waittime,popup_patrol.passtime);
         }
 
         update();
@@ -779,6 +781,80 @@ Popup{
                                         width: 250
                                         height: 50
                                         model:[qsTr("페이지표시안함"),qsTr("픽업화면"),qsTr("호출화면")]//,qsTr("사용자지정화면")]
+                                    }
+                                    Text{
+                                        visible: combo_arrivepage.currentIndex !== 0
+                                        text: qsTr("페이지 자동넘김 시간")
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        visible: combo_arrivepage.currentIndex !== 0
+                                        spacing: 10
+                                        TextField{
+                                            id: tfield_passtime
+                                            width: 150
+                                            height: 50
+                                            text: popup_patrol.passtime
+                                            horizontalAlignment: TextField.AlignHCenter
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            MouseArea{
+                                                anchors.fill:parent
+                                                onClicked:{
+                                                    click_sound_no.play();
+                                                }
+                                            }
+                                        }
+                                        Text{
+                                            text: qsTr(" 초")
+                                            font.family: font_noto_b.name
+                                            font.pixelSize: 20
+                                            anchors.verticalCenter: parent.verticalCenter
+                                        }
+                                        Column{
+                                            spacing: 3
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            Rectangle{
+                                                width: 35
+                                                height: 25
+                                                color: color_dark_navy
+                                                radius: 5
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    width: 18
+                                                    height: 15
+                                                    source: "icon/joy_up.png"
+                                                }
+                                                MouseArea{
+                                                    anchors.fill: parent
+                                                    onClicked:{
+                                                        click_sound.play();
+                                                        popup_patrol.passtime++;
+                                                    }
+                                                }
+                                            }
+                                            Rectangle{
+                                                width: 35
+                                                height: 25
+                                                color: color_dark_navy
+                                                radius: 5
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    width: 18
+                                                    height: 12
+                                                    source: "icon/joy_down.png"
+                                                }
+                                                MouseArea{
+                                                    anchors.fill: parent
+                                                    onClicked:{
+                                                        click_sound.play();
+                                                        popup_patrol.passtime--;
+                                                        if(popup_patrol.passtime < 0)
+                                                            popup_patrol.passtime = 0;
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                     Text{
                                         text: qsTr("도착 후 대기시간")

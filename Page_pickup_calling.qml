@@ -21,7 +21,8 @@ Item {
         text_mention.visible = true;
         target_pos.visible = true;
         btn_confirm.visible = true;
-        supervisor.playVoice("pickup_calling")
+        if(!supervisor.isPatrolPage())
+            supervisor.playVoice("pickup_calling")
         text_hello.visible = false;
         statusbar.visible = false;
         timer_hello.stop();

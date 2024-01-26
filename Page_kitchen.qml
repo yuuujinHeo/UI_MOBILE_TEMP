@@ -78,7 +78,7 @@ Item {
             }
         }
 
-
+        supervisor.setMotorLock(true);
 //        if(supervisor.getSetting("setting","USE_UI","use_restinglock")==="true"){
 //            supervisor.setMotorLock(false);
 //        }else{
@@ -2133,6 +2133,8 @@ Item {
                         supervisor.moveToWait();
                     }else if(go_charge){
                         supervisor.moveToCharge();
+                    }else if(go_cleaning){
+                        supervisor.moveToCleaning();
                     }else if(go_patrol){
                         print("patrol start command");
                     }else if(calling_mode){
@@ -2141,6 +2143,7 @@ Item {
                     go_wait = false;
                     go_charge = false;
                     go_patrol = false;
+                    go_cleaning = false;
                     popup_question.visible = false;
                 }
             }
