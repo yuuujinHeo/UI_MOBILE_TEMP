@@ -8,6 +8,7 @@
 #include "GlobalHeader.h"
 #include "CallbellHandler.h"
 #include "ZIPHandler.h"
+#include "python_wrapper.h"
 #include "IPCHandler.h"
 #include <QMediaPlaylist>
 #include "ServerHandler.h"
@@ -186,7 +187,13 @@ public:
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();
     Q_INVOKABLE void playVoice(QString voice, int volume=-1);
+    Q_INVOKABLE void playVoice(QString voice, QString text, int volume=-1);
     Q_INVOKABLE void playVoiceFile(QString file, int volume=-1);
+
+
+
+    Q_INVOKABLE void makeTTS(QString text);
+    Q_INVOKABLE void playTTS();
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
     Q_INVOKABLE void setName(QString name){maph->setName(name);}

@@ -169,7 +169,10 @@ Item {
                 supervisor.setSetting("setting","UI/voice_mode","child");
             }else if(combo_voice_mode.currentIndex == 1){
                 supervisor.setSetting("setting","UI/voice_mode","woman");
+            }else if(combo_voice_mode.currentIndex == 2){
+                supervisor.setSetting("setting","UI/voice_mode","tts");
             }
+
             readVoice();
         }
 
@@ -729,8 +732,10 @@ Item {
 
         if(supervisor.getSetting("setting","UI","voice_mode") === "woman"){
             combo_voice_mode.currentIndex = 1;
-        }else{
+        }else if(supervisor.getSetitng("setting","UI","voice_mode") === "child"){
             combo_voice_mode.currentIndex = 0;
+        }else{
+            combo_voice_mode.currentIndex = 2;
         }
 
         combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));

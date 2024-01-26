@@ -282,5 +282,6 @@
         <file>image/face_normal2.gif</file>
         <file>image/face_normal.gif</file>
         <file>image/face_cry2.gif</file>
+        <file>Popup_test_tts.qml</file>
     </qresource>
 </RCC>

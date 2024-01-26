@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <QQmlEngine>
 #include <QTextCodec>
+#include <stdio.h>
 #include <QSslSocket>
 #include <exception>
 #include <QMediaPlaylist>
@@ -34,6 +35,7 @@ Supervisor::Supervisor(QObject *parent)
     : QObject(parent)
 {
     checkShellFiles();
+    Py_Initialize();
 
     plog->write("");
     plog->write("");
@@ -112,6 +114,7 @@ Supervisor::Supervisor(QObject *parent)
 Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
     ipc->clearSharedMemory(ipc->shm_cmd);
+    Py_FinalizeEx();
     delete extproc;
     delete ipc;
     delete slam_process;
@@ -1813,7 +1816,7 @@ bool Supervisor::getMappingflag(){
 }
 void Supervisor::playVoiceFile(QString file, int volume){
     voice_player->stop();
-    voice_player->setMedia(QUrl("qrc:/"+file));//woman_start_mapping.mp3"));
+    voice_player->setMedia(QUrl::fromLocalFile(QDir::homePath() + "/build-ui/voice.mp3"));//woman_start_mapping.mp3"));
     if(volume == -1){
         volume = getSetting("setting","UI","volume_voice").toInt();
     }
@@ -1832,6 +1835,16 @@ void Supervisor::playVoice(QString voice, int volume){
     voice_player->setVolume(volume);
     voice_player->play();
     plog->write("[SUPERVISOR] Play Voice : "+voice);
+}
+void Supervisor::playVoice(QString voice, QString text, int volume){
+    voice_player->stop();
+    voice_player->setMedia(QUrl("qrc:/"+getVoice(text,voice)));//woman_start_mapping.mp3"));
+    if(volume == -1){
+        volume = getSetting("setting","UI","volume_voice").toInt();
+    }
+    voice_player->setVolume(volume);
+    voice_player->play();
+    plog->write("[SUPERVISOR] Play Voice : "+voice + ", " + text);
 }
 
 bool Supervisor::isplayBGM(){
@@ -3784,8 +3797,10 @@ void Supervisor::onTimer(){
                             qDebug() << current_patrol.voice_file << current_patrol.voice_mode;
                             if(current_patrol.voice_file != ""){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
-                                    QString file = getVoice(current_patrol.voice_file,current_patrol.voice_mode);
-                                    playVoiceFile(file, current_patrol.voice_volume);
+                                    playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
+                                }else if(current_patrol.voice_mode == "tts"){
+                                    makeTTS(current_patrol.voice_file);
+                                    playTTS();
                                 }
                             }
 
@@ -3810,8 +3825,10 @@ void Supervisor::onTimer(){
                             //Play Voice
                             if(current_patrol.voice_file != ""){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
-                                    QString file = getVoice(current_patrol.voice_file,current_patrol.voice_mode);
-                                    playVoiceFile(file, current_patrol.voice_volume);
+                                    playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
+                                }else if(current_patrol.voice_mode == "tts"){
+                                    makeTTS(current_patrol.voice_file);
+                                    playTTS();
                                 }
                             }
 
@@ -3845,8 +3862,10 @@ void Supervisor::onTimer(){
                             //Play Voice
                             if(current_patrol.voice_file != ""){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
-                                    QString file = getVoice(current_patrol.voice_file,current_patrol.voice_mode);
-                                    playVoiceFile(file, current_patrol.voice_volume);
+                                    playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
+                                }else if(current_patrol.voice_mode == "tts"){
+                                    makeTTS(current_patrol.voice_file);
+                                    playTTS();
                                 }
                             }
                             ui_state = UI_STATE_PICKUP;
@@ -3882,8 +3901,10 @@ void Supervisor::onTimer(){
                             //Play Voice
                             if(current_patrol.voice_file != ""){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
-                                    QString file = getVoice(current_patrol.voice_file,current_patrol.voice_mode);
-                                    playVoiceFile(file, current_patrol.voice_volume);
+                                    playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
+                                }else if(current_patrol.voice_mode == "tts"){
+                                    makeTTS(current_patrol.voice_file);
+                                    playTTS();
                                 }
                             }
                             ui_state = UI_STATE_PICKUP;
@@ -5229,6 +5250,14 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
     for(int i=0; i<current_patrol.location.size(); i++){
         file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
     }
+}
 
 
+void Supervisor::makeTTS(QString text){
+    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\", lang='ko')\ntts.save('voice.mp3')";
+    PyRun_SimpleString(all.toStdString().data());
+}
+
+void Supervisor::playTTS(){
+    playVoiceFile("voice.mp3");
 }

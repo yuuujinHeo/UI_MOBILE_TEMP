@@ -65,9 +65,29 @@ Popup{
         model_voice_temp.clear();
         model_voice_temp.append({"file":"thank"});
         model_voice_temp.append({"file":"hello"});
+        model_voice_temp.append({"file":"funny_working_hard"});
+        model_voice_temp.append({"file":"hello_rb"});
+        model_voice_temp.append({"file":"path_finding"});
+        model_voice_temp.append({"file":"rb_fighting"});
+        model_voice_temp.append({"file":"serving"});
+        model_voice_temp.append({"file":"sorry"});
+        model_voice_temp.append({"file":"start_next_moving"});
+        model_voice_temp.append({"file":"start_patrol"});
+        model_voice_temp.append({"file":"wait_path"});
+        model_voice_temp.append({"file":"thank_enjoy"});
         model_voice.clear();
         model_voice.append({"value":qsTr("감사합니다")});
         model_voice.append({"value":qsTr("안녕하세요")});
+        model_voice.append({"value":qsTr("로봇은 열심히 일하는중")});
+        model_voice.append({"value":qsTr("안녕하세요(레인보우)")});
+        model_voice.append({"value":qsTr("위치를 찾는 중")});
+        model_voice.append({"value":qsTr("레인보우화이팅")});
+        model_voice.append({"value":qsTr("서빙중입니다")});
+        model_voice.append({"value":qsTr("죄송합니다")});
+        model_voice.append({"value":qsTr("다음위치로이동")});
+        model_voice.append({"value":qsTr("순회를시작합니다")});
+        model_voice.append({"value":qsTr("위치를 찾는 중")});
+        model_voice.append({"value":qsTr("맛있게드세요")});
         combo_voice.currentIndex = 0;
         waittime = 0;
         combo_voice_mode.currentIndex = 0;
@@ -123,8 +143,10 @@ Popup{
         popup_patrol.waittime = supervisor.getPatrolWaitTime(num);
         if(supervisor.getPatrolVoiceMode(num) === "child"){
             combo_voice_mode.currentIndex = 1;
-        }else{
+        }else if(supervisor.getPatrolVoiceMode(num) === "woman"){
             combo_voice_mode.currentIndex = 0;
+        }else{
+            combo_voice_mode.currentIndex = 2;
         }
 
         if(supervisor.getPatrolLocation(num) === "all"){
@@ -179,8 +201,10 @@ Popup{
 
         if(combo_voice_mode.currentIndex === 0){
             supervisor.setPatrolVoice(model_voice_temp.get(combo_voice.currentIndex).file, "woman", "50");
-        }else{
+        }else if(combo_voice_mode.currentIndex === 1){
             supervisor.setPatrolVoice(model_voice_temp.get(combo_voice.currentIndex).file, "child", "50");
+        }else{
+            supervisor.setPatrolVoice(tfield_tts_text.text, "tts", "50");
         }
 
         if(savemode==="save"){
@@ -939,7 +963,7 @@ Popup{
                                             id: combo_voice_mode
                                             width: 200
                                             height: 50
-                                            model:[qsTr("여성"),qsTr("어린이")]
+                                            model:[qsTr("여성"),qsTr("어린이"),qsTr("만들기")]
                                         }
                                         Rectangle{
                                             width: 40
@@ -955,18 +979,37 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-
+                                                    var voicemode;
+                                                    if(combo_voice_mode.currentIndex === 1){
+                                                        voicemode = "child";
+                                                        supervisor.playVoice(voicemode, model_voice_temp.get(combo_voice.currentIndex).file);
+                                                    }else if(combo_voice_mode.currentIndex === 0){
+                                                        voicemode = "woman";
+                                                        supervisor.playVoice(voicemode, model_voice_temp.get(combo_voice.currentIndex).file);
+                                                    }else{
+                                                        voicemode = "tts";
+                                                        supervisor.makeTTS(tfield_tts_text.text);
+                                                        supervisor.playTTS();
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+
                                     Text{
                                         text: qsTr("도착 후 멘트")
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
+                                    TextField{
+                                        id: tfield_tts_text
+                                        visible: combo_voice_mode.currentIndex === 2
+                                        width: 250
+                                        height: 50
+                                    }
                                     Row{
                                         spacing: 10
+                                        visible: combo_voice_mode.currentIndex !== 2
                                         ComboBox{
                                             id: combo_voice
                                             width: 250
