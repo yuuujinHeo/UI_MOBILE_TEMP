@@ -253,7 +253,15 @@ Item {
                 update_detail();
                 popup_status_detail.open();
             }
+            onPressAndHold:{
+                //debug_mode
+                popup_tts.open();
+            }
         }
+    }
+
+    Popup_test_tts{
+        id: popup_tts
     }
 
 

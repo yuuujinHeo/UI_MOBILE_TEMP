@@ -1,6 +1,6 @@
 QT += core gui quick widgets network websockets sql quickcontrols2 serialport gui-private multimedia
 
-CONFIG += c++11 quickcompiler
+CONFIG += c++11 qtquickcompiler
 
 # The following define makes your compiler emit warnings if you use
 # any Qt feature that has been marked deprecated (the exact warnings
@@ -66,6 +66,8 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
+
+
 LIBS += -lz
 HEADERS += \
     CallbellHandler.h \
@@ -76,6 +78,7 @@ HEADERS += \
     MapHandler.h \
     MapViewer.h \
     ServerHandler.h \
+    python_wrapper.h \
     spline.h \
     Keyemitter.h \
     Logger.h \
@@ -111,6 +114,10 @@ TRANSLATIONS += lang_en.ts\
             lang_eddn.ts
 OTHER_FILES += lang_en.qm\
             lang_eddn.qm
+
+INCLUDEPATH += /usr/include/python3.10
+LIBS += -lpython3.10
+
 
 # Libraries setting (for x86_64)
 contains(QT_ARCH, x86_64){
@@ -170,6 +177,7 @@ contains(QT_ARCH, arm64) {
 }
 
 DISTFILES += \
+    gTTSHandler.py \
     quazip/QuaZipConfig.cmake.in \
     quazip/quazip.pc.cmakein
 
