@@ -149,6 +149,7 @@ typedef struct{
     int status_power = 0;
     int status_emo = 0;
     int status_remote = 0;
+    int status_charge_connect = 0;
     int status_charge = 0;
     int status_lock = 0;
 
@@ -271,6 +272,7 @@ typedef struct{
     QString type = "";
     //woman, child, none
     QString voice_mode = "";
+    QString voice_language = "";
     QString voice_file = "";
     int voice_volume = 0;
     int wait_time = 0;

@@ -63,6 +63,7 @@ Item {
     }
     Text{
         id: text_bat
+        visible: false
         text: battery + " %"
         font.pixelSize: 50
         color: "white"
@@ -80,8 +81,8 @@ Item {
             if(supervisor.getChargeStatus()){
                 if(!is_charging){
                     timer_bat.start();
-//                    voice_stop_charge.stop();
-//                    voice_charging.play();
+                    //                    voice_stop_charge.stop();
+                    //                    voice_charging.play();
                     supervisor.playVoice("charging");
                     is_charging = true;
                 }

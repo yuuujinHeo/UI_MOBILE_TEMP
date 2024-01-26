@@ -168,6 +168,7 @@ void IPCHandler::onTimer(){
             probot->battery = av_battery;
         }else if(probot->battery - av_battery > 0.5){
             probot->battery = av_battery;
+            probot->status_charge = 1;
         }
 
         probot->battery_percent = (probot->battery-44)*100/10;
@@ -204,7 +205,10 @@ void IPCHandler::onTimer(){
         probot->status_emo = !temp1.status_emo;
         probot->status_remote = temp1.status_remote;
         //DEBUG
-        probot->status_charge = temp1.status_charge;
+        probot->status_charge_connect = temp1.status_charge;
+        if(probot->status_charge_connect == 0){
+            probot->status_charge = 0;
+        }
         probot->localization_state = temp1.ui_loc_state;
 //        qDebug() << probot->localization_state;
         if(probot->localization_state == 2){

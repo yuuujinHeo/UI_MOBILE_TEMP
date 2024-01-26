@@ -91,6 +91,7 @@ Popup{
         combo_voice.currentIndex = 0;
         waittime = 0;
         combo_voice_mode.currentIndex = 0;
+        combo_voice_lan.currentIndex = 0;
     }
 
 
@@ -149,6 +150,30 @@ Popup{
             combo_voice_mode.currentIndex = 2;
         }
 
+        if(supervisor.getPatrolVoiceLanguage(num) === "en-us"){
+            combo_voice_lan.currentIndex = 1;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "en-uk"){
+            combo_voice_lan.currentIndex = 2;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "zh-CN"){
+            combo_voice_lan.currentIndex = 3;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "ru"){
+            combo_voice_lan.currentIndex = 4;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "fr"){
+            combo_voice_lan.currentIndex = 5;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "ja"){
+            combo_voice_lan.currentIndex = 6;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "id"){
+            combo_voice_lan.currentIndex = 7;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "es"){
+            combo_voice_lan.currentIndex = 8;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "de"){
+            combo_voice_lan.currentIndex = 9;
+        }else if(supervisor.getPatrolVoiceLanguage(num) === "la"){
+            combo_voice_lan.currentIndex = 10;
+        }else{
+            combo_voice_lan.currentIndex = 0;
+        }
+
         if(supervisor.getPatrolLocation(num) === "all"){
             popup_patrol.select_pos_mode = 0;
         }else if(supervisor.getPatrolLocation(num) === "serving"){
@@ -204,8 +229,36 @@ Popup{
         }else if(combo_voice_mode.currentIndex === 1){
             supervisor.setPatrolVoice(model_voice_temp.get(combo_voice.currentIndex).file, "child", "50");
         }else{
-            supervisor.setPatrolVoice(tfield_tts_text.text, "tts", "50");
+            var lan;
+            if(combo_voice_lan.currentIndex === 0){
+                lan = "ko";
+            }else if(combo_voice_lan.currentIndex === 1){
+                lan = "en-us";
+            }else if(combo_voice_lan.currentIndex === 2){
+                lan = "en-uk";
+            }else if(combo_voice_lan.currentIndex === 3){
+                lan = "zh-CN";
+            }else if(combo_voice_lan.currentIndex === 4){
+                lan = "ru";
+            }else if(combo_voice_lan.currentIndex === 5){
+                lan = "fr";
+            }else if(combo_voice_lan.currentIndex === 6){
+                lan = "ja";
+            }else if(combo_voice_lan.currentIndex === 7){
+                lan = "id";
+            }else if(combo_voice_lan.currentIndex === 8){
+                lan = "es";
+            }else if(combo_voice_lan.currentIndex === 9){
+                lan = "de";
+            }else if(combo_voice_lan.currentIndex === 10){
+                lan = "la";
+            }
+            supervisor.setPatrolVoice(tfield_tts_text.text, "tts", "50", lan);
         }
+
+
+
+
 
         if(savemode==="save"){
             supervisor.savePatrol(name,mode,popup_patrol.waittime,popup_patrol.passtime);
@@ -988,13 +1041,55 @@ Popup{
                                                         supervisor.playVoice(voicemode, model_voice_temp.get(combo_voice.currentIndex).file);
                                                     }else{
                                                         voicemode = "tts";
-                                                        supervisor.makeTTS(tfield_tts_text.text);
+                                                        var lan;
+                                                        if(combo_voice_lan.currentIndex === 0){
+                                                            lan = "ko";
+                                                        }else if(combo_voice_lan.currentIndex === 1){
+                                                            lan = "en-us";
+                                                        }else if(combo_voice_lan.currentIndex === 2){
+                                                            lan = "en-uk";
+                                                        }else if(combo_voice_lan.currentIndex === 3){
+                                                            lan = "zh-CN";
+                                                        }else if(combo_voice_lan.currentIndex === 4){
+                                                            lan = "ru";
+                                                        }else if(combo_voice_lan.currentIndex === 5){
+                                                            lan = "fr";
+                                                        }else if(combo_voice_lan.currentIndex === 6){
+                                                            lan = "ja";
+                                                        }else if(combo_voice_lan.currentIndex === 7){
+                                                            lan = "id";
+                                                        }else if(combo_voice_lan.currentIndex === 8){
+                                                            lan = "es";
+                                                        }else if(combo_voice_lan.currentIndex === 9){
+                                                            lan = "de";
+                                                        }else if(combo_voice_lan.currentIndex === 10){
+                                                            lan = "la";
+                                                        }
+
+                                                        supervisor.makeTTS(tfield_tts_text.text,lan);
                                                         supervisor.playTTS();
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                    Text{
+                                        text: qsTr("언어")
+                                        visible: combo_voice_mode.currentIndex === 2
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        spacing: 10
+                                        visible: combo_voice_mode.currentIndex === 2
+                                        ComboBox{
+                                            id: combo_voice_lan
+                                            width: 250
+                                            height: 50
+                                            model:[qsTr("한국어"),qsTr("영어(US)"),qsTr("영어(UK)"),qsTr("중국어"),qsTr("러시아어"),qsTr("프랑스어"),qsTr("일본어"),qsTr("인도네시아"),qsTr("스페인어"),qsTr("독일어"),qsTr("라틴어")]
+                                        }
+                                    }
+
 
                                     Text{
                                         text: qsTr("도착 후 멘트")

@@ -1333,6 +1333,8 @@ void Supervisor::checkRobotINI(){
         setSetting("setting","UI/language","korean");
     if(getSetting("setting","UI","voice_mode") == "")
         setSetting("setting","UI/voice_mode","woman");
+    if(getSetting("setting","UI","voice_language") == "")
+        setSetting("setting","UI/voice_language","ko");
     if(getSetting("setting","UI","volume_bgm") == "")
         setSetting("setting","UI/volume_bgm","50");
     if(getSetting("setting","UI","volume_voice") == "")
@@ -1638,6 +1640,7 @@ void Supervisor::restartSLAM(){
             slam_process->kill();
             slam_process->close();
             probot->localization_state = LOCAL_NOT_READY;
+            probot->status_charge_connect = 0;
             probot->status_charge = 0;
             probot->status_emo = 0;
             probot->status_power = 0;
@@ -1657,6 +1660,7 @@ void Supervisor::restartSLAM(){
         }
         probot->localization_state = LOCAL_NOT_READY;
         probot->status_charge = 0;
+        probot->status_charge_connect = 0;
         probot->status_emo = 0;
         probot->status_power = 0;
         probot->status_remote = 0;
@@ -1669,6 +1673,7 @@ void Supervisor::restartSLAM(){
     }
     probot->localization_state = LOCAL_NOT_READY;
     probot->status_charge = 0;
+    probot->status_charge_connect = 0;
     probot->status_emo = 0;
     probot->status_power = 0;
     probot->status_remote = 0;
@@ -1690,6 +1695,7 @@ void Supervisor::startSLAM(){
     plog->write("[SUPERVISOR] START SLAM");
     probot->localization_state = LOCAL_NOT_READY;
     probot->status_charge = 0;
+    probot->status_charge_connect = 0;
     probot->status_emo = 0;
     probot->status_power = 0;
     probot->status_remote = 0;
@@ -3042,6 +3048,9 @@ int Supervisor::getPowerStatus(){
 int Supervisor::getRemoteStatus(){
     return probot->status_remote;
 }
+int Supervisor::getChargeConnectStatus(){
+    return probot->status_charge_connect;
+}
 int Supervisor::getChargeStatus(){
     return probot->status_charge;
 }
@@ -3588,7 +3597,7 @@ void Supervisor::onTimer(){
     }
     case UI_STATE_INITAILIZING:{
         if(getMotorState() == READY && probot->localization_confirm == LOCAL_READY){
-            if(probot->status_charge == 1){
+            if(probot->status_charge_connect == 1){
                 ui_state = UI_STATE_CHARGING;
             }else{
                 pmap->call_queue.clear();
@@ -3598,7 +3607,7 @@ void Supervisor::onTimer(){
                 ipc->handsup();
             }
         }else if(probot->localization_confirm == LOCAL_READY){
-            if(probot->status_charge == 1){
+            if(probot->status_charge_connect == 1){
                 ui_state = UI_STATE_CHARGING;
             }else{
 //                qDebug() << "?!!!!!!!!!!!!!!!!!!!!!";
@@ -3625,7 +3634,7 @@ void Supervisor::onTimer(){
         }
 
         cmd_accept = false;
-        if(probot->status_charge == 1){
+        if(probot->status_charge_connect == 1){
             ipc->handsdown();
             plog->write("[SUPERVISOR] STATE Detect : Charging");
             ui_state = UI_STATE_CHARGING;
@@ -3667,7 +3676,7 @@ void Supervisor::onTimer(){
     }
     case UI_STATE_CHARGING:{
         patrol_mode = PATROL_NONE;
-        if(probot->status_charge == 0){
+        if(probot->status_charge_connect == 0){
             plog->write("[SCHEDULER] UI STATE IN CHARGING and Charge State = 0 -> NONE");
             ui_state = UI_STATE_NONE;
         }
@@ -3799,7 +3808,7 @@ void Supervisor::onTimer(){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
                                     playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
                                 }else if(current_patrol.voice_mode == "tts"){
-                                    makeTTS(current_patrol.voice_file);
+                                    makeTTS(current_patrol.voice_file, current_patrol.voice_language);
                                     playTTS();
                                 }
                             }
@@ -3827,7 +3836,7 @@ void Supervisor::onTimer(){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
                                     playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
                                 }else if(current_patrol.voice_mode == "tts"){
-                                    makeTTS(current_patrol.voice_file);
+                                    makeTTS(current_patrol.voice_file, current_patrol.voice_language);
                                     playTTS();
                                 }
                             }
@@ -3864,7 +3873,7 @@ void Supervisor::onTimer(){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
                                     playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
                                 }else if(current_patrol.voice_mode == "tts"){
-                                    makeTTS(current_patrol.voice_file);
+                                    makeTTS(current_patrol.voice_file, current_patrol.voice_language);
                                     playTTS();
                                 }
                             }
@@ -3903,7 +3912,7 @@ void Supervisor::onTimer(){
                                 if(current_patrol.voice_mode == "woman" || current_patrol.voice_mode == "child"){
                                     playVoice(current_patrol.voice_mode, current_patrol.voice_file, current_patrol.voice_volume);
                                 }else if(current_patrol.voice_mode == "tts"){
-                                    makeTTS(current_patrol.voice_file);
+                                    makeTTS(current_patrol.voice_file, current_patrol.voice_language);
                                     playTTS();
                                 }
                             }
@@ -4275,7 +4284,7 @@ void Supervisor::onTimer(){
         break;
     }
     case UI_STATE_MOVEFAIL:{
-        if(getMotorState() == 1 && probot->status_charge == 0 && probot->localization_state == 2){
+        if(getMotorState() == 1 && probot->status_charge_connect == 0 && probot->localization_state == 2){
             if(probot->running_state == ROBOT_MOVING_NOT_READY){
             }else{
                 plog->write("[SUPERVISOR] MOVEFAILED : Wake Up Auto");
@@ -4763,6 +4772,7 @@ void Supervisor::clearRobot(){
     probot->status_emo = 0;
     probot->status_remote = 0;
     probot->status_charge = 0;
+    probot->status_charge_connect = 0;
     probot->status_lock = 0;
     probot->bat_list.clear();
     probot->battery_percent = 0;
@@ -5100,6 +5110,12 @@ QString Supervisor::getPatrolVoiceMode(int num){
     else
         return "";
 }
+QString Supervisor::getPatrolVoiceLanguage(int num){
+    if(num > -1 && num < patrols.size())
+        return patrols[num].voice_language;
+    else
+        return "";
+}
 bool Supervisor::isPatrolPage(){
     return probot->is_patrol;
     if(patrol_mode != PATROL_NONE && current_patrol.name != ""){
@@ -5171,10 +5187,15 @@ void Supervisor::setPatrolArrivePage(QString mode, QString param1, QString param
     }
 }
 void Supervisor::setPatrolVoice(QString text, QString param1, QString param2, QString param3){
-    qDebug() << "setPatrolVoice" << text << param1 << param2;
+    qDebug() << "setPatrolVoice" << text << param1 << param2 << param3;
     current_patrol.voice_mode = param1;
     current_patrol.voice_file = text;
     current_patrol.voice_volume = param2.toInt();
+
+    if(param3 == ""){
+        param3 = "ko";
+    }
+    current_patrol.voice_language = param3;
 }
 void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, int pass_time){
     if(num > -1 && num < patrols.size()){
@@ -5191,6 +5212,7 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
         file.setValue("SETTING/moving_page",current_patrol.moving_page.mode);
         file.setValue("SETTING/arrive_page",current_patrol.arrive_page.mode);
         file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+        file.setValue("SETTING/voice_language",current_patrol.voice_language);
         file.setValue("SETTING/voice_file",current_patrol.voice_file);
         file.setValue("SETTING/location_mode",current_patrol.location_mode);
         file.setValue("SETTING/location_num",current_patrol.location.size());
@@ -5242,6 +5264,7 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
     file.setValue("SETTING/moving_page",current_patrol.moving_page.mode);
     file.setValue("SETTING/arrive_page",current_patrol.arrive_page.mode);
     file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+    file.setValue("SETTING/voice_language",current_patrol.voice_language);
     file.setValue("SETTING/voice_volume",current_patrol.voice_volume);
     file.setValue("SETTING/voice_file",current_patrol.voice_file);
     file.setValue("SETTING/location_mode",current_patrol.location_mode);
@@ -5253,8 +5276,9 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
 }
 
 
-void Supervisor::makeTTS(QString text){
-    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\", lang='ko')\ntts.save('voice.mp3')";
+void Supervisor::makeTTS(QString text, QString lan){
+//    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\")\ntts.save('voice.mp3')";
+    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\", lang='"+lan+"')\ntts.save('voice.mp3')";
     PyRun_SimpleString(all.toStdString().data());
 }
 

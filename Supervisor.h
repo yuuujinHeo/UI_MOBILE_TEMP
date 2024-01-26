@@ -127,6 +127,7 @@ public:
     Q_INVOKABLE int getPatrolPassTime(int num);
     Q_INVOKABLE QString getPatrolVoice(int num);
     Q_INVOKABLE QString getPatrolVoiceMode(int num);
+    Q_INVOKABLE QString getPatrolVoiceLanguage(int num);
 
     Q_INVOKABLE bool isPatrolPage();
     Q_INVOKABLE QString getPatrolMovingMode();
@@ -192,7 +193,7 @@ public:
 
 
 
-    Q_INVOKABLE void makeTTS(QString text);
+    Q_INVOKABLE void makeTTS(QString text, QString lan="ko");
     Q_INVOKABLE void playTTS();
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
@@ -679,6 +680,7 @@ public:
     Q_INVOKABLE int getMotorCurrent(int id);
     Q_INVOKABLE int getPowerStatus();
     Q_INVOKABLE int getRemoteStatus();
+    Q_INVOKABLE int getChargeConnectStatus();
     Q_INVOKABLE int getChargeStatus();
     Q_INVOKABLE int getEmoStatus();
     Q_INVOKABLE int getLockStatus();
