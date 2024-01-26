@@ -101,6 +101,12 @@ Window {
         }
     }
 
+    function movefailnopath(){
+        supervisor.playVoice("error_no_path");
+        supervisor.writelog("[UI] Robot not running");
+        loader_page.item.setNotice(0);
+    }
+
     function movenotready(){
         if(supervisor.getEmoStatus()){
             supervisor.playVoice("error_emo");
@@ -140,8 +146,7 @@ Window {
         }else if(supervisor.getMotorState() === 0){
             supervisor.writelog("[UI] Motor not ready");
             loader_page.item.setNotice(4);
-            stopVoice();
-
+//            stopVoice();
         }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
             supervisor.playVoice("error_localization");
             supervisor.writelog("[UI] Localization not ready");
@@ -184,19 +189,31 @@ Window {
         cur_location = supervisor.getcurLoc();
         if(cur_location == "Charging0"){
             cur_location = qsTr("충전 장소");
-            supervisor.playVoice("start_move_charge");
+            if(!supervisor.isPatrolPage()){
+                supervisor.playVoice("start_move_charge");
+            }
+
         }else if(cur_location == "Resting0"){
             cur_location = qsTr("대기 장소");
-            supervisor.playVoice("start_move_resting");
+            if(!supervisor.isPatrolPage()){
+                supervisor.playVoice("start_move_resting");
+            }
         }else if(cur_location == "Cleaning0"){
             cur_location = qsTr("퇴식 장소");
-            supervisor.playVoice("start_move_resting");
-        }else{
-            if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                supervisor.playVoice("start_calling");
-            }else{
-                supervisor.playVoice("start_serving");
+            if(!supervisor.isPatrolPage()){
+                supervisor.playVoice("start_move_resting");
             }
+        }else{
+            if(supervisor.isPatrolPage()){
+//                supervisor.playVoice("start_serving");
+            }else{
+                if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                    supervisor.playVoice("start_calling");
+                }else{
+                    supervisor.playVoice("start_serving");
+                }
+            }
+
         }
 
         if(loader_page.item.objectName == "page_annotation"){
@@ -272,7 +289,7 @@ Window {
             loader_page.item.movedone();
         }else{
 
-            if(isPatrolPage()){
+            if(supervisor.isPatrolPage()){
                 if(supervisor.getPatrolArriveMode() === "pickup"){
                     supervisor.writelog("[UI] Force Page Change Pickup(Patrol) : "+ loader_page.item.pos_name);
                     loadPage(ppickup);
@@ -620,9 +637,10 @@ Window {
     }
     Tool_KeyPad{
         id: keypad
-        onOpened: {
-            print("keypad open");
-        }
+    }
+
+    Tool_Keyboard{
+        id: keyboard
     }
 
 }

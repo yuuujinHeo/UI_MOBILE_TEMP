@@ -123,6 +123,7 @@ public:
     Q_INVOKABLE QString getPatrolMovingPage(int num);
     Q_INVOKABLE QString getPatrolArrivePage(int num);
     Q_INVOKABLE int getPatrolWaitTime(int num);
+    Q_INVOKABLE int getPatrolPassTime(int num);
     Q_INVOKABLE QString getPatrolVoice(int num);
     Q_INVOKABLE QString getPatrolVoiceMode(int num);
 
@@ -140,13 +141,14 @@ public:
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolVoice(QString text, QString param1="", QString param2="", QString param3="");
 
-    Q_INVOKABLE void setPatrol(int num, QString name, QString type, int wait_time);
-    Q_INVOKABLE void savePatrol(QString name, QString type, int wait_time);
+    Q_INVOKABLE void setPatrol(int num, QString name, QString type, int wait_time, int pass_time);
+    Q_INVOKABLE void savePatrol(QString name, QString type, int wait_time, int pass_time);
     Q_INVOKABLE void deletePatrol(int num);
     Q_INVOKABLE void startPatrol(int num);
 
 
 
+    int count_moveto = 0;
 
 
     ////*********************************************  CLASS   ***************************************************////
@@ -184,6 +186,7 @@ public:
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();
     Q_INVOKABLE void playVoice(QString voice, int volume=-1);
+    Q_INVOKABLE void playVoiceFile(QString file, int volume=-1);
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
     Q_INVOKABLE void setName(QString name){maph->setName(name);}

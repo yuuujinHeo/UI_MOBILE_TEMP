@@ -1031,13 +1031,7 @@ Item {
         supervisor.readWifiState("");
     }
 
-    Tool_KeyPad{
-        id: keypad
-    }
 
-    Tool_Keyboard{
-        id: keyboard
-    }
 
     Rectangle{
         id: dfdfd

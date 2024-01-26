@@ -274,6 +274,7 @@ typedef struct{
     QString voice_file = "";
     int voice_volume = 0;
     int wait_time = 0;
+    int pass_time = 0;
     //all, serving, custom
     QString location_mode = "";
     QList<LOCATION> location;

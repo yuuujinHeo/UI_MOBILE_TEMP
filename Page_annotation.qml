@@ -71,7 +71,6 @@ Item {
             location_name = qsTr("퇴식위치");
         }
         supervisor.playBGM();
-//        playMusic.play();
         popup_moving.location = location_name;
         popup_moving.open();
     }
@@ -86,7 +85,6 @@ Item {
         popup_notice.init();
         popup_notice.style = "warning";
         supervisor.moveStopFlag();
-        supervisor.moveStopFlag();
         if(errnum === 0){
             popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
             popup_notice.sub_str = "";
@@ -94,7 +92,6 @@ Item {
             popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
             popup_notice.addButton(qsTr("위치초기화"));
-            supervisor.moveStopFlag();
         }else if(errnum === 2){
             popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
             popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");

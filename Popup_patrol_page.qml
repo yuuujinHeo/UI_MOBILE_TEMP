@@ -336,12 +336,4 @@ Popup {
             }
         }
     }
-
-    Tool_Keyboard{
-        id: keyboard
-    }
-
-    Tool_KeyPad{
-        id: keypad
-    }
 }

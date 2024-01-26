@@ -31,7 +31,9 @@ Item {
         text_hello.visible = false;
         timer_hello.stop();
 //        voice_pickup.play();
-        supervisor.playVoice("pickup_confirm");
+
+        if(!supervisor.isPatrolPage())
+            supervisor.playVoice("pickup_confirm");
         statusbar.visible = false;
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
         if(tray_num === 2){
