@@ -158,13 +158,13 @@ Item {
         }
 
         locations.clear();
-        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && supervisor.getLocationNum("Cleaning") > 0){
             for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(3+i),
-                                     "callerror":false,
-                                     "nameerror":false,
+                                 "callerror":false,
+                                 "nameerror":false,
                                "error":false});
             }
         }else{
@@ -198,12 +198,22 @@ Item {
                            "nameerror":false,
                            "call_id":supervisor.getLocationCallID(1)});
         if(supervisor.getRobotType()==="CLEANING"){
-            details.append({"ltype":"Cleaning",
-                               "name":qsTr("퇴식위치"),
-                               "group":0,
-                               "callerror":false,
-                               "nameerror":false,
-                               "call_id":supervisor.getLocationCallID(2)});
+            if(supervisor.getLocationNum("Cleaning") > 0){
+                details.append({"ltype":"Cleaning",
+                                   "name":qsTr("퇴식위치"),
+                                   "group":0,
+                                   "callerror":false,
+                                   "nameerror":false,
+                                   "call_id":supervisor.getLocationCallID(2)});
+            }else{
+                details.append({"ltype":"Cleaning",
+                                   "name":qsTr("퇴식위치"),
+                                   "group":0,
+                                   "callerror":false,
+                                   "nameerror":false,
+                                   "call_id":""});
+            }
+
         }
         print("locations count = ",locations.count);
         for(var i=0; i<locations.count; i++){
@@ -223,23 +233,6 @@ Item {
 
     }
 
-    function update_callbell(){
-        details.get(0).call_id = supervisor.getLocationCallID("Charging",0);
-        details.get(1).call_id = supervisor.getLocationCallID("Resting",0);
-        if(supervisor.getRobotType()==="CLEANING"){
-            details.get(2).call_id = supervisor.getLocationCallID("Cleaning",0);
-
-            for(var i=3; i<details.count; i++){
-                details.get(i).call_id = supervisor.getLocationCallID("Serving",i-3);
-                print(i,details.get(i).call_id);
-            }
-        }else{
-            for(var i=2; i<details.count; i++){
-                details.get(i).call_id = supervisor.getLocationCallID("Serving",i-2);
-                print(i,details.get(i).call_id);
-            }
-        }
-    }
     function checkLocationNumber(){
         for(var i=0; i<details.count; i++){
             for(var j=i+1; j<details.count; j++){
@@ -1854,17 +1847,6 @@ Item {
                 }
                 update();
             }
-
-            function tablechange(number, table){
-                    print("table change ",number,table)
-                if(number > 1 && number < details.count){
-                    locations.get(number-2).number = table;
-                }
-                update();
-            }
-
-
-
             Component{
                 id: detaillocCompo
                 Item{
@@ -1974,7 +1956,7 @@ Item {
                                 anchors.fill: parent
                                 onClicked:{
                                     click_sound.play();
-                                    if(select_location == index){
+                                    if(select_location === index){
                                         select_location = -1;
                                     }else{
                                         select_location = index;
@@ -2004,7 +1986,7 @@ Item {
                             currentIndex: group
                             onCurrentIndexChanged: {
                                 if(focus){
-                                    if(select_location == index){
+                                    if(select_location === index){
                                         select_location = -1;
                                     }else{
                                         select_location = index;
@@ -2064,7 +2046,7 @@ Item {
                                 anchors.fill:parent
                                 onClicked: {
                                     click_sound.play();
-                                    if(select_location == index){
+                                    if(select_location === index){
                                         select_location = -1;
                                     }else{
                                         select_location = index;
@@ -2102,13 +2084,13 @@ Item {
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
-                                text: call_id==""?" - ":call_id
+                                text: call_id===""?" - ":call_id
                             }
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
                                     click_sound.play();
-                                    if(select_location == index){
+                                    if(select_location === index){
                                         select_location = -1;
                                     }else{
                                         select_location = index;
@@ -2156,9 +2138,22 @@ Item {
                                 text: qsTr("호출벨 설정")
                                 fontsize: 20
                                 onClicked: {
-                                    popup_add_callbell.calltype = details.get(select_location).ltype;
-                                    popup_add_callbell.callid = select_location;
-                                    popup_add_callbell.open();
+                                    if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && select_location === 2){
+
+                                        if(supervisor.getLocationNum("Cleaning") > 0){
+                                            popup_add_callbell.calltype = details.get(select_location).ltype;
+                                            popup_add_callbell.callid = select_location;
+                                            popup_add_callbell.open();
+                                        }else{
+                                            click_sound_no.play();
+                                        }
+
+                                    }else{
+                                        popup_add_callbell.calltype = details.get(select_location).ltype;
+                                        popup_add_callbell.callid = select_location;
+                                        popup_add_callbell.open();
+                                    }
+
                                 }
                             }
                             Item_buttons{
@@ -2460,10 +2455,11 @@ Item {
                                 type: "round_text"
                                 text: qsTr("예")
                                 onClicked: {
-                                    supervisor.checkCleaningLocation();
                                     supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+//                                    supervisor.checkCleaningLocation();
                                     supervisor.readSetting();
                                     readSetting();
+                                    annot_pages.sourceComponent = page_annot_location;
                                     popup_cleaning.close();
                                 }
                             }
@@ -2631,7 +2627,6 @@ Item {
                         anchors.rightMargin: 50
                         onClicked:{
                             supervisor.editLocation(select_location);
-    //                                supervisor.setLocation(select_location,details.get(select_location).name,details.get(select_location).group,0)
                             map_location_list.init();
                             map_location_list.setCurrentLocation(select_location);
                             popup_edit_serving.close();
@@ -3094,16 +3089,6 @@ Item {
                     supervisor.setObjectView(false);
                 }
                 supervisor.setMap();
-//                if(show_robot){
-//                    supervisor.setRobotView(true);
-//                }else{
-//                    supervisor.setRobotView(false);
-//                }
-//                if(show_location){
-//                    supervisor.setLocationView(true);
-//                }else{
-//                    supervisor.setLocationView(false);
-//                }
             }
 
             Timer{
@@ -3492,7 +3477,7 @@ Item {
                                             Item_button{
                                                 id: btn_draw
                                                 shadow_color: color_gray
-                                                highlight: map.tool !== "move"//map.tool=="draw" || map.tool=="erase" || map.tool=="straight"|| map.tool=="draw_rect"
+                                                highlight: map.tool !== "move" && map.tool !== "ruler"//map.tool=="draw" || map.tool=="erase" || map.tool=="straight"|| map.tool=="draw_rect"
                                                 icon: "icon/icon_draw.png"
                                                 name: qsTr("수정")
                                                 MouseArea{
@@ -3541,7 +3526,6 @@ Item {
                                             }
                                             Item_button{
                                                 id: btn_erase
-        //                                            width: 80
                                                 visible: select_mode === 4
                                                 shadow_color: color_gray
                                                 icon: "icon/icon_bookmark.png"
@@ -4142,10 +4126,22 @@ Item {
                                                         anchors.horizontalCenter: parent.horizontalCenter
                                                         spacing: 10
                                                         Item_buttons{
+                                                            id: btn_ruler
+                                                            type: "round_text"
+                                                            width: 150
+                                                            visible: false
+                                                            height: 80
+                                                            text: qsTr("줄자")
+                                                            onClicked:{
+                                                                map.setTool("ruler");
+                                                            }
+                                                        }
+                                                        Item_buttons{
                                                             id: btn_tline_drawing
                                                             type: "start_progress"
                                                             width: 150
                                                             height: 80
+                                                            visible: select_mode === 4
                                                             text: running?qsTr("경로 저장"):qsTr("경로 학습 시작")
                                                             onClicked:{
                                                                 map.setTool("move");
@@ -4169,7 +4165,6 @@ Item {
                                                                         popup_notice.main_str = qsTr("위치초기화가 필요합니다");
                                                                         popup_notice.show_localization = true;
                                                                     }
-
                                                                 }
                                                             }
                                                         }
@@ -4177,6 +4172,7 @@ Item {
                                                             id: btn_tline_check
                                                             type: "start_progress"
                                                             width: 150
+                                                            visible: select_mode === 4
                                                             height: 80
                                                             text: qsTr("경로 검사")
                                                             onClicked:{
@@ -4190,6 +4186,7 @@ Item {
                                                     Flickable{
                                                         width: 350
                                                         height: 200
+                                                        visible: select_mode === 4
                                                         contentHeight: colll.height
                                                         clip: true
                                                         anchors.horizontalCenter: parent.horizontalCenter

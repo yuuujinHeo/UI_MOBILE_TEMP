@@ -177,7 +177,6 @@ contains(QT_ARCH, arm64) {
 }
 
 DISTFILES += \
-    gTTSHandler.py \
     quazip/QuaZipConfig.cmake.in \
     quazip/quazip.pc.cmakein
 

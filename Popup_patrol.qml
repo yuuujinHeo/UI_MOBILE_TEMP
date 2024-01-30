@@ -182,7 +182,6 @@ Popup{
             popup_patrol.select_pos_mode = 2;
         }
 
-        print("?????????????",model_patrols.count);
         for(var i=0; i<model_patrols.count; i++){
             model_patrols.get(i).select = false;
             for(var j=0; j<supervisor.getPatrolLocationSize(num); j++){

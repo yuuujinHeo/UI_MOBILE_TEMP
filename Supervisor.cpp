@@ -143,18 +143,6 @@ QObject *Supervisor::getObject()
     return mObject;
 }
 
-////*********************************************  Location  ***************************************************////
-bool Supervisor::getLocationAvailable(int num){
-    if(pmap->locations.size() <= num)
-        return false;
-
-    if(pmap->locations[num].available){
-        return true;
-    }else{
-        return false;
-    }
-}
-
 ////***********************96980101451808****************************////
 void Supervisor::update_fail(){
     QMetaObject::invokeMethod(mMain, "update_fail");
@@ -621,6 +609,7 @@ void Supervisor::readSetting(QString map_name){
     setting_anot.beginGroup("resting_locations");
     loc_str = setting_anot.value("loc0").toString();
     strlist = loc_str.split(",");
+    QStringList strlist_rest = strlist;
     if(strlist.size()>1){
         temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
         temp_loc.angle = strlist[3].toFloat();
@@ -633,7 +622,6 @@ void Supervisor::readSetting(QString map_name){
         else
             temp_loc.call_id = "";
         pmap->locations.push_back(temp_loc);
-
     }
     setting_anot.endGroup();
 
@@ -654,10 +642,14 @@ void Supervisor::readSetting(QString map_name){
                 temp_loc.call_id = "";
             pmap->locations.push_back(temp_loc);
         }else {
-//            temp_loc.type = "Cleaning";
-//            temp_loc.name = "Cleaning0";
-//            temp_loc.call_id = "";
-//            pmap->locations.push_back(temp_loc);
+            temp_loc.point = cv::Point2f(strlist_rest[1].toFloat(),strlist_rest[2].toFloat());
+            temp_loc.angle = strlist_rest[3].toFloat();
+            temp_loc.group = 0;
+            temp_loc.group_name = "Cleaning";
+            temp_loc.type = "Cleaning";
+            temp_loc.name = "CleaningTemp";
+            temp_loc.call_id = "";
+            pmap->locations.push_back(temp_loc);
         }
         setting_anot.endGroup();
     }
@@ -756,9 +748,14 @@ void Supervisor::readSetting(QString map_name){
 }
 
 void Supervisor::editLocation(int num){
+    if(getSetting("setting","ROBOT_TYPE","type") == "CLEANING"){
+        if(pmap->locations[num].name == "CleaningTemp"){
+            pmap->locations[num].name = "Cleaning0";
+        }
+    }
     plog->write("[ANNOTATION] Edit Location "+QString::number(num)+" : "+QString().asprintf("(%f,%f,%f) -> (%f,%f,%f)",
                                                                                            pmap->locations[num].point.x,pmap->locations[num].point.y,pmap->locations[num].angle,
-                                                                                                 probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
+                                                                                                probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
     pmap->locations[num].point = probot->lastPose.point;
     pmap->locations[num].angle = probot->lastPose.angle;
 }
@@ -812,10 +809,10 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
             overwrite_num = i;
         }
     }
+
     if(type == "Serving"){
         plog->write("[MapHandler] Add Location : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
         pmap->locations.push_back(temp);
-        pmap->annot_edit_location = true;
     }else if(type == "Charging"){
         if(overwrite){
             plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
@@ -825,7 +822,6 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
             pmap->locations.push_back(temp);
 //            pmap->locations.insert(getLocationNum("Charging"),temp);
         }
-        pmap->annot_edit_location = true;
     }else if(type == "Cleaning"){
         if(overwrite){
             plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
@@ -835,7 +831,6 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
             pmap->locations.push_back(temp);
 //            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting")+getLocationNum("Cleaning"),temp);
         }
-        pmap->annot_edit_location = true;
     }else if(type == "Resting"){
         if(overwrite){
             plog->write("[MapHandler] Add Location(Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
@@ -845,18 +840,12 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
             pmap->locations.push_back(temp);
 //            pmap->locations.insert(getLocationNum("Charging")+getLocationNum("Resting"),temp);
         }
-        pmap->annot_edit_location = true;
     }
 
     pmap->annot_edit_location = true;
-//    std::sort(pmap->locations.begin(),pmap->locations.end(),sortLocation2);
-    pmap->annot_edit_location = true;
 
-    plog->write("[SUPERVISOR] Save Location 1");
     saveAnnotation(maph->map_name);
-    plog->write("[SUPERVISOR] Save Location 2");
     maph->initLocation();
-    plog->write("[SUPERVISOR] Save Location 3");
 
 }
 ////*********************************************  OBJECTING 관련   ***************************************************////
@@ -895,23 +884,6 @@ int Supervisor::getObjectPointNum(int x, int y){
 }
 void Supervisor::selectObject(int num){
     maph->selectObject(num);
-}
-void Supervisor::startDrawObject(){
-    ipc->startObject();
-    maph->initObject();
-    maph->draw_object_flag = true;
-}
-void Supervisor::stopDrawObject(){
-    ipc->stopObject();
-    maph->draw_object_flag = true;
-}
-void Supervisor::saveDrawObject(){
-    ipc->saveObject();
-    maph->loadFile(getMapname(),"");
-//    maph->initFileWidth();
-//    maph->initDrawing();
-//    maph->initObject();
-    maph->draw_object_flag = false;
 }
 bool Supervisor::getObjectflag(){
     return (ipc->flag_objecting||maph->getObjectFlag());
@@ -2203,7 +2175,9 @@ int Supervisor::getLocationNum(QString type){
         int count = 0;
         for(int i=0; i<pmap->locations.size(); i++){
             if(pmap->locations[i].type == type){
-                count++;
+                if(pmap->locations[i].name != "CleaningTemp"){
+                    count++;
+                }
             }
         }
         return count;
@@ -2229,16 +2203,6 @@ QString Supervisor::getLocationCallID(int num){
         return pmap->locations[num].call_id;
     }
     return "";
-//    for(int i=0; i<pmap->locations.size(); i++){
-//        if(pmap->locations[i].type == type){
-//            if(count == num){
-//                qDebug() << "callid " << type << num << i << pmap->locations[i].call_id;
-//                return pmap->locations[i].call_id;
-//            }
-//            count++;
-//        }
-//    }
-//    return "";
 }
 
 void Supervisor::setLocationGroup(int num, int group){
@@ -2280,7 +2244,7 @@ void Supervisor::selectLocation(int num){
     maph->setSelectLocation(num);
 }
 void Supervisor::setLocationUp(int num){
-    if(num>2 && num<pmap->locations.size()){
+    if(num>2 && num < pmap->locations.size()){
         plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->locations[num].name+") Up");
         pmap->locations.move(num,num-1);
     }
@@ -5278,7 +5242,9 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
 
 void Supervisor::makeTTS(QString text, QString lan){
 //    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\")\ntts.save('voice.mp3')";
-    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\", lang='"+lan+"')\ntts.save('voice.mp3')";
+    QString all = "from gtts import gTTS\n"
+                  "tts = gTTS(text=\""+text+"\", lang='"+lan+"')\n"
+                  "tts.save('voice.mp3')";
     PyRun_SimpleString(all.toStdString().data());
 }
 

@@ -355,6 +355,7 @@ Window {
             }
         }
     }
+
     function unzip_done(){
         loader_page.item.update_unzip_done();
     }
