@@ -51,7 +51,6 @@ public:
     Q_INVOKABLE void setMap();
     Q_INVOKABLE void setMapTest();
     Q_INVOKABLE void setMapLayer();
-    Q_INVOKABLE void moveMap();
     Q_INVOKABLE void setFullScreen();
     Q_INVOKABLE void setMapDrawing();
 
@@ -119,9 +118,7 @@ public:
 
     bool show_travelline = false;
     bool show_velocitymap = false;
-
     bool show_number = true;
-
     bool show_brush = false;
     bool show_robot = false;
     bool show_global_path = false;
@@ -153,6 +150,9 @@ public:
         return flag_drawing;
     }
 
+    QList<cv::Point2f> ruler_point;
+    Q_INVOKABLE void setRulerPoint(int x, int y);
+
     //------------cut / rotate--------------//
     cv::Point2f cut_box[2];
     cv::Point2f orin_box[3];
@@ -167,6 +167,15 @@ public:
     Q_INVOKABLE void saveObjectPNG();
     Q_INVOKABLE void saveObsAreaPNG();
 
+    float calculateAngle(cv::Point2f p1, cv::Point2f p2){
+        if(p1 == p2){
+            return 0;
+        }else{
+            float angle = atan2((p2.y-p1.y),p2.x-p1.x);
+            qDebug() << angle*180/M_PI;
+            return angle*180/M_PI;
+        }
+    }
 //    //---------------------------------------------------Drawing
     QList<cv::Point2f> line;
     QList<cv::Point2f> line_spline;
@@ -241,7 +250,6 @@ public:
     Q_INVOKABLE int getLocGroupNum(int num);
     void initLocation();
     Q_INVOKABLE void saveMap();
-    void setTline();
     Q_INVOKABLE void saveEditedMap();
     Q_INVOKABLE void saveTline();
     Q_INVOKABLE void saveTlineTemp();
@@ -273,17 +281,12 @@ public:
 
 
     ///Object
-    ///
-    bool draw_object_flag = false;
     QList<OBJECT> objs;
     bool new_obj_flag = false;
     OBJECT new_obj;
     int select_obj = -1;
     int select_obj_point = -1;
     void initObject();
-    void startDrawObject();
-    void stopDrawObject();
-    void saveDrawObject();
     int getObjectNum(int x, int y);
     int getObjectPointNum(int x, int y);
     void addObject(int x, int y);

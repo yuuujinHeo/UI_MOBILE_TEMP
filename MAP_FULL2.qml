@@ -73,7 +73,6 @@ Item {
         show_button_lidar = true;
         show_button_location = true;
         show_grid = false;
-//        setDrawingColor("white");
         if(mode === "annot_drawing"){
             show_connection = false;
         }else if(mode === "serving_list"){
@@ -82,28 +81,14 @@ Item {
             show_connection = false;
         }else if(mode === "annot_obs_area"){
             show_connection = false;
-        }else if(mode === "map_list"){
-            show_connection = false;
-            show_button_following = false;
-            show_button_lidar = true;
-            show_button_location = true;
         }else if(mode === "annot_tline" || mode === "annot_tline2"){
             show_connection = true;
         }else if(mode === "annot_velmap"){
             show_connection = false;
-        }else if(mode === "annot_location"){
-//            supervisor.setCostMap();
         }else if(mode === "mapping"){
             show_button_following = true;
             show_button_lidar = false;
             show_button_location = false;
-        }else if(mode === "local_view"){
-            show_connection = false;
-            show_button_following = false;
-            show_button_lidar = false;
-            show_button_location = true;
-        }else if(mode === "annot_object"){
-            show_connection = true;
         }else if(mode === "current"){
 
         }else if(mode === "annot_rotate"){
@@ -118,6 +103,9 @@ Item {
         }else if(mode === "annot_view"){
             show_grid = false;
             show_connection = false;
+            show_button_following = false;
+            show_button_lidar = true;
+            show_button_location = true;
         }else if(mode === "map_edit"){
 
         }
@@ -311,7 +299,6 @@ Item {
             supervisor.slam_map_reload(supervisor.getMapname());
         }else if(mode==="location_all"){
             supervisor.saveAnnotation(map_name);
-//            supervisor.slam_map_reload(supervisor.getMapname());
         }
     }
 
@@ -644,6 +631,8 @@ Item {
 //                    print("Released : ",firstX,firstY,angle);
                     supervisor.setInitPos(firstX, firstY, angle);
                     supervisor.slam_setInit();
+                }else if( tool == "ruler"){
+                    supervisor.setRulerPoint(newX, newY);
                 }
             }
         }

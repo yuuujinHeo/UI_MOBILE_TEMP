@@ -56,10 +56,6 @@ Item {
     property var cur_group: 0
 
 
-    function set_call_done(){
-        popup_location_number.update_callbell();
-        popup_add_callbell.close();
-    }
 
     function init(){
         statusbar.visible = true;

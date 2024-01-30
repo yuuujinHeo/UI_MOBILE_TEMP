@@ -110,7 +110,6 @@ public:
     Q_INVOKABLE void passInit();
 
 
-
     ////*********************************************  Patrol   *********************************************////
     int patrol_mode = PATROL_NONE;
     int patrol_wait_count = 0;
@@ -172,7 +171,6 @@ public:
 
     //------------draw map--------------//
     Q_INVOKABLE void setMap(){maph->setMap();}
-    Q_INVOKABLE void moveMap(){maph->moveMap();}
     Q_INVOKABLE void setFullScreen(){maph->setFullScreen();}
     Q_INVOKABLE void setMapDrawing(){maph->setMapDrawing();}
 
@@ -183,6 +181,7 @@ public:
     QMediaPlayer *bgm_player;
     QMediaPlayer *voice_player;
     QMediaPlaylist *list_bgm;
+
     Q_INVOKABLE void clicksound(QString mode, int volume = -1);
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
@@ -225,6 +224,7 @@ public:
     Q_INVOKABLE void stopDrawingTline(){maph->stopDrawingTline();}
     Q_INVOKABLE bool getDrawingTline(){return maph->getDrawingTline();}
 
+    Q_INVOKABLE void setRulerPoint(int x, int y){maph->setRulerPoint(x,y);}
     Q_INVOKABLE void setBoxPoint(int num, int x, int y){maph->setBoxPoint(num,x,y);}
     Q_INVOKABLE int getPointBox(int x, int y){return maph->getPointBox(x,y);}
     Q_INVOKABLE void saveRotateMap(){maph->saveRotateMap();}
@@ -281,9 +281,9 @@ public:
     Q_INVOKABLE void addLocationCur(int x, int y,float th){maph->addLocationCur(x,y,th);}
     Q_INVOKABLE void setLocation(int x, int y, float th){maph->setLocation(x,y,th);}
     Q_INVOKABLE void editLocation(int num);//{maph->editLocation(x,y,th);}
+//    Q_INVOKABLE void editLocation(int num, QString type, QString name);//{maph->editLocation(x,y,th);}
     Q_INVOKABLE int getLocationNum(int x, int y){return maph->getLocationNum(x,y);}
     Q_INVOKABLE void removeLocation(int num);//{maph->removeLocation(num);}
-    Q_INVOKABLE bool getLocationAvailable(int num);
     Q_INVOKABLE void setTableNumberAuto(){maph->setTableNumberAuto();}
 //    Q_INVOKABLE int getLocationNum(QString type){return maph->getLocationNum(type);}
     Q_INVOKABLE int getLocGroupNum(int num){return maph->getLocGroupNum(num);}
@@ -722,9 +722,6 @@ public:
     Q_INVOKABLE float getMappingGridwidth(){return pmap->mapping_gridwidth;}
 
     ////*********************************************  OBJECTING 관련   ***************************************************////
-    Q_INVOKABLE void startDrawObject();
-    Q_INVOKABLE void stopDrawObject();
-    Q_INVOKABLE void saveDrawObject();
     Q_INVOKABLE int getObjectNum(int x, int y);
     Q_INVOKABLE int getObjectPointNum(int x, int y);
     Q_INVOKABLE void addObject(int x, int y);

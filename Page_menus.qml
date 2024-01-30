@@ -129,15 +129,6 @@ Item {
             color: "#282828"
             opacity: 0.8
         }
-//        Image{
-//            id: image_location
-//            source:"image/image_location.png"
-//            width: 160
-//            height: 160
-//            anchors.horizontalCenter: parent.horizontalCenter
-//            anchors.top: parent.top
-//            anchors.topMargin: 200
-//        }
         Column{
             spacing: 50
             anchors.centerIn: parent

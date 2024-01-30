@@ -29,7 +29,7 @@ Popup{
         update_list();
         var mapname = supervisor.getMapname();
         map_list_view.setEnable(true);
-        map_list_view.setViewer("map_list");
+        map_list_view.setViewer("annot_view");
     }
     onClosed:{
         map_list_view.enabled = false;

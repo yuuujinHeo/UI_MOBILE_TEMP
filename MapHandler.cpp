@@ -49,7 +49,6 @@ bool MapHandler::getCutBoxFlag(){
 }
 
 void MapHandler::loadFile(QString name, QString type){
-    qDebug() << "loadFile " << name << type;
     QString file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_raw.png";
     QString log_str;
     if(QFile::exists(file_path)){
@@ -57,7 +56,6 @@ void MapHandler::loadFile(QString name, QString type){
         cv::flip(file_raw,file_raw,0);
         file_width = file_raw.rows;
         cv::rotate(file_raw,file_raw,cv::ROTATE_90_COUNTERCLOCKWISE);
-        qDebug() << "loadFile Raw " << file_raw.rows << file_raw.size;
         log_str = "RAW(success) ";
         exist_raw = true;
     }else{
@@ -196,12 +194,12 @@ void MapHandler::loadFile(QString name, QString type){
     initLocation();
     initRotate();
     setMap();
-    plog->write("[MapHandler] load File "+name+" : "+log_str);
+    plog->write("[MAP] Load File : " + name + " (type = "+type+", width = "+draw_width+") => "+log_str);
 }
 
 void MapHandler::setMapOrin(QString type){
     if(type == "RAW"){
-        plog->write("[MapHandler] set Map : map_raw.png");
+        plog->write("[MAP] Set Map to map_raw");
         file_raw.copyTo(map_orin);
         file_width = map_orin.rows;
         file_velocity = cv::Mat(file_width, file_width, CV_8UC3, cv::Scalar::all(0));
@@ -218,59 +216,11 @@ void MapHandler::setMapOrin(QString type){
         setMap();
         update();
     }else if(type == "EDITED"){
-        plog->write("[MapHandler] set Map : map_edited.png");
+        plog->write("[MAP] Set Map to map_edited");
         loadFile(map_name,"");
     }
 }
 
-//****setTline : 경로 좁은 사이 매꾸기 -> 미사용
-void MapHandler::setTline(){
-//    int radius = pmap->robot_radius*2/grid_width;
-//    for(int i=0; i<file_travelline.rows;i++){
-        //1줄 당
-//        for(int j=0; j<file_travelline.cols-1; j++){
-//            //실마리 찾음
-//            if(file_travelline.at<cv::Vec3b>(i,j) == 255 && file_travelline.at<uchar>(i,j+1) == 0){
-
-//                //실마리 부터 시작해서 로봇 크기만큼 가까운 실이 있는 지 찾아봄(찾으면 그 사이 매꿈)
-//                for(int k=j+1; k<j+radius; k++){
-//                    if(k>=file_travelline.cols)
-//                        break;
-
-//                    if(file_travelline.at<uchar>(i,k) == 255){
-//                        for(int h=j+1; h<k+1; h++){
-//                            file_travelline.at<uchar>(i,h) = 255;
-//                        }
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-//    for(int i=0; i<file_travelline.cols;i++){
-//        //1줄 당
-//        for(int j=0; j<file_travelline.rows-1; j++){
-//            //실마리 찾음
-//            if(file_travelline.at<uchar>(j,i) == 255 && file_travelline.at<uchar>(j+1,i) == 0){
-
-//                //실마리 부터 시작해서 로봇 크기만큼 가까운 실이 있는 지 찾아봄(찾으면 그 사이 매꿈)
-//                for(int k=j+1; k<j+radius; k++){
-//                    if(k>=file_travelline.rows)
-//                        break;
-
-//                    if(file_travelline.at<uchar>(k,i) == 255){
-//                        for(int h=j+1; h<k+1; h++){
-//                            file_travelline.at<uchar>(h,i) = 255;
-//                        }
-//                        break;
-//                    }
-//                }
-//            }
-//        }
-//    }
-
-}
 
 void MapHandler::setMapSize(int width, int height){
     canvas_width = width;
@@ -300,210 +250,88 @@ void MapHandler::onTimer(){
 void MapHandler::setMode(QString name){
     mode = name;
     tool = "move";
-    plog->write("[MapHandler] "+object_name+" set Mode to "+name);
-    show_travelline = false;
-    show_object = false;
-    show_avoid = false;
-    draw_object_flag = false;
+    plog->write("[MAP] Set Mode : "+name);
+
+
+    show_robot = false;
+    show_lidar = false;
+    robot_following = false;
+
+    show_global_path = false;
+    show_local_path = false;
+
     show_velocitymap = false;
-    if(mode == "none"){
-//        file_width = map_orin.rows;
+    show_travelline = false;
+    show_avoid = false;
+
+
+    show_object = false;
+    show_location = false;
+    show_location_icon = false;
+
+    if(mode == "mapping"){//o
         show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
         show_lidar = true;
-        show_location = false;
-        show_location_icon = true;
-        robot_following = false;
-        setFullScreen();
-    }else if(mode == "mapping"){
-        show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = true;
-        show_location = false;
-        show_location_icon = false;
-        show_avoid = false;
         robot_following = true;
         setFullScreen();
-    }else if(mode == "map_list"){
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_avoid = false;
-        show_lidar = false;
-        show_location = true;
-        show_location_icon = true;
-        robot_following = false;
-        setFullScreen();
-    }else if(mode == "current"){
-//        file_width = map_orin.rows;
+    }else if(mode == "current"){//o
         show_robot = true;
         show_global_path = true;
         show_local_path = true;
         show_lidar = true;
-        show_avoid = false;
         show_location = true;
         show_location_icon = true;
         robot_following = true;
         setFullScreen();
-    }else if(mode == "annot_view"){
-//        file_width = map_orin.rows;
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_avoid = false;
-        show_lidar = false;
+    }else if(mode == "annot_view"){//o
         show_location = true;
         show_location_icon = true;
-        robot_following = false;
         setFullScreen();
-    }else if(mode == "annot_drawing" || mode == "annot_rotate"){
-//        file_width = map_orin.rows;
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
-        show_location = false;
-        show_travelline = false;
-        show_object = false;
-        show_avoid = false;
-        show_velocitymap = false;
-        show_location_icon = false;
-        robot_following = false;
-        setFullScreen();
-    }else if(mode == "serving_list"){
-//        file_width = map_orin.rows;
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
+    }else if(mode == "annot_velmap"){//o
         show_location = true;
         show_location_icon = true;
-        robot_following = false;
-        show_velocitymap = false;
-
-        setFullScreen();
-    }else if(mode == "annot_velmap"){
-//        file_width = map_orin.rows;
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
-        show_location = true;
-        show_location_icon = true;
-        robot_following = false;
         show_velocitymap = true;
         show_travelline = true;
         setFullScreen();
-    }else if(mode == "annot_location"){
-//        file_width = map_orin.rows;
+    }else if(mode == "annot_location"){//o
         show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
         show_lidar = true;
         show_location = true;
         show_location_icon = true;
         robot_following = true;
         show_travelline = true;
-//        setFullScreen();
-    }else if(mode == "annot_tline"){
-//        file_width = map_orin.rows;
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
+    }else if(mode == "annot_tline"){//o
         show_location = true;
         show_location_icon = true;
-        robot_following = false;
         show_travelline = true;
         setFullScreen();
-    }else if(mode == "annot_tline2"){
-//        file_width = map_orin.rows;
+    }else if(mode == "localization"){//o
         show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
-        show_location = true;
-        show_location_icon = true;
-        robot_following = true;
-        show_travelline = true;
-        setFullScreen();
-    }else if(mode == "localization"){
-//        file_width = map_orin.rows;
-        show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
         show_lidar = true;
         show_location = true;
         show_location_icon = true;
-        show_travelline = false;
-        robot_following = false;
         pmap->annotation_edited = false;
         pmap->annot_edit_drawing = false;
         pmap->annot_edit_location = false;
         pmap->annot_edit_tline = false;
         setFullScreen();
-    }else if(mode == "local_view"){
-//        file_width = map_orin.rows;
+    }else if(mode == "annot_object_png"){//o
         show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = true;
-        show_location = false;
-        show_location_icon = true;
-        robot_following = true;
-        scale = 0.7;
-        setZoomCenter(file_width/2, file_width/2);
-    }else if(mode == "mapviewer"){
-//        file_width = map_orin.rows;
-        show_robot = false;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
-        show_location = false;
-        show_location_icon = false;
-        robot_following = false;
-        setFullScreen();
-    }else if(mode == "annot_object"){
-//        file_width = map_orin.rows;
-        show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
-        show_object = true;
-        show_location = true;
-        show_travelline = true;
-        show_location_icon = true;
-        robot_following = false;
-        initObject();
-        setFullScreen();
-    }else if(mode == "annot_object_png"){
-//        file_width = map_orin.rows;
-        show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
         show_object = true;
         show_location = true;
         show_location_icon = true;
-        robot_following = false;
         show_travelline = true;
         initObject();
         setFullScreen();
-    }else if(mode == "annot_obs_area"){
-//        file_width = map_orin.rows;
+    }else if(mode == "annot_obs_area"){//o
         show_robot = true;
-        show_global_path = false;
-        show_local_path = false;
-        show_lidar = false;
-        show_object = false;
         show_location = true;
         show_avoid = true;
         show_location_icon = true;
-        robot_following = false;
         show_travelline = true;
         initObject();
+        setFullScreen();
+    }else{
         setFullScreen();
     }
     setMap();
@@ -531,13 +359,10 @@ void MapHandler::initLocation(){
         temp.group_name = pmap->locations[i].group_name;
         temp.type = pmap->locations[i].type;
         temp.name = pmap->locations[i].name;
-        if(draw_object_flag){
-            temp.point = setAxisObject(pmap->locations[i].point);
-            temp.angle = setAxis(pmap->locations[i].angle);
-        }else{
-            temp.point = setAxis(pmap->locations[i].point);
-            temp.angle = setAxis(pmap->locations[i].angle);
-        }
+
+        temp.point = setAxis(pmap->locations[i].point);
+        temp.angle = setAxis(pmap->locations[i].angle);
+
         qDebug() <<"locations push " << temp.type << temp.name;
         locations.push_back(temp);
     }
@@ -548,12 +373,6 @@ void MapHandler::setFullScreen(){
     draw_y = 0;
     draw_width = file_width;
     scale = 1;
-//    qDebug() << "set Full Screen " << file_width << pmap->mapping_width << pmap->map_mapping.rows << map_orin.rows;
-}
-
-void MapHandler::moveMap(){
-//    final_map = map.copy(draw_x,draw_y,draw_width,draw_width);
-    update();
 }
 
 void MapHandler::setMapLayer(){
@@ -570,8 +389,6 @@ void MapHandler::setMapLayer(){
     if(mode == "mapping"){
         temp_robot_pose = setAxisMapping(probot->curPose.point);
 //        news = (float(map_layer.width())/draw_width)*1000/pmap->mapping_width;
-    }else if(draw_object_flag){
-        temp_robot_pose = setAxisObject(probot->curPose.point);
     }else{
         temp_robot_pose = setAxis(probot->curPose.point);
     }
@@ -927,7 +744,7 @@ void MapHandler::setMapLayer(){
     //로봇 현재 위치 표시(매핑 중이거나 위치 초기화 성공했을 때만)
 //    qDebug() << "show robot " << show_robot << ", " << set_init_flag;
     if(show_robot){
-        if(probot->localization_state == LOCAL_READY || mode == "mapping" || draw_object_flag){
+        if(probot->localization_state == LOCAL_READY || mode == "mapping"){
             float loc_x = robot_pose.x;
             float loc_y = robot_pose.y;
             float distance = (pmap->robot_radius/grid_width)*2*news;
@@ -1002,8 +819,73 @@ void MapHandler::setMapLayer(){
             painter_layer.drawLine(QLine(x2,y2,x,y));
         }
     }
+
+    //줄 자 표시
+    if(tool == "ruler"){
+        QPainterPath path;
+        if(ruler_point.size() == 1){
+//            painter_layer.setPen(QPen(QColor("red"),2*news));
+            float x = (ruler_point[0].x - draw_x);
+            float y = (ruler_point[0].y - draw_y);
+            path.addRoundedRect((x*news-5),(y*news-5),5*2,5*2,5,5);
+            painter_layer.fillPath(path,QBrush(QColor(hex_color_pink)));
+            painter_layer.setPen(QPen(Qt::red,3*news));
+            painter_layer.drawPath(path);
+        }else if(ruler_point.size() == 2){
+            float x1 = (ruler_point[0].x - draw_x);
+            float y1 = (ruler_point[0].y - draw_y);
+            path.addRoundedRect((x1*news-3),(y1*news-3),3*2,3*2,3,3);
+            float x2 = (ruler_point[1].x - draw_x);
+            float y2 = (ruler_point[1].y - draw_y);
+            path.addRoundedRect((x2*news-5),(y2*news-5),5*2,5*2,5,5);
+            painter_layer.fillPath(path,QBrush(QColor(hex_color_pink)));
+            painter_layer.setPen(QPen(Qt::red,3*news));
+            painter_layer.drawPath(path);
+
+            painter_layer.setPen(QPen(QColor("red"),2*news));
+            painter_layer.drawLine(round(x1*news),round(y1*news),round(x2*news),round(y2*news));
+
+            float length = 0;
+            float x_dist;
+            if(x1 < x2){
+                x_dist = x2 - x1;
+            }else{
+                x_dist = x1 - x2;
+            }
+
+            float y_dist;
+            if(y1 < y2){
+                y_dist = y2 - y1;
+            }else{
+                y_dist = y1 - y2;
+            }
+
+            length =  sqrt(x_dist*x_dist + y_dist*y_dist)*grid_width;
+
+            painter_layer.rotate(calculateAngle(cv::Point2f(x1,y1),cv::Point2f(x2,y2)));
+            painter_layer.setFont(QFont("font/NotoSansKR-Medium",10*news));
+            painter_layer.drawText(x1*news,y1*news,QString().asprintf("%.2f [m]",length));
+            painter_layer.rotate(-calculateAngle(cv::Point2f(x1,y1),cv::Point2f(x2,y2)));
+//            painter_layer.drawText(QRect(x1*news,y1*news,x_dist*news,y_dist*news),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%.2f",length));
+
+        }
+    }
+
     update();
 }
+
+void MapHandler::setRulerPoint(int x, int y){
+    cv::Point2f p = cv::Point2f(x,y);
+    if(ruler_point.size() < 2){
+        ruler_point.append(p);
+    }else{
+        ruler_point.pop_front();
+        ruler_point.append(p);
+    }
+    qDebug() << "set Ruler Point" << x << y <<ruler_point.size();
+    setMapLayer();
+}
+
 
 void MapHandler::setMapTest(){
 }
@@ -1014,13 +896,6 @@ void MapHandler::setMap(){
         grid_width = pmap->mapping_gridwidth*pmap->mapping_width/file_width;
         if(file_width != pmap->map_mapping.rows){
             file_width = pmap->map_mapping.rows;
-            setFullScreen();
-        }
-    }else if(draw_object_flag){
-        map = QPixmap::fromImage(mat_to_qimage_cpy(pmap->map_objecting));
-        grid_width = pmap->mapping_gridwidth*pmap->width/file_width;
-        if(file_width != pmap->map_objecting.rows){
-            file_width = pmap->map_objecting.rows;
             setFullScreen();
         }
     }else if(map_orin.rows > 0){
@@ -1066,9 +941,7 @@ void MapHandler::setMap(){
         }
 
         if(show_velocitymap || show_object || show_avoid){
-            qDebug() << "show avoid 3";
             cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
-            qDebug() << "show avoid 4";
         }
         if(show_travelline){
             if(mode == "annot_tline" || mode == "annot_location"){
@@ -1447,24 +1320,34 @@ void MapHandler::setSize(int x, int y, float s){
     setX(-x + over);
     setY(-y + over);
     setMapLayer();
-//    moveMap();
 }
 void MapHandler::zoomIn(int x, int y, float dist){
+    float scale_prev = scale;
     scale -= dist*0.001;
     if(scale < 0.1){
         scale = 0.1;
     }
+
     float realx = draw_x + (float)x * draw_width/canvas_width;//file_width*(scale - prev_scale)*((float)x/canvas_width);
     float realy = draw_y + (float)y * draw_width/canvas_width;
-//    qDebug() << "zoomIn" << x << y << draw_width << canvas_width << realx << realy;
-
     draw_width = round(scale*file_width);
+
+    qDebug() << "zoomIn" << x << y << canvas_width << realx << realy;
+
     prev_scale = scale;
-    setZoomCenter(realx,realy);
+
+    float newx = ((float)draw_x - realx)*scale/scale_prev + realx;// * draw_width / draw_width_prev;
+    float newy = ((float)draw_y - realy)*scale/scale_prev + realy;// * draw_width / draw_width_prev;
+
+    qDebug() << "zoomIn2 " << draw_x << draw_y <<newx << newy << draw_width;
+
+    setX(newx);
+    setY(newy);
+
     setMapLayer();
-//    update();
 }
 void MapHandler::zoomOut(int x, int y, float dist){
+    float scale_prev = scale;
     scale += dist*0.001;
     if(scale > 1)
         scale =1;
@@ -1473,11 +1356,17 @@ void MapHandler::zoomOut(int x, int y, float dist){
 //    qDebug() << "zoomOut" << x << y << draw_width << canvas_width << realx << realy;
 
     draw_width = round(scale*file_width);
-    setZoomCenter(realx,realy);
     prev_scale = scale;
+    float newx = ((float)draw_x - realx)*scale/scale_prev + realx;// * draw_width / draw_width_prev;
+    float newy = ((float)draw_y - realy)*scale/scale_prev + realy;// * draw_width / draw_width_prev;
+
+    setX(newx);
+    setY(newy);
+//    setZoomCenter(realx,realy);
     setMapLayer();
 //    update();
 }
+
 void MapHandler::setInitPose(int x, int y, float th){
     set_init_flag = true;
     set_init_pose.point.x = x;
@@ -1485,9 +1374,11 @@ void MapHandler::setInitPose(int x, int y, float th){
     set_init_pose.angle = th;
     setMap();
 }
+
 void MapHandler::clearInitPose(){
     set_init_flag = false;
 }
+
 void MapHandler::rotateMap(int angle){
     rotate_angle = angle;
     pmap->map_rotate_angle = angle;
@@ -1572,9 +1463,7 @@ void MapHandler::setZoomCenter(int x, int y){
     setX(newx);
     setY(newy);
 
-//    final_map = map.copy(draw_x,draw_y,draw_width,draw_width);
     setMapLayer();
-//    update();
 }
 
 bool MapHandler::getDrawingFlag(){
