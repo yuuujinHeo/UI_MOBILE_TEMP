@@ -471,8 +471,12 @@ Window {
 //        pos_name : qsTr("대기위치")
 //    }
 
+    Page_annotation{
+        anchors.fill: parent
+    }
+
     Loader{
-        //visible: false
+        visible: false
         id: loader_page
         focus: true
         anchors.fill: parent

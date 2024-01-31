@@ -1875,17 +1875,6 @@ Item {
                                     click_sound.play();
                                     if(supervisor.getRobotType() === "CLEANING"){
                                         if(select_location>3){
-//                                            beforeY = list_location_detail.contentY - 55
-//                                            list_location_detail.setting = true;
-//                                            list_location_detail.refY = beforeY - list_location_detail.originY;
-//                                            combo_group.focus = false;
-//                                            tx_name.focus = false;
-//                                            keyboard.close();
-//                                            supervisor.setLocationUp(select_location);
-//                                            select_location--;
-//                                            readSetting();
-                                            print("up " , beforeY,list_location_detail.originY, list_location_detail.refY, list_location_detail.contentY);
-
                                             beforeY = list_location_detail.contentY - 55
                                             var refY = beforeY - list_location_detail.originY;
                                             var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
@@ -1894,34 +1883,14 @@ Item {
                                             select_location--;
                                             readSetting();
 
-//                                            list_location_detail.originY = 0;
-
-
-                                            print("contenty ref = ",list_location_detail.contentY, realY, list_location_detail.originY);
-                                            list_location_detail.contentY = realY + list_location_detail.originY;
-
-
-                                            //list_location_detail.setting = true;
-                                            //list_location_detail.refY = beforeY - list_location_detail.originY;
-
+                                            list_location_detail.setting = true;
+                                            list_location_detail.setContentY(realY);
 
                                             combo_group.focus = false;
                                             tx_name.focus = false;
-                                            keyboard.close();
                                         }
                                     }else{
                                         if(select_location>2){
-//                                            beforeY = list_location_detail.contentY - 55
-//                                            list_location_detail.setting = true;
-//                                            list_location_detail.refY = beforeY - list_location_detail.originY;
-//                                            combo_group.focus = false;
-//                                            tx_name.focus = false;
-//                                            keyboard.close();
-//                                            supervisor.setLocationUp(select_location);
-//                                            select_location--;
-//                                            readSetting();
-//                                            print("up " , beforeY,list_location_detail.originY, list_location_detail.refY, list_location_detail.contentY);
-
                                             beforeY = list_location_detail.contentY - 55
                                             var refY = beforeY - list_location_detail.originY;
                                             var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
@@ -1930,15 +1899,11 @@ Item {
                                             select_location--;
                                             readSetting();
 
-
-                                            list_location_detail.contentY = realY + list_location_detail.originY;
-                                            //list_location_detail.setting = true;
-                                            //list_location_detail.refY = beforeY - list_location_detail.originY;
-
+                                            list_location_detail.setting = true;
+                                            list_location_detail.setContentY(realY);
 
                                             combo_group.focus = false;
-//                                            tx_name.focus = false;
-//                                            keyboard.close();
+                                            tx_name.focus = false;
                                 }
                                     }
                                 }
@@ -1965,16 +1930,12 @@ Item {
                                         readSetting();
 
 
-                                        list_location_detail.contentY = realY + list_location_detail.originY;
-                                        //list_location_detail.setting = true;
-                                        //list_location_detail.refY = beforeY - list_location_detail.originY;
+                                        list_location_detail.setting = true;
+                                        list_location_detail.setContentY(realY);
 
 
                                         combo_group.focus = false;
                                         tx_name.focus = false;
-                                        keyboard.close();
-//                                        list_location_detail.contentY = beforeY - list_location_detail.originY;
-                                        print("down " , beforeY,list_location_detail.originY, list_location_detail.refY, list_location_detail.contentY);
                                     }
                                 }
                             }
@@ -2374,27 +2335,55 @@ Item {
                             addDisplaced: Transition{
                                 NumberAnimation{properties:"x,y"; duration: 1}
                             }
+                            property real lastOrinY:0
                             property real lastY:0
                             property real refY: 0
                             property bool setting: false
                             onContentYChanged: {
-                                print("contenty :",contentY, originY);
-                            }
-
-                            onRefYChanged:{
-//                                print("refY : ", refY, lastY, contentY, originY, contentHeight, height);
+                                print("contentY Chagned : ", contentY, originY, moving);
 //                                 if(!moving){
 //                                     if(setting){
-//                                         contentY = Math.max(0, Math.min(refY, contentHeight-height))+originY
-//                                         print("setting : " ,contentY);
 //                                         setting = false;
+//                                         print("setting : " ,contentY,originY,Math.max(0, Math.min(contentY, contentHeight-height))+originY);
+//                                         contentY = Math.max(0, Math.min(contentY, contentHeight-height))+originY
 //                                     }else{
-//                                         contentY = Math.max(0, Math.min(lastY, contentHeight-height))+originY
-//                                         print("no : " ,contentY);
+////                                         contentY = Math.max(0, Math.min(lastY, contentHeight-height))+originY
+////                                         print("no : " ,contentY,originY);
 //                                     }
 //                                 }
-                                 lastY = contentY-originY
-                                 print(lastY, contentY, originY);
+//                                if(!moving){
+//                                    if(setting){
+//                                        setting = false;
+//                                        print("setting : " ,contentY,originY,Math.max(0, Math.min(contentY, contentHeight-height))+originY);
+//                                        contentY = Math.max(0, Math.min(contentY, contentHeight-height))+originY
+//                                    }
+//                                }
+//                                 lastY = contentY-originY
+//                                 lastOrinY = originY
+//                                 print(lastY, lastOrinY, contentY, originY);
+                            }
+
+                            Component.onCompleted: {
+                                print("component completed")
+                            }
+
+                            onModelChanged:{
+                                print("model changed",originY,contentHeight);
+                            }
+
+                            onOriginYChanged: {
+//                                var conY = contentY - lastOrinY;
+                                print("originy changed : " ,originY,contentY);
+                                contentY = refY + originY;
+                                update();
+                            }
+
+                            function setContentY(y){
+                                print("setContentY ",contentY,y,originY)
+                                refY = y;
+                                lastOrinY = originY;
+                                contentY = refY + originY;
+                                update();
                             }
                         }
                     }
@@ -2418,7 +2407,6 @@ Item {
                     supervisor.saveAnnotation(supervisor.getMapname());
                     supervisor.drawingRunawayStop();
                     supervisor.stopDrawingTline();
-//                    map_hide.stopDrawingT();
                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Check Done ");
                     if(annotation_after_mapping)
                         annot_pages.sourceComponent = page_annot_done;
