@@ -40,7 +40,7 @@ Item {
         height: 60
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        color: testMode?"red":"white"
+        color: color_blue//testMode?"red":"white"
         Text{
             id: textName
             width: 300
