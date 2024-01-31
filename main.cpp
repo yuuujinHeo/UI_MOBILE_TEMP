@@ -15,7 +15,7 @@ QApplication *app;//(argc, argv);
 
 int main(int argc, char *argv[])
 {
-    bool test_mode = true;
+    bool test_mode = false;
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     qmlRegisterType<Supervisor>("io.qt.Supervisor",1,0, "Supervisor");
     qmlRegisterType<CameraView>("io.qt.CameraView",1,0, "CameraView");
