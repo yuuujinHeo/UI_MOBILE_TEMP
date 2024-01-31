@@ -153,8 +153,8 @@ Item {
                                 supervisor.setAnnotEditFlag(true);
                             }else if(modelData == qsTr("지정 순회")){
                                 supervisor.writelog("[UI] MAP : Show Patrol Popup")
-                                popup_patrol_list.open();
-                                popup_patrol_list.mode = "sequence";
+                                popup_patrol.open();
+                                popup_patrol.mode = "sequence";
                             }else if(modelData == qsTr("위치 초기화")){
                                 supervisor.writelog("[UI] MAP : move to Localization")
                                 debug_mode = false;
@@ -229,7 +229,7 @@ Item {
     }
 
     Popup_patrol{
-        id: popup_patrol_list
+        id: popup_patrol
     }
 
 

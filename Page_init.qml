@@ -4007,7 +4007,7 @@ Item {
                     supervisor.setMotorLock(false);
                 }
                 //======================= Init Check 4 : 로봇 상태 확인(Charging. Localization) =========================//
-                if(supervisor.getChargeStatus() === 1){
+                if(supervisor.getChargeConnectStatus() === 1){
                     dochargeininit();
                     supervisor.writelog("[INIT] Charging Detected");
                 }else if(loader_init.item.objectName != "init_slam"){
@@ -4025,7 +4025,7 @@ Item {
                     supervisor.setMotorLock(true);
                 }
 
-                if(supervisor.getChargeStatus() === 1){
+                if(supervisor.getChargeConnectStatus() === 1){
                     dochargeininit();
                     supervisor.writelog("[INIT] Charging Detected");
                 }else if(supervisor.getIPCConnection() && supervisor.getMotorState() === 1){

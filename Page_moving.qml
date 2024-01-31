@@ -113,6 +113,7 @@ Item {
 
     Component.onDestruction:  {
         supervisor.stopBGM();
+        popup_notice.close();
     }
 
     function setImageHeight(){

@@ -28,7 +28,7 @@ Popup{
     }
 
     onOpened:{
-        cols_patrol_bigmenu.visible = true;
+//        cols_patrol_bigmenu.visible = true;
         update();
     }
 
@@ -37,6 +37,7 @@ Popup{
     }
 
     function update(){
+        print("Patrol update "+supervisor.getPatrolSize());
         supervisor.readPatrol();
 
         model_preset.clear();
@@ -150,6 +151,7 @@ Popup{
             combo_voice_mode.currentIndex = 2;
         }
 
+        print("setPreset ",supervisor.getPatrolVoiceLanguage(num));
         if(supervisor.getPatrolVoiceLanguage(num) === "en-us"){
             combo_voice_lan.currentIndex = 1;
         }else if(supervisor.getPatrolVoiceLanguage(num) === "en-uk"){
@@ -174,6 +176,7 @@ Popup{
             combo_voice_lan.currentIndex = 0;
         }
 
+        tfield_tts_text.text = supervisor.getPatrolVoice(num);
         if(supervisor.getPatrolLocation(num) === "all"){
             popup_patrol.select_pos_mode = 0;
         }else if(supervisor.getPatrolLocation(num) === "serving"){
@@ -1100,6 +1103,18 @@ Popup{
                                         visible: combo_voice_mode.currentIndex === 2
                                         width: 250
                                         height: 50
+                                        MouseArea{
+                                            anchors.fill:parent
+                                            onClicked:{
+                                                click_sound.play();
+                                                keyboard.owner = tfield_tts_text;
+                                                keyboard.owner_text = "tfield_tts_text";
+                                                tfield_tts_text.selectAll();
+
+                                                keyboard.open();
+
+                                            }
+                                        }
                                     }
                                     Row{
                                         spacing: 10
@@ -1260,6 +1275,18 @@ Popup{
                     anchors.horizontalCenter: parent.horizontalCenter
                     onTextChanged: {
                         color = "black";
+                    }
+                    MouseArea{
+                        anchors.fill:parent
+                        onClicked:{
+                            click_sound.play();
+                            keyboard.owner = tfield_name;
+                            keyboard.owner_text = "tfield_name";
+                            tfield_name.selectAll();
+
+                            keyboard.open();
+
+                        }
                     }
                 }
                 Row{

@@ -255,25 +255,27 @@ void Supervisor::new_call(){
         QMetaObject::invokeMethod(mMain, "call_setting");
     }else{
         bool already_in = false;
+
+        QString name = "";
+        for(int i=0; i<pmap->locations.size(); i++){
+            if(pmap->locations[i].call_id == call->getBellID()){
+                name = pmap->locations[i].name;
+//                    match_call = true;
+                break;
+            }
+        }
+
         for(int i=0; i<pmap->call_queue.size(); i++){
-            if(pmap->call_queue[i] == call->getBellID()){
+            if(pmap->call_queue[i] == name){
                 already_in = true;
                 plog->write("[SUPERVISOR] NEW CALL (Already queue in "+QString::number(i)+" ) : " + call->getBellID());
                 break;
             }
         }
         if(!already_in){
-            QString name = "";
-            for(int i=0; i<pmap->locations.size(); i++){
-                if(pmap->locations[i].call_id == call->getBellID()){
-                    name = pmap->locations[i].name;
-//                    match_call = true;
-                    break;
-                }
-            }
             if(name != ""){
                 pmap->call_queue.push_back(name);
-                plog->write("[SUPERVISOR] NEW CALL (queue size "+QString::number(pmap->call_queue.size())+" ) : " + name);
+                plog->write("[SUPERVISOR] 1NEW CALL (queue size "+QString::number(pmap->call_queue.size())+" ) : " + name + " - " +QString::number(ui_state));
             }else{
                 plog->write("[SUPERVISOR] NEW CALL (Wrong ID ->Ignored) : " + call->getBellID());
 
@@ -520,6 +522,7 @@ void Supervisor::readSetting(QString map_name){
     server->last_update_mode = robot_config.value("last_update_mode").toString();
     robot_config.endGroup();
 
+    qDebug() << "1";
     //release 경로 내 파일 목록
     QDir dir_release = QDir(QDir::homePath()+"/RB_MOBILE/release");
     QList<QString> releases = dir_release.entryList();
@@ -534,6 +537,7 @@ void Supervisor::readSetting(QString map_name){
         robot_config.endGroup();
     }
 
+    qDebug() << "2";
     ini_path = getIniPath("update");
     QSettings update_config(ini_path, QSettings::IniFormat);
     update_config.beginGroup("DRIVING");
@@ -641,7 +645,7 @@ void Supervisor::readSetting(QString map_name){
             else
                 temp_loc.call_id = "";
             pmap->locations.push_back(temp_loc);
-        }else {
+        }else if(strlist_rest.size() > 1){
             temp_loc.point = cv::Point2f(strlist_rest[1].toFloat(),strlist_rest[2].toFloat());
             temp_loc.angle = strlist_rest[3].toFloat();
             temp_loc.group = 0;
@@ -653,6 +657,8 @@ void Supervisor::readSetting(QString map_name){
         }
         setting_anot.endGroup();
     }
+
+//    qDebug() <<"?????????????";
 
     setting_anot.beginGroup("serving_locations");
     int total_serv_num = 0;
@@ -805,6 +811,9 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
     int overwrite_num = -1;
     for(int i=0; i<pmap->locations.size(); i++){
         if(pmap->locations[i].name == name){
+            overwrite = true;
+            overwrite_num = i;
+        }else if(name == "Cleaning0" && pmap->locations[i].name == "CleaningTemp"){
             overwrite = true;
             overwrite_num = i;
         }
@@ -1794,14 +1803,14 @@ bool Supervisor::getMappingflag(){
 }
 void Supervisor::playVoiceFile(QString file, int volume){
     voice_player->stop();
-    voice_player->setMedia(QUrl::fromLocalFile(QDir::homePath() + "/build-ui/voice.mp3"));//woman_start_mapping.mp3"));
+    voice_player->setMedia(QUrl::fromLocalFile(QDir::homePath() + "/RB_MOBILE/release/voice.mp3"));//woman_start_mapping.mp3"));
     if(volume == -1){
         volume = getSetting("setting","UI","volume_voice").toInt();
     }
     volume = getSetting("setting","UI","volume_voice").toInt();
     voice_player->setVolume(volume);
     voice_player->play();
-    plog->write("[SUPERVISOR] Play Voice File : "+file);
+    plog->write("[SUPERVISOR] Play Voice File : "+QDir::homePath() + "/RB_MOBILE/release/voice.mp3");
 }
 
 void Supervisor::playVoice(QString voice, int volume){
@@ -3498,7 +3507,6 @@ void Supervisor::onTimer(){
         connect(timer2, SIGNAL(timeout()),this,SLOT(clear_all()));
         timer2->start(500);
     }
-
     //State 강제 변경조건
     if(!ipc->getConnection()){
         //Clear Status
@@ -3726,7 +3734,7 @@ void Supervisor::onTimer(){
                 plog->write("[SUPERVISOR] UI FAIL STATE -> Motor Error");
             }else if(getLocalizationState()!=2){
                 plog->write("[SUPERVISOR] UI FAIL STATE -> Localization Not ready");
-            }else if(getChargeStatus()){
+            }else if(getChargeConnectStatus()){
                 plog->write("[SUPERVISOR] UI FAIL STATE -> Charging");
             }else{
                 plog->write("[SUPERVISOR] UI FAIL STATE -> No Path ?");
@@ -4159,7 +4167,8 @@ void Supervisor::onTimer(){
     }
     case UI_STATE_CLEANING:{
         if(getSetting("setting","USE_UI","use_calling_notice") != "true"){
-            ui_state = UI_STATE_RESTING;
+            if(getSetting("setting","ROBOT_TYPE","type") != "CLEANING")
+                ui_state = UI_STATE_RESTING;
         }
         break;
     }
@@ -4982,6 +4991,7 @@ void Supervisor::readPatrol(){
                         temp.arrive_page.mode = patrol.value("arrive_page").toString();
                         temp.voice_mode = patrol.value("voice_mode").toString();
                         temp.voice_file = patrol.value("voice_file").toString();
+                        temp.voice_language = patrol.value("voice_language").toString();
                         temp.voice_volume = patrol.value("voice_volume").toInt();
                         temp.location_mode = patrol.value("location_mode").toString();
 
@@ -5245,6 +5255,7 @@ void Supervisor::makeTTS(QString text, QString lan){
     QString all = "from gtts import gTTS\n"
                   "tts = gTTS(text=\""+text+"\", lang='"+lan+"')\n"
                   "tts.save('voice.mp3')";
+    plog->write("[SUPERVISOR] Make TTS : "+text + ", "+ lan);
     PyRun_SimpleString(all.toStdString().data());
 }
 

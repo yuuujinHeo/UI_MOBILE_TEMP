@@ -9623,7 +9623,7 @@ Item {
 
                 if(state1 && state2){
                     var lstate = supervisor.getLockStatus();
-                    if(supervisor.getChargeStatus() !== 0){
+                    if(supervisor.getChargeConnectStatus() !== 0){
                         status_motor_right.state = 1;
                         status_motor_left.state = 1;
                         model_power_issue.append({"name":qsTr("충전케이블 연결됨"),"image":"image/warning.png"});
