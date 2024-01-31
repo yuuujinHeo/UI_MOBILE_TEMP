@@ -135,6 +135,9 @@ Item {
             }
         }
     }
+    Component.onDestruction: {
+        popup_notice.close();
+    }
 
     ListModel{
         id: details
@@ -1832,6 +1835,7 @@ Item {
 
             function groupchange(number, group){
                 print(" group change ",number,group,details.count);
+
                 if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                     if(number > 2 && number < details.count){
                         supervisor.setLocationGroup(number,group);
@@ -1850,7 +1854,7 @@ Item {
             Component{
                 id: detaillocCompo
                 Item{
-                    width: parent.width!==null?parent.width:0
+                    width: rect_list_column.width
                     height: 50
                     Column{
                         anchors.right: rowsss.left
@@ -1871,28 +1875,71 @@ Item {
                                     click_sound.play();
                                     if(supervisor.getRobotType() === "CLEANING"){
                                         if(select_location>3){
+//                                            beforeY = list_location_detail.contentY - 55
+//                                            list_location_detail.setting = true;
+//                                            list_location_detail.refY = beforeY - list_location_detail.originY;
+//                                            combo_group.focus = false;
+//                                            tx_name.focus = false;
+//                                            keyboard.close();
+//                                            supervisor.setLocationUp(select_location);
+//                                            select_location--;
+//                                            readSetting();
+                                            print("up " , beforeY,list_location_detail.originY, list_location_detail.refY, list_location_detail.contentY);
+
                                             beforeY = list_location_detail.contentY - 55
-                                            list_location_detail.setting = true;
-                                            list_location_detail.refY = beforeY - list_location_detail.originY;
-                                            combo_group.focus = false;
-                                            tx_name.focus = false;
-                                            keyboard.close();
+                                            var refY = beforeY - list_location_detail.originY;
+                                            var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
+
                                             supervisor.setLocationUp(select_location);
                                             select_location--;
                                             readSetting();
+
+//                                            list_location_detail.originY = 0;
+
+
+                                            print("contenty ref = ",list_location_detail.contentY, realY, list_location_detail.originY);
+                                            list_location_detail.contentY = realY + list_location_detail.originY;
+
+
+                                            //list_location_detail.setting = true;
+                                            //list_location_detail.refY = beforeY - list_location_detail.originY;
+
+
+                                            combo_group.focus = false;
+                                            tx_name.focus = false;
+                                            keyboard.close();
                                         }
                                     }else{
                                         if(select_location>2){
+//                                            beforeY = list_location_detail.contentY - 55
+//                                            list_location_detail.setting = true;
+//                                            list_location_detail.refY = beforeY - list_location_detail.originY;
+//                                            combo_group.focus = false;
+//                                            tx_name.focus = false;
+//                                            keyboard.close();
+//                                            supervisor.setLocationUp(select_location);
+//                                            select_location--;
+//                                            readSetting();
+//                                            print("up " , beforeY,list_location_detail.originY, list_location_detail.refY, list_location_detail.contentY);
+
                                             beforeY = list_location_detail.contentY - 55
-                                            list_location_detail.setting = true;
-                                            list_location_detail.refY = beforeY - list_location_detail.originY;
-                                            combo_group.focus = false;
-                                            tx_name.focus = false;
-                                            keyboard.close();
+                                            var refY = beforeY - list_location_detail.originY;
+                                            var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
+
                                             supervisor.setLocationUp(select_location);
                                             select_location--;
                                             readSetting();
-                                        }
+
+
+                                            list_location_detail.contentY = realY + list_location_detail.originY;
+                                            //list_location_detail.setting = true;
+                                            //list_location_detail.refY = beforeY - list_location_detail.originY;
+
+
+                                            combo_group.focus = false;
+//                                            tx_name.focus = false;
+//                                            keyboard.close();
+                                }
                                     }
                                 }
                             }
@@ -1910,15 +1957,24 @@ Item {
                                     click_sound.play();
                                     if(select_location<details.count-1){
                                         beforeY = list_location_detail.contentY + 55
-                                        list_location_detail.setting = true;
-                                        list_location_detail.refY = beforeY - list_location_detail.originY;
-                                        combo_group.focus = false;
-                                        tx_name.focus = false;
-                                        keyboard.close();
+                                        var refY = beforeY - list_location_detail.originY;
+                                        var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
+
                                         supervisor.setLocationDown(select_location);
                                         select_location++;
                                         readSetting();
-                                        list_location_detail.contentY = beforeY - list_location_detail.originY;
+
+
+                                        list_location_detail.contentY = realY + list_location_detail.originY;
+                                        //list_location_detail.setting = true;
+                                        //list_location_detail.refY = beforeY - list_location_detail.originY;
+
+
+                                        combo_group.focus = false;
+                                        tx_name.focus = false;
+                                        keyboard.close();
+//                                        list_location_detail.contentY = beforeY - list_location_detail.originY;
+                                        print("down " , beforeY,list_location_detail.originY, list_location_detail.refY, list_location_detail.contentY);
                                     }
                                 }
                             }
@@ -1993,7 +2049,10 @@ Item {
                                         print("group focus select_location",index);
                                     }
                                     map_location_list.setCurrentLocation(select_location);
-                                    groupchange(index,currentIndex);
+                                    if(currentIndex > -1){
+                                        groupchange(index,currentIndex);
+                                    }
+
                                 }
                             }
                         }
@@ -2318,19 +2377,24 @@ Item {
                             property real lastY:0
                             property real refY: 0
                             property bool setting: false
-                            onContentYChanged:{
-//                                print("contenty : ",contentY, originY, contentHeight);
-                                 if(!moving){
-                                     if(setting){
-                                         contentY = Math.max(0, Math.min(refY, contentHeight-height))+originY
-                                         print("setting : " ,contentY);
-                                         setting = false;
-                                     }else{
-                                         contentY = Math.max(0, Math.min(lastY, contentHeight-height))+originY
-                                         print("no : " ,contentY);
-                                     }
-                                 }
+                            onContentYChanged: {
+                                print("contenty :",contentY, originY);
+                            }
+
+                            onRefYChanged:{
+//                                print("refY : ", refY, lastY, contentY, originY, contentHeight, height);
+//                                 if(!moving){
+//                                     if(setting){
+//                                         contentY = Math.max(0, Math.min(refY, contentHeight-height))+originY
+//                                         print("setting : " ,contentY);
+//                                         setting = false;
+//                                     }else{
+//                                         contentY = Math.max(0, Math.min(lastY, contentHeight-height))+originY
+//                                         print("no : " ,contentY);
+//                                     }
+//                                 }
                                  lastY = contentY-originY
+                                 print(lastY, contentY, originY);
                             }
                         }
                     }
@@ -2455,6 +2519,7 @@ Item {
                                 type: "round_text"
                                 text: qsTr("예")
                                 onClicked: {
+                                    supervisor.saveAnnotation(supervisor.getMapname());
                                     supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
 //                                    supervisor.checkCleaningLocation();
                                     supervisor.readSetting();
@@ -4718,8 +4783,5 @@ Item {
     }
     Popup_help{
         id: popup_annot_help
-    }
-    Tool_Keyboard{
-        id: keyboard
     }
 }

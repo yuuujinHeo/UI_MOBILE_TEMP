@@ -100,7 +100,7 @@ Item {
                 }
             }
 
-            battery = supervisor.getBattery().toFixed(0);
+            battery = supervisor.getBattery().toFixed(2);
 
             if(popup_question.visible){
                 if(supervisor.getIPCConnection() && supervisor.getStateMoving() !== 0){
@@ -108,7 +108,7 @@ Item {
                     btn_yes.visible = true;
                     btn_no.visible = true;
                     area_cancel3.enabled = false;
-                }else if(supervisor.getChargeStatus()){
+                }else if(supervisor.getChargeConnectStatus()){
                     text_quest.text = qsTr("충전 케이블을 분리해주세요");
                     btn_yes.visible = false;
                     btn_no.visible = false;
@@ -136,6 +136,17 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top : text_bat.bottom
         anchors.topMargin: 30
+    }
+    Text{
+        id: text_debug
+        text: battery
+        visible:false
+        font.pixelSize: 20
+        color: "white"
+        font.family: font_noto_b.name
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top : text_mention.bottom
+        anchors.topMargin: 20
     }
     Timer{
         id: timer_bat
@@ -178,7 +189,7 @@ Item {
                 btn_yes.visible = true;
                 btn_no.visible = true;
                 area_cancel3.enabled = false;
-            }else if(supervisor.getChargeStatus()){
+            }else if(supervisor.getChargeConnectStatus()){
                 text_quest.text = qsTr("충전 케이블을 분리해주세요");
                 btn_yes.visible = false;
                 btn_no.visible = false;

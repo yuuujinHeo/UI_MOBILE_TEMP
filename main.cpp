@@ -15,7 +15,7 @@ QApplication *app;//(argc, argv);
 
 int main(int argc, char *argv[])
 {
-    bool test_mode = true;
+    bool test_mode = false;
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     qmlRegisterType<Supervisor>("io.qt.Supervisor",1,0, "Supervisor");
     qmlRegisterType<CameraView>("io.qt.CameraView",1,0, "CameraView");
@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
     QList<QString> path_home_str = QDir::homePath().split("/");
     if(!test_mode)
         QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+
+
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     object = engine.rootObjects()[0];
     return app->exec();

@@ -698,11 +698,15 @@ Item {
                 running: false
                 interval: 1000
                 onTriggered:{
+                    supervisor.writelog("[MAPPING] Mapping : save mapping done1");
                     popup_loading.close();
+                    supervisor.writelog("[MAPPING] Mapping : save mapping done2");
                     supervisor.setMap(map_name);
+                    supervisor.writelog("[MAPPING] Mapping : save mapping done3");
                     loadPage(pannotation);
+                    supervisor.writelog("[MAPPING] Mapping : save mapping done4");
                     loader_page.item.setMappingFlag();
-                    supervisor.writelog("[MAPPING] Mapping : save mapping done");
+                    supervisor.writelog("[MAPPING] Mapping : save mapping done5");
                 }
             }
 

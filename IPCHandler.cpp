@@ -153,7 +153,7 @@ void IPCHandler::onTimer(){
         probot->total_power = temp1.total_power;
 
         probot->bat_list.push_back(probot->battery_in);
-        if(probot->bat_list.size() > 3){
+        if(probot->bat_list.size() > 5){
             probot->bat_list.pop_front();
         }
 
@@ -164,11 +164,15 @@ void IPCHandler::onTimer(){
 
         float av_battery = sum_battery/probot->bat_list.size();
 
-        if(probot->battery < av_battery){
+//        qDebug() << av_battery << probot->battery << probot->status_charge << probot->status_charge_connect;
+        if(probot->battery > av_battery){
             probot->battery = av_battery;
-        }else if(probot->battery - av_battery > 0.5){
+        }else if(av_battery - probot->battery > 0.3){
+            if(probot->status_charge == 0 && probot->battery != 0){
+                probot->status_charge = 1;
+                plog->write("[IPC] Charging Status Detected on");
+            }
             probot->battery = av_battery;
-            probot->status_charge = 1;
         }
 
         probot->battery_percent = (probot->battery-44)*100/10;
@@ -779,7 +783,7 @@ void IPCHandler::moveTo(float x, float y, float th, int preset){
     send_msg.params[11]= array[3];
 
     send_msg.params[12] = (uint8_t)preset;
-    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << send_msg.params[12];
+//    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << send_msg.params[12];
 
     probot->curTarget.point.x = x;
     probot->curTarget.point.y = y;
