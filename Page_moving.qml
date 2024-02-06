@@ -26,49 +26,8 @@ Item {
         loadPage(pkitchen);
     }
 
-    function setNotice(errnum){
+    function setNotice(){
         robot_paused = true;
-        popup_notice.init();
-        if(errnum === 0){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
-            popup_notice.sub_str = "";
-        }else if(errnum === 1){
-            popup_notice.style = "warning";
-            popup_notice.closemode = false;
-            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
-            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
-            popup_notice.addButton(qsTr("위치초기화"));
-        }else if(errnum === 2){
-            popup_notice.style = "warning";
-            popup_notice.closemode = false;
-            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
-            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
-        }else if(errnum === 3){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("경로가 취소되었습니다");
-            popup_notice.sub_str = "";
-        }else if(errnum === 4){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
-            popup_notice.sub_str = "";
-            popup_notice.closemode = false;
-            popup_notice.addButton(qsTr("모터초기화"))
-        }else if(errnum === 5){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
-            popup_notice.sub_str = "";
-        }else if(errnum === 6){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
-            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
-        }else if(errnum === 7){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
-            popup_notice.sub_str = qsTr("");
-        }
-        popup_notice.open();
-        print("moving fail : ",errnum);
     }
 
     Component.onCompleted: {
@@ -537,28 +496,28 @@ Item {
         }
     }
 
-    Popup_notice{
-        id: popup_notice
-        onClicked:{
-            if(cur_btn === qsTr("수동이동")){
-                supervisor.setMotorLock(!motor_lock);
-            }else if(cur_btn === qsTr("취소")){
-                popup_notice.close();
-            }else if(cur_btn === qsTr("모터초기화")){
-                supervisor.setMotorLock(true);
-                supervisor.moveStopFlag();
-                popup_notice.close();
-            }else if(cur_btn === qsTr("위치초기화")){
-                loadPage(pinit);
-                supervisor.moveStopFlag();
-                popup_notice.close();
-            }else if(cur_btn === qsTr("원래대로")){
-                supervisor.setMotorLock(!motor_lock);
-                supervisor.moveStopFlag();
-                supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK EANBLE");
-            }
-        }
-    }
+//    Popup_notice{
+//        id: popup_notice
+//        onClicked:{
+//            if(cur_btn === qsTr("수동이동")){
+//                supervisor.setMotorLock(!motor_lock);
+//            }else if(cur_btn === qsTr("취소")){
+//                popup_notice.close();
+//            }else if(cur_btn === qsTr("모터초기화")){
+//                supervisor.setMotorLock(true);
+//                supervisor.moveStopFlag();
+//                popup_notice.close();
+//            }else if(cur_btn === qsTr("위치초기화")){
+//                loadPage(pinit);
+//                supervisor.moveStopFlag();
+//                popup_notice.close();
+//            }else if(cur_btn === qsTr("원래대로")){
+//                supervisor.setMotorLock(!motor_lock);
+//                supervisor.moveStopFlag();
+//                supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK EANBLE");
+//            }
+//        }
+//    }
 
     property bool flag_voice: false
     property int count_voice: 0

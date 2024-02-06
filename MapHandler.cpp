@@ -224,6 +224,7 @@ void MapHandler::setMapOrin(QString type){
 
 
 void MapHandler::setMapSize(int width, int height){
+    qDebug() << "setMapSize " << width << height;
     canvas_width = width;
     canvas_height = height;
 }
@@ -825,7 +826,6 @@ void MapHandler::setMapLayer(){
     if(tool == "ruler"){
         QPainterPath path;
         if(ruler_point.size() == 1){
-//            painter_layer.setPen(QPen(QColor("red"),2*news));
             float x = (ruler_point[0].x - draw_x);
             float y = (ruler_point[0].y - draw_y);
             path.addRoundedRect((x*news-5),(y*news-5),5*2,5*2,5,5);
@@ -846,48 +846,43 @@ void MapHandler::setMapLayer(){
             painter_layer.setPen(QPen(QColor("red"),2*news));
             painter_layer.drawLine(round(x1*news),round(y1*news),round(x2*news),round(y2*news));
 
-            float length = 0;
-            float x_dist;
-            if(x1 < x2){
-                x_dist = x2 - x1;
-            }else{
-                x_dist = x1 - x2;
-            }
+            float length = sqrt(pow(x1-x2,2)+pow(y1-y2,2));
 
-            float y_dist;
-            if(y1 < y2){
-                y_dist = y2 - y1;
-            }else{
-                y_dist = y1 - y2;
-            }
+            float angle = calculateAngle(cv::Point2f(x1,y1),cv::Point2f(x2,y2))*M_PI/180;
+            cv::Point2f pos;
+            pos.x = (x1+x2)/2;
+            pos.y = (y1+y2)/2;
+            float h = -30;
+            float m = length/2;
 
-            length =  sqrt(x_dist*x_dist + y_dist*y_dist)*grid_width;
+            float angle2 = atan(h/m);
+            float l = sqrt(m*m+h*h);
 
-            painter_layer.rotate(calculateAngle(cv::Point2f(x1,y1),cv::Point2f(x2,y2)));
+            float xdot = x1 + l*cos(angle+angle2);
+            float ydot = y1 + l*sin(angle+angle2);
+
+            painter_layer.setPen(QPen(QColor("yellow"),2*news));
+            cv::Point2f center = cv::Point2f(xdot,ydot);
+
+            int width = 100*news;
+            int height= 30*news;
+            painter_layer.translate(center.x*news,center.y*news);
             painter_layer.setFont(QFont("font/NotoSansKR-Medium",10*news));
-            painter_layer.drawText(x1*news,y1*news,QString().asprintf("%.2f [m]",length));
-            painter_layer.rotate(-calculateAngle(cv::Point2f(x1,y1),cv::Point2f(x2,y2)));
-//            painter_layer.drawText(QRect(x1*news,y1*news,x_dist*news,y_dist*news),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%.2f",length));
+            if(angle*180/M_PI > 90 || angle*180/M_PI < -90){
+                painter_layer.rotate(angle*180/M_PI-180);
+                painter_layer.drawText(QRect(-width/2,-height/2 - 60*news,width,height),Qt::AlignCenter,QString().asprintf("%.2f [m]",length*grid_width));
+
+            }else{
+                painter_layer.rotate(angle*180/M_PI);
+                painter_layer.drawText(QRect(-width/2,-height/2,width,height),Qt::AlignCenter,QString().asprintf("%.2f [m]",length*grid_width));
+
+            }
 
         }
     }
 
     update();
 }
-
-void MapHandler::setRulerPoint(int x, int y){
-    cv::Point2f p = cv::Point2f(x,y);
-    if(ruler_point.size() < 2){
-        ruler_point.append(p);
-    }else{
-        ruler_point.pop_front();
-        ruler_point.append(p);
-    }
-    qDebug() << "set Ruler Point" << x << y <<ruler_point.size();
-    setMapLayer();
-}
-
-
 void MapHandler::setMapTest(){
 }
 
@@ -1455,8 +1450,6 @@ void MapHandler::setY(int newy){
 }
 
 void MapHandler::setZoomCenter(int x, int y){
-//    float newx = draw_x - file_width*(scale - prev_scale)*((float)x/canvas_width);
-//    float newy = draw_y - file_width*(scale - prev_scale)*((float)y/canvas_width);
     float newx = (float)x-draw_width/2;//*(scale)*((float)x/file_width);
     float newy = (float)y-draw_width/2;//*(scale)*((float)y/file_width);
 
@@ -2319,5 +2312,81 @@ void MapHandler::editLocation(int x, int y, float th){
     setMap();
 }
 
+void MapHandler::setRulerInit(int x, int y){
+    if(ruler_point.size() == 1){
 
+    }else{
+        ruler_point.clear();
+    }
+    ruler_init_point = cv::Point2f(x,y);
+}
+
+void MapHandler::setRulerEnd(int x, int y){
+    if(ruler_point.size() == 0){
+        ruler_point.append(ruler_init_point);
+        ruler_point.append(cv::Point2f(x,y));
+    }else if(ruler_point.size() == 1){
+        ruler_point.clear();
+        ruler_point.append(ruler_init_point);
+        ruler_point.append(cv::Point2f(x,y));
+    }else{
+        ruler_point[1] = cv::Point2f(x,y);
+    }
+}
+void MapHandler::setRulerPoint(int x, int y){
+    cv::Point2f p = cv::Point2f(x,y);
+    if(ruler_point.size() < 2){
+        ruler_point.append(p);
+    }else{
+        ruler_point.pop_front();
+        ruler_point.append(p);
+    }
+    setMapLayer();
+}
+
+
+
+void MapHandler::pressed(QString tool, int _x, int _y){
+    float x = draw_x + _x*scale*file_width/canvas_width;
+    float y = draw_y + _y*scale*file_width/canvas_height;
+    press_release = true;
+    if(tool == "ruler"){
+        setRulerInit(x,y);
+    }
+}
+void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2){
+
+}
+
+void MapHandler::moved(QString tool, int _x, int _y){
+    float x = draw_x + _x*scale*file_width/canvas_width;
+    float y = draw_y + _y*scale*file_width/canvas_height;
+    if(tool == "ruler"){
+        if(calculateDistance(cv::Point2f(x,y),ruler_init_point) > 10){
+            press_release = false;
+            setRulerEnd(x,y);
+        }
+    }
+    setMapLayer();
+
+}
+void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
+
+}
+void MapHandler::released(QString tool, int x, int y){
+
+}
+void MapHandler::double_released(QString tool, int x1, int y1, int x2, int y2){
+    float x = draw_x + x1*scale*file_width/canvas_width;
+    float y = draw_y + y1*scale*file_width/canvas_height;
+    if(tool == "ruler"){
+        if(press_release){
+            setRulerPoint(x,y);
+        }
+    }
+
+
+    press_release = false;
+
+}
 

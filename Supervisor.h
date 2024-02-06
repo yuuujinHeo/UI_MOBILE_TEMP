@@ -194,6 +194,64 @@ public:
 
     Q_INVOKABLE void makeTTS(QString text, QString lan="ko");
     Q_INVOKABLE void playTTS();
+
+    //------------ custom page --------------//
+
+//    Q_INVOKABLE int getPageObjectSize();
+//    Q_INVOKABLE void addPageObject(QString type, QString source, int x, int y, int width, int height, int fontsize, QString color);
+//    Q_INVOKABLE void setPageObject(int num, QString type, QString source, int x, int y, int width, int height, int fontsize, QString color);
+
+    Q_INVOKABLE void setMovingPageMode(QString mode);
+    Q_INVOKABLE QString getMovingPageMode();
+    Q_INVOKABLE void setMovingPageColor(QString file);
+    Q_INVOKABLE QString getMovingPageColor();
+    Q_INVOKABLE void setMovingPageImage(QString file);
+    Q_INVOKABLE QString getMovingPageImage();
+    Q_INVOKABLE void setMovingPageVideo(QString file);
+    Q_INVOKABLE QString getMovingPageVideo();
+
+    Q_INVOKABLE void clearPatrolPage(int num);
+//    Q_INVOKABLE QString getMovingBackground();
+//    Q_INVOKABLE QString getMovingColor();
+//    Q_INVOKABLE QString getMovingImage();
+//    Q_INVOKABLE QString getMovingVideo();
+
+//    Q_INVOKABLE QString getArriveBackground();
+//    Q_INVOKABLE QString getArriveColor();
+//    Q_INVOKABLE QString getArriveImage();
+//    Q_INVOKABLE QString getArriveVideo();
+
+    void initCurrentPatrol();
+    Q_INVOKABLE int getPatrolObjectSize();
+    Q_INVOKABLE QString getPageObjectType(int num);
+    Q_INVOKABLE QString getPageObjectSource(int num);
+    Q_INVOKABLE QString getPageObjectColor(int num);
+    Q_INVOKABLE int getPageObjectX(int num);
+    Q_INVOKABLE int getPageObjectY(int num);
+    Q_INVOKABLE int getPageObjectWidth(int num);
+    Q_INVOKABLE int getPageObjectHeight(int num);
+    Q_INVOKABLE int getPageObjectFontsize(int num);
+    Q_INVOKABLE void addPatrolObject(QString page, QString obj);
+    ST_PAGE_OBJECT makeNewObj(QString obj);
+
+    Q_INVOKABLE void setPageObjectSource(int num, QString src);
+    Q_INVOKABLE void setPageObjectColor(int num, QString color);
+
+    Q_INVOKABLE void deletePatrolObject(int num);
+    Q_INVOKABLE void movePatrolObject(int num, int x, int y);
+    Q_INVOKABLE void setPatrolObjectSize(int num, int point, int x, int y);
+    Q_INVOKABLE void setPatrolObjectSize(int num, int x, int y, int width, int height);
+    Q_INVOKABLE int getPageObjectNum(int x, int y);
+
+
+
+
+
+
+
+
+
+
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
     Q_INVOKABLE void setName(QString name){maph->setName(name);}
@@ -273,6 +331,12 @@ public:
     Q_INVOKABLE void setLineWidth(int width){maph->setLineWidth(width);}
 
 
+    Q_INVOKABLE void pressed(QString tool, int x, int y){maph->pressed(tool, x, y);}
+    Q_INVOKABLE void double_pressed(QString tool, int x1, int y1, int x2, int y2){maph->double_pressed(tool, x1, y1, x2, y2);}
+    Q_INVOKABLE void moved(QString tool, int x, int y){maph->moved(tool, x, y);}
+    Q_INVOKABLE void double_moved(QString tool, int x1, int y1, int x2, int y2){maph->double_moved(tool, x1, y1, x2, y2);}
+    Q_INVOKABLE void released(QString tool, int x, int y){maph->released(tool, x, y);}
+    Q_INVOKABLE void double_released(QString tool, int x1, int y1, int x2, int y2){maph->double_released(tool, x1, y1, x2, y2);}
 
     Q_INVOKABLE int getLocationNum(QString group, QString name);
     Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);//{maph->saveLocation(type,groupnum,name);}

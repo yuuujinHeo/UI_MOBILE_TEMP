@@ -268,8 +268,10 @@ typedef struct{
 typedef struct{
     QString name = "";
     QString filename = "";
+
     //random, sequence
     QString type = "";
+
     //woman, child, none
     QString voice_mode = "";
     QString voice_language = "";
@@ -277,6 +279,7 @@ typedef struct{
     int voice_volume = 0;
     int wait_time = 0;
     int pass_time = 0;
+
     //all, serving, custom
     QString location_mode = "";
     QList<LOCATION> location;

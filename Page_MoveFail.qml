@@ -20,9 +20,6 @@ Item {
     property var joy_axis_left_ud: 0
     property var joy_axis_right_rl: 0
 
-    function setNotice(num){
-        notice_num = num;
-    }
 
     //0: no path /1: local fail /2: emergency /3: user stop /4: motor error
     property int notice_num: 0
