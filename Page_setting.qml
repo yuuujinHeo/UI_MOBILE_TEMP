@@ -2166,6 +2166,7 @@ Item {
                                     anchors.fill: parent
                                     onClicked:{
                                         click_sound.play();
+                                        popup_setting_patrolpage.page = "moving";
                                         popup_setting_patrolpage.open();
                                     }
                                 }
@@ -12991,7 +12992,6 @@ Item {
                 supervisor.updateProgram();
                 popup_update.close();
             }
-            popup_password.is_fail = false;
             popup_password.close();
         }
         onLogin_rainbow: {
@@ -13002,7 +13002,6 @@ Item {
                 supervisor.updateProgram();
                 popup_update.close();
             }
-            popup_password.is_fail = false;
             popup_password.close();
         }
         onFailed:{

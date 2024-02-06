@@ -23,9 +23,6 @@ Popup{
         color: "transparent"
     }
 
-    onShow_menuChanged: {
-        print(show_menu, rect_back.width);
-    }
 
     onOpened:{
 //        cols_patrol_bigmenu.visible = true;
@@ -59,7 +56,6 @@ Popup{
         model_patrols.clear();
         for(var i=0; i<supervisor.getLocationNum(""); i++){
             model_patrols.append({"name":supervisor.getLocationName(i,""),"type":supervisor.getLocationType(i),"select":false});
-            print(i,supervisor.getLocationName(i,""))
         }
         select();
 
@@ -124,6 +120,8 @@ Popup{
 
         if(supervisor.getPatrolMovingPage(num) === "location"){
             combo_movingpage.currentIndex = 1;
+        }else if(supervisor.getPatrolMovingPage(num) === "custom"){
+            combo_movingpage.currentIndex = 2;
         }else{
             combo_movingpage.currentIndex = 0;
         }
@@ -188,7 +186,6 @@ Popup{
         for(var i=0; i<model_patrols.count; i++){
             model_patrols.get(i).select = false;
             for(var j=0; j<supervisor.getPatrolLocationSize(num); j++){
-                print(supervisor.getPatrolLocation(num,j), model_patrols.get(i).name)
                 if(supervisor.getPatrolLocation(num,j) === model_patrols.get(i).name){
                     model_patrols.get(i).select = true;
                     break;
@@ -214,8 +211,10 @@ Popup{
 
         if(combo_movingpage.currentIndex === 1){
             supervisor.setPatrolMovingPage("location");
-        }else{
+        }else if(combo_movingpage.currentIndex === 0){
             supervisor.setPatrolMovingPage("face");
+        }else if(combo_movingpage.currentIndex === 2){
+            supervisor.setPatrolMovingPage("custom");
         }
 
         if(combo_arrivepage.currentIndex === 1){
@@ -812,7 +811,7 @@ Popup{
                                         id: combo_movingpage
                                         width: 250
                                         height: 50
-                                        model:[qsTr("귀여운 표정"),qsTr("목적지 표시")]//,qsTr("사용자지정화면"),qsTr("비디오")]
+                                        model:[qsTr("귀여운 표정"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
                                     }
                                     Text{
                                         visible: combo_movingpage.currentIndex === 2
@@ -830,24 +829,18 @@ Popup{
                                         Rectangle{
                                             width: 50
                                             height: 50
-                                        }
-                                    }
-                                    Text{
-                                        visible: combo_movingpage.currentIndex === 3
-                                        text: qsTr("비디오 설정")
-                                        font.family: font_noto_b.name
-                                        font.pixelSize: 16
-                                    }
-                                    Row{
-                                        spacing: 10
-                                        visible: combo_movingpage.currentIndex === 3
-                                        Rectangle{
-                                            width: 200
-                                            height: 50
-                                        }
-                                        Rectangle{
-                                            width: 50
-                                            height: 50
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: qsTr("설정")
+                                            }
+                                            MouseArea{
+                                                anchors.fill: parent
+                                                onClicked:{
+                                                    popup_patrol_page.page = "moving";
+                                                    popup_patrol_page.page_num = popup_patrol.select_preset;
+                                                    popup_patrol_page.open();
+                                                }
+                                            }
                                         }
                                     }
                                     Text{
@@ -860,6 +853,39 @@ Popup{
                                         width: 250
                                         height: 50
                                         model:[qsTr("페이지표시안함"),qsTr("픽업화면"),qsTr("호출화면")]//,qsTr("사용자지정화면")]
+                                    }
+                                    Text{
+                                        visible: combo_arrivepage.currentIndex === 3
+                                        text: qsTr("사용자지정화면 설정")
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        spacing: 10
+                                        visible: combo_arrivepage.currentIndex === 3
+                                        Rectangle{
+                                            width: 200
+                                            height: 50
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: qsTr("설정되지 않음")
+                                            }
+                                        }
+                                        Rectangle{
+                                            width: 50
+                                            height: 50
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: qsTr("설정")
+                                            }
+                                            MouseArea{
+                                                anchors.fill: parent
+                                                onClicked:{
+                                                    popup_patrol_page.page = "arrive";
+                                                    popup_patrol_page.open();
+                                                }
+                                            }
+                                        }
                                     }
                                     Text{
                                         visible: combo_arrivepage.currentIndex !== 0

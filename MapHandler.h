@@ -150,7 +150,23 @@ public:
         return flag_drawing;
     }
 
+
+
+    //---------------test----------------//
+    void pressed(QString tool, int x, int y);
+    void double_pressed(QString tool, int x1, int y1, int x2, int y2);
+    void moved(QString tool, int x, int y);
+    void double_moved(QString tool, int x1, int y1, int x2, int y2);
+    void released(QString tool, int x, int y);
+    void double_released(QString tool, int x1, int y1, int x2, int y2);
+
+
+
+    bool press_release = false;
+    cv::Point2f ruler_init_point;
     QList<cv::Point2f> ruler_point;
+    Q_INVOKABLE void setRulerInit(int x, int y);
+    Q_INVOKABLE void setRulerEnd(int x, int y);
     Q_INVOKABLE void setRulerPoint(int x, int y);
 
     //------------cut / rotate--------------//
@@ -172,9 +188,12 @@ public:
             return 0;
         }else{
             float angle = atan2((p2.y-p1.y),p2.x-p1.x);
-            qDebug() << angle*180/M_PI;
             return angle*180/M_PI;
         }
+    }
+    float calculateDistance(cv::Point2f p1, cv::Point2f p2){
+        float dist = sqrt(pow(p1.x - p2.x,2) + pow(p1.y - p2.y, 2));
+        return dist;
     }
 //    //---------------------------------------------------Drawing
     QList<cv::Point2f> line;

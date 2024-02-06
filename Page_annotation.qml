@@ -80,43 +80,8 @@ Item {
         popup_moving.close();
         popup_notice.close();
     }
-    function setNotice(errnum){
+    function setNotice(){
         popup_moving.close();
-        popup_notice.init();
-        popup_notice.style = "warning";
-        supervisor.moveStopFlag();
-        if(errnum === 0){
-            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
-            popup_notice.sub_str = "";
-        }else if(errnum === 1){
-            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
-            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
-            popup_notice.addButton(qsTr("위치초기화"));
-        }else if(errnum === 2){
-            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
-            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
-        }else if(errnum === 3){
-            popup_notice.main_str = qsTr("경로가 취소되었습니다");
-            popup_notice.sub_str = "";
-        }else if(errnum === 4){
-            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
-            popup_notice.sub_str = "";
-            popup_notice.closemode = false;
-            popup_notice.addButton(qsTr("모터초기화"))
-        }else if(errnum === 5){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
-            popup_notice.sub_str = "";
-        }else if(errnum === 6){
-            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
-            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
-        }else if(errnum === 7){
-            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
-            popup_notice.sub_str = qsTr("");
-        }
-
-        popup_notice.open();
-        print("annotation move fail : ",errnum);
     }
 
     function set_call_done(){
@@ -3579,7 +3544,7 @@ Item {
                                             }
                                             Item_button{
                                                 id: btn_erase
-                                                visible: select_mode === 4
+//                                                visible: select_mode === 4
                                                 shadow_color: color_gray
                                                 icon: "icon/icon_bookmark.png"
                                                 name: qsTr("추가메뉴")
@@ -4182,7 +4147,6 @@ Item {
                                                             id: btn_ruler
                                                             type: "round_text"
                                                             width: 150
-                                                            visible: false
                                                             height: 80
                                                             text: qsTr("줄자")
                                                             onClicked:{
@@ -4544,18 +4508,18 @@ Item {
         id: popup_map_list
     }
 
-    Popup_notice{
-        id: popup_notice
-        onClicked:{
-            if(cur_btn === qsTr("위치초기화")){
-                annot_pages.sourceComponent = page_annot_localization;
-                popup_notice.close();
-            }else if(cur_btn === qsTr("모터초기화")){
-                supervisor.setMotorLock(true);
-                popup_notice.close();
-            }
-        }
-    }
+//    Popup_notice{
+//        id: popup_notice
+//        onClicked:{
+//            if(cur_btn === qsTr("위치초기화")){
+//                annot_pages.sourceComponent = page_annot_localization;
+//                popup_notice.close();
+//            }else if(cur_btn === qsTr("모터초기화")){
+//                supervisor.setMotorLock(true);
+//                popup_notice.close();
+//            }
+//        }
+//    }
 
     Popup{
         id: popup_add_callbell

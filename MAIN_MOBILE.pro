@@ -26,6 +26,7 @@ SOURCES += \
     MapHandler.cpp \
     MapViewer.cpp \
     ServerHandler.cpp \
+    VideoPlayer.cpp \
     ZIPHandler.cpp \
     automata.cpp \
     cv_to_qt.cpp \
@@ -78,6 +79,7 @@ HEADERS += \
     MapHandler.h \
     MapViewer.h \
     ServerHandler.h \
+    VideoPlayer.h \
     python_wrapper.h \
     spline.h \
     Keyemitter.h \

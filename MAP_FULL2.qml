@@ -47,6 +47,7 @@ Item {
 
     onWidthChanged: {
         if(width>0 && height>0){
+            print("width changed = ",width,height)
             supervisor.setMapSize(width, height);
         }
     }
@@ -530,7 +531,15 @@ Item {
         touchPoints: [TouchPoint{id:point1},TouchPoint{id:point2}]
         onPressed:{
             double_touch = false;
-//            supervisor.setRobotFollowing(false);
+
+            if(point1.pressed && point2.pressed){
+                supervisor.double_pressed(tool, point1.x, point1.y, point2.x, point2.y);
+            }else if(point1.pressed){
+                supervisor.pressed(tool, point1.x, point1.y);
+            }else if(point2.pressed){
+                supervisor.pressed(tool, point2.x, point2.y);
+            }
+
             if(point1.pressed && point2.pressed){
                 double_touch = true;
             }else if(point1.pressed){
@@ -590,12 +599,20 @@ Item {
 //                        firstDist = Math.sqrt(dx*dx + dy*dy);
 //                    }
 //                }
+            }else if(tool === "ruler"){
+//                supervisor.setRulerInit(firstX, firstY);
             }
         }
         onReleased: {
             supervisor.setShowBrush(false);
+
+            if(!point1.pressed && !point2.pressed){
+                supervisor.double_released(tool, point1.x, point1.y, point2.x, point2.y);
+            }
+
             var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
             var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
+
             if(!point1.pressed && !point2.pressed){
                 if(tool == "move"){
                     if(supervisor.getMode() === "annot_object"){
@@ -632,12 +649,20 @@ Item {
                     supervisor.setInitPos(firstX, firstY, angle);
                     supervisor.slam_setInit();
                 }else if( tool == "ruler"){
-                    supervisor.setRulerPoint(newX, newY);
+//                    supervisor.setRulerPoint(newX, newY);
                 }
             }
         }
         onTouchUpdated: {
 //            print(point1.pressed,point2.pressed,tool);
+            if(point1.pressed && point2.pressed){
+                supervisor.double_moved(tool, point1.x, point1.y, point2.x, point2.y);
+            }else if(point1.pressed){
+                supervisor.moved(tool, point1.x, point1.y);
+            }else if(point2.pressed){
+                supervisor.moved(tool, point2.x, point2.y);
+            }
+
             if(point1.pressed || point2.pressed){
                 var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
                 var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
@@ -714,6 +739,8 @@ Item {
                     angle = Math.atan2((newY-firstY),(newX-firstX));
                     print("Update : ",firstX,firstY,angle);
                     supervisor.setInitPose(firstX,firstY,angle);
+                }else if(tool === "ruler"){
+
                 }
             }else{
                 double_touch = false;

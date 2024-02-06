@@ -5008,17 +5008,33 @@ void Supervisor::readPatrol(){
                         patrol.endGroup();
 
                         if(temp.moving_page.mode == "custom"){
-                            patrol.beginGroup("MOVING_PAGE");
+                            patrol.beginGroup("MOVING");
                             temp.moving_page.background = patrol.value("background").toString();
                             if(temp.moving_page.background == "color"){
-                                temp.moving_page.color = patrol.value("background_color").toString();
-                            }else if(temp.moving_page.background == "image"){
-                                temp.moving_page.image = patrol.value("background_image").toString();
+                                temp.moving_page.color = patrol.value("color").toString();
+                            }else if(temp.moving_page.background == "image"||temp.moving_page.background == "gif"){
+                                temp.moving_page.image = patrol.value("image").toString();
                             }else if(temp.moving_page.background == "video"){
-                                temp.moving_page.video = patrol.value("background_video").toString();
+                                temp.moving_page.video = patrol.value("video").toString();
                             }
 
+                            qDebug() << "readPatrol " << temp.moving_page.background <<temp.moving_page.color;
+                            int num = patrol.value("obj_num").toInt();
                             //object reading...(to be continue..)
+                            for(int i=0; i<num; i++){
+                                ST_PAGE_OBJECT temp_obj;
+                                QStringList objs=patrol.value("obj"+QString::number(i)).toString().split(",");
+                                if(objs.size() > 5){
+                                    temp_obj.type = objs[0];
+                                    temp_obj.x = objs[1].toInt();
+                                    temp_obj.y = objs[2].toInt();
+                                    temp_obj.width = objs[3].toInt();
+                                    temp_obj.height = objs[4].toInt();
+                                    temp_obj.source = objs[5];
+                                    temp_obj.color = objs[6];
+                                    temp.moving_page.objects.append(temp_obj);
+                                }
+                            }
                         }
 
                         //arrive_page 도 똑같이
@@ -5026,6 +5042,9 @@ void Supervisor::readPatrol(){
                         qDebug() << "PATROL APPEND : " << temp.name << temp.type << temp.location.size() << temp.voice_mode;
                         patrols.append(temp);
                     }
+
+
+
                 }
             }
         }
@@ -5118,10 +5137,17 @@ int Supervisor::getPatrolLocationSize(int num){
         return 0;
 }
 
+void Supervisor::initCurrentPatrol(){
+    current_patrol = ST_PATROL();
+    current_patrol.moving_page.mode = "face";
+    current_patrol.arrive_page.mode = "pass";
+}
+
 void Supervisor::setCurrentPatrol(int num){
     if(num > -1 && num < patrols.size()){
         current_patrol.location.clear();
         current_patrol = patrols[num];
+    }else if(num == -1){
     }
 }
 QString Supervisor::getPatrolLocation(int num, int loc){
@@ -5147,11 +5173,7 @@ void Supervisor::addPatrolLocation(QString name){
     }
 }
 void Supervisor::setPatrolMovingPage(QString mode, QString param1, QString param2, QString param3){
-    if(mode == "custom"){
-
-    }else{
-        current_patrol.moving_page.mode = mode;
-    }
+    current_patrol.moving_page.mode = mode;
 }
 void Supervisor::setPatrolArrivePage(QString mode, QString param1, QString param2, QString param3){
     if(mode == "custom"){
@@ -5171,6 +5193,7 @@ void Supervisor::setPatrolVoice(QString text, QString param1, QString param2, QS
     }
     current_patrol.voice_language = param3;
 }
+
 void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, int pass_time){
     if(num > -1 && num < patrols.size()){
         QString path = QDir::homePath() + "/RB_MOBILE/patrol";
@@ -5193,6 +5216,21 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
 
         for(int i=0; i<current_patrol.location.size(); i++){
             file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
+        }
+
+        if(current_patrol.moving_page.mode == "custom"){
+            file.setValue("MOVING/background",current_patrol.moving_page.background);
+            file.setValue("MOVING/image",current_patrol.moving_page.image);
+            file.setValue("MOVING/video",current_patrol.moving_page.video);
+            file.setValue("MOVING/color",current_patrol.moving_page.color);
+            file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
+
+            for(int i=0; i<current_patrol.moving_page.objects.size(); i++){
+                QString str = current_patrol.moving_page.objects[i].type + "," + QString::number(current_patrol.moving_page.objects[i].x) + "," + QString::number(current_patrol.moving_page.objects[i].y) + "," + QString::number(current_patrol.moving_page.objects[i].width) + "," + QString::number(current_patrol.moving_page.objects[i].height) +
+                        "," + current_patrol.moving_page.objects[i].source +","+current_patrol.moving_page.objects[i].color;
+                file.setValue("MOVING/obj"+QString::number(i),str);
+            }
+            qDebug() << "setPatrol " << current_patrol.moving_page.background << current_patrol.moving_page.color;
         }
     }
 }
@@ -5247,11 +5285,24 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
     for(int i=0; i<current_patrol.location.size(); i++){
         file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
     }
+
+    if(current_patrol.moving_page.mode == "custom"){
+        file.setValue("MOVING/background",current_patrol.moving_page.background);
+        file.setValue("MOVING/image",current_patrol.moving_page.image);
+        file.setValue("MOVING/video",current_patrol.moving_page.video);
+        file.setValue("MOVING/color",current_patrol.moving_page.color);
+        file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
+
+        for(int i=0; i<current_patrol.moving_page.objects.size(); i++){
+            QString str = current_patrol.moving_page.objects[i].type + "," + QString::number(current_patrol.moving_page.objects[i].x) + "," + QString::number(current_patrol.moving_page.objects[i].y) + "," + QString::number(current_patrol.moving_page.objects[i].width) + "," + QString::number(current_patrol.moving_page.objects[i].height) +
+                    "," + current_patrol.moving_page.objects[i].source +","+current_patrol.moving_page.objects[i].color;
+            file.setValue("MOVING/obj"+QString::number(i),str);
+        }
+    }
 }
 
 
 void Supervisor::makeTTS(QString text, QString lan){
-//    QString all = "from gtts import gTTS\ntts = gTTS(text=\""+text+"\")\ntts.save('voice.mp3')";
     QString all = "from gtts import gTTS\n"
                   "tts = gTTS(text=\""+text+"\", lang='"+lan+"')\n"
                   "tts.save('voice.mp3')";
@@ -5261,4 +5312,185 @@ void Supervisor::makeTTS(QString text, QString lan){
 
 void Supervisor::playTTS(){
     playVoiceFile("voice.mp3");
+}
+
+void Supervisor::setMovingPageColor(QString file){
+    setMovingPageMode("color");
+    current_patrol.moving_page.color = file;
+}
+
+QString Supervisor::getMovingPageColor(){
+    return current_patrol.moving_page.color;
+}
+
+void Supervisor::setMovingPageMode(QString mode){
+    current_patrol.moving_page.background = mode;
+}
+
+QString Supervisor::getMovingPageMode(){
+    return current_patrol.moving_page.background;
+}
+
+
+void Supervisor::setMovingPageImage(QString file){
+    current_patrol.moving_page.image = file;
+}
+
+QString Supervisor::getMovingPageImage(){
+    return current_patrol.moving_page.image;
+}
+
+
+void Supervisor::setMovingPageVideo(QString file){
+    setMovingPageMode("video");
+    current_patrol.moving_page.video = file;
+}
+
+QString Supervisor::getMovingPageVideo(){
+    return current_patrol.moving_page.video;
+}
+
+void Supervisor::addPatrolObject(QString page, QString obj){
+    plog->write("[PATROL] add Patrol Object ("+page+") : "+obj);
+    ST_PAGE_OBJECT temp_obj = makeNewObj(obj);
+
+    if(page == "moving"){
+        current_patrol.moving_page.objects.append(temp_obj);
+    }else{
+        current_patrol.arrive_page.objects.append(temp_obj);
+    }
+}
+
+ST_PAGE_OBJECT Supervisor::makeNewObj(QString obj){
+    ST_PAGE_OBJECT ob;
+    ob.type = obj;
+    if(obj == "image"){
+        ob.x = 0;
+        ob.y = 0;
+        ob.width = 100;
+        ob.height = 100;
+        ob.source = "image/robot_head.png";
+    }else if(obj == "text"){
+        ob.x = 0;
+        ob.y = 0;
+        ob.fontsize = 20;
+        ob.color = "#000000";
+        ob.source = tr("안녕하세요");
+        ob.width = 100;
+        ob.height = 40;
+    }
+    return ob;
+}
+
+int Supervisor::getPatrolObjectSize(){
+    return current_patrol.moving_page.objects.size();
+}
+
+QString Supervisor::getPageObjectType(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].type;
+    }
+    return "";
+}
+void Supervisor::setPageObjectSource(int num, QString src){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        current_patrol.moving_page.objects[num].source = src;
+    }
+}
+void Supervisor::setPageObjectColor(int num, QString color){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        current_patrol.moving_page.objects[num].color = color;
+    }
+}
+QString Supervisor::getPageObjectSource(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].source;
+    }
+    return "";
+}
+QString Supervisor::getPageObjectColor(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].color;
+    }
+    return "";
+}
+int Supervisor::getPageObjectX(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].x;
+    }
+    return -1;
+}
+int Supervisor::getPageObjectY(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].y;
+    }
+    return -1;
+}
+int Supervisor::getPageObjectWidth(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].width;
+    }
+    return -1;
+}
+int Supervisor::getPageObjectHeight(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].height;
+    }
+    return -1;
+}
+int Supervisor::getPageObjectFontsize(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        return current_patrol.moving_page.objects[num].fontsize;
+    }
+}
+
+int Supervisor::getPageObjectNum(int x, int y){
+    for(int i=current_patrol.moving_page.objects.size()-1; i>-1; i--){
+        if(x>(current_patrol.moving_page.objects[i].x-10) && x < current_patrol.moving_page.objects[i].x + current_patrol.moving_page.objects[i].width+10){
+            if(y>(current_patrol.moving_page.objects[i].y-10) && y < current_patrol.moving_page.objects[i].y + current_patrol.moving_page.objects[i].height+10){
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+void Supervisor::movePatrolObject(int num, int x, int y){
+    qDebug() << "movePatrolObject " << num << x << y;
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        current_patrol.moving_page.objects[num].x = x;
+        current_patrol.moving_page.objects[num].y = y;
+    }
+}
+
+void Supervisor::setPatrolObjectSize(int num, int x, int y, int width, int height){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        current_patrol.moving_page.objects[num].x = x;
+        current_patrol.moving_page.objects[num].y = y;
+        current_patrol.moving_page.objects[num].width = width;
+        current_patrol.moving_page.objects[num].height = height;
+    }
+}
+void Supervisor::deletePatrolObject(int num){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        current_patrol.moving_page.objects.removeAt(num);
+    }
+}
+void Supervisor::setPatrolObjectSize(int num, int point, int x, int y){
+    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+        qDebug() << "setPatrolObjectSize" << num << point << x << y;
+        current_patrol.moving_page.objects[num].x += x;
+        current_patrol.moving_page.objects[num].y += y;
+        current_patrol.moving_page.objects[num].width -= x;
+        current_patrol.moving_page.objects[num].height -= y;
+    }
+
+}
+
+void Supervisor::clearPatrolPage(int num){
+    if(num == -1){
+        current_patrol.moving_page.objects.clear();
+    }else if(num > -1 && num < patrols.size()){
+        current_patrol.moving_page = patrols[num].moving_page;
+    }
 }
