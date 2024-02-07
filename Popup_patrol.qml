@@ -746,6 +746,7 @@ Popup{
                                     anchors.centerIn: parent
                                     rows: 10
                                     columns: 2
+                                    clip: true
                                     spacing: 10
                                     horizontalItemAlignment: Grid.AlignHCenter
                                     verticalItemAlignment: Grid.AlignVCenter
@@ -825,13 +826,17 @@ Popup{
                                         Rectangle{
                                             width: 200
                                             height: 50
+                                            visible: false
                                         }
                                         Rectangle{
-                                            width: 50
+                                            width: 200
                                             height: 50
+                                            radius: 10
+                                            color: color_dark_navy
                                             Text{
                                                 anchors.centerIn: parent
                                                 text: qsTr("설정")
+                                                color: "white"
                                             }
                                             MouseArea{
                                                 anchors.fill: parent
