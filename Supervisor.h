@@ -201,6 +201,8 @@ public:
 //    Q_INVOKABLE void addPageObject(QString type, QString source, int x, int y, int width, int height, int fontsize, QString color);
 //    Q_INVOKABLE void setPageObject(int num, QString type, QString source, int x, int y, int width, int height, int fontsize, QString color);
 
+    Q_INVOKABLE void setMovingPageBackground(QString mode);
+    Q_INVOKABLE QString getMovingPageBackground();
     Q_INVOKABLE void setMovingPageMode(QString mode);
     Q_INVOKABLE QString getMovingPageMode();
     Q_INVOKABLE void setMovingPageColor(QString file);

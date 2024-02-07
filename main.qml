@@ -261,9 +261,12 @@ Window {
             supervisor.writelog("[UI] Annotation Check : Moving Start "+cur_location);
             loader_page.item.movestart();
         }else{
+            print(supervisor.isPatrolPage(), supervisor.getMovingPageMode())
             if(supervisor.isPatrolPage() && supervisor.getMovingPageMode() === "custom"){
+                print("loadpage custom");
                 loadPage(pmovingcustom)
             }else{
+                print("loadpage moving");
                 loadPage(pmoving)
                 supervisor.writelog("[UI] Force Page Change Moving : "+cur_location);
                 loader_page.item.pos_name = cur_location;
