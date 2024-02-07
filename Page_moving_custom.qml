@@ -59,14 +59,19 @@ Item {
             print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i),supervisor.getPageObjectX(i),supervisor.getPageObjectY(i),supervisor.getPageObjectWidth(i),supervisor.getPageObjectHeight(i));
         }
 
+        background_mode = supervisor.getMovingPageBackground();
+        print("background mode = ",background_mode);
         if(background_mode === "none" || background_mode === "color"){
+            background_source = supervisor.getMovingPageColor();
             loader_background.sourceComponent = compo_color;
         }else if(background_mode === "image"){
+            background_source = supervisor.getMovingPageImage();
             loader_background.sourceComponent = compo_gif;
         }else if(background_mode === "video"){
+            background_source = supervisor.getMovingPageVideo();
             loader_background.sourceComponent = compo_video;
+            loader_background.item.setVol(supervisor.getMovingPageAudio());
         }
-
     }
 
     function update(){
@@ -152,9 +157,14 @@ Item {
         id: compo_video
         Item{
             anchors.fill: parent
+            Component.onCompleted: {
+                video.volume = supervisor.getMovingPageAudio();
+                print("completed volume = ",video.volume)
+            }
+
             function setVol(vol){
                 video.volume = vol;
-                print("setVol ",vol);
+                print("VIDEO VOLUME = ",vol);
             }
 
             Video{
@@ -162,11 +172,10 @@ Item {
                 anchors.fill: parent
                 fillMode: VideoOutput.Stretch
                 source: background_source
-                volume: volume
+                volume: 1
                 onVolumeChanged:{
                     print("volume : " , volume)
                 }
-
                 autoPlay: true
                 loops:MediaPlayer.Infinite
                 Text{

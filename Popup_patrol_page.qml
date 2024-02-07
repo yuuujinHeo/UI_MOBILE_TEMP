@@ -44,23 +44,18 @@ Popup {
             print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
         }
 
-        if(supervisor.getMovingPageMode() === "color"){
+        if(supervisor.getMovingPageBackground() === "color"){
             combo_background_mode.currentIndex = 0;
             move_page.background_source = supervisor.getMovingPageColor()
             rect_color.color = supervisor.getMovingPageColor()
             text_color.text = supervisor.getMovingPageColor()
 
-        }else if(supervisor.getMovingPageMode() === "image"){
+        }else if(supervisor.getMovingPageBackground() === "image"){
             combo_background_mode.currentIndex = 1;
             move_page.background_source = supervisor.getMovingPageImage();
             text_image.text = supervisor.getMovingPageImage().split("/").pop()
-        }else if(supervisor.getMovingPageMode() === "gif"){
+        }else if(supervisor.getMovingPageBackground() === "video"){
             combo_background_mode.currentIndex = 2;
-            move_page.background_source = supervisor.getMovingPageImage();
-            print("gif : ", supervisor.getMovingPageImage());
-            text_image.text = supervisor.getMovingPageImage().split("/").pop()
-        }else if(supervisor.getMovingPageMode() === "video"){
-            combo_background_mode.currentIndex = 3;
             move_page.background_source = supervisor.getMovingPageVideo();
             text_image.text = supervisor.getMovingPageVideo().split("/").pop()
         }
@@ -235,7 +230,7 @@ Popup {
                                                 }else if(currentIndex === 2){
                                                     move_page.background_mode = "video";
                                                 }
-                                                supervisor.setMovingPageMode(move_page.background_mode);
+                                                supervisor.setMovingPageBackground(move_page.background_mode);
                                             }
                                         }
                                     }

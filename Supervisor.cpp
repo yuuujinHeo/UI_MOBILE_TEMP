@@ -5017,6 +5017,7 @@ void Supervisor::readPatrol(){
                             }else if(temp.moving_page.background == "video"){
                                 temp.moving_page.video = patrol.value("video").toString();
                             }
+                            temp.moving_page.volume = patrol.value("audio").toFloat();
 
                             qDebug() << "readPatrol " << temp.moving_page.background <<temp.moving_page.color;
                             int num = patrol.value("obj_num").toInt();
@@ -5224,6 +5225,7 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
             file.setValue("MOVING/video",current_patrol.moving_page.video);
             file.setValue("MOVING/color",current_patrol.moving_page.color);
             file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
+            file.setValue("MOVING/audio",current_patrol.moving_page.volume);
 
             for(int i=0; i<current_patrol.moving_page.objects.size(); i++){
                 QString str = current_patrol.moving_page.objects[i].type + "," + QString::number(current_patrol.moving_page.objects[i].x) + "," + QString::number(current_patrol.moving_page.objects[i].y) + "," + QString::number(current_patrol.moving_page.objects[i].width) + "," + QString::number(current_patrol.moving_page.objects[i].height) +
@@ -5292,6 +5294,7 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
         file.setValue("MOVING/video",current_patrol.moving_page.video);
         file.setValue("MOVING/color",current_patrol.moving_page.color);
         file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
+        file.setValue("MOVING/audio",current_patrol.moving_page.volume);
 
         for(int i=0; i<current_patrol.moving_page.objects.size(); i++){
             QString str = current_patrol.moving_page.objects[i].type + "," + QString::number(current_patrol.moving_page.objects[i].x) + "," + QString::number(current_patrol.moving_page.objects[i].y) + "," + QString::number(current_patrol.moving_page.objects[i].width) + "," + QString::number(current_patrol.moving_page.objects[i].height) +
@@ -5315,7 +5318,8 @@ void Supervisor::playTTS(){
 }
 
 void Supervisor::setMovingPageColor(QString file){
-    setMovingPageMode("color");
+//    set/
+    setMovingPageBackground("color");
     current_patrol.moving_page.color = file;
 }
 
@@ -5324,10 +5328,18 @@ QString Supervisor::getMovingPageColor(){
 }
 
 void Supervisor::setMovingPageMode(QString mode){
-    current_patrol.moving_page.background = mode;
+    current_patrol.moving_page.mode = mode;
 }
 
 QString Supervisor::getMovingPageMode(){
+    return current_patrol.moving_page.mode;
+}
+
+void Supervisor::setMovingPageBackground(QString mode){
+    current_patrol.moving_page.background = mode;
+}
+
+QString Supervisor::getMovingPageBackground(){
     return current_patrol.moving_page.background;
 }
 
@@ -5342,7 +5354,7 @@ QString Supervisor::getMovingPageImage(){
 
 
 void Supervisor::setMovingPageVideo(QString file){
-    setMovingPageMode("video");
+    setMovingPageBackground("video");
     current_patrol.moving_page.video = file;
 }
 
@@ -5350,7 +5362,7 @@ QString Supervisor::getMovingPageVideo(){
     return current_patrol.moving_page.video;
 }
 void Supervisor::setMovingPageAudio(float volume){
-    setMovingPageMode("video");
+    setMovingPageBackground("video");
     current_patrol.moving_page.volume = volume;
 }
 
