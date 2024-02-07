@@ -284,5 +284,6 @@
         <file>image/face_cry2.gif</file>
         <file>Popup_test_tts.qml</file>
         <file>Page_moving_custom.qml</file>
+        <file>icon/icon_colorwheel.png</file>
     </qresource>
 </RCC>

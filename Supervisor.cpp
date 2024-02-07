@@ -5349,6 +5349,15 @@ void Supervisor::setMovingPageVideo(QString file){
 QString Supervisor::getMovingPageVideo(){
     return current_patrol.moving_page.video;
 }
+void Supervisor::setMovingPageAudio(float volume){
+    setMovingPageMode("video");
+    current_patrol.moving_page.volume = volume;
+}
+
+float Supervisor::getMovingPageAudio(){
+    return current_patrol.moving_page.volume;
+}
+
 
 void Supervisor::addPatrolObject(QString page, QString obj){
     plog->write("[PATROL] add Patrol Object ("+page+") : "+obj);
@@ -5456,7 +5465,7 @@ int Supervisor::getPageObjectNum(int x, int y){
 }
 
 void Supervisor::movePatrolObject(int num, int x, int y){
-    qDebug() << "movePatrolObject " << num << x << y;
+//    qDebug() << "movePatrolObject " << num << x << y;
     if(num > -1 && num < current_patrol.moving_page.objects.size()){
         current_patrol.moving_page.objects[num].x = x;
         current_patrol.moving_page.objects[num].y = y;

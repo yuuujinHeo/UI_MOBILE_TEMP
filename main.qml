@@ -211,8 +211,8 @@ Window {
     }
 
     Component.onCompleted: {
-//        popup_patrol_page.page = "moving";
-//        popup_patrol_page.open();
+        popup_patrol_page.page = "moving";
+        popup_patrol_page.open();
     }
 
     function lessbattery(){
@@ -506,11 +506,11 @@ Window {
         id: emitter
     }
 
-//    Popup_patrol_page{
-//        id: popup_patrol_page
-//        width: parent.width
-//        height: parent.height
-//    }
+    Popup_patrol_page{
+        id: popup_patrol_page
+        width: parent.width
+        height: parent.height
+    }
 
 //    Page_moving{
 //        anchors.fill: parent
@@ -532,24 +532,6 @@ Window {
         source: pinit
     }
 
-    Video{
-        id: video
-        width: 400
-        height: 300
-        flushMode: VideoOutput.EmptyFrame
-        source: "file:/home/rainbow/ZERO _ Vaundy：MUSIC VIDEO.mp4"
-    }
-//    VideoOutput{
-//        id: videooutput
-//        source: video
-//        anchors.fill: parent
-//    }
-    MouseArea{
-        anchors.fill: parent
-        onClicked:{
-            video.play();
-        }
-    }
     Timer{
         id: timer_update
         interval: 3000

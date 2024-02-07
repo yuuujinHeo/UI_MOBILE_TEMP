@@ -209,6 +209,8 @@ public:
     Q_INVOKABLE QString getMovingPageImage();
     Q_INVOKABLE void setMovingPageVideo(QString file);
     Q_INVOKABLE QString getMovingPageVideo();
+    Q_INVOKABLE void setMovingPageAudio(float volume);
+    Q_INVOKABLE float getMovingPageAudio();
 
     Q_INVOKABLE void clearPatrolPage(int num);
 //    Q_INVOKABLE QString getMovingBackground();

@@ -26,7 +26,7 @@ Popup {
         init();
     }
     onClosed:{
-
+        move_page.close();
     }
 
     function init(){
@@ -221,24 +221,19 @@ Popup {
                                         }
                                         ComboBox{
                                             id: combo_background_mode
-                                            model:["color","image","gif","video"]
+                                            model:["color","image","video"]
                                             currentIndex: 0//parseInt(supervisor.getSetting("setting","UI","patrol_image"))
                                             anchors.verticalCenter: parent.verticalCenter
                                             width: 250
                                             height: 50
                                             onCurrentIndexChanged: {
+                                                print("background mode index : ",currentIndex);
                                                 if(currentIndex === 0){
                                                     move_page.background_mode = "color";
-                                                    move_page.background_source = supervisor.getMovingPageColor()
                                                 }else if(currentIndex === 1){
                                                     move_page.background_mode = "image";
-                                                    move_page.background_source = supervisor.getMovingPageImage()
                                                 }else if(currentIndex === 2){
-                                                    move_page.background_mode = "gif";
-                                                    move_page.background_source = supervisor.getMovingPageImage()
-                                                }else if(currentIndex === 3){
                                                     move_page.background_mode = "video";
-                                                    move_page.background_source = supervisor.getMovingPageVideo()
                                                 }
                                                 supervisor.setMovingPageMode(move_page.background_mode);
                                             }
@@ -281,7 +276,7 @@ Popup {
                                         }
                                     }
                                     Row{
-                                        visible: combo_background_mode.currentIndex === 1 || combo_background_mode.currentIndex === 2
+                                        visible: combo_background_mode.currentIndex === 1
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         Text{
                                             width: 100
@@ -307,7 +302,7 @@ Popup {
                                         }
                                     }
                                     Row{
-                                        visible: combo_background_mode.currentIndex === 3
+                                        visible: combo_background_mode.currentIndex === 2
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         Text{
                                             width: 100
@@ -332,6 +327,57 @@ Popup {
                                             }
                                         }
                                     }
+                                    Row{
+                                        visible: combo_background_mode.currentIndex === 2
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        Text{
+                                            width: 100
+                                            text: qsTr("오디오 : ")
+                                            anchors.verticalCenter: parent.verticalCenter
+                                        }
+                                        Rectangle{
+                                            id: rect_audio
+                                            width: 250
+                                            height: 50
+                                            clip: true
+                                            color: "transparent"
+                                            Row{
+                                                anchors.centerIn: parent
+                                                spacing: 5
+                                                Image{
+                                                    id: ttet1
+                                                    source: "icon/icon_mute.png"
+                                                    anchors.verticalCenter: parent.verticalCenter
+                                                    MouseArea{
+                                                        anchors.fill: parent
+                                                        onClicked: {
+                                                            click_sound.play();
+                                                            if(slider_audio.value == 0){
+                                                                slider_audio.value  = supervisor.getMovingPageAudio();
+                                                            }else{
+                                                                slider_audio.value  = 0;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                Slider{
+                                                    id: slider_audio
+                                                    width: 200
+                                                    value : supervisor.getMovingPageAudio()
+                                                    anchors.verticalCenter: parent.verticalCenter
+                                                    to: 1
+                                                    from: 0
+                                                    onValueChanged: {
+//                                                        move_page.volume = value;
+                                                        move_page.setVolume(value);
+                                                        print("value : " ,value)
+                                                    }
+                                                }
+                                            }
+
+
+                                        }
+                                    }
                                 }
                             }
                             FileDialog{
@@ -340,11 +386,11 @@ Popup {
                                 folder: shortcuts.home
                                 onAccepted:{
                                     if(combo_background_mode.currentIndex === 0){
-                                    }else if(combo_background_mode.currentIndex === 1 || combo_background_mode.currentIndex === 2){
+                                    }else if(combo_background_mode.currentIndex === 1){
                                         supervisor.setMovingPageImage(image_dialog.fileUrl);
                                         move_page.background_source = image_dialog.fileUrl;
                                         text_image.text = image_dialog.fileUrl.toString().split("/").pop()
-                                    }else if(combo_background_mode.currentIndex === 3){
+                                    }else if(combo_background_mode.currentIndex === 2){
                                         supervisor.setMovingPageVideo(image_dialog.fileUrl);
                                         move_page.background_source = image_dialog.fileUrl;
                                         text_video.text = image_dialog.fileUrl.toString().split("/").pop()
@@ -734,26 +780,58 @@ Popup {
                         text: qsTr("텍스트를 입력해주세요")
                     }
 
-                    TextField{
-                        id: tfield_text
+                    Row{
+                        spacing: 5
                         anchors.horizontalCenter: parent.horizontalCenter
-                        width: 350
-                        height: 60
-                        MouseArea{
-                            anchors.fill:parent
-                            onClicked: {
-                                click_sound.play();
-                                if(keyboard.is_opened){
-                                    keyboard.owner = tfield_text;
-                                    tfield_text.selectAll();
-                                }else{
-                                    keyboard.owner = tfield_text;
-                                    tfield_text.selectAll();
-                                    keyboard.open();
+                        TextField{
+                            id: tfield_text
+                            width: 350
+                            height: 60
+                            color: color_dialog2.color
+                            MouseArea{
+                                anchors.fill:parent
+                                onClicked: {
+                                    click_sound.play();
+                                    if(keyboard.is_opened){
+                                        keyboard.owner = tfield_text;
+                                        tfield_text.selectAll();
+                                    }else{
+                                        keyboard.owner = tfield_text;
+                                        tfield_text.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle{
+                            id: rect_color_text
+                            width: 60
+                            height: 60
+                            radius: 5
+                            Image{
+                                anchors.centerIn: parent
+                                width: 50
+                                height: 50
+                                source: "icon/icon_colorwheel.png"
+                            }
+                            MouseArea{
+                                anchors.fill: parent
+                                onClicked:{
+                                    color_dialog2.open();
+                                }
+                            }
+                            ColorDialog{
+                                id: color_dialog2
+                                color: "black"
+                                onSelectionAccepted: {
+                                    print("set color ",color_dialog2.color)
+//                                    rect_color_text.color = color_dialog2.color
                                 }
                             }
                         }
                     }
+
                     Row{
                         anchors.horizontalCenter: parent.horizontalCenter
                         spacing: 30
@@ -792,9 +870,11 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    supervisor.setPageObjectColor(popup_edit.obj_num, color_dialog2.color);
                                     supervisor.setPageObjectSource(popup_edit.obj_num, tfield_text.text);
                                     popup_patrol_page.update();
                                     popup_edit.close();
+                                    color_dialog2.close();
                                 }
                             }
                         }
