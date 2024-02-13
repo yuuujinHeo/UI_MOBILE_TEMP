@@ -700,7 +700,7 @@ Window {
         id: popup_notice
         onClicked:{
             if(cur_btn === qsTr("수동이동")){
-                supervisor.setMotorLock(!motor_lock);
+                supervisor.setMotorLock(true);
             }else if(cur_btn === qsTr("취소")){
                 popup_notice.close();
             }else if(cur_btn === qsTr("모터초기화")){
@@ -716,7 +716,7 @@ Window {
                 supervisor.moveStopFlag();
                 popup_notice.close();
             }else if(cur_btn === qsTr("원래대로")){
-                supervisor.setMotorLock(!motor_lock);
+                supervisor.setMotorLock(false);
                 supervisor.moveStopFlag();
                 supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK EANBLE");
             }else if(cur_btn === qsTr("재시작")){

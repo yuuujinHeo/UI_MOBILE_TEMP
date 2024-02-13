@@ -7,16 +7,27 @@ import QtMultimedia 5.12
 Item {
     id: page_moving_custom
     objectName: "page_moving_custom"
+    property bool edit_mode: false
     width: 1280
     height: 800
 
     property string background_mode: "none"
     property string background_source: ""
+    property bool motor_lock: false
+    property bool robot_paused: false
+    property int password: 0
     property real volume: 1
     onVolumeChanged:{
         print("move page volume : ", volume)
     }
 
+    function movedone(){
+        loadPage(pkitchen);
+    }
+
+    function setNotice(){
+        robot_paused = true;
+    }
     function setVolume(vol){
         loader_background.item.setVol(vol);
     }
@@ -41,9 +52,14 @@ Item {
     }
     Component.onDestruction:  {
         supervisor.stopBGM();
+        popup_notice.close();
     }
     function init(){
         supervisor.writelog("[QML] MOVING CUSTOM PAGE init")
+
+        if(!edit_mode){
+            statusbar.visible = false;
+        }
 
         model_obj.clear();
         page_moving_custom.select_obj = -1;
@@ -51,10 +67,10 @@ Item {
             model_obj.append({"type":supervisor.getPageObjectType(i),
                              "ob_source":supervisor.getPageObjectSource(i),
                              "ob_color":supervisor.getPageObjectColor(i),
-                             "ob_x":supervisor.getPageObjectX(i),
-                             "ob_y":supervisor.getPageObjectY(i),
-                             "ob_width":supervisor.getPageObjectWidth(i),
-                             "ob_height":supervisor.getPageObjectHeight(i),
+                             "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                             "ob_y":supervisor.getPageObjectY(i)*height/800,
+                             "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                             "ob_height":supervisor.getPageObjectHeight(i)*height/800,
                              "fontsize":supervisor.getPageObjectFontsize(i)});
             print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i),supervisor.getPageObjectX(i),supervisor.getPageObjectY(i),supervisor.getPageObjectWidth(i),supervisor.getPageObjectHeight(i));
         }
@@ -79,10 +95,10 @@ Item {
             model_obj.set(i,{"type":supervisor.getPageObjectType(i),
                              "ob_source":supervisor.getPageObjectSource(i),
                              "ob_color":supervisor.getPageObjectColor(i),
-                             "ob_x":supervisor.getPageObjectX(i),
-                             "ob_y":supervisor.getPageObjectY(i),
-                             "ob_width":supervisor.getPageObjectWidth(i),
-                             "ob_height":supervisor.getPageObjectHeight(i),
+                             "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                             "ob_y":supervisor.getPageObjectY(i)*height/800,
+                             "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                             "ob_height":supervisor.getPageObjectHeight(i)*height/800,
                              "fontsize":supervisor.getPageObjectFontsize(i)});
 //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
         }
@@ -237,6 +253,7 @@ Item {
         }
         MouseArea{
             anchors.fill: parent
+            visible: edit_mode
             property int posx: -1
             property int posy: -1
             property int firstx: -1
@@ -278,8 +295,8 @@ Item {
             onReleased:{
                 if(page_moving_custom.select_obj > -1){
                     supervisor.setPatrolObjectSize(page_moving_custom.select_obj,
-                                                   model_obj.get(page_moving_custom.select_obj).ob_x,model_obj.get(page_moving_custom.select_obj).ob_y,
-                                                   model_obj.get(page_moving_custom.select_obj).ob_width,model_obj.get(page_moving_custom.select_obj).ob_height);
+                                                   model_obj.get(page_moving_custom.select_obj).ob_x*1280/width,model_obj.get(page_moving_custom.select_obj).ob_y*800/height,
+                                                   model_obj.get(page_moving_custom.select_obj).ob_width*1280/width,model_obj.get(page_moving_custom.select_obj).ob_height*800/height);
                 }
                 posx = -1;
                 posy = -1;
@@ -313,7 +330,7 @@ Item {
         }
         Rectangle{
             id: rect_left_top
-            visible: page_moving_custom.select_obj > -1
+            visible: edit_mode && page_moving_custom.select_obj > -1
             enabled: visible
             x: typeof(model_obj.get(page_moving_custom.select_obj).ob_x)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_x - 10
             y: typeof(model_obj.get(page_moving_custom.select_obj).ob_y)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_y - 10
@@ -323,7 +340,7 @@ Item {
         }
         Rectangle{
             id: rect_right_bottom
-            visible: page_moving_custom.select_obj > -1
+            visible: edit_mode && page_moving_custom.select_obj > -1
             x: typeof(model_obj.get(page_moving_custom.select_obj).ob_x)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_x + model_obj.get(page_moving_custom.select_obj).ob_width - 10
             y: typeof(model_obj.get(page_moving_custom.select_obj).ob_y)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_y + model_obj.get(page_moving_custom.select_obj).ob_height - 10
             width:  20
@@ -332,4 +349,250 @@ Item {
         }
     }
 
+
+    Item{
+        id: popup_pause
+        width: parent.width
+        height: parent.height
+        anchors.centerIn: parent
+        onVisibleChanged: {
+            if(visible){
+                statusbar.visible = true;
+            }else{
+                statusbar.visible = false;
+            }
+        }
+
+        Rectangle{
+            anchors.fill: parent
+            visible: robot_paused
+            color: "#282828"
+            opacity: 0.8
+        }
+        Image{
+            id: image_warning
+            source: "icon/icon_warning.png"
+            width: 160
+            height: 160
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 200
+            MouseArea{
+                anchors.fill: parent
+                z: 99
+                onClicked:{
+                    popup_pause.visible = false;
+                }
+            }
+        }
+        Text{
+            id: teee
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top:image_warning.bottom
+            anchors.topMargin: 30
+            font.family: font_noto_b.name
+            font.pixelSize: 50
+            color: "#e2574c"
+            text: qsTr("일시정지 됨")
+        }
+        Text{
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top:teee.bottom
+            anchors.topMargin: 10
+            font.family: font_noto_b.name
+            font.pixelSize: 40
+            color: "#e2574c"
+            text: qsTr("( 목적지 : ")+pos_name+" )"
+        }
+        Row{
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 80
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 100
+            Rectangle{
+                width: 180
+                height: 120
+                radius: 20
+                color: "transparent"
+                border.color: color_red
+                border.width: 6
+                Text{
+                    anchors.centerIn: parent
+                    color: color_red
+                    font.family: font_noto_r.name
+                    font.pixelSize: 30
+                    text: qsTr("수동 이동")
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    z: 99
+                    onClicked:{
+                        click_sound.play();
+                        popup_notice.init();
+                        popup_notice.closemode = false;
+                        popup_notice.style = "warning";
+                        popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
+                        popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
+                        popup_notice.addButton(qsTr("수동이동"));
+                        popup_notice.addButton(qsTr("취소"));
+                        popup_notice.open();
+                    }
+                }
+            }
+            Rectangle{
+                width: 180
+                height: 120
+                radius: 20
+                color: "transparent"
+                enabled: motor_lock
+                border.color: motor_lock?color_red:color_gray
+                border.width: 6
+                Text{
+                    anchors.centerIn: parent
+                    color: color_red
+                    font.family: font_noto_r.name
+                    font.pixelSize: 30
+                    text: qsTr("경로 취소")
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    z: 99
+                    propagateComposedEvents: true
+                    onPressed:{
+                        click_sound.play();;
+                        parent.color = color_dark_navy
+                    }
+                    onReleased:{
+                        parent.color = "transparent"
+                    }
+                    onClicked:{
+                        supervisor.writelog("[USER INPUT] MOVING PAUSED : PATH CANCELED");
+                        supervisor.moveStop();
+                    }
+                }
+            }
+            Rectangle{
+                width: 180
+                height: 120
+                radius: 20
+                color: "transparent"
+                enabled: motor_lock
+                border.color: motor_lock?color_red:color_gray
+                border.width: 6
+                Text{
+                    anchors.centerIn: parent
+                    color: color_red
+                    font.family: font_noto_r.name
+                    font.pixelSize: 30
+                    text: qsTr("경로 재개")
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    z: 99
+                    onClicked:{
+                        click_sound.play();;
+                        supervisor.writelog("[USER INPUT] MOVING PAUSED : RESUME");
+                        supervisor.moveResume();
+                        timer_check_pause.start();
+                    }
+                }
+            }
+        }
+    }
+    Timer{
+        id: timer_check_pause
+        interval: 500
+        running: false
+        repeat: true
+        onTriggered: {
+            if(supervisor.getStateMoving() === 4){
+                robot_paused = true;
+                popup_pause.visible = true;
+                supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
+                timer_check_pause.stop();
+            }else if(supervisor.getStateMoving() === 0){
+                robot_paused = true;
+                popup_pause.visible = true;
+                supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
+//                    move_fail = true;
+                timer_check_pause.stop();
+            }else{
+                popup_pause.visible = false;
+                robot_paused = false;
+                supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
+                timer_check_pause.stop();
+            }
+        }
+    }
+    Timer{
+        id: update_timer
+        interval: 500
+        running: !edit_mode
+        repeat: true
+        onTriggered: {
+            if(supervisor.getLockStatus()===0){
+                if(motor_lock)
+                    supervisor.writelog("[QML] Motor Lock : false");
+
+                motor_lock = false;
+
+                popup_notice.init();
+                popup_notice.closemode = false;
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
+                popup_notice.sub_str = ""
+                popup_notice.addButton(qsTr("원래대로"));
+                popup_notice.open();
+            }else{
+                if(!motor_lock){
+                    supervisor.writelog("[QML] Motor Lock : true");
+                }
+                motor_lock = true;
+                if(supervisor.getStateMoving() === 4){
+                    robot_paused = true;
+                    popup_pause.visible = true;
+                }else{
+                    robot_paused = false;
+                }
+            }
+
+        }
+    }
+    MouseArea{
+        id: btn_page
+        anchors.fill: parent
+        visible: !edit_mode && !robot_paused
+        onClicked: {
+            click_sound.play();
+            if(!robot_paused){
+                supervisor.writelog("[USER INPUT] MOVING PAUSE 2")
+                supervisor.movePause();
+                timer_check_pause.start();
+
+            }
+        }
+    }
+    MouseArea{
+        id: btn_password_1
+        width: 100
+        height: 100
+        visible: !edit_mode
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        z: 99
+        onClicked: {
+            click_sound.play();
+            password++;
+            supervisor.writelog("[USER INPUT] MOVING PASSWORD "+Number(password));
+            if(password > 4){
+                password = 0;
+                supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
+                loadPage(pkitchen);
+            }
+        }
+        onPressAndHold: {
+            password = 0;
+            mainwindow.showMinimized();
+        }
+    }
 }

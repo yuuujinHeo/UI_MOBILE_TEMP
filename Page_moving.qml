@@ -10,11 +10,6 @@ Item {
     width: 1280
     height: 800
 
-    property bool setting_patrol_mode: false
-    property string setting_patrol_image: "image/robot_moving.png"
-    property int setting_patrol_image_width: 300
-    property int setting_patrol_image_height: 300
-
     property bool motor_lock: false
     property string pos_name: ""
     property bool robot_paused: false
@@ -32,41 +27,17 @@ Item {
 
     Component.onCompleted: {
         init();
+        statusbar.visible = false;
 
-        if(setting_patrol_mode){
-            var ww = parseInt(supervisor.getSetting("setting","UI","patrol_image_width"));
-            var hh = parseInt(supervisor.getSetting("setting","UI","patrol_image_heigth"));
-            if(ww > 0 && ww < 1280){
-                setting_patrol_image_width = ww;
-            }else{
-                setting_patrol_image_width = 300;
-            }
-            if(hh > 0 && hh < 1280){
-                setting_patrol_image_height = hh;
-            }else{
-                setting_patrol_image_height = 300;
-            }
-        }else{
-            statusbar.visible = false;
-        }
-    }
-
-    onSetting_patrol_image_widthChanged: {
-        image_robot_set.setSize();
-    }
-    onSetting_patrol_image_heightChanged: {
-        image_robot_set.setSize();
     }
 
     onPos_nameChanged: {
-        if(!setting_patrol_mode){
-            if(pos_name === qsTr("충전 장소")){
-                image_robot.source = "image/robot_move_charge.png"
-            }else if(pos_name === qsTr("대기 장소")){
-                image_robot.source = "image/robot_move_wait.png"
-            }else{
-                image_robot.source = "image/robot_moving.png"
-            }
+        if(pos_name === qsTr("충전 장소")){
+            image_robot.source = "image/robot_move_charge.png"
+        }else if(pos_name === qsTr("대기 장소")){
+            image_robot.source = "image/robot_move_wait.png"
+        }else{
+            image_robot.source = "image/robot_moving.png"
         }
     }
 
@@ -75,55 +46,33 @@ Item {
         popup_notice.close();
     }
 
-    function setImageHeight(){
-        if(setting_patrol_mode){
-            setting_patrol_image_height = (image_robot.sourceSize.height * setting_patrol_image_width / image_robot.sourceSize.width).toFixed(0);
-            return setting_patrol_image_height;
-        }
-    }
-
-    function getImageHeight(ww){
-        var hh = image_robot.sourceSize.height * ww / image_robot.sourceSize.width;
-        print(ww,hh)
-        return hh.toFixed(0);
-    }
-
-    function setTempText(t1, t2){
-        patrol_text_1.text = t1;
-        patrol_text_2.text = t2;
-    }
-
     function init(){
         supervisor.writelog("[QML] MOVING PAGE init")
         popup_pause.visible = false;
-        if(setting_patrol_mode){
-            show_face = false;
-            face_image.stop();
-        }else{
-            if(supervisor.isPatrolPage()){
-                if(supervisor.getPatrolMovingMode() === "face"){
-                    face_image.play("image/face_normal2.gif");
-                    rect_robot.visible = false;
-                    show_face = true;
-                }else{
-                    show_face = false;
-                    face_image.stop();
-                    rect_robot.visible = true;
-                }
+        if(supervisor.isPatrolPage()){
+            if(supervisor.getPatrolMovingMode() === "face"){
+                face_image.play("image/face_normal2.gif");
+                rect_robot.visible = false;
+                show_face = true;
             }else{
-                if(supervisor.getSetting("setting","UI","moving_face")==="true"){
-                    face_image.play("image/face_normal2.gif");
-                    rect_robot.visible = false;
-                    show_face = true;
-                }else{
-                    show_face = false;
-                    face_image.stop();
-                    rect_robot.visible = true;
-                }
+                show_face = false;
+                face_image.stop();
+                rect_robot.visible = true;
             }
-            robot_paused = false;
-            supervisor.playBGM();
+        }else{
+            if(supervisor.getSetting("setting","UI","moving_face")==="true"){
+                face_image.play("image/face_normal2.gif");
+                rect_robot.visible = false;
+                show_face = true;
+            }else{
+                show_face = false;
+                face_image.stop();
+                rect_robot.visible = true;
+            }
         }
+        robot_paused = false;
+        supervisor.playBGM();
+
     }
 
     Rectangle{
@@ -154,7 +103,6 @@ Item {
         id: rect_robot
         width: 400
         height: 400
-        visible: !setting_patrol_mode
         color: "transparent"
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
@@ -176,83 +124,11 @@ Item {
         }
     }
 
-    Rectangle{
-        id: rect_robot_set
-        width: setting_patrol_image_width
-        height: setting_patrol_image_height
-        visible: setting_patrol_mode
-        color: "red"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: parent.top
-        anchors.topMargin: 160*page_moving.width/1280
-
-        Image{
-            id: image_robot_set
-            source: {
-                if(setting_patrol_mode){
-                    setting_patrol_image
-                }else{
-                    if(pos_name === qsTr("충전 장소")){
-                        "image/robot_move_charge.png"
-                    }else if(pos_name === qsTr("대기 장소")){
-                        "image/robot_move_wait.png"
-                    }else{
-                        "image/robot_moving.png"
-                    }
-                }
-            }
-            function setSize(){
-                if(sourceSize.width > sourceSize.height){
-                    if(sourceSize.width > setting_patrol_image_width){
-                        width = setting_patrol_image_width*page_moving.width/1280;
-                        height = sourceSize.height * setting_patrol_image_width*page_moving.width/1280 / sourceSize.width;
-                    }else{
-                        width = sourceSize.width*page_moving.width/1280;
-                        height = sourceSize.height*page_moving.width/1280;
-                    }
-                }else{
-                }
-                print("source changed ", sourceSize.width,sourceSize.height,width,height);
-            }
-
-            anchors.centerIn: parent
-            onSourceChanged: {
-                setSize();
-            }
-        }
-    }
-
-    Column{
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.top: rect_robot_set.bottom
-        anchors.topMargin: 50*page_moving.width/1280
-        spacing: 20*page_moving.width/1280
-        Text{
-            id: patrol_text_1
-            text: supervisor.getSetting("setting","UI","patrol_text_1");
-            visible: setting_patrol_mode
-            font.pixelSize: 50*page_moving.width/1280
-            font.family: font_noto_b.name
-            anchors.horizontalCenter: parent.horizontalCenter
-            color: "white"
-        }
-        Text{
-            id: patrol_text_2
-            visible: setting_patrol_mode
-            text: supervisor.getSetting("setting","UI","patrol_text_2");
-            font.pixelSize: 40*page_moving.width/1280
-            font.family: font_noto_r.name
-            anchors.horizontalCenter: parent.horizontalCenter
-            color: "white"
-        }
-
-    }
-
     Column{
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: rect_robot.right
         anchors.leftMargin: 100
-        visible: !show_face&& !setting_patrol_mode
+        visible: !show_face
         Text{
             id: target_pos
             text: pos_name
@@ -496,29 +372,6 @@ Item {
         }
     }
 
-//    Popup_notice{
-//        id: popup_notice
-//        onClicked:{
-//            if(cur_btn === qsTr("수동이동")){
-//                supervisor.setMotorLock(!motor_lock);
-//            }else if(cur_btn === qsTr("취소")){
-//                popup_notice.close();
-//            }else if(cur_btn === qsTr("모터초기화")){
-//                supervisor.setMotorLock(true);
-//                supervisor.moveStopFlag();
-//                popup_notice.close();
-//            }else if(cur_btn === qsTr("위치초기화")){
-//                loadPage(pinit);
-//                supervisor.moveStopFlag();
-//                popup_notice.close();
-//            }else if(cur_btn === qsTr("원래대로")){
-//                supervisor.setMotorLock(!motor_lock);
-//                supervisor.moveStopFlag();
-//                supervisor.writelog("[USER INPUT] MOVING PAUSED : MOTOR LOCK EANBLE");
-//            }
-//        }
-//    }
-
     property bool flag_voice: false
     property int count_voice: 0
     Timer{
@@ -527,26 +380,22 @@ Item {
         running: false
         repeat: true
         onTriggered: {
-            if(setting_patrol_mode){
-
-            }else{
-                if(supervisor.getStateMoving() === 4){
-                    robot_paused = true;
-                    popup_pause.visible = true;
-                    supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
-                    timer_check_pause.stop();
-                }else if(supervisor.getStateMoving() === 0){
-                    robot_paused = true;
-                    popup_pause.visible = true;
-                    supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
+            if(supervisor.getStateMoving() === 4){
+                robot_paused = true;
+                popup_pause.visible = true;
+                supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
+                timer_check_pause.stop();
+            }else if(supervisor.getStateMoving() === 0){
+                robot_paused = true;
+                popup_pause.visible = true;
+                supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
 //                    move_fail = true;
-                    timer_check_pause.stop();
-                }else{
-                    popup_pause.visible = false;
-                    robot_paused = false;
-                    supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
-                    timer_check_pause.stop();
-                }
+                timer_check_pause.stop();
+            }else{
+                popup_pause.visible = false;
+                robot_paused = false;
+                supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
+                timer_check_pause.stop();
             }
         }
     }
@@ -556,61 +405,57 @@ Item {
         running: true
         repeat: true
         onTriggered: {
-            if(setting_patrol_mode){
+            if(supervisor.getLockStatus()===0){
+                if(motor_lock)
+                    supervisor.writelog("[QML] Motor Lock : false");
+                motor_lock = false;
 
+                popup_notice.init();
+                popup_notice.closemode = false;
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
+                popup_notice.sub_str = ""
+                popup_notice.addButton(qsTr("원래대로"));
+                popup_notice.open();
             }else{
-                if(supervisor.getLockStatus()===0){
-                    if(motor_lock)
-                        supervisor.writelog("[QML] Motor Lock : false");
-                    motor_lock = false;
-
-                    popup_notice.init();
-                    popup_notice.closemode = false;
-                    popup_notice.style = "warning";
-                    popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
-                    popup_notice.sub_str = ""
-                    popup_notice.addButton(qsTr("원래대로"));
-                    popup_notice.open();
-                }else{
-                    if(!motor_lock){
-                        supervisor.writelog("[QML] Motor Lock : true");
-                    }
-                    motor_lock = true;
-                    if(supervisor.getStateMoving() === 4){
-                        robot_paused = true;
-                        popup_pause.visible = true;
-                    }else{
-                        robot_paused = false;
-                    }
+                if(!motor_lock){
+                    supervisor.writelog("[QML] Motor Lock : true");
                 }
-
-                if(supervisor.getMultiState() === 2){
-                    popup_waiting.visible = true;
+                motor_lock = true;
+                if(supervisor.getStateMoving() === 4){
+                    robot_paused = true;
+                    popup_pause.visible = true;
                 }else{
-                    popup_waiting.visible = false;
+                    robot_paused = false;
                 }
+            }
 
-                //DEBUG 230605
-                obs_in_path =supervisor.getObsinPath();
+            if(supervisor.getMultiState() === 2){
+                popup_waiting.visible = true;
+            }else{
+                popup_waiting.visible = false;
+            }
 
-                if(show_face){
-                    if(obs_in_path == 0){
-                        if(face_image.cur_source !== "image/face_normal2.gif"){
-                            supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
-                            face_image.play("image/face_normal2.gif");
-                        }
-                    }else if(obs_in_path == 1){
-                        flag_voice = true;
-                        if(face_image.cur_source !== "image/face_surprise2.gif"){
-                            supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
-                            face_image.play("image/face_surprise2.gif");
-                        }
-                    }else if(obs_in_path == 2){
-                        flag_voice = true;
-                        if(face_image.cur_source !== "image/face_cry2.gif"){
-                            supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
-                            face_image.play("image/face_cry2.gif");
-                        }
+            //DEBUG 230605
+            obs_in_path =supervisor.getObsinPath();
+
+            if(show_face){
+                if(obs_in_path == 0){
+                    if(face_image.cur_source !== "image/face_normal2.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
+                        face_image.play("image/face_normal2.gif");
+                    }
+                }else if(obs_in_path == 1){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_surprise2.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
+                        face_image.play("image/face_surprise2.gif");
+                    }
+                }else if(obs_in_path == 2){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_cry2.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
+                        face_image.play("image/face_cry2.gif");
                     }
                 }
             }
@@ -619,7 +464,7 @@ Item {
     MouseArea{
         id: btn_page
         anchors.fill: parent
-        visible: !robot_paused  && !setting_patrol_mode
+        visible: !robot_paused
         onClicked: {
             click_sound.play();
             if(!robot_paused){
@@ -635,7 +480,6 @@ Item {
         id: btn_password_1
         width: 100
         height: 100
-        enabled: !setting_patrol_mode
         anchors.bottom: parent.bottom
         anchors.right: parent.right
         z: 99

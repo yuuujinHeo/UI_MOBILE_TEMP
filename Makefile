@@ -115,6 +115,7 @@ SOURCES       = CallbellHandler.cpp \
 		Page_log_qml.cpp \
 		Page_map_qml.cpp \
 		Item_CircleP_qml.cpp \
+		Page_moving_custom_qml.cpp \
 		Item_buttonRectIcon_qml.cpp \
 		Page_annotation_qml.cpp \
 		qmlcache_loader.cpp \
@@ -202,6 +203,7 @@ OBJECTS       = CallbellHandler.o \
 		Page_log_qml.o \
 		Page_map_qml.o \
 		Item_CircleP_qml.o \
+		Page_moving_custom_qml.o \
 		Item_buttonRectIcon_qml.o \
 		Page_annotation_qml.o \
 		qmlcache_loader.o \
@@ -600,7 +602,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Page_MoveFail.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Popup_test_tts.qml Page_log.qml Page_map.qml Item_CircleP.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
+	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Page_MoveFail.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Popup_test_tts.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
 	$(COPY_FILE) --parents qml.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents qml_qmlcache.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
@@ -630,9 +632,9 @@ check: first
 
 benchmark: first
 
-compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Page_MoveFail_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Popup_test_tts_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Page_MoveFail_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Popup_test_tts_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 compiler_qmlcache_clean:
-	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Page_MoveFail_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Popup_test_tts_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Page_MoveFail_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Popup_test_tts_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 Popup_notice_qml.cpp: Popup_notice.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_notice_qml.cpp Popup_notice.qml
@@ -761,6 +763,10 @@ Item_CircleP_qml.cpp: Item_CircleP.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Item_CircleP_qml.cpp Item_CircleP.qml
 
+Page_moving_custom_qml.cpp: Page_moving_custom.qml \
+		/usr/lib/qt5/bin/qmlcachegen
+	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Page_moving_custom_qml.cpp Page_moving_custom.qml
+
 Item_buttonRectIcon_qml.cpp: Item_buttonRectIcon.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Item_buttonRectIcon_qml.cpp Item_buttonRectIcon.qml
@@ -813,6 +819,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		Page_log.qml \
 		Page_map.qml \
 		Item_CircleP.qml \
+		Page_moving_custom.qml \
 		Item_buttonRectIcon.qml \
 		Page_annotation.qml \
 		bgm/battery.mp3 \
@@ -946,6 +953,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_random.png \
 		icon/play_r.png \
 		icon/icon_mapping.png \
+		icon/icon_colorwheel.png \
 		icon/bat_large_2.png \
 		icon/icon_obj_no.png \
 		icon/cursor.png \
@@ -1654,6 +1662,9 @@ Page_map_qml.o: Page_map_qml.cpp
 
 Item_CircleP_qml.o: Item_CircleP_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_CircleP_qml.o Item_CircleP_qml.cpp
+
+Page_moving_custom_qml.o: Page_moving_custom_qml.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_moving_custom_qml.o Page_moving_custom_qml.cpp
 
 Item_buttonRectIcon_qml.o: Item_buttonRectIcon_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_buttonRectIcon_qml.o Item_buttonRectIcon_qml.cpp
