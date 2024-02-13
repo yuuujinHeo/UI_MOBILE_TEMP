@@ -147,6 +147,7 @@ Popup {
                     Page_moving_custom{
                         id: move_page
                         anchors.fill: parent
+                        edit_mode: true
                         onDoubleclicked: {
                             print("double clicked : ",move_page.select_obj)
                             popup_edit.obj_num = move_page.select_obj;

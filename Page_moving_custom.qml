@@ -39,7 +39,6 @@ Item {
             rect_left_top.y = model_obj.get(select_obj).ob_y - 10
             rect_right_bottom.x = model_obj.get(select_obj).ob_x  + model_obj.get(select_obj).ob_width - 10
             rect_right_bottom.y = model_obj.get(select_obj).ob_y  + model_obj.get(select_obj).ob_height - 10
-
         }
     }
     function close(){
@@ -57,6 +56,7 @@ Item {
     function init(){
         supervisor.writelog("[QML] MOVING CUSTOM PAGE init")
 
+        popup_pause.visible = false;
         if(!edit_mode){
             statusbar.visible = false;
         }
@@ -261,13 +261,15 @@ Item {
             property int firstwidth: -1
             property int firstheight: -1
             property int point: -1
+            property real res: 1280/width
             onPressed:{
-                page_moving_custom.select_obj = supervisor.getPageObjectNum(mouseX,mouseY);
+                page_moving_custom.select_obj = supervisor.getPageObjectNum(mouseX*res,mouseY*res);
                 if(page_moving_custom.select_obj > -1){
                     posx = mouseX - model_obj.get(page_moving_custom.select_obj).ob_x;
                     posy = mouseY - model_obj.get(page_moving_custom.select_obj).ob_y;
                     point = -1;
 
+                    print(mouseX, mouseY, res, model_obj.get(page_moving_custom.select_obj).ob_x ,model_obj.get(page_moving_custom.select_obj).ob_width, model_obj.get(page_moving_custom.select_obj).ob_y, model_obj.get(page_moving_custom.select_obj).ob_height)
                     if(mouseX > model_obj.get(page_moving_custom.select_obj).ob_x - 10 && mouseX < model_obj.get(page_moving_custom.select_obj).ob_x + 10){
                         if(mouseY > model_obj.get(page_moving_custom.select_obj).ob_y - 10 && mouseY < model_obj.get(page_moving_custom.select_obj).ob_y + 10){
                             point = 0;
@@ -295,8 +297,8 @@ Item {
             onReleased:{
                 if(page_moving_custom.select_obj > -1){
                     supervisor.setPatrolObjectSize(page_moving_custom.select_obj,
-                                                   model_obj.get(page_moving_custom.select_obj).ob_x*1280/width,model_obj.get(page_moving_custom.select_obj).ob_y*800/height,
-                                                   model_obj.get(page_moving_custom.select_obj).ob_width*1280/width,model_obj.get(page_moving_custom.select_obj).ob_height*800/height);
+                                                   model_obj.get(page_moving_custom.select_obj).ob_x*res,model_obj.get(page_moving_custom.select_obj).ob_y*res,
+                                                   model_obj.get(page_moving_custom.select_obj).ob_width*res,model_obj.get(page_moving_custom.select_obj).ob_height*res);
                 }
                 posx = -1;
                 posy = -1;
@@ -305,15 +307,23 @@ Item {
             onPositionChanged: {
                 if(page_moving_custom.select_obj > -1){
                     if(point === 0){
-                        model_obj.get(page_moving_custom.select_obj).ob_x = mouseX - posx
-                        model_obj.get(page_moving_custom.select_obj).ob_y = mouseY - posy
-                        model_obj.get(page_moving_custom.select_obj).ob_width = firstwidth - mouseX + firstx
-                        model_obj.get(page_moving_custom.select_obj).ob_height = firstheight - mouseY + firsty
+                        if(firstwidth - mouseX + firstx > 0){
+                            model_obj.get(page_moving_custom.select_obj).ob_x = mouseX - posx
+                            model_obj.get(page_moving_custom.select_obj).ob_width = firstwidth - mouseX + firstx
+                        }
+                        if(firstheight - mouseY + firsty > 0){
+                            model_obj.get(page_moving_custom.select_obj).ob_y = mouseY - posy
+                            model_obj.get(page_moving_custom.select_obj).ob_height = firstheight - mouseY + firsty
+                        }
                     }else if(point === 1){
-                        model_obj.get(page_moving_custom.select_obj).ob_width = firstwidth + mouseX - firstx
-                        model_obj.get(page_moving_custom.select_obj).ob_height = firstheight + mouseY - firsty
+                        if(firstwidth + mouseX - firstx > 0){
+                            model_obj.get(page_moving_custom.select_obj).ob_width = firstwidth + mouseX - firstx
+                        }
+                        if(firstheight + mouseY - firsty > 0){
+                            model_obj.get(page_moving_custom.select_obj).ob_height = firstheight + mouseY - firsty
+                        }
                     }else{
-                        supervisor.movePatrolObject(page_moving_custom.select_obj, mouseX-posx, mouseY-posy);
+                        supervisor.movePatrolObject(page_moving_custom.select_obj, mouseX*res-posx*res, mouseY*res-posy*res);
                         page_moving_custom.update();
                     }
                     rect_left_top.x = model_obj.get(page_moving_custom.select_obj).ob_x - 10
