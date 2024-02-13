@@ -211,8 +211,8 @@ Window {
     }
 
     Component.onCompleted: {
-        popup_patrol_page.page = "moving";
-        popup_patrol_page.open();
+//        popup_patrol_page.page = "moving";
+//        popup_patrol_page.open();
     }
 
     function lessbattery(){

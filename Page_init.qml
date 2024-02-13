@@ -22,10 +22,15 @@ Item {
     property bool wifi_update_auto: true
 
     Component.onCompleted: {
+        popup_notice.close();
         init_mode = 0;
         supervisor.clearSharedMemory();
         supervisor.setUiState(1);
         supervisor.checkUpdate();
+    }
+
+    Component.onDestruction: {
+        popup_notice.close();
     }
 
     function update_fail(){
@@ -42,7 +47,6 @@ Item {
 
     function update_unzip_failed(){
         popup_updating.state = 4;
-
     }
 
     function init(){
