@@ -673,6 +673,7 @@ Popup {
                     col_image.visible = false;
                     col_text.visible = true;
                     tfield_text.text = supervisor.getPageObjectSource(obj_num);
+                    color_dialog2.color = supervisor.getPageObjectColor(obj_num);
                 }
             }
 

@@ -12,6 +12,7 @@ Item {
     width: parent.width
     height: 60
 
+    property bool debug_mode: false
     property bool show_cursor: false
     property date curDate: new Date()
     property string curTime: curDate.toLocaleTimeString()
@@ -40,7 +41,7 @@ Item {
         height: 60
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        color: color_blue//testMode?"red":"white"
+        color: debug_mode?color_red:color_blue
         Text{
             id: textName
             width: 300
@@ -62,37 +63,52 @@ Item {
                 }
             }
         }
-//        Timer{
-//            running: true
-//            interval: 200
-//            repeat: true
-//            onTriggered: {
-//                temp_0.text = supervisor.getMotorTemperature(0).toFixed(0)+"("+supervisor.getMotorInsideTemperature(0).toFixed(0)+")";
-//                temp_1.text = supervisor.getMotorTemperature(1).toFixed(0)+"("+supervisor.getMotorInsideTemperature(1).toFixed(0)+")";
-//            }
-//        }
-//        Row{
-//            anchors.verticalCenter: parent.verticalCenter
-//            anchors.left: textName.right
-//            spacing: 20
-//            Text{
-//                id: temp_0
-//                width: 100
-//                horizontalAlignment: Text.AlignHCenter
-//                font.family: font_noto_r.name
-//                font.pixelSize: 20
-//                text: "-"
-//            }
-//            Text{
-//                id: temp_1
-//                width: 100
-//                horizontalAlignment: Text.AlignHCenter
-//                font.family: font_noto_r.name
-//                font.pixelSize: 20
-//                text: "-"
-//            }
-//        }
-
+        Text{
+            anchors.right: image_clock.left
+            anchors.rightMargin: 100
+            horizontalAlignment: Text.AlignHCenter
+            anchors.verticalCenter: parent.verticalCenter
+            font.family: font_noto_r.name
+            font.pixelSize: 30
+            text: qsTr("디버그모드")
+            color: "white"
+            visible: debug_mode
+            font.bold: true
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    click_sound.play();
+                    popup_notice.init();
+                    popup_notice.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
+                    popup_notice.sub_str = qsTr("초기화면으로 이동되며 저장되지 않은 내용은 사라집니다")
+                    popup_notice.addButton(qsTr("디버그모드 해제"))
+                    popup_notice.open();
+                }
+            }
+        }
+        Text{
+            anchors.left: textTime.right
+            anchors.leftMargin:100
+            horizontalAlignment: Text.AlignHCenter
+            anchors.verticalCenter: parent.verticalCenter
+            font.family: font_noto_r.name
+            font.pixelSize: 30
+            text: qsTr("디버그모드")
+            color: "white"
+            visible: debug_mode
+            font.bold: true
+            MouseArea{
+                anchors.fill: parent
+                onDoubleClicked: {
+                    click_sound.play();
+                    popup_notice.init();
+                    popup_notice.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
+                    popup_notice.sub_str = qsTr("초기화면으로 이동되며 저장되지 않은 내용은 사라집니다")
+                    popup_notice.addButton(qsTr("디버그모드 해제"))
+                    popup_notice.open();
+                }
+            }
+        }
         Text{
             id: textTime
             anchors.horizontalCenter: parent.horizontalCenter
@@ -265,7 +281,6 @@ Item {
         id: popup_tts
     }
 
-
     Popup{
         id: popup_terminate
         width: 1280
@@ -431,7 +446,6 @@ Item {
             }
         }
     }
-
 
     Popup{
         id: popup_menu
@@ -700,6 +714,7 @@ Item {
         repeat: true
         running: true
         onTriggered: {
+            debug_mode = supervisor.isDebugMode();
             robot_battery = supervisor.getBattery();
             curTime = Qt.formatTime(new Date(), "hh:mm");
 

@@ -200,6 +200,7 @@ Item {
                 btn_no.visible = false;
                 area_cancel3.enabled = true;
             }else{
+                supervisor.stateInit();
                 loadPage(pkitchen);
 //                text_quest.text = "로봇이 준비상태가 아닙니다";
 //                btn_yes.visible = false;
@@ -333,7 +334,8 @@ Item {
                 print(password);
                 if(password > 4){
                     password = 0;
-                    debug_mode = true;
+                    supervisor.writelog("[UI] PageCharge : Debug Pass -> PageKitchen");
+                    supervisor.passInit();
                     loadPage(pkitchen);
                 }
             }

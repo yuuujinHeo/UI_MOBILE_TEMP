@@ -3198,7 +3198,6 @@ Item {
                     onClicked:{
                         supervisor.writelog("[INIT] Debug Mode On");
                         supervisor.passInit();
-                        debug_mode = true;
                         loadPage(pkitchen);
                     }
                 }
@@ -4037,6 +4036,7 @@ Item {
                     supervisor.writelog("[INIT] Motor Check : Success");
                     init_mode = 6;
                     update_timer.stop();
+                    supervisor.stateInit();
                     loadPage(pkitchen);
                 }else{
                     if(loader_init.item.objectName != "init_motor"){

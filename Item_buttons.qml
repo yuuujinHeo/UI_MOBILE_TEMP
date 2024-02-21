@@ -35,7 +35,7 @@ Item{
     property string shadowcolor: color_gray
     property string fontcolor: "white"
 
-    property var fontsize: 40
+    property int fontsize: 30
 
     property var cur_rect
     onTypeChanged: {
@@ -54,6 +54,29 @@ Item{
             cur_rect = circle_image
         }else if(type == "round_image"){
             cur_rect = round_image
+        }else if(type == "white_btn"){
+            cur_rect = round_text
+            fontsize = 20
+            use_shadow = true;
+            btncolor = "white"
+            bordercolor = color_light_gray
+            pushcolor = color_light_gray
+            fontcolor = color_dark_navy
+        }else if(type == "green_btn"){
+            cur_rect = round_text
+            fontsize = 20
+            use_shadow = true
+            btncolor = color_green
+            bordercolor = color_light_gray
+            pushcolor = color_dark_green
+            fontcolor = "white"
+        }else if(type == "circle_all"){
+            cur_rect = circle_all
+            fontcolor = "black"
+            btncolor = "white"
+            bordercolor = color_green
+            pushcolor = color_light_gray
+            fontsize = 25
         }
     }
 
@@ -132,6 +155,44 @@ Item{
             }
         }
         Rectangle{
+            id: circle_all
+            visible : type === "circle_all"
+            width : parent.width
+            height: width
+            radius: width
+            color: pressed?pushcolor:btncolor
+            border.width: selected?3:0
+            border.color: bordercolor
+            Column{
+                anchors.centerIn: parent
+                Image{
+                    source: item_Buttons.source
+                    Component.onCompleted: {
+                        if(sourceSize.width > 40)
+                            sourceSize.width = 40
+
+                        if(sourceSize.height > 40)
+                            sourceSize.height = 40
+                    }
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+                Text{
+                    text: item_Buttons.text
+                    color: item_Buttons.enabled?fontcolor:"white"
+                    horizontalAlignment: Text.AlignHCenter
+                    font.family: font_noto_b.name
+                    font.pixelSize: fontsize
+                    Component.onCompleted: {
+                        scale = 1;
+                        while(width*scale > parent.width*0.8){
+                            scale=scale-0.01;
+                        }
+                    }
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
+        }
+        Rectangle{
             id: circle_text
             visible : type === "circle_text"
             width : parent.width
@@ -157,7 +218,7 @@ Item{
         }
         Rectangle{
             id: round_text
-            visible : type === "round_text"
+            visible : type === "round_text" || type === "white_btn"
             width : parent.width
             height: parent.height
             radius: 20

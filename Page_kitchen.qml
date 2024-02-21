@@ -11,12 +11,12 @@ Item {
     width: 1280
     height: 800
 
-    property var view_mode: 0
     Component.onCompleted: {
         init();
     }
-    property bool show_serving: true
-
+    Component.onDestruction: {
+        popup_notice.close();
+    }
 
     function init(){
         statusbar.visible = true;
@@ -26,21 +26,18 @@ Item {
         cur_page = 0;
         cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
 
-        view_mode = 1;
         group_num = supervisor.getLocationGroupNum();
         robot_type = supervisor.getSetting("setting","ROBOT_TYPE","type");
         table_num = 0;
+
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
 
-        if(robot_type == "CALLING"){
+        if(robot_type === "CALLING"){
             show_serving = false;
         }else{
             show_serving = true;
         }
-
-        print("set ui state ?????????????????????")
-        supervisor.setUiState(0);
-
+        table_view = "table_name";
         if(supervisor.getSetting("setting","USE_UI","use_tray")==="true"){
             use_tray=true;
         }else{
@@ -48,18 +45,18 @@ Item {
         }
 
         if(use_tray){
-            col_num = 1;//parseInt(supervisor.getSetting("setting","UI","table_col_num"));
-            row_num = 5;//parseInt(supervisor.getSetting("setting","UI","table_row_num"));
+            col_num = 1;
+            row_num = 5;
         }else{
             col_num = parseInt(supervisor.getSetting("setting","UI","group_col_num"));
             row_num = parseInt(supervisor.getSetting("setting","UI","group_row_num"));
         }
 
-        if(view_mode == 0){
-            max_col = 8
+        if(table_view === "table_name"){
+            max_col = 5
             max_row = 4
         }else{
-            max_col = 5
+            max_col = 8
             max_row = 4
         }
 
@@ -72,13 +69,12 @@ Item {
 
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             if(supervisor.isCallingMode() || supervisor.getCallQueueSize() > 0){
-                print("!!!!!!",supervisor.isCallingMode(),supervisor.getCallQueueSize())
                 popup_clean_calling.cleaninglocation = false;
                 popup_clean_calling.open();
             }
         }
-
         supervisor.setMotorLock(true);
+
 //        if(supervisor.getSetting("setting","USE_UI","use_restinglock")==="true"){
 //            supervisor.setMotorLock(false);
 //        }else{
@@ -86,18 +82,13 @@ Item {
 //        }
     }
 
-    Component.onDestruction: {
-        popup_notice.close();
-    }
-    function setNotice(){
-    }
 
     function cleaning(){
             popup_clean_calling.cleaninglocation = true;
             popup_clean_calling.open();
-
     }
 
+    property string table_view: "table_name"
     property int tray_num: 2
     property int table_num: 5
     property int group_num: 1
@@ -107,9 +98,7 @@ Item {
     property int max_row: 5
     property int max_col: 5
 
-    property bool is_con_robot: false
-    property bool is_motor_power: false
-    property bool is_emergency: false
+    property bool show_serving: true
 
     property bool use_tray: false
 
@@ -123,13 +112,10 @@ Item {
     property int cur_group: 0
     property int cur_page: 0
 
-    property bool go_wait: false
-    property bool go_cleaning: false
-    property bool go_charge: false
-    property bool go_patrol: false
-    property bool calling_mode: false
+    property string move_loc: "None"
 
-    property var cur_preset: 3
+    property int cur_preset: 3
+
     onCur_groupChanged: {
         cur_table = -1;
         update_group();
@@ -157,44 +143,49 @@ Item {
     Timer{
         id: timer_update
         interval : 500
+        triggeredOnStart: true
         running: true
         repeat: true
         onTriggered: {
-            is_con_robot = supervisor.getIPCConnection();
-            is_emergency = supervisor.getEmoStatus();
-            is_motor_power = supervisor.getPowerStatus();
-            popup_notice.init();
-            if(is_con_robot){
-                if(is_motor_power){
-                    if(is_emergency){
+            if(supervisor.isDebugMode()){
+                menubar.menu2_en = false;
+                menubar.menu3_en = false;
+                menubar.menu4_en = false;
+                btn_patrol.active = false;
+                btn_go.active = false;
+                rect_go.color = color_red;
+                text_go.color = color_dark_gray;
+                text_go.text = qsTr("디버그 모드")
+                text_go.font.pixelSize = 25
+            }else if(supervisor.getIPCConnection()){
+                if(supervisor.getPowerStatus()){
+                    if(supervisor.getEmoStatus()){
                         menubar.menu2_en = false;
                         menubar.menu3_en = false;
                         menubar.menu4_en = false;
+                        btn_patrol.active = false;
+                        btn_go.active = false;
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("비상스위치가 눌려있음")
                         text_go.font.pixelSize = 25
-                        popup_notice.main_str = qsTr("비상스위치가 눌려있습니다")
-                        popup_notice.sub_str = qsTr("비상스위치를 풀어주세요")
                     }else if(supervisor.getMotorState() === 0){
                         btn_go.active = false;
                         menubar.menu2_en = false;
+                        btn_patrol.active = false;
                         menubar.menu3_en = false;
                         menubar.menu4_en = false;
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("모터락해제됨")
                         text_go.font.pixelSize = 25
-                        popup_notice.main_str = qsTr("모터 락이 해제되었습니다.")
-                        popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요")
-                        popup_notice.addButton(qsTr("모터초기화"));
                     }else if(supervisor.getLocalizationState() === 2){
                         btn_go.active = true;
                         menubar.menu2_en = true;
                         menubar.menu3_en = true;
                         menubar.menu4_en = true;
                         rect_go.color = color_blue;
-
+                        btn_patrol.active = true;
                         text_go.color = "white";
                         text_go.text = qsTr("서빙 시작")
                         text_go.font.pixelSize = 35
@@ -203,42 +194,34 @@ Item {
                         menubar.menu2_en = false;
                         menubar.menu3_en = false;
                         menubar.menu4_en = false;
+                        btn_patrol.active = false;
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("위치 초기화필요")
                         text_go.font.pixelSize = 30
-                        popup_notice.main_str = qsTr("위치를 찾을 수 없습니다")
-                        popup_notice.sub_str = qsTr("위치 초기화를 다시 해주세요")
-                        popup_notice.addButton(qsTr("위치초기화"));
                     }
                 }else{
                     btn_go.active = false;
                     menubar.menu2_en = false;
                     menubar.menu3_en = false;
                     menubar.menu4_en = false;
+                    btn_patrol.active = false;
                     rect_go.color = color_gray;
                     text_go.color = color_dark_gray;
                     text_go.text = qsTr("모터 전원 안켜짐")
                     text_go.font.pixelSize = 35
-                    popup_notice.main_str = qsTr("모터 전원이 꺼져있습니다")
-                    popup_notice.sub_str = qsTr("로봇을 재부팅해주세요")
                 }
             }else{
                 btn_go.active = false;
                 menubar.menu2_en = false;
                 menubar.menu3_en = false;
                 menubar.menu4_en = false;
+                btn_patrol.active = false;
                 rect_go.color = color_gray;
                 text_go.color = color_dark_gray;
                 text_go.text = qsTr("로봇 연결 안됨")
                 text_go.font.pixelSize = 35
-                popup_notice.main_str = qsTr("로봇이 연결되지 않았습니다")
-                popup_notice.sub_str = qsTr("프로그램을 재시작 해주세요")
-                popup_notice.addButton(qsTr("재시작"));
             }
-
-
-
         }
     }
 
@@ -257,7 +240,6 @@ Item {
         }
         if(model_group.count > 0){
             table_num = supervisor.getLocationGroupSize(model_group.get(cur_group).num);
-            print("table_num : " +table_num);
         }else
             table_num = 0;
         update_table();
@@ -283,6 +265,8 @@ Item {
         source:"image/robot_head.png"
     }
 
+
+    //=======================Serving Mode , Use Tray=============================//
     Rectangle{
         id: rect_tray_box
         visible: (show_serving && use_tray)?true:false
@@ -349,7 +333,7 @@ Item {
                         id: tray_mousearea
                         anchors.fill: parent
                         property var firstX;
-                        property var width_dis: 0
+                        property int width_dis: 0
                         onPressed: {
                             click_sound.play();
                             firstX = mouseX;
@@ -373,7 +357,6 @@ Item {
                             width_dis = 0;
                         }
                         onPositionChanged: {
-                            count_resting = 0;
                             width_dis = firstX-mouseX;
 
                             if(width_dis < 0)
@@ -433,7 +416,7 @@ Item {
                         DropShadow{
                             anchors.fill: textt3
                             source: textt3
-                            visible: cur_group==index
+                            visible: cur_group===index
                             radius: 3
                             color: color_more_gray
                         }
@@ -443,7 +426,7 @@ Item {
                             font.family: font_noto_b.name
                             font.pixelSize: 30
                             text: name
-                            color: cur_group==index?color_green:color_dark_gray
+                            color: cur_group===index?color_green:color_dark_gray
                         }
                         Rectangle{
                             anchors.bottom: parent.bottom
@@ -451,7 +434,7 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             radius: 2
                             height: 3
-                            color: cur_group==index?color_green:"transparent"
+                            color: cur_group===index?color_green:"transparent"
                         }
                         MouseArea{
                             anchors.fill: parent
@@ -463,9 +446,6 @@ Item {
                     }
                 }
             }
-
-
-
         }
 
         SwipeView{
@@ -495,7 +475,7 @@ Item {
                         Repeater{
                             id: column_table_group2
                             delegate: {
-                                if(view_mode === 1){
+                                if(table_view === "table_name"){
                                     tableNameCompo
                                 }else{
                                     tableNumCompo
@@ -543,8 +523,6 @@ Item {
                 anchors.fill: parent
                 onPressAndHold: {
                     click_sound.play();
-                    count_resting = 0;
-                    supervisor.writelog("[USER INPUT] TABLE NUM CHANGED DONE : "+Number(col_num));
                     btn_lock.visible = false;
                     btns_table.visible = true;
                 }
@@ -579,7 +557,6 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         click_sound.play();
-                        count_resting = 0;
                         if(col_num > 1)
                             supervisor.setTableColNum(--col_num);
                     }
@@ -607,7 +584,6 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         click_sound.play();
-                        count_resting = 0;
                         if(col_num < max_col)
                             supervisor.setTableColNum(++col_num);
                     }
@@ -629,8 +605,6 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         click_sound.play();
-                        count_resting = 0;
-                        supervisor.writelog("[USER INPUT] TABLE NUM CHANGED");
                         btn_lock.visible = true;
                         btns_table.visible = false;
                     }
@@ -641,14 +615,16 @@ Item {
 
     }
 
+
+
+    //=======================Serving Mode , Not use Tray=============================//
     Rectangle{
         id: rect_table_group
-        width: 1280;// - 150 - rect_menu_box.width
+        width: 1280
         height: 580
         anchors.top: parent.top
-        anchors.topMargin: statusbar.height;// (parent.height - statusbar.height - height - rect_go.height)/2
+        anchors.topMargin: statusbar.height;
         anchors.left: parent.left
-//        anchors.leftMargin: 50
         color: color_dark_navy
         visible: show_serving && !use_tray
         ListModel{
@@ -664,7 +640,7 @@ Item {
                 width:80
                 height:80
                 radius:80
-                color: (num == cur_table)?"#12d27c":"#d0d0d0"
+                color: (num === cur_table)?"#12d27c":"#d0d0d0"
                 Rectangle{
                     width:68
                     height:68
@@ -683,15 +659,13 @@ Item {
                     anchors.fill:parent
                     onClicked: {
                         click_sound.play();
-                        count_resting = 0;
-                        if(cur_table == num)
+                        if(cur_table === num)
                             cur_table = -1;
                         else
                             cur_table = num;
                     }
                 }
             }
-
         }
         Component{
             id: tableNameCompo
@@ -700,18 +674,19 @@ Item {
                 width:153
                 height:82
                 radius:15
-                color: color_navy
-                enabled:available
+                color: (num === cur_table)?"white":color_navy
+                enabled: available
                 Rectangle{
                     width:153
                     height:75
                     radius:10
-                    color: (num == cur_table)?color_green:color_light_gray
+                    color: (num === cur_table)?color_blue:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         text: name
-                        color: available?num==cur_table?"white":"#525252":color_red
+                        color: available?num===cur_table?"white":"#525252":color_red
                         font.family: font_noto_r.name
+                        font.bold: num===cur_table
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > 115){
@@ -725,7 +700,6 @@ Item {
                     anchors.fill:parent
                     onClicked: {
                         click_sound.play();
-                        count_resting = 0;
                         cur_table = num;
                     }
                 }
@@ -810,10 +784,12 @@ Item {
                         }
                     }
                     Rectangle{
+                        id: btn_patrol
                         width: 180
                         height: 70
                         color: "transparent"
                         anchors.right: parent.right
+                        property bool active: true
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
@@ -832,8 +808,13 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
-                                popup_patrol.open();
+                                if(btn_patrol.active){
+                                    click_sound.play();
+                                    popup_patrol.open();
+                                }else{
+                                    click_sound_no.play();
+                                    showNotice();
+                                }
                             }
                         }
                     }
@@ -885,7 +866,7 @@ Item {
                                     Repeater{
                                         id: column_table_group
                                         delegate: {
-                                            if(view_mode === 1){
+                                            if(table_view === "table_name"){
                                                 tableNameCompo
                                             }else{
                                                 tableNumCompo
@@ -935,8 +916,6 @@ Item {
                             anchors.fill: parent
                             onPressAndHold: {
                                 click_sound.play();
-                                count_resting = 0;
-                                supervisor.writelog("[USER INPUT] TABLE NUM CHANGED DONE : "+Number(col_num));
                                 btn_lock_group.visible = false;
                                 btns_table_group.visible = true;
                             }
@@ -987,7 +966,6 @@ Item {
                                     anchors.fill: parent
                                     onClicked: {
                                         click_sound.play();
-                                        count_resting = 0;
                                         supervisor.setSetting("setting","UI/group_row_num",row_num-1);
                                         row_num--;
                                         update_table();
@@ -1020,7 +998,6 @@ Item {
                                     anchors.fill: parent
                                     onClicked: {
                                         click_sound.play();
-                                        count_resting = 0;
                                         supervisor.setSetting("setting","UI/group_row_num",row_num+1);
                                         row_num++;
                                         update_table();
@@ -1061,7 +1038,6 @@ Item {
                                     anchors.fill: parent
                                     onClicked: {
                                         click_sound.play();
-                                        count_resting = 0;
                                         supervisor.setSetting("setting","UI/group_col_num",col_num-1);
                                         col_num--;
                                         update_table();
@@ -1094,7 +1070,6 @@ Item {
                                     anchors.fill: parent
                                     onClicked: {
                                         click_sound.play();
-                                        count_resting = 0;
                                         supervisor.setSetting("setting","UI/group_col_num",col_num+1);
                                         col_num++;
                                         update_table();
@@ -1119,8 +1094,6 @@ Item {
                                 anchors.fill: parent
                                 onClicked: {
                                     click_sound.play();
-                                    count_resting = 0;
-                                    supervisor.writelog("[USER INPUT] TABLE NUM CHANGED");
                                     btn_lock_group.visible = true;
                                     btns_table_group.visible = false;
                                 }
@@ -1131,6 +1104,7 @@ Item {
             }
         }
     }
+
     Rectangle{
         id: rect_go
         width: 300
@@ -1157,7 +1131,6 @@ Item {
             else
                 20
         }
-
         color: "#24a9f7"
         Text{
             id: text_go
@@ -1178,20 +1151,16 @@ Item {
                     hold = false;
                     if(cur_table==-1){
                         click_sound_no.play();
-                        count_resting = 0;
                     }else{
                         click_sound.play();
-                        count_resting = 0;
                     }
                 }else{
                     click_sound_no.play();
-                    count_resting = 0;
                     cur_table = -1;
                 }
             }
             onPressAndHold: {
                 if(active){
-                    print("hold");
                     hold = true;
                     popup_preset_menu.open();
                 }
@@ -1206,17 +1175,20 @@ Item {
                                 for(var i=0; i<tray_num; i++){
                                     supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
                                 }
+                                supervisor.writelog("[UI] PageKitchen : start Serving (use tray)");
                                 supervisor.startServing();
                             }else{
-                                supervisor.goServing(model_group.get(cur_group).num,cur_table);
+                                supervisor.writelog("[UI] PageKitchen : start Serving");
+                                supervisor.startServing(model_group.get(cur_group).num,cur_table);
                             }
                             cur_table = -1;
+                        }else{
+                            supervisor.writelog("[UI] PageKitchen : start Serving but cur_table -1");
                         }
-
                     }
-
                 }else{
-                    popup_notice.open();
+                    supervisor.writelog("[UI] PageKitchen : start Serving but not actived");
+                    showNotice();
                 }
             }
         }
@@ -1422,81 +1394,10 @@ Item {
         }
 
     }
-    Rectangle{
-        id: rect_patrol_box
-        visible: false
-        width: (table_num/row_num).toFixed(0)*100 - 20 + 160
-        height: parent.height - statusbar.height
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.topMargin: statusbar.height
-        color: "#282828"
-        Text{
-            id: text_patrol
-            color:"white"
-            font.bold: true
-            font.family: font_noto_b.name
-            text: qsTr("로봇 이동경로")
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 40
-            font.pixelSize: 30
-        }
 
-        Flickable{
-            width: 180
-            height: parent.height - y - 100
-            contentHeight: column_patrol.height
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: text_patrol.bottom
-            anchors.topMargin: 50
-            clip: true
-            Column{
-                id: column_patrol
-                anchors.centerIn: parent
-                Repeater{
-                    id: repeat_patrol
-                    model: patrolmodel
-                    Rectangle{
-                        width: 179
-                        height: 44
-                        color: "transparent"
-                        Rectangle{
-                            enabled: patrolmodel.get(index).type===2?false:true
-                            visible:patrolmodel.get(index).type===2?false:true
-                            anchors.fill: parent
-                            color:{
-                                if(patrolmodel.get(index).type == 0){
-                                    "#282828"
-                                }else{
-                                    "#d0d0d0"
-                                }
-                            }
-                            radius: 10
-                            border.width: 4
-                            border.color: "#d0d0d0"
-                            Text{
-                                anchors.centerIn: parent
-                                color:patrolmodel.get(index).type===0?"#d0d0d0":"#282828"
-                                text:patrolmodel.get(index).name
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
-                        Image{
-                            visible:patrolmodel.get(index).type===2?true:false
-                            anchors.centerIn: parent
-                            width: 22
-                            height: 13
-                            source: "icon/patrol_down.png"
-                        }
-                    }
-                }
-            }
 
-        }
 
-    }
+    //=======================Calling Mode=============================//
     Rectangle{
         id: rect_calling_box
         visible: !show_serving?true:false
@@ -1506,8 +1407,6 @@ Item {
         radius: 30
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
-//        anchors.left: rect_table_box.right
-//        anchors.leftMargin: traybox_margin
         Text{
             color:"white"
             font.bold: true
@@ -1517,6 +1416,7 @@ Item {
             font.pixelSize: 50
         }
     }
+
     Rectangle{
         id: rect_go_patrol
         width: 300
@@ -1542,14 +1442,14 @@ Item {
             onClicked: {
                 click_sound.play();
                 popup_patrol.open();
-//                count_resting = 0;
-                go_patrol = true;
-//                popup_question.visible = true;
-//                print("patrol start button");
             }
         }
     }
 
+
+
+
+    //=======================Public=============================//
     Item_menubar{
         id: menubar
         anchors.right: parent.right
@@ -1566,77 +1466,50 @@ Item {
         }
         onMenu1_clicked: {
             click_sound.play();
-            count_resting = 0;
             cur_table = -1;
             loadPage(pmenu);
         }
         onMenu2_clicked: {
-            count_resting = 0;
             cur_table = -1;
             if(menu2_en){
                 click_sound.play();
-                go_charge = true;
-                popup_question.visible = true;
+                move_loc = "Charging";
+                popup_question.open();
             }else{
                 click_sound_no.play();
-                popup_notice.open();
+                showNotice();
             }
         }
         onMenu3_clicked: {
-            count_resting = 0;
             cur_table = -1;
             if(menu3_en){
                 click_sound.play();
-                go_wait = true;
-                popup_question.visible = true;
+                move_loc = "Resting";
+                popup_question.open();
             }else{
                 click_sound_no.play();
-                popup_notice.open();
+                showNotice();
             }
         }
         onMenu4_clicked: {
-            count_resting = 0;
             cur_table = -1;
             if(menu4_en){
                 click_sound.play();
-                go_cleaning = true;
-                popup_question.visible = true;
+                move_loc = "Cleaning";
+                popup_question.open();
             }else{
                 click_sound_no.play();
-                popup_notice.open();
+                showNotice();
             }
         }
     }
 
-
-
-//    Popup_notice{
-//        id: popup_notice
-//        onClicked:{
-//            if(cur_btn === qsTr("수동이동")){
-//                supervisor.setMotorLock(!motor_lock);
-//            }else if(cur_btn === qsTr("취소")){
-//                popup_notice.close();
-//            }else if(cur_btn === qsTr("모터초기화")){
-//                supervisor.setMotorLock(true);
-//                popup_notice.close();
-//            }else if(cur_btn === qsTr("위치초기화")){
-//                loadPage(pinit);
-////                annot_pages.sourceComponent = page_annot_localization;
-//                popup_notice.close();
-//            }else if(cur_btn === qsTr("재시작")){
-//                supervisor.programRestart();
-//            }
-//        }
-//    }
-
-    Item{
+    Popup{
         id: popup_question
         width: parent.width
         height: parent.height
         anchors.centerIn: parent
-        visible: false
-        Rectangle{
+        background:Rectangle{
             anchors.fill: parent
             color: "#282828"
             opacity: 0.8
@@ -1659,72 +1532,14 @@ Item {
             font.pixelSize: 40
             color: "#12d27c"
             text: {
-                if(go_wait){
+                if(move_loc === "Resting"){
                     qsTr("대기 장소로 이동<font color=\"white\">하시겠습니까?</font>")
-                }else if(go_cleaning){
+                }else if(move_loc === "Cleaning"){
                     qsTr("퇴식 장소로 이동<font color=\"white\">하시겠습니까?</font>")
-                }else if(go_charge){
+                }else if(move_loc === "Charging"){
                     qsTr("충전기로 이동<font color=\"white\">하시겠습니까?</font>")
-                }else if(go_patrol){
-                    qsTr("패트롤을 시작 <font color=\"white\">하시겠습니까?</font>")
-                }else if(calling_mode){
-                    qsTr("트레이를 모두 비우고<font color=\"white\"> 확인 버튼을 눌러주세요.</font>")
                 }else{
                     ""
-                }
-            }
-        }
-        Rectangle{
-            id: btn_confirm
-            width: 250
-            height: 90
-            radius: 20
-            visible: !go_charge&&!go_wait&&!go_patrol&&!go_cleaning
-            color: "#d0d0d0"
-            anchors.top: text_quest.bottom
-            anchors.topMargin: 50
-            anchors.horizontalCenter: parent.horizontalCenter
-            Image{
-                id: image_confirm
-                source: "icon/btn_yes.png"
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 20
-            }
-            Text{
-                id:text_confirm
-                text:qsTr("확인")
-                font.family: font_noto_b.name
-                font.pixelSize: 30
-                color:"#282828"
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.left: image_confirm.right
-                anchors.leftMargin : (parent.width - image_confirm.x - image_confirm.width)/2 - text_confirm.width/2
-            }
-            MouseArea{
-                anchors.fill: parent
-                onClicked: {
-                    count_resting = 0;
-                    if(go_wait){
-                        click_sound.play();
-                        supervisor.moveToWait();
-                    }else if(go_cleaning){
-                        click_sound.play();
-                        supervisor.moveToCleaning();
-                    }else if(go_charge){
-                        click_sound.play();
-                        supervisor.moveToCharge();
-                    }else if(go_patrol){
-                        click_sound.play();
-                    }else{
-                        click_sound_no.play();
-                    }
-
-                    go_wait = false;
-                    go_charge = false;
-                    go_patrol = false;
-                    go_cleaning = false;
-                    popup_question.visible = false;
                 }
             }
         }
@@ -1733,7 +1548,6 @@ Item {
             width: 250
             height: 90
             radius: 20
-            visible: go_charge||go_wait||go_patrol||go_cleaning
             color: "#d0d0d0"
             anchors.top: text_quest.bottom
             anchors.topMargin: 50
@@ -1760,11 +1574,8 @@ Item {
                 anchors.fill: parent
                 onClicked: {
                     click_sound.play();
-                    count_resting = 0;
-                    go_wait = false;
-                    go_charge = false;
-                    go_patrol = false;
-                    popup_question.visible = false;
+                    move_loc = "None";
+                    popup_question.close();
                 }
             }
         }
@@ -1773,7 +1584,6 @@ Item {
             width: 250
             height: 90
             radius: 20
-            visible: go_charge||go_wait||go_patrol||go_cleaning
             color: "#d0d0d0"
             anchors.top: text_quest.bottom
             anchors.topMargin: 50
@@ -1806,24 +1616,16 @@ Item {
                 anchors.fill: parent
                 onClicked: {
                     click_sound.play();
-                    count_resting = 0;
                     supervisor.setMotorLock(true);
-                    if(go_wait){
+                    if(move_loc === "Resting"){
                         supervisor.moveToWait();
-                    }else if(go_charge){
+                    }else if(move_loc === "Charging"){
                         supervisor.moveToCharge();
-                    }else if(go_cleaning){
+                    }else if(move_loc === "Cleaning"){
                         supervisor.moveToCleaning();
-                    }else if(go_patrol){
-                        print("patrol start command");
-                    }else if(calling_mode){
-                        calling_mode = false;
                     }
-                    go_wait = false;
-                    go_charge = false;
-                    go_patrol = false;
-                    go_cleaning = false;
-                    popup_question.visible = false;
+                    move_loc = "None";
+                    popup_question.close();
                 }
             }
         }
@@ -1832,7 +1634,8 @@ Item {
     Popup_patrol{
         id: popup_patrol
     }
-     Popup{
+
+    Popup{
         id: popup_clean_calling
         anchors.centerIn: parent
         width: 1280
@@ -1855,6 +1658,7 @@ Item {
         onClosed:{
             timer_upd.stop();
         }
+
         Timer{
             id: timer_upd
             repeat: true
@@ -1865,12 +1669,10 @@ Item {
         }
 
         function update(){
-            supervisor.writelog("call size : "+Number(supervisor.getCallQueueSize()));
             calls.clear();
             for(var i=0; i<supervisor.getCallQueueSize(); i++){
                 calls.append({"loc_name":supervisor.getCallName(i)});
             }
-
             if(calls.count > 0){
                 calling_list.visible = true;
             }else{
@@ -2047,6 +1849,7 @@ Item {
                         }
                     }
                 }
+
                 Rectangle{
                     width: 250
                     height: 90
@@ -2071,7 +1874,7 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             click_sound.play();
-                            supervisor.cleanTray();
+                            supervisor.stateInit();
                             popup_clean_calling.close();
                         }
                     }

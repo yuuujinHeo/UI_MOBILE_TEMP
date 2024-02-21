@@ -15,6 +15,7 @@ Item {
     property string background_source: ""
     property bool motor_lock: false
     property bool robot_paused: false
+    property string pos_name: ""
     property int password: 0
     property real volume: 1
     onVolumeChanged:{
@@ -25,11 +26,11 @@ Item {
         loadPage(pkitchen);
     }
 
-    function setNotice(){
-        robot_paused = true;
-    }
     function setVolume(vol){
-        loader_background.item.setVol(vol);
+        if(loader_background != null){
+            if(loader_background.item != null)
+                loader_background.item.setVol(vol);
+        }
     }
 
     property int select_obj: -1
@@ -342,8 +343,8 @@ Item {
             id: rect_left_top
             visible: edit_mode && page_moving_custom.select_obj > -1
             enabled: visible
-            x: typeof(model_obj.get(page_moving_custom.select_obj).ob_x)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_x - 10
-            y: typeof(model_obj.get(page_moving_custom.select_obj).ob_y)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_y - 10
+            x: !visible?0:model_obj.get(page_moving_custom.select_obj).ob_x - 10
+            y: !visible?0:model_obj.get(page_moving_custom.select_obj).ob_y - 10
             width:  20
             height: 20
             color: color_red
@@ -351,8 +352,8 @@ Item {
         Rectangle{
             id: rect_right_bottom
             visible: edit_mode && page_moving_custom.select_obj > -1
-            x: typeof(model_obj.get(page_moving_custom.select_obj).ob_x)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_x + model_obj.get(page_moving_custom.select_obj).ob_width - 10
-            y: typeof(model_obj.get(page_moving_custom.select_obj).ob_y)=="undefined"?0:model_obj.get(page_moving_custom.select_obj).ob_y + model_obj.get(page_moving_custom.select_obj).ob_height - 10
+            x: !visible?0:model_obj.get(page_moving_custom.select_obj).ob_x + model_obj.get(page_moving_custom.select_obj).ob_width - 10
+            y: !visible?0:model_obj.get(page_moving_custom.select_obj).ob_y + model_obj.get(page_moving_custom.select_obj).ob_height - 10
             width:  20
             height: 20
             color: color_red
@@ -366,10 +367,12 @@ Item {
         height: parent.height
         anchors.centerIn: parent
         onVisibleChanged: {
-            if(visible){
-                statusbar.visible = true;
-            }else{
-                statusbar.visible = false;
+            if(statusbar != null){
+                if(visible){
+                    statusbar.visible = true;
+                }else{
+                    statusbar.visible = false;
+                }
             }
         }
 
@@ -476,7 +479,7 @@ Item {
                         parent.color = "transparent"
                     }
                     onClicked:{
-                        supervisor.writelog("[USER INPUT] MOVING PAUSED : PATH CANCELED");
+                        supervisor.writelog("[UI] PageMovingCustom : Path Cancle");
                         supervisor.moveStop();
                     }
                 }
@@ -501,9 +504,9 @@ Item {
                     z: 99
                     onClicked:{
                         click_sound.play();;
-                        supervisor.writelog("[USER INPUT] MOVING PAUSED : RESUME");
+                        supervisor.writelog("[UI] PageMovingCustom : Path Resume");
                         supervisor.moveResume();
-                        timer_check_pause.start();
+//                        timer_check_pause.start();
                     }
                 }
             }
@@ -512,37 +515,22 @@ Item {
     Timer{
         id: timer_check_pause
         interval: 500
-        running: false
+        running: true
         repeat: true
+        property int prev_state: 0
         onTriggered: {
-            if(supervisor.getStateMoving() === 4){
-                robot_paused = true;
-                popup_pause.visible = true;
-                supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
-                timer_check_pause.stop();
-            }else if(supervisor.getStateMoving() === 0){
-                robot_paused = true;
-                popup_pause.visible = true;
-                supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
-//                    move_fail = true;
-                timer_check_pause.stop();
-            }else{
-                popup_pause.visible = false;
-                robot_paused = false;
-                supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
-                timer_check_pause.stop();
-            }
         }
     }
     Timer{
         id: update_timer
         interval: 500
         running: !edit_mode
+        property int prev_state: 0
         repeat: true
         onTriggered: {
             if(supervisor.getLockStatus()===0){
                 if(motor_lock)
-                    supervisor.writelog("[QML] Motor Lock : false");
+                    supervisor.writelog("[UI] PageMovingCustom : Motor Lock false");
 
                 motor_lock = false;
 
@@ -555,17 +543,27 @@ Item {
                 popup_notice.open();
             }else{
                 if(!motor_lock){
-                    supervisor.writelog("[QML] Motor Lock : true");
+                    supervisor.writelog("[UI] PageMovingCustom : Motor Lock true");
                 }
                 motor_lock = true;
-                if(supervisor.getStateMoving() === 4){
-                    robot_paused = true;
-                    popup_pause.visible = true;
-                }else{
-                    robot_paused = false;
-                }
-            }
 
+                if(prev_state !== supervisor.getStateMoving()){
+                    if(supervisor.getStateMoving() === 4){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Paused");
+                    }else if(supervisor.getStateMoving() === 0){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Not Moving");
+                    }else{
+                        popup_pause.visible = false;
+                        robot_paused = false;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> "+Number(supervisor.getStateMoving()));
+                    }
+                }
+                prev_state = supervisor.getStateMoving();
+            }
         }
     }
     MouseArea{
@@ -575,9 +573,9 @@ Item {
         onClicked: {
             click_sound.play();
             if(!robot_paused){
-                supervisor.writelog("[USER INPUT] MOVING PAUSE 2")
+                supervisor.writelog("[UI] PageMovingCustom : Move Pause")
                 supervisor.movePause();
-                timer_check_pause.start();
+//                timer_check_pause.start();
 
             }
         }
@@ -593,10 +591,9 @@ Item {
         onClicked: {
             click_sound.play();
             password++;
-            supervisor.writelog("[USER INPUT] MOVING PASSWORD "+Number(password));
             if(password > 4){
                 password = 0;
-                supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
+                supervisor.writelog("[UI] PageMovingCustom : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
             }
         }

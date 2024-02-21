@@ -15,7 +15,6 @@ Item {
 
     }
 
-
     Rectangle{
         id: status_bar
         width: parent.width
@@ -90,7 +89,7 @@ Item {
             addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
         }
         onMenu1_clicked: {
-            click_sound.play();;
+            click_sound.play();
             loadPage(pkitchen);
         }
         onMenu2_clicked: {

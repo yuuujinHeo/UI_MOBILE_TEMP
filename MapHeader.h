@@ -15,7 +15,7 @@
 #define color_black     cv::Scalar(0,0,0,255)
 #define color_green     cv::Scalar(18,210,124,255)
 #define color_red       cv::Scalar(77,88,231,255)
-#define color_navy      cv::Scalar(79,86,102,255)
+#define color_navy      cv::Scalar(77,47,34,255)
 #define color_gray      cv::Scalar(127,127,127,255)
 #define color_blue      cv::Scalar(249,184,131,255)
 #define color_pink      cv::Scalar(255,217,255,255)
@@ -32,6 +32,7 @@
 typedef struct{
     cv::Point2f point;
     float angle;
+    bool isnew = false;
 }POSE;
 
 typedef struct{

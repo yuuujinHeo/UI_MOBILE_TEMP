@@ -21,10 +21,6 @@ Item {
         loadPage(pkitchen);
     }
 
-    function setNotice(){
-        robot_paused = true;
-    }
-
     Component.onCompleted: {
         init();
         statusbar.visible = false;
@@ -365,7 +361,6 @@ Item {
                         click_sound.play();;
                         supervisor.writelog("[USER INPUT] MOVING PAUSED : RESUME");
                         supervisor.moveResume();
-                        timer_check_pause.start();
                     }
                 }
             }
@@ -374,40 +369,18 @@ Item {
 
     property bool flag_voice: false
     property int count_voice: 0
-    Timer{
-        id: timer_check_pause
-        interval: 500
-        running: false
-        repeat: true
-        onTriggered: {
-            if(supervisor.getStateMoving() === 4){
-                robot_paused = true;
-                popup_pause.visible = true;
-                supervisor.writelog("[QML] CHECK MOVING STATE : PAUSED")
-                timer_check_pause.stop();
-            }else if(supervisor.getStateMoving() === 0){
-                robot_paused = true;
-                popup_pause.visible = true;
-                supervisor.writelog("[QML] CHECK MOVING STATE : NOT READY")
-//                    move_fail = true;
-                timer_check_pause.stop();
-            }else{
-                popup_pause.visible = false;
-                robot_paused = false;
-                supervisor.writelog("[QML] CHECK MOVING STATE : "+Number(supervisor.getStateMoving()));
-                timer_check_pause.stop();
-            }
-        }
-    }
+
     Timer{
         id: update_timer
         interval: 500
         running: true
         repeat: true
+        property int prev_state: 0
         onTriggered: {
             if(supervisor.getLockStatus()===0){
                 if(motor_lock)
-                    supervisor.writelog("[QML] Motor Lock : false");
+                    supervisor.writelog("[UI] PageMoving : Motor Lock false");
+
                 motor_lock = false;
 
                 popup_notice.init();
@@ -419,15 +392,26 @@ Item {
                 popup_notice.open();
             }else{
                 if(!motor_lock){
-                    supervisor.writelog("[QML] Motor Lock : true");
+                    supervisor.writelog("[UI] PageMoving : Motor Lock true");
                 }
                 motor_lock = true;
-                if(supervisor.getStateMoving() === 4){
-                    robot_paused = true;
-                    popup_pause.visible = true;
-                }else{
-                    robot_paused = false;
+
+                if(prev_state !== supervisor.getStateMoving()){
+                    if(supervisor.getStateMoving() === 4){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Paused");
+                    }else if(supervisor.getStateMoving() === 0){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Not Moving");
+                    }else{
+                        popup_pause.visible = false;
+                        robot_paused = false;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> "+Number(supervisor.getStateMoving()));
+                    }
                 }
+                prev_state = supervisor.getStateMoving();
             }
 
             if(supervisor.getMultiState() === 2){
@@ -468,10 +452,7 @@ Item {
         onClicked: {
             click_sound.play();
             if(!robot_paused){
-                supervisor.writelog("[USER INPUT] MOVING PAUSE 2")
                 supervisor.movePause();
-                timer_check_pause.start();
-
             }
         }
     }
@@ -486,14 +467,14 @@ Item {
         onClicked: {
             click_sound.play();
             password++;
-            supervisor.writelog("[USER INPUT] MOVING PASSWORD "+Number(password));
             if(password > 4){
                 password = 0;
-                supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
+                supervisor.writelog("[UI] PageMoving : debug pass -> PageKitchen");
                 loadPage(pkitchen);
             }
         }
         onPressAndHold: {
+            click_sound.play();
             password = 0;
             mainwindow.showMinimized();
         }

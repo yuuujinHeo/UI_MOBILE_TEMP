@@ -11,7 +11,15 @@ Popup{
     property string style: "warning"
 
     property bool closemode: true
-
+    leftPadding: 0
+    rightPadding: 0
+    topPadding: 0
+    bottomPadding: 0
+    background:Rectangle{
+        anchors.fill: parent
+        color: color_dark_black
+        opacity: 0.7
+    }
 
     property string cur_btn: ""
     signal clicked
@@ -29,44 +37,27 @@ Popup{
         id: model_btn
     }
 
-    background:Rectangle{
-        anchors.fill: parent
-        color: color_dark_black
-        opacity: 0.7
-    }
+
     onOpened:{
         if(style == "notice"){
-            rect_border.border.color = "white";
             image_warn.source = "icon/icon_bookmark.png"
             text_main.color = "white";
             text_sub.color = "white";
         }else if(style == "error"){
-            rect_border.border.color = color_red;
             image_warn.source = "image/icon_warning.png"
             text_main.color = color_red;
             text_sub.color = color_red;
         }else if(style == "warning"){
-            rect_border.border.color = color_red;
             image_warn.source = "image/warning.png"
             text_main.color = color_red;
             text_sub.color = color_red;
         }else if(style == "check"){
-            rect_border.border.color = color_blue;
             image_warn.source = "image/robot_callme.png"
             text_main.color = color_blue;
             text_sub.color = "white";
         }
     }
 
-    Rectangle{
-        id: back
-        width: 1280
-        height: 400
-        anchors.centerIn: parent
-        opacity: 0.9
-        radius: 10
-        color: color_dark_black
-    }
     MouseArea{
         anchors.fill: parent
         enabled: closemode
@@ -76,76 +67,130 @@ Popup{
         }
     }
     Rectangle{
-        id: rect_border
+        id: back
+        width: parent.width
+        height: 400
         anchors.centerIn: parent
-        width: back.width-20
-        height: back.height-20
-        radius: 10
         color: "transparent"
-        border.color: color_red
-        border.width: 5
-        Image{
-            id: image_warn
-            width: 120
-            height: 120
-            source: "image/warning.png"
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: 50
-        }
+
         Column{
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: image_warn.right
-            anchors.leftMargin: 50
-            Text{
-                id:text_main
-                color: color_red
-                font.family: font_noto_r.name
-                font.pixelSize: 35
-                text: popup_notice.main_str
+            anchors.fill: parent
+            Rectangle{
+                width: parent.width
+                height: 15
+                color: text_main.color
             }
-            Text{
-                id:text_sub
-                color: color_red
-                font.family: font_noto_r.name
-                font.pixelSize: 30
-                text: popup_notice.sub_str
-            }
-        }
-        Row{
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottom: parent.bottom
-            spacing: 40
-            anchors.bottomMargin: 20
-            Repeater{
-                model : model_btn
+            Rectangle{
+                id: rect_border
+                width: parent.width
+                height: parent.height - 30
+                color: "transparent"
                 Rectangle{
-                    width:  120
-                    height: 60
-                    color: "transparent"
-                    border.color: color_red
-                    border.width: 3
-                    radius: 10
-                    Text{
-                        anchors.centerIn: parent
-                        color: color_red
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
-                        text: name
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            parent.color = color_dark_black
-                            click_sound.play();
+                    anchors.fill: parent
+                    color: color_dark_black
+                    opacity: 0.7
+                }
+                Row{
+                    anchors.fill: parent
+                    Rectangle{
+                        width:  parent.height
+                        height: parent.height
+                        color: "transparent"
+                        Image{
+                            anchors.centerIn: parent
+                            id: image_warn
+                            width:220
+                            height:220
+                            source: "image/warning.png"
                         }
-                        onReleased:{
-                            parent.color = "transparent"
-                            cur_btn = name;
-                            popup_notice.clicked();
+                    }
+                    Rectangle{
+                        id: rect_dd
+                        width: parent.width -  parent.height
+                        height: parent.height
+                        color: "transparent"
+                        Column{
+                            spacing: 40
+                            anchors.verticalCenter: parent.verticalCenter
+                            Column{
+                                Text{
+                                    id:text_main
+                                    color: color_red
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 50
+                                    text: popup_notice.main_str
+                                    Component.onCompleted: {
+                                        while(width > rect_dd.width*0.9){
+                                            font.pixelSize-=1
+                                        }
+                                    }
+                                }
+                                Text{
+                                    id:text_sub
+                                    color: color_red
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 35
+                                    text: popup_notice.sub_str
+                                    Component.onCompleted: {
+                                        while(width > rect_dd.width*0.9){
+                                            font.pixelSize-=1
+                                        }
+                                    }
+                                }
+                            }
+                            Rectangle{
+                                width: rect_dd.width*0.8
+                                color: "transparent"
+                                height: 80
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                visible: model_btn.count>0
+                                Row{
+                                    anchors.centerIn: parent
+                                    spacing: 40
+                                    Repeater{
+                                        model : model_btn
+                                        Rectangle{
+                                            width:  160
+                                            height: 60
+                                            color: color_gray
+                                            radius: 10
+                                            Text{
+                                                anchors.centerIn: parent
+                                                color: color_dark_black
+                                                font.family: font_noto_r.name
+                                                font.pixelSize: 25
+                                                text: name
+                                                Component.onCompleted: {
+                                                    while(width > 160*0.9){
+                                                        font.pixelSize-=1
+                                                    }
+                                                }
+                                            }
+                                            MouseArea{
+                                                anchors.fill: parent
+                                                onPressed:{
+                                                    parent.color = color_dark_black
+                                                    click_sound.play();
+                                                }
+                                                onReleased:{
+                                                    parent.color = "transparent"
+                                                    cur_btn = name;
+                                                    popup_notice.clicked();
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
                         }
                     }
                 }
+            }
+            Rectangle{
+                width: parent.width
+                height: 15
+                color: text_main.color
             }
         }
     }

@@ -45,17 +45,10 @@ Item {
     property bool is_drawing_undo: false
     property bool is_drawing_redo: false
 
-    onWidthChanged: {
-        if(width>0 && height>0){
-            print("width changed = ",width,height)
-            supervisor.setMapSize(width, height);
-        }
-    }
-
+    signal clicked
     Component.onCompleted: {
         mapview.setName(objectName);
         supervisor.setName(objectName);
-        supervisor.setMapSize(width, height);
     }
 
     function setEnable(en){
@@ -64,6 +57,7 @@ Item {
         supervisor.setEnable(en);
 //        print("set enable ",objectName,en);
     }
+
 
 
     function setViewer(mode){
@@ -164,14 +158,6 @@ Item {
             }
         }
         supervisor.setMap();
-    }
-
-    function startDrawingT(){
-//        supervisor.startDrawingTline();
-    }
-
-    function stopDrawingT(){
-//        supervisor.stopDrawingTline();
     }
 
     function getTFlag(){
@@ -281,7 +267,6 @@ Item {
             last_robot_x = supervisor.getlastRobotx();
             last_robot_y = supervisor.getlastRoboty();
             last_robot_th = supervisor.getlastRobotth();
-//            /*print(*/last_robot_x,last_robot_y,last_robot_th);
             supervisor.editLocation(last_robot_x,last_robot_y,last_robot_th);
         }else if(mode==="location"){
             supervisor.saveLocation(type,0,name);
@@ -289,6 +274,7 @@ Item {
             supervisor.saveEditedMap();
         }else if(mode==="tline"){
             supervisor.saveTline();
+            supervisor.loadFile();
         }else if(mode==="tline_temp"){
             supervisor.saveTlineTemp();
         }else if(mode==="spline"){
@@ -530,6 +516,8 @@ Item {
         property var select_point;
         touchPoints: [TouchPoint{id:point1},TouchPoint{id:point2}]
         onPressed:{
+            clicked();
+            supervisor.setMapSize(parent.objectName,width,height);
             double_touch = false;
 
             if(point1.pressed && point2.pressed){
@@ -549,7 +537,10 @@ Item {
                 firstX = supervisor.getX() + point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
                 firstY = supervisor.getY() + point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
             }
-            if(tool == "move"){
+
+
+//            print(point1.x, width, supervisor.getX(), firstX);
+            if(tool == "move" || item_keyevent.shift_hold){
                 if(double_touch){
                     firstX = supervisor.getX() + (point1.x)*supervisor.getScale()*supervisor.getFileWidth()/width;
                     firstY = supervisor.getY() + (point1.y)*supervisor.getScale()*supervisor.getFileWidth()/width;
@@ -579,6 +570,10 @@ Item {
                 supervisor.setShowBrush(true);
                 supervisor.setLineColor(-1);
                 supervisor.startDrawing(firstX, firstY);
+            }else if(tool == "erase2"){
+                supervisor.setShowBrush(true);
+                supervisor.setLineColor(-1);
+                supervisor.startErase2(firstX, firstY);
             }else if( tool === "add_location"){
                 supervisor.addLocation(firstX, firstY,0);
             }else if( tool === "edit_location"){
@@ -614,7 +609,7 @@ Item {
             var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
 
             if(!point1.pressed && !point2.pressed){
-                if(tool == "move"){
+                if(tool == "move" || item_keyevent.shift_hold){
                     if(supervisor.getMode() === "annot_object"){
                         var objnum = supervisor.getObjectNum(newX, newY);
                         if(objnum > -1){
@@ -631,6 +626,8 @@ Item {
                     supervisor.stopDrawingLine(newX, newY);
                 }else if(tool == "erase"){
                     supervisor.endDrawing(newX, newY);
+                }else if(tool == "erase2"){
+                    supervisor.endErase2(newX, newY);
                 }else if( tool === "edit_location"){
 //                    var angle = Math.atan2((newX-firstX),(newY-firstY));
 //                    supervisor.editLocation(firstX, firstY,angle);
@@ -666,7 +663,7 @@ Item {
             if(point1.pressed || point2.pressed){
                 var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
                 var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                if(tool == "move"){
+                if(tool == "move" || item_keyevent.shift_hold){
                     if(double_touch){
                         if(point1.pressed && point2.pressed){
                             newX = (point1.x)*supervisor.getScale();
@@ -719,6 +716,8 @@ Item {
                     supervisor.setDrawingLine(newX, newY);
                 }else if(tool == "erase"){
                     supervisor.addLinePoint(newX, newY);
+                }else if(tool == "erase2"){
+                    supervisor.addErase2(newX, newY);
                 }else if(tool == "add_object"){
                     supervisor.setObject(newX,newY);
                 }else if(tool == "edit_object"){
@@ -916,8 +915,9 @@ Item {
                     rect_notice.msg =  qsTr("로봇 연결 안됨");
                     rect_notice.color = color_red;
                     rect_notice.show_icon = true;
+                }else{
+                    rect_notice.visible = false;
                 }
-
             }
 
         }

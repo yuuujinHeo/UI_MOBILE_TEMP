@@ -880,6 +880,7 @@ Popup{
                     Component.onCompleted: {
                         setfullscreen();
                         setViewer("annot_view")
+                        supervisor.setMapSize(objectName,width,height);
                     }
                 }
             }

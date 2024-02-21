@@ -12,7 +12,6 @@
         <file>Page_charge.qml</file>
         <file>Page_init.qml</file>
         <file>image/warning.png</file>
-        <file>Page_MoveFail.qml</file>
         <file>font/NotoSansKR-Medium.otf</file>
         <file>font/NotoSansKR-Light.otf</file>
         <file>icon/stop_r.png</file>
@@ -285,5 +284,6 @@
         <file>Popup_test_tts.qml</file>
         <file>Page_moving_custom.qml</file>
         <file>icon/icon_colorwheel.png</file>
+        <file>icon/keyboard.png</file>
     </qresource>
 </RCC>

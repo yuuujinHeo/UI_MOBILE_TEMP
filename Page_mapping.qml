@@ -38,15 +38,12 @@ Item {
             if(supervisor.getMappingflag()){
                 if(!is_mapping){
                     supervisor.writelog("[UI] Play Voice : start mapping");
-//                    voice_stop_mapping.stop();
                     supervisor.playVoice("start_mapping");
                     is_mapping = true;
                 }
             }else{
                 if(is_mapping){
                     supervisor.writelog("[UI] Play Voice : stop mapping");
-//                    voice_stop_mapping.play();
-//                    voice_start_mapping.stop();
                     supervisor.playVoice("stop_mapping");
                     is_mapping = false;
                 }
@@ -650,6 +647,9 @@ Item {
                 width: parent.height
                 height: parent.height
                 anchors.centerIn: parent
+                Component.onCompleted: {
+                    supervisor.setMapSize(objectName,width,height);
+                }
             }
 
             Rectangle{
@@ -768,7 +768,6 @@ Item {
             }
             Component.onCompleted: {
                 popup_loading.open();
-//                loading.show();
             }
             Timer{
                 running: true

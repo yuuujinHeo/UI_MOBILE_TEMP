@@ -811,7 +811,7 @@ void IPCHandler::moveToTest(float x, float y, float th, int preset){
     send_msg.params[11]= array[3];
 
     send_msg.params[12] = (uint8_t)preset;
-    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << send_msg.params[12];
+//    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << send_msg.params[12];
 
     probot->curTarget.point.x = x;
     probot->curTarget.point.y = y;
