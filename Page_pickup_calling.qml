@@ -137,15 +137,14 @@ Item {
         anchors.right: parent.right
         anchors.bottom : parent.bottom
         z: 99
-        property var password: 0
+        property int password: 0
         onClicked: {
             click_sound.play();
             password++;
             if(password > 4){
                 password = 0;
-                supervisor.writelog("[USER INPUT] ENTER THE MOVEFAIL PAGE "+Number(password));
+                supervisor.writelog("[UI] PagePickupCall : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
-//                loader_page.item.setNotice(3);
             }
         }
     }

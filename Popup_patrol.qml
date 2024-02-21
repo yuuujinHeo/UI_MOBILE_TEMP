@@ -1574,34 +1574,6 @@ Popup{
                         onClicked:{
                             click_sound.play();
                             supervisor.startPatrol(popup_patrol.select_preset);
-//                            if(popup_patrol.select_pos_mode === 0){
-//                                click_sound.play();
-//                                supervisor.clearRotateList();
-//                                for(var i=0; i<supervisor.getLocationNum("");i++){
-//                                    supervisor.setRotateList(supervisor.getLocationName(i,""));
-//                                }
-//                                supervisor.startPatrol(popup_patrol.mode,false);
-//                            }else if(popup_patrol.select_pos_mode === 1){
-//                                click_sound.play();
-//                                supervisor.clearRotateList();
-//                                for(var i=0; i<supervisor.getLocationNum("Serving");i++){
-//                                    supervisor.setRotateList(supervisor.getLocationName(i,"Serving"));
-//                                }
-//                                supervisor.startPatrol(popup_patrol.mode,false);
-//                            }else if(popup_patrol.select_pos_mode === 2){
-//                                click_sound.play();
-//                                supervisor.clearRotateList();
-//                                for(var i=0; i<model_patrols.count; i++){
-//                                    if(model_patrols.get(i).select){
-//                                        supervisor.setRotateList(model_patrols.get(i).name);
-//                                    }
-//                                }
-//                                supervisor.startPatrol(popup_patrol.mode,false);
-
-//                            }else{
-//                                click_sound.play();
-//                            }
-
                             popup_start.close();
                         }
                     }

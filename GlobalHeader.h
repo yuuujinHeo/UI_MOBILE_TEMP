@@ -172,7 +172,7 @@ typedef struct{
     int drawing_state = 0;
     float map_rotate_angle = 0;
 
-    int localization_confirm = 0;
+    bool localization_confirm = false;
 
     float inlier_ratio = 0;
     float inlier_error = 0;
@@ -341,7 +341,10 @@ enum ROBOT_CMD{
     ROBOT_CMD_SETTING_RELOAD,
     ROBOT_CMD_SERVER_MAP_UPDATE,
     ROBOT_CMD_CHECK_TRAVEL_LINE,
-    ROBOT_CMD_MAP_SOFT_RELOAD
+    ROBOT_CMD_MAP_SOFT_RELOAD,
+
+    ROBOT_CMD_MAP_LOOP_CLOSING,//30         //지도작성과정 중, 루프클로징 시도
+    ROBOT_CMD_SLAM_RESTING                  //대기위치에서 위치초기화 (InitPage에서 시작버튼 눌렀을 때)
 
 };
 

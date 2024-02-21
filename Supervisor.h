@@ -76,7 +76,8 @@ public:
     QList<QNetworkConfiguration> netcfgList;
     QNetworkConfiguration defaultWifiConf;
 
-    void initPatrol();
+    QString curPage = "";
+    Q_INVOKABLE void setCurrentPage(QString page){curPage = page;}
 
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
@@ -84,6 +85,7 @@ public:
     Q_INVOKABLE bool checkLocationName(int group, QString name);
     ////*********************************************  IP SETTINGs   *********************************************////
 
+    bool cmd_accept = false;
     Q_INVOKABLE void resetClear();
     QString wifi_temp_ssd = "";
     Q_INVOKABLE int getWifiNum();
@@ -108,7 +110,8 @@ public:
 
     Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
     Q_INVOKABLE void passInit();
-
+    Q_INVOKABLE bool isDebugMode(){return debug_mode;}
+    QString curUiState();
 
     ////*********************************************  Patrol   *********************************************////
     int patrol_mode = PATROL_NONE;
@@ -168,21 +171,17 @@ public:
     ////*********************************************  MAP HANDLER   ***************************************************////
 
     Q_INVOKABLE void loadFile(QString name, QString type){maph->loadFile(name,type);}
+    Q_INVOKABLE void loadFile(){maph->loadFile();}
 
     //------------draw map--------------//
     Q_INVOKABLE void setMap(){maph->setMap();}
     Q_INVOKABLE void setFullScreen(){maph->setFullScreen();}
     Q_INVOKABLE void setMapDrawing(){maph->setMapDrawing();}
 
-    QMediaPlayer *click_sound;
-    QMediaPlayer *click_no_sound;
-    QMediaPlayer *click_2_sound;
-    QMediaPlayer *click_start_sound;
     QMediaPlayer *bgm_player;
     QMediaPlayer *voice_player;
     QMediaPlaylist *list_bgm;
 
-    Q_INVOKABLE void clicksound(QString mode, int volume = -1);
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();
@@ -251,13 +250,13 @@ public:
 
 
 
-
+    Q_INVOKABLE bool isExistNode(QString type){return maph->isExistNode(type);}
 
 
 
 
     //------------map variables--------------//
-    Q_INVOKABLE void confirmLocalization();//{probot->localization_confirm = LOCAL_READY;}
+    Q_INVOKABLE void confirmLocalization();
     Q_INVOKABLE void setName(QString name){maph->setName(name);}
     Q_INVOKABLE void setTool(QString name){maph->setTool(name);}
     Q_INVOKABLE QString getTool(){return maph->getTool();}
@@ -276,7 +275,22 @@ public:
     Q_INVOKABLE bool getRobotFollowing(){return maph->getRobotFollowing();}
     Q_INVOKABLE bool getShowLidar(){return maph->getShowLidar();}
     Q_INVOKABLE void setShowAvoidmap(bool onoff){maph->setShowAvoidMap(onoff);}
+    Q_INVOKABLE void setShowNode(bool onoff){maph->setShowNode(onoff);}
+    Q_INVOKABLE bool getShowNode(){return maph->getShowNode();}
+    Q_INVOKABLE void setShowName(bool onoff){maph->setShowName(onoff);}
+    Q_INVOKABLE bool getShowName(){return maph->getShowName();}
 
+    Q_INVOKABLE void setShowTline(bool onoff){maph->setShowTravelline(onoff);}
+    Q_INVOKABLE bool getShowTline(){return maph->getShowTline();}
+    Q_INVOKABLE void setShowVelmap(bool onoff){maph->setShowVelocitymap(onoff);}
+    Q_INVOKABLE bool getShowVelmap(){return maph->getShowVelmap();}
+    Q_INVOKABLE void setShowAvoid(bool onoff){maph->setShowAvoidMap(onoff);}
+    Q_INVOKABLE bool getShowAvoid(){return maph->getShowAvoid();}
+    Q_INVOKABLE void autoTline(){maph->autoTline();}
+
+    Q_INVOKABLE bool getShowObject(){return maph->getShowObject();}
+    Q_INVOKABLE void setShowEdge(bool onoff){maph->setShowEdge(onoff);}
+    Q_INVOKABLE bool getShowEdge(){return maph->getShowEdge();}
     Q_INVOKABLE void setInitPose(int x, int y, float th){maph->setInitPose(x,y,th);}
     Q_INVOKABLE void clearInitPose(){maph->clearInitPose();}
 
@@ -306,7 +320,7 @@ public:
 
     void clearRobot();
 
-    Q_INVOKABLE int getLocalizationConfirm(){return probot->localization_confirm;}
+    Q_INVOKABLE bool getLocalizationConfirm(){return probot->localization_confirm;}
     Q_INVOKABLE bool getDrawingFlag(){return maph->getDrawingFlag();}
 
     Q_INVOKABLE bool getDrawingUndoFlag(){return maph->getDrawingUndoFlag();}
@@ -314,6 +328,9 @@ public:
     Q_INVOKABLE void startDrawing(int x, int y){maph->startDrawing(x,y);}
     Q_INVOKABLE void addLinePoint(int x, int y){maph->addLinePoint(x,y);}
     Q_INVOKABLE void endDrawing(int x, int y){maph->endDrawing(x,y);}
+    Q_INVOKABLE void startErase2(int x, int y){maph->startErase2(x,y);}
+    Q_INVOKABLE void addErase2(int x, int y){maph->addErase2(x,y);}
+    Q_INVOKABLE void endErase2(int x, int y){maph->endErase2(x,y);}
 
 
     Q_INVOKABLE void setMapOrin(QString type){maph->setMapOrin(type);}
@@ -360,7 +377,28 @@ public:
     Q_INVOKABLE void saveTline(){maph->saveTline();}
     Q_INVOKABLE void saveTlineTemp(){maph->saveTlineTemp();}
     Q_INVOKABLE void saveVelmap(){maph->saveVelmap();}
-    Q_INVOKABLE void setMapSize(int width, int height){maph->setMapSize(width, height);}
+    Q_INVOKABLE void setMapSize(QString obj, int width, int height){
+//        qDebug() << obj << " set MapSize " << width << height;
+        maph->setMapSize(width, height);
+    }
+    Q_INVOKABLE void loadAnnotation(){maph->loadAnnotation();}
+    Q_INVOKABLE void addNode(QString id, QString attr){maph->addNode(id,attr);}
+    Q_INVOKABLE void addNode(QString name, QString group, QString attr){maph->addNode(name,group,attr);}
+    Q_INVOKABLE void editNode(){maph->editNode();}
+    Q_INVOKABLE void editNode(QString attr){maph->editNode(attr);}
+    Q_INVOKABLE void deleteNode(){maph->deleteNode();}
+    Q_INVOKABLE void linkNode(){maph->linkNode();}
+    Q_INVOKABLE void alignNode(QString n){
+        if(n=="x"){
+            maph->alignXNode();
+        }else if(n=="y"){
+            maph->alignYNode();
+        }else{
+            maph->alignTHNode();
+        }
+    }
+    Q_INVOKABLE void releaseShift(){maph->releaseShift();}
+    Q_INVOKABLE void pressShift(){maph->pressShift();}
     Q_INVOKABLE void zoomIn(int x, int y, float dist){maph->zoomIn(x,y,dist);}
     Q_INVOKABLE void zoomOut(int x, int y, float dist){maph->zoomOut(x,y,dist);}
     Q_INVOKABLE void move(int x, int y){maph->move(x,y);}
@@ -483,6 +521,8 @@ public:
     Q_INVOKABLE void checkCleaningLocation();
 
 
+    Q_INVOKABLE bool isRobotReady();
+
     Q_INVOKABLE void checkUpdate();
     Q_INVOKABLE bool checkNewUpdateProgram();
 //    Q_INVOKABLE QString
@@ -491,16 +531,18 @@ public:
 
     ////*********************************************  MOVING 관련   *************************************************////
     Q_INVOKABLE bool isCallingMode(){return probot->is_calling;}
-    Q_INVOKABLE void goServing(int group, int table);
-    Q_INVOKABLE LOCATION getLocationbyCall(QString call);
+    Q_INVOKABLE void startServing(int group, int table);
     Q_INVOKABLE LOCATION getLocation(int group, QString name);
-    Q_INVOKABLE LOCATION getLocationbyID(int id);
     Q_INVOKABLE LOCATION getLocation(QString name);
 
     Q_INVOKABLE void setUiState(int state){
         ui_state = state;
     }
 
+    bool need_init = true;
+    Q_INVOKABLE void clearStatus();
+    Q_INVOKABLE void stateInit();
+    Q_INVOKABLE void stateMoving();
     Q_INVOKABLE void resetLocalization();
     ////*********************************************  LOG 관련   ***************************************************////
     QStringList curLog;
@@ -589,6 +631,7 @@ public:
     Q_INVOKABLE void slam_run();
     Q_INVOKABLE void slam_stop();
     Q_INVOKABLE void slam_autoInit();
+    Q_INVOKABLE void slam_restInit();
     Q_INVOKABLE bool is_slam_running();
 
     Q_INVOKABLE bool getMappingflag();
@@ -612,28 +655,13 @@ public:
     Q_INVOKABLE void cleanTray();
     Q_INVOKABLE QString getCallName(int id){
         return pmap->call_queue[id];
-//        if(id > -1 && id < pmap->call_queue.size()){
-//            return getCallLocation(pmap->call_queue[id]).name;
-//        }else{
-//            return "";
-//        }
     }
     Q_INVOKABLE void clearCallQueue(){
         pmap->call_queue.clear();
     }
     Q_INVOKABLE QString getCall(int id){return pmap->locations[id].call_id;}
-    Q_INVOKABLE LOCATION getCallLocation(QString id);
     Q_INVOKABLE void setCallbell(QString type, int id);
     Q_INVOKABLE void setCallbellForce(QString type, bool onoff);
-    Q_INVOKABLE void acceptCall(bool yes);
-    LOCATION getloc(QString name){
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].name == name)
-                return pmap->locations[i];
-        }
-        return LOCATION();
-    }
-
 
     ////*********************************************  ANNOTATION 관련   ***************************************************////
 
@@ -690,7 +718,8 @@ public:
 //    Q_INVOKABLE void removeLocation(QString name);
 
     //******************************************************************Travel line
-    Q_INVOKABLE bool saveAnnotation(QString filename);
+    Q_INVOKABLE bool saveAnnotation(QString filename, bool reload=true);
+    Q_INVOKABLE void saveNode();
 
     Q_INVOKABLE bool isOdroid();
 
@@ -804,10 +833,7 @@ public:
     Q_INVOKABLE bool getObjectflag();
     Q_INVOKABLE void undoObject();
     ////*********************************************  PATROL 관련   ***************************************************////
-    QStringList patrol_list;
-    Q_INVOKABLE void clearRotateList();
-    Q_INVOKABLE void setRotateList(QString name);
-    Q_INVOKABLE void startPatrol(QString mode, bool pickup);
+
 
     Q_INVOKABLE float getICPRatio();
     Q_INVOKABLE float getICPError();

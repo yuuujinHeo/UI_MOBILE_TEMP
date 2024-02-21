@@ -45,12 +45,24 @@ Item{
         color: color_light_gray
     }
 
+    function retry(){
+        if(auto_init){
+            supervisor.writelog("[UI-LOCALIZATION] Retry Localization (auto_init)")
+            timer_check_localization.start();
+            supervisor.slam_autoInit();
+        }else{
+            supervisor.writelog("[UI-LOCALIZATION] Retry Localization")
+            timer_check_localization.start();
+            supervisor.slam_restInit();
+        }
+    }
+
     Timer{
         running: auto_init
         interval: 500
         onTriggered:{
+            supervisor.writelog("[UI-LOCALIZATION] Auto Localization")
             timer_check_localization.start();
-            supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
             supervisor.slam_autoInit();
         }
     }
@@ -58,7 +70,7 @@ Item{
         running: true
         interval: 1000
         onTriggered:{
-            //print("now 5")
+            supervisor.writelog("[UI-LOCALIZATION] Set Motor Lock : False")
             supervisor.setMotorLock(false);
         }
     }
@@ -68,20 +80,23 @@ Item{
         running: auto_init
         repeat: true
         interval: 500
-        property var timeout_cnt: 0
+        property int timeout_cnt: 0
         onTriggered: {
             local_find_state = supervisor.getLocalizationState();
             if(local_find_state===0){//not ready
+                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다.")
                 timeout_cnt = 0;
                 show_success = false;
                 show_failed = false;
                 show_timeout = false;
+                btn_do_autoinit.running = false;
                 show_restart = false;
             }else if(local_find_state === 1){
                 if(timeout_cnt++ > 20){
                     show_timeout = true;
                 }
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다")
+                btn_do_autoinit.running = true;
+                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다..")
                 show_success = false;
                 show_failed = false;
             }else if(local_find_state === 2){//success
@@ -90,13 +105,14 @@ Item{
                 text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
                 show_success = true;
                 show_failed = true;
+                btn_do_autoinit.running = false;
             }else if(local_find_state === 3){//failed
                 timeout_cnt = 0;
                 show_timeout = false;
                 text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
                 show_success = false;
                 show_failed = true;
-                timer_check_localization2.start();
+                btn_do_autoinit.running = false;
             }else{
                 show_timeout = false;
                 text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
@@ -109,21 +125,6 @@ Item{
                 show_failed = false;
                 text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
                 timer_check_localization.stop();
-            }
-        }
-    }
-    Timer{
-        id: timer_check_localization2
-        running: false
-        repeat: true
-        interval: 500
-        onTriggered: {
-            if(supervisor.getLocalizationState() === 2){//success
-                btn_do_autoinit.running = false;
-            }else if(supervisor.getLocalizationState() === 1){
-                btn_do_autoinit.running = true;
-            }else{
-                btn_do_autoinit.running = false;
             }
         }
     }
@@ -174,7 +175,7 @@ Item{
                 onClicked: {
                     timer_check_localization.start();
                     supervisor.writelog("[USER INPUT] INIT PAGE : DO LOCALIZATION")
-                    supervisor.slam_autoInit();
+                    supervisor.slam_restInit();
 //                            update_timer.stop();
                 }
             }
@@ -368,16 +369,7 @@ Item{
             anchors.bottomMargin: 50
             anchors.leftMargin: 50
             onClicked: {
-                if(auto_init){
-                    timer_check_localization.start();
-                    supervisor.writelog("[ANNOTATION] INIT PAGE : DO LOCALIZATION")
-                    supervisor.slam_autoInit();
-                }else{
-                    timer_check_localization.stop();
-                    local_find_state = -1;
-                    supervisor.writelog("[ANNOTATION] Localization : Retry");
-//
-                }
+                retry();
             }
         }
     }
@@ -475,8 +467,7 @@ Item{
                     text:  qsTr("다시 시도")
                     onClicked: {
                         map.setTool("move");
-                        supervisor.slam_autoInit();
-                        timer_check_localization2.start();
+                        retry();
                     }
                 }
                 Item_buttons{
@@ -492,7 +483,6 @@ Item{
                         print("init autoinit");
                         map.setTool("move");
                         supervisor.slam_fullautoInit();
-                        timer_check_localization2.start();
                     }
                 }
             }
@@ -501,15 +491,14 @@ Item{
             id: map
             enabled: false
             objectName: "annot_local"
-//                    visible: local_find_state>1 && local_find_state<10
-//                    onVisibleChanged: {
-//                        print("map visible changed",visible,x,y,width,height);
-//                    }
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 50
             anchors.horizontalCenter: parent.horizontalCenter
             width: 600
             height: 600
+            Component.onCompleted: {
+                supervisor.setMapSize(objectName,width,height);
+            }
         }
 
     }

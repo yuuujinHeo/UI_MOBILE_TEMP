@@ -6,13 +6,55 @@
 #include <QSettings>
 #include "spline.h"
 #include "GlobalHeader.h"
+#include <QKeyEvent>
 
 class MapHandler : public QObject
 {
     Q_OBJECT
 public:
     MapHandler();
+    struct NODE
+    {
+        QString id;
+        QString attrib; // Route, Charging, Resting, Cleaning, Serving
+        cv::Vec3d pose;
+        std::vector<QString> linked;
 
+        NODE()
+        {
+            id = "";
+            attrib = "";
+            pose = cv::Vec3d(0,0,0);
+            linked.clear();
+        }
+
+        NODE(const NODE& p)
+        {
+            id = p.id;
+            attrib = p.attrib;
+            pose = p.pose;
+            linked = p.linked;
+        }
+
+        NODE& operator=(const NODE& p)
+        {
+            id = p.id;
+            attrib = p.attrib;
+            pose = p.pose;
+            linked = p.linked;
+            return *this;
+        }
+    };
+
+    struct CLICK_INFO
+    {
+        cv::Vec3d pose;
+
+        QString cur_node;
+        QString pre_node;
+        QString sel_node;
+    };
+    CLICK_INFO click_info;
     bool enable = false;
     QString tool = "move";
     QString mode = "none";
@@ -26,6 +68,7 @@ public:
     bool exist_raw = false;
     bool exist_edited = false;
     bool exist_travelline = false;
+    bool exist_travelline_ui = false;
     bool exist_velmap = false;
 
     //맵 파일 크기
@@ -40,12 +83,15 @@ public:
     int draw_y = 0;
     int draw_width = 0;
 
+    float avoid_width = 0.7;
+
     //캔버스(맵뷰어) 크기
     int canvas_width = 0;
     int canvas_height = 0;
 
     //------------file load--------------//
     Q_INVOKABLE void loadFile(QString name, QString type);
+    void loadFile();
     void setMapOrin(QString type);
     //------------draw map--------------//
     Q_INVOKABLE void setMap();
@@ -86,41 +132,60 @@ public:
     }
 
     Q_INVOKABLE void setShowObject(bool onoff){
-//        qDebug() << "setShowObject " << onoff;
         show_object = onoff;
         setMap();
     }
     Q_INVOKABLE void setShowAvoidMap(bool onoff){
-        qDebug() << "setShowAvoidMap " << onoff;
         show_avoid = onoff;
-        qDebug() << "setShowAvoidMap????? " << onoff;
+        setMap();
     }
     Q_INVOKABLE void setShowRobot(bool onoff){
 //        qDebug() << "setShowRobot " << onoff;
         show_robot = onoff;
+        setMapLayer();
+    }
+    Q_INVOKABLE void setShowNode(bool onoff){
+        show_node = onoff;
+        setMapLayer();
     }
 
     Q_INVOKABLE void setShowTravelline(bool onoff){
-//        qDebug() << "setShowTravelline " << onoff;
         show_travelline = onoff;
+        setMap();
     }
 
     Q_INVOKABLE void setShowVelocitymap(bool onoff){
-//        qDebug() << "setShowVelocitymap " << onoff;
         show_velocitymap = onoff;
+        setMap();
     }
-
+    Q_INVOKABLE void setShowName(bool onoff){
+        show_name = onoff;
+        setMapLayer();
+    }
+    Q_INVOKABLE void setShowEdge(bool onoff){
+        show_edge = onoff;
+        setMapLayer();
+    }
+    void autoTline();
 
     Q_INVOKABLE bool getshowLocation(){return show_location;}
     Q_INVOKABLE bool getRobotFollowing(){return robot_following;}
     Q_INVOKABLE bool getShowLidar(){return show_lidar;}
-
-
+    Q_INVOKABLE bool getShowNode(){return show_node;}
+    Q_INVOKABLE bool getShowName(){return show_name;}
+    Q_INVOKABLE bool getShowEdge(){return show_edge;}
+    Q_INVOKABLE bool getShowVelmap(){return show_velocitymap;}
+    Q_INVOKABLE bool getShowAvoid(){return show_avoid;}
+    Q_INVOKABLE bool getShowObject(){return show_object;}
+    Q_INVOKABLE bool getShowTline(){return show_travelline;}
     bool show_travelline = false;
     bool show_velocitymap = false;
     bool show_number = true;
     bool show_brush = false;
     bool show_robot = false;
+    bool show_name = false;
+    bool show_edge = false;
+    bool show_node = false;
     bool show_global_path = false;
     bool show_local_path = false;
     bool show_lidar = false;
@@ -151,6 +216,30 @@ public:
     }
 
 
+    //-------------topo-------------------//
+    std::map<QString, NODE*> nodes;
+    QString first_group_name = "Default";
+    POSE tempnode;
+    cv::Point2f init_tempnode;
+    QString getNode(int x, int y);
+    void tempNodeInit(int x, int y);
+    void tempNodeSet(int x, int y);
+    QString auto_node_name(QString attrib);
+    void addNode(QString id, QString attrib);
+    void addNode(QString name, QString group, QString attrib);
+    void editNode();
+    void editNode(QString id, int x, int y, float th);
+    void editNode(QString attr);
+    void deleteNode();
+    void linkNode();
+    void alignXNode();
+    void alignYNode();
+    void alignTHNode();
+    void loadAnnotation();
+    void saveAnnotation();
+    void saveNode();
+    void loadNode();
+    bool isExistNode(QString type);
 
     //---------------test----------------//
     void pressed(QString tool, int x, int y);
@@ -159,7 +248,9 @@ public:
     void double_moved(QString tool, int x1, int y1, int x2, int y2);
     void released(QString tool, int x, int y);
     void double_released(QString tool, int x1, int y1, int x2, int y2);
-
+    bool shift_move = false;
+    void releaseShift(){shift_move = false;}
+    void pressShift(){shift_move = true;}
 
 
     bool press_release = false;
@@ -168,6 +259,14 @@ public:
     Q_INVOKABLE void setRulerInit(int x, int y);
     Q_INVOKABLE void setRulerEnd(int x, int y);
     Q_INVOKABLE void setRulerPoint(int x, int y);
+
+
+    bool new_straight_flag = false;
+    cv::Point2f straight_init_point;
+    QList<cv::Point2f> straight_point;
+    Q_INVOKABLE void setStraightInit(int x, int y);
+    Q_INVOKABLE void setStraightEnd(int x, int y);
+    Q_INVOKABLE void setStraightPoint(int x, int y);
 
     //------------cut / rotate--------------//
     cv::Point2f cut_box[2];
@@ -205,14 +304,13 @@ public:
     QList<LINE> lines_trash;
     int cur_line_color=255;
     int cur_line_width=3;
-    bool new_straight_flag = false;
-    cv::Point2f straight[2];
     void initFileWidth(){
         file_width = map_orin.rows;
         initDrawing();
     }
     void initDrawing(){
         map_drawing = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
+        map_drawing_tline = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         map_drawing_mask = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
     }
     Q_INVOKABLE bool getDrawingFlag();
@@ -220,6 +318,10 @@ public:
     Q_INVOKABLE void startDrawing(int x, int y);
     Q_INVOKABLE void addLinePoint(int x, int y);
     Q_INVOKABLE void endDrawing(int x, int y);
+    Q_INVOKABLE void startErase2(int x, int y);
+    Q_INVOKABLE void addErase2(int x, int y);
+    Q_INVOKABLE void endErase2(int x, int y);
+
 
     Q_INVOKABLE void startDrawingRect(int x, int y);
     Q_INVOKABLE void setDrawingRect(int x, int y);
@@ -329,6 +431,8 @@ private:
     cv::Mat file_edited;
     //map_travelline
     cv::Mat file_travelline;
+    //map_travelline_ui
+    cv::Mat file_travelline_ui;
     //map_velocity
     cv::Mat file_velocity;
     //map_object
@@ -341,6 +445,7 @@ private:
     cv::Mat map_tlines;
     cv::Mat map_objects;
     cv::Mat map_layers;
+    cv::Mat map_drawing_tline;
     cv::Mat map_drawing;
     cv::Mat map_drawing_mask;
 
@@ -357,6 +462,9 @@ private slots:
     void onTimer();
 private:
     QTimer *timer;
+protected:
+    void keyPressEvent(QKeyEvent *ev);
+    void keyReleaseEvent(QKeyEvent *ev);
 };
 
 #endif // MAPHANDLER_H

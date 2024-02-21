@@ -79,7 +79,6 @@ Item {
     }
 
     function enabledChange(){
-        print("enabled changed ",enabled)
         if(enabled){
             onoff = false;
             background.color = "#525252"
