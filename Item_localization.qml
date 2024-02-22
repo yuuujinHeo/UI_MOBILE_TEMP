@@ -53,6 +53,7 @@ Item{
         }else{
             supervisor.writelog("[UI-LOCALIZATION] Retry Localization")
             timer_check_localization.start();
+//            supervisor.slam_autoInit();
             supervisor.slam_restInit();
         }
     }
@@ -124,7 +125,7 @@ Item{
                 show_success = false;
                 show_failed = false;
                 text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
-                timer_check_localization.stop();
+//                timer_check_localization.stop();
             }
         }
     }
@@ -175,6 +176,8 @@ Item{
                 onClicked: {
                     timer_check_localization.start();
                     supervisor.writelog("[USER INPUT] INIT PAGE : DO LOCALIZATION")
+//                    supervisor.slam_autoInit();
+
                     supervisor.slam_restInit();
 //                            update_timer.stop();
                 }
@@ -345,13 +348,13 @@ Item{
             }
             Item_buttons{
                 id: btn_init_success
-                visible: show_success || show_failed
+                visible: show_success //|| show_failed
                 width: 200
                 height: 80
                 type: "round_text"
                 text:qsTr("확 인")
                 onClicked: {
-                    supervisor.writelog("[ANNOTATION] Localization : Success");
+                    supervisor.writelog("[UI] PageLocalization : Success");
                     confirmed();
 
                 }

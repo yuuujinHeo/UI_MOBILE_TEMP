@@ -35,8 +35,11 @@ IPCHandler::IPCHandler(QObject *parent)
     updateSharedMemory(shm_call_loc,"CallLocation",sizeof(IPCHandler::CALL_LOC));
     updateSharedMemory(shm_call_status,"CallStatus",sizeof(IPCHandler::CALL_STATUS));
     updateSharedMemory(shm_check_travel,"CheckTravel",sizeof(IPCHandler::CHECK_TRAVEL));
+    qDebug() << "1";
     clearSharedMemory(shm_cmd);
+    qDebug() << "2";
     clearSharedMemory(shm_call_status);
+    qDebug() << "3";
     clearSharedMemory(shm_call_loc);
     clearSharedMemory(shm_check_travel);
 
@@ -57,7 +60,7 @@ void IPCHandler::clearSharedMemory(QSharedMemory &mem){
         mem.lock();
         memset(mem.data(),0,sizeof(mem.data()));
         mem.unlock();
-        plog->write("[IPC] Clear CMD ShardMemory");
+        plog->write("[IPC] Clear CMD SharedMemory");
     }
 }
 
@@ -234,6 +237,8 @@ void IPCHandler::onTimer(){
         }
         probot->inlier_ratio = temp1.ui_loc_inlier_ratio;
         probot->inlier_error = temp1.ui_loc_inlier_error;
+        probot->mapping_inlier_ratio = temp1.ui_mapping_inlier_ratio;
+        probot->mapping_inlier_error = temp1.ui_mapping_inlier_error;
 //        qDebug() << probot->curPose.point.x << probot->curPose.point.y << probot->curPose.angle << probot->lidar_data[0];
         prev_tick_status = temp1.tick;
     }

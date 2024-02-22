@@ -787,7 +787,7 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
 
     pmap->annot_edit_location = true;
 
-    saveAnnotation(maph->map_name);
+    saveAnnotation(maph->map_name, false);
 
 }
 ////*********************************************  OBJECTING 관련   ***************************************************////
@@ -3381,15 +3381,24 @@ void Supervisor::onTimer(){
         }else if(probot->status_charge_connect == 1){
             plog->write("[STATE] Initializing : Charging Connected -> Charging");
             ui_state = UI_STATE_CHARGING;
-        }else if(getMotorState() == READY && probot->localization_confirm){
-            plog->write("[STATE] Initializing : Localization Good, Motor state Good -> Resting");
-            ui_state = UI_STATE_RESTING;
+        }else if(probot->localization_confirm){
+            if(getMotorState() == READY){
+                plog->write("[STATE] Initializing : Localization Good, Motor state Good -> Resting");
+                ui_state = UI_STATE_RESTING;
+            }else if(probot->status_lock==0){
+
+            }else{
+                if(curPage != "page_init"){
+                    plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
+                    QMetaObject::invokeMethod(mMain, "need_init");
+                }
+            }
         }else{
             if(curPage != "page_init"){
-                plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + probot->localization_confirm + ", LState: " + probot->localization_state+") -> UI Init");
+                plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
                 QMetaObject::invokeMethod(mMain, "need_init");
             }
-            clearStatus();
+//            clearStatus();
         }
         break;
     }
@@ -3730,6 +3739,7 @@ void Supervisor::onTimer(){
 
                     }else{
                         if(timer_cnt2%5==0){
+                            plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
                             if(!probot->is_patrol && count_moveto++ > 5){//need check
                                 plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
                                 ipc->moveStop();
@@ -3738,7 +3748,7 @@ void Supervisor::onTimer(){
                             }else{
                                 int preset = probot->cur_preset;
 
-                                if(curPage != "page_annotation"){
+                                if(curPage == "page_annotation"){
                                     plog->write("[STATE] Moving : move to (test)"+probot->current_target.name+", preset "+QString::number(preset));
                                     ipc->moveToLocationTest(probot->current_target,preset);
                                 }else{
@@ -3919,6 +3929,8 @@ void Supervisor::onTimer(){
         //Clear Status
         if(ui_state != UI_STATE_NONE){
             plog->write("[STATE] "+curUiState()+" : SLAMNAV Disconnected -> None");
+            QMetaObject::invokeMethod(mMain, "disconnected");
+            debug_mode = false;
             stateInit();
         }
     }
@@ -4344,6 +4356,7 @@ void Supervisor::checkTravelline(){
 void Supervisor::confirmLocalization(){
     plog->write("[COMMAND] confirmLocalization");
     probot->localization_confirm = true;
+    debug_mode = false;
 }
 
 void Supervisor::clearRobot(){
@@ -4685,7 +4698,7 @@ void Supervisor::readPatrol(){
 
                         //arrive_page 도 똑같이
 
-                        plog->write("[COMMAND] readPatrol File : "+file + " -> "+temp.name+", "+temp.type+", "+temp.location.size()+", "+temp.voice_mode);
+                        plog->write("[COMMAND] readPatrol File : "+file + " -> "+temp.name+", "+temp.type+", "+QString::number(temp.location.size())+", "+temp.voice_mode);
                         patrols.append(temp);
                     }
                 }
