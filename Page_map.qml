@@ -144,10 +144,7 @@ Item {
                         onReleased:{
                             rect_btn.color = "white";
                             if(modelData === qsTr("맵 새로만들기")){
-                                if(supervisor.isDebugMode()){
-                                    click_sound_no.play();
-                                    showNotice();
-                                }else if(!supervisor.getIPCConnection()){
+                                if(!supervisor.getIPCConnection()){
                                     click_sound_no.play();
                                     showNotice();
                                 }else{

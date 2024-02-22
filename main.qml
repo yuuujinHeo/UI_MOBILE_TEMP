@@ -403,12 +403,17 @@ Window {
     function need_init(){
         if(!supervisor.isDebugMode()){
             if(loader_page.item.objectName != "page_annotation" && loader_page.item.objectName != "page_mapping"&& loader_page.item.objectName != "page_init"){
-                supervisor.writelog("[UI] Force Page Change : Robot disconnected");
+                supervisor.writelog("[UI] Force Page Change : Need Init");
                 loadPage(pinit);
             }else if(loader_page.item.objectName == "page_annotation"){
                 movefail();
             }
         }
+    }
+    function disconnected(){
+        supervisor.writelog("[UI] Force Page Change : Robot disconnected");
+        loadPage("");
+        loadPage(pinit);
     }
 
     function unzip_done(){
@@ -715,11 +720,11 @@ Window {
 
     function showNotice(){
         popup_notice.init();
-        if(supervisor.isDebugMode()){
-            popup_notice.main_str = qsTr("디버그 모드입니다")
-            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
-        }else if(supervisor.getIPCConnection()){
-            if(supervisor.getPowerStatus()){
+        if(supervisor.getIPCConnection()){
+            if(supervisor.isDebugMode()){
+                popup_notice.main_str = qsTr("디버그 모드입니다")
+                popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+            }else if(supervisor.getPowerStatus()){
                 if(supervisor.getEmoStatus()){
                     popup_notice.main_str = qsTr("비상스위치가 눌려있습니다")
                     popup_notice.sub_str = qsTr("비상스위치를 풀어주세요")

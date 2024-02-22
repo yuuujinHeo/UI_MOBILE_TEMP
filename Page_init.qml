@@ -3017,7 +3017,7 @@ Item {
         Item{
             objectName: "init_slam"
             anchors.fill: parent
-            property var local_find_state: -1
+            property int local_find_state: -1
             Component.onCompleted: {
                 statusbar.visible = true;
             }
@@ -3026,6 +3026,7 @@ Item {
                 start_mode: true
                 auto_init: false
                 onConfirmed: {
+                    print("kk");
                     supervisor.confirmLocalization();
                     update_timer.start();
                 }
@@ -3916,6 +3917,7 @@ Item {
         running: false
         interval: 1500
         onTriggered: {
+            supervisor.writelog("[UI] PageInit : Motor Failed -> motorInit")
             loader_init.sourceComponent = item_motor_init;
         }
     }
@@ -4016,11 +4018,11 @@ Item {
                 }else if(loader_init.item.objectName != "init_slam"){
                     supervisor.writelog("[INIT] Localization Check : Failed");
                     loader_init.sourceComponent = item_slam_init
-                }else if(supervisor.getIPCConnection() && supervisor.getLocalizationConfirm() === 2){
+                }else if(supervisor.getIPCConnection() && supervisor.getLocalizationConfirm()){
                     init_mode = 5;
                     supervisor.writelog("[INIT] Localization Check : Success");
                 }else{
-//                    print("check localization",supervisor.getLocalizationConfirm());
+                    print("check localization",supervisor.getLocalizationConfirm());
                 }
             }else if(init_mode == 5){
                 //=============================== Init Check 5 : 로봇 상태 확인(Motor) ==============================//

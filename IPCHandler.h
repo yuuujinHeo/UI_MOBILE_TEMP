@@ -84,6 +84,8 @@ public:
 
         float ui_loc_inlier_ratio = 0;
         float ui_loc_inlier_error = 0;
+        float ui_mapping_inlier_ratio = 0;
+        float ui_mapping_inlier_error = 0;
 
         STATUS()
         {
@@ -116,13 +118,15 @@ public:
             ui_face_state = p.ui_face_state;
             ui_cur_velocity_preset = p.ui_cur_velocity_preset;
             ui_motor_lock_state = p.ui_motor_lock_state;
-            ui_draw_state = p.ui_draw_state;
-            ui_multi_state = p.ui_multi_state;
             memcpy(robot_pose, p.robot_pose, sizeof(float)*3);
             memcpy(robot_scan, p.robot_scan, sizeof(float)*360);
+            ui_draw_state = p.ui_draw_state;
+            ui_multi_state = p.ui_multi_state;
             ui_fail_state = p.ui_fail_state;
             ui_loc_inlier_ratio = p.ui_loc_inlier_ratio;
             ui_loc_inlier_error = p.ui_loc_inlier_error;
+            ui_mapping_inlier_ratio = p.ui_mapping_inlier_ratio;
+            ui_mapping_inlier_error = p.ui_mapping_inlier_error;
         }
     };
 
@@ -321,7 +325,7 @@ public:
 
 
     bool getConnection(){
-        if(read_count > 30){
+        if(read_count > 3){
             return false;
         }else{
             return true;
