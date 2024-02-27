@@ -62,16 +62,16 @@ Popup{
         select();
 
         model_voice_temp.clear();
-        model_voice_temp.append({"file":"thank"});
+        model_voice_temp.append({"file":"thanks"});
         model_voice_temp.append({"file":"hello"});
         model_voice_temp.append({"file":"funny_working_hard"});
         model_voice_temp.append({"file":"hello_rb"});
         model_voice_temp.append({"file":"path_finding"});
         model_voice_temp.append({"file":"rb_fighting"});
-        model_voice_temp.append({"file":"serving"});
+        model_voice_temp.append({"file":"moving"});
         model_voice_temp.append({"file":"sorry"});
-        model_voice_temp.append({"file":"start_next_moving"});
-        model_voice_temp.append({"file":"start_patrol"});
+        model_voice_temp.append({"file":"move_next"});
+        model_voice_temp.append({"file":"move_patrol"});
         model_voice_temp.append({"file":"wait_path"});
         model_voice_temp.append({"file":"thank_enjoy"});
         model_voice.clear();

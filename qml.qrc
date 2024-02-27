@@ -174,90 +174,40 @@
         <file>MAP_FULL2.qml</file>
         <file>Item_ProgressBar.qml</file>
         <file>icon/cursor.png</file>
-        <file>voice/woman_wait.mp3</file>
-        <file>voice/woman_wait_robot_location.mp3</file>
         <file>voice/woman_wait_path.mp3</file>
-        <file>voice/woman_wait_other_robot.mp3</file>
-        <file>voice/woman_wait_go_away.mp3</file>
-        <file>voice/woman_thank.mp3</file>
         <file>voice/woman_thank_enjoy.mp3</file>
         <file>voice/woman_stop_mapping.mp3</file>
         <file>voice/woman_stop_charging.mp3</file>
-        <file>voice/woman_start_serving.mp3</file>
-        <file>voice/woman_start_patrol.mp3</file>
         <file>voice/woman_start_operation.mp3</file>
-        <file>voice/woman_start_next_moving.mp3</file>
-        <file>voice/woman_start_move_resting.mp3</file>
-        <file>voice/woman_start_move_charge.mp3</file>
         <file>voice/woman_start_mapping.mp3</file>
         <file>voice/woman_start_charging.mp3</file>
-        <file>voice/woman_start_calling.mp3</file>
         <file>voice/woman_sorry.mp3</file>
-        <file>voice/woman_serving.mp3</file>
-        <file>voice/woman_resume_path.mp3</file>
         <file>voice/woman_rb_fighting.mp3</file>
-        <file>voice/woman_pickup_drinks.mp3</file>
-        <file>voice/woman_pickup_confirm.mp3</file>
-        <file>voice/woman_pickup_calling.mp3</file>
-        <file>voice/woman_pickup_3.mp3</file>
-        <file>voice/woman_pickup_2.mp3</file>
-        <file>voice/woman_pickup_1.mp3</file>
         <file>voice/woman_path_finding.mp3</file>
-        <file>voice/woman_motor_lock_off.mp3</file>
-        <file>voice/woman_low_battery.mp3</file>
         <file>voice/woman_hello.mp3</file>
         <file>voice/woman_hello_rb.mp3</file>
         <file>voice/woman_funny_working_hard.mp3</file>
-        <file>voice/woman_error.mp3</file>
         <file>voice/woman_error_no_path.mp3</file>
-        <file>voice/woman_error_move_count.mp3</file>
         <file>voice/woman_error_localization.mp3</file>
         <file>voice/woman_error_emo.mp3</file>
-        <file>voice/woman_error_call_manager.mp3</file>
         <file>voice/woman_charging.mp3</file>
-        <file>voice/woman_cancel_path.mp3</file>
-        <file>voice/child_wait.mp3</file>
-        <file>voice/child_wait_robot_location.mp3</file>
         <file>voice/child_wait_path.mp3</file>
-        <file>voice/child_wait_other_robot.mp3</file>
-        <file>voice/child_wait_go_away.mp3</file>
-        <file>voice/child_thank.mp3</file>
         <file>voice/child_thank_enjoy.mp3</file>
         <file>voice/child_stop_mapping.mp3</file>
         <file>voice/child_stop_charging.mp3</file>
-        <file>voice/child_start_serving.mp3</file>
-        <file>voice/child_start_patrol.mp3</file>
         <file>voice/child_start_operation.mp3</file>
-        <file>voice/child_start_next_moving.mp3</file>
-        <file>voice/child_start_move_resting.mp3</file>
-        <file>voice/child_start_move_charge.mp3</file>
         <file>voice/child_start_mapping.mp3</file>
         <file>voice/child_start_charging.mp3</file>
-        <file>voice/child_start_calling.mp3</file>
         <file>voice/child_sorry.mp3</file>
-        <file>voice/child_serving.mp3</file>
-        <file>voice/child_resume_path.mp3</file>
         <file>voice/child_rb_fighting.mp3</file>
-        <file>voice/child_pickup_drinks.mp3</file>
-        <file>voice/child_pickup_confirm.mp3</file>
-        <file>voice/child_pickup_calling.mp3</file>
-        <file>voice/child_pickup_3.mp3</file>
-        <file>voice/child_pickup_2.mp3</file>
-        <file>voice/child_pickup_1.mp3</file>
         <file>voice/child_path_finding.mp3</file>
-        <file>voice/child_motor_lock_off.mp3</file>
-        <file>voice/child_low_battery.mp3</file>
         <file>voice/child_hello.mp3</file>
         <file>voice/child_hello_rb.mp3</file>
         <file>voice/child_funny_working_hard.mp3</file>
-        <file>voice/child_error.mp3</file>
         <file>voice/child_error_no_path.mp3</file>
-        <file>voice/child_error_move_count.mp3</file>
         <file>voice/child_error_localization.mp3</file>
         <file>voice/child_error_emo.mp3</file>
-        <file>voice/child_error_call_manager.mp3</file>
         <file>voice/child_charging.mp3</file>
-        <file>voice/child_cancel_path.mp3</file>
         <file>image/image_robot_temp.png</file>
         <file>Item_menubar.qml</file>
         <file>Item_progressCircle.qml</file>
@@ -284,5 +234,31 @@
         <file>Page_moving_custom.qml</file>
         <file>icon/icon_colorwheel.png</file>
         <file>icon/keyboard.png</file>
+        <file>voice/child_callme.mp3</file>
+        <file>voice/child_error_battery.mp3</file>
+        <file>voice/child_excuseme.mp3</file>
+        <file>voice/child_move_calling.mp3</file>
+        <file>voice/child_move_charging.mp3</file>
+        <file>voice/child_move_cleaning.mp3</file>
+        <file>voice/child_move_next.mp3</file>
+        <file>voice/child_move_patrol.mp3</file>
+        <file>voice/child_move_resting.mp3</file>
+        <file>voice/child_move_serving.mp3</file>
+        <file>voice/child_moving.mp3</file>
+        <file>voice/child_pickup.mp3</file>
+        <file>voice/child_thanks.mp3</file>
+        <file>voice/woman_callme.mp3</file>
+        <file>voice/woman_error_battery.mp3</file>
+        <file>voice/woman_excuseme.mp3</file>
+        <file>voice/woman_move_calling.mp3</file>
+        <file>voice/woman_move_charging.mp3</file>
+        <file>voice/woman_move_cleaning.mp3</file>
+        <file>voice/woman_move_next.mp3</file>
+        <file>voice/woman_move_patrol.mp3</file>
+        <file>voice/woman_move_resting.mp3</file>
+        <file>voice/woman_move_serving.mp3</file>
+        <file>voice/woman_moving.mp3</file>
+        <file>voice/woman_pickup.mp3</file>
+        <file>voice/woman_thanks.mp3</file>
     </qresource>
 </RCC>
