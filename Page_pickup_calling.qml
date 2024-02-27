@@ -22,7 +22,7 @@ Item {
         target_pos.visible = true;
         btn_confirm.visible = true;
         if(!supervisor.isPatrolPage())
-            supervisor.playVoice("pickup_calling")
+            supervisor.playVoice("callme")
         text_hello.visible = false;
         statusbar.visible = false;
         timer_hello.stop();
@@ -106,7 +106,7 @@ Item {
                     onClicked: {
                         click_sound.play();
                         console.log("UI : CONFIRM");
-                        supervisor.playVoice("thank");
+                        supervisor.playVoice("thanks");
 //                        voice_thanks.play();
                         column_pickup.visible = false;
                         text_mention.visible = false;

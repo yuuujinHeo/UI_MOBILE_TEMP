@@ -277,10 +277,6 @@ Item {
         }
     }
 
-    Popup_test_tts{
-        id: popup_tts
-    }
-
     Popup{
         id: popup_terminate
         width: 1280

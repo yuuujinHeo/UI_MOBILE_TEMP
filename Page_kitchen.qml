@@ -808,13 +808,15 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                if(btn_patrol.active){
-                                    click_sound.play();
-                                    popup_patrol.open();
-                                }else{
-                                    click_sound_no.play();
-                                    showNotice();
-                                }
+                                //debug
+                                popup_patrol.open();
+//                                if(btn_patrol.active){
+//                                    click_sound.play();
+//                                    popup_patrol.open();
+//                                }else{
+//                                    click_sound_no.play();
+//                                    showNotice();
+//                                }
                             }
                         }
                     }

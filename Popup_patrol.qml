@@ -1,6 +1,10 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
+import QtQuick.Controls.Styles 1.4
+import QtMultimedia 5.12
+import QtGraphicalEffects 1.0
+import "."
 
 Popup{
     id: popup_patrol
@@ -23,9 +27,7 @@ Popup{
         color: "transparent"
     }
 
-
     onOpened:{
-//        cols_patrol_bigmenu.visible = true;
         update();
     }
 
@@ -90,8 +92,6 @@ Popup{
         combo_voice_mode.currentIndex = 0;
         combo_voice_lan.currentIndex = 0;
     }
-
-
 
     ListModel{
         id: model_voice_temp
@@ -225,40 +225,13 @@ Popup{
             supervisor.setPatrolArrivePage("pass");
         }
 
-        if(combo_voice_mode.currentIndex === 0){
-            supervisor.setPatrolVoice(model_voice_temp.get(combo_voice.currentIndex).file, "woman", "50");
-        }else if(combo_voice_mode.currentIndex === 1){
-            supervisor.setPatrolVoice(model_voice_temp.get(combo_voice.currentIndex).file, "child", "50");
-        }else{
-            var lan;
-            if(combo_voice_lan.currentIndex === 0){
-                lan = "ko";
-            }else if(combo_voice_lan.currentIndex === 1){
-                lan = "en-us";
-            }else if(combo_voice_lan.currentIndex === 2){
-                lan = "en-uk";
-            }else if(combo_voice_lan.currentIndex === 3){
-                lan = "zh-CN";
-            }else if(combo_voice_lan.currentIndex === 4){
-                lan = "ru";
-            }else if(combo_voice_lan.currentIndex === 5){
-                lan = "fr";
-            }else if(combo_voice_lan.currentIndex === 6){
-                lan = "ja";
-            }else if(combo_voice_lan.currentIndex === 7){
-                lan = "id";
-            }else if(combo_voice_lan.currentIndex === 8){
-                lan = "es";
-            }else if(combo_voice_lan.currentIndex === 9){
-                lan = "de";
-            }else if(combo_voice_lan.currentIndex === 10){
-                lan = "la";
-            }
-            supervisor.setPatrolVoice(tfield_tts_text.text, "tts", "50", lan);
+        if(combo_voice_use.currentIndex === 0){//no use
+            supervisor.setPatrolVoice("none", combo_voice_lan.currentIndex, combo_voice_mode.currentIndex, slider_voice_volume.value);
+        }else if(combo_voice_use.currentIndex === 1){//basic
+            supervisor.setPatrolVoice("basic", 0, combo_voice_mode.currentIndex, "50");
+        }else if(combo_voice_use.currentIndex === 2){//tts
+            supervisor.setPatrolVoice("tts",combo_voice_lan.currentIndex, combo_voice_mode.currentIndex, slider_voice_volume.value);
         }
-
-
-
 
 
         if(savemode==="save"){
@@ -306,7 +279,6 @@ Popup{
                             text: qsTr("지정 순회")
                             font.family: font_noto_b.name
                             font.pixelSize: 30
-//                            color:
                         }
                     }
                     Rectangle{
@@ -683,7 +655,6 @@ Popup{
                         height: rect_menu.height - 220
                         color: "transparent"
                         Row{
-                            spacing: 5
                             anchors.fill: parent
                             Rectangle{
                                 width: 300
@@ -736,9 +707,9 @@ Popup{
                                 color: color_gray
                             }
                             Flickable{
-                                width: parent.width - 311
+                                width: parent.width - 301
+                                clip: true
                                 height: parent.height<grids.height?parent.height:grids.height
-//                                anchors.centerIn: parent
                                 anchors.verticalCenter: parent.verticalCenter
                                 contentHeight: grids.height
                                 Grid{
@@ -751,7 +722,7 @@ Popup{
                                     horizontalItemAlignment: Grid.AlignHCenter
                                     verticalItemAlignment: Grid.AlignVCenter
                                     Text{
-                                        width: 150
+                                        width: 120
                                         text: qsTr("순회 방식")
                                         horizontalAlignment: Text.AlignHCenter
                                         font.family: font_noto_b.name
@@ -760,8 +731,8 @@ Popup{
                                     Row{
                                         spacing: 30
                                         Rectangle{
-                                            width: 55
-                                            height: 55
+                                            width: 50
+                                            height: 50
                                             radius: 10
                                             border.width: 2
                                             border.color:popup_patrol.mode==="sequence"?color_green:color_dark_black
@@ -781,8 +752,8 @@ Popup{
                                             }
                                         }
                                         Rectangle{
-                                            width: 55
-                                            height: 55
+                                            width: 50
+                                            height: 50
                                             radius: 10
                                             border.width: 2
                                             border.color:popup_patrol.mode==="random"?color_green:color_dark_black
@@ -808,30 +779,19 @@ Popup{
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
-                                    ComboBox{
-                                        id: combo_movingpage
-                                        width: 250
-                                        height: 50
-                                        model:[qsTr("귀여운 표정"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
-                                    }
-                                    Text{
-                                        visible: combo_movingpage.currentIndex === 2
-                                        text: qsTr("사용자지정화면 설정")
-                                        font.family: font_noto_b.name
-                                        font.pixelSize: 16
-                                    }
                                     Row{
                                         spacing: 10
-                                        visible: combo_movingpage.currentIndex === 2
-                                        Rectangle{
-                                            width: 200
+                                        ComboBox{
+                                            id: combo_movingpage
+                                            width: currentIndex===2?240:300
                                             height: 50
-                                            visible: false
+                                            model:[qsTr("귀여운 표정"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
                                         }
                                         Rectangle{
-                                            width: 200
+                                            width: 50
                                             height: 50
                                             radius: 10
+                                            visible: combo_movingpage.currentIndex === 2
                                             color: color_dark_navy
                                             Text{
                                                 anchors.centerIn: parent
@@ -848,6 +808,7 @@ Popup{
                                             }
                                         }
                                     }
+
                                     Text{
                                         text: qsTr("도착 후 페이지")
                                         font.family: font_noto_b.name
@@ -855,7 +816,7 @@ Popup{
                                     }
                                     ComboBox{
                                         id: combo_arrivepage
-                                        width: 250
+                                        width: 300
                                         height: 50
                                         model:[qsTr("페이지표시안함"),qsTr("픽업화면"),qsTr("호출화면")]//,qsTr("사용자지정화면")]
                                     }
@@ -869,7 +830,7 @@ Popup{
                                         spacing: 10
                                         visible: combo_arrivepage.currentIndex === 3
                                         Rectangle{
-                                            width: 200
+                                            width: 240
                                             height: 50
                                             Text{
                                                 anchors.centerIn: parent
@@ -903,7 +864,7 @@ Popup{
                                         spacing: 10
                                         TextField{
                                             id: tfield_passtime
-                                            width: 150
+                                            width: 190
                                             height: 50
                                             text: popup_patrol.passtime
                                             horizontalAlignment: TextField.AlignHCenter
@@ -916,6 +877,8 @@ Popup{
                                             }
                                         }
                                         Text{
+                                            width: 40
+                                            horizontalAlignment: Text.AlignHCenter
                                             text: qsTr(" 초")
                                             font.family: font_noto_b.name
                                             font.pixelSize: 20
@@ -925,7 +888,7 @@ Popup{
                                             spacing: 3
                                             anchors.verticalCenter: parent.verticalCenter
                                             Rectangle{
-                                                width: 35
+                                                width: 50
                                                 height: 25
                                                 color: color_dark_navy
                                                 radius: 5
@@ -944,7 +907,7 @@ Popup{
                                                 }
                                             }
                                             Rectangle{
-                                                width: 35
+                                                width: 50
                                                 height: 25
                                                 color: color_dark_navy
                                                 radius: 5
@@ -975,7 +938,7 @@ Popup{
                                         spacing: 10
                                         TextField{
                                             id: tfield_waittime
-                                            width: 150
+                                            width: 190
                                             height: 50
                                             text: popup_patrol.waittime
                                             horizontalAlignment: TextField.AlignHCenter
@@ -988,6 +951,8 @@ Popup{
                                             }
                                         }
                                         Text{
+                                            width: 40
+                                            horizontalAlignment: Text.AlignHCenter
                                             text: qsTr(" 초")
                                             font.family: font_noto_b.name
                                             font.pixelSize: 20
@@ -997,7 +962,7 @@ Popup{
                                             spacing: 3
                                             anchors.verticalCenter: parent.verticalCenter
                                             Rectangle{
-                                                width: 35
+                                                width: 50
                                                 height: 25
                                                 color: color_dark_navy
                                                 radius: 5
@@ -1016,7 +981,7 @@ Popup{
                                                 }
                                             }
                                             Rectangle{
-                                                width: 35
+                                                width: 50
                                                 height: 25
                                                 color: color_dark_navy
                                                 radius: 5
@@ -1038,6 +1003,7 @@ Popup{
                                             }
                                         }
                                     }
+
                                     Text{
                                         text: qsTr("도착 후 음성")
                                         font.family: font_noto_b.name
@@ -1046,13 +1012,183 @@ Popup{
                                     Row{
                                         spacing: 10
                                         ComboBox{
-                                            id: combo_voice_mode
-                                            width: 200
+                                            id: combo_voice_use
+                                            width: 300
                                             height: 50
-                                            model:[qsTr("여성"),qsTr("어린이"),qsTr("만들기")]
+                                            model:[qsTr("사용안함"),qsTr("지정된음성"),qsTr("만들기")]
+                                            onCurrentIndexChanged: {
+                                                model_voice_name.clear();
+                                                if(currentIndex === 1){
+                                                    model_voice_name.append({"value":qsTr("여성")});
+                                                    model_voice_name.append({"value":qsTr("어린이")});
+                                                }else if(currentIndex === 2){
+                                                    model_voice_name.clear();
+                                                    if(combo_voice_lan.currentIndex === 0){
+                                                        model_voice_name.append({"value":qsTr("여자어린이")});
+                                                        model_voice_name.append({"value":qsTr("여자성인")});
+                                                        model_voice_name.append({"value":qsTr("남자어린이")});
+                                                        model_voice_name.append({"value":qsTr("남자성인")});
+                                                        model_voice_name.append({"value":qsTr("남자성인2")});
+                                                        model_voice_name.append({"value":qsTr("할머니")});
+                                                        model_voice_name.append({"value":qsTr("할아버지")});
+                                                        model_voice_name.append({"value":qsTr("마녀")});
+                                                        model_voice_name.append({"value":qsTr("악마")});
+                                                    }else if(combo_voice_lan.currentIndex === 1){
+                                                        model_voice_name.append({"value":qsTr("여자어린이")});
+                                                        model_voice_name.append({"value":qsTr("여자성인")});
+                                                        model_voice_name.append({"value":qsTr("남자성인")});
+                                                    }else if(combo_voice_lan.currentIndex === 2){
+                                                        model_voice_name.append({"value":qsTr("여자성인")});
+                                                        model_voice_name.append({"value":qsTr("남자성인")});
+                                                    }else if(combo_voice_lan.currentIndex === 3){
+                                                        model_voice_name.append({"value":qsTr("여자어린이")});
+                                                        model_voice_name.append({"value":qsTr("여자성인")});
+                                                        model_voice_name.append({"value":qsTr("남자어린이")});
+                                                        model_voice_name.append({"value":qsTr("남자성인")});
+                                                    }else if(combo_voice_lan.currentIndex === 4){
+                                                        model_voice_name.append({"value":qsTr("여자성인")});
+                                                        model_voice_name.append({"value":qsTr("남자성인")});
+                                                    }else{
+
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Text{
+                                        text: qsTr("멘트")
+                                        visible: combo_voice_use.currentIndex !== 0
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        spacing: 10
+                                        visible: combo_voice_use.currentIndex === 1
+                                        ComboBox{
+                                            id: combo_voice
+                                            width: 300
+                                            height: 50
+                                            model:ListModel{id: model_voice}
+                                        }
+                                    }
+                                    Row{
+                                        spacing: 10
+                                        visible: combo_voice_use.currentIndex === 2
+                                        TextField{
+                                            id: tfield_tts_text
+                                            width: 240
+                                            height: 50
                                         }
                                         Rectangle{
-                                            width: 40
+                                            width: 50
+                                            height: 50
+                                            radius:10
+                                            color: enabled?color_dark_navy:color_gray
+                                            Image{
+                                                anchors.centerIn: parent
+                                                width: 35
+                                                height: 35
+                                                source: "icon/keyboard.png"
+                                                ColorOverlay{
+                                                    anchors.fill: parent
+                                                    source: parent
+                                                    color: "white"
+                                                }
+                                            }
+                                            MouseArea{
+                                                enabled: parent.enabled
+                                                anchors.fill: parent
+                                                onClicked:{
+                                                    click_sound.play();
+                                                    keyboard.owner = tfield_tts_text;
+                                                    tfield_tts_text.selectAll();
+                                                    keyboard.open();
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Text{
+                                        text: qsTr("언어")
+                                        visible: combo_voice_use.currentIndex === 2
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        spacing: 10
+                                        visible: combo_voice_use.currentIndex === 2
+                                        ComboBox{
+                                            id: combo_voice_lan
+                                            width: 300
+                                            height: 50
+                                            model:[qsTr("한국어"),qsTr("영어"),qsTr("중국어"),qsTr("일본어"),qsTr("스페인어"),qsTr("러시아어"),qsTr("독일어")]
+                                            onCurrentIndexChanged: {
+                                                model_voice_name.clear();
+                                                if(currentIndex === 0){
+                                                    model_voice_name.append({"value":qsTr("여자어린이")});
+                                                    model_voice_name.append({"value":qsTr("여자성인")});
+                                                    model_voice_name.append({"value":qsTr("남자어린이")});
+                                                    model_voice_name.append({"value":qsTr("남자성인")});
+                                                    model_voice_name.append({"value":qsTr("남자성인2")});
+                                                    model_voice_name.append({"value":qsTr("할머니")});
+                                                    model_voice_name.append({"value":qsTr("할아버지")});
+                                                    model_voice_name.append({"value":qsTr("마녀")});
+                                                    model_voice_name.append({"value":qsTr("악마")});
+                                                }else if(currentIndex === 1){
+                                                    model_voice_name.append({"value":qsTr("여자어린이")});
+                                                    model_voice_name.append({"value":qsTr("여자성인")});
+                                                    model_voice_name.append({"value":qsTr("남자성인")});
+                                                }else if(currentIndex === 2){
+                                                    model_voice_name.append({"value":qsTr("여자성인")});
+                                                    model_voice_name.append({"value":qsTr("남자성인")});
+                                                }else if(currentIndex === 3){
+                                                    model_voice_name.append({"value":qsTr("여자어린이")});
+                                                    model_voice_name.append({"value":qsTr("여자성인")});
+                                                    model_voice_name.append({"value":qsTr("남자어린이")});
+                                                    model_voice_name.append({"value":qsTr("남자성인")});
+                                                }else if(currentIndex === 4){
+                                                    model_voice_name.append({"value":qsTr("여자성인")});
+                                                    model_voice_name.append({"value":qsTr("남자성인")});
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Text{
+                                        text: qsTr("음성볼륨")
+                                        visible: combo_voice_use.currentIndex !== 0
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        Slider{
+                                            id: slider_voice_volume
+                                            visible: combo_voice_use.currentIndex !== 0
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            width: 300
+                                            height: 50
+                                            from: 0
+                                            to: 100
+                                            property bool ischanged: false
+                                            value: 100
+                                        }
+                                    }
+
+                                    Text{
+                                        text: qsTr("음성")
+                                        visible: combo_voice_use.currentIndex === 2
+                                        font.family: font_noto_b.name
+                                        font.pixelSize: 16
+                                    }
+                                    Row{
+                                        spacing: 10
+                                        visible: combo_voice_use.currentIndex === 2 && combo_voice_lan.currentIndex < 5
+                                        ComboBox{
+                                            id: combo_voice_mode
+                                            width: 240
+                                            height: 50
+                                            model:ListModel{id:model_voice_name}
+                                        }
+                                        Rectangle{
+                                            width: 50
                                             height: 40
                                             radius: 40
                                             anchors.verticalCenter: parent.verticalCenter
@@ -1065,96 +1201,11 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    var voicemode;
-                                                    if(combo_voice_mode.currentIndex === 1){
-                                                        voicemode = "child";
-                                                        supervisor.playVoice(voicemode, model_voice_temp.get(combo_voice.currentIndex).file);
-                                                    }else if(combo_voice_mode.currentIndex === 0){
-                                                        voicemode = "woman";
-                                                        supervisor.playVoice(voicemode, model_voice_temp.get(combo_voice.currentIndex).file);
-                                                    }else{
-                                                        voicemode = "tts";
-                                                        var lan;
-                                                        if(combo_voice_lan.currentIndex === 0){
-                                                            lan = "ko";
-                                                        }else if(combo_voice_lan.currentIndex === 1){
-                                                            lan = "en-us";
-                                                        }else if(combo_voice_lan.currentIndex === 2){
-                                                            lan = "en-uk";
-                                                        }else if(combo_voice_lan.currentIndex === 3){
-                                                            lan = "zh-CN";
-                                                        }else if(combo_voice_lan.currentIndex === 4){
-                                                            lan = "ru";
-                                                        }else if(combo_voice_lan.currentIndex === 5){
-                                                            lan = "fr";
-                                                        }else if(combo_voice_lan.currentIndex === 6){
-                                                            lan = "ja";
-                                                        }else if(combo_voice_lan.currentIndex === 7){
-                                                            lan = "id";
-                                                        }else if(combo_voice_lan.currentIndex === 8){
-                                                            lan = "es";
-                                                        }else if(combo_voice_lan.currentIndex === 9){
-                                                            lan = "de";
-                                                        }else if(combo_voice_lan.currentIndex === 10){
-                                                            lan = "la";
-                                                        }
-
-                                                        supervisor.makeTTS(tfield_tts_text.text,lan);
-                                                        supervisor.playTTS();
-                                                    }
+                                                    supervisor.setTTSVoice(combo_voice_lan.currentIndex,combo_voice_mode.currentIndex,
+                                                                           0, 0, 0, 0, 0);
+                                                    supervisor.makePatrolTTS(tfield_tts_text.text);
                                                 }
                                             }
-                                        }
-                                    }
-                                    Text{
-                                        text: qsTr("언어")
-                                        visible: combo_voice_mode.currentIndex === 2
-                                        font.family: font_noto_b.name
-                                        font.pixelSize: 16
-                                    }
-                                    Row{
-                                        spacing: 10
-                                        visible: combo_voice_mode.currentIndex === 2
-                                        ComboBox{
-                                            id: combo_voice_lan
-                                            width: 250
-                                            height: 50
-                                            model:[qsTr("한국어"),qsTr("영어(US)"),qsTr("영어(UK)"),qsTr("중국어"),qsTr("러시아어"),qsTr("프랑스어"),qsTr("일본어"),qsTr("인도네시아"),qsTr("스페인어"),qsTr("독일어"),qsTr("라틴어")]
-                                        }
-                                    }
-
-
-                                    Text{
-                                        text: qsTr("도착 후 멘트")
-                                        font.family: font_noto_b.name
-                                        font.pixelSize: 16
-                                    }
-                                    TextField{
-                                        id: tfield_tts_text
-                                        visible: combo_voice_mode.currentIndex === 2
-                                        width: 250
-                                        height: 50
-                                        MouseArea{
-                                            anchors.fill:parent
-                                            onClicked:{
-                                                click_sound.play();
-                                                keyboard.owner = tfield_tts_text;
-                                                keyboard.owner_text = "tfield_tts_text";
-                                                tfield_tts_text.selectAll();
-
-                                                keyboard.open();
-
-                                            }
-                                        }
-                                    }
-                                    Row{
-                                        spacing: 10
-                                        visible: combo_voice_mode.currentIndex !== 2
-                                        ComboBox{
-                                            id: combo_voice
-                                            width: 250
-                                            height: 50
-                                            model:ListModel{id: model_voice}
                                         }
                                     }
                                 }

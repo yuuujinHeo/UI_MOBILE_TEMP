@@ -275,10 +275,13 @@ typedef struct{
     //random, sequence
     QString type = "";
 
-    //woman, child, none
+    //none,basic,tts
+    int voice_use = 0;
     QString voice_mode = "";
     QString voice_language = "";
+    QString voice_name = "";
     QString voice_file = "";
+    QString voice_path = "";
     int voice_volume = 0;
     int wait_time = 0;
     int pass_time = 0;

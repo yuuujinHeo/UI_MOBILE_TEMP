@@ -44,6 +44,49 @@ Item {
         init();
     }
 
+    function setVoiceModel(){
+        model_voice.clear();
+        if(combo_voice_mode.currentIndex === 0){
+            set_voice_name.visible = true;
+            model_voice.append({"value":qsTr("어린이")});
+            model_voice.append({"value":qsTr("여성")});
+        }else if(combo_voice_mode.currentIndex === 1){
+            if(combo_voice_language.currentIndex === 0){//한국어
+                set_voice_name.visible = true;
+                model_voice.append({"value":qsTr("여자어린이")});
+                model_voice.append({"value":qsTr("여자성인")});
+                model_voice.append({"value":qsTr("남자어린이")});
+                model_voice.append({"value":qsTr("남자성인")});
+                model_voice.append({"value":qsTr("남자성인2")});
+                model_voice.append({"value":qsTr("할머니")});
+                model_voice.append({"value":qsTr("할아버지")});
+                model_voice.append({"value":qsTr("마녀")});
+                model_voice.append({"value":qsTr("악마")});
+            }else if(combo_voice_language.currentIndex === 1){//영어
+                set_voice_name.visible = true;
+                model_voice.append({"value":qsTr("여자어린이")});
+                model_voice.append({"value":qsTr("여자성인")});
+                model_voice.append({"value":qsTr("남자성인")});
+            }else if(combo_voice_language.currentIndex === 2){//중국
+                set_voice_name.visible = true;
+                model_voice.append({"value":qsTr("여자성인")});
+                model_voice.append({"value":qsTr("남자성인")});
+            }else if(combo_voice_language.currentIndex === 3){//일본
+                set_voice_name.visible = true;
+                model_voice.append({"value":qsTr("여자어린이")});
+                model_voice.append({"value":qsTr("여자성인")});
+                model_voice.append({"value":qsTr("남자어린이")});
+                model_voice.append({"value":qsTr("남자성인")});
+            }else if(combo_voice_language.currentIndex === 4){//스페인
+                set_voice_name.visible = true;
+                model_voice.append({"value":qsTr("여자성인")});
+                model_voice.append({"value":qsTr("남자성인")});
+            }else{
+                set_voice_name.visible = false;
+            }
+        }
+    }
+
     function update_camera(){
         if(popup_camera.opened)
             popup_camera.update();
@@ -164,17 +207,7 @@ Item {
         if(combo_comeback_preset.ischanged){
             supervisor.setSetting("setting","UI/comeback_preset",combo_comeback_preset.currentIndex.toString());
         }
-        if(combo_voice_mode.ischanged){
-            if(combo_voice_mode.currentIndex == 0){
-                supervisor.setSetting("setting","UI/voice_mode","child");
-            }else if(combo_voice_mode.currentIndex == 1){
-                supervisor.setSetting("setting","UI/voice_mode","woman");
-            }else if(combo_voice_mode.currentIndex == 2){
-                supervisor.setSetting("setting","UI/voice_mode","tts");
-            }
 
-            readVoice();
-        }
 
         if(combo_use_tray.ischanged){
             if(combo_use_tray.currentIndex == 0)
@@ -430,6 +463,34 @@ Item {
         if(grid_size.ischanged){
             supervisor.setSetting("update","SLAM/grid_size",grid_size.text);
         }
+
+        if(combo_voice_mode.ischanged){
+            if(combo_voice_mode.currentIndex == 0){
+                supervisor.setSetting("setting","UI/voice_mode","basic");
+                if(combo_voice_name.currentIndex == 0){
+                    supervisor.setSetting("setting","UI/voice_name","child");
+                }else{
+                    supervisor.setSetting("setting","UI/voice_name","woman");
+                }
+                supervisor.setSetting("setting","UI/voice_language","ko");
+            }else{
+                supervisor.setSetting("setting","UI/voice_mode","tts");
+                supervisor.setTTSVoice(combo_voice_language.currentIndex, combo_voice_name.currentIndex);
+            }
+        }
+
+        if(combo_voice_name.ischanged){
+            if(combo_voice_mode.currentIndex == 0){
+                if(combo_voice_name.currentIndex == 0){
+                    supervisor.setSetting("setting","UI/voice_name","child");
+                }else{
+                    supervisor.setSetting("setting","UI/voice_name","woman");
+                }
+            }else{
+                supervisor.setTTSVoice(combo_voice_language.currentIndex, combo_voice_name.currentIndex);
+            }
+        }
+
 
         if(combo_use_motorcurrent.ischanged){
             if(combo_use_motorcurrent.currentIndex == 0){
@@ -730,13 +791,19 @@ Item {
         combo_patrolpage.currentIndex = parseInt(supervisor.getSetting("setting","UI","patrol_face"));
 
 
-        if(supervisor.getSetting("setting","UI","voice_mode") === "woman"){
+
+
+        print(supervisor.getSetting("setting","UI","voice_mode"),supervisor.getSetting("setting","UI","voice_language"),supervisor.getSetting("setting","UI","voice_name"))
+        print(supervisor.getTTSLanguageNum(),supervisor.getTTSNameNum())
+        if(supervisor.getSetting("setting","UI","voice_mode") === "tts"){
             combo_voice_mode.currentIndex = 1;
-        }else if(supervisor.getSetitng("setting","UI","voice_mode") === "child"){
-            combo_voice_mode.currentIndex = 0;
         }else{
-            combo_voice_mode.currentIndex = 2;
+            combo_voice_mode.currentIndex = 0;
         }
+        combo_voice_language.currentIndex = supervisor.getTTSLanguageNum();
+        setVoiceModel();
+        combo_voice_name.currentIndex = supervisor.getTTSNameNum();
+
 
         combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
 
@@ -780,7 +847,6 @@ Item {
         right_camera.text = supervisor.getSetting("static","SENSOR","right_camera_serial");
         left_camera.text = supervisor.getSetting("static","SENSOR","left_camera_serial");
 
-//        var ip = supervisor.getSetting("setting","NETWORK","wifi_ip").split(".");
         var ip = supervisor.getcurIP().split(".");
         if(ip.length >3){
             ip_1.text = ip[0];
@@ -812,14 +878,13 @@ Item {
             dnsmain_4.text = ip[3];
         }
 
-//        voice_test.source = supervisor.getVoice("start_serving");
-
         //변수 초기화
         platform_name.ischanged = false;
         combo_platform_serial.ischanged = false;
-        combo_voice_mode.ischanged = false;
+        combo_voice_name.ischanged = false;
         combo_platform_type.ischanged = false;
         combo_tray_num.ischanged = false;
+        combo_voice_language.ischanged = false;
 
 
 //        slider_vxy.ischanged = false;
@@ -831,7 +896,7 @@ Item {
         combo_movingpage.ischanged = false;
         combo_patrolpage.ischanged = false;
         combo_comeback_preset.ischanged = false;
-//        wifi_passwd.ischanged = false;
+
         ip_1.ischanged = false;
         ip_2.ischanged = false;
         ip_3.ischanged = false;
@@ -2031,7 +2096,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("언어")
+                                text:qsTr("표시 언어")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -2188,6 +2253,138 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
+                                text:qsTr("로봇 음성")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_voice_mode
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                        setVoiceModel();
+                                        combo_voice_name.currentIndex = 0;
+
+                                    }
+                                    model:[qsTr("기본 음성"), qsTr("음성 설정(인터넷필요)")]
+                                }
+                            }
+
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_voice_language
+                    width: 840
+                    height: 50
+                    visible: combo_voice_mode.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("음성 언어")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_voice_language
+                                    width: parent.width - 100
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                        setVoiceModel();
+                                        combo_voice_name.currentIndex = 0;
+                                    }
+                                    model:[qsTr("한국어"), qsTr("영어"), qsTr("중국어"), qsTr("일본어"), qsTr("스페인어"), qsTr("러시아어"), qsTr("독일어")]
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onClicked:{
+                                            click_sound_no.play();
+                                        }
+                                    }
+                                }
+                                Rectangle{
+                                    width: 100
+                                    height: parent.height
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    radius: 5
+                                    color: color_dark_navy
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: qsTr("설정")
+                                        color: "white"
+                                        font.family: font_noto_r.name
+                                        font.pixelSize: 15
+                                    }
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onClicked:{
+                                            click_sound.play();
+                                            popup_mention.open();
+                                        }
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_voice_name
+                    width: 840
+                    height: 50
+                    visible: false
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
                                 text:qsTr("음성")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
@@ -2206,19 +2403,40 @@ Item {
                         Rectangle{
                             width: parent.width - 351
                             height: parent.height
-                            ComboBox{
-                                id: combo_voice_mode
+                            Row{
                                 anchors.fill: parent
-                                property bool ischanged: false
-                                onCurrentIndexChanged: {
-                                    ischanged = true;
-//                                    if(currentIndex == 0){
-//                                        voice_test.source = supervisor.getVoice("start_serving","child");
-//                                    }else if(currentIndex == 1){
-//                                        voice_test.source = supervisor.getVoice("start_serving","woman");
-//                                    }
+                                ComboBox{
+                                    id: combo_voice_name
+                                    width: combo_voice_mode.currentIndex === 1?parent.width-100 : parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:ListModel{id:model_voice}
                                 }
-                                model:[qsTr("어린이"), qsTr("여성")]
+                                Rectangle{
+                                    width: 100
+                                    visible: combo_voice_mode.currentIndex === 1
+                                    height: parent.height
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    radius: 5
+                                    color: color_dark_navy
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: qsTr("상세설정")
+                                        color: "white"
+                                        font.family: font_noto_r.name
+                                        font.pixelSize: 15
+                                    }
+                                    MouseArea{
+                                        anchors.fill: parent
+                                        onClicked:{
+                                            click_sound.play();
+                                            popup_voice.open();
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -2470,7 +2688,7 @@ Item {
                                         onClicked: {
                                             click_sound.play();
                                             print("test play")
-                                            supervisor.playVoice("start_serving",slider_volume_voice.value);//voice_test.play();
+                                            supervisor.playVoice("move_serving","","","",slider_volume_voice.value);
                                         }
                                     }
                                 }
@@ -12212,6 +12430,767 @@ Item {
             }
         }
     }
+    Popup{
+        id: popup_change_voice_language
+        width: 1280
+        height: 800
+        background: Rectangle{
+            anchors.fill: parent
+            color: color_dark_black
+            opacity: 0.7
+        }
+        property bool show_emotion: false
+        Rectangle{
+            anchors.centerIn: parent
+            width: 1280
+            height: 350
+            Column{
+                anchors.centerIn: parent
+                spacing: 50
+                Text{
+                    text: qsTr("음성 언어를 변경하시겠습니까?\n기존에 설정했던 음성이 변경되며 멘트가 기본멘트로 변경됩니다")
+                    horizontalAlignment: Text.AlignHCenter
+                    font.family: font_noto_r.name
+                    font.pixelSize: 40
+
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 50
+                    Item_buttons{
+                        type: "white_btn"
+                        text: qsTr("취소")
+                        width: 160
+                        height: 60
+                        onClicked:{
+                            combo_voice_lan_2.currentIndex = combo_voice_language.currentIndex
+                            popup_change_voice_language.close();
+                        }
+                    }
+                    Item_buttons{
+                        type: "white_btn"
+                        text: qsTr("확인")
+                        width: 160
+                        height: 60
+                        onClicked:{
+                            combo_voice_language.currentIndex = combo_voice_lan_2.currentIndex
+                            supervisor.setTTSLanguage(combo_voice_language.currentIndex);
+                            popup_mention.update();
+                            popup_change_voice_language.close();
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    Popup{
+        id: popup_voice
+        width: 1280
+        height: 800
+        background: Rectangle{
+            anchors.fill: parent
+            color: color_dark_black
+            opacity: 0.7
+        }
+        onOpened:{
+            combo_voice_name_2.currentIndex = combo_voice_name.currentIndex
+            slider_speed.value = supervisor.getTTSSpeed();
+            slider_pitch.value = supervisor.getTTSPitch();
+            slider_alpha.value = supervisor.getTTSAlpha();
+            slider_emotion.value = supervisor.getTTSEmotion();
+            slider_emotion_strength.value = supervisor.getTTSEmotionStrength();
+
+        }
+
+        property bool show_emotion: false
+        Rectangle{
+            anchors.centerIn: parent
+            width: 1000
+            height: 600
+            radius: 20
+            Row{
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.rightMargin: 50
+                anchors.topMargin: 50
+                spacing: 30
+                Item_buttons{
+                    type: "white_btn"
+                    width: 150
+                    height: 55
+                    text: qsTr("이전음성 초기화")
+                    onClicked:{
+                        click_sound.play();
+                        supervisor.clearTTSVoice(combo_voice_language.currentIndex, combo_voice_name_2.currentIndex);
+                    }
+                }
+                Item_buttons{
+                    type: "white_btn"
+                    width: 150
+                    height: 55
+                    text: qsTr("취 소")
+                    onClicked:{
+                        click_sound.play();
+                        popup_voice.close();
+                    }
+                }
+                Item_buttons{
+                    type: "white_btn"
+                    width: 150
+                    height: 55
+                    text: qsTr("저 장")
+                    onClicked:{
+                        click_sound.play();
+                        supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
+                                               slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
+                        supervisor.saveTTSVoice();
+                        popup_voice.close();
+                    }
+                }
+            }
+            Column{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                spacing: 50
+                Row{
+                    spacing: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr("현재 선택된 음성 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    ComboBox{
+                        id: combo_voice_name_2
+                        width: 300
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: 50
+                        model: model_voice
+                        onCurrentIndexChanged: {
+                            popup_voice.show_emotion = false;
+                            if(combo_voice_language.currentIndex === 0){
+                                if(currentIndex === 0 || currentIndex === 1){
+                                    popup_voice.show_emotion = true;
+                                }
+                            }
+                        }
+                    }
+                    Image{
+                        anchors.verticalCenter: parent.verticalCenter
+                        source: "icon/icon_test_play.png"
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                click_sound.play();
+                                supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
+                                                       slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
+                                supervisor.playVoice("test","","","",-1);
+                            }
+                        }
+                    }
+                }
+                Grid{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 10
+                    columns: 3
+                    rows: 5
+                    horizontalItemAlignment: Grid.AlignHCenter
+                    verticalItemAlignment: Grid.AlignVCenter
+                    Text{
+                        text: qsTr("속도 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Slider{
+                        id: slider_speed
+                        width: 400
+                        to: 5
+                        from: -5
+                        stepSize: 1
+                        value: 0
+                    }
+                    Text{
+                        width: 180
+                        horizontalAlignment: Text.AlignHCenter
+                        text: {
+                            if(slider_speed.value > 0){
+                                qsTr("느린속도 (")+Number(1.0+slider_speed.value*0.2)+"배)"
+
+                            }else if(slider_speed.value < 0){
+                                qsTr("빠른속도 (")+Number(1.0+slider_speed.value*0.1)+"배)"
+
+                            }else{
+                                qsTr("기본속도")
+                            }
+                        }
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Text{
+                        text: qsTr("피치 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Slider{
+                        id: slider_pitch
+                        width: 400
+                        to: 5
+                        from: -5
+                        stepSize: 1
+                        value: 0
+                    }
+                    Text{
+                        text: {
+                            if(slider_pitch.value > 0){
+                                qsTr("낮은피치 (")+Number(slider_pitch.value)+"단계)"
+
+                            }else if(slider_pitch.value < 0){
+                                qsTr("높은피치 (")+Number(-slider_pitch.value)+"단계)"
+
+                            }else{
+                                qsTr("기본피치")
+                            }
+                        }
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Text{
+                        visible: popup_voice.show_emotion
+                        text: qsTr("감정 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Slider{
+                        visible: popup_voice.show_emotion
+                        id: slider_emotion
+                        width: 400
+                        to: 3
+                        from: 0
+                        stepSize: 1
+                        value: 0
+                    }
+                    Text{
+                        visible: popup_voice.show_emotion
+                        text: {
+                            if(slider_emotion.value == 0){
+                                qsTr("중립")
+                            }else if(slider_emotion.value == 1){
+                                qsTr("슬픔")
+                            }else if(slider_emotion.value == 2){
+                                qsTr("기쁨")
+                            }else{
+                                qsTr("분노")
+                            }
+                        }
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Text{
+                        visible: popup_voice.show_emotion
+                        text: qsTr("감정정도 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Slider{
+                        visible: popup_voice.show_emotion
+                        id: slider_emotion_strength
+                        width: 400
+                        to: 2
+                        from: 0
+                        stepSize: 1
+                        value: 1
+                    }
+                    Text{
+                        visible: popup_voice.show_emotion
+                        text: {
+                            if(slider_emotion_strength.value == 0){
+                                qsTr("약하게")
+                            }else if(slider_emotion_strength.value == 1){
+                                qsTr("기본")
+                            }else if(slider_emotion_strength.value == 2){
+                                qsTr("강하게")
+                            }
+                        }
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Text{
+                        text: qsTr("음색 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    Slider{
+                        id: slider_alpha
+                        width: 400
+                        to: 5
+                        from: -5
+                        stepSize: 1
+                        value: 0
+                    }
+                    Text{
+                        text: {
+                            if(slider_alpha.value > 0){
+                                qsTr("높은음색 (")+Number(slider_alpha.value)+")"
+
+                            }else if(slider_alpha.value < 0){
+                                qsTr("낮은음색 (")+Number(slider_alpha.value)+")"
+
+                            }else{
+                                qsTr("기본음색")
+                            }
+                        }
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                }
+
+
+            }
+
+        }
+    }
+    Popup{
+        id: popup_mention
+        width: 1280
+        height: 800
+        background: Rectangle{
+            anchors.fill: parent
+            color: color_dark_black
+            opacity: 0.7
+        }
+        onOpened:{
+            combo_voice_lan_2.currentIndex = combo_voice_language.currentIndex
+            update();
+        }
+
+        function update(){
+            tfield_text_1.text = supervisor.getTTSMention("move_serving");
+            tfield_text_2.text = supervisor.getTTSMention("move_calling");
+            tfield_text_3.text = supervisor.getTTSMention("moving");
+            tfield_text_4.text = supervisor.getTTSMention("excuseme");
+            tfield_text_5.text = supervisor.getTTSMention("pickup");
+            tfield_text_6.text = supervisor.getTTSMention("callme");
+        }
+
+        Rectangle{
+            anchors.centerIn: parent
+            width: 1100
+            height: 700
+            radius: 20
+            Row{
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.rightMargin: 50
+                anchors.topMargin: 50
+                spacing: 30
+                Item_buttons{
+                    type: "white_btn"
+                    width: 150
+                    height: 55
+                    text: qsTr("닫 기")
+                    onClicked:{
+                        combo_voice_language.currentIndex = supervisor.getTTSLanguageNum();
+                        popup_mention.close();
+                    }
+                }
+                Item_buttons{
+                    type: "white_btn"
+                    width: 150
+                    height: 55
+                    text: qsTr("저 장")
+                    onClicked:{
+                        combo_voice_language.currentIndex = combo_voice_lan_2.currentIndex
+
+                        //save new mention
+
+                        supervisor.setTTSMention("move_serving"  ,tfield_text_1.text);
+                        supervisor.setTTSMention("move_calling"  ,tfield_text_2.text);
+                        supervisor.setTTSMention("moving"        ,tfield_text_3.text);
+                        supervisor.setTTSMention("excuseme"      ,tfield_text_4.text);
+                        supervisor.setTTSMention("pickup"        ,tfield_text_5.text);
+                        supervisor.setTTSMention("callme"        ,tfield_text_6.text);
+
+                        popup_mention.close();
+                    }
+                }
+            }
+            Column{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 30
+                spacing: 50
+                Row{
+                    spacing: 50
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.verticalCenter: parent.verticalCenter
+                        text: qsTr("현재 선택된 음성 : ")
+                        font.pixelSize: 20
+                        font.family: font_noto_r.name
+                    }
+                    ComboBox{
+                        id: combo_voice_lan_2
+                        width: 300
+                        anchors.verticalCenter: parent.verticalCenter
+                        height: 50
+                        model:[qsTr("한국어"), qsTr("영어"), qsTr("중국어"), qsTr("일본어"), qsTr("스페인어"), qsTr("러시아어"), qsTr("독일어")]
+
+                    }
+                    Rectangle{
+                        width: 100
+                        height: parent.height
+                        anchors.verticalCenter: parent.verticalCenter
+                        radius: 5
+                        color: color_dark_navy
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("설정")
+                            color: "white"
+                            font.family: font_noto_r.name
+                            font.pixelSize: 15
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                popup_change_voice_language.open();
+                            }
+                        }
+                    }
+                }
+
+                Flickable{
+                    clip: true
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: 1100
+                    height: 400
+                    contentHeight: colssss.height
+                    Column{
+                        id: colssss
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 10
+                        Rectangle{
+                            width: 800
+                            height: 50
+                            color: "black"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            radius: 2
+                            Text{
+                                anchors.centerIn: parent
+                                color: "white"
+                                text: qsTr("주행 시작")
+                                font.pixelSize: 30
+                                font.bold: true
+                            }
+                        }
+
+                        Row{
+                            spacing: 10
+                            Text{
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                text: qsTr("서빙을 시작할 때")
+                                font.pixelSize: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: font_noto_r.name
+                            }
+                            TextField{
+                                id: tfield_text_1
+                                width: 550
+                                height: 50
+                            }
+                            Rectangle{
+                                width: 50
+                                height: 50
+                                radius:10
+                                color: enabled?color_dark_navy:color_gray
+                                Image{
+                                    anchors.centerIn: parent
+                                    width: 35
+                                    height: 35
+                                    source: "icon/keyboard.png"
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+                                MouseArea{
+                                    enabled: parent.enabled
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        keyboard.owner = tfield_text_1;
+                                        tfield_text_1.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+
+                        Row{
+                            spacing: 10
+                            Text{
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                text: qsTr("호출위치로 이동할 때")
+                                font.pixelSize: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: font_noto_r.name
+                            }
+                            TextField{
+                                id: tfield_text_2
+                                width: 550
+                                height: 50
+                            }
+                            Rectangle{
+                                width: 50
+                                height: 50
+                                radius:10
+                                color: enabled?color_dark_navy:color_gray
+                                Image{
+                                    anchors.centerIn: parent
+                                    width: 35
+                                    height: 35
+                                    source: "icon/keyboard.png"
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+                                MouseArea{
+                                    enabled: parent.enabled
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        keyboard.owner = tfield_text_2;
+                                        tfield_text_2.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+
+                        Rectangle{
+                            width: 800
+                            height: 50
+                            color: "black"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            radius: 2
+                            Text{
+                                anchors.centerIn: parent
+                                color: "white"
+                                text: qsTr("이동 중")
+                                font.pixelSize: 30
+                                font.bold: true
+                            }
+                        }
+
+                        Row{
+                            spacing: 10
+                            Text{
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                text: qsTr("이동 중 사람감지")
+                                font.pixelSize: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: font_noto_r.name
+                            }
+                            TextField{
+                                id: tfield_text_3
+                                width: 550
+                                height: 50
+                            }
+                            Rectangle{
+                                width: 50
+                                height: 50
+                                radius:10
+                                color: enabled?color_dark_navy:color_gray
+                                Image{
+                                    anchors.centerIn: parent
+                                    width: 35
+                                    height: 35
+                                    source: "icon/keyboard.png"
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+                                MouseArea{
+                                    enabled: parent.enabled
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        keyboard.owner = tfield_text_3;
+                                        tfield_text_3.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+
+
+                        Row{
+                            spacing: 10
+                            Text{
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                text: qsTr("장애물 일시정지")
+                                font.pixelSize: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: font_noto_r.name
+                            }
+                            TextField{
+                                id: tfield_text_4
+                                width: 550
+                                height: 50
+                            }
+                            Rectangle{
+                                width: 50
+                                height: 50
+                                radius:10
+                                color: enabled?color_dark_navy:color_gray
+                                Image{
+                                    anchors.centerIn: parent
+                                    width: 35
+                                    height: 35
+                                    source: "icon/keyboard.png"
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+                                MouseArea{
+                                    enabled: parent.enabled
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        keyboard.owner = tfield_text_4;
+                                        tfield_text_4.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+
+
+                        Rectangle{
+                            width: 800
+                            height: 50
+                            color: "black"
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            radius: 2
+                            Text{
+                                anchors.centerIn: parent
+                                color: "white"
+                                text: qsTr("목적지 도착")
+                                font.pixelSize: 30
+                                font.bold: true
+                            }
+                        }
+
+                        Row{
+                            spacing: 10
+                            Text{
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                text: qsTr("서빙위치 도착")
+                                font.pixelSize: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: font_noto_r.name
+                            }
+                            TextField{
+                                id: tfield_text_5
+                                width: 550
+                                height: 50
+                            }
+                            Rectangle{
+                                width: 50
+                                height: 50
+                                radius:10
+                                color: enabled?color_dark_navy:color_gray
+                                Image{
+                                    anchors.centerIn: parent
+                                    width: 35
+                                    height: 35
+                                    source: "icon/keyboard.png"
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+                                MouseArea{
+                                    enabled: parent.enabled
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        keyboard.owner = tfield_text_5;
+                                        tfield_text_5.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+
+                        Row{
+                            spacing: 10
+                            Text{
+                                width: 300
+                                horizontalAlignment: Text.AlignHCenter
+                                text: qsTr("호출위치 도착")
+                                font.pixelSize: 20
+                                anchors.verticalCenter: parent.verticalCenter
+                                font.family: font_noto_r.name
+                            }
+                            TextField{
+                                id: tfield_text_6
+                                width: 550
+                                height: 50
+                            }
+                            Rectangle{
+                                width: 50
+                                height: 50
+                                radius:10
+                                color: enabled?color_dark_navy:color_gray
+                                Image{
+                                    anchors.centerIn: parent
+                                    width: 35
+                                    height: 35
+                                    source: "icon/keyboard.png"
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+                                MouseArea{
+                                    enabled: parent.enabled
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        click_sound.play();
+                                        keyboard.owner = tfield_text_6;
+                                        tfield_text_6.selectAll();
+                                        keyboard.open();
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+
+
     Popup{
         id: popup_preset
         width: 1280

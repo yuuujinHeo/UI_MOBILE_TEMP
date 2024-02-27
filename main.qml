@@ -239,26 +239,26 @@ Window {
         if(cur_location == "Charging0"){
             cur_location = qsTr("충전 장소");
             if(!supervisor.isPatrolPage()){
-                supervisor.playVoice("start_move_charge");
+                supervisor.playVoice("move_charging");
             }
         }else if(cur_location == "Resting0"){
             cur_location = qsTr("대기 장소");
             if(!supervisor.isPatrolPage()){
-                supervisor.playVoice("start_move_resting");
+                supervisor.playVoice("move_resting");
             }
         }else if(cur_location == "Cleaning0"){
             cur_location = qsTr("퇴식 장소");
             if(!supervisor.isPatrolPage()){
-                supervisor.playVoice("start_move_resting");
+                supervisor.playVoice("move_cleaning");
             }
         }else{
             if(supervisor.isPatrolPage()){
 //                supervisor.playVoice("start_serving");
             }else{
                 if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                    supervisor.playVoice("start_calling");
+                    supervisor.playVoice("move_calling");
                 }else{
-                    supervisor.playVoice("start_serving");
+                    supervisor.playVoice("move_serving");
                 }
             }
 
@@ -448,12 +448,11 @@ Window {
 
     function excuseme(){
         //로봇이 서빙중입니다
-        supervisor.playVoice("serving");
-        print("excuseme");
+        supervisor.playVoice("moving");
     }
     function movewait(){
         //죄송합니다 잠시만 지나가겠습니다
-        supervisor.playVoice("wait");
+        supervisor.playVoice("excuseme");
     }
 
     function pull_success(){

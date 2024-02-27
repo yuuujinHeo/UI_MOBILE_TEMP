@@ -506,19 +506,9 @@ Item {
                         click_sound.play();;
                         supervisor.writelog("[UI] PageMovingCustom : Path Resume");
                         supervisor.moveResume();
-//                        timer_check_pause.start();
                     }
                 }
             }
-        }
-    }
-    Timer{
-        id: timer_check_pause
-        interval: 500
-        running: true
-        repeat: true
-        property int prev_state: 0
-        onTriggered: {
         }
     }
     Timer{
@@ -575,7 +565,6 @@ Item {
             if(!robot_paused){
                 supervisor.writelog("[UI] PageMovingCustom : Move Pause")
                 supervisor.movePause();
-//                timer_check_pause.start();
 
             }
         }

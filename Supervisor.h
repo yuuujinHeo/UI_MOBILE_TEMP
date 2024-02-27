@@ -14,6 +14,7 @@
 #include "ServerHandler.h"
 #include <QMediaPlayer>
 #include "MapView.h"
+#include "TTSHandler.h"
 #include "MapHandler.h"
 #include "ExtProcess.h"
 #include "ExtProcess.h"
@@ -143,12 +144,32 @@ public:
     Q_INVOKABLE void addPatrolLocation(QString name);
     Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
-    Q_INVOKABLE void setPatrolVoice(QString text, QString param1="", QString param2="", QString param3="");
+    Q_INVOKABLE void setPatrolVoice(QString mode, int language, int voice, int volume);
 
     Q_INVOKABLE void setPatrol(int num, QString name, QString type, int wait_time, int pass_time);
     Q_INVOKABLE void savePatrol(QString name, QString type, int wait_time, int pass_time);
     Q_INVOKABLE void deletePatrol(int num);
     Q_INVOKABLE void startPatrol(int num);
+
+    Q_INVOKABLE void setTTSLanguage(int lan);
+
+    Q_INVOKABLE void setTTSMode(int num){
+        if(num==1){
+            tts->curVoice.mode = "basic";
+        }else if(num==2){
+            tts->curVoice.mode = "tts";
+        }else{
+            tts->curVoice.mode = "none";
+        }
+    }
+    Q_INVOKABLE void setTTSVoice(int lan, int name);
+    Q_INVOKABLE void setTTSVoice(int lan, int name, int speed, int pitch, int alpha, int emotion=0, int emostren=1);
+    Q_INVOKABLE void clearTTSVoice(int lan, int name);
+    Q_INVOKABLE void saveTTSVoice();
+    Q_INVOKABLE void makePatrolTTS(QString text);
+
+    Q_INVOKABLE int getTTSNameNum();
+    Q_INVOKABLE int getTTSLanguageNum();
 
 
 
@@ -161,6 +182,7 @@ public:
     ExtProcess *extproc;
     CallbellHandler *call;
     IPCHandler *ipc;
+    TTSHandler *tts;
     QProcess *slam_process;
 
 
@@ -185,14 +207,18 @@ public:
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();
-    Q_INVOKABLE void playVoice(QString voice, int volume=-1);
-    Q_INVOKABLE void playVoice(QString voice, QString text, int volume=-1);
-    Q_INVOKABLE void playVoiceFile(QString file, int volume=-1);
 
+    Q_INVOKABLE int getTTSSpeed(){return tts->curVoice.speed;}
+    Q_INVOKABLE int getTTSPitch(){return tts->curVoice.pitch;}
+    Q_INVOKABLE int getTTSEmotion(){return tts->curVoice.emotion;}
+    Q_INVOKABLE int getTTSEmotionStrength(){return tts->curVoice.emotion_strength;}
+    Q_INVOKABLE int getTTSAlpha(){return tts->curVoice.alpha;}
+    Q_INVOKABLE int getTTSVolume(){return tts->curVoice.volume;}
+    Q_INVOKABLE QString getTTSMention(QString text);
+    Q_INVOKABLE void setTTSMention(QString text, QString mention);
+    Q_INVOKABLE void playVoice(QString file, QString voice="", QString mode="", QString language="", int volume=-1);
 
-
-    Q_INVOKABLE void makeTTS(QString text, QString lan="ko");
-    Q_INVOKABLE void playTTS();
+    Q_INVOKABLE void playTTS(){tts->playcurVoice();}
 
     //------------ custom page --------------//
 
@@ -496,7 +522,6 @@ public:
 
     Q_INVOKABLE void setCursorView(bool visible);
 
-    Q_INVOKABLE QString getVoice(QString name, QString mode="");
     Q_INVOKABLE void checkTravelline();
     ////*********************************************  GIT 관련   ***************************************************////
     Q_INVOKABLE void updateProgram();
@@ -873,6 +898,7 @@ public slots:
     void clear_all();
     void map_reset();
     void new_call_order(QString name);
+    void play_voice(ST_VOICE voice);
 
 private:
     QTimer *timer;
