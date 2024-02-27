@@ -33,7 +33,7 @@ Item {
 //        voice_pickup.play();
 
         if(!supervisor.isPatrolPage())
-            supervisor.playVoice("pickup_confirm");
+            supervisor.playVoice("pickup");
         statusbar.visible = false;
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
         if(tray_num === 2){
@@ -196,7 +196,7 @@ Item {
                         click_sound.play();
                         supervisor.writelog("[USER INPUT] PICKUP CONFIRM clicked");
 //                        voice_pickup.stop();
-                        supervisor.playVoice("thank");
+                        supervisor.playVoice("thanks");
 //                        voice_thanks.play();
                         column_pickup.visible = false;
                         text_mention.visible = false;

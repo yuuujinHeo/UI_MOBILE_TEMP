@@ -120,6 +120,10 @@ Item {
         }
     }
 
+
+
+
+
     Column{
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: rect_robot.right

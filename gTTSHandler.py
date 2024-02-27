@@ -6,6 +6,6 @@ class gTTSHandler:
     def __init__(self):
         pass
 
-    def make(self, text):
+    def make(self, text, path):
         tts = gTTS(text=text, lang='ko')
-        tts.save('voice.mp3')
+        tts.save(path)
