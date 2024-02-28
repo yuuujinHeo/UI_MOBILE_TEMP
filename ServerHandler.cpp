@@ -431,6 +431,7 @@ void ServerHandler::generalPost(QByteArray post_data, QString url){
 }
 
 void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply){
+
     if(reply->error() == QNetworkReply::NoError){
         if(url.left(22) == "https://api.github.com"){
             QByteArray response = reply->readAll();

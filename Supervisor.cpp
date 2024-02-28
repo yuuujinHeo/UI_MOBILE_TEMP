@@ -681,6 +681,7 @@ void Supervisor::readSetting(QString map_name){
         setting_anot.endGroup();
     }
 
+    tts->readVoiceSetting();
     plog->write("[SUPERVISOR] READ SETTING : annot done");
 //    std::sort(pmap->locations.begin(),pmap->locations.end(),sortLocation2);
 
@@ -1729,7 +1730,7 @@ void Supervisor::play_voice(ST_VOICE voice){
     }
     voice_player->setVolume(voice.volume);
     voice_player->play();
-    plog->write("[SOUND] play_voice : "+voice.file_path);
+    plog->write("[SOUND] play_voice : "+voice.file_path + "(volume = "+QString::number(voice.volume)+")");
 }
 
 void Supervisor::makePatrolTTS(QString text){
@@ -1755,7 +1756,10 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
     }
 
 
-    if(volume == -1){
+
+    if(file == "test"){
+        volume = 50;
+    }else if(volume == -1){
         volume = tts->curVoice.volume;//getSetting("setting","UI","volume_voice").toInt();
     }
 
@@ -1791,7 +1795,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
             v.volume = volume;
             v.mention = tts->getMentionStr(file);
             v.language = language;
-            plog->write("[SOUND] PlayVoiceTTS : no file -> makeTTS");
+            plog->write("[SOUND] PlayVoiceTTS : no file and make -> "+filepath);
             tts->makeTTS(v,true);
         }
     }
@@ -2733,14 +2737,31 @@ void Supervisor::setTTSLanguage(int lan){
     saveTTSVoice();
 }
 void Supervisor::saveTTSVoice(){
-    setSetting("setting","UI/voice_langauge",tts->curVoice.language);
-    setSetting("setting","UI/voice_name",tts->curVoice.voice);
-    setSetting("setting","UI/voice_mode",tts->curVoice.mode);
-    setSetting("setting","UI/voice_speed",QString::number(tts->curVoice.speed));
-    setSetting("setting","UI/voice_pitch",QString::number(tts->curVoice.pitch));
-    setSetting("setting","UI/voice_alpha",QString::number(tts->curVoice.alpha));
-    setSetting("setting","UI/voice_emotion",QString::number(tts->curVoice.emotion));
-    setSetting("setting","UI/voice_emotion_strength",QString::number(tts->curVoice.emotion_strength));
+    qDebug() <<"saveTTSVoice" << tts->curVoice.mode;
+
+    if(getSetting("setting","UI","voice_language") != tts->curVoice.language)
+        setSetting("setting","UI/voice_langauge",tts->curVoice.language);
+
+    if(getSetting("setting","UI","voice_name") != tts->curVoice.voice)
+        setSetting("setting","UI/voice_name",tts->curVoice.voice);
+
+    if(getSetting("setting","UI","voice_mode") != tts->curVoice.mode)
+        setSetting("setting","UI/voice_mode",tts->curVoice.mode);
+
+    if(getSetting("setting","UI","voice_speed") != QString::number(tts->curVoice.speed))
+        setSetting("setting","UI/voice_speed",QString::number(tts->curVoice.speed));
+
+    if(getSetting("setting","UI","voice_pitch") != QString::number(tts->curVoice.pitch))
+        setSetting("setting","UI/voice_pitch",QString::number(tts->curVoice.pitch));
+
+    if(getSetting("setting","UI","voice_alpha") != QString::number(tts->curVoice.alpha))
+        setSetting("setting","UI/voice_alpha",QString::number(tts->curVoice.alpha));
+
+    if(getSetting("setting","UI","voice_emotion") != QString::number(tts->curVoice.emotion))
+        setSetting("setting","UI/voice_emotion",QString::number(tts->curVoice.emotion));
+
+    if(getSetting("setting","UI","voice_emotion_strength") != QString::number(tts->curVoice.emotion_strength))
+        setSetting("setting","UI/voice_emotion_strength",QString::number(tts->curVoice.emotion_strength));
 }
 
 void Supervisor::clearTTSVoice(int lan, int name){
@@ -2757,6 +2778,14 @@ void Supervisor::clearTTSVoice(int lan, int name){
     }
 }
 
+void Supervisor::setTTSMode(QString mode){
+    tts->curVoice.mode = mode;
+    saveTTSVoice();
+}
+void Supervisor::setTTSName(QString name){
+    tts->curVoice.voice = name;
+    saveTTSVoice();
+}
 void Supervisor::setTTSVoice(int lan, int name){
     tts->setVoice(tts->getVoiceName(lan,name),tts->getVoiceLanguage(lan),"tts");
     saveTTSVoice();

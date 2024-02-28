@@ -163,9 +163,11 @@ public:
             tts->curVoice.mode = "none";
         }
     }
+    Q_INVOKABLE void setTTSName(QString name);
     Q_INVOKABLE void setTTSVoice(int lan, int name);
     Q_INVOKABLE void setTTSVoice(int lan, int name, int speed, int pitch, int alpha, int emotion=0, int emostren=1);
     Q_INVOKABLE void clearTTSVoice(int lan, int name);
+    Q_INVOKABLE void setTTSMode(QString mode);
     Q_INVOKABLE void saveTTSVoice();
     Q_INVOKABLE void makePatrolTTS(QString text);
 

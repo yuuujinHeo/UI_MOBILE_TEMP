@@ -23,6 +23,7 @@ public:
         {
             tick = p.tick;
             cmd = p.cmd;
+//            memcpy(cmd, p.cmd, sizeof(int32_t));
             memcpy(params, p.params, 255);
         }
     };
