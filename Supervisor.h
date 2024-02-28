@@ -153,6 +153,7 @@ public:
 
     Q_INVOKABLE void setTTSLanguage(int lan);
 
+    Q_INVOKABLE void makeTTSAll();
     Q_INVOKABLE void setTTSMode(int num){
         if(num==1){
             tts->curVoice.mode = "basic";

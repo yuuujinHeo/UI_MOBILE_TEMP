@@ -12530,6 +12530,20 @@ Item {
                     type: "white_btn"
                     width: 150
                     height: 55
+                    text: qsTr("한꺼번에 만들기")
+                    onClicked:{
+                        click_sound.play();
+                        supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
+                                               slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
+
+                        supervisor.makeTTSAll();
+//                        supervisor.clearTTSVoice(combo_voice_language.currentIndex, combo_voice_name_2.currentIndex);
+                    }
+                }
+                Item_buttons{
+                    type: "white_btn"
+                    width: 150
+                    height: 55
                     text: qsTr("취 소")
                     onClicked:{
                         click_sound.play();

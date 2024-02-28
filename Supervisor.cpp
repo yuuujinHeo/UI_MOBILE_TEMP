@@ -1797,6 +1797,45 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
     }
 }
 
+void Supervisor::makeTTSAll(){
+    ST_VOICE v = tts->curVoice;
+    v.mode = getSetting("setting","UI","voice_mode");
+
+    QStringList makeList = {"move_serving",
+                            "move_calling",
+                            "move_charging",
+                            "move_resting",
+                            "move_cleaning",
+                            "move_patrol",
+                            "move_next",
+                            "hello",
+                            "thanks",
+                            "sorry",
+                            "excuseme",
+                            "moving",
+                            "error_no_path",
+                            "error_localization",
+                            "error_battery",
+                            "error_emo",
+                            "pickup",
+                            "callme",
+                            "start_operation",
+                            "start_charging"
+                            "stop_charging",
+                            "charging",
+                            "start_mapping",
+                            "stop_mapping",
+                            "test"};
+
+    for(QString f : makeList){
+        v.file = f;
+        v.file_path = QDir::homePath()+"/RB_MOBILE/voice/"+v.voice+"_"+v.file+".mp3";
+        v.mention = tts->getMentionStr(v.file);
+        tts->makeTTS(v,false);
+    }
+
+}
+
 bool Supervisor::isplayBGM(){
     if(bgm_player->state() == QMediaPlayer::PlayingState){
         return true;
