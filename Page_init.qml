@@ -4022,7 +4022,7 @@ Item {
                     init_mode = 5;
                     supervisor.writelog("[INIT] Localization Check : Success");
                 }else{
-                    print("check localization",supervisor.getLocalizationConfirm());
+//                    print("check localization",supervisor.getLocalizationConfirm());
                 }
             }else if(init_mode == 5){
                 //=============================== Init Check 5 : 로봇 상태 확인(Motor) ==============================//

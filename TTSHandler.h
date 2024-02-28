@@ -86,4 +86,12 @@ private:
     QNetworkAccessManager   *manager;
 };
 
+//curl -i -X POST \
+//-H "Content-Type:application/x-www-form-urlencoded" \
+//-H "X-NCP-APIGW-API-KEY-ID:qviycrtjox"  \
+//-H "X-NCP-APIGW-API-KEY:fspHYa21cJgB0zkjrKFadLf02aJ84mGHlOdMQw4a" \
+//-d 'speaker=vdain&text=hello test&volume=1&speed=1&pitch=0' \
+//'https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts'
+
+
 #endif // TTSHANDLER_H

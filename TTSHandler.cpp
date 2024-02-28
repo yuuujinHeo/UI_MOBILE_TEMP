@@ -372,6 +372,7 @@ void TTSHandler::makeTTS(ST_VOICE voice, bool play){
         request.setRawHeader("X-NCP-APIGW-API-KEY", clientSecret.toUtf8());
 
         QNetworkReply *reply = manager->post(request, post_str.toUtf8());
+        qDebug() << reply->isOpen();
         connect(reply, &QNetworkReply::finished, [=](){
             generalReply(voice, play, reply);
         });
@@ -381,11 +382,18 @@ void TTSHandler::generalReply(ST_VOICE voice, bool play, QNetworkReply *reply){
     if(reply->error() == QNetworkReply::NoError){
         QByteArray response = reply->readAll();
 
+        QString path = QDir::homePath() + "/RB_MOBILE/voice";
+        if(!QFile::exists(path)){
+            QDir().mkdir(path);
+        }
+
         QFile tempvoice(voice.file_path);
         if(tempvoice.open(QIODevice::ReadWrite)){
             tempvoice.write(response);
             tempvoice.close();
             plog->write("[TTS] makeTTS (CLOVA) : Save Voice file -> "+voice.file_path);
+        }else{
+            plog->write("[TTS] makeTTS (CLOVA) : Open voice file failed -> "+voice.file_path);
         }
 
         if(play){
@@ -393,7 +401,7 @@ void TTSHandler::generalReply(ST_VOICE voice, bool play, QNetworkReply *reply){
         }
     }else{
         QString err = reply->errorString();
-        qDebug() << err;
+        plog->write("[TTS] makeTTS (CLOVA) : Reply Error -> "+err);
     }
     delete reply;
 }

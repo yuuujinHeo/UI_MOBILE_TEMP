@@ -466,15 +466,18 @@ Item {
 
         if(combo_voice_mode.ischanged){
             if(combo_voice_mode.currentIndex == 0){
-                supervisor.setSetting("setting","UI/voice_mode","basic");
+                supervisor.setTTSMode("basic");
                 if(combo_voice_name.currentIndex == 0){
-                    supervisor.setSetting("setting","UI/voice_name","child");
+                    supervisor.setTTSName("child");
+//                    supervisor.setSetting("setting","UI/voice_name","child");
                 }else{
-                    supervisor.setSetting("setting","UI/voice_name","woman");
+                    supervisor.setTTSName("woman");
+//                    supervisor.setSetting("setting","UI/voice_name","woman");
                 }
-                supervisor.setSetting("setting","UI/voice_language","ko");
+                supervisor.setTTSLanguage(0);
+//                supervisor.setSetting("setting","UI/voice_language","ko");
             }else{
-                supervisor.setSetting("setting","UI/voice_mode","tts");
+                supervisor.setTTSMode("tts");
                 supervisor.setTTSVoice(combo_voice_language.currentIndex, combo_voice_name.currentIndex);
             }
         }
@@ -482,9 +485,11 @@ Item {
         if(combo_voice_name.ischanged){
             if(combo_voice_mode.currentIndex == 0){
                 if(combo_voice_name.currentIndex == 0){
-                    supervisor.setSetting("setting","UI/voice_name","child");
+                    supervisor.setTTSName("child");
+//                    supervisor.setSetting("setting","UI/voice_name","child");
                 }else{
-                    supervisor.setSetting("setting","UI/voice_name","woman");
+                    supervisor.setTTSName("woman");
+//                    supervisor.setSetting("setting","UI/voice_name","woman");
                 }
             }else{
                 supervisor.setTTSVoice(combo_voice_language.currentIndex, combo_voice_name.currentIndex);
@@ -803,7 +808,7 @@ Item {
         combo_voice_language.currentIndex = supervisor.getTTSLanguageNum();
         setVoiceModel();
         combo_voice_name.currentIndex = supervisor.getTTSNameNum();
-
+        combo_voice_name_2.currentIndex = supervisor.getTTSNameNum();
 
         combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
 
@@ -12501,7 +12506,6 @@ Item {
             slider_alpha.value = supervisor.getTTSAlpha();
             slider_emotion.value = supervisor.getTTSEmotion();
             slider_emotion_strength.value = supervisor.getTTSEmotionStrength();
-
         }
 
         property bool show_emotion: false
@@ -12537,7 +12541,6 @@ Item {
                                                slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
 
                         supervisor.makeTTSAll();
-//                        supervisor.clearTTSVoice(combo_voice_language.currentIndex, combo_voice_name_2.currentIndex);
                     }
                 }
                 Item_buttons{
@@ -12560,6 +12563,7 @@ Item {
                         supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
                                                slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
                         supervisor.saveTTSVoice();
+                        init();
                         popup_voice.close();
                     }
                 }
