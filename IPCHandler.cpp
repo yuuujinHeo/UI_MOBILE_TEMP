@@ -47,6 +47,9 @@ IPCHandler::IPCHandler(QObject *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
     timer->start(200);
 
+    cmd = new CMD_CLIENT();
+    cmd->init();
+
     probot->ipc_use = true;
     if(probot->ipc_use){
         plog->write("[IPC] IPCHandler Constructed. IPC_USE = TRUE");
@@ -762,10 +765,15 @@ void IPCHandler::moveToCharging(int preset){
     plog->write("[IPC] MOVE TO COMMAND : CHARGING (NOT FOUND)");
 }
 
-void IPCHandler::sendCommand(int cmd){
+void IPCHandler::sendCommand(int _cmd){
     IPCHandler::CMD send_msg;
-    send_msg.cmd = cmd;
-    set_cmd(send_msg,"");
+    send_msg.cmd = _cmd;
+
+    QByteArray message;
+    message.resize(sizeof(CMD));
+    memcpy(message.data(), &send_msg, sizeof(CMD));
+    cmd->cts_cmd(message);
+//    set_cmd(send_msg,"");
 }
 void IPCHandler::moveTo(float x, float y, float th, int preset){
     IPCHandler::CMD send_msg;

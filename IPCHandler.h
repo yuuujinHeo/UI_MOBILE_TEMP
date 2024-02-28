@@ -5,6 +5,7 @@
 #include <QTimer>
 #include <QSharedMemory>
 #include "GlobalHeader.h"
+#include "cmd_client.h"
 
 class IPCHandler : public QObject
 {
@@ -381,6 +382,8 @@ public:
     unsigned int prev_tick_loc_status = 0;
     unsigned int prev_tick_call_loc = 0;
     unsigned int prev_tick_check_travel = 0;
+
+    CMD_CLIENT *cmd;
 
 signals:
     void pathchanged();
