@@ -24,6 +24,7 @@ SOURCES += \
     ExtProcess.cpp \
     IPCHandler.cpp \
     MapHandler.cpp \
+    cmd_client.cpp \
     MapViewer.cpp \
     ServerHandler.cpp \
     TTSHandler.cpp \
@@ -89,6 +90,7 @@ HEADERS += \
     ZIPHandler.h \
     cv_to_qt.h \
     Supervisor.h\
+    cmd_client.h\
     quazip/JlCompress.h \
     quazip/ioapi.h \
     quazip/minizip_crypt.h \
