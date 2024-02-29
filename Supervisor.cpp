@@ -89,6 +89,7 @@ Supervisor::Supervisor(QObject *parent)
     connect(server, SIGNAL(newCallOrder(QString)),this,SLOT(new_call_order(QString)));
     connect(tts, SIGNAL(ready_play(ST_VOICE)),this,SLOT(play_voice(ST_VOICE)));
     connect(server, SIGNAL(updatesuccess()),this,SLOT(update_success()));
+    connect(ipc, SIGNAL(emo_changed()),this,SLOT(emo_state_changed()));
 
     checkRobotINI();
     readSetting();
@@ -122,6 +123,11 @@ Supervisor::~Supervisor(){
     plog->write("[BUILDER] KILLED SLAMNAV");
 }
 
+void Supervisor::emo_state_changed(){
+    if(probot->status_emo==0){
+        playVoice("error_emo");
+    }
+}
 ////*********************************************  WINDOW 관련   ***************************************************////
 void Supervisor::setWindow(QQuickWindow *Window){
     plog->write("[BUILDER] SUPERVISOR SET WINDOW ");
@@ -1770,11 +1776,17 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
             v.voice = voice;
         }
 
+        if(v.voice == "woman"|| v.voice == "child"){
+
+        }else{
+            v.voice = "woman";
+        }
+
         voice_player->stop();
-        voice_player->setMedia(QUrl("qrc:/"+v.voice+"_"+file+".mp3"));
+        voice_player->setMedia(QUrl("qrc:/voice/"+v.voice+"_"+file+".mp3"));
         voice_player->setVolume(volume);
         voice_player->play();
-        plog->write("[SUPERVISOR] Play Voice (Basic) : "+voice + ", " + file);
+        plog->write("[SUPERVISOR] Play Voice (Basic) : "+v.voice + ", " + file);
     }else{
         if(voice == ""){
             v.voice = tts->curVoice.voice;//getSetting("setting","UI","voice_name");
@@ -2740,7 +2752,7 @@ void Supervisor::saveTTSVoice(){
     qDebug() <<"saveTTSVoice" << tts->curVoice.mode;
 
     if(getSetting("setting","UI","voice_language") != tts->curVoice.language)
-        setSetting("setting","UI/voice_langauge",tts->curVoice.language);
+        setSetting("setting","UI/voice_language",tts->curVoice.language);
 
     if(getSetting("setting","UI","voice_name") != tts->curVoice.voice)
         setSetting("setting","UI/voice_name",tts->curVoice.voice);
@@ -3563,7 +3575,7 @@ void Supervisor::onTimer(){
         need_init = false;
         if(probot->battery_percent < 20){
             if(count_battery++ > 600000/MAIN_THREAD){//10분
-                playVoice("low_battery");
+                playVoice("error_battery");
                 count_battery = 0;
             }
         }else{
@@ -3577,6 +3589,8 @@ void Supervisor::onTimer(){
         }else if(probot->motor[0].status > 1 || probot->motor[1].status > 1){
             plog->write("[STATE] Resting : State Failed "+QString().asprintf("(Motor1: %d, Motor2: %d) -> Kill Slam",probot->motor[0].status,probot->motor[1].status));
             killSLAM();
+        }else if(probot->status_emo == 0){
+
         }else if(pmap->call_queue.size() > 0){
             plog->write("[STATE] Resting : Calling Detected "+QString::number(pmap->call_queue.size())+" -> Moving");
             stateMoving();
@@ -4307,13 +4321,6 @@ void Supervisor::process_done(int cmd){//need check
         QFile json(jsondir);
         QStringList filelist = updatedir.entryList();
         if(json.open(QFile::ReadOnly)){
-            //read json?
-//            QTextStream ts(&json);
-//            QString ddddd = ts.readAll();
-//            QJsonDocument jj = QJsonDocument::fromJson(ddddd.toUtf8());
-//            QJsonObject updatejson = jj.object();
-//            QStringList keys = updatejson["keys"].toString().split(",");
-
             QStringList keys = server->update_list.keys();
             if(keys.size() > 0){
                 for(QString key : keys){
@@ -4996,23 +5003,23 @@ void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volum
 }
 
 int Supervisor::getTTSLanguageNum(){
-    if(getSetting("setting","UI","voice_langauge") == "ko"){
+    if(getSetting("setting","UI","voice_language") == "ko"){
         return 0;
-    }else if(getSetting("setting","UI","voice_langauge") == "en"){
+    }else if(getSetting("setting","UI","voice_language") == "en"){
         return 1;
-    }else if(getSetting("setting","UI","voice_langauge") == "zh-CN"){
+    }else if(getSetting("setting","UI","voice_language") == "zh-CN"){
         return 2;
-    }else if(getSetting("setting","UI","voice_langauge") == "ja"){
+    }else if(getSetting("setting","UI","voice_language") == "ja"){
         return 3;
-    }else if(getSetting("setting","UI","voice_langauge") == "es"){
+    }else if(getSetting("setting","UI","voice_language") == "es"){
         return 4;
-    }else if(getSetting("setting","UI","voice_langauge") == "ru"){
+    }else if(getSetting("setting","UI","voice_language") == "ru"){
         return 5;
-    }else if(getSetting("setting","UI","voice_langauge") == "ge"){
+    }else if(getSetting("setting","UI","voice_language") == "ge"){
         return 6;
-    }else if(getSetting("setting","UI","voice_langauge") == "la"){
+    }else if(getSetting("setting","UI","voice_language") == "la"){
         return 7;
-    }else if(getSetting("setting","UI","voice_langauge") == "id"){
+    }else if(getSetting("setting","UI","voice_language") == "id"){
         return 8;
     }else{
         return 0;

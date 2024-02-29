@@ -327,10 +327,11 @@ public:
 
 
     bool getConnection(){
-        if(read_count > 3){
+        if(read_count > 5){
             return false;
         }else{
-            return true;
+            return cmd->is_connected;
+//            return true;
         }
     }
 
@@ -391,6 +392,7 @@ signals:
     void objectingin();
     void cameraupdate();
     void mapreset();
+    void emo_changed();
 
 private slots:
     void onTimer();

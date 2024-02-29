@@ -29,6 +29,7 @@ Popup{
 
     onOpened:{
         update();
+        show_menu = false;
     }
 
     onSelect_pos_modeChanged: {
@@ -1158,19 +1159,18 @@ Popup{
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
-                                    Row{
-                                        Slider{
-                                            id: slider_voice_volume
-                                            visible: combo_voice_use.currentIndex !== 0
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            width: 300
-                                            height: 50
-                                            from: 0
-                                            to: 100
-                                            property bool ischanged: false
-                                            value: 100
-                                        }
+                                    Slider{
+                                        visible: combo_voice_use.currentIndex !== 0
+                                        id: slider_voice_volume
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        width: 300
+                                        height: 50
+                                        from: 0
+                                        to: 100
+                                        property bool ischanged: false
+                                        value: 100
                                     }
+
 
                                     Text{
                                         text: qsTr("음성")

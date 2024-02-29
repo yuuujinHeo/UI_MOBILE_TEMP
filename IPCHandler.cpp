@@ -205,6 +205,7 @@ void IPCHandler::onTimer(){
         probot->status_power = temp1.status_power;
         if(probot->status_emo == temp1.status_emo){
             plog->write("[IPC] EMO status changed !! "+QString::number(!temp1.status_emo));
+            emit emo_changed();
         }
 
         if(probot->status_lock != temp1.ui_motor_lock_state){
@@ -669,14 +670,20 @@ IPCHandler::IMG IPCHandler::get_cam1()
 
 void IPCHandler::set_cmd(IPCHandler::CMD val, QString log)
 {
-    shm_cmd.lock();
-    flag_tx = true;
-    val.tick = ++tick;
-    memcpy((char*)shm_cmd.data(), &val, sizeof(IPCHandler::CMD));
+     plog->write("[IPC] Set CMD "+QString::number(val.cmd)+" : "+log);
+     QByteArray message;
+     message.resize(sizeof(CMD));
+     memcpy(message.data(), &val, sizeof(CMD));
+     cmd->cts_cmd(message);
 
-    plog->write("[IPC] Set CMD "+QString::number(val.cmd)+" : "+log);
 
-    shm_cmd.unlock();
+//    shm_cmd.lock();
+//    flag_tx = true;
+//    val.tick = ++tick;
+//    memcpy((char*)shm_cmd.data(), &val, sizeof(IPCHandler::CMD));
+
+
+//    shm_cmd.unlock();
 }
 void IPCHandler::set_cmd(int cmd, QString log){
     IPCHandler::CMD send_msg;
@@ -768,12 +775,7 @@ void IPCHandler::moveToCharging(int preset){
 void IPCHandler::sendCommand(int _cmd){
     IPCHandler::CMD send_msg;
     send_msg.cmd = _cmd;
-
-    QByteArray message;
-    message.resize(sizeof(CMD));
-    memcpy(message.data(), &send_msg, sizeof(CMD));
-    cmd->cts_cmd(message);
-//    set_cmd(send_msg,"");
+    set_cmd(send_msg,"");
 }
 void IPCHandler::moveTo(float x, float y, float th, int preset){
     IPCHandler::CMD send_msg;

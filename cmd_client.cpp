@@ -16,20 +16,26 @@ CMD_CLIENT::~CMD_CLIENT()
 
 void CMD_CLIENT::init()
 {
-    client.open(QUrl("ws://127.0.0.1:1234"));
+    QString url = "ws://127.0.0.1:1234";
+    plog->write("[IPC] Command Client : Init "+url);
+    client.open(QUrl(url));
     reconnect_timer.start(1000);
 }
 
 void CMD_CLIENT::connected()
 {
-    is_connected = true;
-    printf("[WS] server(SLAM) connected\n");
+    if(!is_connected){
+        is_connected = true;
+        plog->write("[IPC] Command Client : Connected");
+    }
 }
 
 void CMD_CLIENT::disconnected()
 {
-    is_connected = false;
-    printf("[WS] server(SLAM) disconnected\n");
+    if(is_connected){
+        is_connected = false;
+        plog->write("[IPC] Command Client : Disconnected");
+    }
 }
 
 void CMD_CLIENT::reconnect_loop()
@@ -53,9 +59,5 @@ void CMD_CLIENT::reconnect_loop()
 
 void CMD_CLIENT::cts_cmd(QByteArray cur_cmd)
 {
-//    QByteArray message;
-//    message.resize(sizeof(CMD));
-//    memcpy(message.data(), &cur_cmd, sizeof(CMD));
-
     client.sendBinaryMessage(cur_cmd);
 }

@@ -12821,16 +12821,13 @@ Item {
                     text: qsTr("저 장")
                     onClicked:{
                         combo_voice_language.currentIndex = combo_voice_lan_2.currentIndex
-
                         //save new mention
-
                         supervisor.setTTSMention("move_serving"  ,tfield_text_1.text);
                         supervisor.setTTSMention("move_calling"  ,tfield_text_2.text);
                         supervisor.setTTSMention("moving"        ,tfield_text_3.text);
                         supervisor.setTTSMention("excuseme"      ,tfield_text_4.text);
                         supervisor.setTTSMention("pickup"        ,tfield_text_5.text);
                         supervisor.setTTSMention("callme"        ,tfield_text_6.text);
-
                         popup_mention.close();
                     }
                 }
