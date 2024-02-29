@@ -902,6 +902,7 @@ public slots:
     void map_reset();
     void new_call_order(QString name);
     void play_voice(ST_VOICE voice);
+    void emo_state_changed();
 
 private:
     QTimer *timer;
