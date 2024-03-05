@@ -57,8 +57,11 @@ SOURCES       = CallbellHandler.cpp \
 		ExtProcess.cpp \
 		IPCHandler.cpp \
 		MapHandler.cpp \
+		checker.cpp \
+		cmd_client.cpp \
 		MapViewer.cpp \
 		ServerHandler.cpp \
+		TTSHandler.cpp \
 		ZIPHandler.cpp \
 		automata.cpp \
 		cv_to_qt.cpp \
@@ -94,7 +97,6 @@ SOURCES       = CallbellHandler.cpp \
 		Item_menubar_qml.cpp \
 		Popup_help_qml.cpp \
 		Page_pickup_qml.cpp \
-		Page_MoveFail_qml.cpp \
 		Item_buttons_qml.cpp \
 		Item_statusbar_qml.cpp \
 		Page_setting_qml.cpp \
@@ -111,7 +113,6 @@ SOURCES       = CallbellHandler.cpp \
 		Page_pickup_calling_qml.cpp \
 		Popup_map_list_qml.cpp \
 		Item_ProgressBar_qml.cpp \
-		Popup_test_tts_qml.cpp \
 		Page_log_qml.cpp \
 		Page_map_qml.cpp \
 		Item_CircleP_qml.cpp \
@@ -127,11 +128,14 @@ SOURCES       = CallbellHandler.cpp \
 		moc_MapHandler.cpp \
 		moc_MapViewer.cpp \
 		moc_ServerHandler.cpp \
+		moc_TTSHandler.cpp \
+		moc_checker.cpp \
 		moc_Keyemitter.cpp \
 		moc_Logger.cpp \
 		moc_MapHeader.cpp \
 		moc_ZIPHandler.cpp \
 		moc_Supervisor.cpp \
+		moc_cmd_client.cpp \
 		moc_quagzipfile.cpp \
 		moc_quaziodevice.cpp \
 		moc_quazipfile.cpp \
@@ -144,8 +148,11 @@ OBJECTS       = CallbellHandler.o \
 		ExtProcess.o \
 		IPCHandler.o \
 		MapHandler.o \
+		checker.o \
+		cmd_client.o \
 		MapViewer.o \
 		ServerHandler.o \
+		TTSHandler.o \
 		ZIPHandler.o \
 		automata.o \
 		cv_to_qt.o \
@@ -182,7 +189,6 @@ OBJECTS       = CallbellHandler.o \
 		Item_menubar_qml.o \
 		Popup_help_qml.o \
 		Page_pickup_qml.o \
-		Page_MoveFail_qml.o \
 		Item_buttons_qml.o \
 		Item_statusbar_qml.o \
 		Page_setting_qml.o \
@@ -199,7 +205,6 @@ OBJECTS       = CallbellHandler.o \
 		Page_pickup_calling_qml.o \
 		Popup_map_list_qml.o \
 		Item_ProgressBar_qml.o \
-		Popup_test_tts_qml.o \
 		Page_log_qml.o \
 		Page_map_qml.o \
 		Item_CircleP_qml.o \
@@ -215,11 +220,14 @@ OBJECTS       = CallbellHandler.o \
 		moc_MapHandler.o \
 		moc_MapViewer.o \
 		moc_ServerHandler.o \
+		moc_TTSHandler.o \
+		moc_checker.o \
 		moc_Keyemitter.o \
 		moc_Logger.o \
 		moc_MapHeader.o \
 		moc_ZIPHandler.o \
 		moc_Supervisor.o \
+		moc_cmd_client.o \
 		moc_quagzipfile.o \
 		moc_quaziodevice.o \
 		moc_quazipfile.o \
@@ -328,6 +336,8 @@ DIST          = quazip/QuaZipConfig.cmake.in \
 		MapHandler.h \
 		MapViewer.h \
 		ServerHandler.h \
+		TTSHandler.h \
+		checker.h \
 		python_wrapper.h \
 		spline.h \
 		Keyemitter.h \
@@ -337,6 +347,7 @@ DIST          = quazip/QuaZipConfig.cmake.in \
 		ZIPHandler.h \
 		cv_to_qt.h \
 		Supervisor.h \
+		cmd_client.h \
 		quazip/JlCompress.h \
 		quazip/ioapi.h \
 		quazip/minizip_crypt.h \
@@ -363,8 +374,11 @@ DIST          = quazip/QuaZipConfig.cmake.in \
 		ExtProcess.cpp \
 		IPCHandler.cpp \
 		MapHandler.cpp \
+		checker.cpp \
+		cmd_client.cpp \
 		MapViewer.cpp \
 		ServerHandler.cpp \
+		TTSHandler.cpp \
 		ZIPHandler.cpp \
 		automata.cpp \
 		cv_to_qt.cpp \
@@ -602,12 +616,12 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Page_MoveFail.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Popup_test_tts.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
+	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
 	$(COPY_FILE) --parents qml.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents qml_qmlcache.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents CallbellHandler.h CameraView.h ExtProcess.h GlobalHeader.h IPCHandler.h MapHandler.h MapViewer.h ServerHandler.h python_wrapper.h spline.h Keyemitter.h Logger.h MapHeader.h automata.h ZIPHandler.h cv_to_qt.h Supervisor.h quazip/JlCompress.h quazip/ioapi.h quazip/minizip_crypt.h quazip/quaadler32.h quazip/quachecksum32.h quazip/quacrc32.h quazip/quagzipfile.h quazip/quaziodevice.h quazip/quazip.h quazip/quazip_global.h quazip/quazip_qt_compat.h quazip/quazipdir.h quazip/quazipfile.h quazip/quazipfileinfo.h quazip/quazipnewinfo.h quazip/unzip.h quazip/zip.h websocket/QtHttpServer.h websocket/QtHttpReply.h websocket/QtHttpRequest.h websocket/QtHttpHeader.h websocket/QtHttpClientWrapper.h $(DISTDIR)/
-	$(COPY_FILE) --parents CallbellHandler.cpp CameraView.cpp ExtProcess.cpp IPCHandler.cpp MapHandler.cpp MapViewer.cpp ServerHandler.cpp ZIPHandler.cpp automata.cpp cv_to_qt.cpp Logger.cpp Supervisor.cpp main.cpp quazip/JlCompress.cpp quazip/qioapi.cpp quazip/quaadler32.cpp quazip/quachecksum32.cpp quazip/quacrc32.cpp quazip/quagzipfile.cpp quazip/quaziodevice.cpp quazip/quazip.cpp quazip/quazipdir.cpp quazip/quazipfile.cpp quazip/quazipfileinfo.cpp quazip/quazipnewinfo.cpp quazip/unzip.c quazip/zip.c websocket/QtHttpServer.cpp websocket/QtHttpReply.cpp websocket/QtHttpRequest.cpp websocket/QtHttpHeader.cpp websocket/QtHttpClientWrapper.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents CallbellHandler.h CameraView.h ExtProcess.h GlobalHeader.h IPCHandler.h MapHandler.h MapViewer.h ServerHandler.h TTSHandler.h checker.h python_wrapper.h spline.h Keyemitter.h Logger.h MapHeader.h automata.h ZIPHandler.h cv_to_qt.h Supervisor.h cmd_client.h quazip/JlCompress.h quazip/ioapi.h quazip/minizip_crypt.h quazip/quaadler32.h quazip/quachecksum32.h quazip/quacrc32.h quazip/quagzipfile.h quazip/quaziodevice.h quazip/quazip.h quazip/quazip_global.h quazip/quazip_qt_compat.h quazip/quazipdir.h quazip/quazipfile.h quazip/quazipfileinfo.h quazip/quazipnewinfo.h quazip/unzip.h quazip/zip.h websocket/QtHttpServer.h websocket/QtHttpReply.h websocket/QtHttpRequest.h websocket/QtHttpHeader.h websocket/QtHttpClientWrapper.h $(DISTDIR)/
+	$(COPY_FILE) --parents CallbellHandler.cpp CameraView.cpp ExtProcess.cpp IPCHandler.cpp MapHandler.cpp checker.cpp cmd_client.cpp MapViewer.cpp ServerHandler.cpp TTSHandler.cpp ZIPHandler.cpp automata.cpp cv_to_qt.cpp Logger.cpp Supervisor.cpp main.cpp quazip/JlCompress.cpp quazip/qioapi.cpp quazip/quaadler32.cpp quazip/quachecksum32.cpp quazip/quacrc32.cpp quazip/quagzipfile.cpp quazip/quaziodevice.cpp quazip/quazip.cpp quazip/quazipdir.cpp quazip/quazipfile.cpp quazip/quazipfileinfo.cpp quazip/quazipnewinfo.cpp quazip/unzip.c quazip/zip.c websocket/QtHttpServer.cpp websocket/QtHttpReply.cpp websocket/QtHttpRequest.cpp websocket/QtHttpHeader.cpp websocket/QtHttpClientWrapper.cpp $(DISTDIR)/
 	$(COPY_FILE) --parents lang_en.ts lang_eddn.ts $(DISTDIR)/
 
 
@@ -632,9 +646,9 @@ check: first
 
 benchmark: first
 
-compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Page_MoveFail_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Popup_test_tts_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 compiler_qmlcache_clean:
-	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Page_MoveFail_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Popup_test_tts_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 Popup_notice_qml.cpp: Popup_notice.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_notice_qml.cpp Popup_notice.qml
@@ -678,10 +692,6 @@ Popup_help_qml.cpp: Popup_help.qml \
 Page_pickup_qml.cpp: Page_pickup.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Page_pickup_qml.cpp Page_pickup.qml
-
-Page_MoveFail_qml.cpp: Page_MoveFail.qml \
-		/usr/lib/qt5/bin/qmlcachegen
-	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Page_MoveFail_qml.cpp Page_MoveFail.qml
 
 Item_buttons_qml.cpp: Item_buttons.qml \
 		/usr/lib/qt5/bin/qmlcachegen
@@ -747,10 +757,6 @@ Item_ProgressBar_qml.cpp: Item_ProgressBar.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Item_ProgressBar_qml.cpp Item_ProgressBar.qml
 
-Popup_test_tts_qml.cpp: Popup_test_tts.qml \
-		/usr/lib/qt5/bin/qmlcachegen
-	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_test_tts_qml.cpp Popup_test_tts.qml
-
 Page_log_qml.cpp: Page_log.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Page_log_qml.cpp Page_log.qml
@@ -798,7 +804,6 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		Item_menubar.qml \
 		Popup_help.qml \
 		Page_pickup.qml \
-		Page_MoveFail.qml \
 		Item_buttons.qml \
 		Item_statusbar.qml \
 		Page_setting.qml \
@@ -815,7 +820,6 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		Page_pickup_calling.qml \
 		Popup_map_list.qml \
 		Item_ProgressBar.qml \
-		Popup_test_tts.qml \
 		Page_log.qml \
 		Page_map.qml \
 		Item_CircleP.qml \
@@ -925,6 +929,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/btn_confirm.png \
 		icon/icon_test_play.png \
 		icon/image_emergency_push.png \
+		icon/keyboard.png \
 		icon/bat_large_3.png \
 		icon/keyboard_left.png \
 		icon/icon_avoid.png \
@@ -985,90 +990,66 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_obj_yes.png \
 		icon/bat_full.png \
 		icon/icon-drawing-polygon.png \
-		voice/child_stop_mapping.mp3 \
-		voice/woman_start_charging.mp3 \
-		voice/woman_sorry.mp3 \
-		voice/child_start_operation.mp3 \
-		voice/woman_stop_charging.mp3 \
-		voice/woman_pickup_1.mp3 \
-		voice/child_start_move_resting.mp3 \
-		voice/child_start_next_moving.mp3 \
-		voice/woman_start_move_resting.mp3 \
-		voice/child_funny_working_hard.mp3 \
-		voice/woman_start_next_moving.mp3 \
-		voice/woman_start_patrol.mp3 \
-		voice/child_stop_charging.mp3 \
-		voice/woman_serving.mp3 \
-		voice/woman_charging.mp3 \
-		voice/child_pickup_1.mp3 \
-		voice/woman_hello_rb.mp3 \
-		voice/woman_stop_mapping.mp3 \
-		voice/child_serving.mp3 \
-		voice/woman_funny_working_hard.mp3 \
-		voice/child_charging.mp3 \
-		voice/child_wait.mp3 \
-		voice/child_hello_rb.mp3 \
-		voice/child_sorry.mp3 \
-		voice/child_wait_go_away.mp3 \
-		voice/child_rb_fighting.mp3 \
-		voice/woman_rb_fighting.mp3 \
-		voice/woman_thank.mp3 \
-		voice/woman_start_mapping.mp3 \
-		voice/woman_error_no_path.mp3 \
-		voice/woman_error_emo.mp3 \
-		voice/woman_error.mp3 \
-		voice/child_resume_path.mp3 \
-		voice/woman_resume_path.mp3 \
-		voice/child_thank_enjoy.mp3 \
-		voice/woman_hello.mp3 \
-		voice/woman_thank_enjoy.mp3 \
-		voice/child_path_finding.mp3 \
-		voice/woman_wait_go_away.mp3 \
-		voice/child_low_battery.mp3 \
-		voice/child_error_emo.mp3 \
-		voice/child_start_mapping.mp3 \
-		voice/child_error_no_path.mp3 \
-		voice/woman_low_battery.mp3 \
-		voice/child_thank.mp3 \
-		voice/child_hello.mp3 \
-		voice/woman_wait_path.mp3 \
-		voice/woman_start_operation.mp3 \
-		voice/child_error.mp3 \
-		voice/child_pickup_confirm.mp3 \
-		voice/woman_pickup_3.mp3 \
-		voice/woman_pickup_confirm.mp3 \
+		voice/child_move_resting.mp3 \
+		voice/woman_thanks.mp3 \
 		voice/child_error_localization.mp3 \
-		voice/woman_start_serving.mp3 \
-		voice/child_error_call_manager.mp3 \
-		voice/child_pickup_3.mp3 \
-		voice/child_start_move_charge.mp3 \
-		voice/woman_start_move_charge.mp3 \
-		voice/child_error_move_count.mp3 \
-		voice/woman_pickup_drinks.mp3 \
+		voice/woman_error_battery.mp3 \
+		voice/woman_stop_mapping.mp3 \
+		voice/child_path_finding.mp3 \
 		voice/woman_error_localization.mp3 \
-		voice/woman_error_call_manager.mp3 \
-		voice/child_wait_robot_location.mp3 \
+		voice/woman_hello_rb.mp3 \
+		voice/child_stop_mapping.mp3 \
+		voice/child_thank_enjoy.mp3 \
+		voice/child_move_patrol.mp3 \
+		voice/woman_wait_path.mp3 \
+		voice/child_error_no_path.mp3 \
+		voice/woman_start_operation.mp3 \
+		voice/woman_excuseme.mp3 \
+		voice/woman_move_calling.mp3 \
+		voice/child_move_calling.mp3 \
+		voice/woman_charging.mp3 \
+		voice/child_error_emo.mp3 \
+		voice/woman_move_charging.mp3 \
+		voice/woman_error_emo.mp3 \
+		voice/woman_move_serving.mp3 \
+		voice/woman_move_cleaning.mp3 \
+		voice/child_move_serving.mp3 \
+		voice/child_hello.mp3 \
+		voice/child_sorry.mp3 \
+		voice/woman_moving.mp3 \
+		voice/woman_sorry.mp3 \
+		voice/child_funny_working_hard.mp3 \
+		voice/woman_start_charging.mp3 \
+		voice/child_pickup.mp3 \
+		voice/child_rb_fighting.mp3 \
+		voice/child_hello_rb.mp3 \
+		voice/child_move_next.mp3 \
+		voice/woman_callme.mp3 \
+		voice/woman_pickup.mp3 \
+		voice/woman_funny_working_hard.mp3 \
+		voice/child_start_operation.mp3 \
 		voice/woman_path_finding.mp3 \
-		voice/child_cancel_path.mp3 \
-		voice/woman_wait.mp3 \
-		voice/woman_cancel_path.mp3 \
-		voice/child_pickup_drinks.mp3 \
-		voice/woman_start_calling.mp3 \
+		voice/woman_thank_enjoy.mp3 \
+		voice/woman_move_next.mp3 \
+		voice/woman_move_patrol.mp3 \
 		voice/child_wait_path.mp3 \
-		voice/woman_pickup_2.mp3 \
-		voice/child_pickup_calling.mp3 \
-		voice/child_start_serving.mp3 \
-		voice/woman_pickup_calling.mp3 \
-		voice/woman_error_move_count.mp3 \
-		voice/child_start_patrol.mp3 \
-		voice/child_motor_lock_off.mp3 \
-		voice/child_wait_other_robot.mp3 \
-		voice/child_start_calling.mp3 \
-		voice/woman_motor_lock_off.mp3 \
-		voice/child_pickup_2.mp3 \
-		voice/woman_wait_other_robot.mp3 \
+		voice/woman_start_mapping.mp3 \
+		voice/child_excuseme.mp3 \
+		voice/child_stop_charging.mp3 \
+		voice/child_move_charging.mp3 \
+		voice/child_charging.mp3 \
+		voice/child_move_cleaning.mp3 \
+		voice/woman_error_no_path.mp3 \
+		voice/woman_stop_charging.mp3 \
+		voice/child_error_battery.mp3 \
+		voice/child_moving.mp3 \
 		voice/child_start_charging.mp3 \
-		voice/woman_wait_robot_location.mp3 \
+		voice/woman_hello.mp3 \
+		voice/woman_rb_fighting.mp3 \
+		voice/child_start_mapping.mp3 \
+		voice/woman_move_resting.mp3 \
+		voice/child_callme.mp3 \
+		voice/child_thanks.mp3 \
 		font/NotoSansKR-Medium.otf \
 		font/NotoSansKR-Light.otf
 	/usr/lib/qt5/bin/rcc -name qml_qmlcache qml_qmlcache.qrc -o qrc_qml_qmlcache.cpp
@@ -1079,9 +1060,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 	ccache g++ -pipe -g -std=gnu++11 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_CallbellHandler.cpp moc_CameraView.cpp moc_ExtProcess.cpp moc_IPCHandler.cpp moc_MapHandler.cpp moc_MapViewer.cpp moc_ServerHandler.cpp moc_Keyemitter.cpp moc_Logger.cpp moc_MapHeader.cpp moc_ZIPHandler.cpp moc_Supervisor.cpp moc_quagzipfile.cpp moc_quaziodevice.cpp moc_quazipfile.cpp moc_QtHttpServer.cpp moc_QtHttpReply.cpp moc_QtHttpRequest.cpp moc_QtHttpClientWrapper.cpp
+compiler_moc_header_make_all: moc_CallbellHandler.cpp moc_CameraView.cpp moc_ExtProcess.cpp moc_IPCHandler.cpp moc_MapHandler.cpp moc_MapViewer.cpp moc_ServerHandler.cpp moc_TTSHandler.cpp moc_checker.cpp moc_Keyemitter.cpp moc_Logger.cpp moc_MapHeader.cpp moc_ZIPHandler.cpp moc_Supervisor.cpp moc_cmd_client.cpp moc_quagzipfile.cpp moc_quaziodevice.cpp moc_quazipfile.cpp moc_QtHttpServer.cpp moc_QtHttpReply.cpp moc_QtHttpRequest.cpp moc_QtHttpClientWrapper.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_CallbellHandler.cpp moc_CameraView.cpp moc_ExtProcess.cpp moc_IPCHandler.cpp moc_MapHandler.cpp moc_MapViewer.cpp moc_ServerHandler.cpp moc_Keyemitter.cpp moc_Logger.cpp moc_MapHeader.cpp moc_ZIPHandler.cpp moc_Supervisor.cpp moc_quagzipfile.cpp moc_quaziodevice.cpp moc_quazipfile.cpp moc_QtHttpServer.cpp moc_QtHttpReply.cpp moc_QtHttpRequest.cpp moc_QtHttpClientWrapper.cpp
+	-$(DEL_FILE) moc_CallbellHandler.cpp moc_CameraView.cpp moc_ExtProcess.cpp moc_IPCHandler.cpp moc_MapHandler.cpp moc_MapViewer.cpp moc_ServerHandler.cpp moc_TTSHandler.cpp moc_checker.cpp moc_Keyemitter.cpp moc_Logger.cpp moc_MapHeader.cpp moc_ZIPHandler.cpp moc_Supervisor.cpp moc_cmd_client.cpp moc_quagzipfile.cpp moc_quaziodevice.cpp moc_quazipfile.cpp moc_QtHttpServer.cpp moc_QtHttpReply.cpp moc_QtHttpRequest.cpp moc_QtHttpClientWrapper.cpp
 moc_CallbellHandler.cpp: CallbellHandler.h \
 		GlobalHeader.h \
 		Logger.h \
@@ -1114,6 +1095,7 @@ moc_IPCHandler.cpp: IPCHandler.h \
 		Logger.h \
 		MapHeader.h \
 		cv_to_qt.h \
+		cmd_client.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include IPCHandler.h -o moc_IPCHandler.cpp
@@ -1161,6 +1143,29 @@ moc_ServerHandler.cpp: ServerHandler.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ServerHandler.h -o moc_ServerHandler.cpp
+
+moc_TTSHandler.cpp: TTSHandler.h \
+		GlobalHeader.h \
+		Logger.h \
+		MapHeader.h \
+		cv_to_qt.h \
+		websocket/QtHttpServer.h \
+		websocket/QtHttpRequest.h \
+		websocket/QtHttpReply.h \
+		websocket/QtHttpHeader.h \
+		python_wrapper.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TTSHandler.h -o moc_TTSHandler.cpp
+
+moc_checker.cpp: checker.h \
+		GlobalHeader.h \
+		Logger.h \
+		MapHeader.h \
+		cv_to_qt.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include checker.h -o moc_checker.cpp
 
 moc_Keyemitter.cpp: Keyemitter.h \
 		automata.h \
@@ -1217,6 +1222,7 @@ moc_Supervisor.cpp: Supervisor.h \
 		quazip/quazipnewinfo.h \
 		python_wrapper.h \
 		IPCHandler.h \
+		cmd_client.h \
 		ServerHandler.h \
 		websocket/QtHttpServer.h \
 		websocket/QtHttpRequest.h \
@@ -1224,11 +1230,21 @@ moc_Supervisor.cpp: Supervisor.h \
 		websocket/QtHttpHeader.h \
 		MapView.h \
 		spline.h \
+		TTSHandler.h \
 		MapHandler.h \
 		ExtProcess.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Supervisor.h -o moc_Supervisor.cpp
+
+moc_cmd_client.cpp: cmd_client.h \
+		GlobalHeader.h \
+		Logger.h \
+		MapHeader.h \
+		cv_to_qt.h \
+		moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include cmd_client.h -o moc_cmd_client.cpp
 
 moc_quagzipfile.cpp: quazip/quagzipfile.h \
 		quazip/quazip_global.h \
@@ -1316,7 +1332,8 @@ IPCHandler.o: IPCHandler.cpp IPCHandler.h \
 		GlobalHeader.h \
 		Logger.h \
 		MapHeader.h \
-		cv_to_qt.h
+		cv_to_qt.h \
+		cmd_client.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o IPCHandler.o IPCHandler.cpp
 
 MapHandler.o: MapHandler.cpp MapHandler.h \
@@ -1326,6 +1343,20 @@ MapHandler.o: MapHandler.cpp MapHandler.h \
 		MapHeader.h \
 		cv_to_qt.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o MapHandler.o MapHandler.cpp
+
+checker.o: checker.cpp checker.h \
+		GlobalHeader.h \
+		Logger.h \
+		MapHeader.h \
+		cv_to_qt.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o checker.o checker.cpp
+
+cmd_client.o: cmd_client.cpp cmd_client.h \
+		GlobalHeader.h \
+		Logger.h \
+		MapHeader.h \
+		cv_to_qt.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o cmd_client.o cmd_client.cpp
 
 MapViewer.o: MapViewer.cpp MapViewer.h \
 		MapHeader.h \
@@ -1356,6 +1387,18 @@ ServerHandler.o: ServerHandler.cpp ServerHandler.h \
 		websocket/QtHttpReply.h \
 		websocket/QtHttpHeader.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ServerHandler.o ServerHandler.cpp
+
+TTSHandler.o: TTSHandler.cpp TTSHandler.h \
+		GlobalHeader.h \
+		Logger.h \
+		MapHeader.h \
+		cv_to_qt.h \
+		websocket/QtHttpServer.h \
+		websocket/QtHttpRequest.h \
+		websocket/QtHttpReply.h \
+		websocket/QtHttpHeader.h \
+		python_wrapper.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o TTSHandler.o TTSHandler.cpp
 
 ZIPHandler.o: ZIPHandler.cpp ZIPHandler.h \
 		GlobalHeader.h \
@@ -1405,6 +1448,7 @@ Supervisor.o: Supervisor.cpp Supervisor.h \
 		quazip/quazipnewinfo.h \
 		python_wrapper.h \
 		IPCHandler.h \
+		cmd_client.h \
 		ServerHandler.h \
 		websocket/QtHttpServer.h \
 		websocket/QtHttpRequest.h \
@@ -1412,6 +1456,7 @@ Supervisor.o: Supervisor.cpp Supervisor.h \
 		websocket/QtHttpHeader.h \
 		MapView.h \
 		spline.h \
+		TTSHandler.h \
 		MapHandler.h \
 		ExtProcess.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Supervisor.o Supervisor.cpp
@@ -1436,6 +1481,7 @@ main.o: main.cpp CameraView.h \
 		quazip/quazipnewinfo.h \
 		python_wrapper.h \
 		IPCHandler.h \
+		cmd_client.h \
 		ServerHandler.h \
 		websocket/QtHttpServer.h \
 		websocket/QtHttpRequest.h \
@@ -1443,11 +1489,13 @@ main.o: main.cpp CameraView.h \
 		websocket/QtHttpHeader.h \
 		MapView.h \
 		spline.h \
+		TTSHandler.h \
 		MapHandler.h \
 		ExtProcess.h \
 		MapViewer.h \
 		Keyemitter.h \
-		automata.h
+		automata.h \
+		checker.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 JlCompress.o: quazip/JlCompress.cpp quazip/JlCompress.h \
@@ -1600,9 +1648,6 @@ Popup_help_qml.o: Popup_help_qml.cpp
 Page_pickup_qml.o: Page_pickup_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_pickup_qml.o Page_pickup_qml.cpp
 
-Page_MoveFail_qml.o: Page_MoveFail_qml.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_MoveFail_qml.o Page_MoveFail_qml.cpp
-
 Item_buttons_qml.o: Item_buttons_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_buttons_qml.o Item_buttons_qml.cpp
 
@@ -1651,9 +1696,6 @@ Popup_map_list_qml.o: Popup_map_list_qml.cpp
 Item_ProgressBar_qml.o: Item_ProgressBar_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_ProgressBar_qml.o Item_ProgressBar_qml.cpp
 
-Popup_test_tts_qml.o: Popup_test_tts_qml.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Popup_test_tts_qml.o Popup_test_tts_qml.cpp
-
 Page_log_qml.o: Page_log_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_log_qml.o Page_log_qml.cpp
 
@@ -1699,6 +1741,12 @@ moc_MapViewer.o: moc_MapViewer.cpp
 moc_ServerHandler.o: moc_ServerHandler.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_ServerHandler.o moc_ServerHandler.cpp
 
+moc_TTSHandler.o: moc_TTSHandler.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_TTSHandler.o moc_TTSHandler.cpp
+
+moc_checker.o: moc_checker.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_checker.o moc_checker.cpp
+
 moc_Keyemitter.o: moc_Keyemitter.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Keyemitter.o moc_Keyemitter.cpp
 
@@ -1713,6 +1761,9 @@ moc_ZIPHandler.o: moc_ZIPHandler.cpp
 
 moc_Supervisor.o: moc_Supervisor.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_Supervisor.o moc_Supervisor.cpp
+
+moc_cmd_client.o: moc_cmd_client.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_cmd_client.o moc_cmd_client.cpp
 
 moc_quagzipfile.o: moc_quagzipfile.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_quagzipfile.o moc_quagzipfile.cpp
