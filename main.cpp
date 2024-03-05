@@ -7,6 +7,7 @@
 #include "Supervisor.h"
 #include "MapViewer.h"
 #include "Keyemitter.h"
+#include "checker.h"
 #include "Logger.h"
 
 Logger *plog;
@@ -15,7 +16,7 @@ QApplication *app;//(argc, argv);
 
 int main(int argc, char *argv[])
 {
-    bool test_mode = false;
+    bool test_mode = true;
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     qmlRegisterType<Supervisor>("io.qt.Supervisor",1,0, "Supervisor");
     qmlRegisterType<CameraView>("io.qt.CameraView",1,0, "CameraView");
@@ -41,6 +42,13 @@ int main(int argc, char *argv[])
 
     }
 
+
+//    QThread workt;
+//    checker.moveToThread(&workt);
+//    QObject::connect(&workt,&QThread::started, [&checker](){
+//       checker.runProcess("nmcli",QStringList());
+//    });
+//    workt.start();
 
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());
