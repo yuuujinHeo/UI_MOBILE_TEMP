@@ -114,6 +114,8 @@ public:
     Q_INVOKABLE bool isDebugMode(){return debug_mode;}
     QString curUiState();
 
+    Q_INVOKABLE void loopClosing();
+
     ////*********************************************  Patrol   *********************************************////
     int patrol_mode = PATROL_NONE;
     int patrol_wait_count = 0;
@@ -121,6 +123,7 @@ public:
     ST_PATROL current_patrol;
     Q_INVOKABLE void readPatrol();
     Q_INVOKABLE int getPatrolSize();
+    Q_INVOKABLE int getPatrolVoiceNameNum(int num);
     Q_INVOKABLE QString getPatrolName(int num);
     Q_INVOKABLE QString getPatrolType(int num);
     Q_INVOKABLE QString getPatrolLocation(int num);
@@ -130,6 +133,7 @@ public:
     Q_INVOKABLE int getPatrolPassTime(int num);
     Q_INVOKABLE QString getPatrolVoice(int num);
     Q_INVOKABLE QString getPatrolVoiceMode(int num);
+    Q_INVOKABLE QString getPatrolVoiceMention(int num);
     Q_INVOKABLE QString getPatrolVoiceLanguage(int num);
 
     Q_INVOKABLE bool isPatrolPage();
@@ -144,32 +148,23 @@ public:
     Q_INVOKABLE void addPatrolLocation(QString name);
     Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
-    Q_INVOKABLE void setPatrolVoice(QString mode, int language, int voice, int volume);
+    Q_INVOKABLE void savePatrolVoiceBasic(QString voice, QString text);
+    Q_INVOKABLE void setPatrolVoice(QString mode, int language, int voice, int volume, int mention=0);
 
     Q_INVOKABLE void setPatrol(int num, QString name, QString type, int wait_time, int pass_time);
     Q_INVOKABLE void savePatrol(QString name, QString type, int wait_time, int pass_time);
     Q_INVOKABLE void deletePatrol(int num);
     Q_INVOKABLE void startPatrol(int num);
 
-    Q_INVOKABLE void setTTSLanguage(int lan);
 
     Q_INVOKABLE void makeTTSAll();
-    Q_INVOKABLE void setTTSMode(int num){
-        if(num==1){
-            tts->curVoice.mode = "basic";
-        }else if(num==2){
-            tts->curVoice.mode = "tts";
-        }else{
-            tts->curVoice.mode = "none";
-        }
-    }
-    Q_INVOKABLE void setTTSName(QString name);
-    Q_INVOKABLE void setTTSVoice(int lan, int name);
-    Q_INVOKABLE void setTTSVoice(int lan, int name, int speed, int pitch, int alpha, int emotion=0, int emostren=1);
-    Q_INVOKABLE void clearTTSVoice(int lan, int name);
     Q_INVOKABLE void setTTSMode(QString mode);
+    Q_INVOKABLE void setTTSVoice(int lan, int name);
+    Q_INVOKABLE void setTTSVoiceDetail(int speed, int pitch, int alpha, int emotion=0, int emostren=1);
+
+    Q_INVOKABLE void clearTTSVoice(int lan, int name);
     Q_INVOKABLE void saveTTSVoice();
-    Q_INVOKABLE void makePatrolTTS(QString text);
+    Q_INVOKABLE void makePatrolTTS(int language, int voice, QString text, bool play=true);
 
     Q_INVOKABLE int getTTSNameNum();
     Q_INVOKABLE int getTTSLanguageNum();
@@ -218,9 +213,12 @@ public:
     Q_INVOKABLE int getTTSAlpha(){return tts->curVoice.alpha;}
     Q_INVOKABLE int getTTSVolume(){return tts->curVoice.volume;}
     Q_INVOKABLE QString getTTSMention(QString text);
+    Q_INVOKABLE void setTTSMentionBasic();
+//    Q_INVOKABLE void playTTS(QString voice, QString text);
     Q_INVOKABLE void setTTSMention(QString text, QString mention);
     Q_INVOKABLE void playVoice(QString file, QString voice="", QString mode="", QString language="", int volume=-1);
 
+    Q_INVOKABLE QString getTTSVoice(int lan, int name){return tts->getVoiceName(lan,name);}
     Q_INVOKABLE void playTTS(){tts->playcurVoice();}
 
     //------------ custom page --------------//

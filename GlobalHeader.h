@@ -281,6 +281,7 @@ typedef struct{
     QString voice_language = "";
     QString voice_name = "";
     QString voice_file = "";
+    QString voice_mention = "";
     QString voice_path = "";
     int voice_volume = 0;
     int wait_time = 0;

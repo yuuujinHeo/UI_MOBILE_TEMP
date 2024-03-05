@@ -62,41 +62,25 @@ Popup{
         }
         select();
 
-        model_voice_temp.clear();
-        model_voice_temp.append({"file":"thanks"});
-        model_voice_temp.append({"file":"hello"});
-        model_voice_temp.append({"file":"funny_working_hard"});
-        model_voice_temp.append({"file":"hello_rb"});
-        model_voice_temp.append({"file":"path_finding"});
-        model_voice_temp.append({"file":"rb_fighting"});
-        model_voice_temp.append({"file":"moving"});
-        model_voice_temp.append({"file":"sorry"});
-        model_voice_temp.append({"file":"move_next"});
-        model_voice_temp.append({"file":"move_patrol"});
-        model_voice_temp.append({"file":"wait_path"});
-        model_voice_temp.append({"file":"thank_enjoy"});
-        model_voice.clear();
-        model_voice.append({"value":qsTr("감사합니다")});
-        model_voice.append({"value":qsTr("안녕하세요")});
-        model_voice.append({"value":qsTr("로봇은 열심히 일하는중")});
-        model_voice.append({"value":qsTr("안녕하세요(레인보우)")});
-        model_voice.append({"value":qsTr("위치를 찾는 중")});
-        model_voice.append({"value":qsTr("레인보우화이팅")});
-        model_voice.append({"value":qsTr("서빙중입니다")});
-        model_voice.append({"value":qsTr("죄송합니다")});
-        model_voice.append({"value":qsTr("다음위치로이동")});
-        model_voice.append({"value":qsTr("순회를시작합니다")});
-        model_voice.append({"value":qsTr("위치를 찾는 중")});
-        model_voice.append({"value":qsTr("맛있게드세요")});
-        combo_voice.currentIndex = 0;
+        model_voice_mention.clear();
+        model_voice_mention.append({"value":qsTr("감사합니다")});
+        model_voice_mention.append({"value":qsTr("안녕하세요")});
+        model_voice_mention.append({"value":qsTr("로봇은 열심히 일하는중")});
+        model_voice_mention.append({"value":qsTr("안녕하세요(레인보우)")});
+        model_voice_mention.append({"value":qsTr("위치를 찾는 중")});
+        model_voice_mention.append({"value":qsTr("레인보우화이팅")});
+        model_voice_mention.append({"value":qsTr("서빙중입니다")});
+        model_voice_mention.append({"value":qsTr("죄송합니다")});
+        model_voice_mention.append({"value":qsTr("다음위치로이동")});
+        model_voice_mention.append({"value":qsTr("순회를시작합니다")});
+        model_voice_mention.append({"value":qsTr("위치를 찾는 중")});
+        model_voice_mention.append({"value":qsTr("맛있게드세요")});
+        combo_voice_mention.currentIndex = 0;
         waittime = 0;
-        combo_voice_mode.currentIndex = 0;
+        combo_voice_name.currentIndex = 0;
         combo_voice_lan.currentIndex = 0;
     }
 
-    ListModel{
-        id: model_voice_temp
-    }
 
     function select(){
         for(var i=0; i<model_patrols.count; i++){
@@ -134,48 +118,70 @@ Popup{
             combo_arrivepage.currentIndex = 0;
         }
 
-        for(var i=0; i<model_voice.count; i++){
-            if(model_voice.get(i).file === supervisor.getPatrolVoice(num)){
-                combo_voice.currentIndex = i;
-                break;
+        if(supervisor.getPatrolVoiceMode(num) === "basic"){
+            combo_voice_mode.currentIndex = 1;
+
+            combo_voice_name.currentIndex = supervisor.getPatrolVoiceNameNum(num);
+
+            if(supervisor.getPatrolVoiceMention(num) === "hello"){
+                combo_voice_mention.currentIndex = 1;
+            }else if(supervisor.getPatrolVoiceMention(num) === "funny_working_hard"){
+                combo_voice_mention.currentIndex = 2;
+            }else if(supervisor.getPatrolVoiceMention(num) === "hello_rb"){
+                combo_voice_mention.currentIndex = 3;
+            }else if(supervisor.getPatrolVoiceMention(num) === "path_finding"){
+                combo_voice_mention.currentIndex = 4;
+            }else if(supervisor.getPatrolVoiceMention(num) === "rb_fighting"){
+                combo_voice_mention.currentIndex = 5;
+            }else if(supervisor.getPatrolVoiceMention(num) === "moving"){
+                combo_voice_mention.currentIndex = 6;
+            }else if(supervisor.getPatrolVoiceMention(num) === "sorry"){
+                combo_voice_mention.currentIndex = 7;
+            }else if(supervisor.getPatrolVoiceMention(num) === "move_next"){
+                combo_voice_mention.currentIndex = 8;
+            }else if(supervisor.getPatrolVoiceMention(num) === "move_patrol"){
+                combo_voice_mention.currentIndex = 9;
+            }else if(supervisor.getPatrolVoiceMention(num) === "wait_path"){
+                combo_voice_mention.currentIndex = 10;
+            }else if(supervisor.getPatrolVoiceMention(num) === "thank_enjoy"){
+                combo_voice_mention.currentIndex = 11;
+            }else{
+                combo_voice_mention.currentIndex = 0;
             }
+        }else if(supervisor.getPatrolVoiceMode(num) === "tts"){
+            combo_voice_mode.currentIndex = 2;
+            tfield_tts_text.text = supervisor.getPatrolVoiceMention(num);
+            if(supervisor.getPatrolVoiceLanguage(num) === "en-us"){
+                combo_voice_lan.currentIndex = 1;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "en-uk"){
+                combo_voice_lan.currentIndex = 2;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "zh-CN"){
+                combo_voice_lan.currentIndex = 3;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "ru"){
+                combo_voice_lan.currentIndex = 4;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "fr"){
+                combo_voice_lan.currentIndex = 5;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "ja"){
+                combo_voice_lan.currentIndex = 6;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "id"){
+                combo_voice_lan.currentIndex = 7;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "es"){
+                combo_voice_lan.currentIndex = 8;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "de"){
+                combo_voice_lan.currentIndex = 9;
+            }else if(supervisor.getPatrolVoiceLanguage(num) === "la"){
+                combo_voice_lan.currentIndex = 10;
+            }else{
+                combo_voice_lan.currentIndex = 0;
+            }
+            combo_voice_name.currentIndex = supervisor.getPatrolVoiceNameNum(num);
+        }else{
+            combo_voice_mode.currentIndex = 0;
         }
 
         popup_patrol.waittime = supervisor.getPatrolWaitTime(num);
-        if(supervisor.getPatrolVoiceMode(num) === "child"){
-            combo_voice_mode.currentIndex = 1;
-        }else if(supervisor.getPatrolVoiceMode(num) === "woman"){
-            combo_voice_mode.currentIndex = 0;
-        }else{
-            combo_voice_mode.currentIndex = 2;
-        }
 
-        print("setPreset ",supervisor.getPatrolVoiceLanguage(num));
-        if(supervisor.getPatrolVoiceLanguage(num) === "en-us"){
-            combo_voice_lan.currentIndex = 1;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "en-uk"){
-            combo_voice_lan.currentIndex = 2;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "zh-CN"){
-            combo_voice_lan.currentIndex = 3;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "ru"){
-            combo_voice_lan.currentIndex = 4;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "fr"){
-            combo_voice_lan.currentIndex = 5;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "ja"){
-            combo_voice_lan.currentIndex = 6;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "id"){
-            combo_voice_lan.currentIndex = 7;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "es"){
-            combo_voice_lan.currentIndex = 8;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "de"){
-            combo_voice_lan.currentIndex = 9;
-        }else if(supervisor.getPatrolVoiceLanguage(num) === "la"){
-            combo_voice_lan.currentIndex = 10;
-        }else{
-            combo_voice_lan.currentIndex = 0;
-        }
 
-        tfield_tts_text.text = supervisor.getPatrolVoice(num);
         if(supervisor.getPatrolLocation(num) === "all"){
             popup_patrol.select_pos_mode = 0;
         }else if(supervisor.getPatrolLocation(num) === "serving"){
@@ -226,12 +232,13 @@ Popup{
             supervisor.setPatrolArrivePage("pass");
         }
 
-        if(combo_voice_use.currentIndex === 0){//no use
-            supervisor.setPatrolVoice("none", combo_voice_lan.currentIndex, combo_voice_mode.currentIndex, slider_voice_volume.value);
-        }else if(combo_voice_use.currentIndex === 1){//basic
-            supervisor.setPatrolVoice("basic", 0, combo_voice_mode.currentIndex, "50");
-        }else if(combo_voice_use.currentIndex === 2){//tts
-            supervisor.setPatrolVoice("tts",combo_voice_lan.currentIndex, combo_voice_mode.currentIndex, slider_voice_volume.value);
+        if(combo_voice_mode.currentIndex === 0){//no use
+            supervisor.setPatrolVoice("none", 0, 0, 0);
+        }else if(combo_voice_mode.currentIndex === 1){//basic
+            supervisor.setPatrolVoice("basic", 0, combo_voice_name.currentIndex, slider_voice_volume.value, combo_voice_mention.currentIndex);
+        }else if(combo_voice_mode.currentIndex === 2){//tts
+            supervisor.makePatrolTTS(combo_voice_lan.currentIndex,combo_voice_name.currentIndex,tfield_tts_text.text);
+            supervisor.setPatrolVoice("tts",combo_voice_lan.currentIndex, combo_voice_name.currentIndex, slider_voice_volume.value);
         }
 
 
@@ -1013,7 +1020,7 @@ Popup{
                                     Row{
                                         spacing: 10
                                         ComboBox{
-                                            id: combo_voice_use
+                                            id: combo_voice_mode
                                             width: 300
                                             height: 50
                                             model:[qsTr("사용안함"),qsTr("지정된음성"),qsTr("만들기")]
@@ -1058,23 +1065,23 @@ Popup{
                                     }
                                     Text{
                                         text: qsTr("멘트")
-                                        visible: combo_voice_use.currentIndex !== 0
+                                        visible: combo_voice_mode.currentIndex !== 0
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
                                     Row{
                                         spacing: 10
-                                        visible: combo_voice_use.currentIndex === 1
+                                        visible: combo_voice_mode.currentIndex === 1
                                         ComboBox{
-                                            id: combo_voice
+                                            id: combo_voice_mention
                                             width: 300
                                             height: 50
-                                            model:ListModel{id: model_voice}
+                                            model:ListModel{id: model_voice_mention}
                                         }
                                     }
                                     Row{
                                         spacing: 10
-                                        visible: combo_voice_use.currentIndex === 2
+                                        visible: combo_voice_mode.currentIndex === 2
                                         TextField{
                                             id: tfield_tts_text
                                             width: 240
@@ -1110,13 +1117,13 @@ Popup{
                                     }
                                     Text{
                                         text: qsTr("언어")
-                                        visible: combo_voice_use.currentIndex === 2
+                                        visible: combo_voice_mode.currentIndex === 2
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
                                     Row{
                                         spacing: 10
-                                        visible: combo_voice_use.currentIndex === 2
+                                        visible: combo_voice_mode.currentIndex === 2
                                         ComboBox{
                                             id: combo_voice_lan
                                             width: 300
@@ -1155,14 +1162,14 @@ Popup{
                                     }
                                     Text{
                                         text: qsTr("음성볼륨")
-                                        visible: combo_voice_use.currentIndex !== 0
+                                        visible: combo_voice_mode.currentIndex !== 0
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
                                     Slider{
-                                        visible: combo_voice_use.currentIndex !== 0
+                                        visible: combo_voice_mode.currentIndex !== 0
                                         id: slider_voice_volume
-                                        anchors.verticalCenter: parent.verticalCenter
+//                                        anchors.verticalCenter: parent.verticalCenter
                                         width: 300
                                         height: 50
                                         from: 0
@@ -1171,18 +1178,17 @@ Popup{
                                         value: 100
                                     }
 
-
                                     Text{
                                         text: qsTr("음성")
-                                        visible: combo_voice_use.currentIndex === 2
+                                        visible: combo_voice_mode.currentIndex === 2
                                         font.family: font_noto_b.name
                                         font.pixelSize: 16
                                     }
                                     Row{
                                         spacing: 10
-                                        visible: combo_voice_use.currentIndex === 2 && combo_voice_lan.currentIndex < 5
+                                        visible: combo_voice_mode.currentIndex === 2 && combo_voice_lan.currentIndex < 5
                                         ComboBox{
-                                            id: combo_voice_mode
+                                            id: combo_voice_name
                                             width: 240
                                             height: 50
                                             model:ListModel{id:model_voice_name}
@@ -1201,9 +1207,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    supervisor.setTTSVoice(combo_voice_lan.currentIndex,combo_voice_mode.currentIndex,
-                                                                           0, 0, 0, 0, 0);
-                                                    supervisor.makePatrolTTS(tfield_tts_text.text);
+                                                    supervisor.makePatrolTTS(combo_voice_lan.currentIndex,combo_voice_name.currentIndex,tfield_tts_text.text);
                                                 }
                                             }
                                         }

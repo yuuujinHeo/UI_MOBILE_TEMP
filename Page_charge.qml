@@ -78,21 +78,20 @@ Item {
         interval: 500
         running: true
         onTriggered: {
+            print(supervisor.getChargeStatus() , supervisor.getChargeConnectStatus(), is_charging);
             if(supervisor.getChargeStatus()){
                 if(!is_charging){
                     timer_bat.start();
-                    //                    voice_stop_charge.stop();
-                    //                    voice_charging.play();
                     supervisor.playVoice("charging");
                     is_charging = true;
                 }
                 text_mention.text = qsTr("충전 중입니다")
+            }else if(supervisor.getChargeConnectStatus()){
+                text_mention.text = qsTr("충전 케이블이 연결되었습니다")
             }else{
                 if(is_charging){
                     init();
                     supervisor.playVoice("stop_charging");
-//                    voice_charging.stop();
-//                    voice_stop_charge.play();
                     if(is_init){
                         is_init = false;
                         loadPage(pinit);

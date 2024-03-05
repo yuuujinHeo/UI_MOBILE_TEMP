@@ -8,7 +8,7 @@ TTSHandler::TTSHandler()
     readVoiceSetting();
 }
 
-void TTSHandler::setVoice(QString name, QString lan, QString mode){
+void TTSHandler::setVoice(QString name, QString lan){
     curVoice.voice = name;
     curVoice.language = lan;
 }
@@ -19,6 +19,222 @@ void TTSHandler::setVoiceDetail(int speed, int pitch, int alpha, int emotion, in
     curVoice.alpha = alpha;
     curVoice.emotion = emotion;
     curVoice.emotion_strength = emotion_strength;
+}
+
+QString TTSHandler::getMentionBasicStr(QString lan, QString text){
+    if(lan == "ko"){
+        if(text == "move_serving"){return "서빙을 시작합니다";}
+        if(text == "move_calling"){return "호출하신 곳으로 이동합니다";}
+        if(text == "move_charging"){return "충전위치로 이동합니다";}
+        if(text == "move_resting"){return "대기위치로 이동합니다";}
+        if(text == "move_cleaning"){return "퇴식위치로 이동합니다";}
+        if(text == "move_patrol"){ return "지정순회를 시작합니다";}
+        if(text == "move_next"){   return "다음위치로 이동합니다";}
+
+        if(text == "hello"){       return "안녕하세요";}
+        if(text == "thanks"){      return "감사합니다";}
+        if(text == "sorry"){       return "죄송합니다";}
+        if(text == "excuseme"){    return "죄송합니다. 잠시만 지나가겠습니다";}
+        if(text == "moving"){      return "로봇이 서빙 중입니다";}
+
+        if(text == "error_no_path"){ "경로를 찾을 수 없습니다";}
+        if(text == "error_localization"){
+            return "위치를 찾을 수 없습니다";}
+        if(text == "error_battery"){return "배터리가 부족합니다";}
+        if(text == "error_emo"){   return "비상전원스위치가 눌렸습니다";}
+
+        if(text == "pickup"){      return "트레이의 제품을 픽업하신 후){확인버튼을 눌러주세요";}
+        if(text == "callme"){      return "부르셨나요? 이용이 끝나신 후 확인버튼을 눌러주세요";}
+
+        if(text == "start_operation"){
+            return "운영을 시작합니다";}
+
+        if(text == "start_charging"){return"충전을 시작합니다";}
+        if(text == "stop_charging"){ return"충전이 종료되었습니다";}
+        if(text == "charging"){    return "충전 중 입니다";}
+
+        if(text == "start_mapping"){ return"매핑을 시작합니다";}
+        if(text == "stop_mapping"){return "매핑을 종료합니다";}
+
+        if(text == "test"){return "테스트 음성입니다";}
+    }else if(lan == "en"){
+        if(text == "move_serving"){return "I'll start serving";}
+        if(text == "move_calling"){return "I'm heading to the requested location";}
+        if(text == "move_charging"){return "Moving to the charging station";}
+        if(text == "move_resting"){return "Moving to the waiting area";}
+        if(text == "move_cleaning"){return "Heading to the dining area";}
+        if(text == "move_patrol"){ return "Starting designated patrol";}
+        if(text == "move_next"){   return "Moving to the next location";}
+
+        if(text == "hello"){       return "Hello";}
+        if(text == "thanks"){      return "Thank you";}
+        if(text == "sorry"){       return "I'm sorry";}
+        if(text == "excuseme"){    return "sorry){please wait a moment";}
+        if(text == "moving"){      return "The robot is currently serving";}
+
+        if(text == "error_no_path"){return"Unable to find the route";}
+        if(text == "error_localization"){return"Unable to find my location";}
+        if(text == "error_battery"){ return"Low battery";}
+        if(text == "error_emo"){   return "Emergency power switch has been pressed";}
+
+        if(text == "pickup"){      return "Please pick up the item from the tray and press the confirm button";}
+        if(text == "callme"){      return "Did you call? Please press the confirm button when you're done";}
+
+        if(text == "start_operation"){return "Starting operation";}
+
+        if(text == "start_charging"){return "Starting charging";}
+        if(text == "stop_charging"){ return "Charging complete";}
+        if(text == "charging"){    return "Currently charging";}
+
+        if(text == "start_mapping"){return "Starting mapping";}
+        if(text == "stop_mapping"){return "Mapping complete";}
+
+        if(text == "test"){return "This is a test voice";}
+    }else if(lan == "zh-CN"){
+        if(text == "move_serving"){return "开始服务";}
+        if(text == "move_calling"){return "前往您呼叫的地点";}
+        if(text == "move_charging"){return "前往充电位置";}
+        if(text == "move_resting"){return "前往等待位置";}
+        if(text == "move_cleaning"){return "前往就餐位置";}
+        if(text == "move_patrol"){ return "开始指定巡逻";}
+        if(text == "move_next"){   return "前往下一个位置";}
+
+        if(text == "hello"){       return "你好";}
+        if(text == "thanks"){      return "谢谢";}
+        if(text == "sorry"){       return "对不起";}
+        if(text == "excuseme"){    return "对不起，请稍等片刻";}
+        if(text == "moving"){      return "机器人正在服务中";}
+
+        if(text == "error_no_path"){return "无法找到路径";}
+        if(text == "error_localization"){return "无法找到位置";}
+        if(text == "error_battery"){return "电池电量不足";}
+        if(text == "error_emo"){   return "紧急电源开关已按下";}
+
+        if(text == "pickup"){      return "取走托盘上的物品后，请按下确认按钮";}
+        if(text == "callme"){      return "您呼叫了吗？完成后请按下确认按钮";}
+
+        if(text == "start_operation"){return "开始运营";}
+
+        if(text == "start_charging"){return "开始充电";}
+        if(text == "stop_charging"){return "充电已完成";}
+        if(text == "charging"){    return "正在充电";}
+
+        if(text == "start_mapping"){return "开始地图绘制";}
+        if(text == "stop_mapping"){return "地图绘制完成";}
+        if(text == "test"){return "这是一个测试音频";}
+    }else if(lan == "ja"){
+        if(text == "move_serving"){return "サービスを開始します";}
+        if(text == "move_calling"){return "お呼びの場所に移動します";}
+        if(text == "move_charging"){return "充電場所に移動します";}
+        if(text == "move_resting"){return "待機場所に移動します";}
+        if(text == "move_cleaning"){return "食事場所に移動します";}
+        if(text == "move_patrol"){ return "指定された巡回を開始します";}
+        if(text == "move_next"){   return "次の場所に移動します";}
+
+        if(text == "hello"){       return "こんにちは";}
+        if(text == "thanks"){      return "ありがとうございます";}
+        if(text == "sorry"){       return "申し訳ありません";}
+        if(text == "excuseme"){    return "申し訳ありません。少々お待ちください";}
+        if(text == "moving"){      return "ロボットがサービス中です";}
+
+        if(text == "error_no_path"){return "経路が見つかりません";}
+        if(text == "error_localization"){return "場所が見つかりません";}
+        if(text == "error_battery"){return "バッテリーが不足しています";}
+        if(text == "error_emo"){   return "緊急電源スイッチが押されました";}
+
+        if(text == "pickup"){      return "トレイの商品を取り出した後、確認ボタンを押してください";}
+        if(text == "callme"){      return "呼びましたか？ご利用が終わった後、確認ボタンを押してください";}
+
+        if(text == "start_operation"){ return "運用を開始します";}
+
+        if(text == "start_charging"){return "充電を開始します";}
+        if(text == "stop_charging"){return "充電が完了しました";}
+        if(text == "charging"){    return "充電中です";}
+
+        if(text == "start_mapping"){return "マッピングを開始します";}
+        if(text == "stop_mapping"){return "マッピングが終了しました";}
+        if(text == "test"){return "これはテスト音声です";}
+    }else if(lan == "es"){
+        if(text == "move_serving"){return "Comenzando el servicio";}
+        if(text == "move_calling"){return "Dirigiéndome hacia el lugar solicitado";}
+        if(text == "move_charging"){return "Dirigiéndome hacia la estación de carga";}
+        if(text == "move_resting"){return "Dirigiéndome hacia el área de espera.";}
+        if(text == "move_cleaning"){return "Dirigiéndome hacia el área de comida.";}
+        if(text == "move_patrol"){ return "Comenzando la patrulla designada.";}
+        if(text == "move_next"){   return "Dirigiéndome hacia la próxima ubicación.";}
+        if(text == "hello"){       return "Hola.";}
+        if(text == "thanks"){      return "Gracias.";}
+        if(text == "sorry"){       return "Lo siento.";}
+        if(text == "excuseme"){    return "Lo siento){por favor espere un momento.";}
+        if(text == "moving"){      return "El robot está sirviendo actualmente.";}
+        if(text == "error_no_path"){return "No se puede encontrar la ruta.";}
+
+        if(text == "error_localization"){return "No se puede encontrar la ubicación.";}
+
+        if(text == "error_battery"){return "Batería baja.";}
+        if(text == "error_emo"){   return "Se ha presionado el interruptor de emergencia.";}
+        if(text == "pickup"){      return "Por favor){recoja el producto de la bandeja y luego presione el botón de confirmación.";}
+        if(text == "callme"){      return "¿Me llamaste? Por favor){presiona el botón de confirmación cuando hayas terminado.";}
+        if(text == "start_operation"){return "Comenzando la operación.";}
+        if(text == "start_charging"){return "Comenzando la carga.";}
+        if(text == "stop_charging"){return "La carga ha sido completada.";}
+        if(text == "charging"){    return "Cargando actualmente.";}
+        if(text == "start_mapping"){return "Comenzando el mapeo.";}
+        if(text == "stop_mapping"){return "Mapeo completado.";}
+        if(text == "test"){return "Este es un audio de prueba";}
+    }else if(lan == "ru"){
+        if(text == "move_serving"){    return "Начинаю обслуживание.";}
+        if(text == "move_calling"){    return "Перехожу к запрошенному месту.";}
+        if(text == "move_charging"){   return "Перехожу к месту зарядки.";}
+        if(text == "move_resting"){    return "Перехожу на место ожидания.";}
+        if(text == "move_cleaning"){   return "Перехожу на место для приема пищи.";}
+        if(text == "move_patrol"){     return "Начинаю заданное обходное движение.";}
+        if(text == "move_next"){       return "Перехожу к следующему месту.";}
+        if(text == "hello"){           return "Здравствуйте.";}
+        if(text == "thanks"){          return "Спасибо.";}
+        if(text == "sorry"){           return "Извините.";}
+        if(text == "excuseme"){        return "Извините){пожалуйста){подождите немного.";}
+        if(text == "moving"){          return "Робот находится в процессе обслуживания.";}
+        if(text == "error_no_path"){   return "Не удается найти маршрут.";}
+     if(text == "error_localization"){ return "Не удается найти местоположение.";}
+        if(text == "error_battery"){   return "Низкий уровень заряда батареи.";}
+        if(text == "error_emo"){       return "Был нажат аварийный выключатель питания.";}
+        if(text == "pickup"){          return "Пожалуйста){возьмите товар с подноса){затем нажмите кнопку подтверждения.";}
+        if(text == "callme"){          return "Вас вызывали? Пожалуйста){нажмите кнопку подтверждения){когда закончите.";}
+        if(text == "start_operation"){ return "Начинаю операцию.";}
+        if(text == "start_charging"){  return "Начинаю зарядку.";}
+        if(text == "stop_charging"){   return "Зарядка завершена.";}
+        if(text == "charging"){        return "В процессе зарядки.";}
+        if(text == "start_mapping"){   return "Начинаю создание карты.";}
+        if(text == "stop_mapping"){    return "Картирование завершено.";}
+        if(text == "test"){return "Это тестовый голос";}
+    }else if(lan == "de"){
+        if(text == "move_serving"){        return "Ich beginne mit dem Servieren.";}
+        if(text == "move_calling"){        return "Ich bewege mich zu dem angeforderten Ort.";}
+        if(text == "move_charging"){       return "Ich bewege mich zur Ladestation.";}
+        if(text == "move_resting"){        return "Ich bewege mich zum Wartebereich.";}
+        if(text == "move_cleaning"){       return "Ich bewege mich zum Essbereich.";}
+        if(text == "move_patrol"){         return "Ich beginne mit der festgelegten Patrouille.";}
+        if(text == "move_next"){           return "Ich bewege mich zur nächsten Position.";}
+        if(text == "hello"){               return "Hallo.";}
+        if(text == "thanks"){              return "Danke.";}
+        if(text == "sorry"){               return "Es tut mir leid.";}
+        if(text == "excuseme"){            return "Es tut mir leid){bitte warten Sie einen Moment.";}
+        if(text == "moving"){              return "Der Roboter serviert gerade.";}
+        if(text == "error_no_path"){       return "Die Route konnte nicht gefunden werden.";}
+        if(text == "error_localization"){  return "Der Standort konnte nicht gefunden werden.";}
+        if(text == "error_battery"){       return "Batterie ist schwach.";}
+        if(text == "error_emo"){           return "Notstromschalter wurde betätigt.";}
+        if(text == "pickup"){              return "Bitte nehmen Sie das Produkt aus der Ablage und drücken Sie dann die Bestätigungstaste.";}
+        if(text == "callme"){              return "Haben Sie gerufen? Bitte drücken Sie die Bestätigungstaste){wenn Sie fertig sind.";}
+        if(text == "start_operation"){     return "Ich beginne mit dem Betrieb.";}
+        if(text == "start_charging"){      return "Ich beginne mit dem Laden.";}
+        if(text == "stop_charging"){       return "Das Laden ist abgeschlossen.";}
+        if(text == "charging"){            return "Es wird gerade geladen.";}
+        if(text == "start_mapping"){       return "Ich beginne mit der Kartierung.";}
+        if(text == "stop_mapping"){        return "Die Kartierung ist abgeschlossen.";}
+        if(text == "test"){return "Dies ist eine Teststimme";}
+    }
 }
 
 void TTSHandler::setMentionBasic(QString lan){
@@ -278,58 +494,74 @@ QString TTSHandler::getVoiceLanguage(int language){
 
 QString TTSHandler::getVoiceName(int language, int voice){
     QString voice_name = "none";
-    if(language == 0){
-        if(voice == 0){
-            voice_name = "vdain";
-        }else if(voice == 1){
-            voice_name = "vara";
-        }else if(voice == 2){
-            voice_name = "nhajun";
-        }else if(voice == 3){
-            voice_name = "njooahn";
-        }else if(voice == 4){
-            voice_name = "nsangdo";
-        }else if(voice == 5){
-            voice_name = "nsunhee";
-        }else if(voice == 6){
-            voice_name = "nkyungtae";
-        }else if(voice == 7){
-            voice_name = "nsabina";
-        }else if(voice == 8){
-            voice_name = "nmamon";
-        }
-    }else if(language == 1){
-        if(voice == 0){
-            voice_name = "djoey";
-        }else if(voice == 1){
-            voice_name = "danna";
-        }else if(voice == 2){
-            voice_name = "matt";
-        }
-    }else if(language == 2){
-        if(voice == 0){
-            voice_name = "meimei";
-        }else if(voice == 1){
-            voice_name = "liangliang";
-        }
-    }else if(language == 3){
-        if(voice == 0){
-            voice_name = "dmio";
-        }else if(voice == 1){
-            voice_name = "ntomoko";
-        }else if(voice == 2){
-            voice_name = "dayumu";
-        }else if(voice == 3){
-            voice_name = "shinji";
-        }
-    }else if(language == 4){
-        if(voice == 0){
-            voice_name = "carmen";
-        }else if(voice == 1){
-            voice_name = "jose";
+    if(curVoice.mode == "tts"){
+        if(language == 0){
+            if(voice == 0){
+                voice_name = "vdain";
+            }else if(voice == 1){
+                voice_name = "vara";
+            }else if(voice == 2){
+                voice_name = "nhajun";
+            }else if(voice == 3){
+                voice_name = "njooahn";
+            }else if(voice == 4){
+                voice_name = "nsangdo";
+            }else if(voice == 5){
+                voice_name = "nsunhee";
+            }else if(voice == 6){
+                voice_name = "nkyungtae";
+            }else if(voice == 7){
+                voice_name = "nsabina";
+            }else if(voice == 8){
+                voice_name = "nmammon";
+            }
+        }else if(language == 1){
+            if(voice == 0){
+                voice_name = "djoey";
+            }else if(voice == 1){
+                voice_name = "danna";
+            }else if(voice == 2){
+                voice_name = "matt";
+            }
+        }else if(language == 2){
+            if(voice == 0){
+                voice_name = "meimei";
+            }else if(voice == 1){
+                voice_name = "liangliang";
+            }
+        }else if(language == 3){
+            if(voice == 0){
+                voice_name = "dmio";
+            }else if(voice == 1){
+                voice_name = "ntomoko";
+            }else if(voice == 2){
+                voice_name = "dayumu";
+            }else if(voice == 3){
+                voice_name = "shinji";
+            }
+        }else if(language == 4){
+            if(voice == 0){
+                voice_name = "carmen";
+            }else if(voice == 1){
+                voice_name = "jose";
+            }
+        }else if(language == 5){
+            voice_name = "ru";
+        }else if(language == 6){
+            voice_name = "de";
+        }else if(language == 7){
+            voice_name = "la";
+        }else if(language == 8){
+            voice_name = "id";
+        }else{
+            voice_name = "none";
         }
     }else{
-        voice_name = "none";
+        if(voice == 0){
+            voice_name = "child";
+        }else{
+            voice_name = "woman";
+        }
     }
     return voice_name;
 }
@@ -354,12 +586,12 @@ void TTSHandler::readVoiceSetting(){
     curVoice.volume = setting.value("volume_voice").toInt();
 }
 void TTSHandler::makeTTS(ST_VOICE voice, bool play){
-    if(voice.voice == "none"){
+    if(voice.voice == "none" || voice.voice == "ru" || voice.voice == "de" || voice.voice == "la" || voice.voice == "id"){
         QString all = "from gtts import gTTS\n"
-                      "tts = gTTS(text=\""+voice.mention+"\", lang='"+voice.language+"')\n"
-                      "tts.save('"+voice.file_path+"')";
+                      "tts = gTTS(text=\""+voice.mention.toUtf8()+"\", lang='"+voice.language.toUtf8()+"')\n"
+                      "tts.save('"+voice.file.toUtf8()+"')";
         plog->write("[TTS] makeTTS : "+voice.mention + " -> "+ voice.file_path);
-        PyRun_SimpleString(all.toStdString().data());
+        PyRun_SimpleString(all.toUtf8().data());
     }else{
         QString post_str = "speaker="+voice.voice+"&speed="+QString::number(curVoice.speed)+"&pitch="+QString::number(curVoice.pitch)+"&emotion="+QString::number(curVoice.emotion)+"&emotion_strength="+QString::number(curVoice.emotion_strength)+"&format=mp3&text="+voice.mention;
         plog->write("[TTS] makeTTS (CLOVA) : "+post_str);

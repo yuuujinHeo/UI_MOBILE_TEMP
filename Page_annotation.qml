@@ -499,6 +499,7 @@ Item {
                     width: 220
                     height: 150
                     fontsize: 30
+                    visible: supervisor.isDebugMode()
                     type: "round_text"
                     text: qsTr("맵 세부수정(디버깅)")
                     onClicked: {
@@ -3079,7 +3080,7 @@ Item {
                     supervisor.saveObjectPNG();
                 }else if(select_mode === 4){
                     supervisor.writelog("[ANNOTATION] Map Editor : Save Map (Travelline)");
-                    supervisor.drawingRunawayStop();
+//                    supervisor.drawingRunawayStop();
                     map.save("tline");
                     supervisor.slam_map_reload(supervisor.getMapname(),1);
                     timer_check_tline.start();
@@ -4608,7 +4609,7 @@ Item {
                         supervisor.saveObjectPNG();
                     }else if(select_canvas === 4){
                         supervisor.writelog("[ANNOTATION] Map Editor : Save Map (Travelline)");
-                        supervisor.drawingRunawayStop();
+//                        supervisor.drawingRunawayStop();
                         map.save("tline");
                         supervisor.slam_map_reload(supervisor.getMapname(),1);
                         timer_check_tline.start();
@@ -4720,6 +4721,9 @@ Item {
                                     text: "저 장"
                                     onClicked:{
                                         save();
+                                        supervisor.slam_map_reload(supervisor.getMapname());
+                                        page_after_localization = page_annot_menu;
+                                        annot_pages.sourceComponent = page_annot_localization;
                                     }
                                 }
                                 Item_buttons{
