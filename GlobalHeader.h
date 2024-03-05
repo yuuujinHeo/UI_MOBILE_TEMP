@@ -2,6 +2,7 @@
 #define GLOBALHEADER_H
 
 #include "Logger.h"
+#include <QNetworkInterface>
 #include <opencv2/opencv.hpp>
 #include <QDir>
 #include <QPixmap>
@@ -140,6 +141,13 @@ typedef struct{
     int prev_state=0;
 }ST_WIFI;
 
+typedef struct{
+    QString name;
+    QNetworkInterface::InterfaceType type;
+    bool connect = false;
+    QString ipv4;
+    QString netmask;
+}ST_NET_INTERFACE;
 
 typedef struct{
     bool ipc_use = false;
@@ -234,6 +242,11 @@ typedef struct{
     QString cur_ip="";
     QString cur_gateway="";
     QString cur_dns="";
+
+    QList<ST_WIFI> wifi_list;
+    ST_NET_INTERFACE ethernet_interface;
+    ST_NET_INTERFACE wifi_interface;
+
 }ST_ROBOT;
 extern ST_ROBOT *probot;
 

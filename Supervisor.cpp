@@ -107,6 +107,8 @@ Supervisor::Supervisor(QObject *parent)
     translator = new QTranslator();
     setlanguage(getSetting("setting","UI","language"));
 
+    checker.getNetworkState();
+
 //    qDebug() << "INTERNET : " << QNetworkConfigurationManager::isOnline();
 }
 
@@ -3517,6 +3519,11 @@ void Supervisor::onTimer(){
         setWindow(qobject_cast<QQuickWindow*>(object));
     }
 
+    static int sddd = 0;
+    if(sddd++ > 10){
+        sddd = 0;
+        checker.getSystemVolume();
+    }
     if(start_clear){
         start_clear = false;
         timer2 = new QTimer();
@@ -4437,24 +4444,25 @@ QString Supervisor::getcurDNS(){
     return probot->cur_dns;
 }
 void Supervisor::getAllWifiList(){//need check
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
-    extproc->set_command(temp, "Get Wifi List");
-    QNetworkConfigurationManager ncm;
-    QList<QNetworkConfiguration> lists = ncm.allConfigurations();
-    for(QNetworkConfiguration e : lists){
-        if(e.bearerType() == QNetworkConfiguration::BearerWLAN)
-        {
-            if(e.state() == QNetworkConfiguration::Active){
-                defaultWifiConf = e;
-            }
-        }
-    }
-//    qDebug() << "default : " << defaultWifiConf.name() << defaultWifiConf.state();
-    if(defaultWifiConf.name() != ""){
-        probot->wifi_ssid = defaultWifiConf.name();
-        probot->wifi_connection = WIFI_CONNECT;
-    }
+    checker.getWifiList();
+//    ExtProcess::Command temp;
+//    temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
+//    extproc->set_command(temp, "Get Wifi List");
+//    QNetworkConfigurationManager ncm;
+//    QList<QNetworkConfiguration> lists = ncm.allConfigurations();
+//    for(QNetworkConfiguration e : lists){
+//        if(e.bearerType() == QNetworkConfiguration::BearerWLAN)
+//        {
+//            if(e.state() == QNetworkConfiguration::Active){
+//                defaultWifiConf = e;
+//            }
+//        }
+//    }
+////    qDebug() << "default : " << defaultWifiConf.name() << defaultWifiConf.state();
+//    if(defaultWifiConf.name() != ""){
+//        probot->wifi_ssid = defaultWifiConf.name();
+//        probot->wifi_connection = WIFI_CONNECT;
+//    }
 }
 bool Supervisor::getWifiSecurity(QString ssid){
     return probot->wifi_map[ssid].security;
