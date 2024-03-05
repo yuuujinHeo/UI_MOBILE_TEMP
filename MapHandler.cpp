@@ -2444,7 +2444,8 @@ void MapHandler::linkNode(){
 
 void MapHandler::saveAnnotation(){
     // clear annotations
-    pmap->locations.clear();
+    QList<LOCATION> temp_location;
+//    pmap->locations.clear();
 
     // topo nodes to annotations
     for(auto& it: nodes)
@@ -2473,18 +2474,25 @@ void MapHandler::saveAnnotation(){
             cv::Vec3d pose = it.second->pose;
 
             LOCATION anot;
+            for(int i=0; i<pmap->locations.size(); i++){
+                if(pmap->locations[i].group == group_id && pmap->locations[i].name == loc_name){
+                    anot = pmap->locations[i];
+                    break;
+                }
+            }
             anot.group = group_id;
             anot.group_name = group_name;
-//            anot.loc_id = loc_id;
             anot.name = loc_name;
             anot.type = attrib;
 
             anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
             anot.angle = setAxisBack(pose[2]);
-            pmap->locations.push_back(anot);
+            temp_location.push_back(anot);
         }
     }
 
+    pmap->locations.clear();
+    pmap->locations = temp_location;
     // save annotations to ini file
 //    QString annotated_loc_path = map_dir + "/annotation.ini";
 //    QFile::remove(annotated_loc_path);
@@ -2797,7 +2805,7 @@ void MapHandler::addErase2(int x, int y){
     if(mode == "annot_tline" || mode == "annot_tline2"){
         cv::line(file_travelline,line[line.size()-2],line[line.size()-1],cv::Scalar(-1,-1,-1,255),cur_line_width,8,0);
     }
-//    qDebug() << "addErase2 " << mode;
+    qDebug() << "addErase2 " << mode;
     setMap();
 }
 
@@ -2865,8 +2873,17 @@ void MapHandler::endDrawing(int x, int y){
 }
 void MapHandler::endErase2(int x, int y){
     line.clear();
-    initDrawing();
-    setMapDrawing();
+//    initDrawing();
+//    setMapDrawing();
+//    saveTline();
+
+    cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_CLOCKWISE);
+    cv::flip(file_travelline,file_travelline,0);
+    QString path = QDir::homePath() + "/RB_MOBILE/maps/" + pmap->map_name + "/map_travel_line_test.png";
+    plog->write("[MAP] saveTline : "+path);
+    cv::imwrite(path.toStdString(),file_travelline);
+    cv::flip(file_travelline,file_travelline,0);
+    cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_COUNTERCLOCKWISE);
     setMap();
 }
 
@@ -3096,6 +3113,7 @@ void MapHandler::saveTline(){
             }
         }
     }
+
     for(int i=0; i<file_travelline_ui.cols; i++){
         for(int j=0; j<file_travelline_ui.rows; j++){
             if(file_travelline_ui.at<cv::Vec3b>(i,j)[0] > 0){
@@ -3105,15 +3123,16 @@ void MapHandler::saveTline(){
             }
         }
     }
+
     cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_CLOCKWISE);
     cv::flip(file_travelline,file_travelline,0);
     cv::rotate(file_travelline_ui,file_travelline_ui,cv::ROTATE_90_CLOCKWISE);
     cv::flip(file_travelline_ui,file_travelline_ui,0);
 
 
-    QString path = QDir::homePath() + "/RB_MOBILE/maps/" + pmap->map_name + "/map_travel_line.png";
-    plog->write("[MAP] saveTline : "+path);
-    cv::imwrite(path.toStdString(),file_travelline);
+    QString path222 = QDir::homePath() + "/RB_MOBILE/maps/" + pmap->map_name + "/map_travel_line.png";
+    plog->write("[MAP] saveTline : "+path222);
+    cv::imwrite(path222.toStdString(),file_travelline);
 
     QString path2 = QDir::homePath() + "/RB_MOBILE/maps/" + pmap->map_name + "/map_travel_line_ui.png";
     plog->write("[MAP] saveTline : "+path2);
@@ -3480,7 +3499,6 @@ void MapHandler::double_released(QString tool, int x1, int y1, int x2, int y2){
         }
     }else if(tool == "straight"){
         setStraightPoint(x,y);
-
     }
     press_release = false;
 }

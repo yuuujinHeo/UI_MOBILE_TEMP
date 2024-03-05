@@ -653,6 +653,46 @@ Item {
             }
 
             Rectangle{
+                id: btn_right2
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.bottomMargin: 150
+                anchors.rightMargin: 50
+                width: 200
+                height: 80
+                radius: 15
+                border.width: 2
+                border.color: "white"
+                enabled: false||test
+                color: enabled?"transparent":color_dark_gray
+                Text{
+                    Component.onCompleted: {
+                        scale = 1;
+                        while(width*scale > 180){
+                            scale=scale-0.01;
+                        }
+                    }
+                    anchors.centerIn: parent
+                    font.family: font_noto_r.name
+                    font.pixelSize: 30
+                    color: "white"
+                    text: qsTr("루프클로징")
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onPressed:{
+                        parent.color = color_mid_navy;
+                    }
+                    onReleased: {
+                        click_sound.play();
+                        supervisor.writelog("[MAPPING] Mapping : Loop Closing");
+                        supervisor.loopClosing();
+                        parent.color = "transparent";
+                    }
+                }
+            }
+
+            Rectangle{
                 id: btn_right
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right

@@ -61,7 +61,7 @@ class TTSHandler : public QObject
 public:
     TTSHandler();
     void readVoiceSetting();
-    void setVoice(QString name, QString lan, QString mode="woman");
+    void setVoice(QString name, QString lan);
     void setVoiceDetail(int speed, int pitch, int alpha, int emotion, int emotion_strength);
     void makeTTS(ST_VOICE voice, bool play=false);
     void generalReply(ST_VOICE voice, bool play, QNetworkReply *reply);
@@ -69,6 +69,7 @@ public:
     QString getMentionStr(QString text);
     void setMentionStr(QString text, QString mention);
     void setMentionBasic(QString lan);
+    QString getMentionBasicStr(QString lan, QString text);
 
     QString getVoiceName(int language, int voice);
     QString getVoiceLanguage(int language);

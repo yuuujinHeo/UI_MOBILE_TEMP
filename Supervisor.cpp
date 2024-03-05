@@ -260,6 +260,8 @@ void Supervisor::new_call(){
     }else{
         bool already_in = false;
 
+        qDebug() <<"ui state = " << ui_state;
+
         QString name = "";
         for(int i=0; i<pmap->locations.size(); i++){
             if(pmap->locations[i].call_id == call->getBellID()){
@@ -1739,12 +1741,15 @@ void Supervisor::play_voice(ST_VOICE voice){
     plog->write("[SOUND] play_voice : "+voice.file_path + "(volume = "+QString::number(voice.volume)+")");
 }
 
-void Supervisor::makePatrolTTS(QString text){
-    ST_VOICE temp = tts->curVoice;
+void Supervisor::makePatrolTTS(int language, int voice, QString text, bool play){
+    ST_VOICE temp;
+    temp.language = tts->getVoiceLanguage(language);
+    temp.voice = tts->getVoiceName(language, voice);
+    current_patrol.voice_mention = text;
     temp.mention = text;
     temp.file = "patrol";
     temp.file_path = QDir::homePath()+"/RB_MOBILE/voice/"+temp.voice+"_patrol.mp3";
-    tts->makeTTS(temp, true);
+    tts->makeTTS(temp, play);
 }
 QString Supervisor::getTTSMention(QString text){
     return tts->getMentionStr(text);
@@ -1755,8 +1760,17 @@ void Supervisor::setTTSMention(QString text, QString mention){
 
 void Supervisor::playVoice(QString file, QString voice, QString mode, QString language, int volume){
     ST_VOICE v;
+
     if(mode == ""){
-        v.mode = getSetting("setting","UI","voice_mode");
+        if(probot->is_patrol){
+            if(current_patrol.voice_mode == "none"){
+                v.mode = getSetting("setting","UI","voice_mode");
+            }else{
+                v.mode = current_patrol.voice_mode;
+            }
+        }else{
+            v.mode = getSetting("setting","UI","voice_mode");
+        }
     }else{
         v.mode = mode;
     }
@@ -1766,12 +1780,28 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
     if(file == "test"){
         volume = 50;
     }else if(volume == -1){
-        volume = tts->curVoice.volume;//getSetting("setting","UI","volume_voice").toInt();
+        if(probot->is_patrol){
+            if(current_patrol.voice_mode == "none"){
+                volume = tts->curVoice.volume;
+            }else{
+                volume = current_patrol.voice_volume;
+            }
+        }else{
+            volume = tts->curVoice.volume;
+        }
     }
 
     if(v.mode == "basic"){
         if(voice == ""){
-            v.voice = getSetting("setting","UI","voice_name");
+            if(probot->is_patrol){
+                if(current_patrol.voice_mode == "none"){
+                    v.voice = getSetting("setting","UI","voice_name");
+                }else{
+                    v.voice = current_patrol.voice_name;
+                }
+            }else{
+                v.voice = getSetting("setting","UI","voice_name");
+            }
         }else{
             v.voice = voice;
         }
@@ -1789,7 +1819,15 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
         plog->write("[SUPERVISOR] Play Voice (Basic) : "+v.voice + ", " + file);
     }else{
         if(voice == ""){
-            v.voice = tts->curVoice.voice;//getSetting("setting","UI","voice_name");
+            if(probot->is_patrol){
+                if(current_patrol.voice_mode == "none"){
+                    v.voice = tts->curVoice.voice;//getSetting("setting","UI","voice_name");
+                }else{
+                    v.voice = current_patrol.voice_name;
+                }
+            }else{
+                v.voice = tts->curVoice.voice;//getSetting("setting","UI","voice_name");
+            }
         }else{
             v.voice = voice;
         }
@@ -1805,7 +1843,16 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
             v.file = file;
             v.file_path = filepath;
             v.volume = volume;
-            v.mention = tts->getMentionStr(file);
+            if(probot->is_patrol){
+                if(current_patrol.voice_mode == "none"){
+                    v.mention = tts->getMentionStr(file);
+                }else{
+                    v.mention = tts->getMentionBasicStr(v.language,v.file);// (file);
+                }
+
+            }else{
+                v.mention = tts->getMentionStr(file);
+            }
             v.language = language;
             plog->write("[SOUND] PlayVoiceTTS : no file and make -> "+filepath);
             tts->makeTTS(v,true);
@@ -2742,12 +2789,6 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     return true;
 }
 
-void Supervisor::setTTSLanguage(int lan){
-    plog->write("[SETTING] setTTSLanguage : "+tts->getVoiceLanguage(lan)+"("+QString::number(lan)+")");
-    tts->setVoice(tts->getVoiceName(lan,0),tts->getVoiceLanguage(lan),"tts");
-    tts->setMentionBasic(tts->getVoiceLanguage(lan));
-    saveTTSVoice();
-}
 void Supervisor::saveTTSVoice(){
     qDebug() <<"saveTTSVoice" << tts->curVoice.mode;
 
@@ -2791,20 +2832,23 @@ void Supervisor::clearTTSVoice(int lan, int name){
 }
 
 void Supervisor::setTTSMode(QString mode){
+    plog->write("[SOUND] setTTSMode : "+mode);
     tts->curVoice.mode = mode;
-    saveTTSVoice();
+    setTTSVoice(0,0);
+    setTTSVoiceDetail(0,0,0);
+//    saveTTSVoice();
 }
-void Supervisor::setTTSName(QString name){
-    tts->curVoice.voice = name;
-    saveTTSVoice();
+void Supervisor::setTTSMentionBasic(){
+    tts->setMentionBasic(tts->curVoice.language);
 }
 void Supervisor::setTTSVoice(int lan, int name){
-    tts->setVoice(tts->getVoiceName(lan,name),tts->getVoiceLanguage(lan),"tts");
+    plog->write("[SETTING] setTTSVoice : "+tts->getVoiceLanguage(lan)+"("+tts->getVoiceName(lan,name)+")");
+    tts->setVoice(tts->getVoiceName(lan,name),tts->getVoiceLanguage(lan));
     saveTTSVoice();
 }
-void Supervisor::setTTSVoice(int lan, int name, int speed, int pitch, int alpha, int emotion, int emostren){
-    tts->setVoice(tts->getVoiceName(lan,name),tts->getVoiceLanguage(lan),"tts");
+void Supervisor::setTTSVoiceDetail(int speed, int pitch, int alpha, int emotion, int emostren){
     tts->setVoiceDetail(speed,pitch,alpha,emotion,emostren);
+    saveTTSVoice();
 }
 
 
@@ -3589,7 +3633,8 @@ void Supervisor::onTimer(){
         }else if(probot->motor[0].status > 1 || probot->motor[1].status > 1){
             plog->write("[STATE] Resting : State Failed "+QString().asprintf("(Motor1: %d, Motor2: %d) -> Kill Slam",probot->motor[0].status,probot->motor[1].status));
             killSLAM();
-        }else if(probot->status_emo == 0){
+        }else if(probot->status_emo == 1){
+            qDebug() <<"EMOOOOOOOOOOOOO";
 
         }else if(pmap->call_queue.size() > 0){
             plog->write("[STATE] Resting : Calling Detected "+QString::number(pmap->call_queue.size())+" -> Moving");
@@ -3611,7 +3656,7 @@ void Supervisor::onTimer(){
             stateInit();
         }
 
-        if(curPage != "page_charging" && !debug_mode){
+        if(curPage != "page_charge" && !debug_mode){
             plog->write("[STATE] Charging -> UI Charging");
             QMetaObject::invokeMethod(mMain, "docharge");
         }
@@ -3665,7 +3710,7 @@ void Supervisor::onTimer(){
                             plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
 
                             //Play Voice
-                            if(current_patrol.voice_use != 0){//basic
+                            if(current_patrol.voice_mode != "none"){
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
                             ui_state = UI_STATE_PICKUP;
@@ -3688,7 +3733,7 @@ void Supervisor::onTimer(){
                             plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
 
                             //Play Voice
-                            if(current_patrol.voice_use != 0){//basic
+                            if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
                             ui_state = UI_STATE_PICKUP;
@@ -3719,7 +3764,7 @@ void Supervisor::onTimer(){
                             plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
 
                             //Play Voice
-                            if(current_patrol.voice_use != 0){//basic
+                            if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
                             ui_state = UI_STATE_PICKUP;
@@ -3747,7 +3792,7 @@ void Supervisor::onTimer(){
                             plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
 
                             //Play Voice
-                            if(current_patrol.voice_use != 0){//basic
+                            if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
                             ui_state = UI_STATE_PICKUP;
@@ -4044,7 +4089,7 @@ void Supervisor::onTimer(){
             }
 
         }else{
-            if(curPage != "page_pickup" && !debug_mode){
+            if(curPage != "page_pickup_calling" && curPage != "page_pickup" && !debug_mode){
                 plog->write("[STATE] Pickup -> UI Pickup");
                 QMetaObject::invokeMethod(mMain, "showpickup");
             }
@@ -4791,10 +4836,10 @@ void Supervisor::readPatrol(){
                         temp.pass_time = patrol.value("pass_time").toInt();
                         temp.moving_page.mode = patrol.value("moving_page").toString();
                         temp.arrive_page.mode = patrol.value("arrive_page").toString();
-                        temp.voice_use = patrol.value("voice_use").toInt();
                         temp.voice_name = patrol.value("voice_name").toString();
                         temp.voice_path = patrol.value("voice_path").toString();
                         temp.voice_file = patrol.value("voice_file").toString();
+                        temp.voice_mention = patrol.value("voice_mention").toString();
                         temp.voice_mode = patrol.value("voice_mode").toString();
                         temp.voice_language = patrol.value("voice_language").toString();
                         temp.voice_volume = patrol.value("voice_volume").toInt();
@@ -4862,6 +4907,30 @@ QString Supervisor::getPatrolName(int num){
     else
         return "";
 }
+void Supervisor::loopClosing(){
+    ipc->set_cmd(ROBOT_CMD_MAP_LOOP_CLOSING, "LoopClosing");
+}
+int Supervisor::getPatrolVoiceNameNum(int num){
+    if(patrols[num].name == "vara" || patrols[num].name == "woman" || patrols[num].name == "danna" || patrols[num].name == "liangliang" || patrols[num].name == "ntomoko" || patrols[num].name == "jose"){
+        return 1;
+    }else if(patrols[num].name == "nhajun" || patrols[num].name == "matt" || patrols[num].name == "dayumu" ){
+        return 2;
+    }else if(patrols[num].name == "njooahn" || patrols[num].name == "shinji"){
+        return 3;
+    }else if(patrols[num].name == "nsangdo"){
+        return 4;
+    }else if(patrols[num].name == "nsunhee"){
+        return 5;
+    }else if(patrols[num].name == "nkyungtae"){
+        return 6;
+    }else if(patrols[num].name == "nsabina"){
+        return 7;
+    }else if(patrols[num].name == "nmammon"){
+        return 8;
+    }else{
+        return 0;
+    }
+}
 
 QString Supervisor::getPatrolType(int num){
     if(num > -1 && num < patrols.size())
@@ -4901,7 +4970,7 @@ int Supervisor::getPatrolPassTime(int num){
 }
 QString Supervisor::getPatrolVoiceMode(int num){
     if(num > -1 && num < patrols.size())
-        return patrols[num].voice_name;
+        return patrols[num].voice_mode;
     else
         return "";
 }
@@ -4927,6 +4996,16 @@ QString Supervisor::getPatrolVoice(int num){
         return "";
 }
 
+QString Supervisor::getPatrolVoiceMention(int num){
+    if(num > -1 && num < patrols.size())
+        if(patrols[num].voice_mode == "tts"){
+            return patrols[num].voice_mention;
+        }else{
+            return patrols[num].voice_file;
+        }
+    else
+        return "";
+}
 int Supervisor::getPatrolLocationSize(int num){
     if(num > -1 && num < patrols.size())
         return patrols[num].location.size();
@@ -4981,12 +5060,13 @@ void Supervisor::setPatrolArrivePage(QString mode, QString param1, QString param
         current_patrol.arrive_page.mode = mode;
     }
 }
-void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volume){
+void Supervisor::savePatrolVoiceBasic(QString voice, QString text){
+    qDebug() << "savePatrolVoiceBasic " <<voice <<text;
+}
+void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volume, int mention){
     qDebug() << "setPatrolVoice " << mode << language << voice << volume;
-
     current_patrol.voice_mode = mode;
     current_patrol.voice_language = tts->getVoiceLanguage(language);
-    current_patrol.voice_file = "patrol";
     current_patrol.voice_volume = volume;
     if(mode == "basic"){
         if(voice == 1){
@@ -4994,8 +5074,36 @@ void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volum
         }else{
             current_patrol.voice_name = "woman";
         }
-        current_patrol.voice_path = "qrc:/"+current_patrol.voice_name+"_patrol.mp3";
+
+        if(mention == 0){
+            current_patrol.voice_file = "thanks";
+        }else if(mention == 1){
+            current_patrol.voice_file = "hello";
+        }else if(mention == 2){
+            current_patrol.voice_file = "funny_working_hard";
+        }else if(mention == 3){
+            current_patrol.voice_file = "hello_rb";
+        }else if(mention == 4){
+            current_patrol.voice_file = "path_finding";
+        }else if(mention == 5){
+            current_patrol.voice_file = "rb_fighting";
+        }else if(mention == 6){
+            current_patrol.voice_file = "moving";
+        }else if(mention == 7){
+            current_patrol.voice_file = "sorry";
+        }else if(mention == 8){
+            current_patrol.voice_file = "move_next";
+        }else if(mention == 9){
+            current_patrol.voice_file = "move_patrol";
+        }else if(mention == 10){
+            current_patrol.voice_file = "wait_path";
+        }else{
+            current_patrol.voice_file = "thank_enjoy";
+        }
+
+        current_patrol.voice_path = "qrc:/"+current_patrol.voice_name+"_"+current_patrol.voice_file+".mp3";
     }else if(mode == "tts"){
+        current_patrol.voice_file = "patrol";
         current_patrol.voice_name = tts->getVoiceName(language,voice);
         current_patrol.voice_path = QDir::homePath() + "/RB_MOBILE/voice/"+current_patrol.voice_name+"_patrol.mp3";
     }
@@ -5058,6 +5166,7 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
         file.setValue("SETTING/voice_path",current_patrol.voice_path);
         file.setValue("SETTING/voice_file",current_patrol.voice_file);
         file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+        file.setValue("SETTING/voice_mention",current_patrol.voice_mention);
         file.setValue("SETTING/location_mode",current_patrol.location_mode);
         file.setValue("SETTING/location_num",current_patrol.location.size());
 
@@ -5124,8 +5233,10 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
 
     file.setValue("SETTING/moving_page",current_patrol.moving_page.mode);
     file.setValue("SETTING/arrive_page",current_patrol.arrive_page.mode);
+
     file.setValue("SETTING/voice_file",current_patrol.voice_file);
     file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+    file.setValue("SETTING/voice_mention",current_patrol.voice_mention);
     file.setValue("SETTING/voice_language",current_patrol.voice_language);
     file.setValue("SETTING/voice_volume",current_patrol.voice_volume);
     file.setValue("SETTING/voice_path",current_patrol.voice_path);

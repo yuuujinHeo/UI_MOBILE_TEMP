@@ -465,17 +465,11 @@ Item {
         }
 
         if(combo_voice_mode.ischanged){
+            print("voice mode : ",combo_voice_mode.currentIndex, combo_voice_name.currentIndex)
             if(combo_voice_mode.currentIndex == 0){
+
                 supervisor.setTTSMode("basic");
-                if(combo_voice_name.currentIndex == 0){
-                    supervisor.setTTSName("child");
-//                    supervisor.setSetting("setting","UI/voice_name","child");
-                }else{
-                    supervisor.setTTSName("woman");
-//                    supervisor.setSetting("setting","UI/voice_name","woman");
-                }
-                supervisor.setTTSLanguage(0);
-//                supervisor.setSetting("setting","UI/voice_language","ko");
+                supervisor.setTTSVoice(0,combo_voice_name.currentIndex);
             }else{
                 supervisor.setTTSMode("tts");
                 supervisor.setTTSVoice(combo_voice_language.currentIndex, combo_voice_name.currentIndex);
@@ -484,14 +478,10 @@ Item {
 
         if(combo_voice_name.ischanged){
             if(combo_voice_mode.currentIndex == 0){
-                if(combo_voice_name.currentIndex == 0){
-                    supervisor.setTTSName("child");
-//                    supervisor.setSetting("setting","UI/voice_name","child");
-                }else{
-                    supervisor.setTTSName("woman");
-//                    supervisor.setSetting("setting","UI/voice_name","woman");
-                }
+                supervisor.setTTSMode("basic");
+                supervisor.setTTSVoice(0,combo_voice_name.currentIndex);
             }else{
+                supervisor.setTTSMode("tts");
                 supervisor.setTTSVoice(combo_voice_language.currentIndex, combo_voice_name.currentIndex);
             }
         }
@@ -2341,7 +2331,7 @@ Item {
                                         setVoiceModel();
                                         combo_voice_name.currentIndex = 0;
                                     }
-                                    model:[qsTr("한국어"), qsTr("영어"), qsTr("중국어"), qsTr("일본어"), qsTr("스페인어"), qsTr("러시아어"), qsTr("독일어")]
+                                    model:[qsTr("한국어"), qsTr("영어"), qsTr("중국어"), qsTr("일본어"), qsTr("스페인어")]//, qsTr("러시아어"), qsTr("독일어")]
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
@@ -12479,7 +12469,8 @@ Item {
                         height: 60
                         onClicked:{
                             combo_voice_language.currentIndex = combo_voice_lan_2.currentIndex
-                            supervisor.setTTSLanguage(combo_voice_language.currentIndex);
+                            supervisor.setTTSVoice(combo_voice_language.currentIndex,0);
+                            supervisor.setTTSMentionBasic();
                             popup_mention.update();
                             popup_change_voice_language.close();
                         }
@@ -12537,9 +12528,9 @@ Item {
                     text: qsTr("한꺼번에 만들기")
                     onClicked:{
                         click_sound.play();
-                        supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
-                                               slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
-
+                        supervisor.setTTSMode("tts");
+                        supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
+                        supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
                         supervisor.makeTTSAll();
                     }
                 }
@@ -12560,9 +12551,9 @@ Item {
                     text: qsTr("저 장")
                     onClicked:{
                         click_sound.play();
-                        supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
-                                               slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
-                        supervisor.saveTTSVoice();
+                        supervisor.setTTSMode("tts");
+                        supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
+                        supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
                         init();
                         popup_voice.close();
                     }
@@ -12603,8 +12594,9 @@ Item {
                             anchors.fill: parent
                             onClicked: {
                                 click_sound.play();
-                                supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex,
-                                                       slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
+                                supervisor.setTTSMode("tts");
+                                supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
+                                supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
                                 supervisor.playVoice("test","","","",-1);
                             }
                         }
@@ -12810,6 +12802,7 @@ Item {
                     height: 55
                     text: qsTr("닫 기")
                     onClicked:{
+                        click_sound.play();
                         combo_voice_language.currentIndex = supervisor.getTTSLanguageNum();
                         popup_mention.close();
                     }
@@ -12820,15 +12813,19 @@ Item {
                     height: 55
                     text: qsTr("저 장")
                     onClicked:{
-                        combo_voice_language.currentIndex = combo_voice_lan_2.currentIndex
-                        //save new mention
-                        supervisor.setTTSMention("move_serving"  ,tfield_text_1.text);
-                        supervisor.setTTSMention("move_calling"  ,tfield_text_2.text);
-                        supervisor.setTTSMention("moving"        ,tfield_text_3.text);
-                        supervisor.setTTSMention("excuseme"      ,tfield_text_4.text);
-                        supervisor.setTTSMention("pickup"        ,tfield_text_5.text);
-                        supervisor.setTTSMention("callme"        ,tfield_text_6.text);
-                        popup_mention.close();
+                        click_sound.play();
+                        if(combo_voice_language.currentIndex != combo_voice_lan_2.currentIndex){
+                            popup_change_voice_language.open();
+                        }else{
+                            //save new mention
+                            supervisor.setTTSMention("move_serving"  ,tfield_text_1.text);
+                            supervisor.setTTSMention("move_calling"  ,tfield_text_2.text);
+                            supervisor.setTTSMention("moving"        ,tfield_text_3.text);
+                            supervisor.setTTSMention("excuseme"      ,tfield_text_4.text);
+                            supervisor.setTTSMention("pickup"        ,tfield_text_5.text);
+                            supervisor.setTTSMention("callme"        ,tfield_text_6.text);
+                            popup_mention.close();
+                        }
                     }
                 }
             }
@@ -12851,7 +12848,7 @@ Item {
                         width: 300
                         anchors.verticalCenter: parent.verticalCenter
                         height: 50
-                        model:[qsTr("한국어"), qsTr("영어"), qsTr("중국어"), qsTr("일본어"), qsTr("스페인어"), qsTr("러시아어"), qsTr("독일어")]
+                        model:[qsTr("한국어"), qsTr("영어"), qsTr("중국어"), qsTr("일본어"), qsTr("스페인어")]//, qsTr("러시아어"), qsTr("독일어")]
 
                     }
                     Rectangle{
