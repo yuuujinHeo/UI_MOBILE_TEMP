@@ -24,6 +24,7 @@ SOURCES += \
     ExtProcess.cpp \
     IPCHandler.cpp \
     MapHandler.cpp \
+    checker.cpp \
     cmd_client.cpp \
     MapViewer.cpp \
     ServerHandler.cpp \
@@ -81,6 +82,7 @@ HEADERS += \
     MapViewer.h \
     ServerHandler.h \
     TTSHandler.h \
+    checker.h \
     python_wrapper.h \
     spline.h \
     Keyemitter.h \

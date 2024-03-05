@@ -10,6 +10,7 @@
 #include "ZIPHandler.h"
 #include "python_wrapper.h"
 #include "IPCHandler.h"
+#include "checker.h"
 #include <QMediaPlaylist>
 #include "ServerHandler.h"
 #include <QMediaPlayer>
@@ -189,6 +190,7 @@ public:
     QProcess *slam_process;
 
 
+    Checker checker;
     ////*********************************************  Server   ***************************************************////
 
 
