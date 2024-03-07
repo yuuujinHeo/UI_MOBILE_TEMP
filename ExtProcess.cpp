@@ -116,6 +116,9 @@ void ExtProcess::onTimer500(){
 }
 
 void ExtProcess::onTimer(){
+
+#ifdef EXTPROC_TEST
+#else
     static uint32_t prev_tick = 0;
     static uint32_t prev_wifilist_tick = 0;
     ExtProcess::Return _return = get_return();
@@ -128,7 +131,7 @@ void ExtProcess::onTimer(){
                 char temp[100];
                 memcpy(temp,_return.params,sizeof(unsigned char)*100);
                 QString ssid = QString::fromUtf8(temp);
-                qDebug() << ssid;
+//                qDebug() << ssid;
                 probot->wifi_map[ssid].state = 1;
             }
             emit got_accept(_return.command);
@@ -355,6 +358,7 @@ void ExtProcess::onTimer(){
             emit timeout(prev_cmd);
         }
     }
+#endif
 }
 
 void ExtProcess::update_unzip(){
@@ -395,7 +399,6 @@ void ExtProcess::git_reset(){
         memcpy(temp.params,QApplication::applicationDirPath().toUtf8(),100);
     }
     set_command(temp,"Git Reset");
-
 }
 void ExtProcess::set_command(Command cmd, QString log){
     bool match = false;
