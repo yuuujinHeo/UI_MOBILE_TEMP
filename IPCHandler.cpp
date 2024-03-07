@@ -566,9 +566,9 @@ IPCHandler::LOC_STATUS IPCHandler::get_loc_status()
 IPCHandler::CMD IPCHandler::get_cmd()
 {
     IPCHandler::CMD res;
-    shm_cmd.lock();
-    memcpy(&res, (char*)shm_cmd.constData(), sizeof(IPCHandler::CMD));
-    shm_cmd.unlock();
+//    shm_cmd.lock();
+//    memcpy(&res, (char*)shm_cmd.constData(), sizeof(IPCHandler::CMD));
+//    shm_cmd.unlock();
 
     return res;
 }

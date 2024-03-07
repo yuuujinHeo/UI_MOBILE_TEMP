@@ -3134,7 +3134,7 @@ void Supervisor::setMotorLock(bool onoff){
         ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_ON,"ROBOT_CMD_MOTOR_LOCK_ON");
     }else{
         plog->write("[COMMAND] SET MOTOR LOCK : OFF");
-        ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_OFF,"ROBOT_CMD_MOTOR_LOCK_OFF");
+        ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_OFF2,"ROBOT_CMD_MOTOR_LOCK_OFF2");
     }
 }
 

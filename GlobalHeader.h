@@ -350,7 +350,8 @@ enum ROBOT_CMD{
 
     ROBOT_CMD_MAP_SOFT_RELOAD,//30
     ROBOT_CMD_MAP_LOOP_CLOSING,             //지도작성과정 중, 루프클로징 시도
-    ROBOT_CMD_SLAM_RESTING                  //대기위치에서 위치초기화 (InitPage에서 시작버튼 눌렀을 때)
+    ROBOT_CMD_SLAM_RESTING,                  //대기위치에서 위치초기화 (InitPage에서 시작버튼 눌렀을 때)
+    ROBOT_CMD_MOTOR_LOCK_OFF2
 
 };
 

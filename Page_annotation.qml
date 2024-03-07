@@ -20,7 +20,7 @@ Item {
     property bool skip_local: false
     property var last_robot_x: supervisor.getOrigin()[0]
     property var last_robot_y: supervisor.getOrigin()[1]
-    property int last_robot_th: 0
+    property real last_robot_th: 0
     //0 none 1 moving 2 movefail
     property bool use_callbell : true
     property int test_move_state: 0
