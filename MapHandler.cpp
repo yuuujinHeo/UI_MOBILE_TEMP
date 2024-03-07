@@ -3259,6 +3259,7 @@ void MapHandler::addLocation(int x, int y, float th){
     new_location_flag = true;
     new_location.point = cv::Point2f(x,y);
     new_location.angle = th;
+//    qDebug() << "addLocation" << x << y << th << new_location.point.x << new_location.point.y << new_location.angle;
     initLocation();
     setMap();
 }
