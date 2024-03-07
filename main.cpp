@@ -43,13 +43,6 @@ int main(int argc, char *argv[])
     }
 
 
-//    QThread workt;
-//    checker.moveToThread(&workt);
-//    QObject::connect(&workt,&QThread::started, [&checker](){
-//       checker.runProcess("nmcli",QStringList());
-//    });
-//    workt.start();
-
     QQmlApplicationEngine engine;
     engine.rootContext()->setContextProperty("applicationDirPath", QGuiApplication::applicationDirPath());
     engine.rootContext()->setContextProperty("homePath", QDir::homePath());
