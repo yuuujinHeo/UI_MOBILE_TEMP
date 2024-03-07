@@ -74,12 +74,16 @@ Supervisor::Supervisor(QObject *parent)
     ipc = new IPCHandler();
     call = new CallbellHandler();
     tts = new TTSHandler();
-    extproc = new ExtProcess();
 
+#ifdef EXTPROC_TEST
+#else
+    extproc = new ExtProcess();
     connect(extproc, SIGNAL(timeout(int)),this,SLOT(process_timeout(int)));
     connect(extproc, SIGNAL(got_done(int)),this,SLOT(process_done(int)));
     connect(extproc, SIGNAL(got_accept(int)),this,SLOT(process_accept(int)));
     connect(extproc, SIGNAL(got_error(int,int)),this,SLOT(process_error(int,int)));
+#endif
+
     connect(call, SIGNAL(new_call()),this,SLOT(new_call()));
     connect(ipc, SIGNAL(pathchanged()),this,SLOT(path_changed()));
     connect(ipc, SIGNAL(mappingin()),this,SLOT(mapping_update()));
@@ -107,6 +111,8 @@ Supervisor::Supervisor(QObject *parent)
     translator = new QTranslator();
     setlanguage(getSetting("setting","UI","language"));
 
+    checker.getNetworkState("");
+//    checker.setIP("mobile_robot_mesh","10.108.1.132","24","10.108.1.1","10.108.1.1","8.8.8.8");
 //    qDebug() << "INTERNET : " << QNetworkConfigurationManager::isOnline();
 }
 
@@ -114,7 +120,10 @@ Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
     ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
+#ifdef EXTPROC_TEST
+#else
     delete extproc;
+#endif
     delete ipc;
     delete slam_process;
     delete zip;
@@ -429,7 +438,11 @@ void Supervisor::updateProgram(){
 }
 void Supervisor::updateProgramGitPull(){
     server->getGitCommits();
+#ifdef EXTPROC_TEST
+    checker.gitPull();
+#else
     extproc->git_pull();
+#endif
 }
 
 void Supervisor::restartUpdate(){
@@ -448,6 +461,11 @@ void Supervisor::restartUpdate(){
 }
 void Supervisor::startUpdate(){
     //Zip 압축풀기
+//#ifdef EXTPROC_TEST
+//    checker->gitPull();
+//#else
+//    extproc->update_unzip();
+//#endif
     extproc->update_unzip();
 }
 
@@ -494,9 +512,12 @@ void Supervisor::readSetting(QString map_name){
     probot->max_moving_count = setting_config.value("call_maximum").toInt();
     setting_config.endGroup();
 
+#ifdef EXTPROC_TEST
+#else
     setting_config.beginGroup("NETWORK");
     probot->wifi_ssid = setting_config.value("wifi_ssid").toInt();
     setting_config.endGroup();
+#endif
 
 
     setting_config.beginGroup("MAP");
@@ -721,15 +742,24 @@ void Supervisor::map_reset(){
 }
 
 void Supervisor::setSystemVolume(int volume){
+#ifdef EXTPROC_TEST
+    checker.setSystemVolume(volume);
+#else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
     temp.params[0] = volume;
     extproc->set_command(temp);
+#endif
 }
+
 void Supervisor::requestSystemVolume(){
+#ifdef EXTPROC_TEST
+    checker.getSystemVolume();
+#else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_SYSTEM_VOLUME;
     extproc->set_command(temp);
+#endif
 }
 
 
@@ -3561,6 +3591,12 @@ void Supervisor::onTimer(){
         setWindow(qobject_cast<QQuickWindow*>(object));
     }
 
+    static int sddd = 0;
+    if(sddd++ > 10){
+        sddd = 0;
+        checker.getCurrentInterface();
+        checker.getSystemVolume();
+    }
     if(start_clear){
         start_clear = false;
         timer2 = new QTimer();
@@ -4288,7 +4324,11 @@ int Supervisor::getWifiNum(){
     return probot->wifi_map.size();
 }
 QString Supervisor::getCurWifiSSID(){
+#ifdef EXTPROC_TEST
+    return probot->wifi_interface.ssid;
+#else
     return probot->wifi_ssid;
+#endif
 }
 
 float Supervisor::getICPRatio(){
@@ -4310,7 +4350,17 @@ QString Supervisor::getWifiSSID(int num){//need check
         return "unknown";
     }
 }
-int Supervisor::getWifiConnection(QString ssid){//need check
+int Supervisor::getEthernetConnection(){
+    return probot->ethernet_interface.state;
+}
+
+int Supervisor::getInternetConnection(){
+    return probot->con_internet2;
+}
+int Supervisor::getWifiConnection(){//need check
+#ifdef EXTPROC_TEST
+    return probot->wifi_interface.state;
+#else
     if(ssid == ""){
         ssid = probot->wifi_ssid;
     }
@@ -4321,6 +4371,7 @@ int Supervisor::getWifiConnection(QString ssid){//need check
         return 0;
     }
 //    return probot->wifi_map[ssid].state;
+#endif
 }
 void Supervisor::setWifiConnection(QString ssid, int con){
     probot->wifi_map[ssid].state = con;
@@ -4338,10 +4389,13 @@ bool Supervisor::isRobotReady(){
         return false;
     }
 }
+
 void Supervisor::process_done(int cmd){//need check
+#ifdef EXTPROC_TEST
+#else
 //    qDebug() << "Process done" << cmd;
     if(cmd == ExtProcess::PROCESS_CMD_SET_WIFI_IP){
-//        getWifiIP();
+        getWifiIP();
         QMetaObject::invokeMethod(mMain,"wifireset");
         setWifiConnection(probot->wifi_ssid,2);
     }else if(cmd == ExtProcess::PROCESS_CMD_GET_WIFI_LIST){
@@ -4394,9 +4448,12 @@ void Supervisor::process_done(int cmd){//need check
             }
         }
     }
+#endif
 }
 
 void Supervisor::process_error(int cmd, int param){//need check
+#ifdef EXTPROC_TEST
+#else
     if(cmd == ExtProcess::PROCESS_CMD_CHECK_CONNECTION){
         QMetaObject::invokeMethod(mMain, "checkwifidone");
     }else if(cmd == ExtProcess::PROCESS_CMD_CONNECT_WIFI){
@@ -4414,6 +4471,7 @@ void Supervisor::process_error(int cmd, int param){//need check
             QMetaObject::invokeMethod(mMain, "gitnewest");
         }
     }
+#endif
 }
 
 void Supervisor::process_timeout(int cmd){//need check
@@ -4421,15 +4479,25 @@ void Supervisor::process_timeout(int cmd){//need check
 }
 
 void Supervisor::connectWifi(QString ssid, QString passwd){
+#ifdef EXTPROC_TEST
+    checker.connectWifi(ssid, passwd);
+#else
     plog->write("[COMMAND] connectWifi : "+ssid+", "+passwd+" (cur Connection : "+probot->wifi_connection+", SSID : "+probot->wifi_ssid+")");
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_CONNECT_WIFI;
     memcpy(temp.params,ssid.toUtf8(),sizeof(char)*100);
     memcpy(temp.params2,passwd.toUtf8(),sizeof(char)*100);
     extproc->set_command(temp);
+#endif
 }
 
+void Supervisor::setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
+    checker.setIP(ssid,ip,subnet,gateway,dns1,dns2);
+}
 void Supervisor::setWifi(QString ip, QString gateway, QString dns){
+#ifdef EXTPROC_TEST
+//    checker.setIP(probot->wifi_interface.ssid,ip,
+#else
     plog->write("[COMMAND] setWifi : "+ip+", "+gateway+", "+dns+" (cur Connection : "+probot->wifi_connection+", SSID : "+probot->wifi_ssid+")");
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_SET_WIFI_IP;
@@ -4437,9 +4505,12 @@ void Supervisor::setWifi(QString ip, QString gateway, QString dns){
     memcpy(temp.params2,gateway.toUtf8(),sizeof(char)*100);
     memcpy(temp.params3,dns.toUtf8(),sizeof(char)*100);
     extproc->set_command(temp);
+#endif
 }
 
 void Supervisor::readWifiState(QString ssid){//need check
+#ifdef EXTPROC_TEST
+#else
     if(probot->wifi_ssid == ""){
         QMetaObject::invokeMethod(mMain, "checkwifidone");
     }else{
@@ -4456,13 +4527,13 @@ void Supervisor::readWifiState(QString ssid){//need check
         }
 
     }
-}
-
-void Supervisor::setWifiSSD(QString ssid){
-    probot->wifi_ssid = ssid;
+#endif
 }
 
 void Supervisor::getWifiIP(){
+#ifdef EXTPROC_TEST
+//    checker.getCurrentInterface();
+#else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_IP;
     if(probot->wifi_ssid == ""){
@@ -4471,17 +4542,34 @@ void Supervisor::getWifiIP(){
         memcpy(temp.params,probot->wifi_ssid.toUtf8(),sizeof(char)*100);
         extproc->set_command(temp);
     }
+#endif
+
 }
 QString Supervisor::getcurIP(){
+#ifdef EXTPROC_TEST
+    return probot->wifi_interface.ipv4;
+#else
     return probot->cur_ip;
+#endif
 }
 QString Supervisor::getcurGateway(){
+#ifdef EXTPROC_TEST
+    return probot->wifi_interface.gateway;
+#else
     return probot->cur_gateway;
+#endif
 }
 QString Supervisor::getcurDNS(){
+#ifdef EXTPROC_TEST
+    return probot->wifi_interface.dns1;
+#else
     return probot->cur_dns;
+#endif
 }
 void Supervisor::getAllWifiList(){//need check
+#ifdef EXTPROC_TEST
+    checker.getWifiList();
+#else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
     extproc->set_command(temp, "Get Wifi List");
@@ -4500,6 +4588,7 @@ void Supervisor::getAllWifiList(){//need check
         probot->wifi_ssid = defaultWifiConf.name();
         probot->wifi_connection = WIFI_CONNECT;
     }
+#endif
 }
 bool Supervisor::getWifiSecurity(QString ssid){
     return probot->wifi_map[ssid].security;

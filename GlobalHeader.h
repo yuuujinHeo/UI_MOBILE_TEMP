@@ -2,11 +2,14 @@
 #define GLOBALHEADER_H
 
 #include "Logger.h"
+#include <QNetworkInterface>
 #include <opencv2/opencv.hpp>
 #include <QDir>
 #include <QPixmap>
 #include "MapHeader.h"
 #include "cv_to_qt.h"
+
+#define EXTPROC_TEST
 
 extern Logger *plog;
 extern int ui_state;
@@ -140,6 +143,23 @@ typedef struct{
     int prev_state=0;
 }ST_WIFI;
 
+enum{
+    NET_DISCON = 0,
+    NET_CONNECTING,
+    NET_CON
+};
+typedef struct{
+    QNetworkInterface::InterfaceType type;
+    int state = NET_DISCON;
+    QString name;
+    QString ssid;
+    QString ipv4;
+    QString netmask;
+    QString subnet;;
+    QString gateway;
+    QString dns1;
+    QString dns2;
+}ST_NET_INTERFACE;
 
 typedef struct{
     bool ipc_use = false;
@@ -225,15 +245,25 @@ typedef struct{
     QList<ST_GIT> gitList;
 
     QMap<QString, ST_WIFI> wifi_map;
+    bool con_internet = false;
+    int con_internet2 = NET_DISCON;
     int wifi_connection = 0;
+
+#ifdef EXTPROC_TEST
+#else
     QString wifi_ssid = "";
-    QString wifi_passwd = "";
-    QString wifi_ip = "";
-    QString wifi_gateway = "";
-    QString wifi_dns = "";
+//    QString wifi_ip = "";
+//    QString wifi_gateway = "";
+//    QString wifi_dns = "";
     QString cur_ip="";
     QString cur_gateway="";
     QString cur_dns="";
+#endif
+
+    QList<ST_WIFI> wifi_list;
+    ST_NET_INTERFACE ethernet_interface;
+    ST_NET_INTERFACE wifi_interface;
+
 }ST_ROBOT;
 extern ST_ROBOT *probot;
 
