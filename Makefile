@@ -1223,6 +1223,7 @@ moc_Supervisor.cpp: Supervisor.h \
 		python_wrapper.h \
 		IPCHandler.h \
 		cmd_client.h \
+		checker.h \
 		ServerHandler.h \
 		websocket/QtHttpServer.h \
 		websocket/QtHttpRequest.h \
@@ -1449,6 +1450,7 @@ Supervisor.o: Supervisor.cpp Supervisor.h \
 		python_wrapper.h \
 		IPCHandler.h \
 		cmd_client.h \
+		checker.h \
 		ServerHandler.h \
 		websocket/QtHttpServer.h \
 		websocket/QtHttpRequest.h \
@@ -1482,6 +1484,7 @@ main.o: main.cpp CameraView.h \
 		python_wrapper.h \
 		IPCHandler.h \
 		cmd_client.h \
+		checker.h \
 		ServerHandler.h \
 		websocket/QtHttpServer.h \
 		websocket/QtHttpRequest.h \
@@ -1494,8 +1497,7 @@ main.o: main.cpp CameraView.h \
 		ExtProcess.h \
 		MapViewer.h \
 		Keyemitter.h \
-		automata.h \
-		checker.h
+		automata.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 JlCompress.o: quazip/JlCompress.cpp quazip/JlCompress.h \
