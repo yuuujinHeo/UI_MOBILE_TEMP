@@ -10,6 +10,7 @@
 #include "ZIPHandler.h"
 #include "python_wrapper.h"
 #include "IPCHandler.h"
+#include "checker.h"
 #include <QMediaPlaylist>
 #include "ServerHandler.h"
 #include <QMediaPlayer>
@@ -17,8 +18,8 @@
 #include "TTSHandler.h"
 #include "MapHandler.h"
 #include "ExtProcess.h"
-#include "ExtProcess.h"
 #include <libusb-1.0/libusb.h>
+
 
 #define MOTOR_RUN(x)            ((x)&0x01)
 #define MOTOR_MOD_ERROR(x)      ((x>>1)&0x01)
@@ -90,7 +91,9 @@ public:
     Q_INVOKABLE void resetClear();
     QString wifi_temp_ssd = "";
     Q_INVOKABLE int getWifiNum();
-    Q_INVOKABLE int getWifiConnection(QString ssid);
+    Q_INVOKABLE int getWifiConnection();
+    Q_INVOKABLE int getEthernetConnection();
+    Q_INVOKABLE int getInternetConnection();
     void setWifiConnection(QString ssid, int con);
     Q_INVOKABLE QString getCurWifiSSID();
     Q_INVOKABLE QString getWifiSSID(int num);
@@ -103,11 +106,11 @@ public:
     Q_INVOKABLE void getAllWifiList();
     Q_INVOKABLE void getWifiIP();
     Q_INVOKABLE void setWifi(QString ip, QString gateway, QString dns);
+    Q_INVOKABLE void setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
     Q_INVOKABLE QString getcurIP();
     Q_INVOKABLE QString getcurGateway();
     Q_INVOKABLE QString getcurDNS();
     Q_INVOKABLE void readWifiState(QString ssid);
-    Q_INVOKABLE void setWifiSSD(QString ssid);
 
     Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
     Q_INVOKABLE void passInit();
@@ -178,6 +181,7 @@ public:
     ZIPHandler *zip;
     MapHandler *maph;
     ExtProcess *extproc;
+    Checker checker;
     CallbellHandler *call;
     IPCHandler *ipc;
     TTSHandler *tts;

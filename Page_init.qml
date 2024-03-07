@@ -2523,8 +2523,8 @@ Item {
                                             anchors.fill: parent
                                             onClicked: {
                                                 click_sound.play();;
-                                                if(supervisor.getcurIP() === "")
-                                                    supervisor.getWifiIP();
+//                                                if(supervisor.getcurIP() === "")
+//                                                    supervisor.getWifiIP();
 
                                                 loader_init.item.ip_update();
                                             }
@@ -2680,7 +2680,7 @@ Item {
                                     timer_update_wifi.stop();
                                 }else if(wizard_ip.setting_step == 1){
                                     supervisor.writelog("[USER INPUT] INIT PAGE : IP SETTING NEXT 2");
-                                    supervisor.getWifiIP();
+//                                    supervisor.getWifiIP();
                                     wizard_ip.setting_step++;
                                 }else{
                                     supervisor.writelog("[USER INPUT] INIT PAGE : SETTING DONE");
