@@ -393,7 +393,9 @@ public:
     Q_INVOKABLE int getLocationNum(QString group, QString name);
     Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);//{maph->saveLocation(type,groupnum,name);}
     Q_INVOKABLE void clearLocation(){maph->clearLocation();}
-    Q_INVOKABLE void addLocation(int x, int y,float th){maph->addLocation(x,y,th);}
+    Q_INVOKABLE void addLocation(int x, int y,float th){
+        maph->addLocation(x,y,th);
+    }
     Q_INVOKABLE void addLocationCur(int x, int y,float th){maph->addLocationCur(x,y,th);}
     Q_INVOKABLE void setLocation(int x, int y, float th){maph->setLocation(x,y,th);}
     Q_INVOKABLE void editLocation(int num);//{maph->editLocation(x,y,th);}

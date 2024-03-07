@@ -180,18 +180,18 @@ Item {
         }
 
         if(slider_volume_bgm.ischanged){
-            supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value.toFixed(0));
-            volume_bgm = slider_volume_bgm.value.toFixed(0);
+            supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value);
+//            volume_bgm = slider_volume_bgm.value.toFixed(0);
         }
 
         if(slider_volume_voice.ischanged){
-            supervisor.setSetting("setting","UI/volume_voice",slider_volume_voice.value.toFixed(0));
-            volume_voice = slider_volume_voice.value.toFixed(0);
+            supervisor.setSetting("setting","UI/volume_voice",slider_volume_voice.value);
+//            volume_voice = slider_volume_voice.value.toFixed(0);
         }
 
         if(slider_volume_button.ischanged){
-            supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value.toFixed(0));
-            volume_button = slider_volume_button.value.toFixed(0);
+            supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value);
+//            volume_button = slider_volume_button.value.toFixed(0);
         }
         if(combo_movingpage.ischanged){
             if(combo_movingpage.currentIndex == 0)
@@ -205,7 +205,7 @@ Item {
         }
 
         if(combo_comeback_preset.ischanged){
-            supervisor.setSetting("setting","UI/comeback_preset",combo_comeback_preset.currentIndex.toString());
+            supervisor.setSetting("update","DRIVING/comeback_preset",combo_comeback_preset.currentIndex.toString());
         }
 
 
@@ -489,9 +489,9 @@ Item {
 
         if(combo_use_motorcurrent.ischanged){
             if(combo_use_motorcurrent.currentIndex == 0){
-                supervisor.setSetitng("setting","USE_UI/use_current_pause","false");
+                supervisor.setSetting("setting","USE_UI/use_current_pause","false");
             }else{
-                supervisor.setSetitng("setting","USE_UI/use_current_pause","true");
+                supervisor.setSetting("setting","USE_UI/use_current_pause","true");
             }
         }
 
@@ -601,6 +601,8 @@ Item {
         wifi_check();
 
         cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
+        combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
+        print("setting init ",cur_preset, combo_comeback_preset.currentIndex);
         slider_volume_system.value = supervisor.getSystemVolume();
         platform_name.text = supervisor.getSetting("setting","ROBOT_TYPE","model");
         combo_platform_serial.currentIndex = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","serial_num"))
@@ -800,7 +802,6 @@ Item {
         combo_voice_name.currentIndex = supervisor.getTTSNameNum();
         combo_voice_name_2.currentIndex = supervisor.getTTSNameNum();
 
-        combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
 
         if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
             combo_use_tray.currentIndex = 1;
@@ -2575,6 +2576,7 @@ Item {
 //                                    anchors.centerIn: parent
                                     width: tt.width*0.7
                                     height: 50
+                                    stepSize: 1
                                     from: 0
                                     to: 100
                                     property bool ischanged: false
@@ -2668,6 +2670,7 @@ Item {
                                     height: 50
                                     from: 0
                                     to: 100
+                                    stepSize: 1
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
@@ -2752,10 +2755,11 @@ Item {
                                     height: 50
                                     from: 0
                                     to: 100
+                                    stepSize: 1
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
-                                        volume_button = value;
+//                                        volume_button = value;
                                     }
                                     value: supervisor.getSetting("setting","UI","volume_button")
                                 }
@@ -11270,11 +11274,11 @@ Item {
         triggeredOnStart: true
         onTriggered: {
 
-            if(supervisor.getusbsize() > 0){
-                btn_usb_download.enabled = true;
-            }else{
-                btn_usb_download.enabled = false;
-            }
+//            if(supervisor.getusbsize() > 0){
+//                btn_usb_download.enabled = true;
+//            }else{
+//                btn_usb_download.enabled = false;
+//            }
 
             //origin(use ExtProcess)
 //            wifi_con.connection = supervisor.getWifiConnection("");
@@ -11288,8 +11292,6 @@ Item {
             ethernet_con.connection = supervisor.getEthernetConnection();
             internet_con.connection = supervisor.getInternetConnection();
             wifi_ssid.text = supervisor.getCurWifiSSID();
-
-
 
 
             motor_left_id = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
@@ -16262,7 +16264,6 @@ Item {
                 model_wifis.clear();
                 for(var i=0; i<supervisor.getWifiNum(); i++){
                     var ssid = supervisor.getWifiSSID(i);
-//                    print(i,ssid);
                     model_wifis.append({"ssid":ssid,"inuse":supervisor.getWifiInuse(ssid),"rate":supervisor.getWifiRate(ssid),"level":supervisor.getWifiLevel(ssid),"security":supervisor.getWifiSecurity(ssid)});
                 }
             }
