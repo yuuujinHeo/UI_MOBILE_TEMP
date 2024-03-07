@@ -3499,22 +3499,20 @@ Item {
                 Rectangle{
                     width: 1100
                     height: 40
-                    visible: is_admin
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:qsTr("무선 와이파이 설정")
+                        text:qsTr("네트워크 설정")
                         color: "white"
                         font.pixelSize: 20
                     }
                 }
                 Rectangle{
-                    id: set_wifi
+                    id: set_internet
                     width: 840
-                    visible: is_admin && debug_use_ip
-                    height: 400
+                    height: 50
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3525,7 +3523,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("WIFI 연결상태")
+                                text:qsTr("인터넷 연결상태")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -3548,16 +3546,14 @@ Item {
                                 anchors.centerIn: parent
                                 spacing: 10
                                 Rectangle{
-                                    id: wifi_connection
+                                    id: internet_con
                                     width: 500
                                     height: 50
                                     property int connection: 0
                                     color: {
-                                        if(wifi_connection.connection === 1){
+                                        if(internet_con.connection === 1){
                                             color_yellow
-                                        }else if(wifi_connection.connection === 2){
-                                            color_yellow
-                                        }else if(wifi_connection.connection === 3){
+                                        }else if(internet_con.connection === 2){
                                             color_green
                                         }else{
                                             color_red
@@ -3568,11 +3564,1331 @@ Item {
                                         font.family:font_noto_r.name
                                         font.pixelSize:20
                                         text:{
-                                            if(wifi_connection.connection === 1){
+                                            if(internet_con.connection === 1){
                                                 qsTr("연결중")
-                                            }else if(wifi_connection.connection === 2){
-                                                qsTr("연결됨(인터넷 연결안됨)")
-                                            }else if(wifi_connection.connection === 3){
+                                            }else if(internet_con.connection === 2){
+                                                qsTr("연결됨")
+                                            }else{
+                                                qsTr("연결안됨")
+                                            }
+                                        }
+                                        color: "white"
+                                    }
+                                }
+
+
+                            }
+                        }
+
+
+                    }
+                }
+                Rectangle{
+                    id: set_ethernet
+                    width: 840
+                    height: is_admin?400:50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 200
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("유선 연결상태")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 201
+                            height: parent.height
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 10
+                                Rectangle{
+                                    id: ethernet_con
+                                    width: 500
+                                    height: 50
+                                    property int connection: 0
+                                    color: {
+                                        if(ethernet_con.connection === 1){
+                                            color_yellow
+                                        }else if(ethernet_con.connection === 2){
+                                            color_green
+                                        }else{
+                                            color_red
+                                        }
+                                    }
+                                    Text{
+                                        anchors.centerIn: parent
+                                        font.family:font_noto_r.name
+                                        font.pixelSize:20
+                                        text:{
+                                            if(ethernet_con.connection === 1){
+                                                qsTr("연결중")
+                                            }else if(ethernet_con.connection === 2){
+                                                qsTr("연결됨")
+                                            }else{
+                                                qsTr("연결안됨")
+                                            }
+                                        }
+                                        color: "white"
+                                    }
+                                }
+                                Row{
+                                    visible: is_admin
+                                    spacing: 5
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("IP")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: ethernet_ip_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_ip_1;
+                                                            ethernet_ip_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_ip_1;
+                                                            ethernet_ip_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_ip_1.text.split(".").length > 1){
+                                                        ethernet_ip_1.text = ethernet_ip_1.text.split(".")[0];
+                                                        ethernet_ip_2.selectAll();
+                                                        keypad.owner = ethernet_ip_2;
+                                                    }
+                                                    if(ethernet_ip_1.text.length == 3){
+                                                        ethernet_ip_2.selectAll();
+                                                        keypad.owner = ethernet_ip_2;
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: ethernet_ip_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_ip_2;
+                                                            ethernet_ip_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_ip_2;
+                                                            ethernet_ip_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_ip_2.text == "."){
+                                                        ethernet_ip_2.text = ethernet_ip_2.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_ip_2.text.split(".").length > 1){
+                                                        ethernet_ip_2.text = ethernet_ip_2.text.split(".")[0];
+                                                        ethernet_ip_3.selectAll();
+                                                        keypad.owner = ethernet_ip_3;
+                                                    }
+                                                    if(ethernet_ip_2.text.length == 3){
+                                                        ethernet_ip_3.selectAll();
+                                                        keypad.owner = ethernet_ip_3;
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_ip_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_ip_3;
+                                                            ethernet_ip_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_ip_3;
+                                                            ethernet_ip_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_ip_3.text == "."){
+                                                        ethernet_ip_3.text = ethernet_ip_3.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_ip_3.text.split(".").length > 1){
+                                                        ethernet_ip_3.text = ethernet_ip_3.text.split(".")[0];
+                                                        ethernet_ip_4.selectAll();
+                                                        keypad.owner = ethernet_ip_4;
+                                                    }
+                                                    if(ethernet_ip_3.text.length == 3){
+                                                        ethernet_ip_4.selectAll();
+                                                        keypad.owner = ethernet_ip_4;
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_ip_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_ip_4;
+                                                            ethernet_ip_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_ip_4;
+                                                            ethernet_ip_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_ip_4.text == "."){
+                                                        ethernet_ip_4.text = ethernet_ip_4.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_ip_4.text.split(".").length > 1){
+                                                        ethernet_ip_4.text = ethernet_ip_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(ethernet_ip_4.text.length == 3){
+                                                        keypad.close();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                Row{
+                                    visible: is_admin
+                                    spacing: 5
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("Netmask")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: ethernet_netmask_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_netmask_1;
+                                                            ethernet_netmask_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_netmask_1;
+                                                            ethernet_netmask_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_netmask_1.text.split(".").length > 1){
+                                                        ethernet_netmask_1.text = ethernet_netmask_1.text.split(".")[0];
+                                                        keypad.owner = ethernet_netmask_2;
+                                                        ethernet_netmask_2.selectAll();
+                                                    }
+                                                    if(ethernet_netmask_1.text.length == 3){
+                                                        keypad.owner = ethernet_netmask_2;
+                                                        ethernet_netmask_2.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: ethernet_netmask_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_netmask_2;
+                                                            ethernet_netmask_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_netmask_2;
+                                                            ethernet_netmask_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_netmask_2.text == "."){
+                                                        ethernet_netmask_2.text = ethernet_netmask_2.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_netmask_2.text.split(".").length > 1){
+                                                        ethernet_netmask_2.text = ethernet_netmask_2.text.split(".")[0];
+                                                        keypad.owner = ethernet_netmask_3;
+                                                        ethernet_netmask_3.selectAll();
+                                                    }
+                                                    if(ethernet_netmask_2.text.length == 3){
+                                                        keypad.owner = ethernet_netmask_3;
+                                                        ethernet_netmask_3.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_netmask_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_netmask_3;
+                                                            ethernet_netmask_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_netmask_3;
+                                                            ethernet_netmask_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_netmask_3.text == "."){
+                                                        ethernet_netmask_3.text = ethernet_netmask_3.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_netmask_3.text.split(".").length > 1){
+                                                        ethernet_netmask_3.text = ethernet_netmask_3.text.split(".")[0];
+                                                        keypad.owner = ethernet_netmask_4;
+                                                        ethernet_netmask_4.selectAll();
+                                                    }
+                                                    if(ethernet_netmask_3.text.length == 3){
+                                                        keypad.owner = ethernet_netmask_4;
+                                                        ethernet_netmask_4.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_netmask_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_netmask_4;
+                                                            ethernet_netmask_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_netmask_4;
+                                                            ethernet_netmask_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_netmask_4.text == "."){
+                                                        ethernet_netmask_4.text = ethernet_netmask_4.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_netmask_4.text.split(".").length > 1){
+                                                        ethernet_netmask_4.text = ethernet_netmask_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(ethernet_netmask_4.text.length == 3){
+                                                        keypad.close();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                Row{
+                                    visible: is_admin
+                                    spacing: 5
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("Gateway")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: ethernet_gateway_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_gateway_1;
+                                                            ethernet_gateway_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_gateway_1;
+                                                            ethernet_gateway_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_gateway_1.text.split(".").length > 1){
+                                                        ethernet_gateway_1.text = ethernet_gateway_1.text.split(".")[0];
+                                                        keypad.owner = ethernet_gateway_2;
+                                                        ethernet_gateway_2.selectAll();
+                                                    }
+                                                    if(ethernet_gateway_1.text.length == 3){
+                                                        keypad.owner = ethernet_gateway_2;
+                                                        ethernet_gateway_2.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: ethernet_gateway_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_gateway_2;
+                                                            ethernet_gateway_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_gateway_2;
+                                                            ethernet_gateway_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_gateway_2.text == "."){
+                                                        ethernet_gateway_2.text = ethernet_gateway_2.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_gateway_2.text.split(".").length > 1){
+                                                        ethernet_gateway_2.text = ethernet_gateway_2.text.split(".")[0];
+                                                        keypad.owner = ethernet_gateway_3;
+                                                        ethernet_gateway_3.selectAll();
+                                                    }
+                                                    if(ethernet_gateway_2.text.length == 3){
+                                                        keypad.owner = ethernet_gateway_3;
+                                                        ethernet_gateway_3.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_gateway_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_gateway_3;
+                                                            ethernet_gateway_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_gateway_3;
+                                                            ethernet_gateway_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_gateway_3.text == "."){
+                                                        ethernet_gateway_3.text = ethernet_gateway_3.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_gateway_3.text.split(".").length > 1){
+                                                        ethernet_gateway_3.text = ethernet_gateway_3.text.split(".")[0];
+                                                        keypad.owner = ethernet_gateway_4;
+                                                        ethernet_gateway_4.selectAll();
+                                                    }
+                                                    if(ethernet_gateway_3.text.length == 3){
+                                                        keypad.owner = ethernet_gateway_4;
+                                                        ethernet_gateway_4.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_gateway_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_gateway_4;
+                                                            ethernet_gateway_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_gateway_4;
+                                                            ethernet_gateway_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_gateway_4.text == "."){
+                                                        ethernet_gateway_4.text = ethernet_gateway_4.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_gateway_4.text.split(".").length > 1){
+                                                        ethernet_gateway_4.text = ethernet_gateway_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(ethernet_gateway_4.text.length == 3){
+                                                        keypad.close();
+                                                    }
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
+
+
+                                Row{
+                                    visible: is_admin
+                                    spacing: 5
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("DNS 1")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: ethernet_dnsmain_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsmain_1;
+                                                            ethernet_dnsmain_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsmain_1;
+                                                            ethernet_dnsmain_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsmain_1.text.split(".").length > 1){
+                                                        ethernet_dnsmain_1.text = ethernet_dnsmain_1.text.split(".")[0];
+                                                        keypad.owner = ethernet_dnsmain_2;
+                                                        ethernet_dnsmain_2.selectAll();
+                                                    }
+                                                    if(ethernet_dnsmain_1.text.length == 3){
+                                                        keypad.owner = ethernet_dnsmain_2;
+                                                        ethernet_dnsmain_2.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: ethernet_dnsmain_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsmain_2;
+                                                            ethernet_dnsmain_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsmain_2;
+                                                            ethernet_dnsmain_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsmain_2.text == "."){
+                                                        ethernet_dnsmain_2.text = ethernet_dnsmain_2.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_dnsmain_2.text.split(".").length > 1){
+                                                        ethernet_dnsmain_2.text = ethernet_dnsmain_2.text.split(".")[0];
+                                                        keypad.owner = ethernet_dnsmain_3;
+                                                        ethernet_dnsmain_3.selectAll();
+                                                    }
+                                                    if(ethernet_dnsmain_2.text.length == 3){
+                                                        keypad.owner = ethernet_dnsmain_3;
+                                                        ethernet_dnsmain_3.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_dnsmain_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsmain_3;
+                                                            ethernet_dnsmain_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsmain_3;
+                                                            ethernet_dnsmain_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsmain_3.text == "."){
+                                                        ethernet_dnsmain_3.text = ethernet_dnsmain_3.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_dnsmain_3.text.split(".").length > 1){
+                                                        ethernet_dnsmain_3.text = ethernet_dnsmain_3.text.split(".")[0];
+                                                        keypad.owner = ethernet_dnsmain_4;
+                                                        ethernet_dnsmain_4.selectAll();
+                                                    }
+                                                    if(ethernet_dnsmain_3.text.length == 3){
+                                                        keypad.owner = ethernet_dnsmain_4;
+                                                        ethernet_dnsmain_4.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_dnsmain_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsmain_4;
+                                                            ethernet_dnsmain_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsmain_4;
+                                                            ethernet_dnsmain_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsmain_4.text == "."){
+                                                        ethernet_dnsmain_4.text = ethernet_dnsmain_4.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_dnsmain_4.text.split(".").length > 1){
+                                                        ethernet_dnsmain_4.text = ethernet_dnsmain_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(ethernet_dnsmain_4.text.length == 3){
+                                                        keypad.close();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Row{
+                                    visible: is_admin
+                                    spacing: 5
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("DNS 2")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: ethernet_dnsserv_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsserv_1;
+                                                            ethernet_dnsserv_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsserv_1;
+                                                            ethernet_dnsserv_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsserv_1.text.split(".").length > 1){
+                                                        ethernet_dnsserv_1.text = ethernet_dnsserv_1.text.split(".")[0];
+                                                        keypad.owner = ethernet_dnsserv_2;
+                                                        ethernet_dnsserv_2.selectAll();
+                                                    }
+                                                    if(ethernet_dnsserv_1.text.length == 3){
+                                                        keypad.owner = ethernet_dnsserv_2;
+                                                        ethernet_dnsserv_2.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: ethernet_dnsserv_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsserv_2;
+                                                            ethernet_dnsserv_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsserv_2;
+                                                            ethernet_dnsserv_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsserv_2.text == "."){
+                                                        ethernet_dnsserv_2.text = ethernet_dnsserv_2.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_dnsserv_2.text.split(".").length > 1){
+                                                        ethernet_dnsserv_2.text = ethernet_dnsserv_2.text.split(".")[0];
+                                                        keypad.owner = ethernet_dnsserv_3;
+                                                        ethernet_dnsserv_3.selectAll();
+                                                    }
+                                                    if(ethernet_dnsserv_2.text.length == 3){
+                                                        keypad.owner = ethernet_dnsserv_3;
+                                                        ethernet_dnsserv_3.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_dnsserv_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsserv_3;
+                                                            ethernet_dnsserv_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsserv_3;
+                                                            ethernet_dnsserv_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsserv_3.text == "."){
+                                                        ethernet_dnsserv_3.text = ethernet_dnsserv_3.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_dnsserv_3.text.split(".").length > 1){
+                                                        ethernet_dnsserv_3.text = ethernet_dnsserv_3.text.split(".")[0];
+                                                        keypad.owner = ethernet_dnsserv_4;
+                                                        ethernet_dnsserv_4.selectAll();
+                                                    }
+                                                    if(ethernet_dnsserv_3.text.length == 3){
+                                                        keypad.owner = ethernet_dnsserv_4;
+                                                        ethernet_dnsserv_4.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: ethernet_dnsserv_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = ethernet_dnsserv_4;
+                                                            ethernet_dnsserv_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = ethernet_dnsserv_4;
+                                                            ethernet_dnsserv_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(ethernet_dnsserv_4.text == "."){
+                                                        ethernet_dnsserv_4.text = ethernet_dnsserv_4.text.split(".")[0]
+                                                    }
+
+                                                    if(ethernet_dnsserv_4.text.split(".").length > 1){
+                                                        ethernet_dnsserv_4.text = ethernet_dnsserv_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(ethernet_dnsserv_4.text.length == 3){
+                                                        keypad.close();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Row{
+                                    visible: is_admin
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    spacing: 30
+                                    Item_buttons{
+                                        type: "white_btn"
+                                        text:qsTr("변경값적용")
+                                        width: 150
+                                        height: 60
+                                        function check(str){
+                                            var num = parseInt(str);
+                                            if(num === 0){
+                                                if(str === "0"){
+                                                    return true;
+                                                }else{
+                                                    return false;
+                                                }
+                                            }else if(num === 128 || num === 192 || num === 224 || num === 240 || num === 248 || num === 252 || num === 254 || num === 255){
+                                                return true;
+                                            }else{
+                                                return false;
+                                            }
+                                        }
+
+                                        onClicked:{
+                                            var success = true;
+                                            //check value
+                                            if(parseInt(ethernet_ip_1.text)>-1 && parseInt(ethernet_ip_1.text)<256){
+                                                if(parseInt(ethernet_ip_2.text)>-1 && parseInt(ethernet_ip_2.text)<256){
+                                                    if(parseInt(ethernet_ip_3.text)>-1 && parseInt(ethernet_ip_3.text)<256){
+                                                        if(parseInt(ethernet_ip_4.text)>-1 && parseInt(ethernet_ip_4.text)<256){
+
+                                                        }else{
+                                                            ethernet_ip_4.color = color_red
+                                                            success = false;
+                                                        }
+                                                    }else{
+                                                        ethernet_ip_3.color = color_red
+                                                        success = false;
+                                                    }
+                                                }else{
+                                                    ethernet_ip_2.color = color_red
+                                                    success = false;
+                                                }
+                                            }else{
+                                                ethernet_ip_1.color = color_red
+                                                success = false;
+                                            }
+                                            if(parseInt(ethernet_gateway_1.text)>-1 && parseInt(ethernet_gateway_1.text)<256){
+                                                if(parseInt(ethernet_gateway_2.text)>-1 && parseInt(ethernet_gateway_2.text)<256){
+                                                    if(parseInt(ethernet_gateway_3.text)>-1 && parseInt(ethernet_gateway_3.text)<256){
+                                                        if(parseInt(ethernet_gateway_4.text)>-1 && parseInt(ethernet_gateway_4.text)<256){
+
+                                                        }else{
+                                                            ethernet_gateway_4.color = color_red
+                                                            success = false;
+                                                        }
+                                                    }else{
+                                                        ethernet_gateway_3.color = color_red
+                                                        success = false;
+                                                    }
+                                                }else{
+                                                    ethernet_gateway_2.color = color_red
+                                                    success = false;
+                                                }
+                                            }else{
+                                                ethernet_gateway_1.color = color_red
+                                                success = false;
+                                            }
+
+                                            if(parseInt(ethernet_dnsmain_1.text)>-1 && parseInt(ethernet_dnsmain_1.text)<256){
+                                                if(parseInt(ethernet_dnsmain_2.text)>-1 && parseInt(ethernet_dnsmain_2.text)<256){
+                                                    if(parseInt(ethernet_dnsmain_3.text)>-1 && parseInt(ethernet_dnsmain_3.text)<256){
+                                                        if(parseInt(ethernet_dnsmain_4.text)>-1 && parseInt(ethernet_dnsmain_4.text)<256){
+
+                                                        }else{
+                                                            ethernet_dnsmain_4.color = color_red
+                                                            success = false;
+                                                        }
+                                                    }else{
+                                                        ethernet_dnsmain_3.color = color_red
+                                                        success = false;
+                                                    }
+                                                }else{
+                                                    ethernet_dnsmain_2.color = color_red
+                                                    success = false;
+                                                }
+                                            }else{
+                                                ethernet_dnsmain_1.color = color_red
+                                                success = false;
+                                            }
+
+                                            if(check(ethernet_netmask_1.text)){
+                                                if(ethernet_netmask_1.text == "255"){
+                                                    if(check(ethernet_netmask_2.text)){
+                                                        if(ethernet_netmask_2.text == "255"){
+                                                            if(check(ethernet_netmask_3.text)){
+                                                                if(ethernet_netmask_3.text == "255"){
+                                                                    if(check(ethernet_netmask_4.text)){
+
+                                                                    }else{
+                                                                        ethernet_netmask_4.color = color_red;
+                                                                        success = false;
+                                                                    }
+                                                                }else{
+                                                                    if(ethernet_netmask_4.text === "0"){
+
+                                                                    }else{
+                                                                        ethernet_netmask_4.color = color_red;
+                                                                        success = false;
+                                                                    }
+                                                                }
+
+                                                            }else{
+                                                                ethernet_netmask_3.color = color_red;
+                                                                success = false;
+                                                            }
+                                                        }else{
+                                                            if(ethernet_netmask_3.text === "0"){
+                                                                if(ethernet_netmask_4.text === "0"){
+
+                                                                }else{
+                                                                    ethernet_netmask_4.color = color_red;
+                                                                    success = false;
+                                                                }
+                                                            }else{
+                                                                ethernet_netmask_3.color = color_red;
+                                                                success = false;
+                                                            }
+                                                        }
+                                                    }else{
+                                                        ethernet_netmask_2.color = color_red;
+                                                        success = false;
+                                                    }
+
+                                                }else{
+                                                    if(ethernet_netmask_2.text === "0"){
+                                                        if(ethernet_netmask_3.text === "0"){
+                                                            if(ethernet_netmask_4.text === "0"){
+
+                                                            }else{
+                                                                ethernet_netmask_4.color = color_red;
+                                                                success = false;
+                                                            }
+                                                        }else{
+                                                            ethernet_netmask_3.color = color_red;
+                                                            success = false;
+                                                        }
+                                                    }else{
+                                                        ethernet_netmask_2.color = color_red;
+                                                        success = false;
+                                                    }
+                                                }
+
+                                            }else{
+                                                ethernet_netmask_1.color = color_red
+                                                success = false;
+                                            }
+
+                                            if(success){
+                                                ethernet_ip_1.ischanged = false;
+                                                ethernet_ip_2.ischanged = false;
+                                                ethernet_ip_3.ischanged = false;
+                                                ethernet_ip_4.ischanged = false;
+                                                ethernet_netmask_1.ischanged = false;
+                                                ethernet_netmask_2.ischanged = false;
+                                                ethernet_netmask_3.ischanged = false;
+                                                ethernet_netmask_4.ischanged = false;
+                                                ethernet_gateway_1.ischanged = false;
+                                                ethernet_gateway_2.ischanged = false;
+                                                ethernet_gateway_3.ischanged = false;
+                                                ethernet_gateway_4.ischanged = false;
+                                                ethernet_dnsmain_1.ischanged = false;
+                                                ethernet_dnsmain_2.ischanged = false;
+                                                ethernet_dnsmain_3.ischanged = false;
+                                                ethernet_dnsmain_4.ischanged = false;
+                                                ethernet_dnsserv_1.ischanged = false;
+                                                ethernet_dnsserv_2.ischanged = false;
+                                                ethernet_dnsserv_3.ischanged = false;
+                                                ethernet_dnsserv_4.ischanged = false;
+                                                var ip_str = ethernet_ip_1.text + "." + ethernet_ip_2.text + "." + ethernet_ip_3.text + "." + ethernet_ip_4.text;
+                                                var netmask_str = ethernet_netmask_1.text + "." + ethernet_netmask_2.text + "." + ethernet_netmask_3.text + "." + ethernet_netmask_4.text;
+                                                var gateway_str = ethernet_gateway_1.text + "." + ethernet_gateway_2.text + "." + ethernet_gateway_3.text + "." + ethernet_gateway_4.text;
+                                                var dns1_str = ethernet_dnsmain_1.text + "." + ethernet_dnsmain_2.text + "." + ethernet_dnsmain_3.text + "." + ethernet_dnsmain_4.text;
+                                                var dns2_str = ethernet_dnsserv_1.text + "." + ethernet_dnsserv_2.text + "." + ethernet_dnsserv_3.text + "." + ethernet_dnsserv_4.text;
+                                                supervisor.setWifi(ssid, ip_str, netmask_str, gateway_str,dns1_str,dns2_str);
+                                                supervisor.setSetting("setting","NETWORK/ethernet_ip",ip_str);
+                                                supervisor.setSetting("setting","NETWORK/ethernet_netmask",netmask_str);
+                                                supervisor.setSetting("setting","NETWORK/ethernet_gateway",gateway_str);
+                                                supervisor.setSetting("setting","NETWORK/ethernet_dnsmain",dns1_str);
+                                                supervisor.setSetting("setting","NETWORK/ethernet_dnsserv",dns2_str);
+                                                popup_loading.open();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_wifi
+                    width: 840
+                    height: is_admin?400:120
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 200
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("무선 연결상태")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 201
+                            height: parent.height
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 10
+                                Rectangle{
+                                    id: wifi_con
+                                    width: 500
+                                    height: 50
+                                    property int connection: 0
+                                    color: {
+                                        if(wifi_con.connection === 1){
+                                            color_yellow
+                                        }else if(wifi_con.connection === 2){
+                                            color_green
+                                        }else{
+                                            color_red
+                                        }
+                                    }
+                                    Text{
+                                        anchors.centerIn: parent
+                                        font.family:font_noto_r.name
+                                        font.pixelSize:20
+                                        text:{
+                                            if(wifi_con.connection === 1){
+                                                qsTr("연결중")
+                                            }else if(wifi_con.connection === 2){
                                                 qsTr("연결됨")
                                             }else{
                                                 qsTr("연결안됨")
@@ -3616,11 +4932,10 @@ Item {
                                             font.family: font_noto_r.name
                                             text:supervisor.getSetting("setting","NETWORK","wifi_ssid");
                                         }
-
                                     }
                                 }
-
                                 Row{
+                                    visible: is_admin
                                     spacing: 5
                                     Rectangle{
                                         width: 150
@@ -3812,41 +5127,199 @@ Item {
                                                 }
                                             }
 
-                                            Rectangle{
-                                                height: parent.height
-                                                width: parent.width*0.2
-                                                radius: 5
-                                                visible: false
-                                                color: "black"
-                                                Text{
-                                                    anchors.centerIn: parent
-                                                    color: "white"
-                                                    font.family: font_noto_r.name
-                                                    text: qsTr("변경")
+                                        }
+                                    }
+                                }
+
+                                Row{
+                                    visible: is_admin
+                                    spacing: 5
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("Netmask")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
                                                 }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: netmask_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
-                                                    anchors.fill: parent
-                                                    onClicked:{
+                                                    anchors.fill:parent
+                                                    onClicked: {
                                                         click_sound.play();
-                                                        ip_1.ischanged = false;
-                                                        ip_2.ischanged = false;
-                                                        ip_3.ischanged = false;
-                                                        ip_4.ischanged = false;
-                                                        var ip_str = ip_1.text + "." + ip_2.text + "." + ip_3.text + "." + ip_4.text;
-                                                        gateway_1.ischanged = false;
-                                                        gateway_2.ischanged = false;
-                                                        gateway_3.ischanged = false;
-                                                        gateway_4.ischanged = false;
-                                                        var gateway_str = gateway_1.text + "." + gateway_2.text + "." + gateway_3.text + "." + gateway_4.text;
-                                                        dnsmain_1.ischanged = false;
-                                                        dnsmain_2.ischanged = false;
-                                                        dnsmain_3.ischanged = false;
-                                                        dnsmain_4.ischanged = false;
-                                                        var dns_str = dnsmain_1.text + "." + dnsmain_2.text + "." + dnsmain_3.text + "." + dnsmain_4.text;
-                                                        supervisor.setWifi(ip_str,gateway_str,dns_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_ip",ip_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_gateway",gateway_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_dnsmain",dns_str);
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = netmask_1;
+                                                            netmask_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = netmask_1;
+                                                            netmask_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(netmask_1.text.split(".").length > 1){
+                                                        netmask_1.text = netmask_1.text.split(".")[0];
+                                                        keypad.owner = netmask_2;
+                                                        netmask_2.selectAll();
+                                                    }
+                                                    if(netmask_1.text.length == 3){
+                                                        keypad.owner = netmask_2;
+                                                        netmask_2.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: netmask_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = netmask_2;
+                                                            netmask_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = netmask_2;
+                                                            netmask_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(netmask_2.text == "."){
+                                                        netmask_2.text = netmask_2.text.split(".")[0]
+                                                    }
+
+                                                    if(netmask_2.text.split(".").length > 1){
+                                                        netmask_2.text = netmask_2.text.split(".")[0];
+                                                        keypad.owner = netmask_3;
+                                                        netmask_3.selectAll();
+                                                    }
+                                                    if(netmask_2.text.length == 3){
+                                                        keypad.owner = netmask_3;
+                                                        netmask_3.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: netmask_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = netmask_3;
+                                                            netmask_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = netmask_3;
+                                                            netmask_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(netmask_3.text == "."){
+                                                        netmask_3.text = netmask_3.text.split(".")[0]
+                                                    }
+
+                                                    if(netmask_3.text.split(".").length > 1){
+                                                        netmask_3.text = netmask_3.text.split(".")[0];
+                                                        keypad.owner = netmask_4;
+                                                        netmask_4.selectAll();
+                                                    }
+                                                    if(netmask_3.text.length == 3){
+                                                        keypad.owner = netmask_4;
+                                                        netmask_4.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: netmask_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = netmask_4;
+                                                            netmask_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = netmask_4;
+                                                            netmask_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(netmask_4.text == "."){
+                                                        netmask_4.text = netmask_4.text.split(".")[0]
+                                                    }
+
+                                                    if(netmask_4.text.split(".").length > 1){
+                                                        netmask_4.text = netmask_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(netmask_4.text.length == 3){
+                                                        keypad.close();
                                                     }
                                                 }
                                             }
@@ -3855,8 +5328,10 @@ Item {
                                 }
 
 
+
                                 Row{
                                     spacing: 5
+                                    visible: is_admin
                                     Rectangle{
                                         width: 150
                                         height: 50
@@ -4046,44 +5521,6 @@ Item {
                                                     }
                                                 }
                                             }
-                                            Rectangle{
-                                                height: parent.height
-                                                width: parent.width*0.2
-                                                radius: 5
-                                                visible: false
-                                                color: "black"
-                                                Text{
-                                                    anchors.centerIn: parent
-                                                    color: "white"
-                                                    font.family: font_noto_r.name
-                                                    text:qsTr("변경")
-                                                }
-                                                MouseArea{
-                                                    anchors.fill: parent
-                                                    onClicked:{
-                                                        click_sound.play();
-                                                        ip_1.ischanged = false;
-                                                        ip_2.ischanged = false;
-                                                        ip_3.ischanged = false;
-                                                        ip_4.ischanged = false;
-                                                        var ip_str = ip_1.text + "." + ip_2.text + "." + ip_3.text + "." + ip_4.text;
-                                                        gateway_1.ischanged = false;
-                                                        gateway_2.ischanged = false;
-                                                        gateway_3.ischanged = false;
-                                                        gateway_4.ischanged = false;
-                                                        var gateway_str = gateway_1.text + "." + gateway_2.text + "." + gateway_3.text + "." + gateway_4.text;
-                                                        dnsmain_1.ischanged = false;
-                                                        dnsmain_2.ischanged = false;
-                                                        dnsmain_3.ischanged = false;
-                                                        dnsmain_4.ischanged = false;
-                                                        var dns_str = dnsmain_1.text + "." + dnsmain_2.text + "." + dnsmain_3.text + "." + dnsmain_4.text;
-                                                        supervisor.setWifi(ip_str,gateway_str,dns_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_ip",ip_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_gateway",gateway_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_dnsmain",dns_str);
-                                                    }
-                                                }
-                                            }
                                         }
                                     }
                                 }
@@ -4091,6 +5528,7 @@ Item {
 
                                 Row{
                                     spacing: 5
+                                    visible: is_admin
                                     Rectangle{
                                         width: 150
                                         height: 50
@@ -4099,7 +5537,7 @@ Item {
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
-                                            text:qsTr("DNS")
+                                            text:qsTr("DNS 1")
                                             font.pixelSize: 20
                                             Component.onCompleted: {
                                                 scale = 1;
@@ -4280,41 +5718,199 @@ Item {
                                                     }
                                                 }
                                             }
-                                            Rectangle{
-                                                height: parent.height
-                                                width: parent.width*0.2
-                                                radius: 5
-                                                visible: false
-                                                color: "black"
-                                                Text{
-                                                    anchors.centerIn: parent
-                                                    color: "white"
-                                                    font.family: font_noto_r.name
-                                                    text:qsTr("변경")
+                                        }
+                                    }
+                                }
+
+                                Row{
+                                    spacing: 5
+                                    visible: is_admin
+                                    Rectangle{
+                                        width: 150
+                                        height: 50
+                                        Text{
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            anchors.left: parent.left
+                                            anchors.leftMargin: 30
+                                            font.family: font_noto_r.name
+                                            text:qsTr("DNS 2")
+                                            font.pixelSize: 20
+                                            Component.onCompleted: {
+                                                scale = 1;
+                                                while(width*scale > parent.width*0.8){
+                                                    scale=scale-0.01;
                                                 }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        width: 1
+                                        height: 50
+                                        color: "#d0d0d0"
+                                    }
+
+                                    Rectangle{
+                                        width: 500-161
+                                        height: 50
+                                        Row{
+                                            spacing: 10
+                                            anchors.centerIn: parent
+                                            TextField{
+                                                id: dnsserv_1
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
-                                                    anchors.fill: parent
-                                                    onClicked:{
+                                                    anchors.fill:parent
+                                                    onClicked: {
                                                         click_sound.play();
-                                                        ip_1.ischanged = false;
-                                                        ip_2.ischanged = false;
-                                                        ip_3.ischanged = false;
-                                                        ip_4.ischanged = false;
-                                                        var ip_str = ip_1.text + "." + ip_2.text + "." + ip_3.text + "." + ip_4.text;
-                                                        gateway_1.ischanged = false;
-                                                        gateway_2.ischanged = false;
-                                                        gateway_3.ischanged = false;
-                                                        gateway_4.ischanged = false;
-                                                        var gateway_str = gateway_1.text + "." + gateway_2.text + "." + gateway_3.text + "." + gateway_4.text;
-                                                        dnsmain_1.ischanged = false;
-                                                        dnsmain_2.ischanged = false;
-                                                        dnsmain_3.ischanged = false;
-                                                        dnsmain_4.ischanged = false;
-                                                        var dns_str = dnsmain_1.text + "." + dnsmain_2.text + "." + dnsmain_3.text + "." + dnsmain_4.text;
-                                                        supervisor.setWifi(ip_str,gateway_str,dns_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_ip",ip_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_gateway",gateway_str);
-                                                        supervisor.setSetting("setting","NETWORK/wifi_dnsmain",dns_str);
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = dnsserv_1;
+                                                            dnsserv_1.selectAll();
+                                                        }else{
+                                                            keypad.owner = dnsserv_1;
+                                                            dnsserv_1.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(dnsserv_1.text.split(".").length > 1){
+                                                        dnsserv_1.text = dnsserv_1.text.split(".")[0];
+                                                        keypad.owner = dnsserv_2;
+                                                        dnsserv_2.selectAll();
+                                                    }
+                                                    if(dnsserv_1.text.length == 3){
+                                                        keypad.owner = dnsserv_2;
+                                                        dnsserv_2.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+
+                                            TextField{
+                                                id: dnsserv_2
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = dnsserv_2;
+                                                            dnsserv_2.selectAll();
+                                                        }else{
+                                                            keypad.owner = dnsserv_2;
+                                                            dnsserv_2.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(dnsserv_2.text == "."){
+                                                        dnsserv_2.text = dnsserv_2.text.split(".")[0]
+                                                    }
+
+                                                    if(dnsserv_2.text.split(".").length > 1){
+                                                        dnsserv_2.text = dnsserv_2.text.split(".")[0];
+                                                        keypad.owner = dnsserv_3;
+                                                        dnsserv_3.selectAll();
+                                                    }
+                                                    if(dnsserv_2.text.length == 3){
+                                                        keypad.owner = dnsserv_3;
+                                                        dnsserv_3.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: dnsserv_3
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = dnsserv_3;
+                                                            dnsserv_3.selectAll();
+                                                        }else{
+                                                            keypad.owner = dnsserv_3;
+                                                            dnsserv_3.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(dnsserv_3.text == "."){
+                                                        dnsserv_3.text = dnsserv_3.text.split(".")[0]
+                                                    }
+
+                                                    if(dnsserv_3.text.split(".").length > 1){
+                                                        dnsserv_3.text = dnsserv_3.text.split(".")[0];
+                                                        keypad.owner = dnsserv_4;
+                                                        dnsserv_4.selectAll();
+                                                    }
+                                                    if(dnsserv_3.text.length == 3){
+                                                        keypad.owner = dnsserv_4;
+                                                        dnsserv_4.selectAll();
+                                                    }
+                                                }
+                                            }
+                                            Text{
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text:"."
+                                            }
+                                            TextField{
+                                                id: dnsserv_4
+                                                width: 60
+                                                height: 40
+                                                horizontalAlignment: TextField.AlignHCenter
+                                                MouseArea{
+                                                    anchors.fill:parent
+                                                    onClicked: {
+                                                        click_sound.play();
+                                                        if(keypad.is_opened){
+                                                            keypad.owner = dnsserv_4;
+                                                            dnsserv_4.selectAll();
+                                                        }else{
+                                                            keypad.owner = dnsserv_4;
+                                                            dnsserv_4.selectAll();
+                                                            keypad.open();
+                                                        }
+                                                    }
+                                                }
+                                                color: ischanged?color_red:"black"
+                                                property bool ischanged: false
+                                                onTextChanged: {
+                                                    ischanged = true;
+                                                    if(dnsserv_4.text == "."){
+                                                        dnsserv_4.text = dnsserv_4.text.split(".")[0]
+                                                    }
+
+                                                    if(dnsserv_4.text.split(".").length > 1){
+                                                        dnsserv_4.text = dnsserv_4.text.split(".")[0];
+                                                        keypad.close();
+                                                    }
+                                                    if(dnsserv_4.text.length == 3){
+                                                        keypad.close();
                                                     }
                                                 }
                                             }
@@ -4323,6 +5919,7 @@ Item {
                                 }
 
                                 Row{
+                                    visible: is_admin
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 30
                                     Item_buttons{
@@ -4370,62 +5967,6 @@ Item {
                     }
                 }
 
-                Rectangle{
-                    id: init_
-                    width: 840
-                    height: 50
-                    visible: false
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("초기화")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            Rectangle{
-                                anchors.centerIn: parent
-                                width: 300
-                                height: 50
-                                color: "black"
-                                Text{
-                                    anchors.centerIn: parent
-                                    color: "white"
-                                    font.family: font_noto_r.name
-                                    font.pixelSize: 15
-                                    text:qsTr("공용폴더 덮어씌우기")
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        popup_reset.open();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
         }
@@ -9735,16 +11276,24 @@ Item {
                 btn_usb_download.enabled = false;
             }
 
-            wifi_connection.connection = supervisor.getWifiConnection("");
+            //origin(use ExtProcess)
+//            wifi_con.connection = supervisor.getWifiConnection("");
+//            wifi_ssid.text = supervisor.getCurWifiSSID();
+//            if(wifi_con.connection === 0 && supervisor.getCurWifiSSID() !== "" && supervisor.getcurIP() === ""){
+//                supervisor.getWifiIP();
+//            }
 
-            if(wifi_connection.connection === 0 && supervisor.getCurWifiSSID() !== "" && supervisor.getcurIP() === ""){
-                supervisor.getWifiIP();
-            }
+            //new(use Checker)
+            wifi_con.connection = supervisor.getWifiConnection();
+            ethernet_con.connection = supervisor.getEthernetConnection();
+            internet_con.connection = supervisor.getInternetConnection();
+            wifi_ssid.text = supervisor.getCurWifiSSID();
+
+
+
+
             motor_left_id = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
             motor_right_id = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
-
-
-
 
             //로봇 상태 - 로봇 상태
             if(supervisor.getIPCConnection()){
@@ -15861,48 +17410,6 @@ Item {
                                         }
                                     }
                                 }
-
-                                Rectangle{
-                                    width: 200
-                                    height: 80
-                                    radius: 40
-                                    color: "black"
-                                    Text{
-                                        anchors.centerIn: parent
-                                        text:qsTr("변경")
-                                        font.pixelSize: 35
-                                        font.family: font_noto_r.name
-                                        color: "white"
-                                    }
-                                    MouseArea{
-                                        anchors.fill: parent
-                                        onClicked: {
-                                            click_sound.play();
-                                            ip__1.ischanged = false;
-                                            ip__2.ischanged = false;
-                                            ip__3.ischanged = false;
-                                            ip__4.ischanged = false;
-                                            var ip_string = ip__1.text + "." + ip__2.text + "." + ip__3.text + "." + ip__4.text;
-                                            gateway__1.ischanged = false;
-                                            gateway__2.ischanged = false;
-                                            gateway__3.ischanged = false;
-                                            gateway__4.ischanged = false;
-                                            var gateway_string = gateway__1.text + "." + gateway__2.text + "." + gateway__3.text + "." + gateway__4.text;
-                                            dns_1.ischanged = false;
-                                            dns_2.ischanged = false;
-                                            dns_3.ischanged = false;
-                                            dns_4.ischanged = false;
-                                            var dns_string = dns_1.text + "." + dns_2.text + "." + dns_3.text + "." + dns_4.text;
-                                            supervisor.setWifi(ip_string,gateway_string,dns_string);
-                                            supervisor.setSetting("setting","NETWORK/wifi_ip",ip_string);
-                                            supervisor.setSetting("setting","NETWORK/wifi_gateway",gateway_string);
-                                            supervisor.setSetting("setting","NETWORK/wifi_dnsmain",dns_string);
-                                            popup_wifi.connection = false;
-                                            popup_loading.open();
-                                        }
-                                    }
-                                }
-
                             }
                         }
                     }
