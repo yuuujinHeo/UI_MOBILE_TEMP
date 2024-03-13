@@ -19,6 +19,7 @@ Item {
     }
 
     function init(){
+        print("kitchen init");
         statusbar.visible = true;
 
         cur_table = -1;
@@ -342,7 +343,6 @@ Item {
                         onReleased: {
                             if(width_dis > 50){
                                 model.setting = false;
-
                                 cur_table = -1;
                             }else{
                                 if(cur_table != -1){
@@ -1175,6 +1175,7 @@ Item {
                             supervisor.setMotorLock(true);
                             if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
                                 for(var i=0; i<tray_num; i++){
+//                                    print(i, traymodel.get(i).setting, traymodel.get(i).group, traymodel.get(i).table);
                                     if(traymodel.get(i).setting){
                                         supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
                                     }
