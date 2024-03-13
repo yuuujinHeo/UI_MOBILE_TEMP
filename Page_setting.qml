@@ -191,7 +191,7 @@ Item {
 
         if(slider_volume_button.ischanged){
             supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value);
-//            volume_button = slider_volume_button.value.toFixed(0);
+            volume_button = slider_volume_button.value.toFixed(0);
         }
         if(combo_movingpage.ischanged){
             if(combo_movingpage.currentIndex == 0)

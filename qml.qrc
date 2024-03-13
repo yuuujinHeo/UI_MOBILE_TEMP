@@ -260,5 +260,23 @@
         <file>voice/woman_moving.mp3</file>
         <file>voice/woman_pickup.mp3</file>
         <file>voice/woman_thanks.mp3</file>
+        <file>icon/icon_ethernet_discon.png</file>
+        <file>icon/icon_ethernet_good.png</file>
+        <file>icon/icon_ethernet_no.png</file>
+        <file>icon/icon_volume_0.png</file>
+        <file>icon/icon_volume_1.png</file>
+        <file>icon/icon_volume_2.png</file>
+        <file>icon/icon_volume_3.png</file>
+        <file>icon/icon_wifi_1.png</file>
+        <file>icon/icon_wifi_2.png</file>
+        <file>icon/icon_wifi_3.png</file>
+        <file>icon/icon_wifi_4.png</file>
+        <file>icon/icon_wifi_discon.png</file>
+        <file>icon/icon_wifibad_1.png</file>
+        <file>icon/icon_wifibad_2.png</file>
+        <file>icon/icon_wifibad_3.png</file>
+        <file>icon/icon_wifibad_4.png</file>
+        <file>icon/icon_ethernet_connecting.png</file>
+        <file>icon/icon_wifi_connecting.png</file>
     </qresource>
 </RCC>

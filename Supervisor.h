@@ -101,6 +101,7 @@ public:
 
     Q_INVOKABLE bool getWifiSecurity(QString ssid);
     Q_INVOKABLE int getWifiLevel(QString ssid);
+    Q_INVOKABLE int getWifiLevel();
     Q_INVOKABLE int getWifiRate(QString ssid);
     Q_INVOKABLE bool getWifiInuse(QString ssid);
     Q_INVOKABLE void getAllWifiList();
