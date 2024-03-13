@@ -132,13 +132,6 @@ Item {
             anchors.rightMargin: 30
             spacing: 5
             Image{
-                id: image_joystick
-                visible: is_con_joystick
-                sourceSize.width: 46
-                sourceSize.height: 42
-                source: "icon/icon_joy_connect.png"
-            }
-            Image{
                 id: image_server
                 visible: is_con_server
                 sourceSize.width: 46
@@ -191,18 +184,43 @@ Item {
             }
             Image{
                 id: image_robot_discon
-                visible: !is_con_robot
+                visible: false//!is_con_robot
                 width: 46
                 height: 42
                 sourceSize.width: 46
                 sourceSize.height: 42
-                source: "icon/icon_lcm_discon.png"
+                source: "icon/icon_lcm_discon.png.png"
+            }
+            Image{
+                id: image_wifi
+                width: 46
+                height: 46
+                visible: false
+                sourceSize.width: 46
+                sourceSize.height: 46
+                source: "icon/icon_wifi_discon.png"
+            }
+            Image{
+                id: image_ethernet
+                width: 46
+                height: 46
+                sourceSize.width: 46
+                sourceSize.height: 46
+                source: "icon/icon_ethernet_discon.png"
+            }
+            Image{
+                id: image_volume
+                width: 46
+                height: 46
+                sourceSize.width: 46
+                sourceSize.height: 46
+                source: "icon/icon_volume_3.png"
             }
             Rectangle{
                 color: "transparent"
                 width: 46
                 height: 42
-                visible: is_con_robot
+                visible: false//is_con_robot
                 anchors.verticalCenter: parent.verticalCenter
                 Row{
                     id: image_robot_con
@@ -713,6 +731,59 @@ Item {
             debug_mode = supervisor.isDebugMode();
             robot_battery = supervisor.getBattery();
             curTime = Qt.formatTime(new Date(), "hh:mm");
+
+            if(supervisor.getEthernetConnection()===1){
+                image_ethernet.source = "qrc:/icon/icon_ethernet_connecting.png";
+            }else if(supervisor.getEthernetConnection()===2){
+                if(supervisor.getIPCConnection()){
+                    image_ethernet.source = "qrc:/icon/icon_ethernet_good.png";
+                }else{
+                    image_ethernet.source = "qrc:/icon/icon_ethernet_no.png";
+                }
+            }else{
+                image_ethernet.source = "qrc:/icon/icon_ethernet_discon.png";
+            }
+
+            if(supervisor.getWifiConnection()===1){
+                image_wifi.visible = true;
+                image_wifi.source = "qrc:/icon/icon_wifi_connecting.png";
+            }else if(supervisor.getWifiConnection()===2){
+                image_wifi.visible = true;
+                if(supervisor.getInternetConnection()===2){
+                    if(supervisor.getWifiLevel() === 4){
+                        image_wifi.source = "qrc:/icon/icon_wifi_4.png";
+                    }else if(supervisor.getWifiLevel() === 3){
+                        image_wifi.source = "qrc:/icon/icon_wifi_3.png";
+                    }else if(supervisor.getWifiLevel() === 2){
+                        image_wifi.source = "qrc:/icon/icon_wifi_2.png";
+                    }else{
+                        image_wifi.source = "qrc:/icon/icon_wifi_1.png";
+                    }
+                }else{
+                    if(supervisor.getWifiLevel() === 4){
+                        image_wifi.source = "qrc:/icon/icon_wifibad_4.png";
+                    }else if(supervisor.getWifiLevel() === 3){
+                        image_wifi.source = "qrc:/icon/icon_wifibad_3.png";
+                    }else if(supervisor.getWifiLevel() === 2){
+                        image_wifi.source = "qrc:/icon/icon_wifibad_2.png";
+                    }else{
+                        image_wifi.source = "qrc:/icon/icon_wifibad_1.png";
+                    }
+                }
+            }else{
+                image_wifi.visible = false;
+            }
+
+            if(supervisor.getSystemVolume()>80){
+                image_volume.source = "qrc:/icon/icon_volume_3.png";
+            }else if(supervisor.getSystemVolume()>40){
+                image_volume.source = "qrc:/icon/icon_volume_2.png";
+            }else if(supervisor.getSystemVolume()>0){
+                image_volume.source = "qrc:/icon/icon_volume_1.png";
+            }else if(supervisor.getSystemVolume() === 0){
+                image_volume.source = "qrc:/icon/icon_volume_0.png";
+            }
+
 
             is_con_robot = supervisor.getIPCConnection();
             robot_rx = supervisor.getIPCRX();

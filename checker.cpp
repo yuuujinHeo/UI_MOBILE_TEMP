@@ -414,6 +414,7 @@ void Worker::checkPing(){
         return;
     }
     QByteArray result = process->readAllStandardOutput();
+    qDebug() << "PING : " << result;
     if (result.contains("1 received")) {
         probot->con_internet = true;
     } else {
@@ -473,9 +474,11 @@ void Worker::network_output(){
             }else if(state == "disconnected"){
                 plog->write("[NETWORK] Networkmanager : Disconnected");
                 probot->con_internet2 = NET_DISCON;
+                probot->con_internet = false;
             }else if(state == "connecting"){
                 plog->write("[NETWORK] Networkmanager : Connecting");
                 probot->con_internet2 = NET_CONNECTING;
+                probot->con_internet = false;
             }
         }
     }
@@ -496,6 +499,9 @@ Checker::Checker(QObject *parent)
     timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &Checker::onTimer);
     timer->start(100);
+
+    getPing("www.google.com");
+//    getCurrentInterface();
 }
 
 void Checker::change_network(QString line){
@@ -537,7 +543,6 @@ void Checker::onTimer(){
             thread_1->start();
             QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
             QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
-
         }
     }
 }

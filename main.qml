@@ -16,7 +16,7 @@ Window {
     width: 1280
     height: 800
 
-//    property var volume_button : parseInt(supervisor.getSetting("setting","UI","volume_button"));
+    property var volume_button : parseInt(supervisor.getSetting("setting","UI","volume_button"));
 //    property var volume_bgm : parseInt(supervisor.getSetting("setting","UI","volume_bgm"));
 //    property var volume_voice: parseInt(supervisor.getSetting("setting","UI","volume_voice"));
 
