@@ -16,7 +16,7 @@ Window {
     width: 1280
     height: 800
 
-//    property var volume_button : parseInt(supervisor.getSetting("setting","UI","volume_button"));
+    property var volume_button : parseInt(supervisor.getSetting("setting","UI","volume_button"));
 //    property var volume_bgm : parseInt(supervisor.getSetting("setting","UI","volume_bgm"));
 //    property var volume_voice: parseInt(supervisor.getSetting("setting","UI","volume_voice"));
 
@@ -483,9 +483,13 @@ Window {
     }
 
     function loadPage(page){
-        print("loadpage start");
+        print("loadpage start ",page);
         pbefore = loader_page.source;
         loader_page.source = page;
+        if(page !== ""){
+            if(loader_page.item.objectName == "page_kitchen")
+                loader_page.item.init();
+        }
         popup_notice.close();
         print("loadpage done");
     }
