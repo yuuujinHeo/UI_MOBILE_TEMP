@@ -3813,6 +3813,7 @@ void Supervisor::onTimer(){
                                         curLoc = probot->trays[i].location;
                                     }
                                     if(isSameLocation(probot->trays[i].location,curLoc)){
+                                        plog->write("[STATE] Tray Reset : "+QString::number(i)+", " + probot->trays[i].location.name);
                                         probot->trays[i].empty = true;
                                         probot->pickupTrays.push_back(i+1);
                                     }
@@ -3844,10 +3845,11 @@ void Supervisor::onTimer(){
                             }
                         }
 
+                        qDebug() << probot->trays[0].empty << probot->trays[1].empty;
                         if(tray_num > -1){
                             //서빙 포인트 세팅
                             cur_target = probot->trays[tray_num].location;
-                            plog->write("[STATE] Moving : New Target (Serving) -> "+cur_target.name+" ( tray num : "+QString::number(tray_num)+" )");
+                            plog->write("[STATE] Moving : New Target (Serving) -> "+cur_target.name+" ( tray num : "+QString::number(tray_num)+" , tray location )");
                         }else{
                             //최대 이동 횟수 초과 시 -> 대기장소로 이동
                             if(probot->call_moving_count + 1 > probot->max_moving_count){
