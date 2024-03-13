@@ -483,9 +483,13 @@ Window {
     }
 
     function loadPage(page){
-        print("loadpage start");
+        print("loadpage start ",page);
         pbefore = loader_page.source;
         loader_page.source = page;
+        if(page !== ""){
+            if(loader_page.item.objectName == "page_kitchen")
+                loader_page.item.init();
+        }
         popup_notice.close();
         print("loadpage done");
     }
