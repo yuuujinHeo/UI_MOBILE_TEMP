@@ -3596,6 +3596,7 @@ void Supervisor::onTimer(){
         sddd = 0;
         checker.getCurrentInterface();
         checker.getSystemVolume();
+        checker.getWifiList();
     }
     if(start_clear){
         start_clear = false;
@@ -4355,7 +4356,11 @@ int Supervisor::getEthernetConnection(){
 }
 
 int Supervisor::getInternetConnection(){
-    return probot->con_internet2;
+    if(probot->con_internet){
+        return 2;
+    }else{
+        return probot->con_internet2;
+    }
 }
 int Supervisor::getWifiConnection(){//need check
 #ifdef EXTPROC_TEST
@@ -4592,6 +4597,20 @@ void Supervisor::getAllWifiList(){//need check
 }
 bool Supervisor::getWifiSecurity(QString ssid){
     return probot->wifi_map[ssid].security;
+}
+int Supervisor::getWifiLevel(){
+//    qDebug() << probot->wifi_interface.ssid << probot->wifi_map[probot->wifi_interface.ssid].level;
+    if(probot->wifi_map[probot->wifi_interface.ssid].level < 20){
+        return 0;
+    }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 40){
+        return 1;
+    }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 60){
+        return 2;
+    }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 80){
+        return 3;
+    }else{
+        return 4;
+    }
 }
 int Supervisor::getWifiLevel(QString ssid){
     if(probot->wifi_map[ssid].level < 20){
