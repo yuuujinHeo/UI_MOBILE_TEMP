@@ -34,6 +34,7 @@ Window {
             }
         }
     }
+    property color color_icon_gray: "#7f7f7f"
     property color color_more_gray: "#777777";
     property color color_dark_gray: "#999999";
     property color color_red: "#E7584D"
@@ -84,14 +85,13 @@ Window {
     property string prev_sound: ""
 
     function setClear(name, state){
-        print("setClear" , name, state);
         loader_page.item.setClear(name,state);
     }
 
-    function gitfailed(){
+    function git_pull_fail(){
         loader_page.item.git_failed();
     }
-    function gitnewest(){
+    function git_pull_already(){
         loader_page.item.git_newest();
     }
 
@@ -226,6 +226,7 @@ Window {
     Component.onCompleted: {
 //        popup_patrol_page.page = "moving";
 //        popup_patrol_page.open();
+//        temp_popup_wifi.open();
     }
 
 
@@ -261,7 +262,6 @@ Window {
                     supervisor.playVoice("move_serving");
                 }
             }
-
         }
 
         if(loader_page.item.objectName == "page_annotation"){
@@ -272,6 +272,11 @@ Window {
             if(supervisor.isPatrolPage() && supervisor.getMovingPageMode() === "custom"){
                 print("loadpage custom");
                 loadPage(pmovingcustom)
+                loader_page.item.setPage("moving");
+            }else if(!supervisor.isPatrolPage() && supervisor.getSetting("setting","UI","moving_face") === "3"){
+                print("loadpage custom");
+                loadPage(pmovingcustom)
+                loader_page.item.setPage("serving");
             }else{
                 print("loadpage moving");
                 loadPage(pmoving)
@@ -461,6 +466,32 @@ Window {
         }
     }
 
+    function wifi_con_success(){
+        popup_loading.close();
+        if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
+            loader_page.item.wifi_con_success();
+    }
+    function wifi_set_success(){
+        popup_loading.close();
+        if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
+            loader_page.item.wifi_set_success();
+    }
+    function wifi_con_fail(){
+        popup_loading.close();
+        if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
+            loader_page.item.wifi_con_failed();
+    }
+    function wifi_set_fail(){
+        popup_loading.close();
+        if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
+            loader_page.item.wifi_set_failed();
+    }
+
+
+
+
+
+
     function wififailed(){
         if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
             loader_page.item.wifi_con_failed();
@@ -525,9 +556,10 @@ Window {
     }
 
     Popup_patrol_page{
-        id: popup_patrol_page
+        id: popup_patrol_page_main
         width: parent.width
         height: parent.height
+        objectName: "popup_patrol_page_main"
     }
 
     Loader{
@@ -690,12 +722,6 @@ Window {
     SoundEffect{
         id: click_sound
         source: "bgm/click_start.wav"
-        onVolumeChanged:{
-            print("volume : ",volume);
-        }
-        onStatusChanged: {
-            print(status);
-        }
         volume: volume_button/100
     }
     SoundEffect{
@@ -761,7 +787,7 @@ Window {
             if(cur_btn === qsTr("수동이동")){
                 supervisor.writelog("[UI] PopupNotice : Lock Off");
                 supervisor.setMotorLock(false);
-            }else if(cur_btn === qsTr("취소")){
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
                 popup_notice.close();
             }else if(cur_btn === qsTr("모터초기화")){
                 supervisor.writelog("[UI] PopupNotice : Motor Init");
@@ -788,11 +814,32 @@ Window {
                 supervisor.writelog("[UI] PopupNotice : Restart");
                 supervisor.programRestart();
                 popup_notice.close();
+            }else if(cur_btn === qsTr("종 료")){
+                supervisor.writelog("[UI] PopupNotice : Terminate");
+                supervisor.programExit();
+                popup_notice.close();
             }else if(cur_btn === qsTr("디버그모드 해제")){
                 supervisor.writelog("[UI] PopupNotice : Debug Mode off");
                 loadPage(pinit);
                 supervisor.resetLocalization();
                 supervisor.stateInit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("건너뛰기")){
+                supervisor.writelog("[INIT] Debug Mode On");
+                supervisor.passInit();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 사용")){
+                supervisor.saveAnnotation(supervisor.getMapname());
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                loader_page.item.setAnnotLocation();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 미사용")){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
                 popup_notice.close();
             }
         }

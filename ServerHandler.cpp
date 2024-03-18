@@ -25,7 +25,7 @@ ServerHandler::ServerHandler()
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/ExtProcess","hello..4");
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/sh/autostart.sh","hello..4");
-    getGitCommits();
+//    getGitCommits();
 }
 
 void ServerHandler::onTimer(){

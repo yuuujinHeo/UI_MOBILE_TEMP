@@ -809,9 +809,9 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    popup_patrol_page.page = "moving";
-                                                    popup_patrol_page.page_num = popup_patrol.select_preset;
-                                                    popup_patrol_page.open();
+                                                    popup_patrol_page_main.page = "moving";
+                                                    popup_patrol_page_main.page_num = popup_patrol.select_preset;
+                                                    popup_patrol_page_main.open();
                                                 }
                                             }
                                         }
@@ -855,8 +855,8 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    popup_patrol_page.page = "arrive";
-                                                    popup_patrol_page.open();
+                                                    popup_patrol_page_main.page = "arrive";
+                                                    popup_patrol_page_main.open();
                                                 }
                                             }
                                         }
@@ -1096,7 +1096,7 @@ Popup{
                                                 anchors.centerIn: parent
                                                 width: 35
                                                 height: 35
-                                                source: "icon/keyboard.png"
+                                                source: "icon/icon_keyboard.png"
                                                 ColorOverlay{
                                                     anchors.fill: parent
                                                     source: parent

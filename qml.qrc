@@ -19,32 +19,20 @@
         <file>icon/record_r.png</file>
         <file>icon/play_r.png</file>
         <file>icon/load_r.png</file>
-        <file>icon/joystick_thumb.png</file>
-        <file>icon/joystick_back.png</file>
-        <file>icon/clock.png</file>
-        <file>icon/bat_full.png</file>
-        <file>icon/bat_3.png</file>
-        <file>icon/bat_2.png</file>
-        <file>icon/bat_1.png</file>
         <file>icon/btn_wait.png</file>
         <file>icon/btn_menu.png</file>
         <file>icon/btn_charge.png</file>
         <file>image/robot_pickup.png</file>
         <file>image/robot_moving.png</file>
         <file>image/robot_head.png</file>
-        <file>icon/btn_setting.png</file>
-        <file>icon/btn_map.png</file>
         <file>image/robot_move_wait.png</file>
         <file>image/robot_move_charge.png</file>
-        <file>icon/btn_confirm.png</file>
         <file>icon/icon_warning.png</file>
         <file>icon/image_setting.png</file>
         <file>icon/image_map.png</file>
         <file>icon/icon_power.png</file>
         <file>icon/btn_reset.png</file>
-        <file>icon/btn_minimize.png</file>
         <file>icon/btn_home.png</file>
-        <file>icon/btn_yes.png</file>
         <file>icon/btn_no.png</file>
         <file>image/image_location.png</file>
         <file>Item_statusbar.qml</file>
@@ -52,8 +40,6 @@
         <file>icon/joy_right.png</file>
         <file>icon/joy_left.png</file>
         <file>icon/joy_down.png</file>
-        <file>icon/data_green.png</file>
-        <file>icon/data_gray.png</file>
         <file>icon/icon_researching.png</file>
         <file>icon/icon_manualmove.png</file>
         <file>icon/icon_cancelpath.png</file>
@@ -63,7 +49,6 @@
         <file>Page_pickup_calling.qml</file>
         <file>icon/patrol_down.png</file>
         <file>icon/icon_server_connect.png</file>
-        <file>icon/icon_joy_connect.png</file>
         <file>icon/btn_lock.png</file>
         <file>icon/icon_transmit_server.png</file>
         <file>icon/icon_meta_save.png</file>
@@ -76,16 +61,12 @@
         <file>icon/icon_move.png</file>
         <file>icon/icon_erase.png</file>
         <file>icon/icon_draw.png</file>
-        <file>icon/btn_reset2.png</file>
         <file>icon/icon_server_download.png</file>
-        <file>icon/icon_open.png</file>
         <file>icon/icon_add.png</file>
         <file>image/image_slam.png</file>
         <file>image/image_patrol.png</file>
         <file>image/image_annot.png</file>
-        <file>icon/bat_charge.png</file>
         <file>icon/icon_server_disconnect.png</file>
-        <file>icon/icon_joy_disconnect.png</file>
         <file>icon/icon_stop.png</file>
         <file>icon/icon_cur.png</file>
         <file>icon/icon_lidar.png</file>
@@ -102,8 +83,6 @@
         <file>icon/icon_charge_2.png</file>
         <file>icon/icon_home_1.png</file>
         <file>icon/icon_home_2.png</file>
-        <file>icon/icon_lcm_discon.png</file>
-        <file>icon/icon_point_1.png</file>
         <file>icon/icon_warning_1.png</file>
         <file>icon/keyboard_down.png</file>
         <file>icon/keyboard_left.png</file>
@@ -111,30 +90,18 @@
         <file>icon/keyboard_up.png</file>
         <file>Popup_map_list.qml</file>
         <file>Tool_Keyboard.qml</file>
-        <file>icon/bat_large_1.png</file>
-        <file>icon/bat_large_2.png</file>
-        <file>icon/bat_large_3.png</file>
-        <file>icon/bat_large_charge.png</file>
         <file>icon/bat_large_full.png</file>
         <file>icon/icon_emergency.png</file>
         <file>icon/icon_motor_error.png</file>
         <file>icon/icon_motor_hot.png</file>
-        <file>icon/motor_power_off.png</file>
-        <file>icon/motor_power_on.png</file>
         <file>icon/icon_local_error.png</file>
         <file>icon/icon_test_play.png</file>
         <file>icon/icon_random.png</file>
-        <file>icon/icon_obj_yes.png</file>
-        <file>icon/icon_obj_no.png</file>
         <file>icon/icon_non_mute.png</file>
         <file>icon/icon_mute.png</file>
         <file>image/image_lock.png</file>
         <file>image/image_localization_reset.png</file>
         <file>image/icon_warning.png</file>
-        <file>image/battery_full.png</file>
-        <file>image/battery_3.png</file>
-        <file>image/battery_2.png</file>
-        <file>image/battery_1.png</file>
         <file>icon/icon_test_stop.png</file>
         <file>image/loading.gif</file>
         <file>icon/image_emergency_push.png</file>
@@ -173,7 +140,6 @@
         <file>bgm/serving.mp3</file>
         <file>MAP_FULL2.qml</file>
         <file>Item_ProgressBar.qml</file>
-        <file>icon/cursor.png</file>
         <file>voice/woman_wait_path.mp3</file>
         <file>voice/woman_thank_enjoy.mp3</file>
         <file>voice/woman_stop_mapping.mp3</file>
@@ -233,7 +199,6 @@
         <file>image/face_cry2.gif</file>
         <file>Page_moving_custom.qml</file>
         <file>icon/icon_colorwheel.png</file>
-        <file>icon/keyboard.png</file>
         <file>voice/child_callme.mp3</file>
         <file>voice/child_error_battery.mp3</file>
         <file>voice/child_excuseme.mp3</file>
@@ -278,5 +243,66 @@
         <file>icon/icon_wifibad_4.png</file>
         <file>icon/icon_ethernet_connecting.png</file>
         <file>icon/icon_wifi_connecting.png</file>
+        <file>Popup_wifi.qml</file>
+        <file>icon/icon_battery_1.png</file>
+        <file>icon/icon_battery_2.png</file>
+        <file>icon/icon_battery_3.png</file>
+        <file>icon/icon_battery_4.png</file>
+        <file>icon/icon_battery_charging.png</file>
+        <file>icon/icon_clock.png</file>
+        <file>icon/icon_motor_discon.png</file>
+        <file>icon/icon_motor_good.png</file>
+        <file>icon/icon_server_good.png</file>
+        <file>icon/icon_cursor.png</file>
+        <file>icon/icon_minimize.png</file>
+        <file>icon/icon_power_2.png</file>
+        <file>icon/icon_setting.png</file>
+        <file>icon/image_local_error.png</file>
+        <file>icon/icon_back.png</file>
+        <file>icon/icon_backspace.png</file>
+        <file>icon/icon_charge.png</file>
+        <file>icon/icon_clean.png</file>
+        <file>icon/icon_error_w.png</file>
+        <file>icon/icon_eye_close.png</file>
+        <file>icon/icon_eye_open.png</file>
+        <file>icon/icon_folder.png</file>
+        <file>icon/icon_forbid_w.png</file>
+        <file>icon/icon_forbid.png</file>
+        <file>icon/icon_forbidden_w.png</file>
+        <file>icon/icon_forbidden.png</file>
+        <file>icon/icon_info.png</file>
+        <file>icon/icon_keyboard.png</file>
+        <file>icon/icon_motor_locked.png</file>
+        <file>icon/icon_motor_unlock.png</file>
+        <file>icon/icon_trash_w.png</file>
+        <file>icon/icon_trash.png</file>
+        <file>icon/icon_usb.png</file>
+        <file>icon/icon_wait.png</file>
+        <file>icon/icon_warn_power.png</file>
+        <file>icon/icon_yes_w.png</file>
+        <file>icon/icon_yes.png</file>
+        <file>icon/icon_add_group.png</file>
+        <file>icon/icon_add_loc.png</file>
+        <file>icon/icon_callbell.png</file>
+        <file>icon/icon_cleaning.png</file>
+        <file>icon/icon_cut.png</file>
+        <file>icon/icon_draw_free.png</file>
+        <file>icon/icon_draw_line.png</file>
+        <file>icon/icon_draw_rect.png</file>
+        <file>icon/icon_key.png</file>
+        <file>icon/icon_list.png</file>
+        <file>icon/icon_map.png</file>
+        <file>icon/icon_pen.png</file>
+        <file>icon/icon_ruler.png</file>
+        <file>icon/icon_save.png</file>
+        <file>icon/icon_setting2.png</file>
+        <file>icon/icon_testmoving.png</file>
+        <file>image/image_battery_1.png</file>
+        <file>image/image_battery_2.png</file>
+        <file>image/image_battery_3.png</file>
+        <file>image/image_battery_4.png</file>
+        <file>image/image_robot_moving.png</file>
+        <file>image/image_robot_resting.png</file>
+        <file>Buttons.qml</file>
     </qresource>
 </RCC>

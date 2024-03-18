@@ -5,8 +5,67 @@
 #include "QtDBus/QDBusReply"
 #include "QtDBus/QDBusObjectPath"
 
+QString subnetToNetmask(QString subnetSize) {
+    // Calculate netmask from subnet size
+    int netmaskInt = (0xFFFFFFFF << (32 - subnetSize.toInt())) & 0xFFFFFFFF;
+    return QString("%1.%2.%3.%4")
+           .arg((netmaskInt >> 24) & 0xFF)
+           .arg((netmaskInt >> 16) & 0xFF)
+           .arg((netmaskInt >> 8) & 0xFF)
+           .arg(netmaskInt & 0xFF);
+}
+
+QString netmaskToSubnet(const QString &netmask) {
+    // Convert netmask from string to integer
+    QStringList parts = netmask.split('.');
+    if (parts.size() != 4) {
+        qWarning() << "Invalid netmask format";
+        return "0";
+    }
+    uint netmaskInt = 0;
+    for (int i = 0; i < 4; ++i) {
+        int octet = parts[i].toInt();
+        if (octet < 0 || octet > 255) {
+            qWarning() << "Invalid octet in netmask";
+            return "0";
+        }
+        netmaskInt = (netmaskInt << 8) | octet;
+    }
+
+    // Calculate subnet size from netmask
+    int subnetSize = 0;
+    while (netmaskInt & 0x80000000) {
+        subnetSize++;
+        netmaskInt <<= 1;
+    }
+    return QString::number(subnetSize);
+}
+
+
+bool sortWifi2(const ST_WIFI &w1, const ST_WIFI &w2){
+    if(w1.ssid == probot->wifi_interface.ssid)
+        return true;
+    else if(w2.ssid == probot->wifi_interface.ssid)
+        return false;
+    else{
+        return w2.level < w1.level;
+    }
+}
+
+
+
+
 void Worker::getWifiInterface(){
     process = new QProcess();
+
+    if(argument[0] == "readall"){
+        process->start("nmcli", QStringList() << "dev"<< "wifi");
+        if(!process->waitForFinished()){
+            emit finished(this);
+            return;
+        }
+    }
+
     process->start("iwlist", QStringList() << probot->wifi_interface.name << "scan");
 
     if(!process->waitForFinished()){
@@ -15,6 +74,7 @@ void Worker::getWifiInterface(){
     }
 
     QByteArray result = process->readAllStandardOutput();
+//    qDebug() << result;
     QList<QByteArray> lines = result.split('\n');
 
     QList<ST_WIFI> wifiList;
@@ -71,7 +131,32 @@ void Worker::getWifiInterface(){
             wifiinfo["LEVEL"]=QString::number(lv);
         }
     }
-//    plog->write("[WORKER - "+name+"] getWifiInterface : ");
+
+    if(wifiinfo.size() > 0){
+        ST_WIFI temp_wifi;
+        temp_wifi.ssid = wifiinfo["ESSID"];
+        temp_wifi.level = wifiinfo["LEVEL"].split(" ")[0].toInt();
+        if(wifiinfo["SECURITY"] == "on"){
+            temp_wifi.security = true;
+        }else{
+            temp_wifi.security = false;
+        }
+
+        bool match = false;
+        for(int i=0; i<wifiList.size(); i++){
+            if(wifiList[i].ssid == temp_wifi.ssid){
+                if(temp_wifi.level > wifiList[i].level){
+                    wifiList[i].level = temp_wifi.level;
+                }
+                match = true;
+            }
+        }
+        if(!match){
+            wifiList.append(temp_wifi);
+        }
+    }
+
+    std::sort(wifiList.begin(),wifiList.end(),sortWifi2);
 
     probot->wifi_list.clear();
     probot->wifi_list = wifiList;
@@ -147,6 +232,10 @@ void Worker::connectWifi(){
 
     QByteArray result = process->readAllStandardOutput();
 
+    argument.clear();
+    argument << ssid << "pass_finish";;
+    getNetworkState();
+
     if(result.contains("successfully")){
         emit connect_wifi_success(argument[0]);
     }else if(result.contains("Secrets were required")){
@@ -156,6 +245,7 @@ void Worker::connectWifi(){
     }else{
         emit connect_wifi_fail(0, argument[0]);
     }
+
     emit finished(this);
 }
 
@@ -166,19 +256,27 @@ void Worker::setIP(){
     QString gateway = "";
     QString dns1 = "";
     QString dns2 = "";
-    if(argument.size() > 5){
-        ssid = argument[0];
-        ip = argument[1];
-        subnet = argument[2];
-        gateway = argument[3];
-        dns1 = argument[4];
-        dns2 = argument[5];
+    QString method = "dhcp";
+    if(argument.size() > 6){
+        method = argument[0];
+        ssid = argument[1];
+        ip = argument[2];
+        subnet = netmaskToSubnet(QString(argument[3]));
+        gateway = argument[4];
+        dns1 = argument[5];
+        dns2 = argument[6];
     }
 
-    process = new QProcess();
-    plog->write("[CHECKER] Set Wifi "+ssid+" : "+ip+"/"+subnet+" , "+gateway+" , "+dns1+" , "+dns2);
-    process->start("nmcli",QStringList()  << "con" << "mod" << ssid << "ipv4.method" << "manual" << "ipv4.address" << ip+"/"+subnet << "ipv4.gateway" << gateway << "ipv4.dns" << dns1+" "+dns2);
 
+
+    process = new QProcess();
+    plog->write("[CHECKER] Set Wifi "+ssid+" : ("+method+") "+ip+"/"+subnet+" , "+gateway+" , "+dns1+" , "+dns2);
+    if(method == "dhcp"){
+        process->start("nmcli",QStringList()  << "con" << "mod" << ssid << "ipv4.method" << "auto");
+    }else{
+        process->start("nmcli",QStringList()  << "con" << "mod" << ssid << "ipv4.method" << "manual" << "ipv4.address" << ip+"/"+subnet << "ipv4.gateway" << gateway << "ipv4.dns" << dns1+" "+dns2);
+
+    }
     connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_set_wifi()));
 
     if(!process->waitForFinished()){
@@ -199,14 +297,60 @@ void Worker::setIP(){
         return;
     }
     result = process->readAllStandardOutput();
+
+    argument.clear();
+    argument << ssid << "pass_finish";
+    getNetworkState();
+
     emit set_wifi_success(argument[0]);
     emit finished(this);
 }
 
+void Worker::setEthernet(){
+    QString ip = "";
+    QString subnet = "";
+    QString gateway = "";
+    QString dns1 = "";
+    QString dns2 = "";
+    if(argument.size() > 4){
+        ip = argument[0];
+        subnet = netmaskToSubnet(QString(argument[1]));
+        gateway = argument[2];
+        dns1 = argument[3];
+        dns2 = argument[4];
+    }
+
+    process = new QProcess();
+    plog->write("[CHECKER] Set Ethernet "+probot->ethernet_interface.ssid+" : "+ip+"/"+subnet+" , "+gateway+" , "+dns1+" , "+dns2);
+    process->start("nmcli",QStringList()  << "con" << "mod" << probot->ethernet_interface.ssid << "ipv4.method" << "manual" << "ipv4.address" << ip+"/"+subnet << "ipv4.gateway" << gateway << "ipv4.dns" << dns1+" "+dns2);
+
+    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_set_wifi()));
+
+    if(!process->waitForFinished()){
+        emit set_wifi_fail(0, argument[0]);
+        emit finished(this);
+        return;
+    }
+
+    QByteArray result = process->readAllStandardOutput();
+
+    process = new QProcess();
+    plog->write("[CHECKER] Set Ethernet "+probot->ethernet_interface.ssid+" : Success -> Connection Update");
+    process->start("nmcli",QStringList()  << "con" << "up" << probot->ethernet_interface.ssid);
+
+    if(!process->waitForFinished()){
+        emit set_wifi_fail(0, argument[0]);
+        emit finished(this);
+        return;
+    }
+    result = process->readAllStandardOutput();
+    emit set_wifi_success(argument[0]);
+    emit finished(this);
+}
 void Worker::gitReset(){
     process = new QProcess();
     process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/release");
-    process->start("git",QStringList() << "reset" << "--hard" << "origin/master");
+    process->start("git",QStringList() << "reset" << "--hard" << "origin/"+probot->program_branch);
 
     connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_reset()));
 
@@ -216,63 +360,30 @@ void Worker::gitReset(){
     }
     QByteArray result = process->readAllStandardOutput();
     qDebug() << "Result : " << result;
-    emit finished(this);
+    gitPull();
+//    emit finished(this);
 }
 
-QString subnetToNetmask(QString subnetSize) {
-    // Calculate netmask from subnet size
-    int netmaskInt = (0xFFFFFFFF << (32 - subnetSize.toInt())) & 0xFFFFFFFF;
-    return QString("%1.%2.%3.%4")
-           .arg((netmaskInt >> 24) & 0xFF)
-           .arg((netmaskInt >> 16) & 0xFF)
-           .arg((netmaskInt >> 8) & 0xFF)
-           .arg(netmaskInt & 0xFF);
-}
-
-QString netmaskToSubnet(const QString &netmask) {
-    // Convert netmask from string to integer
-    QStringList parts = netmask.split('.');
-    if (parts.size() != 4) {
-        qWarning() << "Invalid netmask format";
-        return "0";
-    }
-    uint netmaskInt = 0;
-    for (int i = 0; i < 4; ++i) {
-        int octet = parts[i].toInt();
-        if (octet < 0 || octet > 255) {
-            qWarning() << "Invalid octet in netmask";
-            return "0";
-        }
-        netmaskInt = (netmaskInt << 8) | octet;
-    }
-
-    // Calculate subnet size from netmask
-    int subnetSize = 0;
-    while (netmaskInt & 0x80000000) {
-        subnetSize++;
-        netmaskInt <<= 1;
-    }
-    return QString::number(subnetSize);
-}
 
 void Worker::getNetworkState(){
     process = new QProcess();
+    QString ssid = "";
     QString name = "";
     bool all_search = false;
     if(argument.size()>0){
-        name = argument[0];
-        if(name == ""){
+        ssid = argument[0];
+        if(ssid == ""){
             all_search = true;
         }
     }else{
         all_search = true;
-        name = "";
+        ssid = "";
     }
 
     if(all_search){
         process->start("nmcli",QStringList()<< "device" << "show");
     }else{
-        process->start("nmcli",QStringList()<< "device" << "show" << name);
+        process->start("nmcli",QStringList()<< "con" << "show" << ssid);
     }
 
     if(!process->waitForFinished()){
@@ -301,10 +412,32 @@ void Worker::getNetworkState(){
             }else if(line.contains("GENERAL.CONNECTION")){
                 if(type == "wifi"){
                     probot->wifi_interface.name = name;
-                    probot->wifi_interface.ssid = line.split(':')[1].replace(' ',"");
+                    int num = 0;
+                    QByteArray temp_line = line.split(':')[1];
+                    for(uchar c: temp_line){
+                        if(c == ' '){
+                            num++;
+                        }else{
+                           temp_line.remove(0,num);
+                           break;
+                        }
+                    }
+                    ssid = temp_line;
+                    probot->wifi_interface.ssid = ssid;
                 }else if(type == "ethernet"){
                     probot->ethernet_interface.name = name;
-                    probot->ethernet_interface.ssid = line.split(':')[1].replace(' ',"");
+                    int num = 0;
+                    QByteArray temp_line = line.split(':')[1];
+                    for(uchar c: temp_line){
+                        if(c == ' '){
+                            num++;
+                        }else{
+                           temp_line.remove(0,num);
+                           break;
+                        }
+                    }
+                    ssid = temp_line;
+                    probot->ethernet_interface.ssid = temp_line;
                 }
             }else if(line.contains("IP4.ADDRESS")){
                 if(name == probot->ethernet_interface.name){
@@ -338,43 +471,51 @@ void Worker::getNetworkState(){
                 }
             }
         }else{
-            if(line.contains("IP4.ADDRESS")){
-                if(name == probot->ethernet_interface.name){
+            if(line.contains("IP4.ADDRESS[1]")){
+                if(ssid == probot->ethernet_interface.ssid){
                     probot->ethernet_interface.ipv4 = line.split(':')[1].replace(' ',"").split('/')[0];
                     probot->ethernet_interface.subnet = line.split(':')[1].replace(' ',"").split('/')[1];
                     probot->ethernet_interface.netmask = subnetToNetmask(probot->ethernet_interface.subnet);
-                }else if(name == probot->wifi_interface.name){
+                }else if(ssid == probot->wifi_interface.ssid){
                     probot->wifi_interface.ipv4 = line.split(':')[1].replace(' ',"").split('/')[0];
                     probot->wifi_interface.subnet = line.split(':')[1].replace(' ',"").split('/')[1];
                     probot->wifi_interface.netmask = subnetToNetmask(probot->wifi_interface.subnet);
                 }
+//                qDebug() << "IP4.ADDRESS[1]" << ssid << line;
+            }else if(line.contains("ipv4.method")){
+//                qDebug() << "ipv4.method" << ssid << line;
+                probot->wifi_interface.method = line.split(':')[1].replace(' ',"");
             }else if(line.contains("IP4.GATEWAY")){
-                if(name == probot->ethernet_interface.name){
+                if(ssid == probot->ethernet_interface.ssid){
                     probot->ethernet_interface.gateway = line.split(':')[1].replace(' ',"").split('/')[0];
-                }else if(name == probot->wifi_interface.name){
+                }else if(ssid == probot->wifi_interface.ssid){
                     probot->wifi_interface.gateway = line.split(':')[1].replace(' ',"").split('/')[0];
                 }
             }else if(line.contains("IP4.DNS[1]")){
-                if(name == probot->ethernet_interface.name){
+                if(ssid == probot->ethernet_interface.ssid){
                     probot->ethernet_interface.dns1 = line.split(':')[1].replace(' ',"").split('/')[0];
                     probot->ethernet_interface.dns2 = "";
-                }else if(name == probot->wifi_interface.name){
+                }else if(ssid == probot->wifi_interface.ssid){
                     probot->wifi_interface.dns1 = line.split(':')[1].replace(' ',"").split('/')[0];
                     probot->wifi_interface.dns2 = "";
                 }
             }else if(line.contains("IP4.DNS[2]")){
-                if(name == probot->ethernet_interface.name){
+                if(ssid == probot->ethernet_interface.ssid){
                     probot->ethernet_interface.dns2 = line.split(':')[1].replace(' ',"").split('/')[0];
-                }else if(name == probot->wifi_interface.name){
+                }else if(ssid == probot->wifi_interface.ssid){
                     probot->wifi_interface.dns2 = line.split(':')[1].replace(' ',"").split('/')[0];
                 }
             }
         }
     }
 
-    qDebug() << probot->wifi_interface.ssid << probot->wifi_interface.ipv4 << probot->wifi_interface.dns1 << probot->ethernet_interface.name;
+//    qDebug() << probot->wifi_interface.ssid << probot->wifi_interface.ipv4 << probot->wifi_interface.dns1 << probot->ethernet_interface.name;
 
-    emit finished(this);
+    if(argument.size()>1){
+
+    }else{
+        emit finished(this);
+    }
 }
 void Worker::gitPull(){
     process = new QProcess();
@@ -389,13 +530,19 @@ void Worker::gitPull(){
         return;
     }
     QByteArray result = process->readAllStandardOutput();
-    if(result.contains("error:")){
+
+    if(result == "" && !is_error){
+        plog->write("[UPDATE] Git Pull : Already");
+        emit git_pull_nothing();
+    }else if(result.contains("error:") || is_error){
         plog->write("[UPDATE] Git Pull : Failed");
+        emit git_pull_failed();
     }else{
         plog->write("[UPDATE] Git Pull : Success");
+        emit git_pull_success();
     }
-    qDebug() << "Result : " << result;
     emit finished(this);
+//    qDebug() << "Result : " << result;
 }
 
 void Worker::checkPing(){
@@ -414,7 +561,7 @@ void Worker::checkPing(){
         return;
     }
     QByteArray result = process->readAllStandardOutput();
-    qDebug() << "PING : " << result;
+//    qDebug() << "PING : " << result;
     if (result.contains("1 received")) {
         probot->con_internet = true;
     } else {
@@ -580,12 +727,24 @@ void Checker::disWork(Worker *worker){
         QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::setIP);
         QObject::disconnect(worker, &Worker::set_wifi_success, this, &Checker::set_wifi_success);
         QObject::disconnect(worker, &Worker::set_wifi_fail, this, &Checker::set_wifi_fail);
+    }else if(worker->program == "setEthernet"){
+        QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::setEthernet);
+        QObject::disconnect(worker, &Worker::set_wifi_success, this, &Checker::set_wifi_success);
+        QObject::disconnect(worker, &Worker::set_wifi_fail, this, &Checker::set_wifi_fail);
     }else if(worker->program == "getNetworkState"){
         QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::getNetworkState);
     }else if(worker->program == "checkPing"){
         QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::checkPing);
+    }else if(worker->program == "gitReset"){
+        QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::gitReset);
+        QObject::disconnect(worker, &Worker::git_pull_success, this, &Checker::gitpull_success);
+        QObject::disconnect(worker, &Worker::git_pull_failed, this, &Checker::gitpull_fail);
+        QObject::disconnect(worker, &Worker::git_pull_nothing, this, &Checker::gitpull_nothing);
     }else if(worker->program == "gitPull"){
         QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::gitPull);
+        QObject::disconnect(worker, &Worker::git_pull_success, this, &Checker::gitpull_success);
+        QObject::disconnect(worker, &Worker::git_pull_failed, this, &Checker::gitpull_fail);
+        QObject::disconnect(worker, &Worker::git_pull_nothing, this, &Checker::gitpull_nothing);
     }else{
 
     }
@@ -606,23 +765,44 @@ void Checker::setWork(ST_PROC cmd, QThread *thread, Worker *worker){
         QObject::connect(worker, &Worker::set_wifi_success, this, &Checker::set_wifi_success);
         QObject::connect(worker, &Worker::set_wifi_fail, this, &Checker::set_wifi_fail);
 
+    }else if(cmd.cmd == "setEthernet"){
+        QObject::connect(thread, &QThread::started, worker, &Worker::setEthernet);
+        QObject::connect(worker, &Worker::set_wifi_success, this, &Checker::set_wifi_success);
+        QObject::connect(worker, &Worker::set_wifi_fail, this, &Checker::set_wifi_fail);
+
     }else if(cmd.cmd == "checkPing"){
         QObject::connect(thread, &QThread::started, worker, &Worker::checkPing);
 
     }else if(cmd.cmd == "getNetworkState"){
         QObject::connect(thread, &QThread::started, worker, &Worker::getNetworkState);
 
+    }else if(cmd.cmd == "gitReset"){
+        QObject::connect(thread, &QThread::started, worker, &Worker::gitReset);
+        QObject::connect(worker, &Worker::git_pull_success, this, &Checker::gitpull_success);
+        QObject::connect(worker, &Worker::git_pull_failed, this, &Checker::gitpull_fail);
+        QObject::connect(worker, &Worker::git_pull_nothing, this, &Checker::gitpull_nothing);
     }else if(cmd.cmd == "gitPull"){
         QObject::connect(thread, &QThread::started, worker, &Worker::gitPull);
-//        QObject::connect(worker, &Worker::set_wifi_success, this, &Checker::set_wifi_success);
-//        QObject::connect(worker, &Worker::set_wifi_fail, this, &Checker::set_wifi_fail);
-
+        QObject::connect(worker, &Worker::git_pull_success, this, &Checker::gitpull_success);
+        QObject::connect(worker, &Worker::git_pull_failed, this, &Checker::gitpull_fail);
+        QObject::connect(worker, &Worker::git_pull_nothing, this, &Checker::gitpull_nothing);
     }else{
     }
 }
 
+void Checker::gitpull_success(){
+    emit sig_gitpull_success();
+}
+void Checker::gitpull_fail(){
+    emit sig_gitpull_fail(0);
+}
+void Checker::gitpull_nothing(){
+    qDebug() << "?";
+    emit sig_gitpull_fail(1);
+}
 void Checker::connect_wifi_success(QString ssid){
     plog->write("[CHECKER] Connect Wifi Success : "+ssid);
+    emit sig_con_wifi_success(ssid);
 }
 
 void Checker::connect_wifi_fail(int reason,QString ssid){
@@ -637,10 +817,12 @@ void Checker::connect_wifi_fail(int reason,QString ssid){
     }else{
         plog->write("[CHECKER] Connect Wifi Failed : Unknown "+QString::number(reason)+"  "+ssid);
     }
+    emit sig_con_wifi_fail(reason, ssid);
 }
 
 void Checker::set_wifi_success(QString ssid){
     plog->write("[CHECKER] Set Wifi Success : "+ssid);
+    emit sig_set_wifi_success(ssid);
 }
 
 void Checker::set_wifi_fail(int reason,QString ssid){
@@ -649,6 +831,8 @@ void Checker::set_wifi_fail(int reason,QString ssid){
     }else{
         plog->write("[CHECKER] Set Wifi Failed : Unknown "+ssid);
     }
+
+    emit sig_set_wifi_fail(reason, ssid);
 }
 
 void Checker::setSystemVolume(int volume){
@@ -691,14 +875,14 @@ void Checker::getNetworkState(){
             // 이 인터페이스의 IP 주소 목록을 가져옴
             QList<QNetworkAddressEntry> addressEntries = interface.addressEntries();
 
-            probot->ethernet_interface.ipv4 = "";
-            probot->ethernet_interface.netmask = "";
+//            probot->ethernet_interface.ipv4 = "";
+//            probot->ethernet_interface.netmask = "";
 
             foreach (const QNetworkAddressEntry &entry, addressEntries) {
                 if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol){
                     probot->ethernet_interface.state = NET_CON;
-                    probot->ethernet_interface.ipv4 = entry.ip().toString();
-                    probot->ethernet_interface.netmask = entry.netmask().toString();
+//                    probot->ethernet_interface.ipv4 = entry.ip().toString();
+//                    probot->ethernet_interface.netmask = entry.netmask().toString();
                 }
             }
         }else if(interface.type() == QNetworkInterface::Wifi){
@@ -708,20 +892,22 @@ void Checker::getNetworkState(){
             // 이 인터페이스의 IP 주소 목록을 가져옴
             QList<QNetworkAddressEntry> addressEntries = interface.addressEntries();
 
-            probot->wifi_interface.ipv4 = "";
-            probot->wifi_interface.netmask = "";
+//            probot->wifi_interface.ipv4 = "";
+//            probot->wifi_interface.netmask = "";
 
             foreach (const QNetworkAddressEntry &entry, addressEntries) {
                 if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol){
                     probot->wifi_interface.state = NET_CON;
-                    probot->wifi_interface.ipv4 = entry.ip().toString();
-                    probot->wifi_interface.netmask = entry.netmask().toString();
+//                    qDebug() << "what the fuck " << entry.ip().toString();
+//                    probot->wifi_interface.ipv4 = entry.ip().toString();
+//                    probot->wifi_interface.netmask = entry.netmask().toString();
                 }
             }
         }
     }
 
-//    qDebug() << "getNetworkState " << probot->ethernet_interface.name << probot->wifi_interface.name;
+    getNetworkState(probot->wifi_interface.ssid);
+//    qDebug() << "getNetworkState " << probot->wifi_interface.ipv4 << probot->wifi_interface.name;
 }
 
 void Checker::getNetworkState(QString name){
@@ -738,7 +924,7 @@ void Checker::getNetworkState(QString name){
     cmd_list.append(proc);
 }
 
-void Checker::getWifiList(){
+void Checker::getWifiList(bool readall){
     for(ST_PROC p : cmd_list){
         if(p.name == "getWifiList"){
             return;
@@ -748,7 +934,11 @@ void Checker::getWifiList(){
     ST_PROC proc;
     proc.name = "getWifiList";
     proc.cmd = "getWifiList";
-    proc.arg = QStringList();// << "grep" << "-o" << "'^[z-zA-Z0-9]*'";
+    if(readall){
+        proc.arg = QStringList() << "readall";//"grep" << "-o" << "'^[z-zA-Z0-9]*'";
+    }else{
+        proc.arg = QStringList() << "no";//"grep" << "-o" << "'^[z-zA-Z0-9]*'";
+    }
     cmd_list.append(proc);
 }
 
@@ -766,7 +956,20 @@ void Checker::connectWifi(QString ssid, QString passwd){
     cmd_list.append(proc);
 }
 
-void Checker::setIP(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
+void Checker::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
+    for(ST_PROC p : cmd_list){
+        if(p.name == "setEthernet"){
+            return;
+        }
+    }
+
+    ST_PROC proc;
+    proc.cmd = "setEthernet";
+    proc.arg = QStringList() << ip << subnet << gateway << dns1 << dns2;
+    proc.print = false;
+    cmd_list.append(proc);
+}
+void Checker::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
     for(ST_PROC p : cmd_list){
         if(p.name == "setIP"){
             return;
@@ -775,7 +978,11 @@ void Checker::setIP(QString ssid, QString ip, QString subnet, QString gateway, Q
 
     ST_PROC proc;
     proc.cmd = "setIP";
-    proc.arg = QStringList() << ssid << ip << subnet << gateway << dns1 << dns2;
+    if(is_manual){
+        proc.arg = QStringList() << "manual" << ssid << ip << subnet << gateway << dns1 << dns2;
+    }else{
+        proc.arg = QStringList() << "dhcp" << ssid << ip << subnet << gateway << dns1 << dns2;
+    }
     proc.print = false;
     cmd_list.append(proc);
 }
@@ -792,4 +999,16 @@ void Checker::gitPull(){
     proc.print = false;
     cmd_list.append(proc);
 
+}
+void Checker::gitReset(){
+    for(ST_PROC p : cmd_list){
+        if(p.name == "gitReset"){
+            return;
+        }
+    }
+    ST_PROC proc;
+    proc.cmd = "gitReset";
+    proc.arg = QStringList();
+    proc.print = false;
+    cmd_list.append(proc);
 }
