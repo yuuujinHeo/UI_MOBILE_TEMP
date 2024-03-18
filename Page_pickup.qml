@@ -183,21 +183,46 @@ Item {
                 width: parent.width
                 height: 50
             }
-            Image{
+            Rectangle{
                 id: btn_confirm
-                source:"icon/btn_confirm.png"
-                anchors.horizontalCenter: parent.horizontalCenter
                 width: 320
                 height: 120
+                radius: 10
+                border.color: color_gray
+                border.width: 2
+                anchors.horizontalCenter: parent.horizontalCenter
+                Row{
+                    anchors.fill: parent
+                    Rectangle{
+                        width: 120
+                        height: 120
+                        color: "transparent"
+                        Image{
+                            anchors.centerIn: parent
+                            source:"icon/icon_yes.png"
+                            width: 60
+                            height: 60
+                        }
+                    }
+                    Rectangle{
+                        width: 200
+                        height: 120
+                        color: "transparent"
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("확인")
+                            font.family: font_noto_b.name
+                            font.pixelSize: 45
+                        }
+                    }
+                }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
                         //click_start.play();
                         click_sound.play();
                         supervisor.writelog("[USER INPUT] PICKUP CONFIRM clicked");
-//                        voice_pickup.stop();
                         supervisor.playVoice("thanks");
-//                        voice_thanks.play();
                         column_pickup.visible = false;
                         text_mention.visible = false;
                         text_mention3.visible = false;

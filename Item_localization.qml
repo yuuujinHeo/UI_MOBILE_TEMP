@@ -207,7 +207,7 @@ Item{
                 Image{
                     width: 30
                     height: 30
-                    source:"icon/btn_wait.png"
+                    source:"icon/icon_wait.png"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Text{
@@ -245,8 +245,16 @@ Item{
                     id: image_charge1
                     width: 30
                     height: 30
-                    source:"icon/icon_remove.png"
+                    source:"icon/icon_testmoving.png"
                     anchors.horizontalCenter: parent.horizontalCenter
+                    antialiasing: true
+                    sourceSize.width: width
+                    sourceSize.height: height
+                    ColorOverlay{
+                        anchors.fill: parent
+                        source: parent
+                        color: color_icon_gray
+                    }
                 }
                 Text{
                     text: qsTr("넘어가기")

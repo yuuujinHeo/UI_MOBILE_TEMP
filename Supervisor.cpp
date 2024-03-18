@@ -74,8 +74,16 @@ Supervisor::Supervisor(QObject *parent)
     ipc = new IPCHandler();
     call = new CallbellHandler();
     tts = new TTSHandler();
+    checker = new Checker();
 
 #ifdef EXTPROC_TEST
+    connect(checker, SIGNAL(sig_con_wifi_success(QString)), this, SLOT(connect_wifi_success(QString)));
+    connect(checker, SIGNAL(sig_con_wifi_fail(int,QString)), this, SLOT(connect_wifi_fail(int,QString)));
+    connect(checker, SIGNAL(sig_set_wifi_success(QString)), this, SLOT(set_wifi_success(QString)));
+    connect(checker, SIGNAL(sig_set_wifi_fail(int,QString)), this, SLOT(set_wifi_fail(int,QString)));
+    connect(checker, SIGNAL(sig_gitpull_success()), this, SLOT(git_pull_success()));
+    connect(checker, SIGNAL(sig_gitpull_fail(int)), this, SLOT(git_pull_fail(int)));
+
 #else
     extproc = new ExtProcess();
     connect(extproc, SIGNAL(timeout(int)),this,SLOT(process_timeout(int)));
@@ -111,8 +119,10 @@ Supervisor::Supervisor(QObject *parent)
     translator = new QTranslator();
     setlanguage(getSetting("setting","UI","language"));
 
-    checker.getNetworkState("");
-//    checker.setIP("mobile_robot_mesh","10.108.1.132","24","10.108.1.1","10.108.1.1","8.8.8.8");
+    checker->getNetworkState("");
+
+    initServingPage();
+//    checker->setIP("mobile_robot_mesh","10.108.1.132","24","10.108.1.1","10.108.1.1","8.8.8.8");
 //    qDebug() << "INTERNET : " << QNetworkConfigurationManager::isOnline();
 }
 
@@ -353,9 +363,18 @@ void Supervisor::setCallbell(QString type, int id){
 
 ////*********************************************  SETTING 관련   ***************************************************////
 void Supervisor::git_pull_success(){
+    plog->write("[UPDATE] Git Pull : Success -> Program Restart");
+    programRestart();
 }
 
-void Supervisor::git_pull_failed(){
+void Supervisor::git_pull_fail(int reason){
+    if(reason == 0){
+        plog->write("[UPDATE] Git Pull : Failed -> Maybe need Reset");
+        QMetaObject::invokeMethod(mMain, "git_pull_fail");
+    }else{//nothing
+        plog->write("[UPDATE] Git Pull : Failed -> Program Already Newest");
+        QMetaObject::invokeMethod(mMain, "git_pull_already");
+    }
 }
 
 bool Supervisor::isNewVersion(){
@@ -437,12 +456,16 @@ void Supervisor::updateProgram(){
     server->doUpdate();
 }
 void Supervisor::updateProgramGitPull(){
-    server->getGitCommits();
 #ifdef EXTPROC_TEST
-    checker.gitPull();
+    checker->gitPull();
 #else
+    //    server->getGitCommits();
     extproc->git_pull();
 #endif
+}
+void Supervisor::gitReset(){
+    probot->program_branch = getSetting("setting","UI","program_branch");
+    checker->gitReset();
 }
 
 void Supervisor::restartUpdate(){
@@ -525,6 +548,8 @@ void Supervisor::readSetting(QString map_name){
     pmap->map_path = setting_config.value("map_path").toString();
     qDebug() << pmap->map_name << pmap->map_path;
     setting_config.endGroup();
+
+    probot->program_branch = getSetting("setting","UI","probram_branch");
 
     ini_path = getIniPath("static");
     QSettings static_config(ini_path, QSettings::IniFormat);
@@ -742,8 +767,9 @@ void Supervisor::map_reset(){
 }
 
 void Supervisor::setSystemVolume(int volume){
+    qDebug() << "setSystemVolume" << volume;
 #ifdef EXTPROC_TEST
-    checker.setSystemVolume(volume);
+    checker->setSystemVolume(volume);
 #else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
@@ -754,7 +780,7 @@ void Supervisor::setSystemVolume(int volume){
 
 void Supervisor::requestSystemVolume(){
 #ifdef EXTPROC_TEST
-    checker.getSystemVolume();
+    checker->getSystemVolume();
 #else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_SYSTEM_VOLUME;
@@ -785,6 +811,9 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
 
     if(pmap->location_groups.size() == 0){
         pmap->location_groups.push_back("Default");
+    }
+    if(groupnum < pmap->location_groups.size()){
+        temp.group_name = pmap->location_groups[groupnum];
     }
 
     bool overwrite = false;
@@ -1269,11 +1298,13 @@ void Supervisor::checkRobotINI(){
     if(getSetting("setting","UI","table_col_num") == "")
         setSetting("setting","UI/table_col_num","1");
     if(getSetting("setting","UI","moving_face") == "")
-        setSetting("setting","UI/moving_face","true");
+        setSetting("setting","UI/moving_face","1");
     if(getSetting("setting","UI","language") == "")
         setSetting("setting","UI/language","korean");
     if(getSetting("setting","UI","voice_mode") == "")
         setSetting("setting","UI/voice_mode","basic");
+    if(getSetting("setting","UI","program_branch") == "")
+        setSetting("setting","UI/program_branch","master");
     if(getSetting("setting","UI","voice_language") == "")
         setSetting("setting","UI/voice_language","ko");
     if(getSetting("setting","UI","voice_name") == "")
@@ -2220,6 +2251,42 @@ void Supervisor::setObjPose(){
 }
 
 /////Location
+///
+QString Supervisor::getNewServingName(int group){
+    int count = 0;
+    QString groupname = "";
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].type == "Serving"){
+            if(pmap->locations[i].group == group){
+                groupname = pmap->locations[i].group_name;
+                break;
+            }
+        }
+    }
+
+    if(groupname == "" || groupname == "Default"){
+        groupname = "서빙";
+    }
+
+    while(isDuplicateName(group, groupname+QString::number(count))){
+        count++;
+    }
+    return groupname+QString::number(count);
+}
+
+bool Supervisor::isDuplicateName(int group, QString name){
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].type == "Serving"){
+            if(pmap->locations[i].group == group){
+                if(pmap->locations[i].name == name){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+
+}
 QString Supervisor::getServingName(int group, int num){
     int count = 0;
     for(int i=0; i<pmap->locations.size(); i++){
@@ -3594,9 +3661,9 @@ void Supervisor::onTimer(){
     static int sddd = 0;
     if(sddd++ > 10){
         sddd = 0;
-        checker.getCurrentInterface();
-        checker.getSystemVolume();
-        checker.getWifiList();
+        checker->getCurrentInterface();
+        checker->getSystemVolume();
+        checker->getWifiList();
     }
     if(start_clear){
         start_clear = false;
@@ -4324,7 +4391,11 @@ void Supervisor::usbsave(QString usb, bool _ui, bool _slam, bool _config, bool _
     }
 }
 int Supervisor::getWifiNum(){
+#ifdef EXTPROC_TEST
+    return probot->wifi_list.size();
+#else
     return probot->wifi_map.size();
+#endif
 }
 QString Supervisor::getCurWifiSSID(){
 #ifdef EXTPROC_TEST
@@ -4341,6 +4412,13 @@ float Supervisor::getICPError(){
     return probot->inlier_error;
 }
 QString Supervisor::getWifiSSID(int num){//need check
+#ifdef EXTPROC_TEST
+    if(num < probot->wifi_list.size() && num > -1){
+        return probot->wifi_list[num].ssid;
+    }else{
+        return "unknown";
+    }
+#else
     if(num < probot->wifi_map.size() && num > -1){
         QList<QString> keys = probot->wifi_map.keys();
         return probot->wifi_map[keys[num]].ssid;
@@ -4352,6 +4430,7 @@ QString Supervisor::getWifiSSID(int num){//need check
     }else{
         return "unknown";
     }
+#endif
 }
 int Supervisor::getEthernetConnection(){
     return probot->ethernet_interface.state;
@@ -4397,6 +4476,18 @@ bool Supervisor::isRobotReady(){
     }
 }
 
+void Supervisor::connect_wifi_fail(int reason, QString ssid){
+    QMetaObject::invokeMethod(mMain, "wifi_con_fail");
+}
+void Supervisor::connect_wifi_success(QString ssid){
+    QMetaObject::invokeMethod(mMain, "wifi_con_success");
+}
+void Supervisor::set_wifi_success(QString ssid){
+    QMetaObject::invokeMethod(mMain, "wifi_set_success");
+}
+void Supervisor::set_wifi_fail(int reason,QString ssid){
+    QMetaObject::invokeMethod(mMain, "wifi_set_fail");
+}
 void Supervisor::process_done(int cmd){//need check
 #ifdef EXTPROC_TEST
 #else
@@ -4487,7 +4578,7 @@ void Supervisor::process_timeout(int cmd){//need check
 
 void Supervisor::connectWifi(QString ssid, QString passwd){
 #ifdef EXTPROC_TEST
-    checker.connectWifi(ssid, passwd);
+    checker->connectWifi(ssid, passwd);
 #else
     plog->write("[COMMAND] connectWifi : "+ssid+", "+passwd+" (cur Connection : "+probot->wifi_connection+", SSID : "+probot->wifi_ssid+")");
     ExtProcess::Command temp;
@@ -4498,12 +4589,21 @@ void Supervisor::connectWifi(QString ssid, QString passwd){
 #endif
 }
 
+void Supervisor::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
+    checker->setEthernet(ip,subnet,gateway,dns1,dns2);
+}
+void Supervisor::setWifiDHCP(){
+    checker->setIP(false,probot->wifi_interface.ssid);
+}
 void Supervisor::setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
-    checker.setIP(ssid,ip,subnet,gateway,dns1,dns2);
+    if(ssid == ""){
+        ssid = probot->wifi_interface.ssid;
+    }
+    checker->setIP(true,ssid,ip,subnet,gateway,dns1,dns2);
 }
 void Supervisor::setWifi(QString ip, QString gateway, QString dns){
 #ifdef EXTPROC_TEST
-//    checker.setIP(probot->wifi_interface.ssid,ip,
+//    checker->setIP(probot->wifi_interface.ssid,ip,
 #else
     plog->write("[COMMAND] setWifi : "+ip+", "+gateway+", "+dns+" (cur Connection : "+probot->wifi_connection+", SSID : "+probot->wifi_ssid+")");
     ExtProcess::Command temp;
@@ -4539,7 +4639,7 @@ void Supervisor::readWifiState(QString ssid){//need check
 
 void Supervisor::getWifiIP(){
 #ifdef EXTPROC_TEST
-//    checker.getCurrentInterface();
+//    checker->getCurrentInterface();
 #else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_IP;
@@ -4551,6 +4651,9 @@ void Supervisor::getWifiIP(){
     }
 #endif
 
+}
+QString Supervisor::getcurIPMethod(){
+    return probot->wifi_interface.method;
 }
 QString Supervisor::getcurIP(){
 #ifdef EXTPROC_TEST
@@ -4566,6 +4669,13 @@ QString Supervisor::getcurGateway(){
     return probot->cur_gateway;
 #endif
 }
+
+QString Supervisor::getcurNetmask(){
+    return probot->wifi_interface.netmask;
+}
+QString Supervisor::getcurDNS2(){
+    return probot->wifi_interface.dns2;
+}
 QString Supervisor::getcurDNS(){
 #ifdef EXTPROC_TEST
     return probot->wifi_interface.dns1;
@@ -4573,9 +4683,25 @@ QString Supervisor::getcurDNS(){
     return probot->cur_dns;
 #endif
 }
+
+QString Supervisor::getethernetIP(){
+    return probot->ethernet_interface.ipv4;
+}
+QString Supervisor::getethernetNetmask(){
+    return probot->ethernet_interface.netmask;
+}
+QString Supervisor::getethernetGateway(){
+    return probot->ethernet_interface.gateway;
+}
+QString Supervisor::getethernetDNS(){
+    return probot->ethernet_interface.dns1;
+}
+QString Supervisor::getethernetDNS2(){
+    return probot->ethernet_interface.dns2;
+}
 void Supervisor::getAllWifiList(){//need check
 #ifdef EXTPROC_TEST
-    checker.getWifiList();
+    checker->getWifiList(true);
 #else
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
@@ -4598,23 +4724,53 @@ void Supervisor::getAllWifiList(){//need check
 #endif
 }
 bool Supervisor::getWifiSecurity(QString ssid){
+#ifdef EXTPROC_TEST
+    for(ST_WIFI w : probot->wifi_list){
+        if(w.ssid == ssid){
+            return w.security;
+        }
+    }
+    return false;
+#else
     return probot->wifi_map[ssid].security;
+#endif
 }
 int Supervisor::getWifiLevel(){
-//    qDebug() << probot->wifi_interface.ssid << probot->wifi_map[probot->wifi_interface.ssid].level;
-    if(probot->wifi_map[probot->wifi_interface.ssid].level < 20){
-        return 0;
-    }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 40){
-        return 1;
-    }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 60){
-        return 2;
-    }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 80){
-        return 3;
-    }else{
-        return 4;
+#ifdef EXTPROC_TEST
+    for(ST_WIFI w : probot->wifi_list){
+        if(w.ssid == probot->wifi_interface.ssid){
+            return w.level;
+        }
     }
+    return 0;
+#else
+    //    qDebug() << probot->wifi_interface.ssid << probot->wifi_map[probot->wifi_interface.ssid].level;
+        if(probot->wifi_map[probot->wifi_interface.ssid].ssid == probot->wifi_interface.ssid){
+            if(probot->wifi_map[probot->wifi_interface.ssid].level < 20){
+                return 0;
+            }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 40){
+                return 1;
+            }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 60){
+                return 2;
+            }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 80){
+                return 3;
+            }else{
+                return 4;
+            }
+        }else{
+            return 3;
+        }
+#endif
 }
 int Supervisor::getWifiLevel(QString ssid){
+#ifdef EXTPROC_TEST
+    for(ST_WIFI w : probot->wifi_list){
+        if(w.ssid == ssid){
+            return w.level;
+        }
+    }
+    return 0;
+#else
     if(probot->wifi_map[ssid].level < 20){
         return 0;
     }else if(probot->wifi_map[ssid].level < 40){
@@ -4626,12 +4782,20 @@ int Supervisor::getWifiLevel(QString ssid){
     }else{
         return 4;
     }
+#endif
 }
 int Supervisor::getWifiRate(QString ssid){
     return probot->wifi_map[ssid].rate;
 }
 bool Supervisor::getWifiInuse(QString ssid){
+#ifdef EXTPROC_TEST
+    if(ssid == probot->wifi_interface.ssid)
+        return true;
+    else
+        return false;
+#else
     return probot->wifi_map[ssid].inuse;
+#endif
 }
 
 void Supervisor::cleanTray(){
@@ -4781,12 +4945,14 @@ void Supervisor::killSLAM(){
     clearRobot();
     stateInit();
 }
+
 void Supervisor::clear_all(){
-    plog->write("[COMMAND] clear all");
+    plog->write("[COMMAND] Reset All (Remove all directories)");
     timer2->stop();
+
     //maps 폴더 지움.
     QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" maps directory : remove")),
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
                               Q_ARG(QVariant,QVariant().fromValue(1)));
 
     QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
@@ -4794,32 +4960,46 @@ void Supervisor::clear_all(){
     if(dir_maps.removeRecursively()){
         plog->write("[CLEAR] Reset Clear : Remove maps");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" temp directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
     }else{
         plog->write("[CLEAR] Reset Clear : Remove maps failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" temp directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(3)));
     }
     QDir().mkdir(path_maps);
 
     //temp 폴더 지움.
-
     QString path_temp = QDir::homePath()+"/RB_MOBILE/temp";
     QDir dir_temp(path_temp);
     if(dir_temp.removeRecursively()){
         plog->write("[CLEAR] Reset Clear : Remove temp");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" config directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
     }else{
         plog->write("[CLEAR] Reset Clear : Remove temp failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" config directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(3)));
     }
 
+
+    //patrol 폴더 지움.
+    QString path_patrol = QDir::homePath()+"/RB_MOBILE/patrol";
+    QDir dir_patrol(path_patrol);
+    if(dir_patrol.removeRecursively()){
+        plog->write("[CLEAR] Reset Clear : Remove patrol");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(2)));
+    }else{
+        plog->write("[CLEAR] Reset Clear : Remove patrol failed");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(3)));
+    }
 
     //myID 등  robot_config.ini 수정
     //config 폴더 지움.
@@ -4828,25 +5008,25 @@ void Supervisor::clear_all(){
     if(dir_config.removeRecursively()){
         plog->write("[CLEAR] Reset Clear : Remove config");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make config ini")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
     }else{
         plog->write("[CLEAR] Reset Clear : Remove config failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make config ini")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(3)));
     }
 
     QDir().mkdir(path_config);
     makeRobotINI();
     QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" make shell files")),
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : make new config")),
                               Q_ARG(QVariant,QVariant().fromValue(2)));
 
     //sh 파일 복구?
     checkShellFiles();
     QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" log directory : remove")),
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/sh directory : make new config")),
                               Q_ARG(QVariant,QVariant().fromValue(2)));
 
 
@@ -4859,8 +5039,9 @@ void Supervisor::clear_all(){
         QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
         plog->write("[CLEAR] Reset Clear : Remove log Success");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" all done")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
+
 
     }else{
         if(!dir_log.exists()){
@@ -4869,12 +5050,16 @@ void Supervisor::clear_all(){
             QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
             QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
         }
+        plog->write("[CLEAR] Reset Clear : Remove log Failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" all done")),
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(3)));
 
-        plog->write("[CLEAR] Reset Clear : Remove log Failed");
     }
+
+    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" Reset All Done ")),
+                              Q_ARG(QVariant,QVariant().fromValue(2)));
 }
 
 void Supervisor::resetClear(){
@@ -4998,7 +5183,6 @@ void Supervisor::readPatrol(){
                         }
 
                         //arrive_page 도 똑같이
-
                         plog->write("[COMMAND] readPatrol File : "+file + " -> "+temp.name+", "+temp.type+", "+QString::number(temp.location.size())+", "+temp.voice_name);
                         patrols.append(temp);
                     }
@@ -5127,6 +5311,74 @@ void Supervisor::initCurrentPatrol(){
     current_patrol = ST_PATROL();
     current_patrol.moving_page.mode = "face";
     current_patrol.arrive_page.mode = "pass";
+}
+
+void Supervisor::saveServingPage(){
+    QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+    if(!QFile::exists(path)){
+        QDir().mkdir(path);
+    }
+    QString filestr = path + "/serving.ini";
+    QSettings file(filestr, QSettings::IniFormat);
+    file.clear();
+
+    file.setValue("MOVING/background",serving_page.background);
+    file.setValue("MOVING/image",serving_page.image);
+    file.setValue("MOVING/video",serving_page.video);
+    file.setValue("MOVING/color",serving_page.color);
+    file.setValue("MOVING/obj_num",serving_page.objects.size());
+    file.setValue("MOVING/audio",serving_page.volume);
+
+    for(int i=0; i<serving_page.objects.size(); i++){
+        QString str = serving_page.objects[i].type + "," + QString::number(serving_page.objects[i].x) + "," + QString::number(serving_page.objects[i].y) + "," + QString::number(serving_page.objects[i].width) + "," + QString::number(serving_page.objects[i].height) +
+                "," + serving_page.objects[i].source +","+serving_page.objects[i].color;
+        file.setValue("MOVING/obj"+QString::number(i),str);
+    }
+}
+
+void Supervisor::initServingPage(){
+    QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+    if(!QFile::exists(path)){
+        QDir().mkdir(path);
+        plog->write("[COMMAND] initServingPage : no path make new -> "+path);
+    }
+
+
+    QString file = path + "/serving.ini";
+    if(!QFile::exists(file)){
+        plog->write("[COMMAND] initServingPage : no file -> "+file);
+        serving_page.mode = "face1";
+    }else{
+        QSettings patrol(file, QSettings::IniFormat);
+        patrol.beginGroup("MOVING");
+        serving_page.background = patrol.value("background").toString();
+        if(serving_page.background == "color"){
+            serving_page.color = patrol.value("color").toString();
+        }else if(serving_page.background == "image"||serving_page.background == "gif"){
+            serving_page.image = patrol.value("image").toString();
+        }else if(serving_page.background == "video"){
+            serving_page.video = patrol.value("video").toString();
+        }
+        serving_page.volume = patrol.value("audio").toFloat();
+
+        int num = patrol.value("obj_num").toInt();
+        serving_page.objects.clear();
+        //object reading...(to be continue..)
+        for(int i=0; i<num; i++){
+            ST_PAGE_OBJECT temp_obj;
+            QStringList objs=patrol.value("obj"+QString::number(i)).toString().split(",");
+            if(objs.size() > 5){
+                temp_obj.type = objs[0];
+                temp_obj.x = objs[1].toInt();
+                temp_obj.y = objs[2].toInt();
+                temp_obj.width = objs[3].toInt();
+                temp_obj.height = objs[4].toInt();
+                temp_obj.source = objs[5];
+                temp_obj.color = objs[6];
+                serving_page.objects.append(temp_obj);
+            }
+        }
+    }
 }
 
 void Supervisor::setCurrentPatrol(int num){
@@ -5428,6 +5680,56 @@ float Supervisor::getMovingPageAudio(){
     return current_patrol.moving_page.volume;
 }
 
+void Supervisor::setServingPageColor(QString file){
+    setServingPageBackground("color");
+    serving_page.color = file;
+}
+
+QString Supervisor::getServingPageColor(){
+    return serving_page.color;
+}
+
+void Supervisor::setServingPageMode(QString mode){
+    serving_page.mode = mode;
+}
+
+QString Supervisor::getServingPageMode(){
+    return serving_page.mode;
+}
+
+void Supervisor::setServingPageBackground(QString mode){
+    serving_page.background = mode;
+}
+
+QString Supervisor::getServingPageBackground(){
+    return serving_page.background;
+}
+
+
+void Supervisor::setServingPageImage(QString file){
+    serving_page.image = file;
+}
+
+QString Supervisor::getServingPageImage(){
+    return serving_page.image;
+}
+
+void Supervisor::setServingPageVideo(QString file){
+    setServingPageBackground("video");
+    serving_page.video = file;
+}
+
+QString Supervisor::getServingPageVideo(){
+    return serving_page.video;
+}
+void Supervisor::setServingPageAudio(float volume){
+    setServingPageBackground("video");
+    serving_page.volume = volume;
+}
+
+float Supervisor::getServingPageAudio(){
+    return serving_page.volume;
+}
 
 void Supervisor::addPatrolObject(QString page, QString obj){
     plog->write("[PATROL] add Patrol Object ("+page+") : "+obj);
@@ -5438,6 +5740,11 @@ void Supervisor::addPatrolObject(QString page, QString obj){
     }else{
         current_patrol.arrive_page.objects.append(temp_obj);
     }
+}
+void Supervisor::addServingObject(QString page, QString obj){
+    plog->write("[PATROL] add Serving Object ("+page+") : "+obj);
+    ST_PAGE_OBJECT temp_obj = makeNewObj(obj);
+    serving_page.objects.append(temp_obj);
 }
 
 ST_PAGE_OBJECT Supervisor::makeNewObj(QString obj){
@@ -5534,6 +5841,97 @@ int Supervisor::getPageObjectNum(int x, int y){
     return -1;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int Supervisor::getServingObjectSize(){
+    return serving_page.objects.size();
+}
+
+QString Supervisor::getServingObjectType(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].type;
+    }
+    return "";
+}
+void Supervisor::setServingObjectSource(int num, QString src){
+    if(num > -1 && num < serving_page.objects.size()){
+        serving_page.objects[num].source = src;
+    }
+}
+void Supervisor::setServingObjectColor(int num, QString color){
+    if(num > -1 && num < serving_page.objects.size()){
+        serving_page.objects[num].color = color;
+    }
+}
+QString Supervisor::getServingObjectSource(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].source;
+    }
+    return "";
+}
+QString Supervisor::getServingObjectColor(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].color;
+    }
+    return "";
+}
+int Supervisor::getServingObjectX(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].x;
+    }
+    return -1;
+}
+int Supervisor::getServingObjectY(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].y;
+    }
+    return -1;
+}
+int Supervisor::getServingObjectWidth(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].width;
+    }
+    return -1;
+}
+int Supervisor::getServingObjectHeight(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].height;
+    }
+    return -1;
+}
+int Supervisor::getServingObjectFontsize(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        return serving_page.objects[num].fontsize;
+    }
+}
+
+int Supervisor::getServingObjectNum(int x, int y){
+    for(int i=serving_page.objects.size()-1; i>-1; i--){
+        if(x>(serving_page.objects[i].x-10) && x < serving_page.objects[i].x + serving_page.objects[i].width+10){
+            if(y>(serving_page.objects[i].y-10) && y < serving_page.objects[i].y + serving_page.objects[i].height+10){
+                return i;
+            }
+        }
+    }
+    return -1;
+}
+
+
 void Supervisor::movePatrolObject(int num, int x, int y){
 //    qDebug() << "movePatrolObject " << num << x << y;
     if(num > -1 && num < current_patrol.moving_page.objects.size()){
@@ -5572,4 +5970,41 @@ void Supervisor::clearPatrolPage(int num){
     }else if(num > -1 && num < patrols.size()){
         current_patrol.moving_page = patrols[num].moving_page;
     }
+}
+
+void Supervisor::moveServingObject(int num, int x, int y){
+//    qDebug() << "moveServingObject " << num << x << y;
+    if(num > -1 && num < serving_page.objects.size()){
+        serving_page.objects[num].x = x;
+        serving_page.objects[num].y = y;
+    }
+}
+
+void Supervisor::setServingObjectSize(int num, int x, int y, int width, int height){
+    if(num > -1 && num < serving_page.objects.size()){
+        serving_page.objects[num].x = x;
+        serving_page.objects[num].y = y;
+        serving_page.objects[num].width = width;
+        serving_page.objects[num].height = height;
+    }
+}
+void Supervisor::deleteServingObject(int num){
+    if(num > -1 && num < serving_page.objects.size()){
+        serving_page.objects.removeAt(num);
+    }
+}
+void Supervisor::setServingObjectSize(int num, int point, int x, int y){
+    if(num > -1 && num < serving_page.objects.size()){
+        qDebug() << "setServingObjectSize" << num << point << x << y;
+        serving_page.objects[num].x += x;
+        serving_page.objects[num].y += y;
+        serving_page.objects[num].width -= x;
+        serving_page.objects[num].height -= y;
+    }
+
+}
+
+void Supervisor::clearServingPage(){
+    qDebug() << "clearServingPage";
+    serving_page.objects.clear();
 }

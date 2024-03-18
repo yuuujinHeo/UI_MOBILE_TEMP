@@ -154,6 +154,7 @@ typedef struct{
     QString name;
     QString ssid;
     QString ipv4;
+    QString method;
     QString netmask;
     QString subnet;;
     QString gateway;
@@ -264,6 +265,7 @@ typedef struct{
     ST_NET_INTERFACE ethernet_interface;
     ST_NET_INTERFACE wifi_interface;
 
+    QString program_branch = "master";
 }ST_ROBOT;
 extern ST_ROBOT *probot;
 

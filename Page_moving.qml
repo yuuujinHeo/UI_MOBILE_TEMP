@@ -15,7 +15,7 @@ Item {
     property bool robot_paused: false
     property int password: 0
     property int obs_in_path : 0
-    property bool show_face: false
+    property int show_face: 0
 
     function movedone(){
         loadPage(pkitchen);
@@ -47,21 +47,33 @@ Item {
         popup_pause.visible = false;
         if(supervisor.isPatrolPage()){
             if(supervisor.getPatrolMovingMode() === "face"){
+                face_image.play("image/face_normal.gif");
+                rect_robot.visible = false;
+                show_face = 1;
+            }else if(supervisor.getPatrolMovingMode() === "face2"){
                 face_image.play("image/face_normal2.gif");
                 rect_robot.visible = false;
-                show_face = true;
+                show_face = 2;
             }else{
                 show_face = false;
                 face_image.stop();
                 rect_robot.visible = true;
             }
         }else{
-            if(supervisor.getSetting("setting","UI","moving_face")==="true"){
+            if(supervisor.getSetting("setting","UI","moving_face")==="1"){
+                face_image.play("image/face_normal.gif");
+                rect_robot.visible = false;
+                show_face = 1;
+            }else if(supervisor.getSetting("setting","UI","moving_face")==="2"){
                 face_image.play("image/face_normal2.gif");
                 rect_robot.visible = false;
-                show_face = true;
+                show_face = 2;
+            }else if(supervisor.getSetting("setting","UI","moving_face")==="3"){
+                show_face = 3;
+                face_image.stop();
+                rect_robot.visible = false;
             }else{
-                show_face = false;
+                show_face = 0;
                 face_image.stop();
                 rect_robot.visible = true;
             }

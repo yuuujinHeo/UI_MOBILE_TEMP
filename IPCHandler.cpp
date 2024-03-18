@@ -670,20 +670,12 @@ IPCHandler::IMG IPCHandler::get_cam1()
 
 void IPCHandler::set_cmd(IPCHandler::CMD val, QString log)
 {
-     plog->write("[IPC] Set CMD "+QString::number(val.cmd)+" : "+log);
+     if(val.cmd != ROBOT_CMD_REQ_CAMERA)
+        plog->write("[IPC] Set CMD "+QString::number(val.cmd)+" : "+log);
      QByteArray message;
      message.resize(sizeof(CMD));
      memcpy(message.data(), &val, sizeof(CMD));
      cmd->cts_cmd(message);
-
-
-//    shm_cmd.lock();
-//    flag_tx = true;
-//    val.tick = ++tick;
-//    memcpy((char*)shm_cmd.data(), &val, sizeof(IPCHandler::CMD));
-
-
-//    shm_cmd.unlock();
 }
 void IPCHandler::set_cmd(int cmd, QString log){
     IPCHandler::CMD send_msg;
