@@ -39,6 +39,7 @@ public slots:
     void connectWifi();
     void checkPing();
     void setIP();
+    void setEthernet();
     void gitPull();
     void gitReset();
     void setProperties(bool isprint){
@@ -48,6 +49,9 @@ public slots:
     void network_output();
     void error_git_pull(){
         QByteArray error = process->readAllStandardError();
+        if(error.contains("error:")){
+            is_error = true;
+        }
         qDebug() << "Error Git Pull" << error;
     }
 
@@ -80,7 +84,6 @@ public slots:
             emit finished(this);
             return;
         }
-
     }
 signals:
     void finished(Worker *w);
@@ -89,6 +92,9 @@ signals:
     void connect_wifi_fail(int reason, QString ssid);
     void set_wifi_success(QString ssid);
     void set_wifi_fail(int reason, QString ssid);
+    void git_pull_failed();
+    void git_pull_nothing();
+    void git_pull_success();
 
 public:
     Worker(QString _name, QThread *th):name(_name),parent_thread(th){}
@@ -98,6 +104,7 @@ public:
     QThread *parent_thread;
     QProcess *process;
     QString name;
+    bool is_error = false;
     bool is_print;
     void setWork(const QString &_program, const QStringList &arg){
         program = _program;
@@ -125,23 +132,35 @@ public:
     //functions
     void setSystemVolume(int volume);
     void getSystemVolume();
-    void getWifiList();
+    void getWifiList(bool read_all=false);
     void getNetworkState();
     void getNetworkState(QString name);
     void getPing(QString host);
     void getCurrentInterface();
     void gitPull();
-    void setIP(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
+    void gitReset();
+    void setIP(bool manual, QString ssid, QString ip="", QString subnet="", QString gateway="", QString dns1="", QString dns2="");
+    void setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
     void connectWifi(QString ssid, QString passwd);
 
+signals:
+    void sig_con_wifi_success(QString ssid);
+    void sig_con_wifi_fail(int reason, QString ssid);
+    void sig_set_wifi_success(QString ssid);
+    void sig_set_wifi_fail(int reason, QString ssid);
+    void sig_gitpull_success();
+    void sig_gitpull_fail(int reason);
 
 private slots:
     void onTimer();
     void connect_wifi_success(QString ssid);
-    void connect_wifi_fail(int reason,QString ssid);
+    void connect_wifi_fail(int reason, QString ssid);
     void set_wifi_success(QString ssid);
-    void set_wifi_fail(int reason,QString ssid);
+    void set_wifi_fail(int reason, QString ssid);
     void change_network(QString line);
+    void gitpull_success();
+    void gitpull_fail();
+    void gitpull_nothing();
 private:
     void disWork(Worker *worker);
     void setWork(ST_PROC cmd, QThread *thread, Worker *worker);

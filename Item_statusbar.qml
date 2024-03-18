@@ -28,23 +28,17 @@ Item {
     property bool robot_tx: false
     property bool robot_rx: false
 
-    Component.onCompleted: {
-//        statusbar.visible = true;
-    }
-    onVisibleChanged: {
-        print("statusbar visible ",visible);
-    }
-
     Rectangle{
         id: status_bar
         width: parent.width
         height: 60
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        color: debug_mode?color_red:color_blue
+        color: debug_mode?color_red:"white"
         Text{
             id: textName
             width: 300
+            color: color_mid_black
             horizontalAlignment: Text.AlignHCenter
             anchors.verticalCenter: parent.verticalCenter
             font.family: font_noto_r.name
@@ -59,7 +53,7 @@ Item {
                 }
                 onDoubleClicked: {
                     click_sound.play();
-                    popup_menu.open();
+//                    popup_menu.open();
                 }
             }
         }
@@ -104,7 +98,7 @@ Item {
                     popup_notice.init();
                     popup_notice.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
                     popup_notice.sub_str = qsTr("초기화면으로 이동되며 저장되지 않은 내용은 사라집니다")
-                    popup_notice.addButton(qsTr("디버그모드 해제"))
+                    popup_notice.addButton(qsTr("디버그모드 해제"),color_green,"white")
                     popup_notice.open();
                 }
             }
@@ -114,82 +108,70 @@ Item {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             text: curTime
+            color: color_mid_black
             font.family: font_noto_b.name
             font.pixelSize: 20
         }
         Image{
             id: image_clock
-            source:"icon/clock.png"
+            source:"icon/icon_clock.png"
             anchors.right: textTime.left
+            width: 40
+            height: 40
+            sourceSize.width: 40
+            sourceSize.height: 40
             anchors.rightMargin: 5
             anchors.verticalCenter: textTime.verticalCenter
+
         }
 
         Row{
             id: rows_icon
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
-            anchors.rightMargin: 30
+            anchors.rightMargin: 15
             spacing: 5
             Image{
                 id: image_server
                 visible: is_con_server
                 sourceSize.width: 46
-                sourceSize.height: 42
-                source: "icon/icon_server_connect.png"
+                sourceSize.height: 46
+                source: "icon/icon_server_good.png"
             }
             Image{
                 id: image_motor_power
                 sourceSize.width: 46
-                sourceSize.height: 42
+                sourceSize.height: 46
                 width: 46
-                height: 42
-                source: is_motor_power?"icon/motor_power_on.png":"icon/motor_power_off.png"
-            }
-            Image{
-                id: image_motor_temperror
-                visible: is_motor_hot
-                sourceSize.width: 46
-                sourceSize.height: 42
-                width: 46
-                height: 42
-                source: "icon/icon_motor_hot.png"
+                height: 46
+                source: "icon/icon_motor_discon.png"
             }
             Image{
                 id: image_emergency
-                visible: is_emergency
+                visible: false
                 sourceSize.width: 46
-                sourceSize.height: 42
+                sourceSize.height: 46
                 width: 46
-                height: 42
+                height: 46
                 source: "icon/icon_emergency.png"
             }
             Image{
-                id: image_motor_error
-                visible: is_motor_error
+                id: image_motor_unlock
+                visible: false
                 sourceSize.width: 46
-                sourceSize.height: 42
+                sourceSize.height: 46
                 width: 46
-                height: 42
-                source: "icon/icon_motor_error.png"
+                height: 46
+                source: "icon/icon_motor_unlock.png"
             }
             Image{
                 id: image_local_error
-                visible: is_local_not_ready
+                visible: false
                 sourceSize.width: 46
-                sourceSize.height: 42
+                sourceSize.height: 46
                 width: 46
-                height: 42
+                height: 46
                 source: "icon/icon_local_error.png"
-            }
-            Image{
-                id: image_robot_discon
-                visible: false//!is_con_robot
-                width: 46
-                height: 42
-                sourceSize.width: 46
-                sourceSize.height: 42
-                source: "icon/icon_lcm_discon.png.png"
             }
             Image{
                 id: image_wifi
@@ -216,70 +198,14 @@ Item {
                 sourceSize.height: 46
                 source: "icon/icon_volume_3.png"
             }
-            Rectangle{
-                color: "transparent"
-                width: 46
-                height: 42
-                visible: false//is_con_robot
-                anchors.verticalCenter: parent.verticalCenter
-                Row{
-                    id: image_robot_con
-                    anchors.centerIn: parent
-                    Image{
-                        id: image_tx
-                        width: 15
-                        height: 28
-                        mipmap: true
-                        antialiasing: true
-                        sourceSize.width: 15
-                        sourceSize.height: 28
-                        source: robot_tx?"icon/data_green.png":"icon/data_gray.png"
-                    }
-                    Image{
-                        id: image_rx
-                        mipmap: true
-                        antialiasing: true
-                        width: 15
-                        height: 28
-                        sourceSize.width: 15
-                        sourceSize.height: 28
-                        anchors.top: image_tx.top
-                        anchors.topMargin: 1
-                        rotation: 180
-                        source: robot_rx?"icon/data_green.png":"icon/data_gray.png"
-                    }
-                }
-            }
-
 
             Image{
                 id: image_battery
-                source: {
-                    if(robot_battery > 90){
-                        "icon/bat_full.png"
-                    }else if(robot_battery > 60){
-                        "icon/bat_3.png"
-                    }else if(robot_battery > 30){
-                        "icon/bat_2.png"
-                    }else{
-                        "icon/bat_1.png"
-                    }
-                }
+                source: "icon/icon_battery_1.png"
                 sourceSize.width: 46
-                sourceSize.height: 42
+                sourceSize.height: 46
                 anchors.verticalCenter: parent.verticalCenter
             }
-
-            Text{
-                id: textBattery
-                anchors.verticalCenter: parent.verticalCenter
-                color: "#7e7e7e"
-                visible: false
-                font.family: font_noto_r.name
-                font.pixelSize: 20
-                text: robot_battery.toFixed(0)+' %'
-            }
-
         }
         MouseArea{
             anchors.fill: rows_icon
@@ -295,365 +221,84 @@ Item {
         }
     }
 
-    Popup{
-        id: popup_terminate
-        width: 1280
-        height: 800
-        background: Rectangle{
-            anchors.fill: parent
-            color: color_dark_black
-            opacity: 0.9
-        }
-        Column{
-            anchors.centerIn: parent
-            spacing: 40
-            Image{
-                source:"image/robot_head_sleep.png"
-                scale: 0.8
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            Text{
-                id: text_quest
-                anchors.horizontalCenter: parent.horizontalCenter
-                font.family: font_noto_b.name
-                font.pixelSize: 50
-                color: "#12d27c"
-                text: qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
-            }
-            Row{
-                anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 50
-                Rectangle{
-                    width: 250
-                    height: 90
-                    radius: 20
-                    color: "#d0d0d0"
-                    Row{
-                        anchors.verticalCenter: parent.verticalCenter
-                        Rectangle{
-                            width: 90
-                            height: width
-                            color: "transparent"
-                            Image{
-                                source: "icon/btn_no.png"
-                                width: 50
-                                height: 50
-                                anchors.centerIn : parent
-                            }
-                        }
-                        Rectangle{
-                            width: 250 - 90
-                            height: 90
-                            color: "transparent"
-                            Text{
-                                text:qsTr("취소")
-                                font.family: font_noto_b.name
-                                font.pixelSize: 30
-                                color:"#282828"
-                                anchors.centerIn : parent
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_terminate.close();
-                            popup_menu.close();
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 250
-                    height: 90
-                    radius: 20
-                    color: "#d0d0d0"
-                    Rectangle{
-                        color:"white"
-                        width: 240
-                        height: 80
-                        radius: 19
-                        anchors.centerIn: parent
-                    }
-                    Row{
-                        anchors.verticalCenter: parent.verticalCenter
-                        Rectangle{
-                            width: 90
-                            height: width
-                            color: "transparent"
-                            Image{
-                                source: "icon/btn_reset.png"
-                                width: 50
-                                height: 50
-                                anchors.centerIn : parent
-                            }
-                        }
-                        Rectangle{
-                            width: 250 - 90
-                            height: 90
-                            color: "transparent"
-                            Text{
-                                text:qsTr("다시시작")
-                                font.family: font_noto_b.name
-                                font.pixelSize: 30
-                                color:"#282828"
-                                anchors.centerIn : parent
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] STATUS BAR : PROGRAM RESTART")
-                            supervisor.programRestart();
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 250
-                    height: 90
-                    radius: 20
-                    color: "#d0d0d0"
-                    Rectangle{
-                        color:"white"
-                        width: 240
-                        height: 80
-                        radius: 19
-                        anchors.centerIn: parent
-                    }
-                    Row{
-                        anchors.verticalCenter: parent.verticalCenter
-                        Rectangle{
-                            width: 90
-                            height: width
-                            color: "transparent"
-                            Image{
-                                source: "icon/btn_yes.png"
-                                width: 50
-                                height: 50
-                                anchors.centerIn : parent
-                            }
-                        }
-                        Rectangle{
-                            width: 250 - 90
-                            height: 90
-                            color: "transparent"
-                            Text{
-                                text:qsTr("종료")
-                                font.family: font_noto_b.name
-                                font.pixelSize: 30
-                                color:"#282828"
-                                anchors.centerIn : parent
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] STATUS BAR : PROGRAM EXIT")
-                            supervisor.programExit();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Popup{
-        id: popup_menu
-        width: 280
-        height: 100
-        bottomPadding: 0
-        topPadding: 0
-        leftPadding: 0
-        rightPadding: 0
-        x: textName.x + textName.width/2 - width/2
-        y: parent.height
-        z: -1
-        background: Rectangle{
-            anchors.fill: parent
-            color: "transparent"
-        }
-
-        Rectangle{
-            id: rree
-            width: parent.width
-            height: parent.height
-            radius: 25
-            color: "white"
-
-            Rectangle{
-                width: parent.width
-                height: rree.radius
-            }
-            Row{
-                anchors.centerIn: parent
-                spacing: 15
-                Rectangle{
-                    id: btn_cursor
-                    width: 78
-                    height: 78
-                    radius: width
-                    color: color_navy
-                    Column{
-                        anchors.centerIn: parent
-                        Image{
-                            id: image_cursor
-                            source:"icon/cursor.png"
-                            width: 30
-                            height: 30
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            ColorOverlay{
-                                source: parent
-                                anchors.fill: parent
-                                color: show_cursor?color_green:"white"
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            if(show_cursor){
-                                supervisor.writelog("[USER INPUT] STATUS BAR : CURSOR UNSHOW");
-                                supervisor.setCursorView(false);
-                                show_cursor = false;
-                            }else{
-                                supervisor.writelog("[USER INPUT] STATUS BAR : CURSOR SHOW");
-                                supervisor.setCursorView(true);
-                                show_cursor = true;
-
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_minimize
-                    width: 78
-                    height: 78
-                    radius: width
-                    color: color_navy
-                    Column{
-                        anchors.centerIn: parent
-                        Image{
-                            id: image_charge
-                            source:"icon/btn_minimize.png"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            ColorOverlay{
-                                source: parent
-                                anchors.fill: parent
-                                color: "white"
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] Screen Minimized.");
-                            mainwindow.showMinimized();
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 78
-                    height: 78
-                    radius: width
-                    color: color_navy
-                    Column{
-                        anchors.centerIn: parent
-                        Image{
-                            id: image_wait
-                            source:"icon/icon_power.png"
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            ColorOverlay{
-                                source: parent
-                                anchors.fill: parent
-                                color: "white"
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_terminate.open();
-                        }
-                    }
-                }
-            }
-        }
-
-        DropShadow{
-            anchors.fill: parent
-            radius: 10
-            visible: false
-            color: color_gray
-            source: rree
-        }
-        Rectangle{
-            width: parent.width+20
-            x: -10
-            y: -10
-            height: 10
-        }
-    }
-
-    SequentialAnimation{
-        id: ani_popup_show
-        onStarted: {
-            col_details.opacity = 0;
-        }
-        NumberAnimation{target: popup_status_detail; property: "height"; from: 0; to: model_details.count * 40; duration: 300; easing.type: Easing.OutBack}
-        NumberAnimation{target: col_details; property: "opacity"; from: 0; to: 1; duration: 100; easing.type: Easing.OutBack}
-    }
-
     ListModel{
         id: model_details
     }
 
     function update_detail(){
+
         model_details.clear();
-        if(is_con_joystick){
-            model_details.append({"detail":qsTr("조이스틱이 연결되었습니다"),"icon":"icon/icon_joy_connect.png","error":false});
-        }
-        if(is_con_server){
-            model_details.append({"detail":qsTr("서버에 연결되었습니다"),"icon":"icon/icon_server_connect.png","error":false});
-        }
-        if(!is_con_robot){
-            model_details.append({"detail":qsTr("로봇과 연결되지 않았습니다"),"icon":"icon/icon_lcm_discon.png","error":true});
-        }
-        if(is_motor_error){
-            model_details.append({"detail":qsTr("모터락이 풀려있습니다"),"icon":"icon/icon_motor_error.png","error":true});
-        }
-        if(is_local_not_ready){
-            model_details.append({"detail":qsTr("로봇 위치 초기화가 필요합니다"),"icon":"icon/icon_local_error.png","error":true});
-        }
-        if(is_motor_power){
-            model_details.append({"detail":qsTr("모터전원이 정상입니다"),"icon":"icon/motor_power_on.png","error":false});
-        }else{
-            model_details.append({"detail":qsTr("모터전원을 켜주세요"),"icon":"icon/motor_power_off.png","error":true});
+
+        rect_back.sound = supervisor.getSystemVolume();
+
+        if(supervisor.isConnectServer()){
+            model_details.append({"detail":qsTr("서버에 연결되었습니다"),"detail2":"","icon":"icon/icon_server_good.png","error":false});
         }
 
-        if(is_emergency){
-            model_details.append({"detail":qsTr("비상스위치가 눌렸습니다"),"icon":"icon/icon_emergency.png","error":true});
+        if(supervisor.getEthernetConnection()===2){
+            if(supervisor.getIPCConnection()){
+                model_details.append({"detail":qsTr("로봇과 연결되었습니다"),"detail2":supervisor.getethernetIP(),"icon":"icon/icon_ethernet_good.png","error":false});
+            }else{
+                model_details.append({"detail":qsTr("로봇과 연결할 수 없습니다"),"detail2":qsTr("프로그램이 실행되지 않았습니다"),"icon":"icon/icon_ethernet_no.png","error":true});
+            }
+        }else{
+            model_details.append({"detail":qsTr("로봇과 연결할 수 없습니다"),"detail2":qsTr("이더넷연결을 확인하세요"),"icon":"icon/icon_ethernet_discon.png","error":true});
         }
-        if(is_motor_hot){
-            model_details.append({"detail":qsTr("모터가 뜨겁습니다"),"icon":"icon/icon_lcm_discon.png","error":true});
+
+        if(supervisor.getWifiConnection()===2){
+            if(supervisor.getInternetConnection()===2){
+                model_details.append({"detail":"SSID : "+supervisor.getCurWifiSSID(),"detail2":"IP : "+supervisor.getcurIP(),"icon":image_wifi.source.toString(),"error":false});
+            }else{
+                model_details.append({"detail":"SSID : "+supervisor.getCurWifiSSID(),"detail2":"IP (인터넷X) : "+supervisor.getcurIP(),"icon":image_wifi.source.toString(),"error":false});
+            }
+        }else{
+            model_details.append({"detail":"무선인터넷이 연결되지 않았습니다","detail2":"","icon":image_wifi.source.toString(),"error":true});
         }
-        if(robot_battery < 30 && is_con_robot){
-            model_details.append({"detail":qsTr("배터리가 부족합니다"),"icon":"icon/bat_1.png","error":true});
+
+
+        if(supervisor.getPowerStatus() === 1){
+            if(supervisor.getMotorStatus() === 1){
+                if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
+                    model_details.append({"detail":qsTr("모터전원이 정상입니다"),"detail2":"모터가 뜨겁습니다","icon":"icon/icon_motor_hot.png","error":false});
+                }else{
+                    model_details.append({"detail":qsTr("모터전원이 정상입니다"),"detail2":"","icon":"icon/icon_motor_good.png","error":false});
+                }
+            }else{
+                if(supervisor.getLockStatus() === 0){
+                    model_details.append({"detail":qsTr("모터락이 풀려있습니다"),"detail2":"","icon":"icon/icon_motor_unlock.png","error":true});
+                }else{
+                    model_details.append({"detail":qsTr("모터에러 발생"),"detail2":supervisor.getMotorStatusStr(0)+"|"+supervisor.getMotorStatusStr(1),"icon":"icon/icon_motor_unlock.png","error":true});
+                }
+            }
+        }else{
+            model_details.append({"detail":qsTr("모터전원을 꺼져있습니다"),"detail2":"","icon":"icon/icon_motor_discon.png","error":true});
         }
+
+
+        if(supervisor.getLocalizationState() !== 2){
+            model_details.append({"detail":qsTr("로봇 위치초기화가 필요합니다"),"detail2":"","icon":"icon/icon_local_error.png","error":true});
+        }
+
+        if(supervisor.getEmoStatus()===1){
+            model_details.append({"detail":qsTr("비상스위치가 눌렸습니다"),"detail2":"","icon":"icon/icon_emergency.png","error":true});
+        }
+
+        if(supervisor.getChargeConnectStatus() === 1){
+            model_details.append({"detail":qsTr("충전케이블이 연결되었습니다"),"detail2":"","icon":"icon/icon_charge.png","error":false});
+        }
+
+        if(robot_battery < 30 && supervisor.getIPCConnection()){
+            model_details.append({"detail":qsTr("배터리가 부족합니다"),"detail2":Number(supervisor.getBatteryOut())+" V","icon":"icon/icon_battery_1.png","error":true});
+        }
+
     }
 
     Popup{
         id: popup_status_detail
-        width: 300
-        height: 0
-        x: parent.width - width
-        y: parent.height
+        width: 350
+        height: 450
+        x: parent.width - width - 5
+        y: parent.height+5
         bottomPadding: 0
         topPadding: 0
         leftPadding: 0
@@ -667,7 +312,7 @@ Item {
             if(model_details.count == 0){
                 popup_status_detail.close();
             }else{
-                ani_popup_show.start();
+//                ani_popup_show.start();
             }
         }
 
@@ -675,52 +320,343 @@ Item {
             id: rre
             width: parent.width
             height: parent.height
-            radius: 25
-            color: "white"
-            Rectangle{
-                width: parent.width
-                height: rre.radius
-            }
+            radius: 10
+            color: color_mid_black
             Column{
                 id: col_details
-                anchors.centerIn: parent
-                spacing: 10
-                Repeater{
-                    model: model_details
-                    Row{
-                        spacing: 10
-                        Image{
-                            source: icon
-                            width: 25
-                            height: 25
-                            anchors.verticalCenter: parent.verticalCenter
+                width: parent.width
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                anchors.topMargin: 10
+                spacing: 15
+                Row{
+                    anchors.right: parent.right
+                    anchors.rightMargin: 10
+                    spacing: 20
+                    Image{
+                        width: 30
+                        height: 30
+                        sourceSize.width: 30
+                        sourceSize.height: 30
+                        source: "icon/icon_power.png"
+                        antialiasing: true
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                popup_notice.init();
+                                popup_notice.main_str = qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
+                                popup_notice.addButton(qsTr("재시작"))
+                                popup_notice.addButton(qsTr("종 료"))
+                                popup_notice.open();
+                            }
                         }
-                        Text{
-                            text: detail
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.family: font_noto_r.name
-                            font.pixelSize: 15
-                            color: error===true?"red":"green"
+                    }
+                    Image{
+                        width: 30
+                        height: 30
+                        sourceSize.width: 30
+                        sourceSize.height: 30
+                        source: "icon/icon_setting.png"
+                        antialiasing: true
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                if(loader_page.item.objectName != "page_init"){
+                                    click_sound.play();
+                                    loadPage(psetting);
+                                }else{
+                                    click_sound_no.play();
+                                }
+                            }
+                        }
+                    }
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 25
+                    Rectangle{
+                        id: btn_motorlock
+                        width: 55
+                        height: 55
+                        radius: 55
+                        color: color_light_gray
+                        Image{
+                            id: image_motorlock
+                            anchors.centerIn: parent
+                            source: "icon/icon_motor_unlock.png"
+                            width: 38
+                            height: 38
+                            sourceSize.width: 38
+                            sourceSize.height: 38
+                            antialiasing: true
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                if(supervisor.getLockStatus() === 1){
+                                    supervisor.setMotorLock(false);
+                                }else{
+                                    supervisor.setMotorLock(true);
+                                }
+                            }
+                        }
+                    }
+                    Rectangle{
+                        id: btn_cursor
+                        width: 55
+                        height: 55
+                        radius: 55
+                        property bool view: false
+                        color: view?color_green:color_light_gray
+                        Image{
+                            anchors.centerIn: parent
+                            source: "icon/icon_cursor.png"
+                            width: 38
+                            height: 38
+                            sourceSize.width: 38
+                            sourceSize.height: 38
+                            antialiasing: true
+                            ColorOverlay{
+                                anchors.fill: parent
+                                color: "white"
+                                source: parent
+                                visible: btn_cursor.view
+                            }
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                if(btn_cursor.view){
+                                    supervisor.setCursorView(false);
+                                    btn_cursor.view = false;
+                                }else{
+                                    supervisor.setCursorView(true);
+                                    btn_cursor.view = true;
+                                }
+                            }
+                        }
+                    }
+                    Rectangle{
+                        id: btn_localization
+                        width: 55
+                        height: 55
+                        radius: 55
+                        color: color_light_gray
+                        Image{
+                            anchors.centerIn: parent
+                            source: "icon/icon_init.png"
+                            width: 38
+                            height: 38
+                            sourceSize.width: 38
+                            sourceSize.height: 38
+                            antialiasing: true
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                popup_notice.init();
+                                popup_notice.style = "info";
+                                popup_notice.main_str = qsTr("위치초기화를 다시 하시겠습니까?")
+                                popup_notice.sub_str = qsTr("위치초기화 페이지로 이동합니다")
+                                popup_notice.addButton(qsTr("위치초기화"),color_green,"white")
+                                popup_notice.open();
+                            }
+                        }
+                    }
+                    Rectangle{
+                        width: 55
+                        height: 55
+                        radius: 55
+                        color: color_light_gray
+                        Image{
+                            anchors.centerIn: parent
+                            source: "icon/icon_minimize.png"
+                            width: 38
+                            height: 38
+                            sourceSize.width: 38
+                            sourceSize.height: 38
+                            antialiasing: true
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                click_sound.play();
+                                supervisor.writelog("[USER INPUT] Screen Minimized.");
+//                                if(debug_mode){
+//                                    mainwindow.showMinimized();
+//                                }else{
+                                    popup_password.open();
+//                                }
+                            }
+                        }
+                    }
+                }
+
+
+                Rectangle{
+                    id: rect_back
+                    width: parent.width*0.85
+                    height: 35
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    color: color_dark_black
+                    radius: 20
+                    property int sound : 0
+                    clip: true
+                    Rectangle{
+                        id: rect_sound
+                        width: rect_back.width*rect_back.sound/100
+                        height: 35
+                        Behavior on width {
+                            NumberAnimation{
+                                duration: 50
+                            }
+                        }
+
+                        color: color_green
+                        radius: 20
+                    }
+                    Image{
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 15
+                        width: 20
+                        height: 20
+                        sourceSize.width: 20
+                        sourceSize.height: 20
+                        antialiasing: true
+                        source:{
+                            if(rect_back.sound>80){
+                                "qrc:/icon/icon_volume_3.png"
+                            }else if(rect_back.sound>40){
+                                "qrc:/icon/icon_volume_2.png"
+                            }else if(rect_back.sound>0){
+                                "qrc:/icon/icon_volume_1.png"
+                            }else if(rect_back.sound === 0){
+                                "qrc:/icon/icon_volume_0.png"
+                            }
+                        }
+                        ColorOverlay{
+                            anchors.fill: parent
+                            color: color_light_gray
+                            source: parent
+                        }
+                    }
+
+                    MouseArea{
+                        anchors.fill: parent
+                        onPressed: {
+                            rect_back.sound = ((mouseX/width)*100).toFixed(0);
+                        }
+                        onReleased:{
+                            supervisor.setSystemVolume(rect_back.sound);
+                        }
+                        onPositionChanged: {
+                            if(mouseX<0){
+                                rect_back.sound = 0;
+                            }else if(mouseX>width){
+                                rect_back.sound = 100;
+                            }else{
+                                rect_back.sound = ((mouseX/width)*100).toFixed(0);
+                            }
+                        }
+                    }
+
+                }
+
+                Rectangle{
+                    width: parent.width*0.9
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: 1
+                    color: color_gray
+                }
+
+                Flickable{
+                    width: rre.width*0.9
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    clip: true
+                    height: 250
+                    contentHeight: col_detail.height
+                    Column{
+                        id: col_detail
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 10
+                        Repeater{
+                            model: model_details
+                            Rectangle{
+                                width: rre.width*0.9
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                height: 70
+                                radius: 5
+                                color: color_dark_black
+                                Row{
+                                    spacing: 10
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 10
+                                    Rectangle{
+                                        width: 45
+                                        height: 45
+                                        radius: 45
+                                        color: "white"
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        Image{
+                                            source: icon
+                                            width: 30
+                                            height: 30
+                                            sourceSize.width: 30
+                                            sourceSize.height: 30
+                                            antialiasing: true
+                                            anchors.centerIn: parent
+                                        }
+                                    }
+
+                                    Rectangle{
+                                        width: rre.width*0.9-65
+                                        height: 70
+                                        color: "transparent"
+                                        Column{
+                                            anchors.centerIn: parent
+                                            Text{
+                                                text: detail
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                font.family: font_noto_r.name
+                                                font.pixelSize: 18
+                                                color: error===true?"red":"green"
+                                            }
+                                            Text{
+                                                text: detail2
+                                                visible: text !== ""
+                                                anchors.horizontalCenter: parent.horizontalCenter
+                                                font.family: font_noto_r.name
+                                                font.pixelSize: 15
+                                                color: color_gray
+                                            }
+                                        }
+                                    }
+
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
 
-        DropShadow{
-            anchors.fill: parent
-            radius: 10
-            color: color_gray
-            visible: false
-            source: rre
-        }
-        Rectangle{
-            width: parent.width+20
-            x: -10
-            y: -10
-            height: 10
+    Popup_password{
+        id: popup_password
+        anchors.centerIn: parent
+        onLogined:{
+            mainwindow.showMinimized();
+            popup_status_detail.close();
+            popup_password.close();
         }
     }
+
 
     Timer{
         id: timer_status_update
@@ -784,39 +720,50 @@ Item {
                 image_volume.source = "qrc:/icon/icon_volume_0.png";
             }
 
-
-            is_con_robot = supervisor.getIPCConnection();
-            robot_rx = supervisor.getIPCRX();
-            robot_tx = supervisor.getIPCTX();
-            is_con_server = supervisor.isConnectServer();
-
-            is_motor_power = supervisor.getPowerStatus();
-            is_emergency = supervisor.getEmoStatus();
-
-            if(is_motor_power && !is_emergency){
-                if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature()){
-                    is_motor_hot = true;
-                }else if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature()){
-                    is_motor_hot = true;
+            if(supervisor.getPowerStatus() === 1){
+                if(supervisor.getMotorStatus() === 1){
+                    if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
+                        image_motor_power.source = "icon/icon_motor_hot.png"
+                    }else{
+                        image_motor_power.source = "icon/icon_motor_good.png"
+                    }
                 }else{
-                    is_motor_hot = false;
-                }
-                if(supervisor.getMotorState() === 0){
-                    is_motor_error = true;
-                }else{
-                    is_motor_error = false;
+                    //error
+                    image_motor_power.source = "icon/icon_motor_error.png"
                 }
             }else{
-                is_motor_hot = false;
-                is_motor_error = false;
+                image_motor_power.source = "icon/icon_motor_discon.png"
             }
 
-            if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
-                is_local_not_ready = true;
+            if(supervisor.getChargeConnectStatus()===1){
+                image_battery.source = "icon/icon_battery_charging.png"
+            }else if(robot_battery > 90){
+                image_battery.source = "icon/icon_battery_4.png"
+            }else if(robot_battery > 60){
+                image_battery.source = "icon/icon_battery_3.png"
+            }else if(robot_battery > 30){
+                image_battery.source = "icon/icon_battery_2.png"
             }else{
-                is_local_not_ready = false;
+                image_battery.source = "icon/icon_battery_1.png"
+            }
+
+            if(supervisor.getLockStatus() === 1){
+                image_motor_unlock.visible = false;
+            }else{
+                image_motor_unlock.visible = true;
+            }
+
+            if(supervisor.getEmoStatus() === 1){
+                image_emergency.visible = true;
+            }else{
+                image_emergency.visible = false;
+            }
+
+            if(supervisor.getLocalizationState() === 2){
+                image_local_error.visible = false;
+            }else{
+                image_local_error.visible = true;
             }
         }
-
     }
 }

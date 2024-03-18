@@ -88,30 +88,18 @@ Item {
                     Column{
                         anchors.centerIn: parent
                         Rectangle{
-                            width: name==""?70:50
+                            width: name===""?70:50
                             height: width
+                            color: btn.color
                             anchors.horizontalCenter: parent.horizontalCenter
                             Image{
                                 source:image
                                 anchors.centerIn: parent
-                                Component.onCompleted: {
-                                    var w;
-                                    if(width>height){
-                                        w = width;
-                                    }else{
-                                        w = height;
-                                    }
-
-                                    if(w>parent.width){
-                                        while(w*scale > parent.width){
-                                            scale-=0.1;
-                                        }
-                                    }else{
-                                        while(w*scale < parent.width){
-                                            scale+=0.1;
-                                        }
-                                    }
-                                }
+                                width: parent.width
+                                height: parent.width
+                                sourceSize.height: parent.width
+                                sourceSize.width: parent.width
+                                antialiasing: true
                             }
                         }
                         Text{

@@ -11,6 +11,7 @@ Item {
     width: 1280
     height: 800
 
+    property string page: "moving"
     property string background_mode: "none"
     property string background_source: ""
     property bool motor_lock: false
@@ -20,6 +21,12 @@ Item {
     property real volume: 1
     onVolumeChanged:{
         print("move page volume : ", volume)
+    }
+
+    function setPage(name){
+        print("mcustom page set : "+name);
+        page = name;
+        init();
     }
 
     function movedone(){
@@ -55,7 +62,7 @@ Item {
         popup_notice.close();
     }
     function init(){
-        supervisor.writelog("[QML] MOVING CUSTOM PAGE init")
+        supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName)
 
         popup_pause.visible = false;
         if(!edit_mode){
@@ -63,59 +70,120 @@ Item {
         }
 
         model_obj.clear();
-        page_moving_custom.select_obj = -1;
-        for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
-            model_obj.append({"type":supervisor.getPageObjectType(i),
-                             "ob_source":supervisor.getPageObjectSource(i),
-                             "ob_color":supervisor.getPageObjectColor(i),
-                             "ob_x":supervisor.getPageObjectX(i)*width/1280,
-                             "ob_y":supervisor.getPageObjectY(i)*height/800,
-                             "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
-                             "ob_height":supervisor.getPageObjectHeight(i)*height/800,
-                             "fontsize":supervisor.getPageObjectFontsize(i)});
-            print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i),supervisor.getPageObjectX(i),supervisor.getPageObjectY(i),supervisor.getPageObjectWidth(i),supervisor.getPageObjectHeight(i));
+        if(page == "moving"){
+            page_moving_custom.select_obj = -1;
+            for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
+                model_obj.append({"type":supervisor.getPageObjectType(i),
+                                 "ob_source":supervisor.getPageObjectSource(i),
+                                 "ob_color":supervisor.getPageObjectColor(i),
+                                 "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                 "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                 "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                 "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i),supervisor.getPageObjectX(i),supervisor.getPageObjectY(i),supervisor.getPageObjectWidth(i),supervisor.getPageObjectHeight(i));
+            }
+
+            background_mode = supervisor.getMovingPageBackground();
+            print("background mode = ",background_mode);
+            if(background_mode === "none" || background_mode === "color"){
+                background_source = supervisor.getMovingPageColor();
+                loader_background.sourceComponent = compo_color;
+            }else if(background_mode === "image"){
+                background_source = supervisor.getMovingPageImage();
+                loader_background.sourceComponent = compo_gif;
+            }else if(background_mode === "video"){
+                background_source = supervisor.getMovingPageVideo();
+                loader_background.sourceComponent = compo_video;
+                loader_background.item.setVol(supervisor.getMovingPageAudio());
+            }
+        }else if(page == "serving"){
+            page_moving_custom.select_obj = -1;
+
+            print(supervisor.getServingObjectSize())
+            for(var i=0; i<supervisor.getServingObjectSize(); i++){
+                model_obj.append({"type":supervisor.getServingObjectType(i),
+                                 "ob_source":supervisor.getServingObjectSource(i),
+                                 "ob_color":supervisor.getServingObjectColor(i),
+                                 "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                 "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                 "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                 "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i),supervisor.getServingObjectX(i),supervisor.getServingObjectY(i),supervisor.getServingObjectWidth(i),supervisor.getServingObjectHeight(i));
+            }
+
+            background_mode = supervisor.getServingPageBackground();
+            print("background mode = ",background_mode);
+            if(background_mode === "none" || background_mode === "color"){
+                background_source = supervisor.getServingPageColor();
+                loader_background.sourceComponent = compo_color;
+            }else if(background_mode === "image"){
+                background_source = supervisor.getServingPageImage();
+                loader_background.sourceComponent = compo_gif;
+            }else if(background_mode === "video"){
+                background_source = supervisor.getServingPageVideo();
+                loader_background.sourceComponent = compo_video;
+                loader_background.item.setVol(supervisor.getServingPageAudio());
+            }
         }
 
-        background_mode = supervisor.getMovingPageBackground();
-        print("background mode = ",background_mode);
-        if(background_mode === "none" || background_mode === "color"){
-            background_source = supervisor.getMovingPageColor();
-            loader_background.sourceComponent = compo_color;
-        }else if(background_mode === "image"){
-            background_source = supervisor.getMovingPageImage();
-            loader_background.sourceComponent = compo_gif;
-        }else if(background_mode === "video"){
-            background_source = supervisor.getMovingPageVideo();
-            loader_background.sourceComponent = compo_video;
-            loader_background.item.setVol(supervisor.getMovingPageAudio());
-        }
     }
 
     function update(){
-        for(var i=0; i<model_obj.count; i++){
-            model_obj.set(i,{"type":supervisor.getPageObjectType(i),
-                             "ob_source":supervisor.getPageObjectSource(i),
-                             "ob_color":supervisor.getPageObjectColor(i),
-                             "ob_x":supervisor.getPageObjectX(i)*width/1280,
-                             "ob_y":supervisor.getPageObjectY(i)*height/800,
-                             "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
-                             "ob_height":supervisor.getPageObjectHeight(i)*height/800,
-                             "fontsize":supervisor.getPageObjectFontsize(i)});
-//            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+        if(page == "moving"){
+            for(var i=0; i<model_obj.count; i++){
+                model_obj.set(i,{"type":supervisor.getPageObjectType(i),
+                                 "ob_source":supervisor.getPageObjectSource(i),
+                                 "ob_color":supervisor.getPageObjectColor(i),
+                                 "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                 "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                 "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                 "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+    //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+            }
+        }else if(page == "serving"){
+            for(var i=0; i<model_obj.count; i++){
+                model_obj.set(i,{"type":supervisor.getServingObjectType(i),
+                                 "ob_source":supervisor.getServingObjectSource(i),
+                                 "ob_color":supervisor.getServingObjectColor(i),
+                                 "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                 "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                 "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                 "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+    //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+            }
         }
+
     }
 
     onBackground_modeChanged: {
-        if(background_mode === "none" || background_mode === "color"){
-            background_source = supervisor.getMovingPageColor()
-            loader_background.sourceComponent = compo_color;
-        }else if(background_mode === "image"){
-            background_source = supervisor.getMovingPageImage()
-            loader_background.sourceComponent = compo_gif;
-        }else if(background_mode === "video"){
-            background_source = supervisor.getMovingPageVideo()
-            loader_background.sourceComponent = compo_video;
+        if(page == "moving"){
+            if(background_mode === "none" || background_mode === "color"){
+                background_source = supervisor.getMovingPageColor()
+                loader_background.sourceComponent = compo_color;
+            }else if(background_mode === "image"){
+                background_source = supervisor.getMovingPageImage()
+                loader_background.sourceComponent = compo_gif;
+            }else if(background_mode === "video"){
+                background_source = supervisor.getMovingPageVideo()
+                loader_background.sourceComponent = compo_video;
+            }
+        }else if(page == "serving"){
+            if(background_mode === "none" || background_mode === "color"){
+                background_source = supervisor.getServingPageColor()
+                loader_background.sourceComponent = compo_color;
+            }else if(background_mode === "image"){
+                background_source = supervisor.getServingPageImage()
+                loader_background.sourceComponent = compo_gif;
+            }else if(background_mode === "video"){
+                background_source = supervisor.getServingPageVideo()
+                loader_background.sourceComponent = compo_video;
+            }
         }
+
     }
 
     Loader{
@@ -175,7 +243,12 @@ Item {
         Item{
             anchors.fill: parent
             Component.onCompleted: {
-                video.volume = supervisor.getMovingPageAudio();
+                if(page == "moving"){
+                    video.volume = supervisor.getMovingPageAudio();
+                }else if(page == "serving"){
+                    video.volume = supervisor.getServingPageAudio();
+                }
+
                 print("completed volume = ",video.volume)
             }
 
@@ -264,7 +337,12 @@ Item {
             property int point: -1
             property real res: 1280/width
             onPressed:{
-                page_moving_custom.select_obj = supervisor.getPageObjectNum(mouseX*res,mouseY*res);
+                if(page == "moving"){
+                    page_moving_custom.select_obj = supervisor.getPageObjectNum(mouseX*res,mouseY*res);
+                }else if(page == "serving"){
+                    page_moving_custom.select_obj = supervisor.getServingObjectNum(mouseX*res,mouseY*res);
+                }
+
                 if(page_moving_custom.select_obj > -1){
                     posx = mouseX - model_obj.get(page_moving_custom.select_obj).ob_x;
                     posy = mouseY - model_obj.get(page_moving_custom.select_obj).ob_y;
@@ -297,9 +375,17 @@ Item {
             }
             onReleased:{
                 if(page_moving_custom.select_obj > -1){
-                    supervisor.setPatrolObjectSize(page_moving_custom.select_obj,
-                                                   model_obj.get(page_moving_custom.select_obj).ob_x*res,model_obj.get(page_moving_custom.select_obj).ob_y*res,
-                                                   model_obj.get(page_moving_custom.select_obj).ob_width*res,model_obj.get(page_moving_custom.select_obj).ob_height*res);
+                    if(page == "moving"){
+                        supervisor.setPatrolObjectSize(page_moving_custom.select_obj,
+                                                       model_obj.get(page_moving_custom.select_obj).ob_x*res,model_obj.get(page_moving_custom.select_obj).ob_y*res,
+                                                       model_obj.get(page_moving_custom.select_obj).ob_width*res,model_obj.get(page_moving_custom.select_obj).ob_height*res);
+
+                    }else if(page == "serving"){
+                        supervisor.setServingObjectSize(page_moving_custom.select_obj,
+                                                       model_obj.get(page_moving_custom.select_obj).ob_x*res,model_obj.get(page_moving_custom.select_obj).ob_y*res,
+                                                       model_obj.get(page_moving_custom.select_obj).ob_width*res,model_obj.get(page_moving_custom.select_obj).ob_height*res);
+
+                    }
                 }
                 posx = -1;
                 posy = -1;
@@ -324,7 +410,11 @@ Item {
                             model_obj.get(page_moving_custom.select_obj).ob_height = firstheight + mouseY - firsty
                         }
                     }else{
-                        supervisor.movePatrolObject(page_moving_custom.select_obj, mouseX*res-posx*res, mouseY*res-posy*res);
+                        if(page == "moving"){
+                            supervisor.movePatrolObject(page_moving_custom.select_obj, mouseX*res-posx*res, mouseY*res-posy*res);
+                        }else if(page == "serving"){
+                            supervisor.moveServingObject(page_moving_custom.select_obj, mouseX*res-posx*res, mouseY*res-posy*res);
+                        }
                         page_moving_custom.update();
                     }
                     rect_left_top.x = model_obj.get(page_moving_custom.select_obj).ob_x - 10

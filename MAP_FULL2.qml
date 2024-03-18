@@ -70,6 +70,11 @@ Item {
         show_grid = false;
         if(mode === "annot_drawing"){
             show_connection = false;
+        }else if(mode === "add_serving"){
+            show_connection = false;
+            show_button_following = false;
+            show_button_lidar = false;
+            show_button_location = false;
         }else if(mode === "serving_list"){
             show_connection = false;
         }else if(mode === "annot_object_png"){
@@ -385,14 +390,12 @@ Item {
                 Image{
                     width: 30
                     height: 30
+                    sourceSize.width: 30
+                    sourceSize.height: 30
+                    antialiasing: true
                     visible: rect_notice.show_icon
                     anchors.verticalCenter: parent.verticalCenter
-                    source: "image/warning.png"
-                    ColorOverlay{
-                        source: parent
-                        anchors.fill: parent
-                        color: "white"
-                    }
+                    source: "icon/icon_error_w.png"
                 }
                 Text{
                     text: rect_notice.msg
@@ -765,6 +768,11 @@ Item {
             property bool active: false
             color: active?"#12d27c":"#e8e8e8"
             Image{
+                width: 30
+                height: 30
+                sourceSize.width: 30
+                sourceSize.height: 30
+                antialiasing: true
                 anchors.centerIn: parent
                 source: "icon/icon_cur.png"
             }
@@ -790,6 +798,11 @@ Item {
             property bool active: false
             color:active?"#12d27c":"#e8e8e8"
             Image{
+                width: 30
+                height: 30
+                sourceSize.width: 30
+                sourceSize.height: 30
+                antialiasing: true
                 anchors.centerIn: parent
                 source: "icon/icon_lidar.png"
             }
@@ -815,8 +828,11 @@ Item {
             color:  active?"#12d27c":"#e8e8e8"
             Image{
                 anchors.centerIn: parent
-                width: 32
+                width: 30
                 height: 30
+                sourceSize.width: 30
+                sourceSize.height: 30
+                antialiasing: true
                 source: "icon/icon_location.png"
             }
             MouseArea{

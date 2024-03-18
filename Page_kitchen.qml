@@ -599,7 +599,7 @@ Item {
                 border.width: 1
                 Image{
                     anchors.fill: parent
-                    source: "icon/btn_yes.png"
+                    source: "icon/icon_yes.png"
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -1090,7 +1090,7 @@ Item {
                             border.width: 1
                             Image{
                                 anchors.fill: parent
-                                source: "icon/btn_yes.png"
+                                source: "icon/icon_yes.png"
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -1463,10 +1463,10 @@ Item {
         anchors.topMargin: statusbar.height + 50
         Component.onCompleted: {
             addMenu("","icon/btn_menu.png");
-            addMenu(qsTr("충전위치로"),"icon/btn_charge.png");
-            addMenu(qsTr("대기위치로"),"icon/btn_wait.png");
+            addMenu(qsTr("충전위치로"),"icon/icon_charge.png");
+            addMenu(qsTr("대기위치로"),"icon/icon_wait.png");
             if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                addMenu(qsTr("퇴식위치로"),"icon/btn_wait.png")
+                addMenu(qsTr("퇴식위치로"),"icon/icon_clean.png")
             }
         }
         onMenu1_clicked: {
@@ -1603,7 +1603,7 @@ Item {
             }
             Image{
                 id: image_yes
-                source: "icon/btn_yes.png"
+                source: "icon/icon_yes.png"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 20
@@ -1776,7 +1776,7 @@ Item {
                     visible: calling_list.visible
                     Image{
                         id: imm2
-                        source: "icon/btn_yes.png"
+                        source: "icon/icon_yes.png"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20
@@ -1898,7 +1898,7 @@ Item {
                         color: "white"
                         Image{
                             id: imm
-                            source: "icon/btn_yes.png"
+                            source: "icon/icon_yes.png"
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
                             anchors.leftMargin: 20

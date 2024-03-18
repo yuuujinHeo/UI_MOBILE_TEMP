@@ -40,15 +40,42 @@ Item {
             font.pixelSize: 40
             color:"white"
         }
-        Image{
+        Rectangle{
             id: rect_map
             width: 301
             height: 301
+            radius: 25
             anchors.top: text_menu.bottom
             anchors.topMargin: 50
             anchors.right: parent.horizontalCenter
             anchors.rightMargin: 30
-            source: "icon/btn_map.png"
+            color: color_dark_black
+            border.color: "white"
+            border.width: 5
+            Column{
+                anchors.centerIn: parent
+                Image{
+                    width: 100
+                    height: 110
+                    sourceSize.height: 110
+                    antialiasing: true
+                    sourceSize.width: 100
+                    source: "icon/icon_map.png"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    ColorOverlay{
+                        anchors.fill: parent
+                        color: "white"
+                        source: parent
+                    }
+                }
+                Text{
+                    text: qsTr("맵")
+                    color: "white"
+                    font.pixelSize: 45
+                    font.family: font_noto_b.name
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
@@ -56,16 +83,44 @@ Item {
                     popup_password.open();
                 }
             }
+
         }
-        Image{
+        Rectangle{
             id: rect_setting
             width: 301
             height: 301
+            radius: 25
+            color: color_dark_black
+            border.color: "white"
+            border.width: 5
             anchors.top: text_menu.bottom
             anchors.topMargin: 50
             anchors.left: parent.horizontalCenter
             anchors.leftMargin: 30
-            source: "icon/btn_setting.png"
+            Column{
+                anchors.centerIn: parent
+                Image{
+                    width: 100
+                    height: 100
+                    sourceSize.height: 100
+                    antialiasing: true
+                    sourceSize.width: 100
+                    source: "icon/icon_setting2.png"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    ColorOverlay{
+                        anchors.fill: parent
+                        color: "white"
+                        source: parent
+                    }
+                }
+                Text{
+                    text: qsTr("설 정")
+                    color: "white"
+                    font.pixelSize: 45
+                    font.family: font_noto_b.name
+                    anchors.horizontalCenter: parent.horizontalCenter
+                }
+            }
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
@@ -73,7 +128,9 @@ Item {
                     loadPage(psetting);
                 }
             }
+
         }
+
     }
 
 
@@ -85,7 +142,7 @@ Item {
         anchors.topMargin: 50
         Component.onCompleted: {
             addMenu("","icon/btn_menu.png");
-            addMenu(qsTr("최소화"),"icon/btn_minimize.png");
+            addMenu(qsTr("최소화"),"icon/icon_minimize.png");
             addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
         }
         onMenu1_clicked: {
@@ -186,7 +243,7 @@ Item {
                     }
                     Image{
                         id: image_yes
-                        source: "icon/btn_yes.png"
+                        source: "icon/icon_yes.png"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20
@@ -223,7 +280,7 @@ Item {
                     }
                     Image{
                         id: image_yes2
-                        source: "icon/btn_yes.png"
+                        source: "icon/icon_yes.png"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20

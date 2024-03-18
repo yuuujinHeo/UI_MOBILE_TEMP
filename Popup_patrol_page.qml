@@ -16,7 +16,7 @@ Popup {
     topPadding: 0
     bottomPadding: 0
     property string page: "moving"
-    property var page_num: -1
+    property int page_num: -1
     background:Rectangle{
         anchors.fill: parent
         color: "#282828"
@@ -30,49 +30,93 @@ Popup {
     }
 
     function init(){
+        print("patrolpage init " +objectName +" " + page);
         model_obj.clear();
-        move_page.init();
-        for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
-            model_obj.append({"type":supervisor.getPageObjectType(i),
-                             "ob_source":supervisor.getPageObjectSource(i),
-                             "ob_color":supervisor.getPageObjectColor(i),
-                             "ob_x":supervisor.getPageObjectX(i),
-                             "ob_y":supervisor.getPageObjectY(i),
-                             "ob_width":supervisor.getPageObjectWidth(i),
-                             "ob_height":supervisor.getPageObjectHeight(i),
-                             "fontsize":supervisor.getPageObjectFontsize(i)});
-            print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+        move_page.setPage(page);
+        if(page == "moving"){
+            for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
+                model_obj.append({"type":supervisor.getPageObjectType(i),
+                                 "ob_source":supervisor.getPageObjectSource(i),
+                                 "ob_color":supervisor.getPageObjectColor(i),
+                                 "ob_x":supervisor.getPageObjectX(i),
+                                 "ob_y":supervisor.getPageObjectY(i),
+                                 "ob_width":supervisor.getPageObjectWidth(i),
+                                 "ob_height":supervisor.getPageObjectHeight(i),
+                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+            }
+
+            if(supervisor.getMovingPageBackground() === "color"){
+                combo_background_mode.currentIndex = 0;
+                move_page.background_source = supervisor.getMovingPageColor()
+                rect_color.color = supervisor.getMovingPageColor()
+                text_color.text = supervisor.getMovingPageColor()
+            }else if(supervisor.getMovingPageBackground() === "image"){
+                combo_background_mode.currentIndex = 1;
+                move_page.background_source = supervisor.getMovingPageImage();
+                text_image.text = supervisor.getMovingPageImage().split("/").pop()
+            }else if(supervisor.getMovingPageBackground() === "video"){
+                combo_background_mode.currentIndex = 2;
+                move_page.background_source = supervisor.getMovingPageVideo();
+                text_image.text = supervisor.getMovingPageVideo().split("/").pop()
+            }
+        }else if(page == "serving"){
+            for(var i=0; i<supervisor.getServingObjectSize(); i++){
+                model_obj.append({"type":supervisor.getServingObjectType(i),
+                                 "ob_source":supervisor.getServingObjectSource(i),
+                                 "ob_color":supervisor.getServingObjectColor(i),
+                                 "ob_x":supervisor.getServingObjectX(i),
+                                 "ob_y":supervisor.getServingObjectY(i),
+                                 "ob_width":supervisor.getServingObjectWidth(i),
+                                 "ob_height":supervisor.getServingObjectHeight(i),
+                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i))
+            }
+
+            if(supervisor.getServingPageBackground() === "color"){
+                combo_background_mode.currentIndex = 0;
+                move_page.background_source = supervisor.getServingPageColor()
+                rect_color.color = supervisor.getServingPageColor()
+                text_color.text = supervisor.getServingPageColor()
+            }else if(supervisor.getServingPageBackground() === "image"){
+                combo_background_mode.currentIndex = 1;
+                move_page.background_source = supervisor.getServingPageImage();
+                text_image.text = supervisor.getServingPageImage().split("/").pop()
+            }else if(supervisor.getServingPageBackground() === "video"){
+                combo_background_mode.currentIndex = 2;
+                move_page.background_source = supervisor.getServingPageVideo();
+                text_image.text = supervisor.getServingPageVideo().split("/").pop()
+            }
         }
 
-        if(supervisor.getMovingPageBackground() === "color"){
-            combo_background_mode.currentIndex = 0;
-            move_page.background_source = supervisor.getMovingPageColor()
-            rect_color.color = supervisor.getMovingPageColor()
-            text_color.text = supervisor.getMovingPageColor()
-
-        }else if(supervisor.getMovingPageBackground() === "image"){
-            combo_background_mode.currentIndex = 1;
-            move_page.background_source = supervisor.getMovingPageImage();
-            text_image.text = supervisor.getMovingPageImage().split("/").pop()
-        }else if(supervisor.getMovingPageBackground() === "video"){
-            combo_background_mode.currentIndex = 2;
-            move_page.background_source = supervisor.getMovingPageVideo();
-            text_image.text = supervisor.getMovingPageVideo().split("/").pop()
-        }
     }
     function update(){
         model_obj.clear();
         move_page.update();
-        for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
-            model_obj.set(i,{"type":supervisor.getPageObjectType(i),
-                             "ob_source":supervisor.getPageObjectSource(i),
-                             "ob_color":supervisor.getPageObjectColor(i),
-                             "ob_x":supervisor.getPageObjectX(i),
-                             "ob_y":supervisor.getPageObjectY(i),
-                             "ob_width":supervisor.getPageObjectWidth(i),
-                             "ob_height":supervisor.getPageObjectHeight(i),
-                             "fontsize":supervisor.getPageObjectFontsize(i)});
-            print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+        if(page == "moving"){
+            for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
+                model_obj.set(i,{"type":supervisor.getPageObjectType(i),
+                                 "ob_source":supervisor.getPageObjectSource(i),
+                                 "ob_color":supervisor.getPageObjectColor(i),
+                                 "ob_x":supervisor.getPageObjectX(i),
+                                 "ob_y":supervisor.getPageObjectY(i),
+                                 "ob_width":supervisor.getPageObjectWidth(i),
+                                 "ob_height":supervisor.getPageObjectHeight(i),
+                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
+            }
+        }else if(page == "serving"){
+            for(var i=0; i<supervisor.getServingObjectSize(); i++){
+                model_obj.append({"type":supervisor.getServingObjectType(i),
+                                 "ob_source":supervisor.getServingObjectSource(i),
+                                 "ob_color":supervisor.getServingObjectColor(i),
+                                 "ob_x":supervisor.getServingObjectX(i),
+                                 "ob_y":supervisor.getServingObjectY(i),
+                                 "ob_width":supervisor.getServingObjectWidth(i),
+                                 "ob_height":supervisor.getServingObjectHeight(i),
+                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i))
+            }
         }
     }
 
@@ -96,7 +140,7 @@ Popup {
                     color: "white"
                     font.family: font_noto_b.name
                     font.bold: true
-                    text: qsTr("순회 중 표시화면 설정")
+                    text: page==="moving"?qsTr("순회 중 표시화면 설정"):qsTr("이동 중 표시화면 설정")
                     font.pixelSize: 40
                 }
 
@@ -111,6 +155,10 @@ Popup {
                         type: "round_text"
                         text: qsTr("저 장")
                         onClicked: {
+                            if(page == "serving"){
+                                supervisor.saveServingPage();
+                            }
+
                             popup_setting_patrolpage.close();
                         }
                     }
@@ -120,7 +168,11 @@ Popup {
                         type: "round_text"
                         text: qsTr("초기화")
                         onClicked: {
-                            supervisor.clearPatrolPage(popup_patrol_page.page_num);
+                            if(page == "moving"){
+                                supervisor.clearPatrolPage(popup_setting_patrolpage.page_num);
+                            }else if(page == "serving"){
+                                supervisor.clearServingPage();
+                            }
                             popup_setting_patrolpage.init();
                         }
                     }
@@ -130,7 +182,11 @@ Popup {
                         type: "round_text"
                         text: qsTr("취 소")
                         onClicked: {
-                            supervisor.clearPatrolPage(popup_patrol_page.page_num);
+                            if(page == "moving"){
+                                supervisor.clearPatrolPage(popup_setting_patrolpage.page_num);
+                            }else if(page == "serving"){
+                                supervisor.clearServingPage();
+                            }
                             popup_setting_patrolpage.close();
                         }
                     }
@@ -146,8 +202,10 @@ Popup {
                     anchors.verticalCenter: parent.verticalCenter
                     Page_moving_custom{
                         id: move_page
+                        objectName: popup_setting_patrolpage.objectName
                         anchors.fill: parent
                         edit_mode: true
+                        page: popup_setting_patrolpage.page
                         onDoubleclicked: {
                             print("double clicked : ",move_page.select_obj)
                             popup_edit.obj_num = move_page.select_obj;
@@ -218,7 +276,7 @@ Popup {
                                         ComboBox{
                                             id: combo_background_mode
                                             model:["color","image","video"]
-                                            currentIndex: 0//parseInt(supervisor.getSetting("setting","UI","patrol_image"))
+                                            currentIndex: 0
                                             anchors.verticalCenter: parent.verticalCenter
                                             width: 250
                                             height: 50
@@ -231,7 +289,13 @@ Popup {
                                                 }else if(currentIndex === 2){
                                                     move_page.background_mode = "video";
                                                 }
-                                                supervisor.setMovingPageBackground(move_page.background_mode);
+
+                                                if(page == "moving"){
+                                                    supervisor.setMovingPageBackground(move_page.background_mode);
+                                                }else if(page == "serving"){
+                                                    supervisor.setServingPageBackground(move_page.background_mode);
+                                                }
+
                                             }
                                         }
                                     }
@@ -248,11 +312,23 @@ Popup {
                                             width: 250
                                             clip: true
                                             height: 50
-                                            color: supervisor.getMovingPageColor()===""?"white":supervisor.getMovingPageColor()
+                                            color: {
+                                                if(page == "moving"){
+                                                    supervisor.getMovingPageColor()===""?"white":supervisor.getMovingPageColor()
+                                                }else if(page == "serving"){
+                                                    supervisor.getServingPageColor()===""?"white":supervisor.getServingPageColor()
+                                                }
+                                            }
                                             Text{
                                                 id: text_color
                                                 anchors.centerIn: parent
-                                                text: supervisor.getMovingPageImage()===""?qsTr("선택되지 않음"):supervisor.getMovingPageImage().split("/").pop()
+                                                text:{
+                                                    if(page == "moving"){
+                                                        supervisor.getMovingPageImage()===""?qsTr("선택되지 않음"):supervisor.getMovingPageImage().split("/").pop()
+                                                    }else if(page == "serving"){
+                                                        supervisor.getServingPageImage()===""?qsTr("선택되지 않음"):supervisor.getServingPageImage().split("/").pop()
+                                                    }
+                                                }
                                             }
                                             MouseArea{
                                                 anchors.fill: parent
@@ -263,10 +339,18 @@ Popup {
                                             ColorDialog{
                                                 id: color_dialog
                                                 onSelectionAccepted: {
-                                                    supervisor.setMovingPageColor(color_dialog.color);
-                                                    move_page.background_source = supervisor.getMovingPageColor()
-                                                    rect_color.color = supervisor.getMovingPageColor()
-                                                    text_color.text = supervisor.getMovingPageColor()
+                                                    if(page == "moving"){
+                                                        supervisor.setMovingPageColor(color_dialog.color);
+                                                        move_page.background_source = supervisor.getMovingPageColor()
+                                                        rect_color.color = supervisor.getMovingPageColor()
+                                                        text_color.text = supervisor.getMovingPageColor()
+                                                    }else if(page == "serving"){
+                                                        supervisor.setServingPageColor(color_dialog.color);
+                                                        move_page.background_source = supervisor.getServingPageColor()
+                                                        rect_color.color = supervisor.getServingPageColor()
+                                                        text_color.text = supervisor.getServingPageColor()
+                                                    }
+
                                                 }
                                             }
                                         }
@@ -287,7 +371,13 @@ Popup {
                                             Text{
                                                 id: text_image
                                                 anchors.centerIn: parent
-                                                text: supervisor.getMovingPageImage()===""?qsTr("선택되지 않음"):supervisor.getMovingPageImage().split("/").pop()
+                                                text:{
+                                                    if(page == "moving"){
+                                                        supervisor.getMovingPageImage()===""?qsTr("선택되지 않음"):supervisor.getMovingPageImage().split("/").pop()
+                                                    }else if(page == "serving"){
+                                                        supervisor.getServingPageImage()===""?qsTr("선택되지 않음"):supervisor.getServingPageImage().split("/").pop()
+                                                    }
+                                                }
                                             }
                                             MouseArea{
                                                 anchors.fill: parent
@@ -313,7 +403,13 @@ Popup {
                                             Text{
                                                 id: text_video
                                                 anchors.centerIn: parent
-                                                text: supervisor.getMovingPageVideo()===""?qsTr("선택되지 않음"):supervisor.getMovingPageVideo().split("/").pop()
+                                                text:{
+                                                    if(page == "moving"){
+                                                        supervisor.getMovingPageVideo()===""?qsTr("선택되지 않음"):supervisor.getMovingPageVideo().split("/").pop()
+                                                    }else if(page == "serving"){
+                                                        supervisor.getServingPageVideo()===""?qsTr("선택되지 않음"):supervisor.getServingPageVideo().split("/").pop()
+                                                    }
+                                                }
                                             }
                                             MouseArea{
                                                 anchors.fill: parent
@@ -349,7 +445,12 @@ Popup {
                                                         onClicked: {
                                                             click_sound.play();
                                                             if(slider_audio.value == 0){
-                                                                slider_audio.value  = supervisor.getMovingPageAudio();
+                                                                if(page == "moving"){
+                                                                    slider_audio.value  = supervisor.getMovingPageAudio();
+                                                                }else if(page == "serving"){
+                                                                    slider_audio.value  = supervisor.getServingPageAudio();
+                                                                }
+
                                                             }else{
                                                                 slider_audio.value  = 0;
                                                             }
@@ -363,10 +464,13 @@ Popup {
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     to: 1
                                                     from: 0
-                                                    onValueChanged: {
-//                                                        move_page.volume = value;
-                                                        move_page.setVolume(value);
-                                                        print("value : " ,value)
+                                                    onPressedChanged: {
+                                                        if(pressed){
+
+                                                        }else{
+                                                            move_page.setVolume(value);
+                                                            print("value : " ,value)
+                                                        }
                                                     }
                                                 }
                                             }
@@ -381,16 +485,30 @@ Popup {
                                 title: qsTr("파일을 선택해주세요")
                                 folder: shortcuts.home
                                 onAccepted:{
-                                    if(combo_background_mode.currentIndex === 0){
-                                    }else if(combo_background_mode.currentIndex === 1){
-                                        supervisor.setMovingPageImage(image_dialog.fileUrl);
-                                        move_page.background_source = image_dialog.fileUrl;
-                                        text_image.text = image_dialog.fileUrl.toString().split("/").pop()
-                                    }else if(combo_background_mode.currentIndex === 2){
-                                        supervisor.setMovingPageVideo(image_dialog.fileUrl);
-                                        move_page.background_source = image_dialog.fileUrl;
-                                        text_video.text = image_dialog.fileUrl.toString().split("/").pop()
+                                    if(page == "moving"){
+                                        if(combo_background_mode.currentIndex === 0){
+                                        }else if(combo_background_mode.currentIndex === 1){
+                                            supervisor.setMovingPageImage(image_dialog.fileUrl);
+                                            move_page.background_source = image_dialog.fileUrl;
+                                            text_image.text = image_dialog.fileUrl.toString().split("/").pop()
+                                        }else if(combo_background_mode.currentIndex === 2){
+                                            supervisor.setMovingPageVideo(image_dialog.fileUrl);
+                                            move_page.background_source = image_dialog.fileUrl;
+                                            text_video.text = image_dialog.fileUrl.toString().split("/").pop()
+                                        }
+                                    }else if(page == "serving"){
+                                        if(combo_background_mode.currentIndex === 0){
+                                        }else if(combo_background_mode.currentIndex === 1){
+                                            supervisor.setServingPageImage(image_dialog.fileUrl);
+                                            move_page.background_source = image_dialog.fileUrl;
+                                            text_image.text = image_dialog.fileUrl.toString().split("/").pop()
+                                        }else if(combo_background_mode.currentIndex === 2){
+                                            supervisor.setServingPageVideo(image_dialog.fileUrl);
+                                            move_page.background_source = image_dialog.fileUrl;
+                                            text_video.text = image_dialog.fileUrl.toString().split("/").pop()
+                                        }
                                     }
+
                                 }
                             }
 
@@ -573,7 +691,11 @@ Popup {
                                     anchors.fill: parent
                                     onClicked:{
                                         click_sound.play();
-                                        popup_patrol_page.close();
+                                        if(page == "serving"){
+                                            supervisor.saveServingPage();
+                                        }
+
+                                        popup_setting_patrolpage.close();
                                     }
                                 }
                             }
@@ -619,8 +741,13 @@ Popup {
                                 anchors.fill: parent
                                 onClicked:{
                                     click_sound.play();
-                                    supervisor.addPatrolObject(popup_setting_patrolpage.page,"image")
-                                    popup_patrol_page.init();
+                                    if(page == "moving"){
+                                        supervisor.addPatrolObject(popup_setting_patrolpage.page,"image")
+                                    }else if(page == "serving"){
+                                        supervisor.addServingObject(popup_setting_patrolpage.page,"image")
+                                    }
+
+                                    popup_setting_patrolpage.init();
                                     popup_add.close();
                                 }
                             }
@@ -641,8 +768,12 @@ Popup {
                                 anchors.fill: parent
                                 onClicked:{
                                     click_sound.play();
-                                    supervisor.addPatrolObject(popup_setting_patrolpage.page,"text")
-                                    popup_patrol_page.init();
+                                    if(page == "moving"){
+                                        supervisor.addPatrolObject(popup_setting_patrolpage.page,"text")
+                                    }else if(page == "serving"){
+                                        supervisor.addServingObject(popup_setting_patrolpage.page,"text")
+                                    }
+                                    popup_setting_patrolpage.init();
                                     popup_add.close();
                                 }
                             }
@@ -664,16 +795,30 @@ Popup {
             property var obj_num: -1
             onOpened:{
                 obj_num = move_page.select_obj;
-                if(supervisor.getPageObjectType(obj_num) === "image"){
-                    col_image.visible = true;
-                    col_text.visible = false;
-                    tfield_image.fullurl = supervisor.getPageObjectSource(obj_num);
-                    tfield_image.text = supervisor.getPageObjectSource(obj_num).split("/").pop();
-                }else if(supervisor.getPageObjectType(obj_num) === "text"){
-                    col_image.visible = false;
-                    col_text.visible = true;
-                    tfield_text.text = supervisor.getPageObjectSource(obj_num);
-                    color_dialog2.color = supervisor.getPageObjectColor(obj_num);
+                if(page == "moving"){
+                    if(supervisor.getPageObjectType(obj_num) === "image"){
+                        col_image.visible = true;
+                        col_text.visible = false;
+                        tfield_image.fullurl = supervisor.getPageObjectSource(obj_num);
+                        tfield_image.text = supervisor.getPageObjectSource(obj_num).split("/").pop();
+                    }else if(supervisor.getPageObjectType(obj_num) === "text"){
+                        col_image.visible = false;
+                        col_text.visible = true;
+                        tfield_text.text = supervisor.getPageObjectSource(obj_num);
+                        color_dialog2.color = supervisor.getPageObjectColor(obj_num);
+                    }
+                }else if(page == "serving"){
+                    if(supervisor.getServingObjectType(obj_num) === "image"){
+                        col_image.visible = true;
+                        col_text.visible = false;
+                        tfield_image.fullurl = supervisor.getServingObjectSource(obj_num);
+                        tfield_image.text = supervisor.getServingObjectSource(obj_num).split("/").pop();
+                    }else if(supervisor.getServingObjectType(obj_num) === "text"){
+                        col_image.visible = false;
+                        col_text.visible = true;
+                        tfield_text.text = supervisor.getServingObjectSource(obj_num);
+                        color_dialog2.color = supervisor.getServingObjectColor(obj_num);
+                    }
                 }
             }
 
@@ -756,8 +901,13 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    supervisor.setPageObjectSource(popup_edit.obj_num,tfield_image.fullurl);
-                                    popup_patrol_page.update();
+                                    if(page == "moving"){
+                                        supervisor.setPageObjectSource(popup_edit.obj_num,tfield_image.fullurl);
+                                    }else if(page == "serving"){
+                                        supervisor.setServingObjectSource(popup_edit.obj_num,tfield_image.fullurl);
+                                    }
+
+                                    popup_setting_patrolpage.update();
                                     popup_edit.close();
                                 }
                             }
@@ -867,9 +1017,15 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    supervisor.setPageObjectColor(popup_edit.obj_num, color_dialog2.color);
-                                    supervisor.setPageObjectSource(popup_edit.obj_num, tfield_text.text);
-                                    popup_patrol_page.update();
+                                    if(page == "moving"){
+                                        supervisor.setPageObjectColor(popup_edit.obj_num, color_dialog2.color);
+                                        supervisor.setPageObjectSource(popup_edit.obj_num, tfield_text.text);
+                                    }else if(page == "serving"){
+                                        supervisor.setServingObjectColor(popup_edit.obj_num, color_dialog2.color);
+                                        supervisor.setServingObjectSource(popup_edit.obj_num, tfield_text.text);
+                                    }
+
+                                    popup_setting_patrolpage.update();
                                     popup_edit.close();
                                     color_dialog2.close();
                                 }
@@ -941,8 +1097,12 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    supervisor.deletePatrolObject(move_page.obj_num);
-                                    popup_patrol_page.init();
+                                    if(page == "moving"){
+                                        supervisor.deletePatrolObject(move_page.obj_num);
+                                    }else if(page == "serving"){
+                                        supervisor.deleteServingObject(move_page.obj_num);
+                                    }
+                                    popup_setting_patrolpage.init();
                                     popup_delete.close();
                                 }
                             }

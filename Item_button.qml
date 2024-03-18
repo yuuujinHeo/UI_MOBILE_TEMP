@@ -67,7 +67,7 @@ Item {
                         anchors.fill: parent
                         source: parent
                         visible: overcolor
-                        color: color_mid_gray
+                        color: color_icon_gray
                     }
                     anchors.horizontalCenter: parent.horizontalCenter
                 }

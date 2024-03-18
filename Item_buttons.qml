@@ -34,6 +34,7 @@ Item{
     property string bordercolor: "white"
     property string shadowcolor: color_gray
     property string fontcolor: "white"
+    property bool overColor: false
 
     property int fontsize: 30
 
@@ -175,6 +176,12 @@ Item{
                             sourceSize.height = 40
                     }
                     anchors.horizontalCenter: parent.horizontalCenter
+                    ColorOverlay{
+                        source: parent
+                        color: color_icon_gray
+                        anchors.fill: parent
+                        visible: item_Buttons.overColor
+                    }
                 }
                 Text{
                     text: item_Buttons.text
@@ -225,6 +232,10 @@ Item{
             color: item_Buttons.enabled?selected?selectcolor:pressed?pushcolor:btncolor:color_gray
             border.width: 2
             border.color: bordercolor
+            Row{
+
+            }
+
             Text{
                 horizontalAlignment: Text.AlignHCenter
                 Component.onCompleted: {
@@ -263,8 +274,18 @@ Item{
                             width = width*0.95;
                             height = height*0.95;
                         }
+                        sourceSize.width= width
+                        sourceSize.height= height
                     }
+                    sourceSize.width: width
+                    sourceSize.height: height
                     anchors.horizontalCenter: parent.horizontalCenter
+                    ColorOverlay{
+                        source: parent
+                        color: color_icon_gray
+                        anchors.fill: parent
+                        visible: item_Buttons.overColor
+                    }
                 }
                 Text{
                     horizontalAlignment: Text.AlignHCenter
@@ -304,6 +325,12 @@ Item{
                     }
                 }
                 anchors.centerIn: parent
+                ColorOverlay{
+                    source: parent
+                    color: color_icon_gray
+                    anchors.fill: parent
+                    visible: item_Buttons.overColor
+                }
 
             }
 
@@ -334,20 +361,8 @@ Item{
         onReleased:{
             item_Buttons.pressed = false;
             if(containsMouse){
-//                if(click_sound==1)
-//                    //click_sound1.play();
-//                else if(click_sound==2)
-//                    //click_sound2.play();
                 item_Buttons.clicked();
             }
         }
     }
-//    SoundEffect{
-//        id: click_sound2
-//        source: "bgm/click2.wav"
-//    }
-//    SoundEffect{
-//        id: click_sound1
-//        source: "bgm/click.wav"
-//    }
 }

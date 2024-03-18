@@ -19,7 +19,7 @@ Item {
     property int init_mode: 0
 
     property bool show_debug: false
-    property bool wifi_update_auto: true
+//    property bool wifi_update_auto: true
 
     Component.onCompleted: {
         popup_notice.close();
@@ -61,13 +61,14 @@ Item {
         loader_init.item.updatewifiState();
     }
     function wifi_con_failed(){
-        popup_loading.close();
+//        popup_wifi.con_fail();
+//        popup_loading.close();
         loader_init.item.connect_fail();
     }
     function wifi_con_success(){
-        popup_loading.close();
-        loader_init.item.updatewifiState();
-        loader_init.item.ip_update();
+//        popup_wifi.con_success();
+//        loader_init.item.updatewifiState();
+       loader_init.item.ip_update();
     }
 
     //init page main window
@@ -475,7 +476,7 @@ Item {
                             id: image_charge
                             width: 40
                             height: 40
-                            source:"icon/btn_minimize.png"
+                            source:"icon/icon_minimize.png"
                             anchors.verticalCenter: parent.verticalCenter
                             ColorOverlay{
                                 source: parent
@@ -534,7 +535,13 @@ Item {
                         onReleased: {
                             click_sound.play();;
                             supervisor.writelog("[INIT] PASS IPC Connection")
-                            popup_debug_onoff.open();
+
+                            popup_notice.init();
+                            popup_notice.style = "warning";
+                            popup_notice.main_str = qsTr("초기화를 건너뛰겠습니까?")
+                            popup_notice.sub_str = qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
+                            popup_notice.addButton(qsTr("건너뛰기"));
+                            popup_notice.open();
                             parent.color = "transparent";
                         }
                     }
@@ -768,7 +775,13 @@ Item {
                                     anchors.fill: parent
                                     onClicked: {
                                         click_sound.play();;
-                                        popup_debug_onoff.open();
+
+                                        popup_notice.init();
+                                        popup_notice.style = "warning";
+                                        popup_notice.main_str = qsTr("초기화를 건너뛰겠습니까?")
+                                        popup_notice.sub_str = qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
+                                        popup_notice.addButton(qsTr("건너뛰기"));
+                                        popup_notice.open();
                                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS CONNECTION")
                                         update_timer.stop();
                                     }
@@ -1299,7 +1312,7 @@ Item {
                             color: "white"
                             horizontalAlignment: Text.AlignHCenter
                             font.family: font_noto_b.name
-                            text: qsTr("카메라를 찾을 수 없습니다\n건너뛰기를 누르시면 로봇이 제대로 동작하지 않으며, 계속 이 페이지가 뜹니다")
+                            text: qsTr("카메라를 찾을 수 없습니다\n건너뛰기를 누르시면 로봇이 제대로 동작하지 않습니다")
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
                         Row{
@@ -1351,7 +1364,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();;
+                                click_sound.play();
                                 supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
                                 swipeview_wizard.currentIndex--;
                             }
@@ -1389,583 +1402,62 @@ Item {
 
                 Item{
                     id: wizard_ip
-                    property var connection : 0
-                    property bool show_passwd: false
-                    property var setting_step: 0
-                    property string select_ssd: ""
-                    property bool select_inuse: false
-                    property var select_level: 0
-                    property bool select_security: false
-                    onSetting_stepChanged: {
-                        if(setting_step === 0){
-                            timer_update_wifi.start();
-                            timer_update_state.stop();
+                    Popup_wifi{
+                        id: popup_wifi
+                        closePolicy: Popup.NoAutoClose
+                        onCancel:{
+                            popup_wifi_pass.open();
                         }
-                    }
-
-                    function init(){
-                        timer_update_wifi.start();
+                        onDone:{
+                            popup_wifi.close();
+                            swipeview_wizard.currentIndex++;
+                            wizard_final.init();
+                        }
                     }
                     Component.onCompleted: {
-                        timer_update_wifi.start();
-                    }
-                    Component.onDestruction: {
-                        timer_update_wifi.stop();
-                        timer_update_state.stop();
+                        popup_wifi.open();
                     }
 
-                    Timer{
-                        id: timer_update_wifi
-                        running: false
-                        repeat: wifi_update_auto
-                        interval: 3000
-                        triggeredOnStart: true
-                        onTriggered: {
-                            supervisor.getAllWifiList();
-                            model_wifis.clear();
-                            for(var i=0; i<supervisor.getWifiNum(); i++){
-                                var ssid = supervisor.getWifiSSID(i);
-                                model_wifis.append({"ssid":ssid,"inuse":supervisor.getWifiInuse(ssid),"rate":supervisor.getWifiRate(ssid),"level":supervisor.getWifiLevel(ssid),"security":supervisor.getWifiSecurity(ssid)});
-                            }
-                        }
-                    }
-                    Timer{
-                        id: timer_update_state
-                        running: false
-                        repeat: true
-                        interval: 500
-                        triggeredOnStart: true
-                        onTriggered: {
-                            wizard_ip.connection = supervisor.getWifiConnection(wizard_ip.select_ssd);
-                            print(wizard_ip.connection);
-                        }
-                    }
-
-                    Column{
-                        anchors.right: parent.right
-                        anchors.rightMargin: 60
-                        anchors.top: parent.top
-                        anchors.topMargin: 60 + statusbar.height
-                        visible: wizard_ip.setting_step ===0
-                        Grid{
-                            columns: 2
-                            rows: 2
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            horizontalItemAlignment: Grid.AlignHCenter
-                            verticalItemAlignment: Grid.AlignVCenter
-                            spacing: 10
-                            RadioButton{
-                                id: radio_update_always
-                                width: 30
-                                height: 30
-                                checked: wifi_update_auto
-                                onClicked: {
-                                    print(checked, wifi_update_auto);
-                                    if(!wifi_update_auto){
-                                        timer_update_wifi.start();
-                                        wifi_update_auto = true;
-                                    }
-                                }
-                            }
-                            RadioButton{
-                                id: radio_update_once
-                                width: 30
-                                height: 30
-                                checked: !wifi_update_auto
-                                onClicked: {
-                                    if(wifi_update_auto){
-                                        wifi_update_auto = false;
-                                    }
-                                }
-                            }
-                            Text{
-                                text:qsTr("자동검색")
-                                font.family: font_noto_r.name
-                            }
-                            Text{
-                                text:qsTr("수동검색")
-                                font.family: font_noto_r.name
-                            }
-                        }
-
-                        Item_buttons{
-                            type:"round_text"
-                            width: 150
-                            height: 50
-                            text: qsTr("재검색")
-                            fontsize: 20
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            visible: !wifi_update_auto
-                            onClicked:{
-                                popup_loading.open();
-                                timer_update_wifi.start();
-                            }
-                        }
-                    }
-
-                    Column{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: -50
-                        spacing:40
-                        visible: wizard_ip.setting_step ===0
-                        Text{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            color: color_dark_black
-                            font.family: font_noto_r.name
-                            font.pixelSize: 40
-                            text: qsTr("무선 WIFI를 설정해주세요")
-                        }
+                    Popup{
+                        id: popup_wifi_pass
+                        anchors.centerIn: parent
+                        width: 1280
+                        height: 250
                         Rectangle{
-                            width: 800
-                            height: 400
-                            radius: 20
-                            Flickable{
-                                id: flickable_wifi
-                                anchors.fill: parent
-                                clip: true
-                                contentHeight: col_wifis.height
-                                Column{
-                                    id: col_wifis
-                                    anchors.centerIn: parent
-                                    property var select_wifi: -1
-                                    spacing: 10
-                                    Repeater{
-                                        model : ListModel{id: model_wifis}
-                                        Rectangle{
-                                            width: 800
-                                            height: 50
-                                            radius: 20
-                                            color:col_wifis.select_wifi===index?color_green:"white"
-                                            Rectangle{
-                                                width: 600
-                                                height: 50
-                                                anchors.centerIn: parent
-                                                color: "transparent"
-                                                Text{
-                                                    anchors.centerIn: parent
-                                                    font.family: font_noto_r.name
-                                                    color:col_wifis.select_wifi===index?"white":"black"
-                                                    text: ssid
-                                                }
-                                                Text{
-                                                    font.family: font_noto_r.name
-                                                    text: qsTr("(사용중)")
-                                                    color: color_red
-                                                    visible: inuse
-                                                    font.pixelSize: 15
-                                                    anchors.verticalCenter: parent.verticalCenter
-                                                    anchors.right: parent.right
-                                                    anchors.rightMargin: 10
-                                                }
-                                                Image{
-                                                    visible: !inuse && security
-                                                    anchors.verticalCenter: parent.verticalCenter
-                                                    anchors.right: parent.right
-                                                    source: "icon/icon_lock_2.png"
-                                                    width: 50
-                                                    height: 50
-                                                    ColorOverlay{
-                                                        anchors.fill: parent
-                                                        source: parent
-                                                        color: color_gray
-                                                    }
-                                                }
-                                                Rectangle{
-                                                    width: 30
-                                                    height: 30
-                                                    radius: 5
-                                                    anchors.verticalCenter: parent.verticalCenter
-                                                    anchors.left: parent.left
-                                                    anchors.leftMargin: 10
-                                                    Row{
-                                                        spacing: 1
-                                                        anchors.centerIn: parent
-                                                        Rectangle{
-                                                            width: 5
-                                                            anchors.bottom: parent.bottom
-                                                            height:level<1?2:5
-                                                            color:{
-                                                                if(level==0){
-                                                                    color_red
-                                                                }else if(level==1){
-                                                                    color_red
-                                                                }else if(level==2){
-                                                                    color_yellow
-                                                                }else if(level==3){
-                                                                    color_green
-                                                                }else if(level==4){
-                                                                    color_green
-                                                                }
-                                                            }
-                                                        }
-                                                        Rectangle{
-                                                            width: 5
-                                                            anchors.bottom: parent.bottom
-                                                            height:level<2?2:10
-                                                            color:{
-                                                                if(level==0){
-                                                                    color_red
-                                                                }else if(level==1){
-                                                                    color_red
-                                                                }else if(level==2){
-                                                                    color_yellow
-                                                                }else if(level==3){
-                                                                    color_green
-                                                                }else if(level==4){
-                                                                    color_green
-                                                                }
-                                                            }
-                                                        }
-                                                        Rectangle{
-                                                            width: 5
-                                                            anchors.bottom: parent.bottom
-                                                            height:level<3?2:15
-                                                            color:{
-                                                                if(level==0){
-                                                                    color_red
-                                                                }else if(level==1){
-                                                                    color_red
-                                                                }else if(level==2){
-                                                                    color_yellow
-                                                                }else if(level==3){
-                                                                    color_green
-                                                                }else if(level==4){
-                                                                    color_green
-                                                                }
-                                                            }
-                                                        }
-                                                        Rectangle{
-                                                            width: 5
-                                                            anchors.bottom: parent.bottom
-                                                            height:level<4?2:20
-                                                            color:{
-                                                                if(level==0){
-                                                                    color_red
-                                                                }else if(level==1){
-                                                                    color_red
-                                                                }else if(level==2){
-                                                                    color_yellow
-                                                                }else if(level==3){
-                                                                    color_green
-                                                                }else if(level==4){
-                                                                    color_green
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-
-                                                }
-                                            }
-
-                                            MouseArea{
-                                                anchors.fill: parent
-                                                onClicked:{
-                                                    click_sound.play();;
-                                                    col_wifis.select_wifi = index;
-                                                    wizard_ip.select_ssd = ssid;
-                                                    wizard_ip.select_inuse = inuse;
-                                                    wizard_ip.select_security = security;
-                                                    wizard_ip.select_level = level;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            Text{
-//                                visible: false
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                anchors.top: parent.bottom
-                                anchors.topMargin: 10
-                                color: color_dark_black
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text: qsTr("(사용 가능한 WIFI를 찾고 있습니다.)")
-                            }
-                        }
-                    }
-
-                    Column{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: -50
-                        spacing:40
-                        visible: wizard_ip.setting_step ===1
-                        Text{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            color: color_dark_black
-                            font.family: font_noto_r.name
-                            font.pixelSize: 40
-                            text: qsTr("무선 WIFI에 연결합니다")
-                        }
-                        Rectangle{
-                            width: 800
-                            height: 400
-                            radius: 20
-                            Rectangle{
-                                width: 800
-                                height: 50
-                                radius: 20
-                                Rectangle{
-                                    width: 600
-                                    height: 50
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    color: "transparent"
-                                    Text{
-                                        anchors.centerIn: parent
-                                        font.family: font_noto_r.name
-                                        text: wizard_ip.select_ssd
-                                    }
-                                    Text{
-                                        font.family: font_noto_r.name
-                                        text: qsTr("(사용중)")
-                                        color: color_red
-                                        visible: wizard_ip.select_inuse
-                                        font.pixelSize: 15
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        anchors.right: parent.right
-                                        anchors.rightMargin: 10
-                                    }
-                                    Image{
-                                        visible: !wizard_ip.select_inuse && wizard_ip.select_security
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        anchors.right: parent.right
-                                        source: "icon/icon_lock_2.png"
-                                        width: 50
-                                        height: 50
-                                        ColorOverlay{
-                                            anchors.fill: parent
-                                            source: parent
-                                            color: color_gray
-                                        }
-                                    }
-                                    Rectangle{
-                                        width: 30
-                                        height: 30
-                                        radius: 5
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        anchors.left: parent.left
-                                        anchors.leftMargin: 10
-                                        Row{
-                                            spacing: 1
-                                            anchors.centerIn: parent
-                                            Rectangle{
-                                                width: 5
-                                                anchors.bottom: parent.bottom
-                                                height:wizard_ip.select_level<1?2:5
-                                                color:{
-                                                    if(wizard_ip.select_level==0){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==1){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==2){
-                                                        color_yellow
-                                                    }else if(wizard_ip.select_level==3){
-                                                        color_green
-                                                    }else if(wizard_ip.select_level==4){
-                                                        color_green
-                                                    }
-                                                }
-                                            }
-                                            Rectangle{
-                                                width: 5
-                                                anchors.bottom: parent.bottom
-                                                height:wizard_ip.select_level<2?2:10
-                                                color:{
-                                                    if(wizard_ip.select_level==0){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==1){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==2){
-                                                        color_yellow
-                                                    }else if(wizard_ip.select_level==3){
-                                                        color_green
-                                                    }else if(wizard_ip.select_level==4){
-                                                        color_green
-                                                    }
-                                                }
-                                            }
-                                            Rectangle{
-                                                width: 5
-                                                anchors.bottom: parent.bottom
-                                                height:wizard_ip.select_level<3?2:15
-                                                color:{
-                                                    if(wizard_ip.select_level==0){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==1){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==2){
-                                                        color_yellow
-                                                    }else if(wizard_ip.select_level==3){
-                                                        color_green
-                                                    }else if(wizard_ip.select_level==4){
-                                                        color_green
-                                                    }
-                                                }
-                                            }
-                                            Rectangle{
-                                                width: 5
-                                                anchors.bottom: parent.bottom
-                                                height:wizard_ip.select_level<4?2:20
-                                                color:{
-                                                    if(wizard_ip.select_level==0){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==1){
-                                                        color_red
-                                                    }else if(wizard_ip.select_level==2){
-                                                        color_yellow
-                                                    }else if(wizard_ip.select_level==3){
-                                                        color_green
-                                                    }else if(wizard_ip.select_level==4){
-                                                        color_green
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
+                            anchors.fill: parent
                             Column{
-                                visible: !popup_loading.visible
                                 anchors.centerIn: parent
-                                spacing: 30
-
-                                Rectangle{
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    visible:{
-                                        if(wizard_ip.select_security){
-                                            if(wizard_ip.connection === 1){
-                                                false
-                                            }else if(wizard_ip.connection === 2 || wizard_ip.connection === 3){
-                                                true
-                                            }else{
-                                                false
-                                            }
-                                        }else{
-                                            true
-                                        }
-                                    }
-
-                                    color:wizard_ip.connection===0?color_red:wizard_ip.connection===1?color_yellow:color_green
-                                    width: 500
-                                    height: 50
-                                    radius: 5
-                                    Text{
-                                        anchors.centerIn: parent
-                                        font.family: font_noto_r.name
-                                        color:wizard_ip.connection===0?"black":"white"
-                                        text:wizard_ip.connection===0?qsTr("연결 안됨"):wizard_ip.connection===1?qsTr("연결 중"):qsTr("연결 성공")
-                                        font.pixelSize: 20
-                                    }
-                                }
+                                spacing : 40
                                 Text{
-                                    visible: !wizard_ip.connection&&wizard_ip.select_security
+                                    text: qsTr("무선 네트워크가 설정되지 않았습니다")
+                                    font.pixelSize: 40
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    text: qsTr("비밀번호를 입력해주세요")
                                     font.family: font_noto_r.name
-                                    font.pixelSize: 20
                                 }
-
                                 Row{
-                                    visible: !wizard_ip.connection&&wizard_ip.select_security
+                                    spacing: 40
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    anchors.horizontalCenterOffset: 35
-                                    spacing: 20
-                                    Column{
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        Text{
-                                            id: text_wifi76788
-                                            visible: false
-                                            anchors.horizontalCenter: parent.horizontalCenter
-                                            text: qsTr("비밀번호가 틀렸습니다")
-                                            color: color_red
-                                            font.family: font_noto_r.name
-                                            font.pixelSize: 17
-                                        }
-                                        TextField{
-                                            id: passwd_wifi
-                                            width: 400
-                                            height: 50
-                                            anchors.horizontalCenter: parent.horizontalCenter
-                                            horizontalAlignment: Text.AlignHCenter
-                                            echoMode: wizard_ip.show_passwd?TextInput.Normal:TextInput.Password
-                                            onFocusChanged: {
-                                                keyboard.owner = passwd_wifi;
-                                                passwd_wifi.selectAll();
-                                                if(focus){
-                                                    keyboard.open();
-                                                }else{
-                                                    keyboard.close();
-                                                    passwd_wifi.select(0,0);
-                                                }
-                                            }
-                                            onTextChanged: {
-                                                color = "black"
-                                                text_wifi76788.visible = false;
-                                            }
+                                    Item_buttons{
+                                        type: "white_btn"
+                                        width: 150
+                                        height: 60
+                                        text: qsTr("이전으로")
+                                        onClicked:{
+                                            supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
+                                            popup_wifi_pass.close();
+                                            swipeview_wizard.currentIndex--;
                                         }
                                     }
-                                    Rectangle{
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        width: 50
-                                        height: 50
-                                        radius: 5
-                                        color: color_dark_navy
-                                        border.color: "white"
-                                        border.width: 1
-                                        Image{
-                                            anchors.centerIn: parent
-                                            width: 35
-                                            height: 35
-                                            source:wizard_ip.show_passwd?"icon/icon_obj_yes.png":"icon/icon_obj_no.png"
-                                        }
-                                        MouseArea{
-                                            anchors.fill: parent
-                                            onClicked:{
-                                                click_sound.play();;
-                                                if(wizard_ip.show_passwd){
-                                                    wizard_ip.show_passwd = false;
-                                                }else{
-                                                    wizard_ip.show_passwd = true;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                Rectangle{
-                                    width: 200
-                                    height: 80
-                                    radius: 40
-                                    visible: !wizard_ip.connection
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    color: "black"
-                                    Text{
-                                        anchors.centerIn: parent
-                                        text: qsTr("연결")
-                                        font.pixelSize: 35
-                                        font.family: font_noto_r.name
-                                        color: "white"
-                                    }
-                                    MouseArea{
-                                        anchors.fill: parent
-                                        onClicked: {
-                                            click_sound.play();;
-                                            if(wizard_ip.select_security){
-                                                if(passwd_wifi.text == ""){
-                                                    text_wifi76788.visible = true;
-                                                }else{
-                                                    print("check connect", wizard_ip.select_ssd, passwd_wifi.text);
-                                                    supervisor.connectWifi(wizard_ip.select_ssd, passwd_wifi.text);
-                                                    popup_loading.open();
-                                                }
-                                            }else{
-                                                print("check connect", wizard_ip.select_ssd, passwd_wifi.text);
-                                                supervisor.connectWifi(wizard_ip.select_ssd, passwd_wifi.text);
-                                                popup_loading.open();
-                                            }
+                                    Item_buttons{
+                                        type: "white_btn"
+                                        width: 150
+                                        height: 60
+                                        text: qsTr("건너뛰기")
+                                        onClicked:{
+                                            click_sound.play();
+                                            popup_wifi_pass.close();
+                                            supervisor.writelog("[USER INPUT] INIT PAGE : SKIP WIFI SETTING");
+                                            swipeview_wizard.currentIndex++;
                                         }
                                     }
                                 }
@@ -1973,724 +1465,9 @@ Item {
                         }
                     }
 
-                    Column{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.verticalCenterOffset: -50
-                        spacing:40
-                        visible: wizard_ip.setting_step ===2
-                        Text{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            color: color_dark_black
-                            font.family: font_noto_r.name
-                            font.pixelSize: 40
-                            text: qsTr("무선 WIFI의 IP를 세팅합니다")
-                        }
-                        Rectangle{
-                            width: 800
-                            height: 400
-                            radius: 20
-                            Column{
-                                visible: !popup_loading.visible
-                                anchors.centerIn: parent
-                                spacing: 30
-                                Row{
-                                    width: 700
-                                    height: 50
-                                    Rectangle{
-                                        width: 200
-                                        height: parent.height
-                                        Text{
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            anchors.left: parent.left
-                                            anchors.leftMargin: 50
-                                            font.family: font_noto_r.name
-                                            text:"IP"
-                                            font.pixelSize: 20
-                                        }
-                                    }
-                                    Rectangle{
-                                        width: 1
-                                        height: parent.height
-                                        color: "#d0d0d0"
-                                    }
-                                    Rectangle{
-                                        width: parent.width - 201
-                                        height: parent.height
-                                        Row{
-                                            spacing: 10
-                                            anchors.centerIn: parent
-                                            TextField{
-                                                id: ip_1
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = ip_1;
-                                                    ip_1.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        keypad.close();
-                                                        ip_1.select(0,0);
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(ip_1.text.split(".").length > 1){
-                                                        ip_1.text = ip_1.text.split(".")[0];
-                                                        ip_1.focus = false;
-                                                        ip_2.focus = true;
-                                                    }
-                                                    if(ip_1.text.length == 3){
-                                                        ip_1.focus = false;
-                                                        ip_2.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-
-                                            TextField{
-                                                id: ip_2
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = ip_2;
-                                                    ip_2.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        keypad.close();
-                                                        ip_2.select(0,0);
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(ip_2.text == "."){
-                                                        ip_2.text = ip_2.text.split(".")[0]
-                                                    }
-
-                                                    if(ip_2.text.split(".").length > 1){
-                                                        ip_2.text = ip_2.text.split(".")[0];
-                                                        ip_2.focus = false;
-                                                        ip_3.focus = true;
-                                                    }
-                                                    if(ip_2.text.length == 3){
-                                                        ip_2.focus = false;
-                                                        ip_3.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-                                            TextField{
-                                                id: ip_3
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = ip_3;
-                                                    ip_3.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        ip_3.select(0,0);
-                                                        keypad.close();
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(ip_3.text == "."){
-                                                        ip_3.text = ip_3.text.split(".")[0]
-                                                    }
-
-                                                    if(ip_3.text.split(".").length > 1){
-                                                        ip_3.text = ip_3.text.split(".")[0];
-                                                        ip_3.focus = false;
-                                                        ip_4.focus = true;
-                                                    }
-                                                    if(ip_3.text.length == 3){
-                                                        ip_3.focus = false;
-                                                        ip_4.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-                                            TextField{
-                                                id: ip_4
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = ip_4;
-                                                    ip_4.selectAll();
-                                                    if(focus){
-                                                        print("ip_4 focus on")
-                                                        keypad.open();
-                                                    }else{
-                                                        ip_4.select(0,0);
-                                                        keypad.close();
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(ip_4.text == "."){
-                                                        ip_4.text = ip_4.text.split(".")[0]
-                                                    }
-
-                                                    if(ip_4.text.split(".").length > 1){
-                                                        ip_4.text = ip_4.text.split(".")[0];
-                                                        ip_4.focus = false;
-                                                    }
-                                                    if(ip_4.text.length == 3){
-                                                        ip_4.focus = false;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                Row{
-                                    width: 700
-                                    height: 50
-                                    Rectangle{
-                                        width: 200
-                                        height: parent.height
-                                        Text{
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            anchors.left: parent.left
-                                            anchors.leftMargin: 50
-                                            font.family: font_noto_r.name
-                                            text:"Gateway"
-                                            font.pixelSize: 20
-                                        }
-                                    }
-                                    Rectangle{
-                                        width: 1
-                                        height: parent.height
-                                        color: "#d0d0d0"
-                                    }
-
-                                    Rectangle{
-                                        width: parent.width - 201
-                                        height: parent.height
-                                        Row{
-                                            spacing: 10
-                                            anchors.centerIn: parent
-                                            TextField{
-                                                id: gateway_1
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = gateway_1;
-                                                    gateway_1.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        keypad.close();
-                                                        gateway_1.select(0,0);
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(gateway_1.text.split(".").length > 1){
-                                                        gateway_1.text = gateway_1.text.split(".")[0];
-                                                        gateway_1.focus = false;
-                                                        gateway_2.focus = true;
-                                                    }
-                                                    if(gateway_1.text.length == 3){
-                                                        gateway_1.focus = false;
-                                                        gateway_2.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-
-                                            TextField{
-                                                id: gateway_2
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = gateway_2;
-                                                    gateway_2.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        keypad.close();
-                                                        gateway_2.select(0,0);
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(gateway_2.text == "."){
-                                                        gateway_2.text = gateway_2.text.split(".")[0]
-                                                    }
-
-                                                    if(gateway_2.text.split(".").length > 1){
-                                                        gateway_2.text = gateway_2.text.split(".")[0];
-                                                        gateway_2.focus = false;
-                                                        gateway_3.focus = true;
-                                                    }
-                                                    if(gateway_2.text.length == 3){
-                                                        gateway_2.focus = false;
-                                                        gateway_3.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-                                            TextField{
-                                                id: gateway_3
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = gateway_3;
-                                                    gateway_3.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        gateway_3.select(0,0);
-                                                        keypad.close();
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(gateway_3.text == "."){
-                                                        gateway_3.text = gateway_3.text.split(".")[0]
-                                                    }
-
-                                                    if(gateway_3.text.split(".").length > 1){
-                                                        gateway_3.text = gateway_3.text.split(".")[0];
-                                                        gateway_3.focus = false;
-                                                        gateway_4.focus = true;
-                                                    }
-                                                    if(gateway_3.text.length == 3){
-                                                        gateway_3.focus = false;
-                                                        gateway_4.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-                                            TextField{
-                                                id: gateway_4
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = gateway_4;
-                                                    gateway_4.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        gateway_4.select(0,0);
-                                                        keypad.close();
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(gateway_4.text == "."){
-                                                        gateway_4.text = gateway_4.text.split(".")[0]
-                                                    }
-
-                                                    if(gateway_4.text.split(".").length > 1){
-                                                        gateway_4.text = gateway_4.text.split(".")[0];
-                                                        gateway_4.focus = false;
-                                                    }
-                                                    if(gateway_4.text.length == 3){
-                                                        gateway_4.focus = false;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                }
-
-                                Row{
-                                    width: 700
-                                    height: 50
-                                    Rectangle{
-                                        width: 200
-                                        height: 50
-                                        Text{
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            anchors.left: parent.left
-                                            anchors.leftMargin: 50
-                                            font.family: font_noto_r.name
-                                            text:"DNS"
-                                            font.pixelSize: 20
-                                        }
-                                    }
-                                    Rectangle{
-                                        width: 1
-                                        height: parent.height
-                                        color: "#d0d0d0"
-                                    }
-
-                                    Rectangle{
-                                        width: parent.width - 201
-                                        height: parent.height
-                                        Row{
-                                            spacing: 10
-                                            anchors.centerIn: parent
-                                            TextField{
-                                                id: dnsmain_1
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = dnsmain_1;
-                                                    dnsmain_1.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        keypad.close();
-                                                        dnsmain_1.select(0,0);
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(dnsmain_1.text.split(".").length > 1){
-                                                        dnsmain_1.text = dnsmain_1.text.split(".")[0];
-                                                        dnsmain_1.focus = false;
-                                                        dnsmain_2.focus = true;
-                                                    }
-                                                    if(dnsmain_1.text.length == 3){
-                                                        dnsmain_1.focus = false;
-                                                        dnsmain_2.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-
-                                            TextField{
-                                                id: dnsmain_2
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = dnsmain_2;
-                                                    dnsmain_2.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        keypad.close();
-                                                        dnsmain_2.select(0,0);
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(dnsmain_2.text == "."){
-                                                        dnsmain_2.text = dnsmain_2.text.split(".")[0]
-                                                    }
-
-                                                    if(dnsmain_2.text.split(".").length > 1){
-                                                        dnsmain_2.text = dnsmain_2.text.split(".")[0];
-                                                        dnsmain_2.focus = false;
-                                                        dnsmain_3.focus = true;
-                                                    }
-                                                    if(dnsmain_2.text.length == 3){
-                                                        dnsmain_2.focus = false;
-                                                        dnsmain_3.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-                                            TextField{
-                                                id: dnsmain_3
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = dnsmain_3;
-                                                    dnsmain_3.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        dnsmain_3.select(0,0);
-                                                        keypad.close();
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(dnsmain_3.text == "."){
-                                                        dnsmain_3.text = dnsmain_3.text.split(".")[0]
-                                                    }
-
-                                                    if(dnsmain_3.text.split(".").length > 1){
-                                                        dnsmain_3.text = dnsmain_3.text.split(".")[0];
-                                                        dnsmain_3.focus = false;
-                                                        dnsmain_4.focus = true;
-                                                    }
-                                                    if(dnsmain_3.text.length == 3){
-                                                        dnsmain_3.focus = false;
-                                                        dnsmain_4.focus = true;
-                                                    }
-                                                }
-                                            }
-                                            Text{
-                                                anchors.verticalCenter: parent.verticalCenter
-                                                text:"."
-                                            }
-                                            TextField{
-                                                id: dnsmain_4
-                                                width: 70
-                                                height: 40
-                                                onFocusChanged: {
-                                                    keypad.owner = dnsmain_4;
-                                                    dnsmain_4.selectAll();
-                                                    if(focus){
-                                                        keypad.open();
-                                                    }else{
-                                                        dnsmain_4.select(0,0);
-                                                        keypad.close();
-                                                    }
-                                                }
-                                                color: ischanged?color_red:"black"
-                                                property bool ischanged: false
-                                                onTextChanged: {
-                                                    ischanged = true;
-                                                    if(dnsmain_4.text == "."){
-                                                        dnsmain_4.text = dnsmain_4.text.split(".")[0]
-                                                    }
-
-                                                    if(dnsmain_4.text.split(".").length > 1){
-                                                        dnsmain_4.text = dnsmain_4.text.split(".")[0];
-                                                        dnsmain_4.focus = false;
-                                                    }
-                                                    if(dnsmain_4.text.length == 3){
-                                                        dnsmain_4.focus = false;
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                Row{
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    spacing: 30
-                                    Rectangle{
-                                        width: 200
-                                        height: 80
-                                        radius: 40
-                                        border.width: 1
-                                        Text{
-                                            anchors.centerIn: parent
-                                            text: qsTr("초기화")
-                                            font.pixelSize: 35
-                                            font.family: font_noto_r.name
-                                        }
-                                        MouseArea{
-                                            anchors.fill: parent
-                                            onClicked: {
-                                                click_sound.play();;
-//                                                if(supervisor.getcurIP() === "")
-//                                                    supervisor.getWifiIP();
-
-                                                loader_init.item.ip_update();
-                                            }
-                                        }
-                                    }
-
-                                    Rectangle{
-                                        width: 200
-                                        height: 80
-                                        radius: 40
-                                        color: "black"
-                                        Text{
-                                            anchors.centerIn: parent
-                                            text: qsTr("변경")
-                                            font.pixelSize: 35
-                                            font.family: font_noto_r.name
-                                            color: "white"
-                                        }
-                                        MouseArea{
-                                            anchors.fill: parent
-                                            onClicked: {
-                                                click_sound.play();;
-                                                ip_1.ischanged = false;
-                                                ip_2.ischanged = false;
-                                                ip_3.ischanged = false;
-                                                ip_4.ischanged = false;
-                                                var ip_str = ip_1.text + "." + ip_2.text + "." + ip_3.text + "." + ip_4.text;
-                                                gateway_1.ischanged = false;
-                                                gateway_2.ischanged = false;
-                                                gateway_3.ischanged = false;
-                                                gateway_4.ischanged = false;
-                                                var gateway_str = gateway_1.text + "." + gateway_2.text + "." + gateway_3.text + "." + gateway_4.text;
-                                                dnsmain_1.ischanged = false;
-                                                dnsmain_2.ischanged = false;
-                                                dnsmain_3.ischanged = false;
-                                                dnsmain_4.ischanged = false;
-                                                var dns_str = dnsmain_1.text + "." + dnsmain_2.text + "." + dnsmain_3.text + "." + dnsmain_4.text;
-                                                supervisor.setWifi(ip_str,gateway_str,dns_str);
-                                                supervisor.setSetting("setting","NETWORK/wifi_ip",ip_str);
-                                                supervisor.setSetting("setting","NETWORK/wifi_gateway",gateway_str);
-                                                supervisor.setSetting("setting","NETWORK/wifi_dnsmain",dns_str);
-                                                wizard_ip.connection = false;
-                                                popup_loading.open();
-                                            }
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-
-                    Rectangle{
-                        width: 230
-                        height: 100
-                        radius: 60
-                        color: "transparent"
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 50
-                        anchors.left: parent.left
-                        anchors.leftMargin: 50
-                        border.width: 2
-                        border.color: color_green
-                        Text{
-                            anchors.centerIn: parent
-                            text: qsTr("이전")
-                            font.pixelSize: 35
-                            font.family: font_noto_r.name
-                            color: color_dark_black
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked: {
-                                click_sound.play();;
-                                if(wizard_ip.setting_step > 0){
-                                    wizard_ip.setting_step--;
-                                }else{
-                                    supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
-                                    swipeview_wizard.currentIndex--;
-                                }
-                            }
-                        }
-                    }
-                    Rectangle{
-                        width: 230
-                        height: 100
-                        radius: 60
-                        visible: wizard_ip.setting_step === 0
-                        border.width: 1
-                        border.color: color_gray
-                        color: "transparent"
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 50
-                        anchors.right: parent.right
-                        anchors.rightMargin: 50 + 230 + 20
-                        Text{
-                            anchors.centerIn: parent
-                            text: qsTr("건너뛰기")
-                            font.pixelSize: 35
-                            font.family: font_noto_r.name
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked: {
-                                click_sound.play();;
-                                supervisor.writelog("[USER INPUT] INIT PAGE : SKIP WIFI SETTING");
-                                swipeview_wizard.currentIndex++;
-                            }
-                        }
-                    }
-                    Rectangle{
-                        width: 230
-                        height: 100
-                        radius: 60
-                        enabled:{
-                            if(wizard_ip.setting_step == 0){
-                                if(col_wifis.select_wifi > -1){
-                                    true
-                                }else{
-                                    false
-                                }
-                            }else{
-                                wizard_ip.connection
-                            }
-                        }
-                        color: enabled?color_green:color_gray
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 50
-                        anchors.right: parent.right
-                        anchors.rightMargin: 50
-                        Text{
-                            anchors.centerIn: parent
-                            text: wizard_ip.setting_step < 2 ?qsTr("다음"):qsTr("설정 완료")
-                            font.pixelSize: 35
-                            font.family: font_noto_r.name
-                            color: "white"
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onPressed:{
-                                click_sound.play();;
-                                parent.color = color_mid_green;
-                            }
-                            onReleased: {
-                                parent.color = color_green;
-                            }
-                            onClicked: {
-                                if(wizard_ip.setting_step == 0){
-                                    supervisor.readWifiState(wizard_ip.select_ssd);
-                                    supervisor.writelog("[USER INPUT] INIT PAGE : IP SETTING NEXT 1");
-                                    wizard_ip.setting_step++;
-                                    popup_loading.open();
-                                    timer_update_wifi.stop();
-                                }else if(wizard_ip.setting_step == 1){
-                                    supervisor.writelog("[USER INPUT] INIT PAGE : IP SETTING NEXT 2");
-//                                    supervisor.getWifiIP();
-                                    wizard_ip.setting_step++;
-                                }else{
-                                    supervisor.writelog("[USER INPUT] INIT PAGE : SETTING DONE");
-                                    swipeview_wizard.currentIndex++;
-                                    wizard_final.init();
-                                }
-                            }
-                        }
-                    }
                 }
+
+
                 Item{
                     id: wizard_final
                     function init(){
@@ -2857,7 +1634,7 @@ Item {
                         Image{
                             width: 40
                             height: 40
-                            source:"icon/icon_open.png"
+                            source:"icon/icon_folder.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             ColorOverlay{
                                 source: parent
@@ -2906,7 +1683,7 @@ Item {
                         Image{
                             width: 40
                             height: 40
-                            source:"icon/icon_open.png"
+                            source:"icon/icon_usb.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             ColorOverlay{
                                 source: parent
@@ -2982,7 +1759,13 @@ Item {
                             parent.color = color_gray;
                         }
                         onReleased: {
-                            popup_debug_onoff.open();
+
+                            popup_notice.init();
+                            popup_notice.style = "warning";
+                            popup_notice.main_str = qsTr("초기화를 건너뛰겠습니까?")
+                            popup_notice.sub_str = qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
+                            popup_notice.addButton(qsTr("건너뛰기"));
+                            popup_notice.open();
                             supervisor.writelog("[INIT] PASS IPC Connection")
                             parent.color = "transparent";
                         }
@@ -3031,7 +1814,12 @@ Item {
                     update_timer.start();
                 }
                 onPassed: {
-                    popup_debug_onoff.open();
+                    popup_notice.init();
+                    popup_notice.style = "warning";
+                    popup_notice.main_str = qsTr("초기화를 건너뛰겠습니까?")
+                    popup_notice.sub_str = qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
+                    popup_notice.addButton(qsTr("건너뛰기"));
+                    popup_notice.open();
                 }
             }
         }
@@ -3115,8 +1903,16 @@ Item {
                         id: image_charge1
                         width: 30
                         height: 30
-                        source:"icon/icon_remove.png"
+                        source:"icon/icon_testmoving.png"
                         anchors.horizontalCenter: parent.horizontalCenter
+                        antialiasing: true
+                        sourceSize.width: width
+                        sourceSize.height: height
+                        ColorOverlay{
+                            anchors.fill: parent
+                            source: parent
+                            color: color_icon_gray
+                        }
                     }
                     Text{
                         id: text_slam_pass
@@ -3129,9 +1925,12 @@ Item {
                     anchors.fill: parent
                     onClicked: {
                         click_sound.play();
-                        popup_debug_onoff.open();
-                        supervisor.writelog("[USER INPUT] INIT PAGE : PASS ROBOT INIT")
-
+                        popup_notice.init();
+                        popup_notice.style = "warning";
+                        popup_notice.main_str = qsTr("초기화를 건너뛰겠습니까?")
+                        popup_notice.sub_str = qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
+                        popup_notice.addButton(qsTr("건너뛰기"));
+                        popup_notice.open();
                     }
                 }
             }
@@ -3149,57 +1948,6 @@ Item {
                     if(password > 4){
                         password = 0;
                         show_debug = true;
-                    }
-                }
-            }
-        }
-    }
-
-    Popup{
-        id: popup_debug_onoff
-        anchors.centerIn: parent
-        width: 1280
-        height: 400
-        background: Rectangle{
-            anchors.fill: parent
-            color:color_dark_navy
-        }
-        Rectangle{
-            width: parent.width
-            height: parent.height
-            color: color_dark_navy
-            Column{
-                anchors.centerIn: parent
-                spacing: 50
-                Column{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 10
-                    Text{
-                        text:qsTr("초기화를 건너뛰겠습니까?")
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        font.family: font_noto_r.name
-                        font.pixelSize: 50
-                        color: "white"
-                    }
-                    Text{
-                        text:qsTr("초기화를 건너뜁니다 로봇이 제대로 동작하지 않을 수 있습니다\n맵 메뉴에서 위치초기화를 누르면 다시 처음 세팅화면으로 돌아옵니다")
-                        font.family: font_noto_r.name
-                        font.pixelSize: 25
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        horizontalAlignment: Text.AlignHCenter
-                        color: "white"
-                    }
-                }
-                Item_buttons{
-                    type: "round_text"
-                    text:qsTr("전환")
-                    width: 200
-                    height: 80
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    onClicked:{
-                        supervisor.writelog("[INIT] Debug Mode On");
-                        supervisor.passInit();
-                        loadPage(pkitchen);
                     }
                 }
             }

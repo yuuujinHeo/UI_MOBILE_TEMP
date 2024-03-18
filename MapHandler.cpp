@@ -400,7 +400,7 @@ void MapHandler::initLocation(){
         temp.point = setAxis(pmap->locations[i].point);
         temp.angle = setAxis(pmap->locations[i].angle);
 
-        qDebug() <<"locations push " << temp.type << temp.name;
+//        qDebug() <<"locations push " << temp.type << temp.name;
         locations.push_back(temp);
     }
 }

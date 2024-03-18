@@ -106,11 +106,21 @@ public:
     Q_INVOKABLE bool getWifiInuse(QString ssid);
     Q_INVOKABLE void getAllWifiList();
     Q_INVOKABLE void getWifiIP();
+    Q_INVOKABLE void setWifiDHCP();
     Q_INVOKABLE void setWifi(QString ip, QString gateway, QString dns);
     Q_INVOKABLE void setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
+    Q_INVOKABLE void setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
     Q_INVOKABLE QString getcurIP();
     Q_INVOKABLE QString getcurGateway();
+    Q_INVOKABLE QString getcurNetmask();
+    Q_INVOKABLE QString getcurDNS2();
     Q_INVOKABLE QString getcurDNS();
+    Q_INVOKABLE QString getethernetIP();
+    Q_INVOKABLE QString getethernetGateway();
+    Q_INVOKABLE QString getethernetNetmask();
+    Q_INVOKABLE QString getethernetDNS2();
+    Q_INVOKABLE QString getethernetDNS();
+    Q_INVOKABLE QString getcurIPMethod();
     Q_INVOKABLE void readWifiState(QString ssid);
 
     Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
@@ -125,6 +135,7 @@ public:
     int patrol_wait_count = 0;
     QList<ST_PATROL> patrols;
     ST_PATROL current_patrol;
+    ST_PAGE serving_page;
     Q_INVOKABLE void readPatrol();
     Q_INVOKABLE int getPatrolSize();
     Q_INVOKABLE int getPatrolVoiceNameNum(int num);
@@ -182,7 +193,7 @@ public:
     ZIPHandler *zip;
     MapHandler *maph;
     ExtProcess *extproc;
-    Checker checker;
+    Checker *checker;
     CallbellHandler *call;
     IPCHandler *ipc;
     TTSHandler *tts;
@@ -232,6 +243,19 @@ public:
 //    Q_INVOKABLE void addPageObject(QString type, QString source, int x, int y, int width, int height, int fontsize, QString color);
 //    Q_INVOKABLE void setPageObject(int num, QString type, QString source, int x, int y, int width, int height, int fontsize, QString color);
 
+    Q_INVOKABLE void setServingPageBackground(QString mode);
+    Q_INVOKABLE QString getServingPageBackground();
+    Q_INVOKABLE void setServingPageMode(QString mode);
+    Q_INVOKABLE QString getServingPageMode();
+    Q_INVOKABLE void setServingPageColor(QString file);
+    Q_INVOKABLE QString getServingPageColor();
+    Q_INVOKABLE void setServingPageImage(QString file);
+    Q_INVOKABLE QString getServingPageImage();
+    Q_INVOKABLE void setServingPageVideo(QString file);
+    Q_INVOKABLE QString getServingPageVideo();
+    Q_INVOKABLE void setServingPageAudio(float volume);
+    Q_INVOKABLE float getServingPageAudio();
+
     Q_INVOKABLE void setMovingPageBackground(QString mode);
     Q_INVOKABLE QString getMovingPageBackground();
     Q_INVOKABLE void setMovingPageMode(QString mode);
@@ -246,6 +270,7 @@ public:
     Q_INVOKABLE float getMovingPageAudio();
 
     Q_INVOKABLE void clearPatrolPage(int num);
+    Q_INVOKABLE void clearServingPage();
 //    Q_INVOKABLE QString getMovingBackground();
 //    Q_INVOKABLE QString getMovingColor();
 //    Q_INVOKABLE QString getMovingImage();
@@ -255,6 +280,29 @@ public:
 //    Q_INVOKABLE QString getArriveColor();
 //    Q_INVOKABLE QString getArriveImage();
 //    Q_INVOKABLE QString getArriveVideo();
+
+    Q_INVOKABLE void initServingPage();
+    Q_INVOKABLE void saveServingPage();
+    Q_INVOKABLE int getServingObjectSize();
+    Q_INVOKABLE QString getServingObjectType(int num);
+    Q_INVOKABLE QString getServingObjectSource(int num);
+    Q_INVOKABLE QString getServingObjectColor(int num);
+    Q_INVOKABLE int getServingObjectX(int num);
+    Q_INVOKABLE int getServingObjectY(int num);
+    Q_INVOKABLE int getServingObjectWidth(int num);
+    Q_INVOKABLE int getServingObjectHeight(int num);
+    Q_INVOKABLE int getServingObjectFontsize(int num);
+    Q_INVOKABLE void addServingObject(QString page, QString obj);
+
+    Q_INVOKABLE void setServingObjectSource(int num, QString src);
+    Q_INVOKABLE void setServingObjectColor(int num, QString color);
+
+    Q_INVOKABLE void deleteServingObject(int num);
+    Q_INVOKABLE void moveServingObject(int num, int x, int y);
+    Q_INVOKABLE void setServingObjectSize(int num, int point, int x, int y);
+    Q_INVOKABLE void setServingObjectSize(int num, int x, int y, int width, int height);
+    Q_INVOKABLE int getServingObjectNum(int x, int y);
+
 
     void initCurrentPatrol();
     Q_INVOKABLE int getPatrolObjectSize();
@@ -531,8 +579,14 @@ public:
     Q_INVOKABLE void setCursorView(bool visible);
 
     Q_INVOKABLE void checkTravelline();
+
+
+    Q_INVOKABLE QString getNewServingName(int group);
+    Q_INVOKABLE bool isDuplicateName(int group, QString name);
+
     ////*********************************************  GIT 관련   ***************************************************////
     Q_INVOKABLE void updateProgram();
+    Q_INVOKABLE void gitReset();
     Q_INVOKABLE void updateProgramGitPull();
     Q_INVOKABLE void checkVersionAgain();
     Q_INVOKABLE bool isNewVersion();
@@ -894,7 +948,7 @@ public slots:
     void camera_update();
     void mapping_update();
     void usb_detect();
-    void git_pull_failed();
+    void git_pull_fail(int reason);
     void git_pull_success();
     void new_call();
     void process_accept(int cmd);
@@ -908,12 +962,15 @@ public slots:
     void new_call_order(QString name);
     void play_voice(ST_VOICE voice);
     void emo_state_changed();
+    void connect_wifi_fail(int reason, QString ssid);
+    void connect_wifi_success(QString ssid);
+    void set_wifi_success(QString ssid);
+    void set_wifi_fail(int reason,QString ssid);
 
 private:
     QTimer *timer;
     QTimer *timer2;
     QTimer *wifiTimer;
-    QNetworkSession *session;
     QQuickWindow *mMain;
     QObject *mObject = nullptr;
     QTranslator *translator;
