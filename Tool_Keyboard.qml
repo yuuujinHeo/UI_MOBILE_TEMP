@@ -164,11 +164,15 @@ Popup {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.top: parent.top
                     anchors.topMargin: 30
+                    sourceSize.width: width
+                    sourceSize.height: height
                 }
                 Image{
                     source: "icon/joy_down.png"
                     width: parent.width*0.8
                     height: 40
+                    sourceSize.width: width
+                    sourceSize.height: height
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
                     anchors.bottomMargin: 30

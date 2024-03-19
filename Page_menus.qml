@@ -207,6 +207,10 @@ Item {
                     Image{
                         id: image_no
                         source: "icon/btn_no.png"
+                        width: 50
+                        height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20
@@ -244,6 +248,10 @@ Item {
                     Image{
                         id: image_yes
                         source: "icon/icon_yes.png"
+                        width: 50
+                        height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20
@@ -281,6 +289,10 @@ Item {
                     Image{
                         id: image_yes2
                         source: "icon/icon_yes.png"
+                        width: 50
+                        height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20

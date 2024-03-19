@@ -97,6 +97,8 @@ Item {
             source: "image/robot_pickup.png"
             width: 221
             height: 452
+            sourceSize.width: width
+            sourceSize.height: height
             anchors.verticalCenter: parent.verticalCenter
             Rectangle{
                 id: rect_tray_1
@@ -202,6 +204,8 @@ Item {
                             source:"icon/icon_yes.png"
                             width: 60
                             height: 60
+                            sourceSize.width: width
+                            sourceSize.height: height
                         }
                     }
                     Rectangle{
@@ -257,6 +261,7 @@ Item {
             password++;
             if(password > 4){
                 password = 0;
+                supervisor.moveStop();
                 supervisor.writelog("[UI] PagePickup : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
             }

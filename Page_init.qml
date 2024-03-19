@@ -96,8 +96,10 @@ Item {
                 }
                 Image{
                     id: image_logo1
-                    sourceSize.width: 2245/4
-                    sourceSize.height: 1004/4
+                    width: 2245/4
+                    height: 1004/4
+                    sourceSize.width: width
+                    sourceSize.height: height
                     source: Qt.resolvedUrl("qrc:/image/rainbow3.png")
                     anchors.horizontalCenter:  parent.horizontalCenter
                     y: 220
@@ -230,6 +232,8 @@ Item {
                             id: image_charge1
                             width: 40
                             height: 40
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source:"icon/icon_local_error.png"
                             anchors.verticalCenter: parent.verticalCenter
                             ColorOverlay{
@@ -476,6 +480,8 @@ Item {
                             id: image_charge
                             width: 40
                             height: 40
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source:"icon/icon_minimize.png"
                             anchors.verticalCenter: parent.verticalCenter
                             ColorOverlay{
@@ -683,6 +689,8 @@ Item {
                             Image{
                                 width: 150
                                 height: 220
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 source: "image/robot_callme.png"
                             }
                             Column{
@@ -1587,6 +1595,8 @@ Item {
                         Image{
                             width: 40
                             height: 40
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source:"icon/icon_add.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             ColorOverlay{
@@ -1634,6 +1644,8 @@ Item {
                         Image{
                             width: 40
                             height: 40
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source:"icon/icon_folder.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             ColorOverlay{
@@ -1683,6 +1695,8 @@ Item {
                         Image{
                             width: 40
                             height: 40
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source:"icon/icon_usb.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             ColorOverlay{
@@ -1735,6 +1749,8 @@ Item {
                             id: image_charge1
                             width: 40
                             height: 40
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source:"icon/icon_remove.png"
                             anchors.horizontalCenter: parent.horizontalCenter
                             ColorOverlay{
@@ -1865,6 +1881,8 @@ Item {
 
             Image{
                 id: image_logo4
+                width: 2245/6
+                height: 1004/6
                 sourceSize.width: 2245/6
                 sourceSize.height: 1004/6
                 anchors.top: parent.top
@@ -2061,6 +2079,8 @@ Item {
                         property color color_ov
                         width: 280
                         height: 170
+                        sourceSize.width: width
+                        sourceSize.height: height
                         visible: false
                         anchors.horizontalCenter: parent.horizontalCenter
                         source: "image/robot_head.png"

@@ -2980,6 +2980,8 @@ Item {
                                         anchors.centerIn: parent
                                         width: 35
                                         height: 35
+                                        sourceSize.width: width
+                                        sourceSize.height: height
                                         source: "icon/icon_keyboard.png"
                                         ColorOverlay{
                                             anchors.fill: parent
@@ -10970,6 +10972,8 @@ Item {
                     anchors.verticalCenterOffset: 50
                     width: 200
                     height: 460
+                    sourceSize.width: width
+                    sourceSize.height: height
                     ColorOverlay{
                         anchors.fill: parent
                         source: parent
@@ -10981,6 +10985,8 @@ Item {
                         source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
                         width: 55
                         height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.left: parent.left
                         anchors.leftMargin: 20//60
                         anchors.bottom: parent.bottom
@@ -11009,6 +11015,8 @@ Item {
                         source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
                         width: 55
                         height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.right: parent.right
                         anchors.rightMargin: 20//-60
                         anchors.bottom: parent.bottom
@@ -11037,6 +11045,8 @@ Item {
                         source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
                         width: 55
                         height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.centerIn: parent
                         Rectangle{
                             width: 130
@@ -11081,6 +11091,8 @@ Item {
                         source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
                         width: 55
                         height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.horizontalCenter: parent.horizontalCenter
                         anchors.bottom: parent.top
                         anchors.bottomMargin: -20
@@ -11142,6 +11154,8 @@ Item {
                                                         source: image
                                                         width: 45
                                                         height: 40
+                                                        sourceSize.width: width
+                                                        sourceSize.height: height
                                                     }
                                                 }
                                                 Rectangle{
@@ -12571,6 +12585,8 @@ Item {
                                 source: "icon/icon_researching.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -12620,6 +12636,8 @@ Item {
                                 source: "icon/icon_bookmark.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -12671,6 +12689,8 @@ Item {
                                 source: "icon/save_r.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -12722,6 +12742,8 @@ Item {
                                 source: "icon/load_r.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -12775,6 +12797,8 @@ Item {
                                 source: "icon/icon_run.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -12823,6 +12847,8 @@ Item {
                                 source: "icon/image_setting.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -12874,6 +12900,8 @@ Item {
                                 source: "icon/icon_researching.png"
                                 width: 40
                                 height: 40
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 ColorOverlay{
                                     anchors.fill: parent
@@ -13011,6 +13039,8 @@ Item {
                                 color: "transparent"
                                 Image{
                                     anchors.fill: parent
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: done===2?"icon/icon_yes.png":done===1?"icon/icon_run.png":"icon/icon_error.png"
                                 }
                             }
@@ -14912,6 +14942,8 @@ Item {
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
@@ -14956,6 +14988,8 @@ Item {
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
@@ -15015,6 +15049,8 @@ Item {
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
@@ -15060,6 +15096,8 @@ Item {
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
@@ -15120,6 +15158,8 @@ Item {
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
@@ -15164,6 +15204,8 @@ Item {
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
