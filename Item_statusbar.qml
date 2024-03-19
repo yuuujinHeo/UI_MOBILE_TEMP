@@ -211,6 +211,7 @@ Item {
             anchors.fill: rows_icon
             onClicked: {
                 click_sound.play();
+                update_init();
                 update_detail();
                 popup_status_detail.open();
             }
@@ -225,11 +226,14 @@ Item {
         id: model_details
     }
 
-    function update_detail(){
+    function update_init(){
+        rect_back.sound = supervisor.getSystemVolume();
 
+    }
+
+    function update_detail(){
         model_details.clear();
 
-        rect_back.sound = supervisor.getSystemVolume();
 
         if(supervisor.isConnectServer()){
             model_details.append({"detail":qsTr("서버에 연결되었습니다"),"detail2":"","icon":"icon/icon_server_good.png","error":false});
@@ -257,7 +261,7 @@ Item {
 
 
         if(supervisor.getPowerStatus() === 1){
-            if(supervisor.getMotorStatus() === 1){
+            if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1){
                 if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
                     model_details.append({"detail":qsTr("모터전원이 정상입니다"),"detail2":"모터가 뜨겁습니다","icon":"icon/icon_motor_hot.png","error":false});
                 }else{
@@ -362,9 +366,10 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                if(loader_page.item.objectName != "page_init"){
+                                if(loader_page.item.objectName != "page_init" || loader_page.item.objectName != "page_setting"){
                                     click_sound.play();
                                     loadPage(psetting);
+                                    popup_status_detail.close();
                                 }else{
                                     click_sound_no.play();
                                 }
@@ -489,7 +494,7 @@ Item {
 //                                if(debug_mode){
 //                                    mainwindow.showMinimized();
 //                                }else{
-                                    popup_password.open();
+                                    popup_password_minimize.open();
 //                                }
                             }
                         }
@@ -647,15 +652,6 @@ Item {
         }
     }
 
-    Popup_password{
-        id: popup_password
-        anchors.centerIn: parent
-        onLogined:{
-            mainwindow.showMinimized();
-            popup_status_detail.close();
-            popup_password.close();
-        }
-    }
 
 
     Timer{
@@ -678,6 +674,12 @@ Item {
                 }
             }else{
                 image_ethernet.source = "qrc:/icon/icon_ethernet_discon.png";
+            }
+
+            if(supervisor.getLockStatus() === 1){
+                image_motorlock.source = "qrc:/icon/icon_motor_locked.png"
+            }else{
+                image_motorlock.source = "qrc:/icon/icon_motor_unlock.png"
             }
 
             if(supervisor.getWifiConnection()===1){
@@ -721,7 +723,7 @@ Item {
             }
 
             if(supervisor.getPowerStatus() === 1){
-                if(supervisor.getMotorStatus() === 1){
+                if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1){
                     if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
                         image_motor_power.source = "icon/icon_motor_hot.png"
                     }else{
@@ -764,6 +766,8 @@ Item {
             }else{
                 image_local_error.visible = true;
             }
+
+            update_detail();
         }
     }
 }
