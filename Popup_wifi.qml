@@ -264,6 +264,8 @@ Popup{
                                                 source: "icon/icon_lock_2.png"
                                                 width: 50
                                                 height: 50
+                                                sourceSize.width: width
+                                                sourceSize.height: height
                                                 ColorOverlay{
                                                     anchors.fill: parent
                                                     source: parent
@@ -481,6 +483,8 @@ Popup{
                                 source: "icon/icon_lock_2.png"
                                 width: 50
                                 height: 50
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 ColorOverlay{
                                     anchors.fill: parent
                                     source: parent
@@ -645,6 +649,8 @@ Popup{
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source: "icon/icon_keyboard.png"
                                     ColorOverlay{
                                         anchors.fill: parent
@@ -674,6 +680,8 @@ Popup{
                                     anchors.centerIn: parent
                                     width: 35
                                     height: 35
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source:popup_wifi.show_passwd?"icon/icon_eye_open.png":"icon/icon_eye_close.png"
                                 }
                                 MouseArea{

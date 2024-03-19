@@ -74,6 +74,7 @@ Item {
                 popup_clean_calling.open();
             }
         }
+//        supervisor.moveStop();
         supervisor.setMotorLock(true);
 
 //        if(supervisor.getSetting("setting","USE_UI","use_restinglock")==="true"){
@@ -263,6 +264,8 @@ Item {
 
         width: 90*1.5
         height: 50*1.5
+        sourceSize.width: width
+        sourceSize.height: height
         source:"image/robot_head.png"
     }
 
@@ -517,6 +520,8 @@ Item {
             visible: table_num>row_num?true:false
             Image{
                 anchors.fill: parent
+                sourceSize.width: width
+                sourceSize.height: height
                 source: "icon/btn_lock.png"
             }
             MouseArea{
@@ -599,6 +604,8 @@ Item {
                 border.width: 1
                 Image{
                     anchors.fill: parent
+                    sourceSize.width: width
+                    sourceSize.height: height
                     source: "icon/icon_yes.png"
                 }
                 MouseArea{
@@ -912,6 +919,8 @@ Item {
                         visible: true;//group_num>row_num?true:false
                         Image{
                             anchors.fill: parent
+                            sourceSize.width: width
+                            sourceSize.height: height
                             source: "icon/btn_lock.png"
                         }
                         MouseArea{
@@ -1090,6 +1099,8 @@ Item {
                             border.width: 1
                             Image{
                                 anchors.fill: parent
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 source: "icon/icon_yes.png"
                             }
                             MouseArea{
@@ -1524,6 +1535,8 @@ Item {
             source:"image/image_location.png"
             width: 160
             height: 160
+            sourceSize.width: width
+            sourceSize.height: height
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 200
@@ -1561,6 +1574,10 @@ Item {
             Image{
                 id: image_no
                 source: "icon/btn_no.png"
+                width: 50
+                height: 50
+                sourceSize.width: width
+                sourceSize.height: height
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 20
@@ -1604,6 +1621,10 @@ Item {
             Image{
                 id: image_yes
                 source: "icon/icon_yes.png"
+                width: 50
+                height: 50
+                sourceSize.width: width
+                sourceSize.height: height
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 20
@@ -1777,6 +1798,10 @@ Item {
                     Image{
                         id: imm2
                         source: "icon/icon_yes.png"
+                        width: 50
+                        height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: parent.left
                         anchors.leftMargin: 20
@@ -1899,6 +1924,10 @@ Item {
                         Image{
                             id: imm
                             source: "icon/icon_yes.png"
+                            width: 50
+                            height: 50
+                            sourceSize.width: width
+                            sourceSize.height: height
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.left: parent.left
                             anchors.leftMargin: 20

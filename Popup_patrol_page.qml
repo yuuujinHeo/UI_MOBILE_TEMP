@@ -245,6 +245,8 @@ Popup {
                                     Image{
                                         width: 35
                                         height: 20
+                                        sourceSize.width: width
+                                        sourceSize.height: height
                                         source: column_background.visible?"icon/joy_up.png":"icon/joy_down.png"
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.right: parent.right
@@ -333,6 +335,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
+                                                    move_page.pauseGif();
                                                     color_dialog.open();
                                                 }
                                             }
@@ -350,6 +353,7 @@ Popup {
                                                         rect_color.color = supervisor.getServingPageColor()
                                                         text_color.text = supervisor.getServingPageColor()
                                                     }
+                                                    move_page.resumeGif();
 
                                                 }
                                             }
@@ -382,6 +386,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
+                                                    move_page.pauseGif();
                                                     image_dialog.open();
                                                 }
                                             }
@@ -414,6 +419,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
+                                                    move_page.pauseGif();
                                                     image_dialog.open();
                                                 }
                                             }
@@ -520,6 +526,7 @@ Popup {
                                             text_video.text = image_dialog.fileUrl.toString().split("/").pop()
                                         }
                                     }
+                                    move_page.resumeGif();
 
                                 }
                             }
@@ -542,6 +549,8 @@ Popup {
                                     Image{
                                         width: 35
                                         height: 20
+                                        sourceSize.width: width
+                                        sourceSize.height: height
                                         source: column_background.visible?"icon/joy_up.png":"icon/joy_down.png"
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.right: parent.right
@@ -596,7 +605,12 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    popup_edit.open();
+                                                    if(move_page.select_obj>-1){
+                                                        click_sound_no.play();
+                                                    }else{
+                                                        click_sound.play();
+                                                        popup_edit.open();
+                                                    }
                                                 }
                                             }
                                         }
@@ -613,7 +627,12 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    popup_delete.open();
+                                                    if(move_page.select_obj>-1){
+                                                        click_sound_no.play();
+                                                    }else{
+                                                        click_sound.play();
+                                                        popup_delete.open();
+                                                    }
                                                 }
                                             }
                                         }
@@ -861,6 +880,7 @@ Popup {
                                 anchors.fill:parent
                                 onClicked: {
                                     click_sound.play();
+                                    move_page.pauseGif();
                                     image_edit_dialog.open();
                                 }
                             }
@@ -873,6 +893,8 @@ Popup {
                         onAccepted:{
                             tfield_image.fullurl = image_edit_dialog.fileUrl
                             tfield_image.text = image_edit_dialog.fileUrl.toString().split("/").pop()
+
+                            move_page.resumeGif();
                         }
                     }
                     Row{
@@ -972,11 +994,14 @@ Popup {
                                 anchors.centerIn: parent
                                 width: 50
                                 height: 50
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 source: "icon/icon_colorwheel.png"
                             }
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
+                                    move_page.pauseGif();
                                     color_dialog2.open();
                                 }
                             }
@@ -985,6 +1010,7 @@ Popup {
                                 color: "black"
                                 onSelectionAccepted: {
                                     print("set color ",color_dialog2.color)
+                                    move_page.resumeGif();
 //                                    rect_color_text.color = color_dialog2.color
                                 }
                             }
@@ -1039,6 +1065,7 @@ Popup {
 
                                     popup_setting_patrolpage.update();
                                     popup_edit.close();
+                                    move_page.resumeGif();
                                     color_dialog2.close();
                                 }
                             }

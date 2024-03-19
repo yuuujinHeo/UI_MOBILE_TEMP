@@ -134,8 +134,10 @@ Item {
             Image{
                 id: image_server
                 visible: is_con_server
-                sourceSize.width: 46
-                sourceSize.height: 46
+                width: 46
+                height: 46
+                sourceSize.width: width
+                sourceSize.height: height
                 source: "icon/icon_server_good.png"
             }
             Image{
@@ -202,8 +204,10 @@ Item {
             Image{
                 id: image_battery
                 source: "icon/icon_battery_1.png"
-                sourceSize.width: 46
-                sourceSize.height: 46
+                width: 46
+                height: 46
+                sourceSize.width: width
+                sourceSize.height: height
                 anchors.verticalCenter: parent.verticalCenter
             }
         }

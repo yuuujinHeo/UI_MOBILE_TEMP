@@ -370,6 +370,8 @@ Popup{
                                                         Image{
                                                             width: 25
                                                             height: 25
+                                                            sourceSize.width: width
+                                                            sourceSize.height: height
                                                             source:{
                                                                 type==="random"?"icon/icon_random_b.png":"icon/icon_repeat_b.png"
                                                             }
@@ -748,6 +750,8 @@ Popup{
                                             Image{
                                                 width: 40
                                                 height: 40
+                                                sourceSize.width: width
+                                                sourceSize.height: height
                                                 anchors.centerIn: parent
                                                 source: "icon/icon_repeat_b.png"
                                             }
@@ -770,6 +774,8 @@ Popup{
                                             Image{
                                                 width: 40
                                                 height: 40
+                                                sourceSize.width: width
+                                                sourceSize.height: height
                                                 anchors.centerIn: parent
                                                 source: "icon/icon_random_b.png"
                                             }
@@ -904,6 +910,8 @@ Popup{
                                                     anchors.centerIn: parent
                                                     width: 18
                                                     height: 15
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
                                                     source: "icon/joy_up.png"
                                                 }
                                                 MouseArea{
@@ -923,6 +931,8 @@ Popup{
                                                     anchors.centerIn: parent
                                                     width: 18
                                                     height: 12
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
                                                     source: "icon/joy_down.png"
                                                 }
                                                 MouseArea{
@@ -978,6 +988,8 @@ Popup{
                                                     anchors.centerIn: parent
                                                     width: 18
                                                     height: 15
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
                                                     source: "icon/joy_up.png"
                                                 }
                                                 MouseArea{
@@ -1096,6 +1108,8 @@ Popup{
                                                 anchors.centerIn: parent
                                                 width: 35
                                                 height: 35
+                                                sourceSize.width: width
+                                                sourceSize.height: height
                                                 source: "icon/icon_keyboard.png"
                                                 ColorOverlay{
                                                     anchors.fill: parent
@@ -1203,6 +1217,8 @@ Popup{
                                                 source: "icon/icon_test_play.png"
                                                 width: 40
                                                 height: 40
+                                                sourceSize.width: width
+                                                sourceSize.height: height
                                             }
                                             MouseArea{
                                                 anchors.fill: parent
@@ -1297,6 +1313,8 @@ Popup{
                     source: "image/warning.png"
                     width: 150
                     height: 150
+                    sourceSize.width: width
+                    sourceSize.height: height
                 }
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -1555,6 +1573,8 @@ Popup{
                                 Image{
                                     width: 25
                                     height: 25
+                                    sourceSize.width: width
+                                    sourceSize.height: height
                                     source:{
                                         select_preset>-1&&select_preset<model_preset.count?model_preset.get(select_preset).type==="random"?"icon/icon_random_b.png":"icon/icon_repeat_b.png":"icon/icon_repeat_b.png"
                                     }

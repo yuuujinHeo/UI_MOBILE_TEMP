@@ -43,6 +43,8 @@ Item {
             source: "image/robot_clear.png"
             width: 257
             height: 457
+            sourceSize.width: width
+            sourceSize.height: height
             anchors.verticalCenter: parent.verticalCenter
         }
         Column{
@@ -114,6 +116,8 @@ Item {
                             source:"icon/icon_yes.png"
                             width: 60
                             height: 60
+                            sourceSize.width: width
+                            sourceSize.height: height
                         }
                     }
                     Rectangle{
@@ -168,6 +172,7 @@ Item {
             password++;
             if(password > 4){
                 password = 0;
+                supervisor.moveStop();
                 supervisor.writelog("[UI] PagePickupCall : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
             }

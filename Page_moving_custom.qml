@@ -23,6 +23,17 @@ Item {
         print("move page volume : ", volume)
     }
 
+    function pauseGif(){
+        if(background_mode === "image"){
+            loader_background.item.pause();
+        }
+    }
+    function resumeGif(){
+        print("resumeGif ",background_mode)
+        if(background_mode === "image")
+            loader_background.item.resume();
+    }
+
     function setPage(name){
         print("mcustom page set : "+name);
         page = name;
@@ -205,6 +216,8 @@ Item {
         Image{
             id: image
             anchors.fill: parent
+            sourceSize.width: width
+            sourceSize.height: height
             source: background_source
             fillMode: Image.Stretch
             Text{
@@ -217,25 +230,38 @@ Item {
     }
     Component{
         id: compo_gif
-        AnimatedImage{
-            id: gif
-            cache: false
+        Item{
             anchors.fill: parent
-            onStatusChanged:{
-                print("status: ",status, playing)
-                if(status == AnimatedImage.Ready){
-                    playing = true;
+            function pause(){
+                gif.paused = true;
+            }
+            function resume(){
+                print("gif resume")
+                gif.paused = false;
+            }
+
+            AnimatedImage{
+                id: gif
+                cache: false
+                anchors.fill: parent
+                onStatusChanged:{
+                    print("status: ",status, playing)
+                    if(status == AnimatedImage.Ready){
+                        playing = true;
+                    }
+                }
+
+                source: background_source
+                fillMode: AnimatedImage.Stretch
+                Text{
+                    anchors.centerIn: parent
+                    text:qsTr("이미지를 불러올 수 없습니다")
+                    color: color_red
+                    visible: gif.status !== AnimatedImage.Ready
                 }
             }
-            source: background_source
-            fillMode: AnimatedImage.Stretch
-            Text{
-                anchors.centerIn: parent
-                text:qsTr("이미지를 불러올 수 없습니다")
-                color: color_red
-                visible: gif.status !== AnimatedImage.Ready
-            }
         }
+
     }
 
     Component{
@@ -263,11 +289,23 @@ Item {
                 fillMode: VideoOutput.Stretch
                 source: background_source
                 volume: 0.5
+                flushMode: VideoOutput.FirstFrame
                 onVolumeChanged:{
                     print("volume : " , volume)
                 }
+                onBufferProgressChanged: {
+                    print("buffer : ",bufferProgress)
+                }
+
                 autoPlay: true
                 loops:MediaPlayer.Infinite
+                onStatusChanged: {
+                    print("video status : ",status)
+                }
+                onStateChanged: {
+                    print("video state : ",state);
+                }
+
                 Text{
                     anchors.centerIn: parent
                     text:qsTr("영상을 불러올 수 없습니다")
@@ -477,6 +515,8 @@ Item {
             source: "icon/icon_warning.png"
             width: 160
             height: 160
+            sourceSize.width: width
+            sourceSize.height: height
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 200
@@ -672,6 +712,7 @@ Item {
             password++;
             if(password > 4){
                 password = 0;
+                supervisor.moveStop();
                 supervisor.writelog("[UI] PageMovingCustom : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
             }

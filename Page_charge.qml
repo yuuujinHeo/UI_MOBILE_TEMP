@@ -82,7 +82,6 @@ Item {
         interval: 500
         running: true
         onTriggered: {
-//            print(supervisor.getChargeStatus() , supervisor.getChargeConnectStatus(), is_charging);
             if(supervisor.getChargeStatus()){
                 if(!is_charging){
                     timer_bat.start();
@@ -222,6 +221,8 @@ Item {
             source:"image/image_location.png"
             width: 160
             height: 160
+            sourceSize.width: width
+            sourceSize.height: height
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 200
@@ -249,6 +250,10 @@ Item {
                 color: "#d0d0d0"
                 Image{
                     id: image_no
+                    width: 50
+                    height: 50
+                    sourceSize.width: width
+                    sourceSize.height: height
                     source: "icon/btn_no.png"
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
@@ -288,6 +293,10 @@ Item {
                 }
                 Image{
                     id: image_yes
+                    width: 50
+                    height: 50
+                    sourceSize.width: width
+                    sourceSize.height: height
                     source: "icon/icon_yes.png"
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
