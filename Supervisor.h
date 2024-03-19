@@ -288,6 +288,7 @@ public:
 
     Q_INVOKABLE void initServingPage();
     Q_INVOKABLE void saveServingPage();
+    Q_INVOKABLE void savePatrolgPage();
     Q_INVOKABLE int getServingObjectSize();
     Q_INVOKABLE QString getServingObjectType(int num);
     Q_INVOKABLE QString getServingObjectSource(int num);

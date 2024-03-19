@@ -81,7 +81,7 @@ Item {
         popup_notice.close();
     }
     function init(){
-        supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName)
+        supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName+", "+edit_mode);
 
         supervisor.stopBGM();
         popup_pause.visible = false;
