@@ -46,7 +46,6 @@ Popup {
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
 
-
             if(supervisor.getMovingPageBackground() === "color"){
                 combo_background_mode.currentIndex = 0;
                 move_page.background_source = supervisor.getMovingPageColor()
