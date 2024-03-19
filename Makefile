@@ -90,6 +90,7 @@ SOURCES       = CallbellHandler.cpp \
 		Item_radioButton_qml.cpp \
 		Popup_patrol_qml.cpp \
 		Popup_password_qml.cpp \
+		Popup_wifi_qml.cpp \
 		Page_moving_qml.cpp \
 		Page_charge_qml.cpp \
 		Tool_Keyboard_qml.cpp \
@@ -108,6 +109,7 @@ SOURCES       = CallbellHandler.cpp \
 		Page_kitchen_qml.cpp \
 		Popup_patrol_page_qml.cpp \
 		Page_mapping_qml.cpp \
+		Buttons_qml.cpp \
 		Page_menus_qml.cpp \
 		Tool_KeyPad_qml.cpp \
 		Page_pickup_calling_qml.cpp \
@@ -182,6 +184,7 @@ OBJECTS       = CallbellHandler.o \
 		Item_radioButton_qml.o \
 		Popup_patrol_qml.o \
 		Popup_password_qml.o \
+		Popup_wifi_qml.o \
 		Page_moving_qml.o \
 		Page_charge_qml.o \
 		Tool_Keyboard_qml.o \
@@ -200,6 +203,7 @@ OBJECTS       = CallbellHandler.o \
 		Page_kitchen_qml.o \
 		Popup_patrol_page_qml.o \
 		Page_mapping_qml.o \
+		Buttons_qml.o \
 		Page_menus_qml.o \
 		Tool_KeyPad_qml.o \
 		Page_pickup_calling_qml.o \
@@ -616,7 +620,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
+	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Popup_wifi.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Buttons.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
 	$(COPY_FILE) --parents qml.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents qml_qmlcache.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
@@ -646,9 +650,9 @@ check: first
 
 benchmark: first
 
-compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Popup_wifi_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Buttons_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 compiler_qmlcache_clean:
-	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Popup_wifi_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Buttons_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 Popup_notice_qml.cpp: Popup_notice.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_notice_qml.cpp Popup_notice.qml
@@ -664,6 +668,10 @@ Popup_patrol_qml.cpp: Popup_patrol.qml \
 Popup_password_qml.cpp: Popup_password.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_password_qml.cpp Popup_password.qml
+
+Popup_wifi_qml.cpp: Popup_wifi.qml \
+		/usr/lib/qt5/bin/qmlcachegen
+	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_wifi_qml.cpp Popup_wifi.qml
 
 Page_moving_qml.cpp: Page_moving.qml \
 		/usr/lib/qt5/bin/qmlcachegen
@@ -737,6 +745,10 @@ Page_mapping_qml.cpp: Page_mapping.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Page_mapping_qml.cpp Page_mapping.qml
 
+Buttons_qml.cpp: Buttons.qml \
+		/usr/lib/qt5/bin/qmlcachegen
+	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Buttons_qml.cpp Buttons.qml
+
 Page_menus_qml.cpp: Page_menus.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Page_menus_qml.cpp Page_menus.qml
@@ -797,6 +809,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		Popup_patrol.qml \
 		lang_eddn.qm \
 		Popup_password.qml \
+		Popup_wifi.qml \
 		Page_moving.qml \
 		Page_charge.qml \
 		Tool_Keyboard.qml \
@@ -815,6 +828,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		Page_kitchen.qml \
 		Popup_patrol_page.qml \
 		Page_mapping.qml \
+		Buttons.qml \
 		Page_menus.qml \
 		Tool_KeyPad.qml \
 		Page_pickup_calling.qml \
@@ -837,12 +851,10 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		bgm/click_error.wav \
 		image/image_robot_temp.png \
 		image/face_normal.gif \
-		image/battery_1.png \
+		image/image_robot_moving.png \
 		image/robot_head_sleep.png \
-		image/battery_2.png \
 		image/face_cry2.gif \
 		image/warning.png \
-		image/battery_3.png \
 		image/robot_clear.png \
 		image/robot_pickup.png \
 		image/icon_warning.png \
@@ -854,9 +866,12 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		image/robot_callme.png \
 		image/robot_move_wait.png \
 		image/image_patrol.png \
+		image/image_battery_1.png \
+		image/image_battery_2.png \
 		image/robot_head.png \
+		image/image_battery_3.png \
+		image/image_battery_4.png \
 		image/image_location.png \
-		image/battery_full.png \
 		image/robot_move_charge.png \
 		image/image_annot.png \
 		image/image_lock.png \
@@ -866,130 +881,171 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		image/image_slam.png \
 		image/loading_rb.gif \
 		image/robot_manual.gif \
+		image/image_robot_resting.png \
 		image/rainbow3.png \
 		image/joy_background.png \
 		image/image_localization_reset.png \
-		icon/icon_server_disconnect.png \
-		icon/btn_reset2.png \
-		icon/clock.png \
-		icon/joy_left.png \
-		icon/icon_meta_save.png \
-		icon/icon_home_2.png \
-		icon/icon_lock_2.png \
-		icon/icon-drawing-square.png \
-		icon/bat_1.png \
-		icon/motor_power_off.png \
-		icon/btn_no.png \
-		icon/save_r.png \
+		icon/icon_draw_rect.png \
+		icon/icon_server_good.png \
+		icon/icon_warn_power.png \
 		icon/icon_reset.png \
-		icon/joystick_back.png \
-		icon/record_r.png \
-		icon/icon_init.png \
-		icon/data_green.png \
-		icon/load_r.png \
-		icon/bat_charge.png \
-		icon/keyboard_down.png \
-		icon/btn_home.png \
-		icon/stop_r.png \
-		icon/icon_local_error.png \
-		icon/btn_minimize.png \
-		icon/icon_home_1.png \
-		icon/icon_obs.png \
-		icon/icon_warning_1.png \
-		icon/motor_power_on.png \
-		icon/icon_joy_disconnect.png \
-		icon/bat_large_full.png \
-		icon/icon_undo.png \
-		icon/image_emergency.png \
-		icon/icon_location.png \
-		icon/joy_right.png \
-		icon/keyboard_up.png \
-		icon/icon-drawing-free\ drawing.png \
-		icon/btn_wait.png \
-		icon/image_setting.png \
-		icon/icon_slowarea.png \
-		icon/icon_edit.png \
-		icon/icon_manualmove.png \
-		icon/icon_mapping_start.png \
-		icon/btn_lock.png \
-		icon/icon_remove.png \
-		icon/icon_transmit_server.png \
-		icon/icon_point_1.png \
-		icon/icon_annot_save.png \
-		icon/btn_map.png \
-		icon/icon_joy_connect.png \
-		icon/icon_erase.png \
-		icon/icon_set_init.png \
-		icon/btn_setting.png \
-		icon/data_gray.png \
 		icon/icon_move.png \
-		icon/icon_charge_2.png \
-		icon/image_map.png \
-		icon/icon_non_mute.png \
-		icon/btn_confirm.png \
-		icon/icon_test_play.png \
-		icon/image_emergency_push.png \
-		icon/keyboard.png \
-		icon/bat_large_3.png \
-		icon/keyboard_left.png \
-		icon/icon_avoid.png \
-		icon/icon_point.png \
+		icon/icon_draw_line.png \
 		icon/btn_reset.png \
-		icon/bat_large_charge.png \
-		icon/icon_redo.png \
-		icon/btn_yes.png \
-		icon/icon_random_b.png \
-		icon/icon_lcm_discon.png \
-		icon/bat_3.png \
-		icon/icon_warning.png \
-		icon/joystick_thumb.png \
-		icon/icon_server_download.png \
-		icon/btn_menu.png \
-		icon/icon_bookmark.png \
-		icon/icon_auto_init.png \
 		icon/icon_charge_1.png \
-		icon/icon_motor_error.png \
-		icon/icon_motor_hot.png \
-		icon/joy_down.png \
-		icon/icon_cancelpath.png \
+		icon/icon_save.png \
+		icon/icon_server_disconnect.png \
+		icon/icon_map.png \
+		icon/icon_mapping_start.png \
+		icon/icon_avoid.png \
+		icon/icon_add_group.png \
+		icon/icon_power_2.png \
+		icon/icon_draw.png \
 		icon/icon_power.png \
-		icon/icon_server_connect.png \
-		icon/icon_error.png \
+		icon/icon_minimize.png \
+		icon/icon_home_2.png \
+		icon/joy_right.png \
+		icon/icon_charge.png \
+		icon/icon_emergency.png \
+		icon/icon_motor_locked.png \
+		icon/icon_motor_error.png \
+		icon/icon_local_error.png \
+		icon/icon_warning.png \
+		icon/icon_list.png \
+		icon/icon_forbid_w.png \
+		icon/icon_test_stop.png \
+		icon/icon_pen.png \
+		icon/record_r.png \
+		icon/icon_battery_charging.png \
+		icon/icon_repeat_b.png \
+		icon/icon_draw_free.png \
+		icon/icon_wifibad_3.png \
+		icon/icon_run.png \
+		icon/btn_home.png \
+		icon/icon_wifi_discon.png \
+		icon/image_setting.png \
 		icon/icon_random.png \
 		icon/play_r.png \
-		icon/icon_mapping.png \
-		icon/icon_colorwheel.png \
-		icon/bat_large_2.png \
-		icon/icon_obj_no.png \
-		icon/cursor.png \
-		icon/icon-wall.png \
-		icon/icon_connect_error.png \
-		icon/icon_cur.png \
-		icon/icon_stop.png \
-		icon/icon_local_auto.png \
-		icon/icon_local_manual.png \
-		icon/icon_lidar.png \
-		icon/icon_mute.png \
-		icon/icon_test_stop.png \
-		icon/icon_draw.png \
-		icon/bat_2.png \
-		icon/icon_open.png \
 		icon/icon_wall.png \
-		icon/joy_up.png \
-		icon/btn_charge.png \
-		icon/keyboard_right.png \
-		icon/icon_run.png \
-		icon/icon_repeat_b.png \
-		icon/icon-drawing-curve.png \
+		icon/icon_wifibad_1.png \
+		icon/icon_transmit_server.png \
+		icon/icon_battery_4.png \
+		icon/icon_cut.png \
+		icon/image_emergency.png \
+		icon/icon_setting.png \
+		icon/icon_ethernet_connecting.png \
+		icon/stop_r.png \
+		icon/icon_set_init.png \
 		icon/icon_add.png \
-		icon/patrol_down.png \
-		icon/icon_emergency.png \
-		icon/icon_trashcan.png \
+		icon/icon_clock.png \
+		icon/icon_point.png \
+		icon/icon_mapping.png \
+		icon/icon-wall.png \
+		icon/icon_cur.png \
+		icon/icon_battery_2.png \
+		icon/icon_trash_w.png \
+		icon/icon_obs.png \
+		icon/icon_wifi_4.png \
+		icon/icon_yes_w.png \
+		icon/icon_ethernet_good.png \
+		icon/icon_mute.png \
+		icon/icon_annot_save.png \
+		icon/btn_charge.png \
+		icon/icon_server_connect.png \
+		icon/icon_volume_2.png \
+		icon/bat_large_full.png \
+		icon/icon_wifi_2.png \
+		icon/icon_stop.png \
+		icon/keyboard_left.png \
+		icon/icon-drawing-free\ drawing.png \
+		icon/icon_volume_0.png \
 		icon/icon_researching.png \
-		icon/bat_large_1.png \
-		icon/icon_obj_yes.png \
-		icon/bat_full.png \
+		icon/btn_no.png \
+		icon/icon_init.png \
+		icon/icon_test_play.png \
+		icon/icon_meta_save.png \
+		icon/icon_charge_2.png \
+		icon/icon_wifi_connecting.png \
+		icon/keyboard_down.png \
+		icon/keyboard_up.png \
+		icon/icon-drawing-curve.png \
+		icon/icon-drawing-square.png \
+		icon/icon_keyboard.png \
+		icon/icon_ethernet_discon.png \
+		icon/icon_server_download.png \
+		icon/icon_remove.png \
+		icon/icon_cleaning.png \
+		icon/icon_wait.png \
+		icon/image_emergency_push.png \
+		icon/icon_lidar.png \
+		icon/icon_forbidden.png \
+		icon/patrol_down.png \
+		icon/icon_testmoving.png \
+		icon/icon_clean.png \
+		icon/image_map.png \
+		icon/icon_auto_init.png \
+		icon/icon_erase.png \
+		icon/icon_local_manual.png \
+		icon/icon_edit.png \
+		icon/icon_wifibad_4.png \
+		icon/icon_home_1.png \
+		icon/icon_colorwheel.png \
 		icon/icon-drawing-polygon.png \
+		icon/icon_connect_error.png \
+		icon/icon_motor_unlock.png \
+		icon/save_r.png \
+		icon/icon_eye_close.png \
+		icon/icon_error_w.png \
+		icon/icon_add_loc.png \
+		icon/icon_info.png \
+		icon/icon_wifibad_2.png \
+		icon/icon_forbidden_w.png \
+		icon/keyboard_right.png \
+		icon/icon_key.png \
+		icon/icon_slowarea.png \
+		icon/icon_motor_good.png \
+		icon/icon_motor_hot.png \
+		icon/icon_trashcan.png \
+		icon/icon_eye_open.png \
+		icon/icon_manualmove.png \
+		icon/icon_lock_2.png \
+		icon/icon_warning_1.png \
+		icon/icon_ruler.png \
+		icon/icon_usb.png \
+		icon/icon_battery_3.png \
+		icon/icon_undo.png \
+		icon/icon_random_b.png \
+		icon/icon_backspace.png \
+		icon/joy_left.png \
+		icon/image_local_error.png \
+		icon/icon_bookmark.png \
+		icon/btn_wait.png \
+		icon/icon_non_mute.png \
+		icon/btn_menu.png \
+		icon/icon_redo.png \
+		icon/icon_battery_1.png \
+		icon/icon_volume_3.png \
+		icon/joy_down.png \
+		icon/icon_local_auto.png \
+		icon/icon_location.png \
+		icon/icon_trash.png \
+		icon/icon_wifi_3.png \
+		icon/icon_motor_discon.png \
+		icon/icon_forbid.png \
+		icon/icon_callbell.png \
+		icon/icon_volume_1.png \
+		icon/icon_ethernet_no.png \
+		icon/joy_up.png \
+		icon/icon_yes.png \
+		icon/btn_lock.png \
+		icon/icon_back.png \
+		icon/icon_error.png \
+		icon/load_r.png \
+		icon/icon_setting2.png \
+		icon/icon_folder.png \
+		icon/icon_cursor.png \
+		icon/icon_wifi_1.png \
+		icon/icon_cancelpath.png \
 		voice/child_move_resting.mp3 \
 		voice/woman_thanks.mp3 \
 		voice/child_error_localization.mp3 \
@@ -1629,6 +1685,9 @@ Popup_patrol_qml.o: Popup_patrol_qml.cpp
 Popup_password_qml.o: Popup_password_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Popup_password_qml.o Popup_password_qml.cpp
 
+Popup_wifi_qml.o: Popup_wifi_qml.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Popup_wifi_qml.o Popup_wifi_qml.cpp
+
 Page_moving_qml.o: Page_moving_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_moving_qml.o Page_moving_qml.cpp
 
@@ -1682,6 +1741,9 @@ Popup_patrol_page_qml.o: Popup_patrol_page_qml.cpp
 
 Page_mapping_qml.o: Page_mapping_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_mapping_qml.o Page_mapping_qml.cpp
+
+Buttons_qml.o: Buttons_qml.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Buttons_qml.o Buttons_qml.cpp
 
 Page_menus_qml.o: Page_menus_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Page_menus_qml.o Page_menus_qml.cpp

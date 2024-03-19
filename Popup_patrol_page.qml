@@ -46,6 +46,7 @@ Popup {
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
 
+
             if(supervisor.getMovingPageBackground() === "color"){
                 combo_background_mode.currentIndex = 0;
                 move_page.background_source = supervisor.getMovingPageColor()
@@ -59,6 +60,12 @@ Popup {
                 combo_background_mode.currentIndex = 2;
                 move_page.background_source = supervisor.getMovingPageVideo();
                 text_image.text = supervisor.getMovingPageVideo().split("/").pop()
+                if(supervisor.getMovingPageVideoAudio() === "video"){
+                    combo_video_audio_mode.currentIndex = 0;
+                }else if(supervisor.getMovingPageVideoAudio() === "music1"){
+                    combo_video_audio_mode.currentIndex = 1;
+                }
+                move_page.video_audio = supervisor.getMovingPageVideoAudio();
             }
         }else if(page == "serving"){
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
@@ -86,6 +93,12 @@ Popup {
                 combo_background_mode.currentIndex = 2;
                 move_page.background_source = supervisor.getServingPageVideo();
                 text_image.text = supervisor.getServingPageVideo().split("/").pop()
+                if(supervisor.getServingPageVideoAudio() === "video"){
+                    combo_video_audio_mode.currentIndex = 0;
+                }else if(supervisor.getServingPageVideoAudio() === "music1"){
+                    combo_video_audio_mode.currentIndex = 1;
+                }
+                move_page.video_audio = supervisor.getServingPageVideoAudio();
             }
         }
 
@@ -433,6 +446,31 @@ Popup {
                                             text: qsTr("오디오 : ")
                                             anchors.verticalCenter: parent.verticalCenter
                                         }
+                                        ComboBox{
+                                            id: combo_video_audio_mode
+                                            model:[qsTr("영상오디오"),qsTr("음악")]
+                                            currentIndex: 0
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            width: 250
+                                            height: 50
+                                            onCurrentIndexChanged: {
+                                                print("background mode index : ",currentIndex);
+                                                if(currentIndex === 0){
+                                                    move_page.video_audio = "video";
+                                                }else if(currentIndex === 1){
+                                                    move_page.video_audio = "music1";
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Row{
+                                        visible: combo_background_mode.currentIndex === 2
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        Text{
+                                            width: 100
+                                            text: qsTr("오디오볼륨 : ")
+                                            anchors.verticalCenter: parent.verticalCenter
+                                        }
                                         Rectangle{
                                             id: rect_audio
                                             width: 250
@@ -456,7 +494,6 @@ Popup {
                                                                 }else if(page == "serving"){
                                                                     slider_audio.value  = supervisor.getServingPageAudio();
                                                                 }
-
                                                             }else{
                                                                 slider_audio.value  = 0;
                                                             }
@@ -473,7 +510,6 @@ Popup {
                                                             supervisor.getServingPageAudio()
                                                         }
                                                     }
-
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     to: 1
                                                     from: 0
@@ -498,6 +534,7 @@ Popup {
                                     }
                                 }
                             }
+
                             FileDialog{
                                 id: image_dialog
                                 title: qsTr("파일을 선택해주세요")
