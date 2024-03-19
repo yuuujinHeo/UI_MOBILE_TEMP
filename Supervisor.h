@@ -221,6 +221,7 @@ public:
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();
+    Q_INVOKABLE void setvolumeBGM(int volume);
 
     Q_INVOKABLE int getTTSSpeed(){return tts->curVoice.speed;}
     Q_INVOKABLE int getTTSPitch(){return tts->curVoice.pitch;}
@@ -253,6 +254,8 @@ public:
     Q_INVOKABLE QString getServingPageImage();
     Q_INVOKABLE void setServingPageVideo(QString file);
     Q_INVOKABLE QString getServingPageVideo();
+    Q_INVOKABLE void setServingPageVideoAudio(QString mode);
+    Q_INVOKABLE QString getServingPageVideoAudio();
     Q_INVOKABLE void setServingPageAudio(float volume);
     Q_INVOKABLE float getServingPageAudio();
 
@@ -266,6 +269,8 @@ public:
     Q_INVOKABLE QString getMovingPageImage();
     Q_INVOKABLE void setMovingPageVideo(QString file);
     Q_INVOKABLE QString getMovingPageVideo();
+    Q_INVOKABLE void setMovingPageVideoAudio(QString mode);
+    Q_INVOKABLE QString getMovingPageVideoAudio();
     Q_INVOKABLE void setMovingPageAudio(float volume);
     Q_INVOKABLE float getMovingPageAudio();
 

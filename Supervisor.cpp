@@ -1978,6 +1978,9 @@ void Supervisor::playBGM(int volume){
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
+void Supervisor::setvolumeBGM(int volume){
+    bgm_player->setVolume(volume);
+}
 void Supervisor::stopBGM(){
     qDebug() << "stopBGM";
     bgm_player->stop();
@@ -5680,6 +5683,18 @@ QString Supervisor::getMovingPageImage(){
 }
 
 
+void Supervisor::setServingPageVideoAudio(QString mode){
+    serving_page.audio = mode;
+}
+QString Supervisor::getServingPageVideoAudio(){
+    return serving_page.audio;
+}
+void Supervisor::setMovingPageVideoAudio(QString mode){
+    current_patrol.moving_page.audio = mode;
+}
+QString Supervisor::getMovingPageVideoAudio(){
+    return current_patrol.moving_page.audio;
+}
 void Supervisor::setMovingPageVideo(QString file){
     setMovingPageBackground("video");
     current_patrol.moving_page.video = file;

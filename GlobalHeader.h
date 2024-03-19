@@ -296,6 +296,7 @@ typedef struct{
     QString color = "";
     QString image = "";
     QString video = "";
+    QString audio = "";
     float volume = 1;
     QList<ST_PAGE_OBJECT> objects;
 }ST_PAGE;

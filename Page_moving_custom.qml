@@ -14,6 +14,7 @@ Item {
     property string page: "moving"
     property string background_mode: "none"
     property string background_source: ""
+    property string video_audio: "video"
     property bool motor_lock: false
     property bool robot_paused: false
     property string pos_name: ""
@@ -22,6 +23,11 @@ Item {
     onVolumeChanged:{
         print("move page volume : ", volume)
     }
+    onVideo_audioChanged: {
+        if(background_mode === "video"){
+            loader_background.item.init();
+        }
+    }
 
     function pauseGif(){
         if(background_mode === "image"){
@@ -29,13 +35,13 @@ Item {
         }
     }
     function resumeGif(){
-        print("resumeGif ",background_mode)
+//        print("resumeGif ",background_mode)
         if(background_mode === "image")
             loader_background.item.resume();
     }
 
     function setPage(name){
-        print("mcustom page set : "+name);
+//        print("mcustom page set : "+name);
         page = name;
         init();
     }
@@ -107,6 +113,7 @@ Item {
                 background_source = supervisor.getMovingPageVideo();
                 loader_background.sourceComponent = compo_video;
                 loader_background.item.setVol(supervisor.getMovingPageAudio());
+                video_audio = supervisor.getMovingPageVideoAudio();
             }
         }else if(page == "serving"){
             page_moving_custom.select_obj = -1;
@@ -136,6 +143,7 @@ Item {
                 background_source = supervisor.getServingPageVideo();
                 loader_background.sourceComponent = compo_video;
                 loader_background.item.setVol(supervisor.getServingPageAudio());
+                video_audio = supervisor.getServingPageVideoAudio();
             }
         }
 
@@ -181,6 +189,7 @@ Item {
             }else if(background_mode === "video"){
                 background_source = supervisor.getMovingPageVideo()
                 loader_background.sourceComponent = compo_video;
+                video_audio = supervisor.getMovingPageVideoAudio();
             }
         }else if(page == "serving"){
             if(background_mode === "none" || background_mode === "color"){
@@ -192,6 +201,7 @@ Item {
             }else if(background_mode === "video"){
                 background_source = supervisor.getServingPageVideo()
                 loader_background.sourceComponent = compo_video;
+                video_audio = supervisor.getServingPageVideoAudio();
             }
         }
 
@@ -269,18 +279,35 @@ Item {
         Item{
             anchors.fill: parent
             Component.onCompleted: {
-                if(page == "moving"){
-                    video.volume = supervisor.getMovingPageAudio();
-                }else if(page == "serving"){
-                    video.volume = supervisor.getServingPageAudio();
-                }
+                init();
+            }
 
+            function init(){
+                supervisor.stopBGM();
+                if(video_audio == "music1"){
+                    video.volume = 0;
+                    if(page == "moving"){
+                        supervisor.playBGM(supervisor.getMovingPageAudio()*100);
+                    }else if(page == "serving"){
+                        supervisor.playBGM(supervisor.getServingPageAudio()*100);
+                    }
+                }else{
+                    if(page == "moving"){
+                        video.volume = supervisor.getMovingPageAudio();
+                    }else if(page == "serving"){
+                        video.volume = supervisor.getServingPageAudio();
+                    }
+                }
                 print("completed volume = ",video.volume)
             }
 
             function setVol(vol){
-                video.volume = vol;
-                print("VIDEO VOLUME = ",vol);
+                if(video_audio == "video"){
+                    video.volume = vol;
+                    print("VIDEO VOLUME = ",vol);
+                }else if(video_audio == "music1"){
+                    supervisor.setvolumeBGM(vol*100);
+                }
             }
 
             Video{
@@ -313,6 +340,8 @@ Item {
                     visible: video.status === MediaPlayer.NoMedia || video.status === MediaPlayer.InvalidMedia || video.status === MediaPlayer.UnknownStatus
                 }
             }
+
+
         }
     }
 
