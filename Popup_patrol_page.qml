@@ -24,6 +24,7 @@ Popup {
     }
     onOpened:{
         loader_movepage.sourceComponent = move_page;
+        loader_movepage.item.setEdit(true);
         init();
     }
     onClosed:{
@@ -66,6 +67,7 @@ Popup {
                 }else if(supervisor.getMovingPageVideoAudio() === "music1"){
                     combo_video_audio_mode.currentIndex = 1;
                 }
+                print("kk : ",supervisor.getMovingPageVideo(),supervisor.getMovingPageVideoAudio())
                 loader_movepage.item.video_audio = supervisor.getMovingPageVideoAudio();
             }
         }else if(page == "serving"){
@@ -172,7 +174,7 @@ Popup {
                             if(page == "serving"){
                                 supervisor.saveServingPage();
                             }else if(page == "moving"){
-                                supervisor.savePatrolPage();
+                                loader_movepage.item.saveMovingPage();
                             }
 
                             popup_setting_patrolpage.close();
@@ -471,6 +473,7 @@ Popup {
                                                 }else if(currentIndex === 1){
                                                     loader_movepage.item.video_audio = "music1";
                                                 }
+
                                             }
                                         }
                                     }
@@ -773,7 +776,7 @@ Popup {
                                         if(page == "serving"){
                                             supervisor.saveServingPage();
                                         }else if(page == "moving"){
-                                            supervisor.savePatrolPage();
+                                            loader_movepage.item.saveMovingPage();//etMovingPageVideoAudio(loader_movepage.item.voice_audio);
                                         }
 
                                         popup_setting_patrolpage.close();

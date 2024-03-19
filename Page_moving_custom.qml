@@ -24,6 +24,7 @@ Item {
         print("move page volume : ", volume)
     }
     onVideo_audioChanged: {
+        print("video audio changed : ",video_audio)
         if(background_mode === "video"){
             loader_background.item.init();
         }
@@ -80,13 +81,32 @@ Item {
         supervisor.stopBGM();
         popup_notice.close();
     }
+    function saveMovingPage(){
+        supervisor.setMovingPageBackground(background_mode);
+        if(background_mode === "color"){
+        }else if(background_mode === "image"){
+
+        }else if(background_mode === "video"){
+            supervisor.setMovingPageVideoAudio(video_audio);
+            supervisor.setMovingPageAudio(volume);
+        }
+
+    }
+
+    function setEdit(tt){
+        edit_mode = tt;
+        init();
+    }
+
     function init(){
-        supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName)
+        supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName+", "+edit_mode);
 
         supervisor.stopBGM();
         popup_pause.visible = false;
         if(!edit_mode){
             statusbar.visible = false;
+        }else{
+            statusbar.visible = true;
         }
 
         model_obj.clear();
