@@ -131,6 +131,8 @@ Popup{
                                     }
                                 }
                                 height: 50
+                                sourceSize.width: width
+                                sourceSize.height: height
                                 visible:name==="clear"||name==="<-"
                                 source:{
                                     if(name==="clear"){

@@ -258,6 +258,8 @@ Item {
             source: "icon/icon_warning.png"
             width: 160
             height: 160
+            sourceSize.width: width
+            sourceSize.height: height
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 200
@@ -439,7 +441,26 @@ Item {
             //DEBUG 230605
             obs_in_path =supervisor.getObsinPath();
 
-            if(show_face){
+            if(show_face == 1){
+                if(obs_in_path == 0){
+                    if(face_image.cur_source !== "image/face_normal.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
+                        face_image.play("image/face_normal.gif");
+                    }
+                }else if(obs_in_path == 1){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_surprise.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
+                        face_image.play("image/face_surprise.gif");
+                    }
+                }else if(obs_in_path == 2){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_cry.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
+                        face_image.play("image/face_cry.gif");
+                    }
+                }
+            }else if(show_face === 2){
                 if(obs_in_path == 0){
                     if(face_image.cur_source !== "image/face_normal2.gif"){
                         supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
@@ -485,6 +506,7 @@ Item {
             password++;
             if(password > 4){
                 password = 0;
+                supervisor.moveStop();
                 supervisor.writelog("[UI] PageMoving : debug pass -> PageKitchen");
                 loadPage(pkitchen);
             }

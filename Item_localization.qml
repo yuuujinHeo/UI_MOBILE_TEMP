@@ -207,6 +207,8 @@ Item{
                 Image{
                     width: 30
                     height: 30
+                    sourceSize.width: width
+                    sourceSize.height: height
                     source:"icon/icon_wait.png"
                     anchors.horizontalCenter: parent.horizontalCenter
                 }

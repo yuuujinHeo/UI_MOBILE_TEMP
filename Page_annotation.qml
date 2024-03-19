@@ -562,6 +562,8 @@ Item {
                 anchors.verticalCenterOffset: -50
                 width: 80
                 height: 80
+                sourceSize.width: width
+                sourceSize.height: height
                 Text{
                     anchors.centerIn: parent
                     text: "1"
@@ -1551,6 +1553,8 @@ Item {
                             source: "icon/icon_error.png"
                             width: 40
                             height: 38
+                            sourceSize.width: width
+                            sourceSize.height: height
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Image{
@@ -1558,6 +1562,8 @@ Item {
                             source: "icon/icon_error.png"
                             width: 40
                             height: 38
+                            sourceSize.width: width
+                            sourceSize.height: height
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         TextField{
@@ -1622,6 +1628,8 @@ Item {
                             source: "icon/icon_error.png"
                             width: 40
                             height: 38
+                            sourceSize.width: width
+                            sourceSize.height: height
                             anchors.verticalCenter: parent.verticalCenter
                         }
                         Rectangle{
@@ -3087,6 +3095,8 @@ Item {
                                                                             source: "icon/icon_erase.png"
                                                                             width: 30
                                                                             height: 30
+                                                                            sourceSize.width: width
+                                                                            sourceSize.height: height
                                                                             anchors.centerIn: parent
                                                                             ColorOverlay{
                                                                                 source: parent
@@ -3141,6 +3151,8 @@ Item {
                                                                             source: "icon/icon_erase.png"
                                                                             width: 30
                                                                             height: 30
+                                                                            sourceSize.width: width
+                                                                            sourceSize.height: height
                                                                             anchors.centerIn: parent
                                                                             ColorOverlay{
                                                                                 source: parent
@@ -3307,6 +3319,8 @@ Item {
                                                                     source: "icon/icon_connect_error.png"
                                                                     width: 28
                                                                     height: 25
+                                                                    sourceSize.width: width
+                                                                    sourceSize.height: height
                                                                     anchors.centerIn: parent
                                                                     ColorOverlay{
                                                                         source: parent
@@ -3350,6 +3364,8 @@ Item {
                                                                     source: "icon/icon_error.png"
                                                                     width: 30
                                                                     height: 30
+                                                                    sourceSize.width: width
+                                                                    sourceSize.height: height
                                                                     anchors.centerIn: parent
                                                                     ColorOverlay{
                                                                         source: parent
@@ -4501,6 +4517,8 @@ Item {
                                                                 source: "icon/icon-drawing-free drawing.png"
                                                                 width: 30
                                                                 height: 30
+                                                                sourceSize.width: width
+                                                                sourceSize.height: height
                                                                 anchors.centerIn: parent
                                                             }
                                                         }
@@ -4548,6 +4566,8 @@ Item {
                                                                 source: "icon/icon-drawing-square.png"
                                                                 width: 30
                                                                 height: 30
+                                                                sourceSize.width: width
+                                                                sourceSize.height: height
                                                                 anchors.centerIn: parent
                                                             }
                                                         }
@@ -4595,6 +4615,8 @@ Item {
                                                                 source: "icon/icon_draw.png"
                                                                 width: 30
                                                                 height: 30
+                                                                sourceSize.width: width
+                                                                sourceSize.height: height
                                                                 anchors.centerIn: parent
                                                                 ColorOverlay{
                                                                     source: parent
@@ -4646,6 +4668,8 @@ Item {
                                                                         source: "icon/icon_erase.png"
                                                                         width: 30
                                                                         height: 30
+                                                                        sourceSize.width: width
+                                                                        sourceSize.height: height
                                                                         anchors.centerIn: parent
                                                                         ColorOverlay{
                                                                             source: parent
@@ -4701,6 +4725,8 @@ Item {
                                                                         source: "icon/icon_erase.png"
                                                                         width: 30
                                                                         height: 30
+                                                                        sourceSize.width: width
+                                                                        sourceSize.height: height
                                                                         anchors.centerIn: parent
                                                                         ColorOverlay{
                                                                             source: parent
@@ -4865,6 +4891,8 @@ Item {
                                                                 source: "icon/icon_connect_error.png"
                                                                 width: 28
                                                                 height: 25
+                                                                sourceSize.width: width
+                                                                sourceSize.height: height
                                                                 anchors.centerIn: parent
                                                                 ColorOverlay{
                                                                     source: parent
@@ -4908,6 +4936,8 @@ Item {
                                                                 source: "icon/icon_error.png"
                                                                 width: 30
                                                                 height: 30
+                                                                sourceSize.width: width
+                                                                sourceSize.height: height
                                                                 anchors.centerIn: parent
                                                                 ColorOverlay{
                                                                     source: parent
@@ -5542,6 +5572,8 @@ Item {
                                             anchors.centerIn: parent
                                             width: 30
                                             height: 30
+                                            sourceSize.width: width
+                                            sourceSize.height: height
                                             source: "icon/icon_add.png"
                                             ColorOverlay{
                                                 anchors.fill: parent
@@ -5584,6 +5616,8 @@ Item {
                                             anchors.centerIn: parent
                                             width: 35
                                             height: 35
+                                            sourceSize.width: width
+                                            sourceSize.height: height
                                             source: "icon/icon_keyboard.png"
                                             ColorOverlay{
                                                 anchors.fill: parent
@@ -5856,6 +5890,8 @@ Item {
                 width: 200
                 height: 175
                 source: "image/robot_moving.png"
+                sourceSize.width: width
+                sourceSize.height: height
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 100
@@ -6072,8 +6108,8 @@ Item {
                         spacing: 20
                         Image{
                             source: "icon/icon_add_loc.png"
-                            width: 55
-                            height: 55
+                            width: 45
+                            height: 45
                             sourceSize.width: 45
                             sourceSize.height: 45
                             anchors.verticalCenter: parent.verticalCenter
