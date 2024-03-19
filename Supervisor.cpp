@@ -3644,6 +3644,7 @@ void Supervisor::onTimer(){
     static int prev_motor_1_state = -1;
     static int prev_motor_2_state = -1;
     static int prev_charge_state = 0;
+    static bool flag_annot_localization = false;
 
     //init상태 체크 카운트
     static int timer_cnt = 0;
@@ -3680,6 +3681,7 @@ void Supervisor::onTimer(){
         //Robot 연결 안됨, 초기화 시작 전(프로그램 실행직후)
         if(ipc->getConnection()){
             ui_state = UI_STATE_INITAILIZING;
+            flag_annot_localization = false;
             plog->write("[STATE] None : Connection check done -> Initailizing");
         }else{
             clearStatus();
@@ -3701,18 +3703,33 @@ void Supervisor::onTimer(){
             if(getMotorState() == READY){
                 plog->write("[STATE] Initializing : Localization Good, Motor state Good -> Resting");
                 ui_state = UI_STATE_RESTING;
+                flag_annot_localization = false;
             }else if(probot->status_lock==0){
 
+            }else if(probot->localization_state != 2){
+                probot->localization_confirm = false;
             }else{
-                if(curPage != "page_init"){
+                if(curPage != "page_init" && curPage != "page_annotation"){
                     plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
                     QMetaObject::invokeMethod(mMain, "need_init");
+                }else if(curPage == "page_annotation"){
+                    if(!flag_annot_localization){
+                        plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
+                        QMetaObject::invokeMethod(mMain, "need_init");
+                        flag_annot_localization = true;
+                    }
                 }
             }
         }else{
-            if(curPage != "page_init"){
+            if(curPage != "page_init" && curPage != "page_annotation"){
                 plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
                 QMetaObject::invokeMethod(mMain, "need_init");
+            }else if(curPage == "page_annotation"){
+                if(!flag_annot_localization){
+                    plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
+                    QMetaObject::invokeMethod(mMain, "need_init");
+                    flag_annot_localization = true;
+                }
             }
 //            clearStatus();
         }

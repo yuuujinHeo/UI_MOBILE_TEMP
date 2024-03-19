@@ -262,7 +262,7 @@ Item {
                 anchors.fill: parent
                 fillMode: VideoOutput.Stretch
                 source: background_source
-                volume: 1
+                volume: 0.5
                 onVolumeChanged:{
                     print("volume : " , volume)
                 }

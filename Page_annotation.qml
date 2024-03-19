@@ -6523,7 +6523,7 @@ Item {
                                         supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
                                         supervisor.saveLocation("Cleaning", 0, "Cleaning0");
                                     }
-                                    checkLocation();
+                                    annot_pages.item.checkLocation();
                                     readSetting();
                                     popup_location.close();
                                 }else if(popup_location.mode == "remove"){
