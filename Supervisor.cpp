@@ -5181,6 +5181,7 @@ void Supervisor::readPatrol(){
                                 temp.moving_page.image = patrol.value("image").toString();
                             }else if(temp.moving_page.background == "video"){
                                 temp.moving_page.video = patrol.value("video").toString();
+                                temp.moving_page.audio = patrol.value("video_audio").toString();
                             }
                             temp.moving_page.volume = patrol.value("audio").toFloat();
 
@@ -5345,6 +5346,7 @@ void Supervisor::saveServingPage(){
     file.setValue("MOVING/background",serving_page.background);
     file.setValue("MOVING/image",serving_page.image);
     file.setValue("MOVING/video",serving_page.video);
+    file.setValue("MOVING/video_audio",serving_page.audio);
     file.setValue("MOVING/color",serving_page.color);
     file.setValue("MOVING/obj_num",serving_page.objects.size());
     file.setValue("MOVING/audio",serving_page.volume);
@@ -5356,6 +5358,29 @@ void Supervisor::saveServingPage(){
     }
 }
 
+void Supervisor::savePatrolPage(){
+    QString path = QDir::homePath() + "/RB_MOBILE/patrol";
+    if(!QFile::exists(path)){
+        QDir().mkdir(path);
+    }
+    QString filestr = path + "/serving.ini";
+    QSettings file(filestr, QSettings::IniFormat);
+    file.clear();
+
+    file.setValue("MOVING/background",serving_page.background);
+    file.setValue("MOVING/image",serving_page.image);
+    file.setValue("MOVING/video",serving_page.video);
+    file.setValue("MOVING/video_audio",serving_page.audio);
+    file.setValue("MOVING/color",serving_page.color);
+    file.setValue("MOVING/obj_num",serving_page.objects.size());
+    file.setValue("MOVING/audio",serving_page.volume);
+
+    for(int i=0; i<serving_page.objects.size(); i++){
+        QString str = serving_page.objects[i].type + "," + QString::number(serving_page.objects[i].x) + "," + QString::number(serving_page.objects[i].y) + "," + QString::number(serving_page.objects[i].width) + "," + QString::number(serving_page.objects[i].height) +
+                "," + serving_page.objects[i].source +","+serving_page.objects[i].color;
+        file.setValue("MOVING/obj"+QString::number(i),str);
+    }
+}
 void Supervisor::initServingPage(){
     QString path = QDir::homePath() + "/RB_MOBILE/patrol";
     if(!QFile::exists(path)){
@@ -5378,6 +5403,7 @@ void Supervisor::initServingPage(){
             serving_page.image = patrol.value("image").toString();
         }else if(serving_page.background == "video"){
             serving_page.video = patrol.value("video").toString();
+            serving_page.audio = patrol.value("video_audio").toString();
         }
         serving_page.volume = patrol.value("audio").toFloat();
 
@@ -5560,6 +5586,7 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
             file.setValue("MOVING/background",current_patrol.moving_page.background);
             file.setValue("MOVING/image",current_patrol.moving_page.image);
             file.setValue("MOVING/video",current_patrol.moving_page.video);
+            file.setValue("MOVING/video_audio",current_patrol.moving_page.audio);
             file.setValue("MOVING/color",current_patrol.moving_page.color);
             file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
             file.setValue("MOVING/audio",current_patrol.moving_page.volume);
@@ -5633,6 +5660,7 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
     if(current_patrol.moving_page.mode == "custom"){
         file.setValue("MOVING/background",current_patrol.moving_page.background);
         file.setValue("MOVING/image",current_patrol.moving_page.image);
+        file.setValue("MOVING/video_audio",current_patrol.moving_page.audio);
         file.setValue("MOVING/video",current_patrol.moving_page.video);
         file.setValue("MOVING/color",current_patrol.moving_page.color);
         file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());

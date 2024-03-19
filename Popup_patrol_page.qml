@@ -23,16 +23,18 @@ Popup {
         opacity: 0.8
     }
     onOpened:{
+        loader_movepage.sourceComponent = move_page;
         init();
     }
     onClosed:{
-        move_page.close();
+        loader_movepage.item.close();
+        loader_movepage.sourceComponent = "";
     }
 
     function init(){
-        print("patrolpage init " +objectName +" " + page);
+        print("patrolpage init " +objectName +" " + page + " ");
         model_obj.clear();
-        move_page.setPage(page);
+        loader_movepage.item.setPage(page);
         if(page == "moving"){
             for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
                 model_obj.append({"type":supervisor.getPageObjectType(i),
@@ -48,23 +50,23 @@ Popup {
 
             if(supervisor.getMovingPageBackground() === "color"){
                 combo_background_mode.currentIndex = 0;
-                move_page.background_source = supervisor.getMovingPageColor()
+                loader_movepage.item.background_source = supervisor.getMovingPageColor()
                 rect_color.color = supervisor.getMovingPageColor()
                 text_color.text = supervisor.getMovingPageColor()
             }else if(supervisor.getMovingPageBackground() === "image"){
                 combo_background_mode.currentIndex = 1;
-                move_page.background_source = supervisor.getMovingPageImage();
+                loader_movepage.item.background_source = supervisor.getMovingPageImage();
                 text_image.text = supervisor.getMovingPageImage().split("/").pop()
             }else if(supervisor.getMovingPageBackground() === "video"){
                 combo_background_mode.currentIndex = 2;
-                move_page.background_source = supervisor.getMovingPageVideo();
+                loader_movepage.item.background_source = supervisor.getMovingPageVideo();
                 text_image.text = supervisor.getMovingPageVideo().split("/").pop()
                 if(supervisor.getMovingPageVideoAudio() === "video"){
                     combo_video_audio_mode.currentIndex = 0;
                 }else if(supervisor.getMovingPageVideoAudio() === "music1"){
                     combo_video_audio_mode.currentIndex = 1;
                 }
-                move_page.video_audio = supervisor.getMovingPageVideoAudio();
+                loader_movepage.item.video_audio = supervisor.getMovingPageVideoAudio();
             }
         }else if(page == "serving"){
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
@@ -81,30 +83,30 @@ Popup {
 
             if(supervisor.getServingPageBackground() === "color"){
                 combo_background_mode.currentIndex = 0;
-                move_page.background_source = supervisor.getServingPageColor()
+                loader_movepage.item.background_source = supervisor.getServingPageColor()
                 rect_color.color = supervisor.getServingPageColor()
                 text_color.text = supervisor.getServingPageColor()
             }else if(supervisor.getServingPageBackground() === "image"){
                 combo_background_mode.currentIndex = 1;
-                move_page.background_source = supervisor.getServingPageImage();
+                loader_movepage.item.background_source = supervisor.getServingPageImage();
                 text_image.text = supervisor.getServingPageImage().split("/").pop()
             }else if(supervisor.getServingPageBackground() === "video"){
                 combo_background_mode.currentIndex = 2;
-                move_page.background_source = supervisor.getServingPageVideo();
+                loader_movepage.item.background_source = supervisor.getServingPageVideo();
                 text_image.text = supervisor.getServingPageVideo().split("/").pop()
                 if(supervisor.getServingPageVideoAudio() === "video"){
                     combo_video_audio_mode.currentIndex = 0;
                 }else if(supervisor.getServingPageVideoAudio() === "music1"){
                     combo_video_audio_mode.currentIndex = 1;
                 }
-                move_page.video_audio = supervisor.getServingPageVideoAudio();
+                loader_movepage.item.video_audio = supervisor.getServingPageVideoAudio();
             }
         }
 
     }
     function update(){
         model_obj.clear();
-        move_page.update();
+        loader_movepage.item.update();
         if(page == "moving"){
             for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
                 model_obj.set(i,{"type":supervisor.getPageObjectType(i),
@@ -169,6 +171,8 @@ Popup {
                         onClicked: {
                             if(page == "serving"){
                                 supervisor.saveServingPage();
+                            }else if(page == "moving"){
+                                supervisor.savePatrolPage();
                             }
 
                             popup_setting_patrolpage.close();
@@ -212,18 +216,26 @@ Popup {
                     width: 850
                     height: width*800/1280
                     anchors.verticalCenter: parent.verticalCenter
-                    Page_moving_custom{
-                        id: move_page
-                        objectName: popup_setting_patrolpage.objectName
+                    Loader{
+                        id: loader_movepage
                         anchors.fill: parent
-                        edit_mode: true
-                        page: popup_setting_patrolpage.page
-                        onDoubleclicked: {
-                            print("double clicked : ",move_page.select_obj)
-                            popup_edit.obj_num = move_page.select_obj;
-                            popup_edit.open();
+                    }
+
+                    Component{
+                        id: move_page
+                        Page_moving_custom{
+                            objectName: "patrolllllllllll"//popup_setting_patrolpage.objectName
+                            anchors.fill: parent
+                            edit_mode: true
+                            page: popup_setting_patrolpage.page
+                            onDoubleclicked: {
+                                print("double clicked : ",loader_movepage.item.select_obj)
+                                popup_edit.obj_num = loader_movepage.item.select_obj;
+                                popup_edit.open();
+                            }
                         }
                     }
+
                 }
 
                 Rectangle{
@@ -297,17 +309,17 @@ Popup {
                                             onCurrentIndexChanged: {
                                                 print("background mode index : ",currentIndex);
                                                 if(currentIndex === 0){
-                                                    move_page.background_mode = "color";
+                                                    loader_movepage.item.background_mode = "color";
                                                 }else if(currentIndex === 1){
-                                                    move_page.background_mode = "image";
+                                                    loader_movepage.item.background_mode = "image";
                                                 }else if(currentIndex === 2){
-                                                    move_page.background_mode = "video";
+                                                    loader_movepage.item.background_mode = "video";
                                                 }
 
                                                 if(page == "moving"){
-                                                    supervisor.setMovingPageBackground(move_page.background_mode);
+                                                    supervisor.setMovingPageBackground(loader_movepage.item.background_mode);
                                                 }else if(page == "serving"){
-                                                    supervisor.setServingPageBackground(move_page.background_mode);
+                                                    supervisor.setServingPageBackground(loader_movepage.item.background_mode);
                                                 }
 
                                             }
@@ -347,7 +359,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    move_page.pauseGif();
+                                                    loader_movepage.item.pauseGif();
                                                     color_dialog.open();
                                                 }
                                             }
@@ -356,16 +368,16 @@ Popup {
                                                 onSelectionAccepted: {
                                                     if(page == "moving"){
                                                         supervisor.setMovingPageColor(color_dialog.color);
-                                                        move_page.background_source = supervisor.getMovingPageColor()
+                                                        loader_movepage.item.background_source = supervisor.getMovingPageColor()
                                                         rect_color.color = supervisor.getMovingPageColor()
                                                         text_color.text = supervisor.getMovingPageColor()
                                                     }else if(page == "serving"){
                                                         supervisor.setServingPageColor(color_dialog.color);
-                                                        move_page.background_source = supervisor.getServingPageColor()
+                                                        loader_movepage.item.background_source = supervisor.getServingPageColor()
                                                         rect_color.color = supervisor.getServingPageColor()
                                                         text_color.text = supervisor.getServingPageColor()
                                                     }
-                                                    move_page.resumeGif();
+                                                    loader_movepage.item.resumeGif();
 
                                                 }
                                             }
@@ -398,7 +410,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    move_page.pauseGif();
+                                                    loader_movepage.item.pauseGif();
                                                     image_dialog.open();
                                                 }
                                             }
@@ -431,7 +443,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    move_page.pauseGif();
+                                                    loader_movepage.item.pauseGif();
                                                     image_dialog.open();
                                                 }
                                             }
@@ -455,9 +467,9 @@ Popup {
                                             onCurrentIndexChanged: {
                                                 print("background mode index : ",currentIndex);
                                                 if(currentIndex === 0){
-                                                    move_page.video_audio = "video";
+                                                    loader_movepage.item.video_audio = "video";
                                                 }else if(currentIndex === 1){
-                                                    move_page.video_audio = "music1";
+                                                    loader_movepage.item.video_audio = "music1";
                                                 }
                                             }
                                         }
@@ -521,7 +533,7 @@ Popup {
                                                             }else if(page == "serving"){
                                                                 supervisor.setServingPageAudio(value)
                                                             }
-                                                            move_page.setVolume(value);
+                                                            loader_movepage.item.setVolume(value);
                                                             print("value : " ,value)
                                                         }
                                                     }
@@ -543,26 +555,26 @@ Popup {
                                         if(combo_background_mode.currentIndex === 0){
                                         }else if(combo_background_mode.currentIndex === 1){
                                             supervisor.setMovingPageImage(image_dialog.fileUrl);
-                                            move_page.background_source = image_dialog.fileUrl;
+                                            loader_movepage.item.background_source = image_dialog.fileUrl;
                                             text_image.text = image_dialog.fileUrl.toString().split("/").pop()
                                         }else if(combo_background_mode.currentIndex === 2){
                                             supervisor.setMovingPageVideo(image_dialog.fileUrl);
-                                            move_page.background_source = image_dialog.fileUrl;
+                                            loader_movepage.item.background_source = image_dialog.fileUrl;
                                             text_video.text = image_dialog.fileUrl.toString().split("/").pop()
                                         }
                                     }else if(page == "serving"){
                                         if(combo_background_mode.currentIndex === 0){
                                         }else if(combo_background_mode.currentIndex === 1){
                                             supervisor.setServingPageImage(image_dialog.fileUrl);
-                                            move_page.background_source = image_dialog.fileUrl;
+                                            loader_movepage.item.background_source = image_dialog.fileUrl;
                                             text_image.text = image_dialog.fileUrl.toString().split("/").pop()
                                         }else if(combo_background_mode.currentIndex === 2){
                                             supervisor.setServingPageVideo(image_dialog.fileUrl);
-                                            move_page.background_source = image_dialog.fileUrl;
+                                            loader_movepage.item.background_source = image_dialog.fileUrl;
                                             text_video.text = image_dialog.fileUrl.toString().split("/").pop()
                                         }
                                     }
-                                    move_page.resumeGif();
+                                    loader_movepage.item.resumeGif();
 
                                 }
                             }
@@ -641,7 +653,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    if(move_page.select_obj>-1){
+                                                    if(loader_movepage.item.select_obj>-1){
                                                         click_sound_no.play();
                                                     }else{
                                                         click_sound.play();
@@ -663,7 +675,7 @@ Popup {
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    if(move_page.select_obj>-1){
+                                                    if(loader_movepage.item.select_obj>-1){
                                                         click_sound_no.play();
                                                     }else{
                                                         click_sound.play();
@@ -691,7 +703,7 @@ Popup {
                                                         Rectangle{
                                                             width: 50
                                                             height: 50
-                                                            color: move_page.select_obj===index?color_red:"black"
+                                                            color: loader_movepage.item.select_obj===index?color_red:"black"
                                                             Text{
                                                                 anchors.centerIn: parent
                                                                 color: "white"
@@ -731,7 +743,7 @@ Popup {
                                                         anchors.fill: parent
                                                         onClicked:{
                                                             click_sound.play();
-                                                            move_page.select_obj = index;
+                                                            loader_movepage.item.select_obj = index;
                                                         }
                                                     }
                                                 }
@@ -760,6 +772,8 @@ Popup {
                                         click_sound.play();
                                         if(page == "serving"){
                                             supervisor.saveServingPage();
+                                        }else if(page == "moving"){
+                                            supervisor.savePatrolPage();
                                         }
 
                                         popup_setting_patrolpage.close();
@@ -861,7 +875,7 @@ Popup {
             }
             property var obj_num: -1
             onOpened:{
-                obj_num = move_page.select_obj;
+                obj_num = loader_movepage.item.select_obj;
                 if(page == "moving"){
                     if(supervisor.getPageObjectType(obj_num) === "image"){
                         col_image.visible = true;
@@ -916,7 +930,7 @@ Popup {
                                 anchors.fill:parent
                                 onClicked: {
                                     click_sound.play();
-                                    move_page.pauseGif();
+                                    loader_movepage.item.pauseGif();
                                     image_edit_dialog.open();
                                 }
                             }
@@ -930,7 +944,7 @@ Popup {
                             tfield_image.fullurl = image_edit_dialog.fileUrl
                             tfield_image.text = image_edit_dialog.fileUrl.toString().split("/").pop()
 
-                            move_page.resumeGif();
+                            loader_movepage.item.resumeGif();
                         }
                     }
                     Row{
@@ -1037,7 +1051,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    move_page.pauseGif();
+                                    loader_movepage.item.pauseGif();
                                     color_dialog2.open();
                                 }
                             }
@@ -1046,7 +1060,7 @@ Popup {
                                 color: "black"
                                 onSelectionAccepted: {
                                     print("set color ",color_dialog2.color)
-                                    move_page.resumeGif();
+                                    loader_movepage.item.resumeGif();
 //                                    rect_color_text.color = color_dialog2.color
                                 }
                             }
@@ -1101,7 +1115,7 @@ Popup {
 
                                     popup_setting_patrolpage.update();
                                     popup_edit.close();
-                                    move_page.resumeGif();
+                                    loader_movepage.item.resumeGif();
                                     color_dialog2.close();
                                 }
                             }
@@ -1173,9 +1187,9 @@ Popup {
                                 anchors.fill: parent
                                 onClicked:{
                                     if(page == "moving"){
-                                        supervisor.deletePatrolObject(move_page.obj_num);
+                                        supervisor.deletePatrolObject(loader_movepage.item.obj_num);
                                     }else if(page == "serving"){
-                                        supervisor.deleteServingObject(move_page.obj_num);
+                                        supervisor.deleteServingObject(loader_movepage.item.obj_num);
                                     }
                                     popup_setting_patrolpage.init();
                                     popup_delete.close();
