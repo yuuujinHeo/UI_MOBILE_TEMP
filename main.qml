@@ -201,13 +201,13 @@ Window {
             supervisor.playVoice("error_emo");
             supervisor.writelog("[UI] Emergency Switch");
             setNotice(2);
-        }else if(supervisor.getMotorState() === 0){
-            supervisor.writelog("[UI] Motor not ready");
-            setNotice(4);
         }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
             supervisor.playVoice("error_localization");
             supervisor.writelog("[UI] Localization not ready");
             setNotice(1);
+        }else if(supervisor.getMotorState() === 0){
+            supervisor.writelog("[UI] Motor not ready");
+            setNotice(4);
         }else if(supervisor.getStateMoving() === 0){
             supervisor.playVoice("error_no_path");
             supervisor.writelog("[UI] Robot not running");
@@ -277,6 +277,7 @@ Window {
                 print("loadpage custom");
                 loadPage(pmovingcustom)
                 loader_page.item.setPage("serving");
+                loader_page.item.pos_name = cur_location;
             }else{
                 print("loadpage moving");
                 loadPage(pmoving)
@@ -781,6 +782,15 @@ Window {
         popup_notice.open();
     }
 
+    Popup_password{
+        id: popup_password_minimize
+        anchors.centerIn: parent
+        onLogined:{
+            mainwindow.showMinimized();
+            popup_status_detail.close();
+            popup_password.close();
+        }
+    }
     Popup_notice{
         id: popup_notice
         onClicked:{

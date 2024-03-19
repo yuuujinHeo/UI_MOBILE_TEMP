@@ -460,7 +460,14 @@ Popup {
                                                 Slider{
                                                     id: slider_audio
                                                     width: 200
-                                                    value : supervisor.getMovingPageAudio()
+                                                    value : {
+                                                        if(page == "moving"){
+                                                            supervisor.getMovingPageAudio()
+                                                        }else if(page == "serving"){
+                                                            supervisor.getServingPageAudio()
+                                                        }
+                                                    }
+
                                                     anchors.verticalCenter: parent.verticalCenter
                                                     to: 1
                                                     from: 0
@@ -468,6 +475,11 @@ Popup {
                                                         if(pressed){
 
                                                         }else{
+                                                            if(page == "moving"){
+                                                                supervisor.setMovingPageAudio(value)
+                                                            }else if(page == "serving"){
+                                                                supervisor.setServingPageAudio(value)
+                                                            }
                                                             move_page.setVolume(value);
                                                             print("value : " ,value)
                                                         }

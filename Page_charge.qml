@@ -57,6 +57,10 @@ Item {
     Image{
         id: image_battery
         source: "image/image_battery_1.png"
+        width: 1398/3
+        height: 916/3.5
+        sourceSize.width: width
+        sourceSize.height: height
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.topMargin: 250
@@ -78,7 +82,7 @@ Item {
         interval: 500
         running: true
         onTriggered: {
-            print(supervisor.getChargeStatus() , supervisor.getChargeConnectStatus(), is_charging);
+//            print(supervisor.getChargeStatus() , supervisor.getChargeConnectStatus(), is_charging);
             if(supervisor.getChargeStatus()){
                 if(!is_charging){
                     timer_bat.start();
