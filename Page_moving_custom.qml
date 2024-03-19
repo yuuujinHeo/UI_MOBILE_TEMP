@@ -345,9 +345,11 @@ Item {
                 if(video_audio == "music1"){
                     video.volume = 0;
                     if(page == "moving"){
-                        supervisor.playBGM(supervisor.getMovingPageAudio()*100);
+                        volume = supervisor.getMovingPageAudio()
+                        supervisor.playBGM(volume*100);
                     }else if(page == "serving"){
-                        supervisor.playBGM(supervisor.getServingPageAudio()*100);
+                        volume = supervisor.getServingPageAudio()
+                        supervisor.playBGM(volume*100);
                     }
                 }else{
                     if(page == "moving"){
@@ -355,6 +357,7 @@ Item {
                     }else if(page == "serving"){
                         video.volume = supervisor.getServingPageAudio();
                     }
+                    volume = video.volume
                 }
                 print("completed volume = ",video.volume)
             }
@@ -366,6 +369,7 @@ Item {
                 }else if(video_audio == "music1"){
                     supervisor.setvolumeBGM(vol*100);
                 }
+                volume = vol;
             }
 
             Video{
@@ -385,7 +389,12 @@ Item {
                 autoPlay: true
                 loops:MediaPlayer.Infinite
                 onStatusChanged: {
-                    print("video status : ",status)
+                    print("video status : ",status,background_source)
+                    if(status === MediaPlayer.EndOfMedia){
+
+                        video.play(background_source);
+                    }
+
                 }
                 onStateChanged: {
                     print("video state : ",state);

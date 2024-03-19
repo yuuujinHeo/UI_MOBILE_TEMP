@@ -49,6 +49,7 @@ Popup {
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
 
+            loader_movepage.item.background_mode = supervisor.getMovingPageBackground()
             if(supervisor.getMovingPageBackground() === "color"){
                 combo_background_mode.currentIndex = 0;
                 loader_movepage.item.background_source = supervisor.getMovingPageColor()
@@ -61,15 +62,17 @@ Popup {
             }else if(supervisor.getMovingPageBackground() === "video"){
                 combo_background_mode.currentIndex = 2;
                 loader_movepage.item.background_source = supervisor.getMovingPageVideo();
-                text_image.text = supervisor.getMovingPageVideo().split("/").pop()
+                text_video.text = supervisor.getMovingPageVideo().split("/").pop()
                 if(supervisor.getMovingPageVideoAudio() === "video"){
                     combo_video_audio_mode.currentIndex = 0;
                 }else if(supervisor.getMovingPageVideoAudio() === "music1"){
                     combo_video_audio_mode.currentIndex = 1;
                 }
-                print("kk : ",supervisor.getMovingPageVideo(),supervisor.getMovingPageVideoAudio())
+                print("kk : ",supervisor.getMovingPageVideo(),supervisor.getMovingPageVideoAudio(),text_video.text )
                 loader_movepage.item.video_audio = supervisor.getMovingPageVideoAudio();
             }
+            loader_movepage.item.setVolume(supervisor.getMovingPageAudio());
+
         }else if(page == "serving"){
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
                 model_obj.append({"type":supervisor.getServingObjectType(i),
@@ -83,6 +86,8 @@ Popup {
                 print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i))
             }
 
+            loader_movepage.item.background_mode = supervisor.getServingPageBackground()
+
             if(supervisor.getServingPageBackground() === "color"){
                 combo_background_mode.currentIndex = 0;
                 loader_movepage.item.background_source = supervisor.getServingPageColor()
@@ -95,7 +100,7 @@ Popup {
             }else if(supervisor.getServingPageBackground() === "video"){
                 combo_background_mode.currentIndex = 2;
                 loader_movepage.item.background_source = supervisor.getServingPageVideo();
-                text_image.text = supervisor.getServingPageVideo().split("/").pop()
+                text_video.text = supervisor.getServingPageVideo().split("/").pop()
                 if(supervisor.getServingPageVideoAudio() === "video"){
                     combo_video_audio_mode.currentIndex = 0;
                 }else if(supervisor.getServingPageVideoAudio() === "music1"){
@@ -103,6 +108,7 @@ Popup {
                 }
                 loader_movepage.item.video_audio = supervisor.getServingPageVideoAudio();
             }
+            loader_movepage.item.setVolume(supervisor.getServingPageAudio());
         }
 
     }
@@ -201,9 +207,9 @@ Popup {
                         text: qsTr("취 소")
                         onClicked: {
                             if(page == "moving"){
-                                supervisor.clearPatrolPage(popup_setting_patrolpage.page_num);
+//                                supervisor.clearPatrolPage(popup_setting_patrolpage.page_num);
                             }else if(page == "serving"){
-                                supervisor.clearServingPage();
+//                                supervisor.clearServingPage();
                             }
                             popup_setting_patrolpage.close();
                         }
