@@ -1846,6 +1846,10 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
                 volume = tts->curVoice.volume;
             }else{
                 volume = current_patrol.voice_volume;
+                if(current_patrol.voice_volume == 0){
+                    volume = 50;
+                    qDebug() << "fuck";
+                }
             }
         }else{
             volume = tts->curVoice.volume;
@@ -1899,7 +1903,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
             voice_player->setMedia(QUrl::fromLocalFile(filepath));
             voice_player->setVolume(volume);
             voice_player->play();
-            plog->write("[SOUND] PlayVoiceTTS : "+filepath);
+            plog->write("[SOUND] PlayVoiceTTS : "+filepath+", "+QString::number(volume));
         }else{
             v.file = file;
             v.file_path = filepath;
@@ -5561,6 +5565,7 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
         file.setValue("SETTING/voice_path",current_patrol.voice_path);
         file.setValue("SETTING/voice_file",current_patrol.voice_file);
         file.setValue("SETTING/voice_mode",current_patrol.voice_mode);
+        file.setValue("SETTING/voice_volume",current_patrol.voice_volume);
         file.setValue("SETTING/voice_mention",current_patrol.voice_mention);
         file.setValue("SETTING/location_mode",current_patrol.location_mode);
         file.setValue("SETTING/location_num",current_patrol.location.size());

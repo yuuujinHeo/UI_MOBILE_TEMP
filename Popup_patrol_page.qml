@@ -178,6 +178,7 @@ Popup {
                         text: qsTr("저 장")
                         onClicked: {
                             if(page == "serving"){
+                                loader_movepage.item.saveServingPage();
                                 supervisor.saveServingPage();
                             }else if(page == "moving"){
                                 loader_movepage.item.saveMovingPage();
@@ -780,6 +781,7 @@ Popup {
                                     onClicked:{
                                         click_sound.play();
                                         if(page == "serving"){
+                                            loader_movepage.item.saveServingPage();
                                             supervisor.saveServingPage();
                                         }else if(page == "moving"){
                                             loader_movepage.item.saveMovingPage();//etMovingPageVideoAudio(loader_movepage.item.voice_audio);

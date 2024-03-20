@@ -90,6 +90,17 @@ Item {
             supervisor.setMovingPageVideoAudio(video_audio);
             supervisor.setMovingPageAudio(volume);
         }
+    }
+
+    function saveServingPage(){
+        supervisor.setServingPageBackground(background_mode);
+        if(background_mode === "color"){
+        }else if(background_mode === "image"){
+
+        }else if(background_mode === "video"){
+            supervisor.setServingPageVideoAudio(video_audio);
+            supervisor.setServingPageAudio(volume);
+        }
 
     }
 
@@ -174,9 +185,7 @@ Item {
             }
         }
 
-        if(background_mode === "video"){
-
-        }else{
+        if(background_mode !== "video" && !edit_mode){
             supervisor.playBGM();
         }
     }
@@ -245,10 +254,23 @@ Item {
     Loader{
         id: loader_background
         anchors.fill: parent
-        sourceComponent: compo_color
+        sourceComponent: compo_black
         onSourceComponentChanged: {
             supervisor.stopBGM();
             loader_background.item.init();
+        }
+    }
+    Component{
+        id: compo_black
+        Item{
+            function init(){
+
+            }
+            anchors.fill: parent
+            Rectangle{
+                anchors.fill: parent
+                color: "black"
+            }
         }
     }
 
@@ -324,7 +346,6 @@ Item {
                 }
             }
         }
-
     }
 
     Component{
@@ -371,7 +392,6 @@ Item {
                 }
                 volume = vol;
             }
-
             Video{
                 id: video
                 anchors.fill: parent
@@ -382,24 +402,23 @@ Item {
                 onVolumeChanged:{
                     print("volume : " , volume)
                 }
-                onBufferProgressChanged: {
-                    print("buffer : ",bufferProgress)
-                }
-
                 autoPlay: true
                 loops:MediaPlayer.Infinite
                 onStatusChanged: {
                     print("video status : ",status,background_source)
-                    if(status === MediaPlayer.EndOfMedia){
-
-                        video.play(background_source);
+                    if(status === MediaPlayer.Loaded){
+                        video.play();
                     }
-
                 }
-                onStateChanged: {
-                    print("video state : ",state);
+                onPositionChanged:{
+                    if(video_audio !== "video"){
+                        if(duration>0 && position>duration-500){
+                            print("source reset")
+                            source = "";
+                            source = background_source;
+                        }
+                    }
                 }
-
                 Text{
                     anchors.centerIn: parent
                     text:qsTr("영상을 불러올 수 없습니다")
@@ -407,8 +426,6 @@ Item {
                     visible: video.status === MediaPlayer.NoMedia || video.status === MediaPlayer.InvalidMedia || video.status === MediaPlayer.UnknownStatus
                 }
             }
-
-
         }
     }
 

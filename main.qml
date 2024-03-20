@@ -271,12 +271,18 @@ Window {
             print(supervisor.isPatrolPage(), supervisor.getMovingPageMode())
             if(supervisor.isPatrolPage() && supervisor.getMovingPageMode() === "custom"){
                 print("loadpage custom");
-                loadPage(pmovingcustom)
-                loader_page.item.setPage("moving");
+                if(loader_page.item.objectName !== "page_moving_custom"){
+                    loadPage(pmovingcustom)
+                    loader_page.item.setPage("moving");
+                }
+                loader_page.item.pos_name = cur_location;
             }else if(!supervisor.isPatrolPage() && supervisor.getSetting("setting","UI","moving_face") === "3"){
                 print("loadpage custom");
-                loadPage(pmovingcustom)
-                loader_page.item.setPage("serving");
+                if(loader_page.item.objectName !== "page_moving_custom"){
+                    loadPage(pmovingcustom)
+                    loader_page.item.setPage("serving");
+                }
+
                 loader_page.item.pos_name = cur_location;
             }else{
                 print("loadpage moving");

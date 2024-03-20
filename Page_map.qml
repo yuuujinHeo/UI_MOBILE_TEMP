@@ -325,7 +325,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onClicked:{
-                click_sound.play();;
+                click_sound.play();
                 popup_help.close();
             }
         }
