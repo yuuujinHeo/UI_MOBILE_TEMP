@@ -1701,6 +1701,7 @@ Item {
                                         }
 
                                     }else{
+                                        popup_location.mode = "callbell"
                                         popup_location.loc = details.get(select_location).ltype;
                                         popup_location.open();
                                     }
