@@ -235,7 +235,7 @@ public:
     Q_INVOKABLE void setTTSMention(QString text, QString mention);
     Q_INVOKABLE void playVoice(QString file, QString voice="", QString mode="", QString language="", int volume=-1);
 
-    Q_INVOKABLE QString getTTSVoice(int lan, int name){return tts->getVoiceName(lan,name);}
+    Q_INVOKABLE QString getTTSVoice(int lan, int name){return tts->getVoiceName("tts",lan,name);}
     Q_INVOKABLE void playTTS(){tts->playcurVoice();}
 
     //------------ custom page --------------//
@@ -614,7 +614,7 @@ public:
     Q_INVOKABLE void checkCleaningLocation();
 
 
-    Q_INVOKABLE bool isRobotReady();
+    Q_INVOKABLE bool isRobotReady(bool print=true);
 
     Q_INVOKABLE void checkUpdate();
     Q_INVOKABLE bool checkNewUpdateProgram();

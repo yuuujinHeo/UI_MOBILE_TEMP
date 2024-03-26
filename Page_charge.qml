@@ -21,6 +21,16 @@ Item {
             timer_bat.stop();
             text_mention.text = qsTr("충전이 완료되었습니다")
             image_battery.source =  "image/image_battery_4.png"
+        }else if(!timer_bat.running){
+            if(supervisor.getChargeConnectStatus()){
+                text_mention.text = qsTr("충전 케이블이 연결되었습니다")
+            }else if(supervisor.getChargeStatus() === 0){
+                text_mention.text = qsTr("충전 케이블을 연결해 주세요")
+            }else{
+                text_mention.text = qsTr("충전 중입니다")
+                timer_bat.start();
+            }
+
         }
     }
 
@@ -74,7 +84,6 @@ Item {
         font.family: font_noto_b.name
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top : image_battery.bottom
-        anchors.topMargin: 20
     }
 
     Timer{
@@ -216,109 +225,108 @@ Item {
             color: "#282828"
             opacity: 0.8
         }
-        Image{
-            id: image_location
-            source:"image/image_location.png"
-            width: 160
-            height: 160
-            sourceSize.width: width
-            sourceSize.height: height
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 200
-        }
-        Text{
-            id: text_quest
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top:image_location.bottom
-            anchors.topMargin: 30
-            font.family: font_noto_b.name
-            font.pixelSize: 40
-            color: "#12d27c"
-            text: qsTr("대기 장소로 이동<font color=\"white\">하시겠습니까?</font>")
-        }
-        Row{
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: text_quest.bottom
-            anchors.topMargin: 50
+        Column{
+            anchors.centerIn: parent
             spacing: 50
-            Rectangle{
-                id: btn_no
-                width: 250
-                height: 90
-                radius: 20
-                color: "#d0d0d0"
-                Image{
-                    id: image_no
-                    width: 50
-                    height: 50
-                    sourceSize.width: width
-                    sourceSize.height: height
-                    source: "icon/btn_no.png"
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                }
-                Text{
-                    id:text_nono
-                    text:qsTr("아니오")
-                    font.family: font_noto_b.name
-                    font.pixelSize: 30
-                    color:"#282828"
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: image_no.right
-                    anchors.leftMargin : (parent.width - image_no.x - image_no.width)/2 - text_nono.width/2
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();;
-                        timer_bat.start();
-                        popup_question.visible = false;
-                    }
-                }
+            Image{
+                id: image_location
+                source:"icon/icon_plug.png"
+                width: 160
+                height: 160
+                sourceSize.width: width
+                sourceSize.height: height
+                anchors.horizontalCenter: parent.horizontalCenter
             }
-            Rectangle{
-                id: btn_yes
-                width: 250
-                height: 90
-                radius: 20
-                color: "#d0d0d0"
+            Text{
+                id: text_quest
+                anchors.horizontalCenter: parent.horizontalCenter
+                font.family: font_noto_b.name
+                font.pixelSize: 40
+                color: "#12d27c"
+                text: qsTr("대기 장소로 이동<font color=\"white\">하시겠습니까?</font>")
+            }
+            Row{
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 50
                 Rectangle{
-                    color:"white"
-                    width: 240
-                    height: 80
-                    radius: 19
-                    anchors.centerIn: parent
-                }
-                Image{
-                    id: image_yes
-                    width: 50
-                    height: 50
-                    sourceSize.width: width
-                    sourceSize.height: height
-                    source: "icon/icon_yes.png"
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: parent.left
-                    anchors.leftMargin: 20
-                }
-                Text{
-                    text:qsTr("네")
-                    font.family: font_noto_b.name
-                    font.pixelSize: 30
-                    color:"#282828"
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.left: image_yes.right
-                    anchors.leftMargin : (parent.width - image_yes.x - image_yes.width)/2 - width/2
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();;
-                        supervisor.moveToWait();
-                        popup_question.visible = false;
+                    id: btn_no
+                    width: 250
+                    height: 90
+                    radius: 20
+                    color: "#d0d0d0"
+                    Image{
+                        id: image_no
+                        width: 50
+                        height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
+                        source: "icon/btn_no.png"
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                    }
+                    Text{
+                        id:text_nono
+                        text:qsTr("아니오")
+                        font.family: font_noto_b.name
+                        font.pixelSize: 30
+                        color:"#282828"
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: image_no.right
+                        anchors.leftMargin : (parent.width - image_no.x - image_no.width)/2 - text_nono.width/2
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            click_sound.play();;
+                            timer_bat.start();
+                            popup_question.visible = false;
+                        }
                     }
                 }
+                Rectangle{
+                    id: btn_yes
+                    width: 250
+                    height: 90
+                    radius: 20
+                    color: "#d0d0d0"
+                    Rectangle{
+                        color:"white"
+                        width: 240
+                        height: 80
+                        radius: 19
+                        anchors.centerIn: parent
+                    }
+                    Image{
+                        id: image_yes
+                        width: 50
+                        height: 50
+                        sourceSize.width: width
+                        sourceSize.height: height
+                        source: "icon/icon_yes.png"
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: parent.left
+                        anchors.leftMargin: 20
+                    }
+                    Text{
+                        text:qsTr("네")
+                        font.family: font_noto_b.name
+                        font.pixelSize: 30
+                        color:"#282828"
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.left: image_yes.right
+                        anchors.leftMargin : (parent.width - image_yes.x - image_yes.width)/2 - width/2
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            click_sound.play();;
+                            supervisor.moveToWait();
+                            popup_question.visible = false;
+                        }
+                    }
+                }
+
             }
 
         }
@@ -327,7 +335,7 @@ Item {
             anchors.fill: parent
             enabled: false
             onClicked: {
-                click_sound.play();;
+                click_sound.play();
                 timer_bat.start();
                 popup_question.visible = false;
 

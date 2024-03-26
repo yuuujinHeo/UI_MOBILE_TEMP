@@ -35,14 +35,13 @@ Item {
             loader_background.item.pause();
         }
     }
+
     function resumeGif(){
-//        print("resumeGif ",background_mode)
         if(background_mode === "image")
             loader_background.item.resume();
     }
 
     function setPage(name){
-//        print("mcustom page set : "+name);
         page = name;
         init();
     }
@@ -52,10 +51,12 @@ Item {
     }
 
     function setVolume(vol){
-        if(loader_background != null){
-            if(loader_background.item != null)
-                loader_background.item.setVol(vol);
-        }
+        if(loader_background.item.objectName == "compo_video")
+            loader_background.item.setVol(vol);
+    }
+    function close(){
+        loader_background.sourceComponent = compo_black;
+        supervisor.stopBGM();
     }
 
     property int select_obj: -1
@@ -67,20 +68,17 @@ Item {
             rect_right_bottom.y = model_obj.get(select_obj).ob_y  + model_obj.get(select_obj).ob_height - 10
         }
     }
-    function close(){
-        loader_background.sourceComponent = compo_color;
-        supervisor.stopBGM();
-    }
 
     signal doubleclicked
     Component.onCompleted: {
         init();
     }
+
     Component.onDestruction:  {
-        print("????????????????????/")
         supervisor.stopBGM();
         popup_notice.close();
     }
+
     function saveMovingPage(){
         supervisor.setMovingPageBackground(background_mode);
         if(background_mode === "color"){
@@ -113,7 +111,7 @@ Item {
         supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName+", "+edit_mode);
 
         supervisor.stopBGM();
-        popup_pause.visible = false;
+        popup_pause.close();
         if(!edit_mode){
             statusbar.visible = false;
         }else{
@@ -124,14 +122,27 @@ Item {
         if(page == "moving"){
             page_moving_custom.select_obj = -1;
             for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
-                model_obj.append({"type":supervisor.getPageObjectType(i),
-                                 "ob_source":supervisor.getPageObjectSource(i),
-                                 "ob_color":supervisor.getPageObjectColor(i),
-                                 "ob_x":supervisor.getPageObjectX(i)*width/1280,
-                                 "ob_y":supervisor.getPageObjectY(i)*height/800,
-                                 "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
-                                 "ob_height":supervisor.getPageObjectHeight(i)*height/800,
-                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                if(supervisor.getPageObjectType(i)==="image"){
+                    model_obj.append({"type":supervisor.getPageObjectType(i),
+                                     "ob_source":supervisor.getPageObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }else{
+                    model_obj.append({"type":supervisor.getPageObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getPageObjectSource(i),
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i),supervisor.getPageObjectX(i),supervisor.getPageObjectY(i),supervisor.getPageObjectWidth(i),supervisor.getPageObjectHeight(i));
             }
 
@@ -156,14 +167,27 @@ Item {
 
             print(supervisor.getServingObjectSize())
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
-                model_obj.append({"type":supervisor.getServingObjectType(i),
-                                 "ob_source":supervisor.getServingObjectSource(i),
-                                 "ob_color":supervisor.getServingObjectColor(i),
-                                 "ob_x":supervisor.getServingObjectX(i)*width/1280,
-                                 "ob_y":supervisor.getServingObjectY(i)*height/800,
-                                 "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
-                                 "ob_height":supervisor.getServingObjectHeight(i)*height/800,
-                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                if(supervisor.getServingObjectType(i)==="image"){
+                    model_obj.append({"type":supervisor.getServingObjectType(i),
+                                     "ob_source":supervisor.getServingObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }else{
+                    model_obj.append({"type":supervisor.getServingObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getServingObjectSource(i),
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }
                 print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i),supervisor.getServingObjectX(i),supervisor.getServingObjectY(i),supervisor.getServingObjectWidth(i),supervisor.getServingObjectHeight(i));
             }
 
@@ -188,31 +212,58 @@ Item {
         if(background_mode !== "video" && !edit_mode){
             supervisor.playBGM();
         }
+
     }
 
     function update(){
         if(page == "moving"){
             for(var i=0; i<model_obj.count; i++){
-                model_obj.set(i,{"type":supervisor.getPageObjectType(i),
-                                 "ob_source":supervisor.getPageObjectSource(i),
-                                 "ob_color":supervisor.getPageObjectColor(i),
-                                 "ob_x":supervisor.getPageObjectX(i)*width/1280,
-                                 "ob_y":supervisor.getPageObjectY(i)*height/800,
-                                 "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
-                                 "ob_height":supervisor.getPageObjectHeight(i)*height/800,
-                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                if(supervisor.getPageObjectType(i)==="image"){
+                    model_obj.set(i,{"type":supervisor.getPageObjectType(i),
+                                     "ob_source":supervisor.getPageObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }else{
+                    model_obj.set(i,{"type":supervisor.getPageObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getPageObjectSource(i),
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }
     //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
         }else if(page == "serving"){
             for(var i=0; i<model_obj.count; i++){
-                model_obj.set(i,{"type":supervisor.getServingObjectType(i),
-                                 "ob_source":supervisor.getServingObjectSource(i),
-                                 "ob_color":supervisor.getServingObjectColor(i),
-                                 "ob_x":supervisor.getServingObjectX(i)*width/1280,
-                                 "ob_y":supervisor.getServingObjectY(i)*height/800,
-                                 "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
-                                 "ob_height":supervisor.getServingObjectHeight(i)*height/800,
-                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                if(supervisor.getServingObjectType(i)==="image"){
+                    model_obj.set(i,{"type":supervisor.getServingObjectType(i),
+                                     "ob_source":supervisor.getServingObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }else{
+                    model_obj.set(i,{"type":supervisor.getServingObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getServingObjectSource(i),
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }
     //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
         }
@@ -255,17 +306,11 @@ Item {
         id: loader_background
         anchors.fill: parent
         sourceComponent: compo_black
-        onSourceComponentChanged: {
-            supervisor.stopBGM();
-            loader_background.item.init();
-        }
     }
+
     Component{
         id: compo_black
         Item{
-            function init(){
-
-            }
             anchors.fill: parent
             Rectangle{
                 anchors.fill: parent
@@ -277,22 +322,15 @@ Item {
     Component{
         id: compo_color
         Item{
-            function init(){
-
-            }
             Rectangle{
                 anchors.fill: parent
                 color: background_source
             }
         }
     }
-
     Component{
         id: compo_image
         Item{
-            function init(){
-
-            }
             Image{
                 id: image
                 anchors.fill: parent
@@ -321,10 +359,6 @@ Item {
                 print("gif resume")
                 gif.paused = false;
             }
-            function init(){
-
-            }
-
             AnimatedImage{
                 id: gif
                 cache: false
@@ -347,30 +381,25 @@ Item {
             }
         }
     }
-
     Component{
         id: compo_video
         Item{
+            objectName: "compo_video"
             anchors.fill: parent
             Component.onCompleted: {
                 init();
             }
             Component.onDestruction: {
-                print("destruction ");
                 supervisor.stopBGM();
             }
-
             function init(){
-                supervisor.stopBGM();
                 print("video init ",video_audio);
                 if(video_audio == "music1"){
                     video.volume = 0;
                     if(page == "moving"){
-                        volume = supervisor.getMovingPageAudio()
-                        supervisor.playBGM(volume*100);
+                        supervisor.playBGM(supervisor.getMovingPageAudio()*100);
                     }else if(page == "serving"){
-                        volume = supervisor.getServingPageAudio()
-                        supervisor.playBGM(volume*100);
+                        supervisor.playBGM(supervisor.getServingPageAudio()*100);
                     }
                 }else{
                     if(page == "moving"){
@@ -378,20 +407,24 @@ Item {
                     }else if(page == "serving"){
                         video.volume = supervisor.getServingPageAudio();
                     }
-                    volume = video.volume
                 }
-                print("completed volume = ",video.volume)
             }
 
             function setVol(vol){
                 if(video_audio == "video"){
                     video.volume = vol;
-                    print("VIDEO VOLUME = ",vol);
                 }else if(video_audio == "music1"){
                     supervisor.setvolumeBGM(vol*100);
                 }
-                volume = vol;
             }
+            function pause(){
+                video.pause();
+            }
+            function resume(){
+                print("video resume")
+                video.play();
+            }
+
             Video{
                 id: video
                 anchors.fill: parent
@@ -399,26 +432,48 @@ Item {
                 source: background_source
                 volume: 0.5
                 flushMode: VideoOutput.FirstFrame
-                onVolumeChanged:{
-                    print("volume : " , volume)
-                }
                 autoPlay: true
                 loops:MediaPlayer.Infinite
+                property var lastPos
+                property int zero_count: 0
                 onStatusChanged: {
-                    print("video status : ",status,background_source)
+                    print("status : ",status)
                     if(status === MediaPlayer.Loaded){
                         video.play();
                     }
                 }
+                function reset(){
+                    source = "";
+                    source = background_source;
+                }
+
+                onPlaybackStateChanged: {
+                    print("playback state : ",playbackState)
+                }
+                onPlaybackRateChanged: {
+                    print("playback rate : ",playbackRate);
+                }
+
                 onPositionChanged:{
-                    if(video_audio !== "video"){
-                        if(duration>0 && position>duration-500){
-                            print("source reset")
-                            source = "";
-                            source = background_source;
+                    if(duration > 0){
+//                        print("position changed ",position,duration)
+                        if(position != 0){
+                            lastPos = position;
+                            zero_count = 0;
+                        }else{
+                            if(zero_count++>3){
+                                zero_count = 0;
+//                                print("need source reset");
+                                reset();
+                            }
+                        }
+                        if(position>duration-500){
+//                            print("source reset")
+                            reset();
                         }
                     }
                 }
+
                 Text{
                     anchors.centerIn: parent
                     text:qsTr("영상을 불러올 수 없습니다")
@@ -429,7 +484,24 @@ Item {
         }
     }
 
-
+    Timer{
+        id: test_timer
+        interval: 1000
+        running: true
+        repeat: true
+        property int nn: 0
+        onTriggered:{
+            if(loader_background.item.objectName == "compo_video"){
+                if(nn === 0){
+                    loader_background.item.pause();
+                    nn++;
+                }else{
+                    loader_background.item.resume();
+                    nn = 0;
+                }
+            }
+        }
+    }
 
     Rectangle{
         id: rect_frame
@@ -470,7 +542,7 @@ Item {
                     y: ob_y
                     color: ob_color
                     anchors.centerIn: parent
-                    text: ob_source
+                    text: ob_text
                     font.pixelSize: ob_height/2
                     font.family: font_noto_r.name
                 }
@@ -602,163 +674,161 @@ Item {
     }
 
 
-    Item{
+    Popup{
         id: popup_pause
         width: parent.width
         height: parent.height
-        anchors.centerIn: parent
-        onVisibleChanged: {
-            if(statusbar != null){
-                if(visible){
-                    statusbar.visible = true;
-                }else{
-                    statusbar.visible = false;
-                }
+        closePolicy: Popup.NoAutoClose
+        onOpened:{
+            statusbar.visible = true;
+            loader_background.item.pause();
+            if(popup_notice.opened){
+                print("재오픈")
+//                popup_notice.close();
+//                popup_notice.open();
             }
         }
-
-        Rectangle{
+        onClosed:{
+            if(!edit_mode){
+                statusbar.visible = false;
+            }
+            loader_background.item.resume();
+        }
+        background:Rectangle{
             anchors.fill: parent
-            visible: robot_paused
-            color: "#282828"
-            opacity: 0.8
+            color: color_dark_black
+            opacity: 0.9
         }
-        Image{
-            id: image_warning
-            source: "icon/icon_warning.png"
-            width: 160
-            height: 160
-            sourceSize.width: width
-            sourceSize.height: height
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 200
-            MouseArea{
-                anchors.fill: parent
-                z: 99
-                onClicked:{
-                    popup_pause.visible = false;
+        Column{
+            anchors.centerIn: parent
+            spacing: 50
+            Image{
+                id: image_warning
+                source: "icon/icon_warning.png"
+                width: 160
+                height: 160
+                anchors.horizontalCenter: parent.horizontalCenter
+                sourceSize.width: width
+                sourceSize.height: height
+            }
+            Column{
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 10
+                Text{
+                    id: teee
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.family: font_noto_b.name
+                    font.pixelSize: 50
+                    color: "#e2574c"
+                    text: qsTr("일시정지 됨")
+                }
+                Text{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    color: "#e2574c"
+                    text: qsTr("( 목적지 : ")+pos_name+" )"
                 }
             }
-        }
-        Text{
-            id: teee
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top:image_warning.bottom
-            anchors.topMargin: 30
-            font.family: font_noto_b.name
-            font.pixelSize: 50
-            color: "#e2574c"
-            text: qsTr("일시정지 됨")
-        }
-        Text{
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top:teee.bottom
-            anchors.topMargin: 10
-            font.family: font_noto_b.name
-            font.pixelSize: 40
-            color: "#e2574c"
-            text: qsTr("( 목적지 : ")+pos_name+" )"
-        }
-        Row{
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 80
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 100
-            Rectangle{
-                width: 180
-                height: 120
-                radius: 20
-                color: "transparent"
-                border.color: color_red
-                border.width: 6
-                Text{
-                    anchors.centerIn: parent
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    text: qsTr("수동 이동")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    z: 99
-                    onClicked:{
-                        click_sound.play();
-                        popup_notice.init();
-                        popup_notice.closemode = false;
-                        popup_notice.style = "warning";
-                        popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
-                        popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
-                        popup_notice.addButton(qsTr("수동이동"));
-                        popup_notice.addButton(qsTr("취소"));
-                        popup_notice.open();
+            Row{
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 80
+                Rectangle{
+                    width: 180
+                    height: 120
+                    radius: 20
+                    color: "transparent"
+                    border.color: color_red
+                    border.width: 6
+                    Text{
+                        anchors.centerIn: parent
+                        color: color_red
+                        font.family: font_noto_r.name
+                        font.pixelSize: 30
+                        text: qsTr("수동 이동")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        z: 99
+                        onClicked:{
+                            click_sound.play();
+                            popup_notice.init();
+                            popup_notice.closemode = false;
+                            popup_notice.style = "warning";
+                            popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
+                            popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
+                            popup_notice.addButton(qsTr("수동이동"));
+                            popup_notice.open();
+                        }
                     }
                 }
-            }
-            Rectangle{
-                width: 180
-                height: 120
-                radius: 20
-                color: "transparent"
-                enabled: motor_lock
-                border.color: motor_lock?color_red:color_gray
-                border.width: 6
-                Text{
-                    anchors.centerIn: parent
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    text: qsTr("경로 취소")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    z: 99
-                    propagateComposedEvents: true
-                    onPressed:{
-                        click_sound.play();;
-                        parent.color = color_dark_navy
+                Rectangle{
+                    width: 180
+                    height: 120
+                    radius: 20
+                    color: "transparent"
+                    enabled: motor_lock
+                    border.color: motor_lock?color_red:color_gray
+                    border.width: 6
+                    Text{
+                        anchors.centerIn: parent
+                        color: color_red
+                        font.family: font_noto_r.name
+                        font.pixelSize: 30
+                        text: qsTr("경로 취소")
                     }
-                    onReleased:{
-                        parent.color = "transparent"
-                    }
-                    onClicked:{
-                        supervisor.writelog("[UI] PageMovingCustom : Path Cancle");
-                        supervisor.moveStop();
+                    MouseArea{
+                        anchors.fill: parent
+                        z: 99
+                        propagateComposedEvents: true
+                        onPressed:{
+                            click_sound.play();;
+                            parent.color = color_dark_navy
+                        }
+                        onReleased:{
+                            parent.color = "transparent"
+                        }
+                        onClicked:{
+                            supervisor.writelog("[UI] PageMovingCustom : Path Cancle");
+                            supervisor.moveStop();
+                        }
                     }
                 }
-            }
-            Rectangle{
-                width: 180
-                height: 120
-                radius: 20
-                color: "transparent"
-                enabled: motor_lock
-                border.color: motor_lock?color_red:color_gray
-                border.width: 6
-                Text{
-                    anchors.centerIn: parent
-                    color: color_red
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    text: qsTr("경로 재개")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    z: 99
-                    onClicked:{
-                        click_sound.play();;
-                        supervisor.writelog("[UI] PageMovingCustom : Path Resume");
-                        supervisor.moveResume();
+                Rectangle{
+                    width: 180
+                    height: 120
+                    radius: 20
+                    color: "transparent"
+                    enabled: motor_lock
+                    border.color: motor_lock?color_red:color_gray
+                    border.width: 6
+                    Text{
+                        anchors.centerIn: parent
+                        color: color_red
+                        font.family: font_noto_r.name
+                        font.pixelSize: 30
+                        text: qsTr("경로 재개")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        z: 99
+                        onClicked:{
+                            click_sound.play();;
+                            supervisor.writelog("[UI] PageMovingCustom : Path Resume");
+                            supervisor.moveResume();
+                        }
                     }
                 }
             }
         }
     }
+
     Timer{
         id: update_timer
         interval: 500
         running: !edit_mode
         property int prev_state: 0
+        property bool lock_notice: false
         repeat: true
         onTriggered: {
             if(supervisor.getLockStatus()===0){
@@ -767,30 +837,43 @@ Item {
 
                 motor_lock = false;
 
-                popup_notice.init();
-                popup_notice.closemode = false;
-                popup_notice.style = "warning";
-                popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
-                popup_notice.sub_str = ""
-                popup_notice.addButton(qsTr("원래대로"));
-                popup_notice.open();
+                if(!lock_notice){
+                    popup_notice.init();
+                    popup_notice.closemode = false;
+                    popup_notice.style = "warning";
+                    popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
+                    popup_notice.sub_str = ""
+                    popup_notice.addButton(qsTr("원래대로"));
+                    popup_notice.open();
+                    lock_notice = true;
+                }
+
             }else{
                 if(!motor_lock){
                     supervisor.writelog("[UI] PageMovingCustom : Motor Lock true");
                 }
                 motor_lock = true;
 
+                if(lock_notice){
+                    lock_notice = false;
+                    popup_notice.close();
+                }
+
                 if(prev_state !== supervisor.getStateMoving()){
                     if(supervisor.getStateMoving() === 4){
                         robot_paused = true;
-                        popup_pause.visible = true;
+                        popup_pause.open();
                         supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Paused");
                     }else if(supervisor.getStateMoving() === 0){
                         robot_paused = true;
-                        popup_pause.visible = true;
+                        popup_pause.open();
                         supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Not Moving");
+                    }else if(supervisor.getStateMoving() === 2){
+                        popup_pause.close();
+                        robot_paused = false;
+                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Moving");
                     }else{
-                        popup_pause.visible = false;
+                        popup_pause.close();
                         robot_paused = false;
                         supervisor.writelog("[UI] PageMovingCustom : Check State -> "+Number(supervisor.getStateMoving()));
                     }
@@ -808,7 +891,6 @@ Item {
             if(!robot_paused){
                 supervisor.writelog("[UI] PageMovingCustom : Move Pause")
                 supervisor.movePause();
-
             }
         }
     }

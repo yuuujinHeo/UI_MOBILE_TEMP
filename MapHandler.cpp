@@ -57,7 +57,6 @@ void MapHandler::loadFile(){
     loadFile(map_name,"");
 }
 void MapHandler::loadFile(QString name, QString type){
-    qDebug() <<"loadFile " << name <<type;
     QString file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_raw.png";
     QString log_str;
     if(QFile::exists(file_path)){
