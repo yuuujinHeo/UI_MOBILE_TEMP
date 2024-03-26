@@ -176,7 +176,7 @@ Item {
             Text{
                 id: text_mention3
                 text: qsTr("수령 후 아래 <font color=\"#12d27c\">확인버튼</font>을 눌러주세요")
-                font.pixelSize: 45
+                font.pixelSize: 40
                 font.family: font_noto_b.name
                 color: "white"
             }
@@ -189,7 +189,7 @@ Item {
                 id: btn_confirm
                 width: 320
                 height: 120
-                radius: 10
+                radius: 60
                 border.color: color_gray
                 border.width: 2
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -202,8 +202,8 @@ Item {
                         Image{
                             anchors.centerIn: parent
                             source:"icon/icon_yes.png"
-                            width: 60
-                            height: 60
+                            width: 80
+                            height: 80
                             sourceSize.width: width
                             sourceSize.height: height
                         }
@@ -217,6 +217,7 @@ Item {
                             text: qsTr("확인")
                             font.family: font_noto_b.name
                             font.pixelSize: 45
+                            color: color_green
                         }
                     }
                 }

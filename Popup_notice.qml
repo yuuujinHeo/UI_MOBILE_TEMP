@@ -9,7 +9,6 @@ Popup{
     property string main_str: ""
     property string sub_str: ""
     property string style: "warning"
-
     property bool closemode: true
     leftPadding: 0
     rightPadding: 0
@@ -68,8 +67,19 @@ Popup{
             text_sub.color = "white";
         }
 
+
+        print("popup notice open : ",main_str);
         if(model_btn.count > 0){
-            model_btn.insert(0,{"name":qsTr("취 소"),"mode":0})
+            var already = false;
+            for(var i=0;i<model_btn.count;i++){
+                if(model_btn.get(i).name === qsTr("취 소")){
+                    already = true;
+                    break;
+                }
+            }
+            if(!already){
+                model_btn.insert(0,{"name":qsTr("취 소"),"mode":0})
+            }
         }else{
             addButton(qsTr("확 인"));
         }

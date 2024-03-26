@@ -16,7 +16,7 @@ QApplication *app;//(argc, argv);
 
 int main(int argc, char *argv[])
 {
-    bool test_mode = false;
+    bool test_mode = true;
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     qmlRegisterType<Supervisor>("io.qt.Supervisor",1,0, "Supervisor");
     qmlRegisterType<CameraView>("io.qt.CameraView",1,0, "CameraView");
@@ -31,13 +31,10 @@ int main(int argc, char *argv[])
     QString ini_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.ini";
     QSettings setting_robot(ini_path, QSettings::IniFormat);
     setting_robot.beginGroup("UI");
-    qDebug() << setting_robot.value("language").toString();
     if(setting_robot.value("language").toString() == "english"){
         QTranslator *translator = new QTranslator();
         QString pahhh = QApplication::applicationDirPath() + "/lang_eddn.qm";
-        qDebug() << pahhh << translator->load(pahhh);
         app->installTranslator(translator);
-        qDebug() << "install enaglish";
     }else{
 
     }

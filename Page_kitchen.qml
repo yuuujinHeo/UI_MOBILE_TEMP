@@ -12,7 +12,6 @@ Item {
     height: 800
 
     Component.onCompleted: {
-        init();
     }
     Component.onDestruction: {
         popup_notice.close();
@@ -229,21 +228,36 @@ Item {
 
     function update_group(){
         model_group.clear();
+        var groupnum = -1;
         for(var i=0; i<supervisor.getLocationGroupNum(); i++){
-            if(supervisor.getLocationGroupSize(i) > 0){
-                if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
-                    model_group.append({"num":i,"name":qsTr("그룹")});
+            if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
+                if(supervisor.getLocationGroupSize(i) > 0){
+                    if(groupnum == -1){
+                        groupnum = i;
+                    }
+                    model_group.append({"num":i,"name":qsTr("그룹"),"show":true});
                 }else{
-
-                    model_group.append({"num":i,"name":supervisor.getLocGroupname(i)});
+                    model_group.append({"num":i,"name":qsTr("그룹"),"show":false});
                 }
-
+            }else{
+                if(supervisor.getLocationGroupSize(i) > 0){
+                    if(groupnum == -1){
+                        groupnum = i;
+                    }
+                    model_group.append({"num":i,"name":supervisor.getLocGroupname(i),"show":true});
+                }else{
+                    model_group.append({"num":i,"name":supervisor.getLocGroupname(i),"show":false});
+                }
             }
         }
+        if(cur_group == -1)
+            cur_group = groupnum;
+
         if(model_group.count > 0){
             table_num = supervisor.getLocationGroupSize(model_group.get(cur_group).num);
         }else
             table_num = 0;
+
         update_table();
     }
     function update_table(){
@@ -281,6 +295,35 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: rect_table_box.right
         anchors.leftMargin: (menubar.x-rect_table_box.width - width)/2
+
+        Rectangle{
+            width: 60
+            height: 110
+            radius: 30
+            color: parent.color
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: -50
+            Image{
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: 40
+                height: 40
+                source: "qrc:/icon/icon_trash_w.png"
+                sourceSize.width: width
+                sourceSize.height: height
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: -30
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked:{
+                        for(var i=0; i<traymodel.count; i++){
+                            traymodel.get(i).setting = false;
+                        }
+                    }
+                }
+            }
+
+        }
         Column{
             id: column_tray
             anchors.centerIn: parent
@@ -388,6 +431,7 @@ Item {
                 }
             }
         }
+
     }
 
     Rectangle{
@@ -415,11 +459,12 @@ Item {
                     Rectangle{
                         width: 160
                         height: 70
+                        visible: show
                         color: "transparent"
                         DropShadow{
                             anchors.fill: textt3
                             source: textt3
-                            visible: cur_group===index
+                            visible: cur_group===num
                             radius: 3
                             color: color_more_gray
                         }
@@ -429,7 +474,7 @@ Item {
                             font.family: font_noto_b.name
                             font.pixelSize: 30
                             text: name
-                            color: cur_group===index?color_green:color_dark_gray
+                            color: cur_group===num?color_green:color_dark_gray
                         }
                         Rectangle{
                             anchors.bottom: parent.bottom
@@ -437,13 +482,14 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             radius: 2
                             height: 3
-                            color: cur_group===index?color_green:"transparent"
+                            color: cur_group===num?color_green:"transparent"
                         }
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
                                 click_sound.play();
-                                cur_group = index;
+                                print("cur group change : ",num)
+                                cur_group = num;
                             }
                         }
                     }
@@ -748,14 +794,8 @@ Item {
                                 Rectangle{
                                     width: 180
                                     height: 70
+                                    visible: show
                                     color: "transparent"
-                                    DropShadow{
-                                        anchors.fill: textt
-                                        source: textt
-                                        visible: false//cur_group===index
-                                        radius: 3
-                                        color: color_more_gray
-                                    }
                                     Text{
                                         id: textt
                                         anchors.centerIn: parent
@@ -763,7 +803,7 @@ Item {
                                         font.pixelSize: 30
                                         text: name
                                         horizontalAlignment: Text.AlignHCenter
-                                        color: cur_group===index?color_green:color_dark_gray
+                                        color: cur_group===num?color_green:color_dark_gray
                                         Component.onCompleted: {
                                             scale = 1;
                                             while(scale*width > 180){
@@ -777,13 +817,14 @@ Item {
                                         anchors.horizontalCenter: parent.horizontalCenter
                                         radius: 2
                                         height: 3
-                                        color: cur_group===index?color_green:"transparent"
+                                        color: cur_group===num?color_green:"transparent"
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
                                             click_sound.play();
-                                            cur_group = index;
+                                            print("cur group change2 : ",num)
+                                            cur_group = num;
                                         }
                                     }
                                 }
@@ -844,6 +885,7 @@ Item {
                             Rectangle{
                                 width: 140
                                 height: 30
+                                visible: show
                                 color: color_dark_navy
                                 opacity: cur_group === index?1:0
                             }
