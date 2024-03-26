@@ -103,7 +103,6 @@
         <file>image/image_localization_reset.png</file>
         <file>image/icon_warning.png</file>
         <file>icon/icon_test_stop.png</file>
-        <file>image/loading.gif</file>
         <file>icon/image_emergency_push.png</file>
         <file>icon/image_emergency.png</file>
         <file>icon/icon_obs.png</file>
@@ -304,5 +303,37 @@
         <file>image/image_robot_moving.png</file>
         <file>image/image_robot_resting.png</file>
         <file>Buttons.qml</file>
+        <file>icon/btn_reset2.png</file>
+        <file>icon/cursor.png</file>
+        <file>icon/data_gray.png</file>
+        <file>icon/data_green.png</file>
+        <file>icon/icon_add2.png</file>
+        <file>icon/icon_brain.png</file>
+        <file>icon/icon_cone.png</file>
+        <file>icon/icon_drink.png</file>
+        <file>icon/icon_obj_no.png</file>
+        <file>icon/icon_obj_yes.png</file>
+        <file>icon/icon_open.png</file>
+        <file>icon/icon_plug.png</file>
+        <file>icon/icon_point_1.png</file>
+        <file>icon/icon_tline.png</file>
+        <file>icon/icon_unlock.png</file>
+        <file>icon/icon_zoom.png</file>
+        <file>icon/keyboard.png</file>
+        <file>image/battery_1.png</file>
+        <file>image/battery_2.png</file>
+        <file>image/battery_3.png</file>
+        <file>image/battery_full.png</file>
+        <file>image/robot_bad.png</file>
+        <file>image/robot_good.png</file>
+        <file>image/robot_normal.png</file>
+        <file>icon/icon_check.png</file>
+        <file>icon/icon_ethernet_w.png</file>
+        <file>icon/icon_lock.png</file>
+        <file>icon/icon_wifi_w.png</file>
+        <file>icon/icon_wifi_w2.png</file>
+        <file>icon/icon_emo.png</file>
+        <file>icon/icon_fire.png</file>
+        <file>icon/icon_no.png</file>
     </qresource>
 </RCC>

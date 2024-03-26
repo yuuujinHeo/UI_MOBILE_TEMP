@@ -91,7 +91,7 @@ Item {
                     target: image_logo1;
                     from: 0;
                     to: 1;
-                    duration: 3000
+                    duration: 1000
                     running: true
                 }
                 Image{
@@ -2675,15 +2675,16 @@ Item {
     Timer{
         id: start_timer
         running: true
-        interval: 3000
+        interval: 500
         onTriggered: {
             update_timer.start();
         }
     }
+
     Timer{
         id:timer_motor_init
         running: false
-        interval: 1500
+        interval: 500
         onTriggered: {
             supervisor.writelog("[UI] PageInit : Motor Failed -> motorInit")
             loader_init.sourceComponent = item_motor_init;
@@ -2707,7 +2708,8 @@ Item {
                     supervisor.writelog("[INIT] Program version check : No Version  -> Pass");
                     init_mode = 1;
                 }
-            }else if(init_mode == 1){
+            }
+            if(init_mode == 1){
                 //=============================== Init Check 1 : IPC ==============================//
                 if(testMode){
                     supervisor.writelog("[INIT] IPC Connection Check : Success(DEBUG)");
@@ -2716,13 +2718,13 @@ Item {
                     if(supervisor.getIPCConnection()){
                         supervisor.writelog("[INIT] IPC Connection Check : Success");
                         init_mode = 2;
-    //                    timer_wait_lcm.stop();
                     }else if(loader_init.item.objectName != "item_ipc"){
                         loader_init.sourceComponent = item_ipc;
                         supervisor.writelog("[INIT] IPC Connection Check : Failed");
                     }
                 }
-            }else if(init_mode == 2){
+            }
+            if(init_mode == 2){
                 //========================== Init Check 2 : Robot Config ==============================//
                 if(supervisor.checkINI() && loader_init.item.objectName != "item_robot_config"){
                     supervisor.writelog("[INIT] Robot_config Check : Success");
@@ -2733,7 +2735,8 @@ Item {
                         supervisor.writelog("[INIT] Robot_config Check : Failed");
                     }
                 }
-            }else if(init_mode == 3){
+            }
+            if(init_mode == 3){
                 if(supervisor.getLockStatus()===1){
                     print("now 3")
                     supervisor.setMotorLock(false);
@@ -2758,23 +2761,10 @@ Item {
                             loader_init.item.disable_usb();
                         }
 
-                        //설정 된 맵은 있지만 annotation은 없는 경우
-//                        if(supervisor.isLoadMap()){
-//                            loader_init.item.enable_rawmap();
-//                        }else{
-//                            loader_init.item.disable_rawmap();
-//                        }
-
-                        //가능한 다른 맵이 있는 경우
-//                        var available_map_num = supervisor.getAvailableMap();
-//                        if(available_map_num > 0){
-//                            loader_init.item.enable_availablemap();
-//                        }else{
-//                            loader_init.item.disable_availablemap();
-//                        }
                     }
                 }
-            }else if(init_mode == 4){
+            }
+            if(init_mode == 4){
                 if(supervisor.getLockStatus()===1){
                     print("now 4")
                     supervisor.setMotorLock(false);
@@ -2792,7 +2782,8 @@ Item {
                 }else{
 //                    print("check localization",supervisor.getLocalizationConfirm());
                 }
-            }else if(init_mode == 5){
+            }
+            if(init_mode == 5){
                 //=============================== Init Check 5 : 로봇 상태 확인(Motor) ==============================//
                 if(supervisor.getLockStatus()===0){
                     supervisor.setMotorLock(true);

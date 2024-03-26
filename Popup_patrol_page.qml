@@ -29,7 +29,7 @@ Popup {
     }
     onClosed:{
         loader_movepage.item.close();
-        loader_movepage.sourceComponent = "";
+        loader_movepage.sourceComponent = nullptr;
     }
 
     function init(){
@@ -38,14 +38,27 @@ Popup {
         loader_movepage.item.setPage(page);
         if(page == "moving"){
             for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
-                model_obj.append({"type":supervisor.getPageObjectType(i),
-                                 "ob_source":supervisor.getPageObjectSource(i),
-                                 "ob_color":supervisor.getPageObjectColor(i),
-                                 "ob_x":supervisor.getPageObjectX(i),
-                                 "ob_y":supervisor.getPageObjectY(i),
-                                 "ob_width":supervisor.getPageObjectWidth(i),
-                                 "ob_height":supervisor.getPageObjectHeight(i),
-                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                if(supervisor.getPageObjectType(i)==="image"){
+                    model_obj.append({"type":supervisor.getPageObjectType(i),
+                                     "ob_source":supervisor.getPageObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }else{
+                    model_obj.append({"type":supervisor.getPageObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getPageObjectSource(i),
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
 
@@ -75,14 +88,27 @@ Popup {
 
         }else if(page == "serving"){
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
-                model_obj.append({"type":supervisor.getServingObjectType(i),
-                                 "ob_source":supervisor.getServingObjectSource(i),
-                                 "ob_color":supervisor.getServingObjectColor(i),
-                                 "ob_x":supervisor.getServingObjectX(i),
-                                 "ob_y":supervisor.getServingObjectY(i),
-                                 "ob_width":supervisor.getServingObjectWidth(i),
-                                 "ob_height":supervisor.getServingObjectHeight(i),
-                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                if(supervisor.getServingObjectType(i)==="image"){
+                    model_obj.append({"type":supervisor.getServingObjectType(i),
+                                     "ob_source":supervisor.getServingObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }else{
+                    model_obj.append({"type":supervisor.getServingObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getServingObjectSource(i),
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }
                 print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i))
             }
 
@@ -117,26 +143,52 @@ Popup {
         loader_movepage.item.update();
         if(page == "moving"){
             for(var i=0; i<supervisor.getPatrolObjectSize(); i++){
-                model_obj.set(i,{"type":supervisor.getPageObjectType(i),
-                                 "ob_source":supervisor.getPageObjectSource(i),
-                                 "ob_color":supervisor.getPageObjectColor(i),
-                                 "ob_x":supervisor.getPageObjectX(i),
-                                 "ob_y":supervisor.getPageObjectY(i),
-                                 "ob_width":supervisor.getPageObjectWidth(i),
-                                 "ob_height":supervisor.getPageObjectHeight(i),
-                                 "fontsize":supervisor.getPageObjectFontsize(i)});
+                if(supervisor.getPageObjectType(i)==="image"){
+                    model_obj.append({"type":supervisor.getPageObjectType(i),
+                                     "ob_source":supervisor.getPageObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }else{
+                    model_obj.append({"type":supervisor.getPageObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getPageObjectSource(i),
+                                     "ob_color":supervisor.getPageObjectColor(i),
+                                     "ob_x":supervisor.getPageObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getPageObjectY(i)*height/800,
+                                     "ob_width":supervisor.getPageObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getPageObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getPageObjectFontsize(i)});
+                }
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
         }else if(page == "serving"){
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
-                model_obj.append({"type":supervisor.getServingObjectType(i),
-                                 "ob_source":supervisor.getServingObjectSource(i),
-                                 "ob_color":supervisor.getServingObjectColor(i),
-                                 "ob_x":supervisor.getServingObjectX(i),
-                                 "ob_y":supervisor.getServingObjectY(i),
-                                 "ob_width":supervisor.getServingObjectWidth(i),
-                                 "ob_height":supervisor.getServingObjectHeight(i),
-                                 "fontsize":supervisor.getServingObjectFontsize(i)});
+                if(supervisor.getServingObjectType(i)==="image"){
+                    model_obj.append({"type":supervisor.getServingObjectType(i),
+                                     "ob_source":supervisor.getServingObjectSource(i),
+                                     "ob_text":"",
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }else{
+                    model_obj.append({"type":supervisor.getServingObjectType(i),
+                                     "ob_source":"",
+                                     "ob_text":supervisor.getServingObjectSource(i),
+                                     "ob_color":supervisor.getServingObjectColor(i),
+                                     "ob_x":supervisor.getServingObjectX(i)*width/1280,
+                                     "ob_y":supervisor.getServingObjectY(i)*height/800,
+                                     "ob_width":supervisor.getServingObjectWidth(i)*width/1280,
+                                     "ob_height":supervisor.getServingObjectHeight(i)*height/800,
+                                     "fontsize":supervisor.getServingObjectFontsize(i)});
+                }
                 print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i))
             }
         }
@@ -183,7 +235,6 @@ Popup {
                             }else if(page == "moving"){
                                 loader_movepage.item.saveMovingPage();
                             }
-
                             popup_setting_patrolpage.close();
                         }
                     }
@@ -207,11 +258,6 @@ Popup {
                         type: "round_text"
                         text: qsTr("취 소")
                         onClicked: {
-                            if(page == "moving"){
-//                                supervisor.clearPatrolPage(popup_setting_patrolpage.page_num);
-                            }else if(page == "serving"){
-//                                supervisor.clearServingPage();
-                            }
                             popup_setting_patrolpage.close();
                         }
                     }
@@ -316,7 +362,6 @@ Popup {
                                             width: 250
                                             height: 50
                                             onCurrentIndexChanged: {
-                                                print("background mode index : ",currentIndex);
                                                 if(currentIndex === 0){
                                                     loader_movepage.item.background_mode = "color";
                                                 }else if(currentIndex === 1){
@@ -518,6 +563,7 @@ Popup {
                                                             }else{
                                                                 slider_audio.value  = 0;
                                                             }
+                                                            loader_movepage.item.setVolume(slider_audio.value);
                                                         }
                                                     }
                                                 }
@@ -806,6 +852,14 @@ Popup {
                 anchors.fill: parent
                 color: "transparent"
             }
+            onOpened:{
+                print("add open")
+            }
+
+            onClosed:{
+                print("add close")
+            }
+
             Rectangle{
                 width: parent.width
                 height: parent.height

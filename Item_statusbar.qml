@@ -296,7 +296,7 @@ Item {
         }
 
         if(robot_battery < 30 && supervisor.getIPCConnection()){
-            model_details.append({"detail":qsTr("배터리가 부족합니다"),"detail2":Number(supervisor.getBatteryOut())+" V","icon":"icon/icon_battery_1.png","error":true});
+            model_details.append({"detail":qsTr("배터리가 부족합니다"),"detail2":Number(supervisor.getBattery())+" V","icon":"icon/icon_battery_1.png","error":true});
         }
 
     }
@@ -473,6 +473,7 @@ Item {
                                 popup_notice.sub_str = qsTr("위치초기화 페이지로 이동합니다")
                                 popup_notice.addButton(qsTr("위치초기화"),color_green,"white")
                                 popup_notice.open();
+                                popup_status_detail.close();
                             }
                         }
                     }

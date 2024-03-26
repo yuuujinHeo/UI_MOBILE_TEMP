@@ -16,8 +16,6 @@ ServerHandler::ServerHandler()
     call_server = new QtHttpServer(this);
     connect(call_server, SIGNAL(requestNeedsReply(QtHttpRequest*,QtHttpReply*)), this, SLOT(onCallRequestReply(QtHttpRequest*,QtHttpReply*)));
     call_server->start(8000);
-    qDebug() << "CALL SERVER";
-
     myID = getSetting("robot","SERVER","my_id");
     checkUpdate();
 //    sendRobotConfig();
@@ -256,13 +254,12 @@ void ServerHandler::uploadRelease(QString file, QString message){
 }
 
 void ServerHandler::checkUpdate(){
-    qDebug() << "checkUpdate : "  << getSetting("robot","SERVER","update");
+//    qDebug() << "checkUpdate : "  << getSetting("robot","SERVER","update");
     if(getSetting("robot","SERVER","update") == "true"){
         plog->write("[SERVER] Check Update : "+myID);
         update_list.clear();
         QJsonObject temp_out;
         temp_out["id"] = myID;
-//        temp_out["keys"]
         QByteArray temp_array = QJsonDocument(temp_out).toJson();
         generalPost(temp_array, serverURL+"/update/"+myID);
         setSetting("robot","SERVER/update","false");

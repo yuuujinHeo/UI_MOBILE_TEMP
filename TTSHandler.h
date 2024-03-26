@@ -71,7 +71,7 @@ public:
     void setMentionBasic(QString lan);
     QString getMentionBasicStr(QString lan, QString text);
 
-    QString getVoiceName(int language, int voice);
+    QString getVoiceName(QString mode, int language, int voice);
     QString getVoiceLanguage(int language);
     void playcurVoice();
 
