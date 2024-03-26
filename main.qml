@@ -17,8 +17,6 @@ Window {
     height: 800
 
     property var volume_button : parseInt(supervisor.getSetting("setting","UI","volume_button"));
-//    property var volume_bgm : parseInt(supervisor.getSetting("setting","UI","volume_bgm"));
-//    property var volume_voice: parseInt(supervisor.getSetting("setting","UI","volume_voice"));
 
     flags: !testMode?Qt.Window | Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint |Qt.WindowStaysOnTopHint |Qt.WindowOverridesSystemGestures |Qt.MaximizeUsingFullscreenGeometryHint:Qt.Window
     visibility: !testMode?Window.FullScreen:Window.Windowed
@@ -34,6 +32,7 @@ Window {
             }
         }
     }
+
     property color color_icon_gray: "#7f7f7f"
     property color color_more_gray: "#777777";
     property color color_dark_gray: "#999999";
@@ -70,7 +69,6 @@ Window {
     property string psetting: "qrc:/Page_setting.qml"
     property string plog: "qrc:/Page_log.qml"
     property string pmapping: "qrc:/Page_mapping.qml"
-//    property string 건너뛰기zation: "qrc:/Page_localization.qml"
     property string pannotation: "qrc:/Page_annotation.qml"
 
     property string robot_type: supervisor.getRobotType()
@@ -111,9 +109,7 @@ Window {
         if(loader_page.item.objectName === "page_init" || loader_page.item.objectName === "page_mapping"){
 
         }else{
-        //        loader_page.item.movedone();
             supervisor.stopBGM();
-//            supervisor.moveStopFlag();
             popup_notice.init();
             popup_notice.style = "warning";
             if(errnum === 0){
@@ -158,9 +154,15 @@ Window {
                 popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
                 popup_notice.sub_str = qsTr("");
                 popup_notice.open();
+            }else if(errnum === 9){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+                popup_notice.sub_str = "";
+                popup_notice.closemode = false;
+                popup_notice.addButton(qsTr("모터초기화"))
+                popup_notice.open();
             }
         }
-
         print("move fail : ",errnum);
     }
 
@@ -205,9 +207,12 @@ Window {
             supervisor.playVoice("error_localization");
             supervisor.writelog("[UI] Localization not ready");
             setNotice(1);
+        }else if(supervisor.getLockStatus() === 0){
+            supervisor.writelog("[UI] Motor lock off");
+            setNotice(4);
         }else if(supervisor.getMotorState() === 0){
             supervisor.writelog("[UI] Motor not ready");
-            setNotice(4);
+            setNotice(9);
         }else if(supervisor.getStateMoving() === 0){
             supervisor.playVoice("error_no_path");
             supervisor.writelog("[UI] Robot not running");
@@ -221,6 +226,7 @@ Window {
         }else if(loader_page.item.objectName == "page_moving"){
 
         }
+
     }
 
     Component.onCompleted: {
@@ -422,6 +428,7 @@ Window {
             }
         }
     }
+
     function disconnected(){
         supervisor.writelog("[UI] Force Page Change : Robot disconnected");
         loadPage("");
@@ -524,10 +531,6 @@ Window {
         print("loadpage start ",page);
         pbefore = loader_page.source;
         loader_page.source = page;
-        if(page !== ""){
-            if(loader_page.item.objectName == "page_kitchen")
-                loader_page.item.init();
-        }
         popup_notice.close();
         print("loadpage done");
     }
@@ -642,11 +645,9 @@ Window {
             color: "transparent"
         }
         onOpened:{
-            print("popup_loading open")
             loadi.play("image/loading_rb.gif");
         }
         onClosed:{
-            print("popup_loading close")
             loadi.stop();
         }
 
@@ -799,6 +800,7 @@ Window {
     }
     Popup_notice{
         id: popup_notice
+        z:99
         onClicked:{
             if(cur_btn === qsTr("수동이동")){
                 supervisor.writelog("[UI] PopupNotice : Lock Off");
@@ -809,11 +811,15 @@ Window {
                 supervisor.writelog("[UI] PopupNotice : Motor Init");
                 supervisor.setMotorLock(true);
                 supervisor.stateInit();
+                if(loader_page.item.objectName == "page_moving" || loader_page.item.objectName == "page_moving_custom"){
+                    loadPage(pinit);
+                }
+
                 popup_notice.close();
             }else if(cur_btn === qsTr("위치초기화")){
                 supervisor.writelog("[UI] PopupNotice : Local Init");
                 if(loader_page.item.objectName == "page_annotation"){
-                    annot_pages.sourceComponent = page_annot_localization;
+                    loader_page.item.setAnnotLocation();
                 }else{
                     loadPage(pinit);
                     supervisor.resetLocalization();

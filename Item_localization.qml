@@ -15,7 +15,7 @@ Item{
     width: 1280
     height: 800-statusbar.height
 
-    property var local_find_state: -1
+    property int local_find_state: -1
     property bool show_restart: false
     property bool show_timeout: false
     property bool show_debug: false
@@ -33,6 +33,15 @@ Item{
 
     Component.onCompleted: {
         popup_loading.close();
+        if(auto_init){
+            supervisor.writelog("[INIT] Localization : Auto Init")
+            timer_check_localization.start();
+            supervisor.slam_autoInit();
+        }
+
+        supervisor.writelog("[INIT] Localization : Motor Lock off")
+        supervisor.setMotorLock(false);
+
     }
 
     Component.onDestruction: {
@@ -47,57 +56,57 @@ Item{
 
     function retry(){
         if(auto_init){
-            supervisor.writelog("[UI-LOCALIZATION] Retry Localization (auto_init)")
+            supervisor.writelog("[INIT] Localization : Retry (auto_init)")
             timer_check_localization.start();
             supervisor.slam_autoInit();
         }else{
-            supervisor.writelog("[UI-LOCALIZATION] Retry Localization")
+            supervisor.writelog("[INIT] Localization : Retry (rest_init)")
             timer_check_localization.start();
-//            supervisor.slam_autoInit();
             supervisor.slam_restInit();
         }
     }
 
-    Timer{
-        running: auto_init
-        interval: 500
-        onTriggered:{
-            supervisor.writelog("[UI-LOCALIZATION] Auto Localization")
-            timer_check_localization.start();
-            supervisor.slam_autoInit();
-        }
-    }
-    Timer{
-        running: true
-        interval: 1000
-        onTriggered:{
-            supervisor.writelog("[UI-LOCALIZATION] Set Motor Lock : False")
-            supervisor.setMotorLock(false);
-        }
-    }
+//    Timer{
+//        running: auto_init
+//        interval: 500
+//        onTriggered:{
+//            supervisor.writelog("[INIT] Localization : Auto Init")
+//            timer_check_localization.start();
+//            supervisor.slam_autoInit();
+//        }
+//    }
+
+//    Timer{
+//        running: true
+//        interval: 1000
+//        onTriggered:{
+//            supervisor.writelog("[INIT] Localization : Motor Lock off")
+//            supervisor.setMotorLock(false);
+//        }
+//    }
 
     Timer{
         id: timer_check_localization
+        property int timeout_cnt: 0
         running: auto_init
         repeat: true
         interval: 500
-        property int timeout_cnt: 0
         onTriggered: {
             local_find_state = supervisor.getLocalizationState();
             if(local_find_state===0){//not ready
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다.")
+                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다..")
                 timeout_cnt = 0;
                 show_success = false;
                 show_failed = false;
                 show_timeout = false;
-                btn_do_autoinit.running = false;
+//                btn_do_autoinit.running = false;
                 show_restart = false;
             }else if(local_find_state === 1){
                 if(timeout_cnt++ > 20){
                     show_timeout = true;
                 }
-                btn_do_autoinit.running = true;
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다..")
+//                btn_do_autoinit.running = true;
+                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다...")
                 show_success = false;
                 show_failed = false;
             }else if(local_find_state === 2){//success
@@ -106,14 +115,14 @@ Item{
                 text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
                 show_success = true;
                 show_failed = true;
-                btn_do_autoinit.running = false;
+//                btn_do_autoinit.running = false;
             }else if(local_find_state === 3){//failed
                 timeout_cnt = 0;
                 show_timeout = false;
                 text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
                 show_success = false;
                 show_failed = true;
-                btn_do_autoinit.running = false;
+//                btn_do_autoinit.running = false;
             }else{
                 show_timeout = false;
                 text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
@@ -125,7 +134,6 @@ Item{
                 show_success = false;
                 show_failed = false;
                 text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
-//                timer_check_localization.stop();
             }
         }
     }
@@ -135,34 +143,44 @@ Item{
         visible: !auto_init && ( local_find_state === -1 || local_find_state === 0)
         anchors.fill: parent
         color: color_light_gray
-        Text{
-            id: text_notice4
+        Column{
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 200
-            horizontalAlignment: Text.AlignHCenter
-            color: color_dark_gray
-            font.family: font_noto_b.name
-            text: qsTr("로봇을 대기위치로 이동시켜 주세요\n이동하신 후 아래 버튼을 눌러주세요")
-            font.pixelSize: 50
+            Text{
+                id: text_notice4
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: color_dark_gray
+                font.family: font_noto_b.name
+                text: qsTr("로봇을 <font color=\"#12d27c\">대기위치로 이동</font>시켜 주세요")
+                font.pixelSize: 60
+            }
+            Text{
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: color_dark_gray
+                font.family: font_noto_b.name
+                text: qsTr("이동하신 후 시작 버튼을 눌러주세요")
+                font.pixelSize: 53
+            }
         }
+
         Rectangle{
             id: btn_slam_do_init
-            width: 300
-            height: 120
-            radius: 60
+            width: 310
+            height: 130
+            radius: 70
             opacity: 0
             color: color_green
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottom: parent.bottom
-            anchors.bottomMargin: 100
+            anchors.bottomMargin: 130
             Text{
                 id: text_slam_do_init
                 anchors.centerIn: parent
-                text: qsTr("시   작")
+                text: qsTr("시    작")
                 color: "white"
                 font.family: font_noto_r.name
-                font.pixelSize: 40
+                font.pixelSize: 47
             }
             MouseArea{
                 anchors.fill: parent
@@ -174,12 +192,10 @@ Item{
                     parent.color = color_green;
                 }
                 onClicked: {
+                    show_debug = false;
                     timer_check_localization.start();
-                    supervisor.writelog("[USER INPUT] INIT PAGE : DO LOCALIZATION")
-//                    supervisor.slam_autoInit();
-
+                    supervisor.writelog("[INIT] Localization : Do Rest Init")
                     supervisor.slam_restInit();
-//                            update_timer.stop();
                 }
             }
         }
@@ -209,8 +225,13 @@ Item{
                     height: 30
                     sourceSize.width: width
                     sourceSize.height: height
-                    source:"icon/icon_wait.png"
+                    source:"icon/icon_map.png"
                     anchors.horizontalCenter: parent.horizontalCenter
+                    ColorOverlay{
+                        source: parent
+                        anchors.fill: parent
+                        color: color_icon_gray
+                    }
                 }
                 Text{
                     id: text_slam_pass
@@ -223,7 +244,7 @@ Item{
                 anchors.fill: parent
                 onClicked: {
                     click_sound.play();
-                    supervisor.writelog("[USER INPUT] INIT PAGE : NEW MAPPING")
+                    supervisor.writelog("[INIT] Localization : Make new map")
                     loadPage(pmapping);
                 }
             }
@@ -268,6 +289,8 @@ Item{
                 anchors.fill: parent
                 onClicked: {
                     click_sound.play();
+                    supervisor.writelog("[INIT] Debug Mode On");
+                    supervisor.passInit();
                     passed();
                 }
             }
@@ -308,74 +331,65 @@ Item{
             anchors.bottomMargin: 50
             anchors.rightMargin: 50
             spacing: 30
-            Item_buttons{
+            Buttons{
                 id: btn_init_pass
+                style: "normal"
+                source: "qrc:/icon/icon_testmoving.png"
                 visible: show_debug || show_timeout || show_restart
-                width: 200
-                height: 80
-                type: "round_text"
                 text:qsTr("넘어가기")
                 onClicked: {
-                    supervisor.writelog("[ANNOTATION] Localization : Pass");
+                    supervisor.writelog("[INIT] Localization : Pass");
                     passed();
                 }
             }
-            Item_buttons{
+            Buttons{
                 id: btn_init_restart
+                style: "green"
+                source: "qrc:/icon/icon_power.png"
                 visible: show_restart
-                width: 200
-                height: 80
-                type: "round_text"
                 text:qsTr("프로그램 재시작")
                 onClicked: {
-                    supervisor.writelog("[ANNOTATION] Localization : Restart");
+                    supervisor.writelog("[INIT] Localization : Restart");
                     supervisor.programRestart();
                 }
             }
-            Item_buttons{
+            Buttons{
                 id: btn_init_remapping
                 visible: (show_debug || show_timeout || show_failed) && mapping_mode
-                width: 200
-                height: 80
-                type: "round_text"
+                style: "dark"
+                source: "icon/icon_map.png"
                 text:qsTr("맵 다시생성")
                 onClicked: {
-                    supervisor.writelog("[ANNOTATION] Localization : pass to mapping");
+                    supervisor.writelog("[INIT] Localization : pass to mapping");
                     loadPage(pmapping);
                 }
             }
-            Item_buttons{
+            Buttons{
                 id: btn_init_manual
                 visible: show_timeout || show_failed || show_debug
-                width: 200
-                height: 80
-                type: "round_text"
+                style: "dark"
                 text: qsTr("수동지정(전문가)")
                 onClicked: {
-                    supervisor.writelog("[ANNOTATION] Localization : Failed")
+                    supervisor.writelog("[INIT] Localization : Failed")
                     popup_init_manual.open();
                 }
             }
-            Item_buttons{
+            Buttons{
                 id: btn_init_success
-                visible: show_success //|| show_failed
-                width: 200
-                height: 80
-                type: "round_text"
+                visible: show_success
+                style: "green"
+                source: "icon/icon_yes_w.png"
                 text:qsTr("확 인")
                 onClicked: {
-                    supervisor.writelog("[UI] PageLocalization : Success");
+                    supervisor.writelog("[INIT] Localization : Success");
                     confirmed();
-
                 }
             }
         }
-        Item_buttons{
+        Buttons{
             id: btn_init_retry
             visible: show_timeout || show_debug || show_timeout || show_failed || show_success
-            width: 200
-            height: 80
-            type: "round_text"
+            style: "dark"
             text: qsTr("다시시도")
             anchors.bottom: parent.bottom
             anchors.left: parent.left
@@ -392,7 +406,7 @@ Item{
         height: 50
         anchors.bottom: parent.bottom
         anchors.right: parent.right
-        property var count: 0
+        property int count: 0
         onClicked:{
             click_sound.play();
             if(count++ > 4){
@@ -401,10 +415,15 @@ Item{
             }
         }
     }
+
     Popup{
         id: popup_init_manual
         width: parent.width
         height: parent.height
+        topPadding: 0
+        bottomPadding: 0
+        leftPadding: 0
+        rightPadding: 0
         onOpened: {
             map.setViewer("localization");
             map.setEnable(true);
@@ -413,12 +432,15 @@ Item{
         onClosed:{
             map.setEnable(false);
         }
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
 
         Rectangle{
             id: manual_init
             width: parent.width
-            height: parent.height// - statusbar.height
-            anchors.bottom: parent.bottom
+            height: parent.height
             color: color_navy
             Text{
                 text:qsTr("로봇의 위치를 맵 상에서 표시해주세요")
@@ -426,15 +448,13 @@ Item{
                 horizontalAlignment: Text.AlignHCenter
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
-                anchors.topMargin: 30
+                anchors.topMargin: 40
                 color: "white"
                 font.family: font_noto_b.name
             }
-            Item_buttons{
+            Buttons{
                 id: btn_right23
-                width: 200
-                height: 80
-                type: "round_text"
+                style: "dark_navy"
                 text: qsTr("종 료")
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
@@ -450,20 +470,16 @@ Item{
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: 100
                 spacing: 50
-                Item_buttons{
-                    width: 200
-                    height: 80
-                    type: "round_text"
-                    selected: map.tool==="move"
+                Buttons{
+                    style: "dark_navy"
                     text: qsTr("이 동")
+                    selected: map.tool==="move"
                     onClicked: {
                         map.setTool("move");
                     }
                 }
-                Item_buttons{
-                    width: 200
-                    height: 80
-                    type: "round_text"
+                Buttons{
+                    style: "dark_navy"
                     selected: map.tool==="slam_init"
                     text:  qsTr("수동 지정")
                     onClicked: {
@@ -472,34 +488,34 @@ Item{
                         supervisor.slam_setInit();
                     }
                 }
-                Item_buttons{
-                    width: 200
-                    height: 80
-                    visible: false
-                    type: "round_text"
-                    text:  qsTr("다시 시도")
-                    onClicked: {
-                        map.setTool("move");
-                        retry();
-                    }
-                }
-                Item_buttons{
-                    id: btn_do_autoinit
-                    width: 200
-                    height: 100
-                    running: false
-                    visible: false
-                    type: "start_progress"
-                    text: qsTr("자동위치찾기\n(1분소요)")
-                    shadowcolor: color_dark_black
-                    onClicked: {
-                        print("init autoinit");
-                        map.setTool("move");
-                        supervisor.slam_fullautoInit();
-                    }
-                }
+//                    Buttons{
+//                        style: "dark_navy"
+//                        selected: map.tool==="slam_init"
+//                        text:  qsTr("자동위치찾기")
+//                        onClicked: {
+//                            print("init autoinit");
+//                            map.setTool("move");
+//                            supervisor.slam_fullautoInit();
+//                        }
+//                    }
+//                    Item_buttons{
+//                        id: btn_do_autoinit
+//                        width: 200
+//                        height: 100
+//                        running: false
+//                        visible: false
+//                        type: "start_progress"
+//                        text: qsTr("자동위치찾기\n(1분소요)")
+//                        shadowcolor: color_dark_black
+//                        onClicked: {
+//                            print("init autoinit");
+//                            map.setTool("move");
+//                            supervisor.slam_fullautoInit();
+//                        }
+//                    }
             }
         }
+
         MAP_FULL2{
             id: map
             enabled: false
@@ -513,8 +529,6 @@ Item{
                 supervisor.setMapSize(objectName,width,height);
             }
         }
-
     }
-
 }
 

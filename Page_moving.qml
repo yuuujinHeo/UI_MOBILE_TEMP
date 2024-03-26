@@ -320,7 +320,6 @@ Item {
                         popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
                         popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
                         popup_notice.addButton(qsTr("수동이동"));
-                        popup_notice.addButton(qsTr("취소"));
                         popup_notice.open();
                     }
                 }

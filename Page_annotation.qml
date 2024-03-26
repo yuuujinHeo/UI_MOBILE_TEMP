@@ -17,6 +17,7 @@ Item {
     height: 800
     property bool test: false
     property bool robot_paused: false
+    property bool is_rainbow: false
     property bool skip_local: false
     property var last_robot_x: supervisor.getOrigin()[0]
     property var last_robot_y: supervisor.getOrigin()[1]
@@ -70,6 +71,7 @@ Item {
     function init(){
         supervisor.stopBGM();
     }
+
 
 
     function movestart(){
@@ -644,7 +646,9 @@ Item {
                 anchors.rightMargin: 50
                 onClicked: {
                     if(map.getCutFlag() && !annotation_after_mapping){
-                        popup_save_rotate.open();
+                        popup_location.mode = "save_rotate";
+                        popup_location.open();
+//                        popup_save_rotate.open();
                     }else{
                         map.save("rotate");
                         if(annotation_after_mapping){
@@ -710,6 +714,7 @@ Item {
                 }
             }
 
+            /*
             Popup{
                 id : popup_save_rotate
                 width: parent.width
@@ -785,6 +790,7 @@ Item {
                     }
                 }
             }
+        */
         }
     }
     Component{
@@ -1699,8 +1705,8 @@ Item {
                                         }else{
                                             click_sound_no.play();
                                         }
-
                                     }else{
+                                        popup_location.mode = "callbell"
                                         popup_location.loc = details.get(select_location).ltype;
                                         popup_location.open();
                                     }
@@ -1940,90 +1946,6 @@ Item {
                     annot_pages.sourceComponent = page_annot_menu;
                 }
             }
-
-            Popup{
-                id: popup_cleaning
-                anchors.centerIn: parent
-                width: 1280
-                height: 400
-                background: Rectangle{
-                    anchors.fill: parent
-                    color: "transparent"
-                }
-                Rectangle{
-                    width: parent.width
-                    height: parent.height
-                    color: color_dark_navy
-                    Column{
-                        anchors.centerIn: parent
-                        spacing: 30
-                        Text{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            text: qsTr("퇴식위치를 별도로 사용하십니까?")
-                            font.pixelSize: 50
-                            font.family: font_noto_r.name
-                            color: "white"
-                        }
-                        Column{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("퇴식전용모드로 전환됩니다")
-                                font.pixelSize: 20
-                                font.family: font_noto_r.name
-                                color: "white"
-                            }
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("로봇이 테이블을 다녀온 뒤 퇴식위치로 이동하여 대기합니다 추후 세팅에서 모드를 변경하실 수 있습니다")
-                                font.pixelSize: 20
-                                font.family: font_noto_r.name
-                                color: "white"
-                            }
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("퇴식위치의 기본값은 대기위치와 동일합니다 변경을 원하시면 위치 수정을 해주세요")
-                                font.pixelSize: 20
-                                font.family: font_noto_r.name
-                                color: "white"
-                            }
-                        }
-                        Row{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 50
-                            Item_buttons{
-                                width: 150
-                                height: 60
-                                type: "round_text"
-                                text: qsTr("예")
-                                onClicked: {
-                                    supervisor.saveAnnotation(supervisor.getMapname());
-                                    supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
-//                                    supervisor.checkCleaningLocation();
-                                    supervisor.readSetting();
-                                    readSetting();
-                                    annot_pages.sourceComponent = page_annot_location;
-                                    popup_cleaning.close();
-                                }
-                            }
-                            Item_buttons{
-                                width: 150
-                                height: 60
-                                type: "round_text"
-                                text: qsTr("아니오")
-                                onClicked: {
-                                    supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
-                                    supervisor.readSetting();
-                                    readSetting();
-                                    popup_cleaning.close();
-                                }
-                            }
-                        }
-
-                    }
-                }
-            }
-
         }
     }
     Component{
@@ -2465,7 +2387,7 @@ Item {
                                     sourceSize.width: 60
                                     sourceSize.height: 60
                                     antialiasing: true
-                                    source: "icon/icon_charge.png"
+                                    source: "icon/icon_error_w.png"
                                     ColorOverlay{
                                         anchors.fill: parent
                                         source: parent
@@ -2659,8 +2581,8 @@ Item {
                                 width: 150
                                 onClicked:{
                                     supervisor.writelog("[MAPPING] Map Editor : Save");
-                                    popup_save_map.open();
-                                    popup_save_map.back_page = false;
+                                    popup_location.mode = "saveall";
+                                    popup_location.open();
                                 }
                             }
                             Buttons{
@@ -2670,8 +2592,9 @@ Item {
                                 onClicked:{
                                     supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
                                     if(is_edited){
-                                        popup_save_map.open()
-                                        popup_save_map.back_page = true;
+                                        popup_location.mode = "save_exit";
+                                        popup_location.open();
+
                                     }else{
                                         supervisor.slam_map_reload(supervisor.getMapname());
                                         page_after_localization = page_annot_menu;
@@ -3686,7 +3609,7 @@ Item {
                     }
                 }
             }
-
+/*
             Popup{
                 id: popup_save_map
                 width: parent.width
@@ -3755,9 +3678,11 @@ Item {
                             }
                         }
                     }
-
                 }
             }
+        */
+
+
         }
     }
 
@@ -4047,8 +3972,10 @@ Item {
                                     onClicked:{
                                         supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
                                         if(is_edited){
-                                            popup_save_map.open()
-                                            popup_save_map.back_page = true;
+                                            popup_location.mode = "save_exit";
+                                            popup_location.open();
+//                                            popup_save_map.open()
+//                                            popup_save_map.back_page = true;
                                         }else{
                                             supervisor.slam_map_reload(supervisor.getMapname());
                                             page_after_localization = page_annot_menu;
@@ -4431,8 +4358,8 @@ Item {
                                             type: "white_btn"
                                             text: qsTr("load\nannotation.ini")
                                             onClicked: {
-                                                popup_load_annot.open();
-//                                                supervisor.loadAnnotation();
+                                                popup_location.mode = "load_annot";
+                                                popup_location.open();
                                             }
                                         }
                                         Item_buttons{
@@ -5221,70 +5148,6 @@ Item {
             }
 
             Popup{
-                id: popup_load_annot
-                width: parent.width
-                height: parent.height
-                background:Rectangle{
-                    anchors.fill: parent
-                    color: "#282828"
-                    opacity: 0.7
-                }
-                property bool back_page : false
-                Rectangle{
-                    anchors.centerIn: parent
-                    width: 800
-                    height: 300
-                    color: "white"
-                    radius: 20
-
-                    Column{
-                        anchors.centerIn: parent
-                        spacing: 40
-                        Column{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            Text{
-                                text: qsTr("annotation.ini에 지정된 노드를 불러오시겠습니까?")
-                                font.family: font_noto_r.name
-                                font.pixelSize: 30
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-                            Text{
-                                text: qsTr("기존에 지정하셨던 노드와 엣지는 <font color=\"#12d27c\">모두 삭제</font>되며 새로 지정하셔야 합니다")
-                                font.family: font_noto_r.name
-                                font.pixelSize: 25
-                                anchors.horizontalCenter: parent.horizontalCenter
-                            }
-                        }
-                        Row{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 50
-                            Item_buttons{
-                                type: "white_btn"
-                                text: qsTr("취소")
-                                width: 180
-                                height: 60
-                                onClicked:{
-                                    popup_load_annot.close();
-                                }
-                            }
-                            Item_buttons{
-                                type: "white_btn"
-                                text: qsTr("불러오기")
-                                width: 180
-                                height: 60
-                                btncolor: color_green
-                                onClicked:{
-                                    supervisor.loadAnnotation();
-                                    popup_load_annot.close();
-                                }
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            Popup{
                 id: popup_mode_change
                 width: 1280
                 height: 800
@@ -5321,7 +5184,7 @@ Item {
                                     sourceSize.width: 60
                                     sourceSize.height: 60
                                     antialiasing: true
-                                    source: "icon/icon_charge.png"
+                                    source: "icon/icon_error_w.png"
                                     ColorOverlay{
                                         anchors.fill: parent
                                         source: parent
@@ -5412,7 +5275,7 @@ Item {
                     }
                 }
             }
-
+/*
             Popup{
                 id: popup_save_map
                 width: parent.width
@@ -5484,7 +5347,7 @@ Item {
 
                 }
             }
-
+*/
             Popup{
                 id: popup_add_location
                 anchors.centerIn: parent
@@ -5591,7 +5454,6 @@ Item {
                                         }
                                     }
                                 }
-
                                 Text{
                                     text:qsTr("이  름   : ")
                                     font.family: font_noto_r.name
@@ -5721,8 +5583,6 @@ Item {
                 }
 
             }
-
-
         }
     }
 
@@ -5817,7 +5677,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();;
+                            click_sound.play();
                             popup_ask_mapload.close();
                             popup_map_list.open();
                         }
@@ -5830,7 +5690,6 @@ Item {
     Popup_map_list{
         id: popup_map_list
     }
-
 
     Timer{
         id: timer_update
@@ -6329,8 +6188,9 @@ Item {
         property string mode: "save"
         property string loc: "Charging"
         onOpened:{
+            btn_cancel.text = qsTr("취소")
+            btn_confirm.text = qsTr("확인")
             if(mode == "save"){
-                btn_confirm.text = qsTr("확인")
                 row_call_force.visible = false;
                 if(loc === "Charging"){
                     text_loc.text = qsTr("충전위치");
@@ -6418,6 +6278,30 @@ Item {
                 }else{
                     row_call_force.visible = false;
                 }
+            }else if(mode == "save_exit"){
+                row_call_force.visible = false;
+                image_location.source = "icon/icon_save.png"
+                text_loc.text = qsTr("이대로 <font color=\"#12d27c\">저장</font>하시겠습니까?")
+                text_sub.text = qsTr("기존의 파일은 삭제됩니다")
+                btn_confirm.text = qsTr("저장")
+                btn_cancel.text = qsTr("종료")
+            }else if(mode == "saveall"){
+                row_call_force.visible = false;
+                image_location.source = "icon/icon_save.png"
+                text_loc.text = qsTr("이대로 <font color=\"#12d27c\">저장</font>하시겠습니까?")
+                text_sub.text = qsTr("기존의 파일은 삭제됩니다")
+                btn_confirm.text = qsTr("저장")
+            }else if(mode == "save_rotate"){
+                row_call_force.visible = false;
+                image_location.source = "icon/icon_cut.png"
+                text_loc.text = qsTr("맵을 <font color=\"#12d27c\">잘라내기</font>하시겠습니까?")
+                text_sub.text = qsTr("맵을 자르면 기존의 설정은 모두 삭제되며 새로 설정하셔야 합니다")
+            }else if(mode == "load_annot"){
+                row_call_force.visible = false;
+                image_location.source = "icon/icon_bookmark.png"
+                text_loc.text = qsTr("annotation.ini에 지정된 노드를 불러오시겠습니까?")
+                text_sub.text = qsTr("기존에 지정하셨던 노드와 엣지는 <font color=\"#12d27c\">모두 삭제</font>되며 새로 지정하셔야 합니다")
+                btn_confirm.text = qsTr("불러오기")
             }
         }
 
@@ -6525,9 +6409,22 @@ Item {
                         anchors.centerIn: parent
                         spacing: 15
                         Buttons{
+                            id: btn_cancel
                             style: "normal"
                             text: qsTr("취소")
                             onClicked:{
+                                if(popup_location.mode == "save_exit"){
+                                    annot_pages.sourceComponent = page_annot_menu;
+                                }else if(popup_location.mode == "save_rotate"){
+                                    map.setTool("move");
+                                    map.save("rotate");
+                                    if(annotation_after_mapping){
+                                        page_after_localization = page_annot_location;
+                                        annot_pages.sourceComponent = page_annot_localization;
+                                    }else
+                                        annot_pages.sourceComponent = page_annot_menu;
+                                    supervisor.slam_map_reload(supervisor.getMapname());
+                                }
                                 popup_location.close();
                             }
                         }
@@ -6573,6 +6470,26 @@ Item {
                                     popup_location.close();
                                 }else if(popup_location.mode == "callbell"){
                                     supervisor.clear_call();
+                                    popup_location.close();
+                                }else if(popup_location.mode == "saveall"){
+                                    annot_pages.item.save();
+                                    popup_location.close();
+                                }else if(popup_location.mode == "save_exit"){
+                                    annot_pages.item.save();
+                                    supervisor.slam_map_reload(supervisor.getMapname());
+                                    page_after_localization = page_annot_menu;
+                                    annot_pages.sourceComponent = page_annot_localization;
+                                    popup_location.close();
+                                }else if(popup_location.mode == "save_rotate"){
+                                    map.save("rotate");
+                                    annotation_after_mapping = true;
+                                    page_after_localization = page_annot_location;
+                                    annot_pages.sourceComponent = page_annot_localization;
+                                    supervisor.deleteAnnotation();
+                                    supervisor.slam_map_reload(supervisor.getMapname());
+                                    popup_location.close();
+                                }else if(popup_location.mode == "load_annot"){
+                                    supervisor.loadAnnotation();
                                     popup_location.close();
                                 }
                             }

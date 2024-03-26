@@ -21,7 +21,6 @@ IPCHandler::IPCHandler(QObject *parent)
     tick = 0;
 
     // create or attach
-    updateSharedMemory(shm_cmd,"Command",sizeof(IPCHandler::CMD));
     updateSharedMemory(shm_ui_status,"UiStatus",sizeof(IPCHandler::UI_STATUS));
     updateSharedMemory(shm_status,"Status",sizeof(IPCHandler::STATUS));
     updateSharedMemory(shm_path,"Path",sizeof(IPCHandler::PATH));
@@ -35,11 +34,8 @@ IPCHandler::IPCHandler(QObject *parent)
     updateSharedMemory(shm_call_loc,"CallLocation",sizeof(IPCHandler::CALL_LOC));
     updateSharedMemory(shm_call_status,"CallStatus",sizeof(IPCHandler::CALL_STATUS));
     updateSharedMemory(shm_check_travel,"CheckTravel",sizeof(IPCHandler::CHECK_TRAVEL));
-    qDebug() << "1";
-    clearSharedMemory(shm_cmd);
-    qDebug() << "2";
+
     clearSharedMemory(shm_call_status);
-    qDebug() << "3";
     clearSharedMemory(shm_call_loc);
     clearSharedMemory(shm_check_travel);
 
@@ -49,13 +45,6 @@ IPCHandler::IPCHandler(QObject *parent)
 
     cmd = new CMD_CLIENT();
     cmd->init();
-
-    probot->ipc_use = true;
-    if(probot->ipc_use){
-        plog->write("[IPC] IPCHandler Constructed. IPC_USE = TRUE");
-    }else{
-        plog->write("[IPC] IPCHandler Constructed. IPC_USE = FALSE");
-    }
 }
 
 void IPCHandler::clearSharedMemory(QSharedMemory &mem){
@@ -63,7 +52,7 @@ void IPCHandler::clearSharedMemory(QSharedMemory &mem){
         mem.lock();
         memset(mem.data(),0,sizeof(mem.data()));
         mem.unlock();
-        plog->write("[IPC] Clear CMD SharedMemory");
+        plog->write("[IPC] Clear SharedMemory : "+mem.key());
     }
 }
 
@@ -92,7 +81,6 @@ void IPCHandler::detachSharedMemory(QSharedMemory &mem, QString name){
     }
 }
 void IPCHandler::update(){
-    updateSharedMemory(shm_cmd,"Command",sizeof(IPCHandler::CMD));
     updateSharedMemory(shm_ui_status,"UiStatus",sizeof(IPCHandler::UI_STATUS));
     updateSharedMemory(shm_status,"Status",sizeof(IPCHandler::STATUS));
     updateSharedMemory(shm_path,"Path",sizeof(IPCHandler::PATH));
@@ -170,15 +158,22 @@ void IPCHandler::onTimer(){
 
         float av_battery = sum_battery/probot->bat_list.size();
 
-//        qDebug() << av_battery << probot->battery << probot->status_charge << probot->status_charge_connect;
+        probot->status_charge_connect = temp1.status_charge;
+
         if(probot->battery > av_battery){
             probot->battery = av_battery;
-        }else if(av_battery - probot->battery > 0.3){
-            if(probot->status_charge == 0 && probot->battery != 0){
-                probot->status_charge = 1;
-                plog->write("[IPC] Charging Status Detected on");
+        }else if(av_battery - probot->battery > 0.1){
+            if(probot->status_charge_connect == 1){
+                if(probot->status_charge == 0 && probot->battery != 0){
+                    probot->status_charge = 1;
+                    plog->write("[IPC] Charging Status Detected on");
+                }
             }
             probot->battery = av_battery;
+        }
+
+        if(probot->status_charge_connect == 0){
+            probot->status_charge = 0;
         }
 
         probot->battery_percent = (probot->battery-44)*100/10;
@@ -216,10 +211,6 @@ void IPCHandler::onTimer(){
         probot->status_emo = !temp1.status_emo;
         probot->status_remote = temp1.status_remote;
         //DEBUG
-        probot->status_charge_connect = temp1.status_charge;
-        if(probot->status_charge_connect == 0){
-            probot->status_charge = 0;
-        }
         probot->localization_state = temp1.ui_loc_state;
 //        qDebug() << probot->localization_state;
         if(probot->localization_state == 2){
@@ -676,6 +667,7 @@ void IPCHandler::set_cmd(IPCHandler::CMD val, QString log)
      message.resize(sizeof(CMD));
      memcpy(message.data(), &val, sizeof(CMD));
      cmd->cts_cmd(message);
+
 }
 void IPCHandler::set_cmd(int cmd, QString log){
     IPCHandler::CMD send_msg;

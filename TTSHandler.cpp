@@ -492,9 +492,9 @@ QString TTSHandler::getVoiceLanguage(int language){
     return language_name;
 }
 
-QString TTSHandler::getVoiceName(int language, int voice){
+QString TTSHandler::getVoiceName(QString mode, int language, int voice){
     QString voice_name = "none";
-    if(curVoice.mode == "tts"){
+    if(mode == "tts"){
         if(language == 0){
             if(voice == 0){
                 voice_name = "vdain";
@@ -577,7 +577,6 @@ void TTSHandler::readVoiceSetting(){
     curVoice.language = setting.value("voice_language").toString();
     curVoice.mode = setting.value("voice_mode").toString();
     curVoice.voice = setting.value("voice_name").toString();
-    qDebug() << "readVoice : " << curVoice.voice;
     curVoice.speed = setting.value("voice_speed").toInt();
     curVoice.pitch = setting.value("voice_pitch").toInt();
     curVoice.alpha = setting.value("voice_alpha").toInt();

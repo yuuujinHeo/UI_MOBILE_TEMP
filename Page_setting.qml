@@ -25,7 +25,7 @@ Item {
     property bool use_tray: false
     property bool use_multirobot: false
     property bool wifi_update_auto: true
-    property var debug_count: 0
+    property int debug_count: 0
 
     onIs_adminChanged: {
         if(is_admin){
@@ -10964,168 +10964,272 @@ Item {
             color:"transparent"
             height: parent.height
             Row{
-                spacing : 150
+                spacing : 50
                 anchors.centerIn: parent
                 Image{
-                    source: "image/image_robot_temp.png"
+                    id: state_robot
+                    source: "image/robot_bad.png"
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: 50
-                    width: 200
-                    height: 460
+                    width: 1204/3
+                    height: 1331/3
                     sourceSize.width: width
                     sourceSize.height: height
-                    ColorOverlay{
-                        anchors.fill: parent
-                        source: parent
-                        color: color_gray
-                    }
-                    Image{
-                        id: status_motor_left
-                        property var state: 2
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
-                        width: 55
-                        height: 50
-                        sourceSize.width: width
-                        sourceSize.height: height
-                        anchors.left: parent.left
-                        anchors.leftMargin: 20//60
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: state === 1 ? 20 : 23
-                        Rectangle{
-                            visible: false
-                            width: 130
-                            height: 30
-                            radius: 5
-                            anchors.topMargin: parent.state === 1 ? 0 : 3
-                            color: parent.state === 0?color_red:parent.state === 1?color_warning:color_green
-                            anchors.top: parent.bottom
-                            anchors.left: parent.left
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                                color: "white"
-                                text:qsTr("모터 1")
+                    Rectangle{
+                        id: state_localization
+                        width: 65
+                        height: 65
+                        radius: 65
+                        color: color_icon_gray
+                        property int state: 0
+                        onStateChanged: {
+                            if(state === 0){//disconnected slamnav(NONE)
+                                color = color_icon_gray;
+                                image_localization.source = "icon/icon_location.png"
+                            }else if(state === 1){//localization not ready, failed(ERROR)
+                                color = color_red;
+                                image_localization.source = "icon/icon_location.png"
+                            }else if(state === 2){//localizating(WARNING)
+                                color = color_warning;
+                                image_localization.source = "icon/icon_location.png"
+                            }else if(state === 3){//all good
+                                color = color_green;
+                                image_localization.source = "icon/icon_check.png"
                             }
                         }
-                    }
-                    Image{
-                        id: status_motor_right
-                        property var state: 1
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
-                        width: 55
-                        height: 50
-                        sourceSize.width: width
-                        sourceSize.height: height
-                        anchors.right: parent.right
-                        anchors.rightMargin: 20//-60
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: state === 1 ? 20 : 23
-                        Rectangle{
-                            width: 130
-                            visible: false
-                            height: 30
-                            radius: 5
-                            anchors.topMargin: parent.state === 1 ? 0 : 3
-                            color: parent.state === 0?color_red:parent.state === 1?color_warning:color_green
-                            anchors.top: parent.bottom
-                            anchors.right: parent.right
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                                color: "white"
-                                text:qsTr("모터 2")
-                            }
-                        }
-                    }
-                    Image{
-                        id: status_power
-                        property var state: 0
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
-                        width: 55
-                        height: 50
-                        sourceSize.width: width
-                        sourceSize.height: height
-                        anchors.centerIn: parent
-                        Rectangle{
-                            width: 130
-                            height: 30
-                            visible: false
-                            radius: 5
-                            color: parent.state === 0?color_red:parent.state === 1?color_warning:color_green
-                            anchors.top: parent.bottom
-                            anchors.topMargin: parent.state === 1 ? 0 : 3
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                                color: "white"
-                                text:qsTr("전원")
-                            }
-                        }
-                        Item_ProgressBar{
-                            id: bar_battery
-                            width: 180
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            anchors.top: parent.bottom
-                            anchors.topMargin: 5
-                            height: 40
-                            to:100
-                            from:0
-                            value: supervisor.getBattery();
-                            Text{
-                                id: text_battery
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                                text: parent.value + " %"
-                                color: "white"
-                            }
-                        }
-                    }
-                    Image{
-                        id: status_localization
-                        property var state: 0
-                        source: state === 0?"icon/icon_error.png":state === 1?"image/warning.png":"icon/icon_yes.png"
-                        width: 55
-                        height: 50
-                        sourceSize.width: width
-                        sourceSize.height: height
                         anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: parent.top
-                        anchors.bottomMargin: -20
+                        anchors.top: parent.top
+                        anchors.topMargin: 15
+                        Image{
+                            id: image_localization
+                            anchors.centerIn: parent
+                            width: 50
+                            height: 50
+                            sourceSize.width: width
+                            sourceSize.height: height
+                            source: "icon/icon_location.png"
+                        }
+                    }
+                    Rectangle{
+                        id: state_network
+                        width: 65
+                        height: 65
+                        radius: 65
+                        property int state: 0
+                        onStateChanged: {
+                            if(state === 0){//disconnected ethernet(NONE)
+                                color = color_icon_gray;
+                                image_network.source = "icon/icon_ethernet_w.png"
+                            }else if(state === 1){//connected ethernet but slamnav disconnected(ERROR)
+                                color = color_icon_gray;
+                                image_network.source = "icon/icon_ethernet_w.png"
+                            }else if(state === 2){//slamnav connected but wifi disconnected(WARNING)
+                                color = color_warning;
+                                image_network.source = "icon/icon_wifi_w.png"
+                            }else if(state === 3){//slamnav, wifi connected but not internet(WARNING)
+                                color = color_warning;
+                                image_network.source = "icon/icon_wifi_w.png"
+                            }else if(state === 4){//all good
+                                color = color_green;
+                                image_network.source = "icon/icon_check.png"
+                            }
+                        }
+                        color: color_icon_gray
+                        anchors.right: parent.right
+                        anchors.rightMargin: 15
+                        anchors.top: parent.top
+                        anchors.topMargin:70
+                        Image{
+                            id: image_network
+                            anchors.centerIn: parent
+                            width: 50
+                            height: 50
+                            sourceSize.width: width
+                            sourceSize.height: height
+                            source: "icon/icon_ethernet_w.png"
+                        }
+                    }
+                    Rectangle{
+                        id: state_battery
+                        width: 65
+                        height: 65
+                        radius: 65
+                        color: color_icon_gray
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.verticalCenterOffset: 20
+                        anchors.left: parent.left
+                        anchors.leftMargin: 15
+                        property int state: 0
+                        onStateChanged: {
+                            if(state === 0){//disconnected slamnav(NONE)
+                                color = color_icon_gray;
+                                image_battery.source = "icon/icon_power_2.png"
+                            }else if(state === 1){//power status 0 (ERROR)
+                                color = color_red;
+                                image_battery.source = "icon/icon_power_2.png"
+                            }else if(state === 2){//charging cable connected(charging or not) (WARNING)
+                                color = color_warning;
+                                image_battery.source = "icon/icon_plug.png"
+                            }else if(state === 3){//battery low (WARNING)
+                                color = color_warning;
+                                image_battery.source = "icon/icon_power_2.png"
+                            }else if(state === 4){//all good
+                                color = color_green;
+                                image_battery.source = "icon/icon_check.png"
+                            }
+                        }
+                        Image{
+                            id: image_battery
+                            anchors.centerIn: parent
+                            width: 50
+                            height: 50
+                            sourceSize.width: width
+                            sourceSize.height: height
+                            source: "icon/icon_power_2.png"
+                        }
+                    }
+                    Rectangle{
+                        id: state_motor_1
+                        width: 65
+                        height: 65
+                        radius: 65
+                        color: color_icon_gray
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 11
+                        anchors.left: parent.left
+                        anchors.leftMargin: 15
+                        property int state: 0
+                        onStateChanged: {
+                            if(state === 0){//disconnected slamnav(NONE)
+                                color = color_icon_gray;
+                                image_motor_1.source = "icon/icon_no.png"
+                            }else if(state === 1){//power state false (ERROR)
+                                color = color_red;
+                                image_motor_1.source = "icon/icon_power_2.png"
+                            }else if(state === 2){//emergency switch pushed (ERROR)
+                                color = color_red;
+                                image_motor_1.source = "icon/icon_emo.png"
+                            }else if(state === 3){//motor disconnected (ERROR)
+                                color = color_icon_gray;
+                                image_motor_1.source = "icon/icon_no.png"
+                            }else if(state === 4){//motor error, not ready (ERROR)
+                                color = color_red;
+                                image_motor_1.source = "icon/icon_no.png"
+                            }else if(state === 5){//motor lock false (WARNING)
+                                color = color_warning;
+                                image_motor_1.source = "icon/icon_unlock.png"
+                            }else if(state === 6){//motor hot (WARNING)
+                                color = color_warning;
+                                image_motor_1.source = "icon/icon_fire.png"
+                            }else if(state === 7){//all good
+                                color = color_green;
+                                image_motor_1.source = "icon/icon_check.png"
+                            }
+                        }
+                        Image{
+                            id: image_motor_1
+                            anchors.centerIn: parent
+                            width: 50
+                            height: 50
+                            sourceSize.width: width
+                            sourceSize.height: height
+                            source: "icon/icon_no.png"
+                        }
+                    }
+                    Rectangle{
+                        id: state_motor_2
+                        width: 65
+                        height: 65
+                        radius: 65
+                        color: color_icon_gray
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 15
+                        anchors.right: parent.right
+                        anchors.rightMargin: 15
+                        property int state: 0
+                        onStateChanged: {
+                            if(state === 0){//disconnected slamnav(NONE)
+                                color = color_icon_gray;
+                                image_motor_2.source = "icon/icon_no.png"
+                            }else if(state === 1){//power state false (ERROR)
+                                color = color_red;
+                                image_motor_2.source = "icon/icon_power_2.png"
+                            }else if(state === 2){//emergency switch pushed (ERROR)
+                                color = color_red;
+                                image_motor_2.source = "icon/icon_emo.png"
+                            }else if(state === 3){//motor disconnected (ERROR)
+                                color = color_icon_gray;
+                                image_motor_2.source = "icon/icon_no.png"
+                            }else if(state === 4){//motor error, not ready (ERROR)
+                                color = color_red;
+                                image_motor_2.source = "icon/icon_no.png"
+                            }else if(state === 5){//motor lock false (WARNING)
+                                color = color_warning;
+                                image_motor_2.source = "icon/icon_unlock.png"
+                            }else if(state === 6){//motor hot (WARNING)
+                                color = color_warning;
+                                image_motor_2.source = "icon/icon_fire.png"
+                            }else if(state === 7){//all good
+                                color = color_green;
+                                image_motor_2.source = "icon/icon_check.png"
+                            }
+                        }
+                        Image{
+                            id: image_motor_2
+                            anchors.centerIn: parent
+                            width: 50
+                            height: 50
+                            sourceSize.width: width
+                            sourceSize.height: height
+                            source: "icon/icon_no.png"
+                        }
                     }
                 }
                 Rectangle{
-                    width: 500
+                    width: 450
                     height: area_setting_motor.height
                     color: "transparent"
                     Column{
                         anchors.verticalCenter: parent.verticalCenter
                         spacing: 10
                         Rectangle{
-                            id: state_robot
-                            width: 500
+                            id: rect_robot
+                            width: 450
                             height: 100
                             radius: 10
-                            color: "white"
+                            property int state: 0
+                            onStateChanged: {
+                                if(state === 0){
+                                    text_robot.text = qsTr("프로그램 연결 안됨")
+                                }else if(state === 1){
+                                    text_robot.text = qsTr("모터 준비 안됨")
+                                }else if(state === 2){
+                                    text_robot.text = qsTr("위치 알 수 없음")
+                                }else if(state === 3){
+                                    text_robot.text = qsTr("비상전원 스위치 눌림")
+                                }else if(state === 4){
+                                    text_robot.text = qsTr("로봇 운행 중")
+                                }else if(state === 5){
+                                    text_robot.text = qsTr("충전 중")
+                                }
+                            }
+
+                            color: "transparent"
                             Text{
                                 id: text_robot
                                 anchors.centerIn: parent
                                 font.family: font_noto_b.name
                                 font.pixelSize: 40
-                                text:qsTr("로봇 운영 중")
+                                color: color_dark_navy
+                                text:qsTr("프로그램 연결 안됨")
                             }
                         }
                         Rectangle{
                             id: state_power
-                            width: 500
-                            height: 500
+                            width: 450
+                            height: 400
                             radius: 10
                             clip: true
-                            visible: model_power_issue.count > 0
                             color: "transparent"
                             Flickable{
                                 width: parent.width*0.9
@@ -11136,51 +11240,349 @@ Item {
                                     id: ddddd
                                     anchors.centerIn: parent
                                     spacing: 10
-                                    Repeater{
-                                        model:ListModel{id:model_power_issue}
-                                        Rectangle{
-                                            width: 500
-                                            height: 50
-                                            radius: 10
-                                            color: "transparent"
-                                            Row{
-                                                spacing: 30
-                                                Rectangle{
-                                                    width: 100
-                                                    height: 50
-                                                    color: "transparent"
-                                                    Image{
-                                                        anchors.centerIn: parent
-                                                        source: image
-                                                        width: 45
-                                                        height: 40
-                                                        sourceSize.width: width
-                                                        sourceSize.height: height
-                                                    }
+                                    Rectangle{
+                                        id: rect_network
+                                        width: 450
+                                        height: 100
+                                        radius: 10
+                                        property int state: state_network.state
+                                        onStateChanged: {
+                                            text_network2.text = "";
+                                            if(state === 0){//disconnected ethernet(NONE)
+                                                text_network.text = qsTr("이더넷이 연결되지 않았습니다")
+                                            }else if(state === 1){//connected ethernet but slamnav disconnected(ERROR)
+                                                text_network.text = qsTr("프로그램과 연결되지 않았습니다")
+                                            }else if(state === 2){//slamnav connected but wifi disconnected(WARNING)
+                                                text_network.text = qsTr("프로그램 연결 성공")
+                                                text_network2.text = qsTr("(와이파이는 연결되지 않았습니다)")
+                                            }else if(state === 3){//slamnav, wifi connected but not internet(WARNING)
+                                                text_network.text = qsTr("프로그램 연결 성공")
+                                                text_network2.text = qsTr("(인터넷은 연결되지 않았습니다)")
+                                            }else if(state === 4){//all good
+                                                text_network.text = qsTr("프로그램 연결 성공")
+                                            }
+                                        }
+                                        color: "transparent"
+                                        Row{
+                                            spacing: 10
+                                            Rectangle{
+                                                width: 50
+                                                height: 50
+                                                color: state_network.color
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                radius: 50
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    source: image_network.source
+                                                    width: 40
+                                                    height: 40
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
                                                 }
-                                                Rectangle{
-                                                    width: 370
-                                                    height: 50
-                                                    radius : 10
-                                                    color: "white"
+                                            }
+                                            Rectangle{
+                                                width: 450-50-10
+                                                height: 100
+                                                radius : 10
+                                                color: "white"
+                                                Column{
+                                                    anchors.centerIn: parent
                                                     Text{
-                                                        anchors.centerIn: parent
+                                                        id: text_network
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 25
+                                                        text: qsTr("이더넷이 연결되지 않았습니다")
+                                                    }
+                                                    Text{
+                                                        id: text_network2
+                                                        visible: text!==""
+                                                        anchors.horizontalCenter: parent.horizontalCenter
                                                         font.family: font_noto_r.name
                                                         font.pixelSize: 20
-                                                        text: name
+                                                        text: ""
                                                     }
                                                 }
 
                                             }
                                         }
                                     }
+                                    Rectangle{
+                                        id: rect_battery
+                                        width: 450
+                                        height: 100
+                                        radius: 10
+                                        color: "transparent"
+                                        property int state: state_battery.state
+                                        onStateChanged: {
+                                            text_battery2.text = "";
+                                            if(state === 0){
+                                                text_battery.text = qsTr("프로그램과 연결되지 않았습니다")
+                                            }else if(state === 1){
+                                                text_battery.text = qsTr("전원이 OFF 상태입니다")
+                                            }else if(state === 2){
+                                                text_battery.text = qsTr("충전케이블을 분리해주세요")
+                                            }else if(state === 3){
+                                                text_battery.text = qsTr("배터리가 부족합니다")
+                                            }else if(state === 4){
+                                                text_battery.text = qsTr("배터리상태 정상")
+                                            }
+                                        }
+                                        Row{
+                                            spacing: 10
+                                            Rectangle{
+                                                width: 50
+                                                height: 50
+                                                color: state_battery.color
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                radius: 50
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    source: image_battery.source
+                                                    width: 40
+                                                    height: 40
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
+                                                }
+                                            }
+                                            Rectangle{
+                                                width: 450-50-10
+                                                height: 100
+                                                radius : 10
+                                                color: "white"
+                                                Column{
+                                                    anchors.centerIn: parent
+                                                    Text{
+                                                        id: text_battery
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 25
+                                                        text: qsTr("프로그램과 연결되지 않았습니다")
+                                                    }
+                                                    Text{
+                                                        id: text_battery2
+                                                        visible: text!==""
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 20
+                                                        text: ""
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle{
+                                        id: rect_localization
+                                        width: 450
+                                        height: 100
+                                        radius: 10
+                                        color: "transparent"
+                                        property int state: state_localization.state
+                                        onStateChanged: {
+                                            text_localization2.text = "";
+                                            if(state === 0){
+                                                text_localization.text = qsTr("프로그램과 연결되지 않았습니다")
+                                            }else if(state === 1){
+                                                text_localization.text = qsTr("위치를 찾을 수 없습니다")
+                                            }else if(state === 2){
+                                                text_localization.text = qsTr("위치를 찾는 중입니다")
+                                            }else if(state === 3){
+                                                text_localization.text = qsTr("위치상태 정상")
+                                            }
+                                        }
+                                        Row{
+                                            spacing: 10
+                                            Rectangle{
+                                                width: 50
+                                                height: 50
+                                                color: state_localization.color
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                radius: 50
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    source: image_localization.source
+                                                    width: 40
+                                                    height: 40
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
+                                                }
+                                            }
+                                            Rectangle{
+                                                width: 450-50-10
+                                                height: 100
+                                                radius : 10
+                                                color: "white"
+                                                Column{
+                                                    anchors.centerIn: parent
+                                                    Text{
+                                                        id: text_localization
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 25
+                                                        text: qsTr("프로그램과 연결되지 않았습니다")
+                                                    }
+                                                    Text{
+                                                        id: text_localization2
+                                                        visible: text!==""
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 20
+                                                        text: ""
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    Rectangle{
+                                        id: rect_motor_1
+                                        width: 450
+                                        height:100
+                                        radius: 10
+                                        color: "transparent"
+                                        property int state: state_motor_1.state
+                                        onStateChanged: {
+                                            text_motor_11.text = "";
+                                            if(state === 0){
+                                                text_motor_1.text = qsTr("프로그램과 연결되지 않았습니다")
+                                            }else if(state === 1){
+                                                text_motor_1.text = qsTr("전원이 OFF 상태입니다")
+                                            }else if(state === 2){
+                                                text_motor_1.text = qsTr("비상스위치가 눌려있습니다")
+                                            }else if(state === 3){
+                                                text_motor_1.text = qsTr("모터와 연결되지 않았습니다")
+                                            }else if(state === 4){
+                                                text_motor_1.text = qsTr("모터에 에러가 발생했습니다")
+                                                text_motor_11.text = supervisor.getMotorStatusStr(0);
+                                            }else if(state === 5){
+                                                text_motor_1.text = qsTr("모터락이 해제되었습니다")
+                                            }else if(state === 6){
+                                                text_motor_1.text = qsTr("모터온도가 기준치 이상입니다")
+                                            }else if(state === 7){
+                                                text_motor_1.text = qsTr("모터상태 정상")
+                                            }
+                                        }
+                                        Row{
+                                            spacing: 10
+                                            Rectangle{
+                                                width: 50
+                                                height: 50
+                                                color: state_motor_1.color
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                radius: 50
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    source: image_motor_1.source
+                                                    width: 40
+                                                    height: 40
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
+                                                }
+                                            }
+                                            Rectangle{
+                                                width: 450-50-10
+                                                height: 100
+                                                radius : 10
+                                                color: "white"
+                                                Column{
+                                                    anchors.centerIn: parent
+                                                    Text{
+                                                        id: text_motor_1
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 25
+                                                        text: qsTr("프로그램과 연결되지 않았습니다")
+                                                    }
+                                                    Text{
+                                                        id: text_motor_11
+                                                        visible: text!==""
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 20
+                                                        text: ""
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle{
+                                        id: rect_motor_2
+                                        width: 450
+                                        height: 100
+                                        radius: 10
+                                        color: "transparent"
+                                        property int state: state_motor_2.state
+                                        onStateChanged: {
+                                            text_motor_22.text = "";
+                                            if(state === 0){
+                                                text_motor_2.text = qsTr("프로그램과 연결되지 않았습니다")
+                                            }else if(state === 1){
+                                                text_motor_2.text = qsTr("전원이 OFF 상태입니다")
+                                            }else if(state === 2){
+                                                text_motor_2.text = qsTr("비상스위치가 눌려있습니다")
+                                            }else if(state === 3){
+                                                text_motor_2.text = qsTr("모터와 연결되지 않았습니다")
+                                            }else if(state === 4){
+                                                text_motor_2.text = qsTr("모터에 에러가 발생했습니다")
+                                                text_motor_22.text = supervisor.getMotorStatusStr(1);
+                                            }else if(state === 5){
+                                                text_motor_2.text = qsTr("모터락이 해제되었습니다")
+                                            }else if(state === 6){
+                                                text_motor_2.text = qsTr("모터온도가 기준치 이상입니다")
+                                            }else if(state === 7){
+                                                text_motor_2.text = qsTr("모터상태 정상")
+                                            }
+                                        }
+                                        Row{
+                                            spacing: 10
+                                            Rectangle{
+                                                width: 50
+                                                height: 50
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                color: state_motor_2.color
+                                                radius: 50
+                                                Image{
+                                                    anchors.centerIn: parent
+                                                    source: image_motor_2.source
+                                                    width: 40
+                                                    height: 40
+                                                    sourceSize.width: width
+                                                    sourceSize.height: height
+                                                }
+                                            }
+                                            Rectangle{
+                                                width: 450-50-10
+                                                height: 100
+                                                radius : 10
+                                                color: "white"
+                                                Column{
+                                                    anchors.centerIn: parent
+                                                    Text{
+                                                        id: text_motor_2
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 25
+                                                        text: qsTr("프로그램과 연결되지 않았습니다")
+                                                    }
+                                                    Text{
+                                                        id: text_motor_22
+                                                        visible: text!==""
+                                                        anchors.horizontalCenter: parent.horizontalCenter
+                                                        font.family: font_noto_r.name
+                                                        font.pixelSize: 20
+                                                        text: ""
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
                                 }
                             }
                         }
                     }
-
                 }
-
             }
 
 
@@ -11202,381 +11604,8 @@ Item {
                     }
                 }
             }
-
-            Column{
-                id:column_setting4
-                width: parent.width
-                visible: false
-//                anchors.top: rect_motor_2.bottom
-                anchors.topMargin: 2
-                spacing:10
-                Rectangle{
-                    width: 840
-                    height: 40
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("모터 연결상태")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            color: "transparent"
-                            Rectangle{
-                                id: rect_connection_0
-                                height: parent.height
-                                anchors.centerIn: parent
-                                width: parent.width*0.8
-                                color: supervisor.getMotorConnection(motor_left_id)?color_green:color_red
-                                Text{
-                                    id: text_connection_0
-                                    anchors.centerIn: parent
-                                    font.family: font_noto_r.name
-                                    text:supervisor.getMotorConnection(motor_left_id)?"연결됨":"연결안됨"
-                                    font.pixelSize: 15
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            color: "transparent"
-                            Rectangle{
-                                id: rect_connection_1
-                                height: parent.height
-                                anchors.centerIn: parent
-                                width: parent.width*0.8
-                                color: supervisor.getMotorConnection(motor_right_id)?color_green:color_red
-                                Text{
-                                    id: text_connection_1
-                                    anchors.centerIn: parent
-                                    font.family: font_noto_r.name
-                                    text:supervisor.getMotorConnection(motor_right_id)?"연결됨":"연결안됨"
-                                    font.pixelSize: 15
-                                }
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("모터 상태")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_status_0
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorStatus(0).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_status_1
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorStatus(1).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("모터 온도")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_temp_0
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorTemperature(0).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_temp_1
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorTemperature(1).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("모터 내부 온도")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_temp_0_1
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorInsideTemperature(0).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_temp_1_1
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorInsideTemperature(1).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("모터 전류")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_cur_0
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorCurrent(0).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/2
-                            height: parent.height
-                            Text{
-                                id: text_cur_1
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:supervisor.getMotorCurrent(1).toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                    }
-                }
-
-                Rectangle{
-                    width: 1100
-                    height: 40
-                    color: "black"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_b.name
-                        text:qsTr("로봇 상태")
-                        color: "white"
-                        font.pixelSize: 20
-                    }
-                }
-
-                Rectangle{
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("상태값")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/4
-                            height: parent.height
-                            Text{
-                                id: text_status_charging
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:qsTr("Charging : ")+supervisor.getChargeStatus().toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/4
-                            height: parent.height
-                            Text{
-                                id: text_status_power
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:qsTr("Power : ")+supervisor.getPowerStatus().toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/4
-                            height: parent.height
-                            Text{
-                                id: text_status_emo
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:qsTr("Emo : ")+supervisor.getEmoStatus().toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                        Rectangle{
-                            width: (parent.width - 351)/4
-                            height: parent.height
-                            Text{
-                                id: text_status_remote
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                text:qsTr("Remote : ")+supervisor.getRemoteStatus().toString()
-                                font.pixelSize: 15
-                            }
-                        }
-                    }
-                }
-            }
         }
+
         Rectangle{
             id: btn_menu
             width: 120
@@ -11716,191 +11745,170 @@ Item {
             internet_con.connection = supervisor.getInternetConnection();
             wifi_ssid.text = supervisor.getCurWifiSSID();
 
-
             motor_left_id = parseInt(supervisor.getSetting("update","MOTOR","left_id"));
             motor_right_id = parseInt(supervisor.getSetting("update","MOTOR","right_id"));
+
+
+            if(supervisor.getEthernetConnection() === 2){
+                if(supervisor.getIPCConnection() === 1){
+                    if(supervisor.getWifiConnection() === 2){
+                        if(supervisor.getIneternetConnection() === 2){
+                            state_network.state = 4;
+                        }else{
+                            state_network.state = 3;
+                        }
+                    }else{
+                        state_network.state = 2;
+                    }
+                }else{
+                    state_network.state = 1;
+                }
+            }else{
+                state_network.state = 0;
+            }
 
             //로봇 상태 - 로봇 상태
             if(supervisor.getIPCConnection()){
                 //로봇 상태 - 전원
-                status_power.state = 2;
-                if(supervisor.getBattery() < 30){
-                    status_power.state = 1;
-                    model_power_issue.append({"name":qsTr("배터리잔량 낮음"),"image":"image/warning.png"});
-                }
+                if(supervisor.getPowerStatus() === 0){
+                    state_battery.state = 1;
+                    state_motor_1.state = 1;
+                    state_motor_2.state = 1;
+                }else{
 
-                bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
-                bar_battery_out.value = supervisor.getBatteryOut().toFixed(2);
-                bar_battery_cur.value = supervisor.getBatteryCurrent().toFixed(2);
-
-                bar_power.value = supervisor.getPower().toFixed(3);
-                bar_powert.value = supervisor.getPowerTotal().toFixed(3);
-
-                //로봇 상태 - 상태 값
-                model_power_issue.clear();
-
-                if(supervisor.getEmoStatus() !== 0){
-                    model_power_issue.append({"name":qsTr("비상스위치 눌림"),"image":"image/warning.png"});
-                    status_power.state = 1;
-                }else if(supervisor.getRemoteStatus() === 0){
-                    model_power_issue.append({"name":qsTr("원격비상스위치 눌림"),"image":"image/warning.png"});
-                    status_power.state = 1;
-                }else if(supervisor.getPowerStatus() === 0){
-                    model_power_issue.append({"name":qsTr("전원 공급 안됨"),"image":"icon/icon_error.png"});
-                    status_power.state = 0;
-                }
-
-                var state = supervisor.getLocalizationState();
-                if(state === 0){
-                    model_power_issue.append({"name":qsTr("위치초기화 필요"),"image":"icon/icon_error.png"});
-                    text_robot.text = qsTr("초기화 안됨");
-                    status_localization.state = 0;
-                }else if(state === 1){
-                    model_power_issue.append({"name":qsTr("위치초기화 진행중"),"image":"image/warning.png"});
-                    text_robot.text = qsTr("초기화 중");
-                    status_localization.state = 1;
-                }else if(state === 2){
-                    text_robot.text = qsTr("초기화 완료");
-                    status_localization.state = 2;
-
-                    state = supervisor.getStateMoving();
-                    if(state === 0){
-                        model_power_issue.append({"name":qsTr("로봇주행 준비안됨"),"image":"image/warning.png"});
-                        text_robot.text = qsTr("준비 안됨");
-                    }else if(state === 1){
-                        text_robot.text = qsTr("준비");
-                    }else if(state === 2){
-                        text_robot.text = qsTr("이동 중");
-                    }else if(state === 3){
-                        text_robot.text = qsTr("대기 중");
-                    }else if(state === 4){
-                        text_robot.text = qsTr("일시정지 중");
+                    if(supervisor.getChargeConnectStatus() === 1){
+                        state_battery.state = 2;
+                    }else{
+                        if(supervisor.getBattery() < 30){
+                            state_battery.state = 3;
+                        }else{
+                            state_battery.state = 4;
+                        }
                     }
 
-                }else if(state === 3){
-                    status_localization.state = 0;
-                    model_power_issue.append({"name":qsTr("위치초기화 실패"),"image":"image/warning.png"});
-                    text_robot.text = qsTr("초기화 실패");
-                }
+                    //모터 상태 - 모터 1
+                    var state1 = supervisor.getMotorConnection(0);
+                    //모터 상태 - 모터 2
+                    var state2 = supervisor.getMotorConnection(1);
 
-
-                if(supervisor.getObsState() === 1){
-                    status_localization.state = 0;
-                    model_power_issue.append({"name":qsTr("장애물 겹침"),"image":"image/warning.png"});
-                }
-
-                //모터 상태 - 모터 1
-                var state1 = supervisor.getMotorConnection(0);
-                //모터 상태 - 모터 2
-                var state2 = supervisor.getMotorConnection(1);
-
-
-                if(!state1){
-                    model_power_issue.append({"name":qsTr("모터 1 연결안됨"),"image":"icon/icon_error.png"});
-                    status_motor_left.state = 0;
-                }else{
-                    status_motor_left.state = 2;
-                }
-
-                if(!state2){
-                    status_motor_right.state = 0;
-                    model_power_issue.append({"name":qsTr("모터 2 연결안됨"),"image":"icon/icon_error.png"});
-                }else{
-                    status_motor_right.state = 2;
-                }
-
-                if(state1 && state2){
-                    var lstate = supervisor.getLockStatus();
-                    if(supervisor.getChargeConnectStatus() !== 0){
-                        status_motor_right.state = 1;
-                        status_motor_left.state = 1;
-                        model_power_issue.append({"name":qsTr("충전케이블 연결됨"),"image":"image/warning.png"});
-                    }else if(lstate === 0){
-                        status_motor_right.state = 1;
-                        status_motor_left.state = 1;
-                        model_power_issue.append({"name":qsTr("모터락 풀림"),"image":"image/warning.png"});
-                    }else{
-                        state1 = supervisor.getMotorStatus(0);
-                        if(state1 === 0){
-                            model_power_issue.append({"name":qsTr("모터 1 준비안됨"),"image":"icon/icon_error.png"});
-                            status_motor_left.state = 1;
-                        }else if(state1 === 1){
-                            status_motor_left.state = 2;
+                    if(state1 && state2){
+                        var lstate = supervisor.getLockStatus();
+                        if(supervisor.getChargeConnectStatus() !== 0){
+                        }else if(lstate === 0){
                         }else{
-                            status_motor_left.state = 0;
-                            var str_error = "";
-                            if(state1 >= 128){
-                                str_error += "Unknown ";
-                                state1 -= 128;
+                            state1 = supervisor.getMotorStatus(0);
+                            if(state1 === 0){
+                            }else if(state1 === 1){
+                            }else{
+                                var str_error = "";
+                                if(state1 >= 128){
+                                    str_error += "Unknown ";
+                                    state1 -= 128;
+                                }
+                                if(state1 >= 64){
+                                    str_error += "PS1,2 ";
+                                    state1 -= 64;
+                                }
+                                if(state1 >= 32){
+                                    str_error += "INPUT ";
+                                    state1 -= 32;
+                                }
+                                if(state1 >= 16){
+                                    str_error += "BIG ";
+                                    state1 -= 16;
+                                }
+                                if(state1 >= 8){
+                                    str_error += "CUR ";
+                                    state1 -= 8;
+                                }
+                                if(state1 >= 4){
+                                    str_error += "JAM ";
+                                    state1 -= 4;
+                                }
+                                if(state1 >= 2){
+                                    str_error += "MOD ";
+                                    state1 -= 2;
+                                }
                             }
-                            if(state1 >= 64){
-                                str_error += "PS1,2 ";
-                                state1 -= 64;
+
+                            state2 = supervisor.getMotorStatus(1);
+                            if(state2 === 0){
+                            }else if(state2 === 1){
+                            }else{
+                                var str_error = "";
+                                if(state2 >= 128){
+                                    str_error += "Unknown ";
+                                    state2 -= 128;
+                                }
+                                if(state2 >= 64){
+                                    str_error += "PS1,2 ";
+                                    state2 -= 64;
+                                }
+                                if(state2 >= 32){
+                                    str_error += "INPUT ";
+                                    state2 -= 32;
+                                }
+                                if(state2 >= 16){
+                                    str_error += "BIG ";
+                                    state2 -= 16;
+                                }
+                                if(state2 >= 8){
+                                    str_error += "CUR ";
+                                    state2 -= 8;
+                                }
+                                if(state2 >= 4){
+                                    str_error += "JAM ";
+                                    state2 -= 4;
+                                }
+                                if(state2 >= 2){
+                                    str_error += "MOD ";
+                                    state2 -= 2;
+                                }
+
+                                bar_status2.background_color = color_red;
+                                text_status2.text = str_error;
                             }
-                            if(state1 >= 32){
-                                str_error += "INPUT ";
-                                state1 -= 32;
-                            }
-                            if(state1 >= 16){
-                                str_error += "BIG ";
-                                state1 -= 16;
-                            }
-                            if(state1 >= 8){
-                                str_error += "CUR ";
-                                state1 -= 8;
-                            }
-                            if(state1 >= 4){
-                                str_error += "JAM ";
-                                state1 -= 4;
-                            }
-                            if(state1 >= 2){
-                                str_error += "MOD ";
-                                state1 -= 2;
-                            }
-                            model_power_issue.append({"name":qsTr("모터 1 ")+str_error,"image":"icon/icon_error.png"});
                         }
 
-                        state2 = supervisor.getMotorStatus(1);
-                        if(state2 === 0){
-                            status_motor_right.state = 1;
-                            model_power_issue.append({"name":qsTr("모터 2 준비안됨"),"image":"icon/icon_error.png"});
-                        }else if(state2 === 1){
-                            status_motor_right.state = 2;
-                        }else{
-                            status_motor_right.state = 0;
-                            var str_error = "";
-                            if(state2 >= 128){
-                                str_error += "Unknown ";
-                                state2 -= 128;
-                            }
-                            if(state2 >= 64){
-                                str_error += "PS1,2 ";
-                                state2 -= 64;
-                            }
-                            if(state2 >= 32){
-                                str_error += "INPUT ";
-                                state2 -= 32;
-                            }
-                            if(state2 >= 16){
-                                str_error += "BIG ";
-                                state2 -= 16;
-                            }
-                            if(state2 >= 8){
-                                str_error += "CUR ";
-                                state2 -= 8;
-                            }
-                            if(state2 >= 4){
-                                str_error += "JAM ";
-                                state2 -= 4;
-                            }
-                            if(state2 >= 2){
-                                str_error += "MOD ";
-                                state2 -= 2;
-                            }
-                            model_power_issue.append({"name":qsTr("모터 2 ")+str_error,"image":"icon/icon_error.png"});
+                        bar_temp1.value = supervisor.getMotorTemperature(0);
+                        bar_mtemp1.value = supervisor.getMotorInsideTemperature(0);
+                        bar_cur1.value = supervisor.getMotorCurrent(0);
+                        bar_temp2.value = supervisor.getMotorTemperature(1);
+                        bar_mtemp2.value = supervisor.getMotorInsideTemperature(1);
+                        bar_cur2.value = supervisor.getMotorCurrent(1);
+                    }
 
-                            bar_status2.background_color = color_red;
-                            text_status2.text = str_error;
+
+                    if(supervisor.getEmoStatus() === 1){
+                        state_motor_1.state = 2;
+                        state_motor_2.state = 2;
+                    }else{
+                        if(state1 === 0){
+                            state_motor_1.state = 3;
+                        }else if(supervisor.getLockStatus() === 0){
+                            state_motor_1.state = 5;
+                        }else if(supervisor.getMotorStatus(0) === 1){
+                            if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature()){
+                                state_motor_1.state = 6;
+                            }else{
+                                state_motor_1.state = 7;
+                            }
+                        }else{
+                            state_motor_1.state = 4;
+                        }
+
+                        if(state2 === 0){
+                            state_motor_2.state = 3;
+                        }else if(supervisor.getLockStatus() === 0){
+                            state_motor_2.state = 5;
+                        }else if(supervisor.getMotorStatus(1) === 1){
+                            if(supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
+                                state_motor_2.state = 6;
+                            }else{
+                                state_motor_2.state = 7;
+                            }
+                        }else{
+                            state_motor_2.state = 4;
                         }
                     }
 
@@ -11913,11 +11921,50 @@ Item {
                 }
 
 
+                if(supervisor.getLocalizationState() === 2 && supervisor.getMotorState(0) === 1 && supervisor.getMotorState(1) === 1){
+                    if(supervisor.getChargeStatus() === 1){
+                        rect_robot.state = 5;
+                    }else{
+                        rect_robot.state = 4;
+                    }
+                }else{
+                    if(supervisor.getEmoStatus() === 1){
+                        rect_robot.state = 3;
+                    }else if(supervisor.getLocalizationState() !== 2){
+                        rect_robot.state = 2;
+                    }else{
+                        rect_robot.state = 1;
+                    }
+                }
+
+                bar_battery_in.value = supervisor.getBatteryIn().toFixed(2);
+                bar_battery_out.value = supervisor.getBatteryOut().toFixed(2);
+                bar_battery_cur.value = supervisor.getBatteryCurrent().toFixed(2);
+
+                bar_power.value = supervisor.getPower().toFixed(3);
+                bar_powert.value = supervisor.getPowerTotal().toFixed(3);
+
+                var state = supervisor.getLocalizationState();
+                if(state === 2){
+                    state_localization.state = 3;
+                }else if(state === 1){
+                    state_localization.state = 2;
+                }else{
+                    state_localization.state = 1;
+                }
+
             }else{
-                status_power.state = 0;
-                status_motor_left.state = 0;
-                status_motor_right.state = 0;
-                status_localization.state = 0;
+                rect_robot.state = 0;
+                state_localization.state = 0;
+                state_power.state = 0;
+                state_motor_1.state = 0;
+                state_motor_2.state = 0;
+
+                if(supervisor.getEthernetConnection() === 2){
+                    state_network.state = 1;
+                }else{
+                    state_network.state = 0;
+                }
                 text_robot.text = qsTr("프로그램 연결 안됨")
             }
 
@@ -11927,6 +11974,7 @@ Item {
     Popup_help{
         id: popup_help_setting
     }
+
     Popup{
         id: popup_robot_details
         anchors.centerIn: parent
@@ -12821,7 +12869,7 @@ Item {
                         anchors.fill: parent
                         onClicked:{
                             click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> KILL SLAM");
+                            supervisor.writelog("[UI] SETTING PAGE -> KILL SLAM");
                             supervisor.restartSLAM();
                         }
                     }

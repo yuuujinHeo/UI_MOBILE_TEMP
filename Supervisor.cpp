@@ -37,12 +37,7 @@ Supervisor::Supervisor(QObject *parent)
     checkShellFiles();
     Py_Initialize();
 
-    plog->write("");
-    plog->write("");
-    plog->write("");
-    plog->write("");
-    plog->write("");
-    plog->write("[BUILDER] Program Started. Supervisor constructed.");
+    plog->write("[SUPERVISOR] Program Started. Supervisor constructed.");
 
     //기존 SLAM/NAV 모두 종료하고 다시 시작
     QList<QString> path_home_str = QDir::homePath().split("/");
@@ -68,10 +63,10 @@ Supervisor::Supervisor(QObject *parent)
     pmap = &map;
     pmap->call_queue.clear();
 
+    ipc = new IPCHandler();
     server = new ServerHandler();
     maph = new MapHandler();
     zip = new ZIPHandler();
-    ipc = new IPCHandler();
     call = new CallbellHandler();
     tts = new TTSHandler();
     checker = new Checker();
@@ -149,7 +144,7 @@ void Supervisor::emo_state_changed(){
 }
 ////*********************************************  WINDOW 관련   ***************************************************////
 void Supervisor::setWindow(QQuickWindow *Window){
-    plog->write("[BUILDER] SUPERVISOR SET WINDOW ");
+    plog->write("[SUPERVISOR] SET WINDOW ");
     mMain = Window;
 }
 QQuickWindow *Supervisor::getWindow()
@@ -514,7 +509,6 @@ void Supervisor::readSetting(QString map_name){
     plog->write("[SUPERVISOR] READ SETTING : "+map_name);
     //Robot Setting================================================================
     QString ini_path = getIniPath("setting");
-    qDebug() << "ini path : " << ini_path;
     QSettings setting_config(ini_path, QSettings::IniFormat);
 
     setting_config.beginGroup("ROBOT_TYPE");
@@ -546,7 +540,6 @@ void Supervisor::readSetting(QString map_name){
     setting_config.beginGroup("MAP");
     pmap->map_name = setting_config.value("map_name").toString();
     pmap->map_path = setting_config.value("map_path").toString();
-    qDebug() << pmap->map_name << pmap->map_path;
     setting_config.endGroup();
 
     probot->program_branch = getSetting("setting","UI","probram_branch");
@@ -587,7 +580,6 @@ void Supervisor::readSetting(QString map_name){
     probot->comeback_preset = update_config.value("comeback_preset").toInt();
     update_config.endGroup();
 
-    plog->write("[SUPERVISOR] READ SETTING : SENSOR done");
     if(map_name == ""){
         map_name = pmap->map_name;
     }
@@ -598,7 +590,6 @@ void Supervisor::readSetting(QString map_name){
     pmap->annot_edit_object = false;
     pmap->annot_edit_drawing = false;
     pmap->annotation_edited = false;
-    plog->write("[SUPERVISOR] READ SETTING : "+map_name);
     //Map Meta Data======================================================================
     ini_path = getMetaPath(map_name);
     QSettings setting_meta(ini_path, QSettings::IniFormat);
@@ -620,7 +611,6 @@ void Supervisor::readSetting(QString map_name){
         pmap->origin[1] = pmap->edited_origin[1];
     }
     setting_meta.endGroup();
-    plog->write("[SUPERVISOR] READ SETTING : meta done");
 
     //Annotation======================================================================
     ini_path = getAnnotPath(map_name);
@@ -700,8 +690,6 @@ void Supervisor::readSetting(QString map_name){
         setting_anot.endGroup();
     }
 
-//    qDebug() <<"?????????????";
-
     setting_anot.beginGroup("serving_locations");
     int total_serv_num = 0;
     int group_num = setting_anot.value("group").toInt();
@@ -737,7 +725,6 @@ void Supervisor::readSetting(QString map_name){
 
     tts->readVoiceSetting();
     plog->write("[SUPERVISOR] READ SETTING : annot done");
-//    std::sort(pmap->locations.begin(),pmap->locations.end(),sortLocation2);
 
     //Set Variable
     probot->trays.clear();
@@ -1512,16 +1499,13 @@ bool Supervisor::rotate_map(QString _src, QString _dst, int mode){
     }
 }
 bool Supervisor::getIPCConnection(){
-    if(probot->ipc_use)
-        return ipc->getConnection();
+    return ipc->getConnection();
 }
 bool Supervisor::getIPCRX(){
-    if(probot->ipc_use)
-        return ipc->flag_rx;
+    return ipc->flag_rx;
 }
 bool Supervisor::getIPCTX(){
-    if(probot->ipc_use)
-        return ipc->flag_tx;
+    return ipc->flag_tx;
 }
 int  Supervisor::getusbsize(){
     return usb_list.size();
@@ -1615,7 +1599,6 @@ void Supervisor::loadMap(QString name){
     slam_map_reload(name);
 }
 void Supervisor::restartSLAM(){
-    plog->write("[USER INPUT] Restart SLAM");
     ipc->clearSharedMemory(ipc->shm_cmd);
     if(slam_process != nullptr){
         plog->write("[SUPERVISOR] RESTART SLAM -> PID : "+QString::number(slam_process->processId()));
@@ -1676,7 +1659,7 @@ void Supervisor::startSLAM(){
     slam_process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
     slam_process->start("xterm",QStringList() << "./startslam.sh");
     ipc->update();
-    plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->processId()));
+    plog->write("[SUPERVISOR] START SLAM "+QString::number(slam_process->processId()));
 }
 
 ////*******************************************  SLAM(LOCALIZATION) 관련   ************************************************////
@@ -1717,11 +1700,10 @@ void Supervisor::stopMapping(){
 //    maph->loadFile(getMapname(),"");
 }
 void Supervisor::saveMapping(QString name){
-    if(probot->ipc_use){
-        ipc->flag_mapping = false;
-        ipc->is_mapping = false;
-        ipc->saveMapping(name);
-    }
+    ipc->flag_mapping = false;
+    ipc->is_mapping = false;
+    ipc->saveMapping(name);
+
 }
 void Supervisor::setSLAMMode(int mode){
 
@@ -1750,19 +1732,14 @@ float Supervisor::getInitPoseTH(){
 }
 void Supervisor::slam_setInit(){
     plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x,pmap->init_pose.point.y,pmap->init_pose.angle));
-    if(probot->ipc_use){
-        ipc->setInitPose(pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle);
-    }
+    ipc->setInitPose(pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle);
 }
 void Supervisor::slam_run(){
-    if(probot->ipc_use){
-        ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
-    }
+    ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
+
 }
 void Supervisor::slam_stop(){
-    if(probot->ipc_use){
-        ipc->set_cmd(ROBOT_CMD_SLAM_STOP, "LOCALIZATION STOP");
-    }
+    ipc->set_cmd(ROBOT_CMD_SLAM_STOP, "LOCALIZATION STOP");
 }
 void Supervisor::slam_autoInit(){
     plog->write("[LOCALIZATION] AUTO INIT : "+QString::number(pmap->map_rotate_angle));
@@ -1773,10 +1750,10 @@ void Supervisor::slam_restInit(){
     ipc->set_cmd(ROBOT_CMD_SLAM_RESTING, "LOCALIZATION REST INIT");
 }
 void Supervisor::slam_fullautoInit(){
-    if(probot->ipc_use){
-        plog->write("[LOCALIZATION] FULL AUTO INIT : "+QString::number(pmap->map_rotate_angle));
-        ipc->set_cmd(ROBOT_CMD_SLAM_FULL_AUTO, "LOCALIZATION FULL AUTO INIT");
-    }
+
+    plog->write("[LOCALIZATION] FULL AUTO INIT : "+QString::number(pmap->map_rotate_angle));
+    ipc->set_cmd(ROBOT_CMD_SLAM_FULL_AUTO, "LOCALIZATION FULL AUTO INIT");
+
 }
 bool Supervisor::is_slam_running(){
     if(probot->localization_state == LOCAL_READY){
@@ -1786,9 +1763,8 @@ bool Supervisor::is_slam_running(){
     }
 }
 bool Supervisor::getMappingflag(){
-    if(probot->ipc_use){
-        return ipc->flag_mapping;
-    }
+    return ipc->flag_mapping;
+
 }
 
 void Supervisor::play_voice(ST_VOICE voice){
@@ -1804,8 +1780,9 @@ void Supervisor::play_voice(ST_VOICE voice){
 
 void Supervisor::makePatrolTTS(int language, int voice, QString text, bool play){
     ST_VOICE temp;
+    temp.mode = "tts";
     temp.language = tts->getVoiceLanguage(language);
-    temp.voice = tts->getVoiceName(language, voice);
+    temp.voice = tts->getVoiceName("tts",language, voice);
     current_patrol.voice_mention = text;
     temp.mention = text;
     temp.file = "patrol";
@@ -2138,29 +2115,29 @@ void Supervisor::updateUSB(){
 }
 
 void Supervisor::makeExtProcessShell(){
-    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/startextproc.sh";
-    QFile file(file_name);
-    if(file.open(QIODevice::ReadWrite)){
-        QTextStream stream(&file);
-        stream << "#!/bin/bash" << "\n" << "\n";
-        stream << "while [ 1 ]"<<"\n";
-        stream << "do"<<"\n";
-        stream << "     pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "     if [ -z $pid ]" << "\n";
-        stream << "     then" << "\n";
-        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
-        stream << "     else" << "\n";
-        stream << "         kill -9 $pid" << "\n";
-        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
-        stream << "     fi" << "\n";
-        stream << "done" << "\n";
-    }
-    file.close();
-    //Chmod
-    QProcess process;
-    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x startextproc.sh",QStringList(),QProcess::ReadWrite);
-    process.waitForReadyRead(200);
+//    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/startextproc.sh";
+//    QFile file(file_name);
+//    if(file.open(QIODevice::ReadWrite)){
+//        QTextStream stream(&file);
+//        stream << "#!/bin/bash" << "\n" << "\n";
+//        stream << "while [ 1 ]"<<"\n";
+//        stream << "do"<<"\n";
+//        stream << "     pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+//        stream << "     if [ -z $pid ]" << "\n";
+//        stream << "     then" << "\n";
+//        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
+//        stream << "     else" << "\n";
+//        stream << "         kill -9 $pid" << "\n";
+//        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
+//        stream << "     fi" << "\n";
+//        stream << "done" << "\n";
+//    }
+//    file.close();
+//    //Chmod
+//    QProcess process;
+//    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
+//    process.start("chmod +x startextproc.sh",QStringList(),QProcess::ReadWrite);
+//    process.waitForReadyRead(200);
 
 }
 void Supervisor::makeUSBShell(){
@@ -2296,16 +2273,22 @@ bool Supervisor::isDuplicateName(int group, QString name){
 }
 QString Supervisor::getServingName(int group, int num){
     int count = 0;
+    QString name = "";
     for(int i=0; i<pmap->locations.size(); i++){
         if(pmap->locations[i].type == "Serving"){
             if(pmap->locations[i].group == group){
                 if(count == num)
-                    return pmap->locations[i].name;
+                    name = pmap->locations[i].name;
+//                    return pmap->locations[i].name;
                 count++;
             }
         }
     }
-    return tr("설정 안됨");
+    qDebug() << "getServingName " << group << num << name << pmap->locations.size();
+    if(name == ""){
+        name = tr("설정 안됨");
+    }
+    return name;
 }
 int Supervisor::getLocationNum(QString type){
     if(type==""){
@@ -2322,6 +2305,7 @@ int Supervisor::getLocationNum(QString type){
         return count;
     }
 }
+
 int Supervisor::getLocationGroupNum(int num){
     int count = 0;
     for(int i=0; i<pmap->locations.size(); i++){
@@ -2337,6 +2321,7 @@ int Supervisor::getLocationGroupNum(int num){
     }
     return 0;
 }
+
 QString Supervisor::getLocationCallID(int num){
     if(num>-1 && num < pmap->locations.size()){
         return pmap->locations[num].call_id;
@@ -2350,6 +2335,7 @@ void Supervisor::setLocationGroup(int num, int group){
         plog->write("[ANNOTATION] SET Location Group "+QString().asprintf("%d : %d",num,group));
     }
 }
+
 QString Supervisor::getLocationGroup(int num){
     int count = 0;
     for(int i=0; i<pmap->locations.size(); i++){
@@ -2364,7 +2350,6 @@ QString Supervisor::getLocationGroup(int num){
         }
     }
     return "(  )";
-
 }
 
 void Supervisor::addLocationGroup(QString name){
@@ -2924,7 +2909,7 @@ void Supervisor::saveTTSVoice(){
 void Supervisor::clearTTSVoice(int lan, int name){
     QDir path = QDir::homePath()+"/RB_MOBILE/voice";
     QStringList files = path.entryList();
-    QString voice = tts->getVoiceName(lan,name);
+    QString voice = tts->getVoiceName("tts",lan,name);
     plog->write("[SOUND] clearTTSVoice : "+QString::number(lan)+","+QString::number(name)+" -> "+voice);
     for(QString file : files){
         if(file.split("_")[0] == voice){
@@ -2946,8 +2931,8 @@ void Supervisor::setTTSMentionBasic(){
     tts->setMentionBasic(tts->curVoice.language);
 }
 void Supervisor::setTTSVoice(int lan, int name){
-    plog->write("[SETTING] setTTSVoice : "+tts->getVoiceLanguage(lan)+"("+tts->getVoiceName(lan,name)+")");
-    tts->setVoice(tts->getVoiceName(lan,name),tts->getVoiceLanguage(lan));
+    plog->write("[SETTING] setTTSVoice : "+tts->getVoiceLanguage(lan)+"("+tts->getVoiceName("tts",lan,name)+")");
+    tts->setVoice(tts->getVoiceName("tts",lan,name),tts->getVoiceLanguage(lan));
     saveTTSVoice();
 }
 void Supervisor::setTTSVoiceDetail(int speed, int pitch, int alpha, int emotion, int emostren){
@@ -3020,6 +3005,7 @@ void Supervisor::setPreset(int preset){
     probot->cur_preset = preset;
     setSetting("update","DRIVING/cur_preset",QString::number(preset));
 }
+
 void Supervisor::confirmPickup(){
     if(ui_state == UI_STATE_PICKUP){
         if(pmap->call_queue.size() > 0){
@@ -3167,36 +3153,38 @@ int Supervisor::getMotorStatus(int id){
     return probot->motor[id].status;
 }
 QString Supervisor::getMotorStatusStr(int id){
-    if(probot->motor[id].status == 0){
-        return " ";
+    QString str = "";
+    if(probot->motor[id].connection == 0){
+        str = "CON";
     }else{
-        QString str = "";
+        if(probot->motor[id].status == 0){
+            str += "POW";
+        }
         if(MOTOR_RUN(probot->motor[id].status) == 1)
-            str += "RUN";
+            str += " - ";
 
         if(MOTOR_MOD_ERROR(probot->motor[id].status) == 1)
-            str += " MOD";
+            str += "M";
 
         if(MOTOR_JAM_ERROR(probot->motor[id].status) == 1)
-            str += " JAM";
+            str += " J";
 
         if(MOTOR_CUR_ERROR(probot->motor[id].status) == 1)
-            str += " CUR";
+            str += " CR";
 
         if(MOTOR_BIG_ERROR(probot->motor[id].status) == 1)
-            str += " BIG";
+            str += " B";
 
         if(MOTOR_INP_ERROR(probot->motor[id].status) == 1)
-            str += " INP";
+            str += " I";
 
         if(MOTOR_PS_ERROR(probot->motor[id].status) == 1)
-            str += " PS";
+            str += " P";
 
         if(MOTOR_COL_ERROR(probot->motor[id].status) == 1)
-            str += " COL";
-
-        return str;
+            str += " CL";
     }
+    return str;
 }
 int Supervisor::getMotorTemperature(int id){
     return probot->motor[id].temperature;
@@ -3456,11 +3444,11 @@ void Supervisor::checkShellFiles(){//need check
         makeStartShell();
     }
 
-    file_path = QDir::homePath() + "/RB_MOBILE/sh/startextproc.sh";
-    if(!QFile::exists(file_path)){
-        plog->write("[SUPERVISOR] startextproc.sh not found. make new");
-        makeExtProcessShell();
-    }
+//    file_path = QDir::homePath() + "/RB_MOBILE/sh/startextproc.sh";
+//    if(!QFile::exists(file_path)){
+//        plog->write("[SUPERVISOR] startextproc.sh not found. make new");
+//        makeExtProcessShell();
+//    }
 
     //kill_slam.sh
     file_path = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
@@ -3602,13 +3590,13 @@ void Supervisor::makeAllKillShell(){//need check
         stream << "     kill -9 $pid" << "\n";
         stream << "fi" << "\n";
 
-        stream << "pid=`ps -ef | grep \"startextproc.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"startextproc.sh is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
+//        stream << "pid=`ps -ef | grep \"startextproc.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+//        stream << "if [ -z $pid ]" << "\n";
+//        stream << "then" << "\n";
+//        stream << "     echo \"startextproc.sh is not running\"" << "\n";
+//        stream << "else" << "\n";
+//        stream << "     kill -9 $pid" << "\n";
+//        stream << "fi" << "\n";
 
 
         stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
@@ -3762,8 +3750,6 @@ void Supervisor::onTimer(){
             plog->write("[STATE] Resting : State Failed "+QString().asprintf("(Motor1: %d, Motor2: %d) -> Kill Slam",probot->motor[0].status,probot->motor[1].status));
             killSLAM();
         }else if(probot->status_emo == 1){
-            qDebug() <<"EMOOOOOOOOOOOOO";
-
         }else if(pmap->call_queue.size() > 0){
             plog->write("[STATE] Resting : Calling Detected "+QString::number(pmap->call_queue.size())+" -> Moving");
             stateMoving();
@@ -3783,7 +3769,6 @@ void Supervisor::onTimer(){
             plog->write("[STATE] Charging : Charge Connect = 0 -> None");
             stateInit();
         }
-
         if(curPage != "page_charge" && !debug_mode){
             plog->write("[STATE] Charging -> UI Charging");
             QMetaObject::invokeMethod(mMain, "docharge");
@@ -4109,7 +4094,7 @@ void Supervisor::onTimer(){
                 }
             }else if(probot->running_state == ROBOT_MOVING_NOT_READY){
                 plog->write("[STATE] Moving : Running state not ready -> Movefail");
-                QMetaObject::invokeMethod(mMain, "movefailnopath");
+                QMetaObject::invokeMethod(mMain, "movefail");
                 ui_state = UI_STATE_MOVEFAIL;
             }else{
                 if(!flag_movewait){
@@ -4227,7 +4212,7 @@ void Supervisor::onTimer(){
         break;
     }
     case UI_STATE_MOVEFAIL:{
-        if(isRobotReady()){
+        if(isRobotReady(false)){
             plog->write("[STATE] Movefail : Wake Up Auto -> None");
             QMetaObject::invokeMethod(mMain, "movefail_wake");
             stateInit();
@@ -4267,6 +4252,13 @@ void Supervisor::onTimer(){
             if(!debug_mode){
                 stateInit();
             }
+        }
+    }
+    if(!debug_mode && (probot->motor[0].status>1 || probot->motor[1].status>1)){
+        if(ui_state == UI_STATE_NONE || ui_state == UI_STATE_INITAILIZING){
+        }else{
+            plog->write("[STATE] "+curUiState()+" : Motor State is "+QString::number(probot->motor[0].status)+","+QString::number(probot->motor[1].status)+" -> Init");
+            stateInit();
         }
     }
 
@@ -4491,11 +4483,13 @@ void Supervisor::process_accept(int cmd){//need check
 
 }
 
-bool Supervisor::isRobotReady(){
+bool Supervisor::isRobotReady(bool print){
     if(!debug_mode && getStateMoving() == READY && probot->localization_state == LOCAL_READY && (!probot->status_lock || (probot->motor[0].status == 1 && probot->motor[1].status == 1)) && probot->status_charge_connect == 0){
         return true;
     }else{
-        plog->write("[COMMAND] Robot not Ready : "+QString::asprintf("DState: %d, RState : %d, LState : %d, LockState: %d, MState1: %d, MState2: %d, CState: %d, UState: %d",debug_mode, getStateMoving(), probot->localization_state, probot->status_lock, probot->motor[0].status, probot->motor[1].status, probot->status_charge_connect, ui_state));
+        if(print){
+            plog->write("[COMMAND] Robot not Ready : "+QString::asprintf("DState: %d, RState : %d, LState : %d, LockState: %d, MState1: %d, MState2: %d, CState: %d, UState: %d",debug_mode, getStateMoving(), probot->localization_state, probot->status_lock, probot->motor[0].status, probot->motor[1].status, probot->status_charge_connect, ui_state));
+        }
         return false;
     }
 }
@@ -5503,7 +5497,7 @@ void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volum
         current_patrol.voice_path = "qrc:/"+current_patrol.voice_name+"_"+current_patrol.voice_file+".mp3";
     }else if(mode == "tts"){
         current_patrol.voice_file = "patrol";
-        current_patrol.voice_name = tts->getVoiceName(language,voice);
+        current_patrol.voice_name = tts->getVoiceName("tts",language,voice);
         current_patrol.voice_path = QDir::homePath() + "/RB_MOBILE/voice/"+current_patrol.voice_name+"_patrol.mp3";
     }
     qDebug() << "setPatrolVoice2 " << current_patrol.voice_mode << current_patrol.voice_language << current_patrol.voice_name << current_patrol.voice_volume;
@@ -5535,7 +5529,7 @@ int Supervisor::getTTSLanguageNum(){
 
 int Supervisor::getTTSNameNum(){
     for(int i=0; i<9; i++){
-        if(getSetting("setting","UI","voice_name") == tts->getVoiceName(getTTSLanguageNum(),i))
+        if(getSetting("setting","UI","voice_name") == tts->getVoiceName("tts",getTTSLanguageNum(),i))
             return i;
     }
 
