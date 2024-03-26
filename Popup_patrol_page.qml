@@ -664,10 +664,10 @@ Popup {
                                                 anchors.fill: parent
                                                 onClicked:{
                                                     if(loader_movepage.item.select_obj>-1){
-                                                        click_sound_no.play();
-                                                    }else{
                                                         click_sound.play();
                                                         popup_edit.open();
+                                                    }else{
+                                                        click_sound_no.play();
                                                     }
                                                 }
                                             }
@@ -686,10 +686,10 @@ Popup {
                                                 anchors.fill: parent
                                                 onClicked:{
                                                     if(loader_movepage.item.select_obj>-1){
-                                                        click_sound_no.play();
-                                                    }else{
                                                         click_sound.play();
                                                         popup_delete.open();
+                                                    }else{
+                                                        click_sound_no.play();
                                                     }
                                                 }
                                             }
