@@ -26,7 +26,6 @@ Item {
     onVideo_audioChanged: {
         print("video audio changed : ",video_audio)
         loader_background.item.init();
-
     }
 
     function pauseGif(){
@@ -283,6 +282,7 @@ Item {
                 loader_background.sourceComponent = compo_video;
                 loader_background.item.init();
                 video_audio = supervisor.getMovingPageVideoAudio();
+                print("background change , ",video_audio);
             }
         }else if(page == "serving"){
             if(background_mode === "none" || background_mode === "color"){
@@ -296,6 +296,7 @@ Item {
                 loader_background.sourceComponent = compo_video;
                 loader_background.item.init();
                 video_audio = supervisor.getServingPageVideoAudio();
+                print("background changes , ",video_audio);
             }
         }
 
@@ -411,6 +412,7 @@ Item {
             }
 
             function setVol(vol){
+                print("video set vol ",vol,video_audio)
                 if(video_audio == "video"){
                     video.volume = vol;
                 }else if(video_audio == "music1"){
