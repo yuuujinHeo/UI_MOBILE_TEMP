@@ -45,6 +45,7 @@ Item {
         annot_pages.sourceComponent = page_annot_start;
     }
     onSelect_locationChanged: {
+        print("select_location : ",select_location)
     }
 
     onSelect_objectChanged: {
@@ -231,9 +232,11 @@ Item {
     }
 
     function checkLocationName(){
+        print("checkLocationName");
         for(var i=0; i<details.count; i++){
             for(var j=i+1; j<details.count; j++){
-                if(details.get(i).group === details.get(i).group)
+                print("i,j : ",i,j,details.get(i).group,details.get(j).group);
+                if(details.get(i).group === details.get(j).group)
                     if(details.get(i).name === details.get(j).name){
                         details.get(i).nameerror = true;
                         details.get(j).nameerror = true;
@@ -1378,7 +1381,7 @@ Item {
                         locations.get(number-2).number = 0;
                     }
                 }
-                update();
+                page_annotation.update();
             }
 
             function setLocInit(){
@@ -1430,9 +1433,11 @@ Item {
                                             var refY = beforeY - list_location_detail.originY;
                                             var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
 
+                                            print(select_location)
                                             supervisor.setLocationUp(select_location);
                                             select_location--;
                                             readSetting();
+                                            print("up" ,select_location)
 
                                             list_location_detail.setting = true;
                                             list_location_detail.setContentY(realY);
@@ -5942,6 +5947,7 @@ Item {
         }
 
         function update(){
+            print("popup_add_serving update")
             model_loc_group.clear();
             if(supervisor.getLocationGroupNum() === 0){
                 model_loc_group.append({"name":"Default"});

@@ -2744,7 +2744,7 @@ Item {
                 //=============================== Init Check 3 : 맵 확인 ==============================//
                 var map_name = supervisor.getMapname();
                 //annotation과 map 존재여부 확인
-                if(supervisor.isExistAnnotation(map_name) && supervisor.isLoadMap()){
+                if(supervisor.isAvailableAnnotation() && supervisor.isLoadMap()){
                     //이미 설정확인된 맵이 존재한다면 다음으로 넘어감
                     supervisor.writelog("[INIT] Map Check : Success");
                     init_mode = 4;

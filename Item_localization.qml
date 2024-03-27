@@ -33,6 +33,7 @@ Item{
 
     Component.onCompleted: {
         popup_loading.close();
+        supervisor.resetLocalizationConfirm();
         if(auto_init){
             supervisor.writelog("[INIT] Localization : Auto Init")
             timer_check_localization.start();
