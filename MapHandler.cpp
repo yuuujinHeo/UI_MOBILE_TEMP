@@ -288,6 +288,10 @@ void MapHandler::setMode(QString name){
     tool = "move";
     plog->write("[MAP] Set Mode : "+name);
 
+    show_node = false;
+    show_edge = false;
+    show_name = false;
+    show_number = false;
 
     show_robot = false;
     show_lidar = false;

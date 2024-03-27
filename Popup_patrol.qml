@@ -58,7 +58,7 @@ Popup{
 
         model_patrols.clear();
         for(var i=0; i<supervisor.getLocationNum(""); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,""),"type":supervisor.getLocationType(i),"select":false});
+            model_patrols.append({"name":supervisor.getLocationName(i,""),"group":supervisor.getLocationNameGroup(i,""),"type":supervisor.getLocationType(i),"select":false});
         }
         select();
 
@@ -194,8 +194,11 @@ Popup{
             model_patrols.get(i).select = false;
             for(var j=0; j<supervisor.getPatrolLocationSize(num); j++){
                 if(supervisor.getPatrolLocation(num,j) === model_patrols.get(i).name){
-                    model_patrols.get(i).select = true;
-                    break;
+                    if(supervisor.getPatrolLocationGroup(num,j) === model_patrols.get(i).group){
+                        model_patrols.get(i).select = true;
+                        break;
+                    }
+
                 }
             }
         }
@@ -212,7 +215,7 @@ Popup{
 
         for(var i=0; i<model_patrols.count; i++){
             if(model_patrols.get(i).select){
-                supervisor.addPatrolLocation(model_patrols.get(i).name);
+                supervisor.addPatrolLocation(model_patrols.get(i).group, model_patrols.get(i).name);
             }
         }
 
