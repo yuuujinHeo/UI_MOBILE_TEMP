@@ -730,22 +730,22 @@ Window {
     SoundEffect{
         id: click_sound
         source: "bgm/click_start.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     SoundEffect{
         id: click_sound_no
         source: "bgm/click_error.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     SoundEffect{
         id: click_sound2
         source: "bgm/click2.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     SoundEffect{
         id: start_sound
         source: "bgm/click_start.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     Tool_KeyPad{
         id: keypad
@@ -753,6 +753,13 @@ Window {
 
     Tool_Keyboard{
         id: keyboard
+    }
+
+    function volume_reset(){
+        click_sound.volume = supervisor.getVolume(volume_button/100)
+        click_sound2.volume = supervisor.getVolume(volume_button/100)
+        click_sound_no.volume = supervisor.getVolume(volume_button/100)
+        start_sound.volume = supervisor.getVolume(volume_button/100)
     }
 
     function showNotice(){
