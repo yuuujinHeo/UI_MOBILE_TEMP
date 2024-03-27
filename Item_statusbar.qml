@@ -89,7 +89,7 @@ Item {
             font.pixelSize: 30
             text: qsTr("디버그모드")
             color: "white"
-            visible: debug_mode
+            visible:false// debug_mode
             font.bold: true
             MouseArea{
                 anchors.fill: parent

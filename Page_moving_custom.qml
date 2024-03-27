@@ -25,9 +25,8 @@ Item {
     }
     onVideo_audioChanged: {
         print("video audio changed : ",video_audio)
-        if(background_mode === "video"){
-            loader_background.item.init();
-        }
+        loader_background.item.init();
+
     }
 
     function pauseGif(){
@@ -86,7 +85,7 @@ Item {
 
         }else if(background_mode === "video"){
             supervisor.setMovingPageVideoAudio(video_audio);
-            supervisor.setMovingPageAudio(volume);
+//            supervisor.setMovingPageAudio(volume);
         }
     }
 
@@ -402,6 +401,7 @@ Item {
                         supervisor.playBGM(supervisor.getServingPageAudio()*100);
                     }
                 }else{
+                    supervisor.stopBGM();
                     if(page == "moving"){
                         video.volume = supervisor.getMovingPageAudio();
                     }else if(page == "serving"){
@@ -484,24 +484,24 @@ Item {
         }
     }
 
-    Timer{
-        id: test_timer
-        interval: 1000
-        running: true
-        repeat: true
-        property int nn: 0
-        onTriggered:{
-            if(loader_background.item.objectName == "compo_video"){
-                if(nn === 0){
-                    loader_background.item.pause();
-                    nn++;
-                }else{
-                    loader_background.item.resume();
-                    nn = 0;
-                }
-            }
-        }
-    }
+//    Timer{
+//        id: test_timer
+//        interval: 1000
+//        running: true
+//        repeat: true
+//        property int nn: 0
+//        onTriggered:{
+//            if(loader_background.item.objectName == "compo_video"){
+//                if(nn === 0){
+//                    loader_background.item.pause();
+//                    nn++;
+//                }else{
+//                    loader_background.item.resume();
+//                    nn = 0;
+//                }
+//            }
+//        }
+//    }
 
     Rectangle{
         id: rect_frame

@@ -141,7 +141,7 @@ public:
     Q_INVOKABLE int getPatrolVoiceNameNum(int num);
     Q_INVOKABLE QString getPatrolName(int num);
     Q_INVOKABLE QString getPatrolType(int num);
-    Q_INVOKABLE QString getPatrolLocation(int num);
+//    Q_INVOKABLE QString getPatrolLocationGroup(int num);
     Q_INVOKABLE QString getPatrolMovingPage(int num);
     Q_INVOKABLE QString getPatrolArrivePage(int num);
     Q_INVOKABLE int getPatrolWaitTime(int num);
@@ -157,10 +157,12 @@ public:
 
     Q_INVOKABLE void setCurrentPatrol(int num);
     Q_INVOKABLE int getPatrolLocationSize(int num);
+    Q_INVOKABLE QString getPatrolLocation(int num);
     Q_INVOKABLE QString getPatrolLocation(int num, int loc);
+    Q_INVOKABLE QString getPatrolLocationGroup(int num, int loc);
 
     Q_INVOKABLE void clearPatrolLocation(QString mode);
-    Q_INVOKABLE void addPatrolLocation(QString name);
+    Q_INVOKABLE void addPatrolLocation(QString group, QString name);
     Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void savePatrolVoiceBasic(QString voice, QString text);
@@ -343,6 +345,7 @@ public:
 
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();
+    Q_INVOKABLE void confirmLocalizationAnnot();
     Q_INVOKABLE void setName(QString name){maph->setName(name);}
     Q_INVOKABLE void setTool(QString name){maph->setTool(name);}
     Q_INVOKABLE QString getTool(){return maph->getTool();}
@@ -626,6 +629,7 @@ public:
     Q_INVOKABLE bool isCallingMode(){return probot->is_calling;}
     Q_INVOKABLE void startServing(int group, int table);
     Q_INVOKABLE LOCATION getLocation(int group, QString name);
+    Q_INVOKABLE LOCATION getLocation(QString group, QString name);
     Q_INVOKABLE LOCATION getLocation(QString name);
 
     Q_INVOKABLE void setUiState(int state){
@@ -637,6 +641,7 @@ public:
     Q_INVOKABLE void stateInit();
     Q_INVOKABLE void stateMoving();
     Q_INVOKABLE void resetLocalization();
+    Q_INVOKABLE void resetLocalizationConfirm();
     ////*********************************************  LOG 관련   ***************************************************////
     QStringList curLog;
     QString log_folder = "ui_log";
@@ -681,6 +686,7 @@ public:
     Q_INVOKABLE bool isExistObjectMap(QString name="");
     Q_INVOKABLE bool isExistTravelMap(QString name);
     Q_INVOKABLE bool isExistAnnotation(QString name);
+    Q_INVOKABLE bool isAvailableAnnotation();
     Q_INVOKABLE bool isExistRobotINI();
 
     Q_INVOKABLE int getAvailableMap();
@@ -763,6 +769,7 @@ public:
 //    Q_INVOKABLE int getLocation
     Q_INVOKABLE int getLocationNum(QString type="");
     Q_INVOKABLE QString getLocationName(int num, QString type="");
+    Q_INVOKABLE QString getLocationNameGroup(int num, QString type="");
     Q_INVOKABLE QString getLocationType(int num);
     Q_INVOKABLE int getLocationNumber(int group, int num);
     Q_INVOKABLE void setLocationNumber(QString name, int num);
