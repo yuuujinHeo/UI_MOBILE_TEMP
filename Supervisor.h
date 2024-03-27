@@ -312,7 +312,7 @@ public:
     Q_INVOKABLE int getServingObjectNum(int x, int y);
 
 
-    void initCurrentPatrol();
+    Q_INVOKABLE void initCurrentPatrol();
     Q_INVOKABLE int getPatrolObjectSize();
     Q_INVOKABLE QString getPageObjectType(int num);
     Q_INVOKABLE QString getPageObjectSource(int num);
@@ -937,6 +937,7 @@ public:
 
     Q_INVOKABLE float getICPRatio();
     Q_INVOKABLE float getICPError();
+
 
     Q_INVOKABLE void clearFlagStop();
     Q_INVOKABLE void slam_fullautoInit();

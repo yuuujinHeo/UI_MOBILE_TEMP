@@ -5935,16 +5935,8 @@ Item {
         }
         onClosed:{
             map_location.setEnable(false);
-//            map_location_view.setEnable(true);
         }
 
-        Timer{
-            running: true
-            interval: 500
-            onTriggered:{
-//                        map_location.setfullscreen();
-            }
-        }
 
         function update(){
             print("popup_add_serving update")
@@ -6020,6 +6012,7 @@ Item {
                             color: "transparent"
                             width: parent.width - 600
                             height: 500
+
                             Column{
                                 spacing: 70
                                 anchors.verticalCenter: parent.verticalCenter
@@ -6094,10 +6087,15 @@ Item {
                                         font.family: font_noto_r.name
                                     }
                                     Flickable{
-                                        width: 460
+                                        width: 500
                                         height:100
                                         clip: true
                                         contentWidth: row_group.width
+                                        Rectangle{
+                                            anchors.fill: parent
+                                            color: color_dark_navy
+                                        }
+
                                         Row{
                                             id: row_group
                                             spacing: 20

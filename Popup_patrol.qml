@@ -458,6 +458,7 @@ Popup{
                                             onClicked:{
                                                 select_preset = -1;
                                                 click_sound.play();
+                                                supervisor.initCurrentPatrol();
                                                 show_menu = true;
                                             }
                                         }
@@ -1089,9 +1090,56 @@ Popup{
                                         visible: combo_voice_mode.currentIndex === 1
                                         ComboBox{
                                             id: combo_voice_mention
-                                            width: 300
+                                            width: 240
                                             height: 50
                                             model:ListModel{id: model_voice_mention}
+                                        }
+                                        Rectangle{
+                                            width: 50
+                                            height: 40
+                                            radius: 40
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            Image{
+                                                anchors.centerIn: parent
+                                                source: "icon/icon_test_play.png"
+                                                width: 40
+                                                height: 40
+                                                sourceSize.width: width
+                                                sourceSize.height: height
+                                            }
+                                            MouseArea{
+                                                anchors.fill: parent
+                                                onClicked:{
+                                                    var mention = combo_voice_mention.currentIndex;
+                                                    var file;
+                                                    if(mention == 0){
+                                                        file = "thanks";
+                                                    }else if(mention == 1){
+                                                        file = "hello";
+                                                    }else if(mention == 2){
+                                                        file = "funny_working_hard";
+                                                    }else if(mention == 3){
+                                                        file = "hello_rb";
+                                                    }else if(mention == 4){
+                                                        file = "path_finding";
+                                                    }else if(mention == 5){
+                                                        file = "rb_fighting";
+                                                    }else if(mention == 6){
+                                                        file = "moving";
+                                                    }else if(mention == 7){
+                                                        file = "sorry";
+                                                    }else if(mention == 8){
+                                                        file = "move_next";
+                                                    }else if(mention == 9){
+                                                        file = "move_patrol";
+                                                    }else if(mention == 10){
+                                                        file = "wait_path";
+                                                    }else{
+                                                        file = "thank_enjoy";
+                                                    }
+                                                    supervisor.playVoice("","woman","basic");
+                                                }
+                                            }
                                         }
                                     }
                                     Row{
