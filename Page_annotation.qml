@@ -3922,6 +3922,48 @@ Item {
                     supervisor.checkTravelline();
                 }
             }
+            Timer{
+                id: timer_check
+                running: true
+                repeat: true
+                interval: 500
+                triggeredOnStart: true
+                onTriggered: {
+                    map.checkDrawing();
+                    if(map.is_drawing_undo)
+                        btn_undo.enabled = true;
+                    else
+                        btn_undo.enabled = false;
+
+                    if(map.is_drawing_redo)
+                        btn_redo.enabled = true;
+                    else
+                        btn_redo.enabled = false;
+
+                    if(map.getTFlag()){
+                        is_edited = true;
+                        btn_view.enabled = false;
+                        btn_draw.enabled = false;
+                        btn_tline_drawing.running = true;
+                    }else{
+                        if(btn_tline_drawing.running){
+                            btn_tline_drawing.running = false;
+//                            timer_check_tline.stop();
+                        }
+                        btn_view.enabled = true;
+                        btn_draw.enabled = true;
+                    }
+
+                    model_tline_error.clear();
+                    for(var i=0; i<supervisor.getTravellineIssue(); i++){
+                        model_tline_error.append({"group":supervisor.getTravellineIssueGroup(i),
+                                                     "name":supervisor.getTravellineIssueName(i),
+                                                     "is_far":supervisor.getTravellineIssueFar(i),
+                                                     "is_broken":supervisor.getTravellineIssueBroken(i)});
+                    }
+                }
+            }
+
             Row{
                 MAP_FULL2{
                     id: map
@@ -4581,6 +4623,7 @@ Item {
                                                     width: 120
                                                     height: 50
                                                     color: "transparent"
+                                                    visible: select_canvas !== 1
                                                     Row{
                                                         anchors.centerIn: parent
                                                         spacing: 10
@@ -6194,6 +6237,7 @@ Item {
         onOpened:{
             btn_cancel.text = qsTr("취소")
             btn_confirm.text = qsTr("확인")
+            btn_cancel2.visible = false;
             if(mode == "save"){
                 row_call_force.visible = false;
                 if(loc === "Charging"){
@@ -6289,6 +6333,7 @@ Item {
                 text_sub.text = qsTr("기존의 파일은 삭제됩니다")
                 btn_confirm.text = qsTr("저장")
                 btn_cancel.text = qsTr("종료")
+                btn_cancel2.visible = true;
             }else if(mode == "saveall"){
                 row_call_force.visible = false;
                 image_location.source = "icon/icon_save.png"
@@ -6412,6 +6457,15 @@ Item {
                     Row{
                         anchors.centerIn: parent
                         spacing: 15
+                        Buttons{
+                            id: btn_cancel2
+                            style: "normal"
+                            visible: false
+                            text: qsTr("취소")
+                            onClicked:{
+                                popup_location.close();
+                            }
+                        }
                         Buttons{
                             id: btn_cancel
                             style: "normal"
