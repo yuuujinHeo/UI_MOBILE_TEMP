@@ -10985,16 +10985,20 @@ Item {
                         onStateChanged: {
                             if(state === 0){//disconnected slamnav(NONE)
                                 color = color_icon_gray;
+                                state_robot.source = "image/robot_bad.png"
                                 image_localization.source = "icon/icon_location.png"
                             }else if(state === 1){//localization not ready, failed(ERROR)
                                 color = color_red;
                                 image_localization.source = "icon/icon_location.png"
+                                state_robot.source = "image/robot_bad.png"
                             }else if(state === 2){//localizating(WARNING)
                                 color = color_warning;
                                 image_localization.source = "icon/icon_location.png"
+                                state_robot.source = "image/robot_normal.png"
                             }else if(state === 3){//all good
                                 color = color_green;
                                 image_localization.source = "icon/icon_check.png"
+                                state_robot.source = "image/robot_good.png"
                             }
                         }
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -11038,7 +11042,7 @@ Item {
                         anchors.right: parent.right
                         anchors.rightMargin: 15
                         anchors.top: parent.top
-                        anchors.topMargin:70
+                        anchors.topMargin:65
                         Image{
                             id: image_network
                             anchors.centerIn: parent
@@ -11750,9 +11754,9 @@ Item {
 
 
             if(supervisor.getEthernetConnection() === 2){
-                if(supervisor.getIPCConnection() === 1){
+                if(supervisor.getIPCConnection()){
                     if(supervisor.getWifiConnection() === 2){
-                        if(supervisor.getIneternetConnection() === 2){
+                        if(supervisor.getInternetConnection() === 2){
                             state_network.state = 4;
                         }else{
                             state_network.state = 3;
