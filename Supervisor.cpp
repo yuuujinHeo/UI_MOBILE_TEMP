@@ -755,14 +755,15 @@ void Supervisor::map_reset(){
 
 void Supervisor::setSystemVolume(int volume){
     qDebug() << "setSystemVolume" << volume;
-#ifdef EXTPROC_TEST
-    checker->setSystemVolume(volume);
-#else
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
-    temp.params[0] = volume;
-    extproc->set_command(temp);
-#endif
+    setMasterVolume(volume);
+//#ifdef EXTPROC_TEST
+//    checker->setSystemVolume(volume);
+//#else
+//    ExtProcess::Command temp;
+//    temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
+//    temp.params[0] = volume;
+//    extproc->set_command(temp);
+//#endif
 }
 
 void Supervisor::requestSystemVolume(){
@@ -1785,7 +1786,7 @@ void Supervisor::play_voice(ST_VOICE voice){
     if(voice.volume == -1){
         voice.volume = getSetting("setting","UI","volume_voice").toInt();
     }
-    voice_player->setVolume(voice.volume);
+    voice_player->setVolume(getVolume(voice.volume));
     voice_player->play();
     plog->write("[SOUND] play_voice : "+voice.file_path + "(volume = "+QString::number(voice.volume)+")");
 }
@@ -1868,7 +1869,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
 
         voice_player->stop();
         voice_player->setMedia(QUrl("qrc:/voice/"+v.voice+"_"+file+".mp3"));
-        voice_player->setVolume(volume);
+        voice_player->setVolume(getVolume(volume));
         voice_player->play();
         plog->write("[SUPERVISOR] Play Voice (Basic) : "+v.voice + ", " + file);
     }else{
@@ -1890,7 +1891,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
         if(QFile::exists(filepath)){
             voice_player->stop();
             voice_player->setMedia(QUrl::fromLocalFile(filepath));
-            voice_player->setVolume(volume);
+            voice_player->setVolume(getVolume(volume));
             voice_player->play();
             plog->write("[SOUND] PlayVoiceTTS : "+filepath+", "+QString::number(volume));
         }else{
@@ -1968,11 +1969,11 @@ void Supervisor::playBGM(int volume){
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
     plog->write("[SOUND] playBGM : "+QString::number(volume));
-    bgm_player->setVolume(volume);
+    bgm_player->setVolume(getVolume(volume));
     bgm_player->play();
 }
 void Supervisor::setvolumeBGM(int volume){
-    bgm_player->setVolume(volume);
+    bgm_player->setVolume(getVolume(volume));
 }
 void Supervisor::stopBGM(){
     qDebug() << "stopBGM";
@@ -4148,7 +4149,7 @@ void Supervisor::onTimer(){
     case UI_STATE_CLEANING:{
         probot->call_moving_count = 0;
         if(getSetting("setting","USE_UI","use_calling_notice") != "true"){
-            if(getSetting("setting","ROBOT_TYPE","type") != "CLEANING")
+            if(probot->current_target.name != "Cleaning0")
                 ui_state = UI_STATE_INITAILIZING;
         }
         break;
@@ -4308,6 +4309,30 @@ void Supervisor::onTimer(){
     prev_charge_state = probot->status_charge_connect;
 }
 
+int Supervisor::getVolume(int volume){
+    float vol = (volume*probot->master_volume)/100.;
+    int voli = (int)vol;
+    return voli;
+}
+float Supervisor::getVolume(float volume){
+    float vol = volume*probot->master_volume/100.;
+    return vol;
+}
+int Supervisor::getMasterVolume(){
+    return probot->master_volume;
+}
+void Supervisor::setMasterVolume(int volume){
+    plog->write("[SETTING] Set Master Volume : "+QString::number(probot->master_volume)+" -> "+ QString::number(volume));
+    int prev_volume = probot->master_volume;
+    probot->master_volume = volume;
+    int prev_v = bgm_player->volume();
+
+    int pp = ((float)prev_v/prev_volume)*100;
+
+    qDebug() << prev_volume << volume << prev_v << pp;
+    setvolumeBGM(pp);
+    QMetaObject::invokeMethod(mMain,"volume_reset");
+}
 QString Supervisor::curUiState(){
     if(ui_state == UI_STATE_NONE){
         return "None";

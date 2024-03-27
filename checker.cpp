@@ -162,6 +162,34 @@ void Worker::getWifiInterface(){
     probot->wifi_list = wifiList;
     emit finished(this);
 }
+void Worker::pactlGet(){
+    process = new QProcess();
+    process->start("pactl",QStringList() << "list" << "sink-inputs");
+
+    if(!process->waitForFinished()){
+        emit finished(this);
+        return;
+    }
+
+    QByteArray result = process->readAllStandardOutput();
+    QList<QByteArray> lines = result.split('\n');
+
+    QString number;
+    int temp_volume = 50;
+    for(QByteArray line : lines){
+        if(line.contains("Sink Input")){
+            number = line.split('#')[1];
+        }else if(line.contains("application.name")){
+
+        }
+    }
+    emit finished(this);
+
+}
+void Worker::pactlSet(){
+
+}
+
 void Worker::getSystemVolume(){
     process = new QProcess();
     process->start("amixer",QStringList() << "-D" << "pulse" << "sget" << "Master");
@@ -189,7 +217,7 @@ void Worker::setSystemVolume(){
         QString volume = argument[0];
         process = new QProcess();
         if(volume == "0"){
-            process->start("amixer",QStringList() << "-D" << "pulse" << "sset" << "Master" << volume+"%");
+            process->start("amixer",QStringList() << "-D" << "pulse" << "sset" << "Master" << volume+"%" << "mute");
         }else{
             process->start("amixer",QStringList() << "-D" << "pulse" << "sset" << "Master" << volume+"%" << "unmute");
         }

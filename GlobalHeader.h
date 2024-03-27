@@ -250,6 +250,8 @@ typedef struct{
     int con_internet2 = NET_DISCON;
     int wifi_connection = 0;
 
+    int master_volume = 50;
+
 #ifdef EXTPROC_TEST
 #else
     QString wifi_ssid = "";

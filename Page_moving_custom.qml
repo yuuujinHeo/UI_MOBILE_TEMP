@@ -404,9 +404,9 @@ Item {
                 }else{
                     supervisor.stopBGM();
                     if(page == "moving"){
-                        video.volume = supervisor.getMovingPageAudio();
+                        video.volume = supervisor.getVolume(supervisor.getMovingPageAudio());
                     }else if(page == "serving"){
-                        video.volume = supervisor.getServingPageAudio();
+                        video.volume = supervisor.getVolume(supervisor.getServingPageAudio());
                     }
                 }
             }
@@ -414,7 +414,7 @@ Item {
             function setVol(vol){
                 print("video set vol ",vol,video_audio)
                 if(video_audio == "video"){
-                    video.volume = vol;
+                    video.volume = supervisor.getVolume(vol);
                 }else if(video_audio == "music1"){
                     supervisor.setvolumeBGM(vol*100);
                 }
@@ -432,7 +432,7 @@ Item {
                 anchors.fill: parent
                 fillMode: VideoOutput.Stretch
                 source: background_source
-                volume: 0.5
+                volume: supervisor.getVolume(0.5)
                 flushMode: VideoOutput.FirstFrame
                 autoPlay: true
                 loops:MediaPlayer.Infinite

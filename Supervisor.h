@@ -99,6 +99,9 @@ public:
     Q_INVOKABLE QString getWifiSSID(int num);
     Q_INVOKABLE void connectWifi(QString ssid, QString passwd);
 
+    Q_INVOKABLE int getMasterVolume();
+    Q_INVOKABLE void setMasterVolume(int volume);
+
     Q_INVOKABLE bool getWifiSecurity(QString ssid);
     Q_INVOKABLE int getWifiLevel(QString ssid);
     Q_INVOKABLE int getWifiLevel();
@@ -123,7 +126,13 @@ public:
     Q_INVOKABLE QString getcurIPMethod();
     Q_INVOKABLE void readWifiState(QString ssid);
 
-    Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
+    Q_INVOKABLE int getVolume(int volume);
+    Q_INVOKABLE float getVolume(float volume);
+    Q_INVOKABLE int getSystemVolume(){
+        return probot->master_volume;
+//        return probot->volume_system;
+    }
+//    Q_INVOKABLE void setBGM
     Q_INVOKABLE void passInit();
     Q_INVOKABLE bool isDebugMode(){return debug_mode;}
     QString curUiState();

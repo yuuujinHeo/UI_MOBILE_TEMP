@@ -2719,6 +2719,14 @@ Item {
                                     onValueChanged: {
                                         ischanged = true;
                                     }
+//                                    onPressedChanged: {
+//                                        if(pressed){
+
+//                                        }else{
+//                                            supervisor.setvolumeBGM(value);
+//                                        }
+//                                    }
+
                                     value: supervisor.getSetting("setting","UI","volume_bgm")
                                 }
 
@@ -2895,7 +2903,7 @@ Item {
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
-                                        click_sound.volume = value/100;
+                                        click_sound.volume = supervisor.getVolume(value/100);
                                         volume_button = value;
                                         print(value);
                                     }
@@ -2903,7 +2911,7 @@ Item {
                                         if(pressed){
 
                                         }else{
-                                            click_sound.volume = value/100;
+                                            click_sound.volume = supervisor.getVolume(value/100);
                                             click_sound.play();
                                         }
                                     }
@@ -3475,7 +3483,7 @@ Item {
                 Rectangle{
                     width: 1100
                     height: 40
-                    visible: is_admin
+                    visible: is_rainbow
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -3489,7 +3497,7 @@ Item {
                 Rectangle{
                     id: set_robot_radius
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -3552,7 +3560,7 @@ Item {
                 Rectangle{
                     id: set_robot_length
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -3615,7 +3623,7 @@ Item {
                 Rectangle{
                     id: set_wheelbase
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -3679,7 +3687,7 @@ Item {
                     id: set_wheelradius
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
