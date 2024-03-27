@@ -1137,7 +1137,7 @@ Popup{
                                                     }else{
                                                         file = "thank_enjoy";
                                                     }
-                                                    supervisor.playVoice("","woman","basic");
+                                                    supervisor.playVoice(file,"woman","basic","",slider_voice_volume.value);
                                                 }
                                             }
                                         }

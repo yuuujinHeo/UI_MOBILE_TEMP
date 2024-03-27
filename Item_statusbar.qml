@@ -132,6 +132,15 @@ Item {
             anchors.rightMargin: 15
             spacing: 5
             Image{
+                id: image_multi
+                visible: false
+                width: 46
+                height: 46
+                sourceSize.width: width
+                sourceSize.height: height
+                source: "icon/icon_multi.png"
+            }
+            Image{
                 id: image_server
                 visible: is_con_server
                 width: 46
@@ -725,6 +734,13 @@ Item {
                 image_volume.source = "qrc:/icon/icon_volume_1.png";
             }else if(supervisor.getSystemVolume() === 0){
                 image_volume.source = "qrc:/icon/icon_volume_0.png";
+            }
+
+            if(supervisor.getSetting("setting","USE_SLAM","use_multirobot") === "true"){
+                image_multi.visible = true;
+//                if(supervisor.get)
+            }else{
+                image_multi.visible = false;
             }
 
             if(supervisor.getPowerStatus() === 1){
