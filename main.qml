@@ -589,7 +589,7 @@ Window {
         focus: true
         property bool shift_hold: false
         Keys.onPressed: (event) => {
-            tt.key_event(event.key);
+            loader_page.item.key_event(event.key);
             if(event.key === Qt.Key_Shift){
                 shift_hold = true;
                 supervisor.pressShift();
