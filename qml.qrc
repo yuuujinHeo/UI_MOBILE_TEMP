@@ -335,5 +335,12 @@
         <file>icon/icon_emo.png</file>
         <file>icon/icon_fire.png</file>
         <file>icon/icon_no.png</file>
+        <file>icon/icon_multi_good.png</file>
+        <file>icon/icon_multi.png</file>
+        <file>icon/icon_power_3.png</file>
+        <file>icon/image_battery_1.png</file>
+        <file>icon/image_battery_2.png</file>
+        <file>icon/image_battery_3.png</file>
+        <file>icon/image_battery_4.png</file>
     </qresource>
 </RCC>
