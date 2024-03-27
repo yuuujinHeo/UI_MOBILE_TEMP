@@ -11750,7 +11750,7 @@ Item {
 
 
             if(supervisor.getEthernetConnection() === 2){
-                if(supervisor.getIPCConnection() === 1){
+                if(supervisor.getIPCConnection()){
                     if(supervisor.getWifiConnection() === 2){
                         if(supervisor.getIneternetConnection() === 2){
                             state_network.state = 4;
