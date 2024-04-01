@@ -188,5 +188,5 @@ DISTFILES += \
     quazip/QuaZipConfig.cmake.in \
     quazip/quazip.pc.cmakein
 
-INCLUDEPATH += . /usr/local/include
+INCLUDEPATH += . /usr/local/include/opencv4/
 LIBS += -L/usr/local/lib -lopencv_core
