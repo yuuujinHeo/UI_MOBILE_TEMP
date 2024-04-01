@@ -129,6 +129,7 @@ LIBS += -lpython3.10
 contains(QT_ARCH, x86_64){
     # OpenCV library all
     INCLUDEPATH += /usr/include/opencv4/
+    #INCLUDEPATH += /usr/opencv/include/opencv2/
     LIBS += -L/usr/lib/x86_64-linux-gnu/
     LIBS += -L/usr/lib/aarch64-linux-gnu/
     LIBS += -lopencv_core \
@@ -160,6 +161,7 @@ contains(QT_ARCH, x86_64){
 contains(QT_ARCH, arm64) {
     # OpenCV library all
     INCLUDEPATH += /usr/include/opencv4/
+    #INCLUDEPATH += /usr/opencv/opencv4/
     LIBS += -L/usr/lib/aarch64-linux-gnu/
     LIBS += -lopencv_core \
             -lopencv_highgui \
@@ -186,3 +188,5 @@ DISTFILES += \
     quazip/QuaZipConfig.cmake.in \
     quazip/quazip.pc.cmakein
 
+INCLUDEPATH += . /usr/local/include
+LIBS += -L/usr/local/lib -lopencv_core
