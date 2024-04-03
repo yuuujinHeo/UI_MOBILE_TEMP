@@ -2719,6 +2719,14 @@ Item {
                                     onValueChanged: {
                                         ischanged = true;
                                     }
+//                                    onPressedChanged: {
+//                                        if(pressed){
+
+//                                        }else{
+//                                            supervisor.setvolumeBGM(value);
+//                                        }
+//                                    }
+
                                     value: supervisor.getSetting("setting","UI","volume_bgm")
                                 }
 
@@ -2895,7 +2903,7 @@ Item {
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
-                                        click_sound.volume = value/100;
+                                        click_sound.volume = supervisor.getVolume(value/100);
                                         volume_button = value;
                                         print(value);
                                     }
@@ -2903,7 +2911,7 @@ Item {
                                         if(pressed){
 
                                         }else{
-                                            click_sound.volume = value/100;
+                                            click_sound.volume = supervisor.getVolume(value/100);
                                             click_sound.play();
                                         }
                                     }
@@ -3475,7 +3483,7 @@ Item {
                 Rectangle{
                     width: 1100
                     height: 40
-                    visible: is_admin
+                    visible: is_rainbow
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -3489,7 +3497,7 @@ Item {
                 Rectangle{
                     id: set_robot_radius
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -3552,7 +3560,7 @@ Item {
                 Rectangle{
                     id: set_robot_length
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -3615,7 +3623,7 @@ Item {
                 Rectangle{
                     id: set_wheelbase
                     width: 840
-                    visible: is_admin
+                    visible: is_rainbow
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -3679,7 +3687,7 @@ Item {
                     id: set_wheelradius
                     width: 840
                     height: 50
-                    visible: is_admin
+                    visible: is_rainbow
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10985,16 +10993,20 @@ Item {
                         onStateChanged: {
                             if(state === 0){//disconnected slamnav(NONE)
                                 color = color_icon_gray;
+                                state_robot.source = "image/robot_bad.png"
                                 image_localization.source = "icon/icon_location.png"
                             }else if(state === 1){//localization not ready, failed(ERROR)
                                 color = color_red;
                                 image_localization.source = "icon/icon_location.png"
+                                state_robot.source = "image/robot_bad.png"
                             }else if(state === 2){//localizating(WARNING)
                                 color = color_warning;
                                 image_localization.source = "icon/icon_location.png"
+                                state_robot.source = "image/robot_normal.png"
                             }else if(state === 3){//all good
                                 color = color_green;
                                 image_localization.source = "icon/icon_check.png"
+                                state_robot.source = "image/robot_good.png"
                             }
                         }
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -11038,7 +11050,7 @@ Item {
                         anchors.right: parent.right
                         anchors.rightMargin: 15
                         anchors.top: parent.top
-                        anchors.topMargin:70
+                        anchors.topMargin:65
                         Image{
                             id: image_network
                             anchors.centerIn: parent
@@ -11750,9 +11762,9 @@ Item {
 
 
             if(supervisor.getEthernetConnection() === 2){
-                if(supervisor.getIPCConnection() === 1){
+                if(supervisor.getIPCConnection()){
                     if(supervisor.getWifiConnection() === 2){
-                        if(supervisor.getIneternetConnection() === 2){
+                        if(supervisor.getInternetConnection() === 2){
                             state_network.state = 4;
                         }else{
                             state_network.state = 3;
@@ -11787,16 +11799,16 @@ Item {
                     }
 
                     //모터 상태 - 모터 1
-                    var state1 = supervisor.getMotorConnection(0);
+                    var motorcon1 = supervisor.getMotorConnection(0);
                     //모터 상태 - 모터 2
-                    var state2 = supervisor.getMotorConnection(1);
+                    var motorcon2 = supervisor.getMotorConnection(1);
 
-                    if(state1 && state2){
+                    if(motorcon1 && motorcon2){
                         var lstate = supervisor.getLockStatus();
                         if(supervisor.getChargeConnectStatus() !== 0){
                         }else if(lstate === 0){
                         }else{
-                            state1 = supervisor.getMotorStatus(0);
+                            var state1 = supervisor.getMotorStatus(0);
                             if(state1 === 0){
                             }else if(state1 === 1){
                             }else{
@@ -11831,7 +11843,7 @@ Item {
                                 }
                             }
 
-                            state2 = supervisor.getMotorStatus(1);
+                            var state2 = supervisor.getMotorStatus(1);
                             if(state2 === 0){
                             }else if(state2 === 1){
                             }else{
@@ -11883,7 +11895,7 @@ Item {
                         state_motor_1.state = 2;
                         state_motor_2.state = 2;
                     }else{
-                        if(state1 === 0){
+                        if(motorcon1 === 0){
                             state_motor_1.state = 3;
                         }else if(supervisor.getLockStatus() === 0){
                             state_motor_1.state = 5;
@@ -11897,7 +11909,7 @@ Item {
                             state_motor_1.state = 4;
                         }
 
-                        if(state2 === 0){
+                        if(motorcon2 === 0){
                             state_motor_2.state = 3;
                         }else if(supervisor.getLockStatus() === 0){
                             state_motor_2.state = 5;

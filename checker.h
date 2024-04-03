@@ -42,6 +42,8 @@ public slots:
     void setEthernet();
     void gitPull();
     void gitReset();
+    void pactlGet();
+    void pactlSet();
     void setProperties(bool isprint){
         is_print = isprint;
     }

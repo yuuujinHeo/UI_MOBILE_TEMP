@@ -858,13 +858,6 @@ Item {
                             onClicked:{
                                 //debug
                                 popup_patrol.open();
-//                                if(btn_patrol.active){
-//                                    click_sound.play();
-//                                    popup_patrol.open();
-//                                }else{
-//                                    click_sound_no.play();
-//                                    showNotice();
-//                                }
                             }
                         }
                     }
@@ -1246,7 +1239,7 @@ Item {
                     }
                 }else{
                     supervisor.writelog("[UI] PageKitchen : start Serving but not actived");
-                    showNotice();
+                    robotnotready();
                 }
             }
         }
@@ -1535,7 +1528,7 @@ Item {
                 popup_question.open();
             }else{
                 click_sound_no.play();
-                showNotice();
+                robotnotready();
             }
         }
         onMenu3_clicked: {
@@ -1546,7 +1539,7 @@ Item {
                 popup_question.open();
             }else{
                 click_sound_no.play();
-                showNotice();
+                robotnotready();
             }
         }
         onMenu4_clicked: {
@@ -1557,7 +1550,7 @@ Item {
                 popup_question.open();
             }else{
                 click_sound_no.play();
-                showNotice();
+                robotnotready();
             }
         }
     }

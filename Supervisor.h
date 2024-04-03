@@ -99,6 +99,9 @@ public:
     Q_INVOKABLE QString getWifiSSID(int num);
     Q_INVOKABLE void connectWifi(QString ssid, QString passwd);
 
+    Q_INVOKABLE int getMasterVolume();
+    Q_INVOKABLE void setMasterVolume(int volume);
+
     Q_INVOKABLE bool getWifiSecurity(QString ssid);
     Q_INVOKABLE int getWifiLevel(QString ssid);
     Q_INVOKABLE int getWifiLevel();
@@ -123,7 +126,13 @@ public:
     Q_INVOKABLE QString getcurIPMethod();
     Q_INVOKABLE void readWifiState(QString ssid);
 
-    Q_INVOKABLE int getSystemVolume(){return probot->volume_system;}
+    Q_INVOKABLE int getVolume(int volume);
+    Q_INVOKABLE float getVolume(float volume);
+    Q_INVOKABLE int getSystemVolume(){
+        return probot->master_volume;
+//        return probot->volume_system;
+    }
+//    Q_INVOKABLE void setBGM
     Q_INVOKABLE void passInit();
     Q_INVOKABLE bool isDebugMode(){return debug_mode;}
     QString curUiState();
@@ -141,7 +150,7 @@ public:
     Q_INVOKABLE int getPatrolVoiceNameNum(int num);
     Q_INVOKABLE QString getPatrolName(int num);
     Q_INVOKABLE QString getPatrolType(int num);
-    Q_INVOKABLE QString getPatrolLocation(int num);
+//    Q_INVOKABLE QString getPatrolLocationGroup(int num);
     Q_INVOKABLE QString getPatrolMovingPage(int num);
     Q_INVOKABLE QString getPatrolArrivePage(int num);
     Q_INVOKABLE int getPatrolWaitTime(int num);
@@ -157,10 +166,12 @@ public:
 
     Q_INVOKABLE void setCurrentPatrol(int num);
     Q_INVOKABLE int getPatrolLocationSize(int num);
+    Q_INVOKABLE QString getPatrolLocation(int num);
     Q_INVOKABLE QString getPatrolLocation(int num, int loc);
+    Q_INVOKABLE QString getPatrolLocationGroup(int num, int loc);
 
     Q_INVOKABLE void clearPatrolLocation(QString mode);
-    Q_INVOKABLE void addPatrolLocation(QString name);
+    Q_INVOKABLE void addPatrolLocation(QString group, QString name);
     Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void savePatrolVoiceBasic(QString voice, QString text);
@@ -310,7 +321,7 @@ public:
     Q_INVOKABLE int getServingObjectNum(int x, int y);
 
 
-    void initCurrentPatrol();
+    Q_INVOKABLE void initCurrentPatrol();
     Q_INVOKABLE int getPatrolObjectSize();
     Q_INVOKABLE QString getPageObjectType(int num);
     Q_INVOKABLE QString getPageObjectSource(int num);
@@ -343,6 +354,7 @@ public:
 
     //------------map variables--------------//
     Q_INVOKABLE void confirmLocalization();
+    Q_INVOKABLE void confirmLocalizationAnnot();
     Q_INVOKABLE void setName(QString name){maph->setName(name);}
     Q_INVOKABLE void setTool(QString name){maph->setTool(name);}
     Q_INVOKABLE QString getTool(){return maph->getTool();}
@@ -626,6 +638,7 @@ public:
     Q_INVOKABLE bool isCallingMode(){return probot->is_calling;}
     Q_INVOKABLE void startServing(int group, int table);
     Q_INVOKABLE LOCATION getLocation(int group, QString name);
+    Q_INVOKABLE LOCATION getLocation(QString group, QString name);
     Q_INVOKABLE LOCATION getLocation(QString name);
 
     Q_INVOKABLE void setUiState(int state){
@@ -637,6 +650,7 @@ public:
     Q_INVOKABLE void stateInit();
     Q_INVOKABLE void stateMoving();
     Q_INVOKABLE void resetLocalization();
+    Q_INVOKABLE void resetLocalizationConfirm();
     ////*********************************************  LOG 관련   ***************************************************////
     QStringList curLog;
     QString log_folder = "ui_log";
@@ -681,6 +695,7 @@ public:
     Q_INVOKABLE bool isExistObjectMap(QString name="");
     Q_INVOKABLE bool isExistTravelMap(QString name);
     Q_INVOKABLE bool isExistAnnotation(QString name);
+    Q_INVOKABLE bool isAvailableAnnotation();
     Q_INVOKABLE bool isExistRobotINI();
 
     Q_INVOKABLE int getAvailableMap();
@@ -763,6 +778,7 @@ public:
 //    Q_INVOKABLE int getLocation
     Q_INVOKABLE int getLocationNum(QString type="");
     Q_INVOKABLE QString getLocationName(int num, QString type="");
+    Q_INVOKABLE QString getLocationNameGroup(int num, QString type="");
     Q_INVOKABLE QString getLocationType(int num);
     Q_INVOKABLE int getLocationNumber(int group, int num);
     Q_INVOKABLE void setLocationNumber(QString name, int num);
@@ -846,11 +862,8 @@ public:
     Q_INVOKABLE void moveToWait();
     Q_INVOKABLE void moveToCleaning();
     Q_INVOKABLE QString getcurLoc();
-    Q_INVOKABLE QString getcurTable();
 
     Q_INVOKABLE void resetHomeFolders();
-
-    Q_INVOKABLE bool issetLocation(int number);
 
     Q_INVOKABLE int getObsState(){return probot->obs_state;}
     ////*********************************************  ROBOT STATUS 관련   ***************************************************////
@@ -858,6 +871,7 @@ public:
     Q_INVOKABLE int getMotorState();
     Q_INVOKABLE int getLocalizationState();
     Q_INVOKABLE int getStateMoving();
+    Q_INVOKABLE QString getStateMovingStr();
     Q_INVOKABLE int getErrcode();
     Q_INVOKABLE QString getRobotName();
 
@@ -930,6 +944,7 @@ public:
 
     Q_INVOKABLE float getICPRatio();
     Q_INVOKABLE float getICPError();
+
 
     Q_INVOKABLE void clearFlagStop();
     Q_INVOKABLE void slam_fullautoInit();

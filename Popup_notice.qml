@@ -67,7 +67,6 @@ Popup{
             text_sub.color = "white";
         }
 
-
         print("popup notice open : ",main_str);
         if(model_btn.count > 0){
             var already = false;

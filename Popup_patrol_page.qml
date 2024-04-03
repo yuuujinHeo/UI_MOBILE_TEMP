@@ -29,7 +29,7 @@ Popup {
     }
     onClosed:{
         loader_movepage.item.close();
-        loader_movepage.sourceComponent = nullptr;
+        loader_movepage.sourceComponent = "";
     }
 
     function init(){
@@ -595,8 +595,6 @@ Popup {
                                                     }
                                                 }
                                             }
-
-
                                         }
                                     }
                                 }
