@@ -1,7 +1,6 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-//import QtQuick.Dialogs
 import Qt.labs.platform 1.0
 import QtGraphicalEffects 1.0
 import "."
@@ -48,6 +47,7 @@ Window {
     property color color_mid_gray: "#e8e8e8"
     property color color_light_gray: "#F4F4F4"
     property color color_pink: "#ffd9ff"
+    property color color_light_navy: "#778095"
     property color color_navy: "#4f5666"
     property color color_dark_navy: "#323744"
     property color color_mid_navy: "#242535"
@@ -93,130 +93,186 @@ Window {
         loader_page.item.git_newest();
     }
 
+    //MoveFail 상태에서 회복됨
+    //Popup떠있는것 자동 닫고 이동중이었으면 movedone 처리
     function movefail_wake(){
+        popup_notice.close();
         if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_moving"){
             loader_page.item.movedone();
         }
     }
 
-    function movefailnopath(){
+    //Moving상태에서 위치설정했는데 저장된 location목록에 존재하지 않을 시
+    function nolocation(){
+        supervisor.writelog("[UI] No Location : "+supervisor.getcurLoc());
         supervisor.playVoice("error_no_path");
-        supervisor.writelog("[UI] Robot not running");
-        setNotice(0);
+        setNotice("no_path");
     }
 
     function setNotice(errnum){
+        supervisor.writelog("[UI] Set Notice : "+errnum+" (cur Page : "+loader_page.item.objectName+")")
         if(loader_page.item.objectName === "page_init" || loader_page.item.objectName === "page_mapping"){
 
         }else{
             supervisor.stopBGM();
-            popup_notice.init();
-            popup_notice.style = "warning";
-            if(errnum === 0){
-                popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
-                popup_notice.sub_str = "";
-                popup_notice.open();
-            }else if(errnum === 1){
-                popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
-                popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
-                popup_notice.addButton(qsTr("위치초기화"));
-                popup_notice.open();
-            }else if(errnum === 2){
-                popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
-                popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
-                popup_notice.open();
-            }else if(errnum === 3){
-                popup_notice.main_str = qsTr("경로가 취소되었습니다");
-                popup_notice.sub_str = "";
-                popup_notice.open();
-            }else if(errnum === 4){
-                popup_notice.style = "warning";
-                popup_notice.main_str = qsTr("로봇이 수동모드입니다");
-                popup_notice.sub_str = "";
-                popup_notice.closemode = false;
-                popup_notice.addButton(qsTr("모터초기화"))
-                popup_notice.open();
-            }else if(errnum === 5){
-                popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
-                popup_notice.sub_str = "";
-                popup_notice.open();
-            }else if(errnum === 6){
-                popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
-                popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
-                popup_notice.open();
-            }else if(errnum === 7){
-                popup_notice.style = "warning";
-                popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
-                popup_notice.sub_str = qsTr("");
-                popup_notice.open();
-            }else if(errnum === 8){
-                popup_notice.style = "warning";
-                popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
-                popup_notice.sub_str = qsTr("");
-                popup_notice.open();
-            }else if(errnum === 9){
-                popup_notice.style = "warning";
-                popup_notice.main_str = qsTr("모터초기화가 필요합니다");
-                popup_notice.sub_str = "";
-                popup_notice.closemode = false;
-                popup_notice.addButton(qsTr("모터초기화"))
-                popup_notice.open();
-            }
+            openNotice(errnum);
         }
-        print("move fail : ",errnum);
+    }
+
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }
+
+
     }
 
     function robotnotready(){
-//        if(supervisor.getEmoStatus()){
-//            supervisor.playVoice("error_emo");
-//            supervisor.writelog("[UI] Emergency Switch");
-//            setNotice(2);
-//        }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
-//            supervisor.playVoice("error_localization");
-//            supervisor.writelog("[UI] Localization not ready");
-//            setNotice(1);
-//        }else{
-//            supervisor.playVoice("sorry");
-//            supervisor.writelog("[UI] Robot not ready to move");
-//            setNotice(6);
-//        }
+        //240401 아래내용 전부 주석처리되어서 해제 + isRobotReady 걸리는 것들 모두 체크해서 표시 + 기존 showNotice를 대체
+        supervisor.playVoice("sorry");
+        if(supervisor.isDebugMode()){
+            supervisor.writelog("[UI] Robot not Ready : Debug Mode");
+            setNotice("debug");
+        }else if(supervisor.getChargeConnectStatus()){
+            supervisor.writelog("[UI] Robot not Ready : Charge Cable Connected");
+            setNotice("charging");
+        }else if(supervisor.getStateMoving() !== 2){
+            supervisor.writelog("[UI] Robot not Ready : Robot Moving State -> "+Number(supervisor.getStateMoving()));
+            setNotice("running");
+        }else if(supervisor.getEmoStatus()){
+            supervisor.writelog("[UI] Robot not Ready : Emergency Switch");
+            setNotice("emo");
+        }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
+            supervisor.writelog("[UI] Robot not Ready : Localization not ready");
+            setNotice("localization");
+        }else if(supervisor.getMotorStatus(0) !== 1 || supervisor.getMotorStatus(1) !== 1){
+            supervisor.writelog("[UI] Robot not Ready : Motor State -> "+supervisor.getMotorStatusStr(0)+", "+supervisor.getMotorStatusStr(1));
+            setNotice("motor");
+        }else{
+            supervisor.writelog("[UI] Robot not Ready : Unknown State");
+        }
     }
 
     function notfoundlocation(){
         supervisor.playVoice("sorry");
-        setNotice(7);
+        setNotice("no_location");
     }
 
     function notfoundpatrol(){
         supervisor.playVoice("sorry");
-        setNotice(8);
-
+        setNotice("no_patrol");
     }
 
+
+    //MoveFail -> Moving 중 lock이 걸린채로 MotorState not ready
+    //Move 명령 5번 연속 씹힘
+    //Moving 중 running state가 not ready
+    //Pickup 상태에서 lock 걸린채로 MotorState not ready
+    //MoveFail상태에서 localiazation, motor, charge state가 바뀌면서 에러발생
+    //need_init 함수에서 annotation 페이지인 경우 실행
     function movefail(){
         supervisor.stopBGM();
         if(supervisor.getIPCConnection() === false){
             supervisor.playVoice("sorry");
             supervisor.writelog("[UI] IPC Disconnected");
-            setNotice(5);
+            setNotice("ipc_discon");
         }else if(supervisor.getEmoStatus()){
             supervisor.playVoice("error_emo");
             supervisor.writelog("[UI] Emergency Switch");
-            setNotice(2);
+            setNotice("emo");
         }else if(supervisor.getLocalizationState() === 0 || supervisor.getLocalizationState() === 3){
             supervisor.playVoice("error_localization");
             supervisor.writelog("[UI] Localization not ready");
-            setNotice(1);
+            setNotice("localization");
         }else if(supervisor.getLockStatus() === 0){
             supervisor.writelog("[UI] Motor lock off");
-            setNotice(4);
+            setNotice("motor_lock");
         }else if(supervisor.getMotorState() === 0){
             supervisor.writelog("[UI] Motor not ready");
-            setNotice(9);
+            setNotice("motor_notready");
         }else if(supervisor.getStateMoving() === 0){
             supervisor.playVoice("error_no_path");
             supervisor.writelog("[UI] Robot not running");
-            setNotice(0);
+            setNotice("no_path");
         }
 
         if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_kitchen"){
@@ -229,20 +285,18 @@ Window {
 
     }
 
-    Component.onCompleted: {
-//        popup_patrol_page.page = "moving";
-//        popup_patrol_page.open();
-//        temp_popup_wifi.open();
-    }
-
-
     function checkwifidone(){
         if(loader_page.item.objectName == "page_init" || loader_page.item.objectName == "page_setting"){
             loader_page.item.wifistatein();
         }
     }
-    function movelocation(){
+
+
+    //Moving 상태에서 로봇이 Moving 시작했을 때
+    function movestart(){
         cur_location = supervisor.getcurLoc();
+
+        //패트롤 중일때 제외하고 각 위치에 맞는 보이스 출력
         if(cur_location == "Charging0"){
             cur_location = qsTr("충전 장소");
             if(!supervisor.isPatrolPage()){
@@ -260,7 +314,6 @@ Window {
             }
         }else{
             if(supervisor.isPatrolPage()){
-//                supervisor.playVoice("start_serving");
             }else{
                 if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                     supervisor.playVoice("move_calling");
@@ -270,69 +323,63 @@ Window {
             }
         }
 
+        //Annotation페이지의 경우 테스트 주행이므로 페이지 전환 없이 movestart 처리
+        //Custom 페이지 설정한경우 moving_custom 페이지로, 아니면 그냥 moving페이지로 전환
         if(loader_page.item.objectName == "page_annotation"){
-            supervisor.writelog("[UI] Annotation Check : Moving Start "+cur_location);
+            supervisor.writelog("[UI] Move Start : Annotation Move -> "+cur_location);
             loader_page.item.movestart();
         }else{
-            print(supervisor.isPatrolPage(), supervisor.getMovingPageMode())
             if(supervisor.isPatrolPage() && supervisor.getMovingPageMode() === "custom"){
-                print("loadpage custom");
-                if(loader_page.item.objectName !== "page_moving_custom"){
-                    loadPage(pmovingcustom)
-                    loader_page.item.setPage("moving");
-                }
+                supervisor.writelog("[UI] Move Start : Patrol Custom -> "+cur_location);
+                loadPage(pmovingcustom)
+                loader_page.item.setPage("moving");
                 loader_page.item.pos_name = cur_location;
             }else if(!supervisor.isPatrolPage() && supervisor.getSetting("setting","UI","moving_face") === "3"){
-                print("loadpage custom");
-                if(loader_page.item.objectName !== "page_moving_custom"){
-                    loadPage(pmovingcustom)
-                    loader_page.item.setPage("serving");
-                }
-
+                supervisor.writelog("[UI] Move Start : Moving Custom -> "+cur_location);
+                loadPage(pmovingcustom)
+                loader_page.item.setPage("serving");
                 loader_page.item.pos_name = cur_location;
             }else{
-                print("loadpage moving");
+                supervisor.writelog("[UI] Move Start : Moving -> "+cur_location);
                 loadPage(pmoving)
-                supervisor.writelog("[UI] Force Page Change Moving : "+cur_location);
                 loader_page.item.pos_name = cur_location;
             }
-
         }
     }
 
-    function docharge(){
+    //Charging 상태
+    function charging(){
         if(loader_page.item.objectName == "page_annotation"){
-            supervisor.writelog("[UI] Annotation Check : Moving Done (Charge) ");
+            supervisor.writelog("[UI] Charging : Annotation -> movedone");
             loader_page.item.movedone();
         }else{
             loadPage(pcharging)
-            supervisor.writelog("[UI] Force Page Change Charging");
+            supervisor.writelog("[UI] Charging");
         }
     }
-    function dochargeininit(){
-        loadPage(pcharging)
-        supervisor.writelog("[UI] Force Page Change Charging : Init State");
-        loader_page.item.setInit();
-    }
 
+    //moving 상태일때, 대기위치 move done하고 페이지 전환
+    //patrol은 표시 안함. annotation은 페이지 전환 안하고 movedone 처리
     function waitkitchen(){
         if(loader_page.item.objectName == "page_annotation"){
-            supervisor.writelog("[UI] Annotation Check : Moving Done (Resting) ");
+            supervisor.writelog("[UI] Wait Kitchen : Moving Done (Resting0) ");
             loader_page.item.movedone();
         }else{
             loadPage(pkitchen)
-            supervisor.writelog("[UI] Force Page Change Kitchen");
+            supervisor.writelog("[UI] Wait Kitchen");
         }
     }
 
+    //moving 상태일때, 퇴식위치 move done하고 페이지 전환
+    //patrol은 표시 안함. annotation은 페이지 전환 안하고 movedone 처리
     function clearkitchen(){
         if(loader_page.item.objectName == "page_annotation"){
-            supervisor.writelog("[UI] Annotation Check : Moving Done (Cleaning) ");
+            supervisor.writelog("[UI] Clear Kitchen : Moving Done (Cleaning0) ");
             loader_page.item.movedone();
         }else{
             loadPage(pkitchen)
             loader_page.item.cleaning();
-            supervisor.writelog("[UI] Force Page Cleaning Location");
+            supervisor.writelog("[UI] Clear Kitchen");
         }
     }
 
@@ -348,76 +395,56 @@ Window {
         }
     }
 
+    //moveStop 함수 호출되었을 때
     function movestopped(){
         if(loader_page.item.objectName == "page_annotation"){
-            supervisor.writelog("[UI] Annotation Check : Moving Done (Stopped) ");
+            supervisor.writelog("[UI] Move Stopped : Move Done");
+            loader_page.item.movedone();
         }else{
-            supervisor.writelog("[UI] Force Page Change Kitchen : move stopped");
+            supervisor.writelog("[UI] Move Stopped : Page Kitchen");
             loadPage(pkitchen);
         }
     }
 
+    //Pickup 상태에서 이상없을 때(Call강제귀환없음)
+    //패트롤중인경우 서빙위치에서 표시하기 체크된 경우에만 표시(시간지나면 자동넘김 됨)
     function showpickup(){
+        //Annotation에서는 테스트 주행이므로 페이지 전환 없이 movedone 처리
         if(loader_page.item.objectName == "page_annotation"){
-            supervisor.writelog("[UI] Annotation Check : Moving Done (Serving Pickup) ");
+            supervisor.writelog("[UI] Show Pickup : Annotation Test Move Done");
             loader_page.item.movedone();
         }else{
-
             if(supervisor.isPatrolPage()){
+                //패트롤 모드인경우 표시모드에 따라 페이지 전환
                 if(supervisor.getPatrolArriveMode() === "pickup"){
-                    supervisor.writelog("[UI] Force Page Change Pickup(Patrol) : "+ loader_page.item.pos_name);
+                    supervisor.writelog("[UI] Show Pickup : Patrol Pickup mode -> "+ loader_page.item.pos_name);
                     loadPage(ppickup);
-                    loader_page.item.init();
-                    loader_page.item.pos = "";
-                    loader_page.item.pickup_1 = true;
-                    loader_page.item.pickup_2 = true;
-                    loader_page.item.pickup_3 = true;
+                    loader_page.item.show_all();
                 }else if(supervisor.getPatrolArriveMode() === "calling"){
-                    supervisor.writelog("[UI] Force Page Change CallPickup(Patrol) : "+ loader_page.item.pos_name);
+                    supervisor.writelog("[UI] Show Pickup : Patrol Calling mode -> "+ loader_page.item.pos_name);
                     loadPage(ppickupCall);
-                    loader_page.item.init();
                 }
             }else{
+                //세팅정의된 표시모드에 따라 페이지 전환
+                //로봇이 퇴식전용이거나 호출모드로 움직인 경우 -> calling 페이지
+                //그 외 -> pickup 페이지
                 if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                    supervisor.writelog("[UI] Force Page Change Pickup(Calling) : "+ loader_page.item.pos_name);
+                    supervisor.writelog("[UI] Show Pickup : Calling mode -> "+ loader_page.item.pos_name);
                     loadPage(ppickupCall);
-                    loader_page.item.init();
                 }else{
-                    supervisor.writelog("[UI] Force Page Change Pickup : "+ loader_page.item.pos_name);
+                    supervisor.writelog("[UI] Show Pickup : Pickup mode -> "+ loader_page.item.pos_name);
                     loadPage(ppickup);
-                    loader_page.item.init();
-
-                    var trays = supervisor.getPickuptrays();
-                    if(trays.length === parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))){
-                        loader_page.item.pos = "";
-                        loader_page.item.pickup_1 = true;
-                        loader_page.item.pickup_2 = true;
-                        loader_page.item.pickup_3 = true;
-                    }else{
-                        var tempstr = "";
-                        for(var i=0; i<trays.length; i++){
-                            if(tempstr === ""){
-                                tempstr = Number(trays[i])+qsTr("번");
-                            }else{
-                                tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
-                            }
-                            if(trays[i] === 1){
-                                loader_page.item.pickup_1 = true;
-                            }else if(trays[i] === 2){
-                                loader_page.item.pickup_2 = true;
-                            }else if(trays[i] === 3){
-                                loader_page.item.pickup_3 = true;
-                            }
-                        }
-                        loader_page.item.pos = tempstr;
-                    }
+                    loader_page.item.set_tray();
                 }
             }
-
-
         }
     }
 
+    //None 상태에서 IPC 연결안되고 debug모드 아니면서 init페이지 아님
+    //Initalizing상태에서 localization은 좋지만 Motor가 not ready일때(lock on)
+    //Initalizing상태에서 localization confirm이 false일 때
+    //Charging상태에서 charging 케이블 연결해제됬을 때
+    //위 상태에서 init페이지면 실행 안함, annotation페이지면 1회만 실행 -> movefail
     function need_init(){
         if(!supervisor.isDebugMode()){
             if(loader_page.item.objectName != "page_annotation" && loader_page.item.objectName != "page_mapping"&& loader_page.item.objectName != "page_init"){
@@ -429,8 +456,10 @@ Window {
         }
     }
 
+    //로봇 연결이 끊어졌을 때
+    //무조건 Init Page로 이동
     function disconnected(){
-        supervisor.writelog("[UI] Force Page Change : Robot disconnected");
+        supervisor.writelog("[UI] Disconnected : Page Init");
         loadPage("");
         loadPage(pinit);
     }
@@ -440,7 +469,6 @@ Window {
     }
     function unzip_failed(){
         loader_page.item.update_unzip_failed();
-
     }
 
     function show_loading(){
@@ -536,8 +564,7 @@ Window {
     }
 
     function backPage(){
-        print("backpage start");
-        print(pbefore);
+        print("backpage start -> ",pbefore);
         loader_page.source = pbefore;
     }
 
@@ -589,7 +616,7 @@ Window {
         focus: true
         property bool shift_hold: false
         Keys.onPressed: (event) => {
-            tt.key_event(event.key);
+            loader_page.item.key_event(event.key);
             if(event.key === Qt.Key_Shift){
                 shift_hold = true;
                 supervisor.pressShift();
@@ -730,22 +757,22 @@ Window {
     SoundEffect{
         id: click_sound
         source: "bgm/click_start.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     SoundEffect{
         id: click_sound_no
         source: "bgm/click_error.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     SoundEffect{
         id: click_sound2
         source: "bgm/click2.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     SoundEffect{
         id: start_sound
         source: "bgm/click_start.wav"
-        volume: volume_button/100
+        volume: supervisor.getVolume(volume_button/100)
     }
     Tool_KeyPad{
         id: keypad
@@ -755,38 +782,11 @@ Window {
         id: keyboard
     }
 
-    function showNotice(){
-        popup_notice.init();
-        if(supervisor.getIPCConnection()){
-            if(supervisor.isDebugMode()){
-                popup_notice.main_str = qsTr("디버그 모드입니다")
-                popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
-            }else if(supervisor.getPowerStatus()){
-                if(supervisor.getEmoStatus()){
-                    popup_notice.main_str = qsTr("비상스위치가 눌려있습니다")
-                    popup_notice.sub_str = qsTr("비상스위치를 풀어주세요")
-                }else if(supervisor.getMotorState() === 0){
-                    popup_notice.main_str = qsTr("모터 락이 해제되었습니다.")
-                    popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요")
-                    popup_notice.addButton(qsTr("모터초기화"));
-                }else if(supervisor.getChargeConnectStatus() === 1){
-                    popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
-                    popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
-                }else{
-                    popup_notice.main_str = qsTr("위치를 찾을 수 없습니다")
-                    popup_notice.sub_str = qsTr("위치 초기화를 다시 해주세요")
-                    popup_notice.addButton(qsTr("위치초기화"));
-                }
-            }else{
-                popup_notice.main_str = qsTr("모터 전원이 꺼져있습니다")
-                popup_notice.sub_str = qsTr("로봇을 재부팅해주세요")
-            }
-        }else{
-            popup_notice.main_str = qsTr("로봇이 연결되지 않았습니다")
-            popup_notice.sub_str = qsTr("프로그램을 재시작 해주세요")
-            popup_notice.addButton(qsTr("재시작"));
-        }
-        popup_notice.open();
+    function volume_reset(){
+        click_sound.volume = supervisor.getVolume(volume_button/100)
+        click_sound2.volume = supervisor.getVolume(volume_button/100)
+        click_sound_no.volume = supervisor.getVolume(volume_button/100)
+        start_sound.volume = supervisor.getVolume(volume_button/100)
     }
 
     Popup_password{

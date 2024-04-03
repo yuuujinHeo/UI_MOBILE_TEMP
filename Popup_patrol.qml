@@ -58,7 +58,7 @@ Popup{
 
         model_patrols.clear();
         for(var i=0; i<supervisor.getLocationNum(""); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,""),"type":supervisor.getLocationType(i),"select":false});
+            model_patrols.append({"name":supervisor.getLocationName(i,""),"group":supervisor.getLocationNameGroup(i,""),"type":supervisor.getLocationType(i),"select":false});
         }
         select();
 
@@ -104,12 +104,15 @@ Popup{
         popup_patrol.mode = supervisor.getPatrolType(num);
 
         if(supervisor.getPatrolMovingPage(num) === "location"){
-            combo_movingpage.currentIndex = 1;
-        }else if(supervisor.getPatrolMovingPage(num) === "custom"){
             combo_movingpage.currentIndex = 2;
+        }else if(supervisor.getPatrolMovingPage(num) === "custom"){
+            combo_movingpage.currentIndex = 3;
+        }else if(supervisor.getPatrolMovingPage(num) === "face2"){
+            combo_movingpage.currentIndex = 1;
         }else{
             combo_movingpage.currentIndex = 0;
         }
+
         if(supervisor.getPatrolArrivePage(num) === "pickup"){
             combo_arrivepage.currentIndex = 1;
         }else if(supervisor.getPatrolArrivePage(num) === "calling"){
@@ -194,8 +197,11 @@ Popup{
             model_patrols.get(i).select = false;
             for(var j=0; j<supervisor.getPatrolLocationSize(num); j++){
                 if(supervisor.getPatrolLocation(num,j) === model_patrols.get(i).name){
-                    model_patrols.get(i).select = true;
-                    break;
+                    if(supervisor.getPatrolLocationGroup(num,j) === model_patrols.get(i).group){
+                        model_patrols.get(i).select = true;
+                        break;
+                    }
+
                 }
             }
         }
@@ -212,15 +218,17 @@ Popup{
 
         for(var i=0; i<model_patrols.count; i++){
             if(model_patrols.get(i).select){
-                supervisor.addPatrolLocation(model_patrols.get(i).name);
+                supervisor.addPatrolLocation(model_patrols.get(i).group, model_patrols.get(i).name);
             }
         }
 
         if(combo_movingpage.currentIndex === 1){
-            supervisor.setPatrolMovingPage("location");
+            supervisor.setPatrolMovingPage("face2");
         }else if(combo_movingpage.currentIndex === 0){
-            supervisor.setPatrolMovingPage("face");
+            supervisor.setPatrolMovingPage("face1");
         }else if(combo_movingpage.currentIndex === 2){
+            supervisor.setPatrolMovingPage("location");
+        }else if(combo_movingpage.currentIndex === 3){
             supervisor.setPatrolMovingPage("custom");
         }
 
@@ -455,6 +463,7 @@ Popup{
                                             onClicked:{
                                                 select_preset = -1;
                                                 click_sound.play();
+                                                supervisor.initCurrentPatrol();
                                                 show_menu = true;
                                             }
                                         }
@@ -799,13 +808,13 @@ Popup{
                                             id: combo_movingpage
                                             width: currentIndex===2?240:300
                                             height: 50
-                                            model:[qsTr("귀여운 표정"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
+                                            model:[qsTr("동그란 눈"),qsTr("네모난 눈"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
                                         }
                                         Rectangle{
                                             width: 50
                                             height: 50
                                             radius: 10
-                                            visible: combo_movingpage.currentIndex === 2
+                                            visible: combo_movingpage.currentIndex === 3
                                             color: color_dark_navy
                                             Text{
                                                 anchors.centerIn: parent
@@ -1086,9 +1095,56 @@ Popup{
                                         visible: combo_voice_mode.currentIndex === 1
                                         ComboBox{
                                             id: combo_voice_mention
-                                            width: 300
+                                            width: 240
                                             height: 50
                                             model:ListModel{id: model_voice_mention}
+                                        }
+                                        Rectangle{
+                                            width: 50
+                                            height: 40
+                                            radius: 40
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            Image{
+                                                anchors.centerIn: parent
+                                                source: "icon/icon_test_play.png"
+                                                width: 40
+                                                height: 40
+                                                sourceSize.width: width
+                                                sourceSize.height: height
+                                            }
+                                            MouseArea{
+                                                anchors.fill: parent
+                                                onClicked:{
+                                                    var mention = combo_voice_mention.currentIndex;
+                                                    var file;
+                                                    if(mention == 0){
+                                                        file = "thanks";
+                                                    }else if(mention == 1){
+                                                        file = "hello";
+                                                    }else if(mention == 2){
+                                                        file = "funny_working_hard";
+                                                    }else if(mention == 3){
+                                                        file = "hello_rb";
+                                                    }else if(mention == 4){
+                                                        file = "path_finding";
+                                                    }else if(mention == 5){
+                                                        file = "rb_fighting";
+                                                    }else if(mention == 6){
+                                                        file = "moving";
+                                                    }else if(mention == 7){
+                                                        file = "sorry";
+                                                    }else if(mention == 8){
+                                                        file = "move_next";
+                                                    }else if(mention == 9){
+                                                        file = "move_patrol";
+                                                    }else if(mention == 10){
+                                                        file = "wait_path";
+                                                    }else{
+                                                        file = "thank_enjoy";
+                                                    }
+                                                    supervisor.playVoice(file,"woman","basic","",slider_voice_volume.value);
+                                                }
+                                            }
                                         }
                                     }
                                     Row{

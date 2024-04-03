@@ -250,6 +250,8 @@ typedef struct{
     int con_internet2 = NET_DISCON;
     int wifi_connection = 0;
 
+    int master_volume = 50;
+
 #ifdef EXTPROC_TEST
 #else
     QString wifi_ssid = "";
@@ -291,13 +293,13 @@ typedef struct{
 typedef struct{
     //arrive : pass, calling, pickup
     //moving : face, location
-    QString mode = "";
-    QString background = "";
+    QString mode = "pickup";
+    QString background = "color";
     QString color = "";
     QString image = "";
     QString video = "";
-    QString audio = "";
-    float volume = 1;
+    QString audio = "video";
+    float volume = 0.5;
     QList<ST_PAGE_OBJECT> objects;
 }ST_PAGE;
 
@@ -306,22 +308,22 @@ typedef struct{
     QString filename = "";
 
     //random, sequence
-    QString type = "";
+    QString type = "random";
 
     //none,basic,tts
     int voice_use = 0;
-    QString voice_mode = "";
-    QString voice_language = "";
-    QString voice_name = "";
+    QString voice_mode = "none";
+    QString voice_language = "ko";
+    QString voice_name = "child";
     QString voice_file = "";
-    QString voice_mention = "";
+    QString voice_mention = "안녕하세요";
     QString voice_path = "";
-    int voice_volume = 0;
+    int voice_volume = 50;
     int wait_time = 0;
     int pass_time = 0;
 
     //all, serving, custom
-    QString location_mode = "";
+    QString location_mode = "all";
     QList<LOCATION> location;
     ST_PAGE moving_page;
     ST_PAGE arrive_page;

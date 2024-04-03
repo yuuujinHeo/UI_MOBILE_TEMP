@@ -10,6 +10,9 @@ Item {
     width: 1280
     height: 800
 
+    Component.onCompleted: {
+        init();
+    }
     property int type: 0
 
     function init(){

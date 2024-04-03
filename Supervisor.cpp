@@ -755,14 +755,15 @@ void Supervisor::map_reset(){
 
 void Supervisor::setSystemVolume(int volume){
     qDebug() << "setSystemVolume" << volume;
-#ifdef EXTPROC_TEST
-    checker->setSystemVolume(volume);
-#else
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
-    temp.params[0] = volume;
-    extproc->set_command(temp);
-#endif
+    setMasterVolume(volume);
+//#ifdef EXTPROC_TEST
+//    checker->setSystemVolume(volume);
+//#else
+//    ExtProcess::Command temp;
+//    temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
+//    temp.params[0] = volume;
+//    extproc->set_command(temp);
+//#endif
 }
 
 void Supervisor::requestSystemVolume(){
@@ -1013,9 +1014,21 @@ void Supervisor::deleteAnnotation(){
     saveAnnotation(pmap->map_name);
 
 }
+bool Supervisor::isAvailableAnnotation(){
+    if(QFile::exists(getAnnotPath(pmap->map_name))){
+        if(getLocationNum("Charging")>0 && getLocationNum("Resting")>0){
+            return true;
+        }else{
+            return false;
+        }
+    }else{
+        return false;
+    }
+}
 bool Supervisor::isExistAnnotation(QString name){
     QString file_meta = getMetaPath(name);
     QString file_annot = getAnnotPath(name);
+
     return QFile::exists(file_annot);
 }
 bool Supervisor::isExistTravelMap(QString name){
@@ -1773,7 +1786,7 @@ void Supervisor::play_voice(ST_VOICE voice){
     if(voice.volume == -1){
         voice.volume = getSetting("setting","UI","volume_voice").toInt();
     }
-    voice_player->setVolume(voice.volume);
+    voice_player->setVolume(getVolume(voice.volume));
     voice_player->play();
     plog->write("[SOUND] play_voice : "+voice.file_path + "(volume = "+QString::number(voice.volume)+")");
 }
@@ -1856,7 +1869,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
 
         voice_player->stop();
         voice_player->setMedia(QUrl("qrc:/voice/"+v.voice+"_"+file+".mp3"));
-        voice_player->setVolume(volume);
+        voice_player->setVolume(getVolume(volume));
         voice_player->play();
         plog->write("[SUPERVISOR] Play Voice (Basic) : "+v.voice + ", " + file);
     }else{
@@ -1878,7 +1891,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
         if(QFile::exists(filepath)){
             voice_player->stop();
             voice_player->setMedia(QUrl::fromLocalFile(filepath));
-            voice_player->setVolume(volume);
+            voice_player->setVolume(getVolume(volume));
             voice_player->play();
             plog->write("[SOUND] PlayVoiceTTS : "+filepath+", "+QString::number(volume));
         }else{
@@ -1956,11 +1969,11 @@ void Supervisor::playBGM(int volume){
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
     plog->write("[SOUND] playBGM : "+QString::number(volume));
-    bgm_player->setVolume(volume);
+    bgm_player->setVolume(getVolume(volume));
     bgm_player->play();
 }
 void Supervisor::setvolumeBGM(int volume){
-    bgm_player->setVolume(volume);
+    bgm_player->setVolume(getVolume(volume));
 }
 void Supervisor::stopBGM(){
     qDebug() << "stopBGM";
@@ -2408,6 +2421,25 @@ QString Supervisor::getLocationName(int num, QString type){
             }
         }
         return tr("설정 안됨");
+    }
+}
+
+QString Supervisor::getLocationNameGroup(int num, QString type){
+    if(type == ""){
+        if(num > -1 && num < pmap->locations.size()){
+            return pmap->locations[num].group_name;
+        }
+        return "";
+    }else{
+        int count = 0;
+        for(int i=0; i<pmap->locations.size(); i++){
+            if(pmap->locations[i].type == type){
+                if(count == num)
+                    return pmap->locations[i].group_name;
+                count++;
+            }
+        }
+        return tr("-");
     }
 }
 
@@ -3054,7 +3086,6 @@ void Supervisor::moveStopFlag(){
     for(int i=0; i<probot->trays.size(); i++){
         probot->trays[i].empty = true;
     }
-//    QMetaObject::invokeMethod(mMain, "movestopped");
 }
 
 void Supervisor::moveStop(){
@@ -3097,13 +3128,6 @@ void Supervisor::moveToCleaning(){
 QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
-QString Supervisor::getcurTable(){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == probot->curLocation.name)
-            return "";//QString::number(pmap->locations[i].number);
-    }
-    return "-";
-}
 int Supervisor::getMultiState(){
 
 }
@@ -3132,14 +3156,6 @@ void Supervisor::resetHomeFolders(){
 //        files.clear();
 //    }
 }
-bool Supervisor::issetLocation(int number){
-//    for(int i=0; i<pmap->locations.size(); i++){
-//        if(pmap->locations[i].number == number)
-//            return true;
-//    }
-    return false;
-}
-
 
 
 ////*********************************************  ROBOT STATUS 관련   ***************************************************////
@@ -3261,6 +3277,21 @@ int Supervisor::getLocalizationState(){
 }
 int Supervisor::getStateMoving(){
     return probot->running_state;
+}
+QString Supervisor::getStateMovingStr(){
+    if(probot->running_state == 0){
+        return tr("준비 안됨");
+    }else if(probot->running_state == 1){
+        return tr("준비됨");
+    }else if(probot->running_state == 2){
+        return tr("이동중");
+    }else if(probot->running_state == 3){
+        return tr("이동중 (장애물 감지)");
+    }else if(probot->running_state == 4){
+        return tr("이동중 (일시정지됨)");
+    }else{
+        return tr("알수 없음 ")+QString::number(probot->running_state);
+    }
 }
 int Supervisor::getErrcode(){
     return probot->err_code;
@@ -3726,7 +3757,6 @@ void Supervisor::onTimer(){
                     flag_annot_localization = true;
                 }
             }
-//            clearStatus();
         }
         break;
     }
@@ -3768,12 +3798,12 @@ void Supervisor::onTimer(){
         if(probot->status_charge_connect == 0){
             plog->write("[STATE] Charging : Charge Connect = 0 -> None");
             stateInit();
-        }
-        if(curPage != "page_charge" && !debug_mode){
+            QMetaObject::invokeMethod(mMain, "need_init");
+            break;
+        }else if(curPage != "page_charge" && !debug_mode){
             plog->write("[STATE] Charging -> UI Charging");
-            QMetaObject::invokeMethod(mMain, "docharge");
+            QMetaObject::invokeMethod(mMain, "charging");
         }
-
         break;
     }
     case UI_STATE_MOVING:{
@@ -3827,7 +3857,6 @@ void Supervisor::onTimer(){
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
                             ui_state = UI_STATE_PICKUP;
-
                         }else if(probot->is_calling){
                             if(pmap->call_queue.size() > 0){
                                 plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name+" -> Charging");
@@ -3943,9 +3972,7 @@ void Supervisor::onTimer(){
                     cmd_accept = false;
                 }else{
                     if(probot->current_target.name == ""){
-
                         LOCATION cur_target;
-
                         probot->is_patrol = false;
                         probot->is_calling = false;
 
@@ -3957,8 +3984,6 @@ void Supervisor::onTimer(){
                                 break;
                             }
                         }
-
-                        qDebug() << probot->trays[0].empty << probot->trays[1].empty;
                         if(tray_num > -1){
                             //서빙 포인트 세팅
                             cur_target = probot->trays[tray_num].location;
@@ -3990,38 +4015,35 @@ void Supervisor::onTimer(){
                                     }else{
                                         //3. PATROLLING
                                         if(patrol_mode == PATROL_NEW){
-                                            if(current_patrol.type == "random"){
-                                                //패트롤 위치 랜덤하게 지정
-                                                int temp = QRandomGenerator::global()->bounded(0,1000);
-                                                while(patrol_num == temp%(current_patrol.location.size())){
-                                                    temp = QRandomGenerator::global()->bounded(0,1000);
-                                                    qDebug() << "Next temp = " << temp << temp%(current_patrol.location.size());
+                                            if(current_patrol.location.size()>1){
+                                                if(current_patrol.type == "random"){
+                                                    //패트롤 위치 랜덤하게 지정
+                                                    int temp = QRandomGenerator::global()->bounded(0,1000);
+
+                                                    while(patrol_num == temp%(current_patrol.location.size())){
+                                                        temp = QRandomGenerator::global()->bounded(0,1000);
+                                                    }
+
+                                                    patrol_num = temp%(current_patrol.location.size());
+                                                    cur_target = current_patrol.location[patrol_num];
+                                                    probot->is_patrol = true;
+                                                    plog->write("[STATE] Moving : New Target (Patrol Random) -> "+cur_target.group_name+", "+cur_target.name);
+                                                }else{
+                                                    if(++patrol_num >= current_patrol.location.size())
+                                                        patrol_num = 0;
+
+                                                    LOCATION temp_loc = current_patrol.location[patrol_num];
+                                                    cur_target = current_patrol.location[patrol_num];
+                                                    probot->is_patrol = true;
+                                                    plog->write("[STATE] Moving : New Target (Patrol Sequence) -> "+cur_target.group_name+", "+ cur_target.name);
                                                 }
-//                                                plog->write("[SUPERVISOR] MOVING (PATROL RANDOM) : CUR ("+QString::number(temp%(current_patrol.location.size()))+") LAST ("+QString::number(patrol_num)+")");
-                                                patrol_num = temp%(current_patrol.location.size());
-
-                                                //패트롤 위치가 유효한 지 체크
-                                                cur_target = current_patrol.location[patrol_num];
-                                                probot->is_patrol = true;
-                                                plog->write("[STATE] Moving : New Target (Patrol Random) -> "+cur_target.name);
-
-                                            }else{
-                                                if(++patrol_num >= current_patrol.location.size())
-                                                    patrol_num = 0;
-
-//                                                plog->write("[SUPERVISOR] MOVING (PATROL SEQUENCE) : CUR ("+QString::number(patrol_num)+") "+QString::number(current_patrol.location.size()));
-
-                                                //패트롤 위치가 유효한 지 체크
-                                                LOCATION temp_loc = current_patrol.location[patrol_num];
-                                                cur_target = current_patrol.location[patrol_num];
-                                                probot->is_patrol = true;
-                                                plog->write("[STATE] Moving : New Target (Patrol Sequence) -> "+cur_target.name);
                                             }
                                         }
                                     }
                                 }
                             }
                         }
+
 
                         count_moveto = 0;
                         if(cur_target.name == ""){
@@ -4045,8 +4067,25 @@ void Supervisor::onTimer(){
                             }
                         }
 
-                        probot->current_target = cur_target;
+                        bool match = false;
+                        //지정된 위치 실재하는 지 확인
+                        for(int i=0; i<pmap->locations.size(); i++){
+                            if(pmap->locations[i].name == cur_target.name){
+                                if(pmap->locations[i].group == cur_target.group){
+                                    match = true;
+                                    break;
+                                }
+                            }
+                        }
 
+                        if(match){
+                            probot->current_target = cur_target;
+                        }else{
+                            plog->write("[STATE] Moving : Target not found -> "+cur_target.name+", "+QString::number(cur_target.group));
+                            QMetaObject::invokeMethod(mMain, "nolocation");
+                            ui_state = UI_STATE_RESTING;
+                            break;
+                        }
                     }else{
                         if(timer_cnt2%5==0){
                             plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
@@ -4090,7 +4129,7 @@ void Supervisor::onTimer(){
                             plog->write("[STATE] Moving : Move Start (Serving)");
                         }
                     }
-                    QMetaObject::invokeMethod(mMain, "movelocation");
+                    QMetaObject::invokeMethod(mMain, "movestart");
                 }
             }else if(probot->running_state == ROBOT_MOVING_NOT_READY){
                 plog->write("[STATE] Moving : Running state not ready -> Movefail");
@@ -4117,7 +4156,7 @@ void Supervisor::onTimer(){
     case UI_STATE_CLEANING:{
         probot->call_moving_count = 0;
         if(getSetting("setting","USE_UI","use_calling_notice") != "true"){
-            if(getSetting("setting","ROBOT_TYPE","type") != "CLEANING")
+            if(probot->current_target.name != "Cleaning0")
                 ui_state = UI_STATE_INITAILIZING;
         }
         break;
@@ -4277,6 +4316,30 @@ void Supervisor::onTimer(){
     prev_charge_state = probot->status_charge_connect;
 }
 
+int Supervisor::getVolume(int volume){
+    float vol = (volume*probot->master_volume)/100.;
+    int voli = (int)vol;
+    return voli;
+}
+float Supervisor::getVolume(float volume){
+    float vol = volume*probot->master_volume/100.;
+    return vol;
+}
+int Supervisor::getMasterVolume(){
+    return probot->master_volume;
+}
+void Supervisor::setMasterVolume(int volume){
+    plog->write("[SETTING] Set Master Volume : "+QString::number(probot->master_volume)+" -> "+ QString::number(volume));
+    int prev_volume = probot->master_volume;
+    probot->master_volume = volume;
+    int prev_v = bgm_player->volume();
+
+    int pp = ((float)prev_v/prev_volume)*100;
+
+    qDebug() << prev_volume << volume << prev_v << pp;
+    setvolumeBGM(pp);
+    QMetaObject::invokeMethod(mMain,"volume_reset");
+}
 QString Supervisor::curUiState(){
     if(ui_state == UI_STATE_NONE){
         return "None";
@@ -4367,6 +4430,16 @@ LOCATION Supervisor::getLocation(int group, QString name){
             if(pmap->locations[i].name == name){
                 return pmap->locations[i];
             }
+    }
+    return LOCATION();
+}
+LOCATION Supervisor::getLocation(QString group, QString name){
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].group_name == group){
+            if(pmap->locations[i].name == name){
+                return pmap->locations[i];
+            }
+        }
     }
     return LOCATION();
 }
@@ -4484,7 +4557,8 @@ void Supervisor::process_accept(int cmd){//need check
 }
 
 bool Supervisor::isRobotReady(bool print){
-    if(!debug_mode && getStateMoving() == READY && probot->localization_state == LOCAL_READY && (!probot->status_lock || (probot->motor[0].status == 1 && probot->motor[1].status == 1)) && probot->status_charge_connect == 0){
+    //240401 lock state가 true면 motor status가 1이 아니어도 넘어가기에 삭제처리
+    if(!debug_mode && getStateMoving() == READY && probot->localization_state == LOCAL_READY && (probot->motor[0].status == 1 && probot->motor[1].status == 1) && probot->status_charge_connect == 0){
         return true;
     }else{
         if(print){
@@ -4839,6 +4913,12 @@ void Supervisor::confirmLocalization(){
     debug_mode = false;
 }
 
+void Supervisor::confirmLocalizationAnnot(){
+    plog->write("[COMMAND] confirmLocalizationAnnot");
+    probot->localization_confirm = true;
+//    debug_mode = false;
+}
+
 void Supervisor::clearRobot(){
     probot->status_power = 0;
     probot->status_emo = 0;
@@ -4921,6 +5001,10 @@ void Supervisor::clearRobot(){
 void Supervisor::resetLocalization(){
     plog->write("[COMMAND] resetLocalization");
     debug_mode = false;
+    probot->localization_confirm = false;
+}
+void Supervisor::resetLocalizationConfirm(){
+    plog->write("[COMMAND] resetLocalizationConfirm");
     probot->localization_confirm = false;
 }
 
@@ -5163,7 +5247,7 @@ void Supervisor::readPatrol(){
                         patrol.endGroup();
                         patrol.beginGroup("LOCATION");
                         for(int i=0; i<loc_num; i++){
-                            LOCATION temp_loc = getLocation(patrol.value("loc"+QString::number(i)).toString());
+                            LOCATION temp_loc = getLocation(patrol.value("group"+QString::number(i)).toString(),patrol.value("loc"+QString::number(i)).toString());
                             if(temp_loc.name != ""){
                                 temp.location.append(temp_loc);
                             }
@@ -5205,7 +5289,7 @@ void Supervisor::readPatrol(){
                             }
                         }
 
-                        //arrive_page 도 똑같이
+                        //arrive_page도 똑같이
                         plog->write("[COMMAND] readPatrol File : "+file + " -> "+temp.name+", "+temp.type+", "+QString::number(temp.location.size())+", "+temp.voice_name);
                         patrols.append(temp);
                     }
@@ -5218,15 +5302,18 @@ void Supervisor::readPatrol(){
 int Supervisor::getPatrolSize(){
     return patrols.size();
 }
+
 QString Supervisor::getPatrolName(int num){
     if(num > -1 && num < patrols.size())
         return patrols[num].name;
     else
         return "";
 }
+
 void Supervisor::loopClosing(){
     ipc->set_cmd(ROBOT_CMD_MAP_LOOP_CLOSING, "LoopClosing");
 }
+
 int Supervisor::getPatrolVoiceNameNum(int num){
     if(patrols[num].name == "vara" || patrols[num].name == "woman" || patrols[num].name == "danna" || patrols[num].name == "liangliang" || patrols[num].name == "ntomoko" || patrols[num].name == "jose"){
         return 1;
@@ -5332,7 +5419,7 @@ int Supervisor::getPatrolLocationSize(int num){
 
 void Supervisor::initCurrentPatrol(){
     current_patrol = ST_PATROL();
-    current_patrol.moving_page.mode = "face";
+    current_patrol.moving_page.mode = "face1";
     current_patrol.arrive_page.mode = "pass";
 }
 
@@ -5432,15 +5519,26 @@ QString Supervisor::getPatrolLocation(int num, int loc){
         return "";
     }
 }
+QString Supervisor::getPatrolLocationGroup(int num, int loc){
+    if(num > -1 && num < patrols.size()){
+        if(loc > -1 && loc < patrols[num].location.size()){
+            return patrols[num].location[loc].group_name;
+        }else{
+            return "";
+        }
+    }else{
+        return "";
+    }
+}
 
 void Supervisor::clearPatrolLocation(QString mode){
     current_patrol.location.clear();
     current_patrol.location_mode = mode;
 }
 
-void Supervisor::addPatrolLocation(QString name){
+void Supervisor::addPatrolLocation(QString group, QString name){
     if(getLocation(name).name != ""){
-        current_patrol.location.append(getLocation(name));
+        current_patrol.location.append(getLocation(group,name));
     }
 }
 void Supervisor::setPatrolMovingPage(QString mode, QString param1, QString param2, QString param3){
@@ -5566,6 +5664,7 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
 
         for(int i=0; i<current_patrol.location.size(); i++){
             file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
+            file.setValue("LOCATION/group"+QString::number(i),current_patrol.location[i].group_name);
         }
 
         if(current_patrol.moving_page.mode == "custom"){
@@ -5641,6 +5740,7 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
 
     for(int i=0; i<current_patrol.location.size(); i++){
         file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
+        file.setValue("LOCATION/group"+QString::number(i),current_patrol.location[i].group_name);
     }
 
     if(current_patrol.moving_page.mode == "custom"){
@@ -5718,6 +5818,7 @@ QString Supervisor::getMovingPageVideo(){
     return current_patrol.moving_page.video;
 }
 void Supervisor::setMovingPageAudio(float volume){
+    qDebug() << "setMovingPageAudio " << volume;
     setMovingPageBackground("video");
     current_patrol.moving_page.volume = volume;
 }
