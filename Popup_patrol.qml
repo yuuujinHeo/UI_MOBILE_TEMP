@@ -104,12 +104,15 @@ Popup{
         popup_patrol.mode = supervisor.getPatrolType(num);
 
         if(supervisor.getPatrolMovingPage(num) === "location"){
-            combo_movingpage.currentIndex = 1;
-        }else if(supervisor.getPatrolMovingPage(num) === "custom"){
             combo_movingpage.currentIndex = 2;
+        }else if(supervisor.getPatrolMovingPage(num) === "custom"){
+            combo_movingpage.currentIndex = 3;
+        }else if(supervisor.getPatrolMovingPage(num) === "face2"){
+            combo_movingpage.currentIndex = 1;
         }else{
             combo_movingpage.currentIndex = 0;
         }
+
         if(supervisor.getPatrolArrivePage(num) === "pickup"){
             combo_arrivepage.currentIndex = 1;
         }else if(supervisor.getPatrolArrivePage(num) === "calling"){
@@ -220,10 +223,12 @@ Popup{
         }
 
         if(combo_movingpage.currentIndex === 1){
-            supervisor.setPatrolMovingPage("location");
+            supervisor.setPatrolMovingPage("face2");
         }else if(combo_movingpage.currentIndex === 0){
-            supervisor.setPatrolMovingPage("face");
+            supervisor.setPatrolMovingPage("face1");
         }else if(combo_movingpage.currentIndex === 2){
+            supervisor.setPatrolMovingPage("location");
+        }else if(combo_movingpage.currentIndex === 3){
             supervisor.setPatrolMovingPage("custom");
         }
 
@@ -803,13 +808,13 @@ Popup{
                                             id: combo_movingpage
                                             width: currentIndex===2?240:300
                                             height: 50
-                                            model:[qsTr("귀여운 표정"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
+                                            model:[qsTr("동그란 눈"),qsTr("네모난 눈"),qsTr("목적지 표시"),qsTr("사용자지정화면")]
                                         }
                                         Rectangle{
                                             width: 50
                                             height: 50
                                             radius: 10
-                                            visible: combo_movingpage.currentIndex === 2
+                                            visible: combo_movingpage.currentIndex === 3
                                             color: color_dark_navy
                                             Text{
                                                 anchors.centerIn: parent

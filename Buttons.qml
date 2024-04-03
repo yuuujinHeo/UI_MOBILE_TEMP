@@ -23,8 +23,10 @@ Item {
     property string btn_color: color_gray
     property string image_color: ""
     property color font_color: "white"
+    property color shadow_color: "white"
     property bool active: true
     property bool selected: false
+    property bool show_shadow: false
 
     Component.onCompleted: {
         setStyle();
@@ -58,16 +60,12 @@ Item {
                 font_color = color_dark_navy
             }else if(style == "green"){
                 btn_color = color_green
-//                font_color = "white"
             }else if(style == "blue"){
                 btn_color = color_blue
-//                font_color = "white"
             }else if(style == "dark_navy"){
                 btn_color = color_dark_navy
-//                font_color = "white"
             }else if(style == "dark"){
                 btn_color = color_navy
-//                font_color = "white"
             }else if(style == "keyboard"){
                 btn_color = color_navy
                 width =  50
@@ -85,6 +83,12 @@ Item {
             }else if(style == "white"){
                 btn_color = "white"
                 font_color = color_dark_navy
+            }else if(style == "menu_dark"){
+                width = 180
+                height = 180
+                btn_color = color_dark_navy
+                show_shadow = true
+                shadow_color = color_navy
             }
         }else{
             btn_color = color_gray

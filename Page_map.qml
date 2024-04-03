@@ -146,7 +146,7 @@ Item {
                             if(modelData === qsTr("맵 새로만들기")){
                                 if(!supervisor.getIPCConnection()){
                                     click_sound_no.play();
-                                    showNotice();
+                                    openNotice("ipc_discon");
                                 }else{
                                     click_sound.play();
                                     supervisor.writelog("[UI] MAP : move to Mapping");
@@ -166,7 +166,7 @@ Item {
                                 }else{
                                     click_sound_no.play();
                                     supervisor.writelog("[UI] MAP : Show Patrol Popup -> Robot Not Ready")
-                                    showNotice();
+                                    robotnotready();
                                 }
                             }else if(modelData === qsTr("위치 초기화")){
                                 click_sound.play();

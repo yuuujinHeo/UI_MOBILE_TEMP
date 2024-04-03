@@ -342,5 +342,7 @@
         <file>icon/image_battery_2.png</file>
         <file>icon/image_battery_3.png</file>
         <file>icon/image_battery_4.png</file>
+        <file>Button_menu.qml</file>
+        <file>Button_show.qml</file>
     </qresource>
 </RCC>

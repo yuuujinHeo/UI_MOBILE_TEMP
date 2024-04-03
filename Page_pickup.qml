@@ -19,6 +19,10 @@ Item {
     property bool blink_3: false
     property var tray_num: parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))
 
+    Component.onCompleted: {
+        init();
+    }
+
     function init(){
         supervisor.writelog("[QML] PICKUP PAGE Init");
         pickup_1 = false;
@@ -47,10 +51,38 @@ Item {
         }
     }
 
-    function play_voice(){
-//        if(pickup_1)
+    function show_all(){
+        pos = "";
+        pickup_1 = true;
+        pickup_2 = true;
+        pickup_3 = true;
     }
-
+    function set_tray(){
+        var trays = supervisor.getPickuptrays();
+        if(trays.length === parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))){
+            pos = "";
+            pickup_1 = true;
+            pickup_2 = true;
+            pickup_3 = true;
+        }else{
+            var tempstr = "";
+            for(var i=0; i<trays.length; i++){
+                if(tempstr === ""){
+                    tempstr = Number(trays[i])+qsTr("번");
+                }else{
+                    tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
+                }
+                if(trays[i] === 1){
+                    pickup_1 = true;
+                }else if(trays[i] === 2){
+                    pickup_2 = true;
+                }else if(trays[i] === 3){
+                    pickup_3 = true;
+                }
+            }
+            pos = tempstr;
+        }
+    }
 
     Timer{
         repeat: true

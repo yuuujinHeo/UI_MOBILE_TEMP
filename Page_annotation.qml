@@ -391,31 +391,17 @@ Item {
             Grid{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: text_title12.bottom
-                anchors.topMargin: 50
-                spacing: 30
+                anchors.topMargin: 80
+                spacing: 50
                 horizontalItemAlignment: Grid.AlignHCenter
                 verticalItemAlignment: Grid.AlignVCenter
                 rows: 2
                 columns: 3
-                Item_buttons{
-                    width: 220
-                    height: 150
-                    fontsize: 30
-                    visible: false
-                    type: "round_text"
-                    text:qsTr("맵 회전\n잘라내기")
-                    onClicked: {
-                        supervisor.writelog("[ANNOTATION] MENU : Rotate / Cut Map");
-                        annot_pages.sourceComponent = page_annot_start;
-                    }
-                }
-                Item_buttons{
-                    id: btn_location
-                    width: 220
-                    height: 150
-                    fontsize: 30
-                    type: "round_text"
+                Button_menu{
+                    id: btn_location11
+                    style: "navy"
                     text: qsTr("위치 수정")
+                    source: "icon/icon_location.png"
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] MENU : Change Location");
                         if(supervisor.isDebugMode()){//Um..Pass
@@ -424,29 +410,25 @@ Item {
                             if(supervisor.getIPCConnection()){//Good
                                 annot_pages.sourceComponent = page_annot_location_serving_done;
                             }else{//Nope
-                                showNotice();
+                                openNotice("ipc_discon")
                             }
                         }
                     }
                 }
-                Item_buttons{
-                    width: 220
-                    height: 150
-                    fontsize: 30
-                    type: "round_text"
+                Button_menu{
+                    style: "navy"
+                    source: "icon/icon_pen.png"
                     text: qsTr("맵 세부수정")
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor2;
                     }
                 }
-                Item_buttons{
-                    width: 220
-                    height: 150
-                    fontsize: 30
+                Button_menu{
+                    style: "navy"
+                    source: "icon/icon_pen.png"
+                    text: qsTr("맵 세부수정\n(디버깅)")
                     visible: supervisor.isDebugMode()
-                    type: "round_text"
-                    text: qsTr("맵 세부수정(디버깅)")
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor3;
@@ -454,10 +436,12 @@ Item {
                 }
             }
 
-            Item_buttons{
-                width: 200
-                height: 80
-                type: "round_text"
+            Buttons{
+                style: "dark"
+                anchors.bottom: parent.bottom
+                anchors.right: parent.right
+                anchors.bottomMargin: 120
+                anchors.rightMargin: 50
                 text: {
                     if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
                         qsTr("맵 보내기/가져오기")
@@ -465,10 +449,6 @@ Item {
                         qsTr("맵 불러오기")
                     }
                 }
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.bottomMargin: 150
-                anchors.rightMargin: 50
                 onClicked: {
                     supervisor.writelog("[ANNOTATION] Load Map");
 
@@ -479,10 +459,8 @@ Item {
                     }
                 }
             }
-            Item_buttons{
-                width: 200
-                height: 80
-                type: "round_text"
+            Buttons{
+                style: "dark"
                 text: qsTr("종 료")
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
@@ -1731,7 +1709,7 @@ Item {
                                         popup_loading.open();
                                     }else{
                                         click_sound_no.play();
-                                        showNotice();
+                                        robotnotready();
                                     }
                                 }
                             }
@@ -3874,44 +3852,44 @@ Item {
             }
             function update(){
                 if(supervisor.getShowNode()){
-                    cb_node.checked = true;
+                    show_node.show = true;
                 }else{
-                    cb_node.checked = false;
+                    show_node.show = false;
                 }
                 if(supervisor.getShowName()){
-                    cb_name.checked = true;
+                    show_name.show = true;
                 }else{
-                    cb_name.checked = false;
+                    show_name.show = false;
                 }
                 if(supervisor.getShowEdge()){
-                    cb_edge.checked = true;
+                    show_edge.show = true;
                 }else{
-                    cb_edge.checked = false;
+                    show_edge.show = false;
                 }
                 if(supervisor.getShowTline()){
-                    cb_tline.checked = true;
+                    show_tline.show = true;
                 }else{
-                    cb_tline.checked = false;
+                    show_tline.show = false;
                 }
                 if(supervisor.getshowLocation()){
-                    cb_annot.checked = true;
+                    show_annot.show = true;
                 }else{
-                    cb_annot.checked = false;
+                    show_annot.show = false;
                 }
                 if(supervisor.getShowAvoid()){
-                    cb_avoid.checked = true;
+                    show_avoid.show = true;
                 }else{
-                    cb_avoid.checked = false;
+                    show_avoid.show = false;
                 }
                 if(supervisor.getShowVelmap()){
-                    cb_velmap.checked = true;
+                    show_velmap.show = true;
                 }else{
-                    cb_velmap.checked = false;
+                    show_velmap.show = false;
                 }
                 if(supervisor.getShowObject()){
-                    cb_wall.checked = true;
+                    show_wall.show = true;
                 }else{
-                    cb_wall.checked = false;
+                    show_wall.show = false;
                 }
             }
 
@@ -3999,10 +3977,8 @@ Item {
                                 anchors.right: parent.right
                                 anchors.rightMargin: 30
                                 spacing: 30
-                                Item_buttons{
-                                    width: 160
-                                    height: 60
-                                    type: "round_text"
+                                Buttons{
+                                    style: "green"
                                     text: "저 장"
                                     onClicked:{
                                         save();
@@ -4011,10 +3987,8 @@ Item {
                                         annot_pages.sourceComponent = page_annot_localization;
                                     }
                                 }
-                                Item_buttons{
-                                    width: 160
-                                    height: 60
-                                    type: "round_text"
+                                Buttons{
+                                    style: "dark"
                                     text: "종 료"
                                     onClicked:{
                                         supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
@@ -4060,102 +4034,77 @@ Item {
                                             anchors.verticalCenter: parent.verticalCenter
                                         }
                                         Grid{
-                                            columns: 8
+                                            columns: 4
                                             rows: 2
                                             anchors.verticalCenter: parent.verticalCenter
                                             spacing: 5
                                             horizontalItemAlignment: Grid.AlignHCenter
                                             verticalItemAlignment: Grid.AlignVCenter
-                                            CheckBox{
-                                                id: cb_node
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowNode(checked);
+                                            Button_show{
+                                                id: show_node
+                                                text: qsTr("노드")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowNode(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("node")
-                                            }
-                                            CheckBox{
-                                                id: cb_edge
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowEdge(checked);
+                                            Button_show{
+                                                id: show_edge
+                                                text:qsTr("엣지")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowEdge(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("edges")
-                                            }
-                                            CheckBox{
-                                                id: cb_name
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowName(checked);
+                                            Button_show{
+                                                id: show_name
+                                                text: qsTr("이름")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowAvoid(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("name")
-                                            }
-                                            CheckBox{
-                                                id: cb_avoid
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowAvoid(checked);
+                                            Button_show{
+                                                id: show_avoid
+                                                text: qsTr("회피구역")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowAvoid(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("avoid")
-                                            }
-                                            CheckBox{
-                                                id: cb_velmap
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowVelmap(checked);
+                                            Button_show{
+                                                id: show_wall
+                                                text: qsTr("가상벽")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowObject(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("velmap")
-                                            }
-                                            CheckBox{
-                                                id: cb_wall
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowObject(checked);
+                                            Button_show{
+                                                id: show_tline
+                                                text: qsTr("경로")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowTline(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("wall")
-                                            }
-                                            CheckBox{
-                                                id: cb_tline
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowTline(checked);
+                                            Button_show{
+                                                id: show_annot
+                                                text: qsTr("위치")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowLocation(show);
                                                 }
                                             }
-                                            Text{
-                                                text:qsTr("tline")
-                                            }
-                                            CheckBox{
-                                                id: cb_annot
-                                                width: 30
-                                                height: 30
-                                                onCheckedChanged: {
-                                                    supervisor.setShowLocation(checked);
+                                            Button_show{
+                                                id: show_velmap
+                                                text: qsTr("안전구역")
+                                                text_color: color_dark_navy
+                                                onShowChanged:{
+                                                    supervisor.setShowVelmap(show);
                                                 }
-                                            }
-                                            Text{
-                                                text:qsTr("annot")
                                             }
                                         }
-
                                     }
                                 }
                                 Rectangle{
@@ -4188,7 +4137,7 @@ Item {
                                             use_shadow: true
                                             type: "circle_all"
                                             selected: select_mode === "topo"
-                                            source: "icon/icon_draw.png"
+                                            source: "icon/icon_location.png"
                                             text: qsTr("위치")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to topo");
@@ -4230,7 +4179,7 @@ Item {
                                             use_shadow: true
                                             type: "circle_all"
                                             selected: select_mode === "ruler"
-                                            source: "icon/icon_draw.png"
+                                            source: "icon/icon_ruler.png"
                                             text: qsTr("줄자")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to ruler");

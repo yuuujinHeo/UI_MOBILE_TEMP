@@ -46,7 +46,7 @@ Item {
         supervisor.writelog("[QML] MOVING PAGE init")
         popup_pause.visible = false;
         if(supervisor.isPatrolPage()){
-            if(supervisor.getPatrolMovingMode() === "face"){
+            if(supervisor.getPatrolMovingMode() === "face1"){
                 face_image.play("image/face_normal.gif");
                 rect_robot.visible = false;
                 show_face = 1;

@@ -374,6 +374,9 @@ void MapHandler::setMode(QString name){
     }else{
         setFullScreen();
     }
+
+
+
     setMap();
 }
 
@@ -2901,7 +2904,11 @@ void MapHandler::clearDrawing(){
 
 void MapHandler::undoLine(){
     line.clear();
-    if(spline_dot.size() > 0){
+    if(straight_point.size() > 0){
+        straight_point.clear();
+        setMapDrawing();
+        setMap();
+    }else if(spline_dot.size() > 0){
         dot_trash.push_back(spline_dot[spline_dot.size()-1]);
         spline_dot.pop_back();
         drawSpline();
@@ -3403,6 +3410,8 @@ void MapHandler::setStraightInit(int x, int y){//pressed
         straight_point.clear();
     }
     straight_init_point = cv::Point2f(x,y);
+    curPoint.x = straight_init_point.x;
+    curPoint.y = straight_init_point.y;
 }
 
 void MapHandler::setStraightEnd(int x, int y){//moved
@@ -3416,6 +3425,7 @@ void MapHandler::setStraightEnd(int x, int y){//moved
     }else{
         straight_point[1] = cv::Point2f(x,y);
     }
+    qDebug() << "setStraightEnd " << straight_init_point.x << straight_init_point.y << x << y;
     initDrawing();
     setMapDrawing();
     setMap();
@@ -3424,6 +3434,9 @@ void MapHandler::setStraightPoint(int x, int y){//released
     cv::Point2f p = cv::Point2f(x,y);
     if(straight_point.size() == 0){
         straight_point.append(p);
+        curPoint.x = straight_point[0].x;
+        curPoint.y = straight_point[0].y;
+        qDebug() << "setStraightPoint 0 " << p.x << p.y;
     }else{
         line.clear();
         lines_trash.clear();
@@ -3431,6 +3444,7 @@ void MapHandler::setStraightPoint(int x, int y){//released
         if(straight_point.size() == 1){
             straight_point.append(p);
         }
+        qDebug() << "setStraightPoint 1 " << p.x << p.y;
         curPoint.x = straight_point[0].x;
         curPoint.y = straight_point[0].y;
         line.push_back(curPoint);
@@ -3443,9 +3457,9 @@ void MapHandler::setStraightPoint(int x, int y){//released
         temp_line.points = line;
         lines.push_back(temp_line);
         qDebug() << "setStraight " << cur_line_color << lines.size();
-        setMapDrawing();
-        setMap();
     }
+    setMapDrawing();
+    setMap();
 }
 
 

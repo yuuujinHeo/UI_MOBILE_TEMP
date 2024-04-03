@@ -11799,16 +11799,16 @@ Item {
                     }
 
                     //모터 상태 - 모터 1
-                    var state1 = supervisor.getMotorConnection(0);
+                    var motorcon1 = supervisor.getMotorConnection(0);
                     //모터 상태 - 모터 2
-                    var state2 = supervisor.getMotorConnection(1);
+                    var motorcon2 = supervisor.getMotorConnection(1);
 
-                    if(state1 && state2){
+                    if(motorcon1 && motorcon2){
                         var lstate = supervisor.getLockStatus();
                         if(supervisor.getChargeConnectStatus() !== 0){
                         }else if(lstate === 0){
                         }else{
-                            state1 = supervisor.getMotorStatus(0);
+                            var state1 = supervisor.getMotorStatus(0);
                             if(state1 === 0){
                             }else if(state1 === 1){
                             }else{
@@ -11843,7 +11843,7 @@ Item {
                                 }
                             }
 
-                            state2 = supervisor.getMotorStatus(1);
+                            var state2 = supervisor.getMotorStatus(1);
                             if(state2 === 0){
                             }else if(state2 === 1){
                             }else{
@@ -11895,7 +11895,7 @@ Item {
                         state_motor_1.state = 2;
                         state_motor_2.state = 2;
                     }else{
-                        if(state1 === 0){
+                        if(motorcon1 === 0){
                             state_motor_1.state = 3;
                         }else if(supervisor.getLockStatus() === 0){
                             state_motor_1.state = 5;
@@ -11909,7 +11909,7 @@ Item {
                             state_motor_1.state = 4;
                         }
 
-                        if(state2 === 0){
+                        if(motorcon2 === 0){
                             state_motor_2.state = 3;
                         }else if(supervisor.getLockStatus() === 0){
                             state_motor_2.state = 5;
