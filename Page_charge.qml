@@ -10,7 +10,7 @@ Item {
     height: 800
 
     property bool is_init: false
-    property var password: 0
+    property int password: 0
     property bool is_charging: false
     property double battery: 0
     property string robotName: "test"
@@ -30,7 +30,6 @@ Item {
                 text_mention.text = qsTr("충전 중입니다")
                 timer_bat.start();
             }
-
         }
     }
 
@@ -104,10 +103,10 @@ Item {
                 if(is_charging){
                     init();
                     supervisor.playVoice("stop_charging");
-                    if(is_init){
-                        is_init = false;
-                        loadPage(pinit);
-                    }
+//                    if(is_init){
+//                        is_init = false;
+//                        loadPage(pinit);
+//                    }
                 }
             }
 

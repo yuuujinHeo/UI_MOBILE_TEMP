@@ -862,11 +862,8 @@ public:
     Q_INVOKABLE void moveToWait();
     Q_INVOKABLE void moveToCleaning();
     Q_INVOKABLE QString getcurLoc();
-    Q_INVOKABLE QString getcurTable();
 
     Q_INVOKABLE void resetHomeFolders();
-
-    Q_INVOKABLE bool issetLocation(int number);
 
     Q_INVOKABLE int getObsState(){return probot->obs_state;}
     ////*********************************************  ROBOT STATUS 관련   ***************************************************////
@@ -874,6 +871,7 @@ public:
     Q_INVOKABLE int getMotorState();
     Q_INVOKABLE int getLocalizationState();
     Q_INVOKABLE int getStateMoving();
+    Q_INVOKABLE QString getStateMovingStr();
     Q_INVOKABLE int getErrcode();
     Q_INVOKABLE QString getRobotName();
 

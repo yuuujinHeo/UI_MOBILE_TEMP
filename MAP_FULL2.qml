@@ -139,9 +139,11 @@ Item {
     }
 
     function loadmap(name,type){
-        if(typeof(name) === 'undefined'){
+        if(typeof(name) === 'undefined' || name === ""){
             name = supervisor.getMapname();
         }
+
+        print(supervisor.getMapname(),name,typeof(name));
         if(map_name !== name){
             supervisor.readSetting(name);
             map_name = name;
