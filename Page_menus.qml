@@ -155,7 +155,7 @@ Item {
             mainwindow.showMinimized();
         }
         onMenu3_clicked: {
-            click_sound.play();;
+            click_sound.play();
             popup_program_exit.open();
         }
     }
@@ -180,14 +180,30 @@ Item {
         anchors.centerIn: parent
         visible: false
 
+
         background:Rectangle{
             anchors.fill: parent
             color: "#282828"
             opacity: 0.8
         }
+
         Column{
             spacing: 50
             anchors.centerIn: parent
+
+
+
+            Image{
+                width: 30
+                height: 30
+                sourceSize.width: 30
+                sourceSize.height: 30
+                source: "icon/icon_power.png"
+                antialiasing: true
+
+            }
+
+
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.family: font_noto_b.name
@@ -199,7 +215,8 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 spacing: 30
-                Rectangle{
+
+                Rectangle{ //취소
                     width: 200
                     height: 90
                     radius: 20
@@ -233,7 +250,8 @@ Item {
                         }
                     }
                 }
-                Rectangle{
+
+                Rectangle{ // 재시작
                     width: 200
                     height: 90
                     radius: 20
@@ -257,7 +275,7 @@ Item {
                         anchors.leftMargin: 20
                     }
                     Text{
-                        text:qsTr("종료")
+                        text:qsTr("재시작")
                         font.family: font_noto_b.name
                         font.pixelSize: 30
                         color:"#282828"
@@ -269,15 +287,16 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             click_sound.play();;
-                            supervisor.programExit();
+                            supervisor.programRestart();
                             popup_program_exit.close();
                         }
                     }
                 }
-                Rectangle{
+
+                Rectangle{ // 종료
                     width: 200
                     height: 90
-                    radius: 20
+                    //radius: 20
                     color: "#d0d0d0"
                     Rectangle{
                         color:"white"
@@ -298,23 +317,28 @@ Item {
                         anchors.leftMargin: 20
                     }
                     Text{
-                        text:qsTr("다시시작")
+                        text:qsTr("종료")
                         font.family: font_noto_b.name
                         font.pixelSize: 30
                         color:"#282828"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: image_yes2.right
                         anchors.leftMargin : (parent.width - image_yes2.x - image_yes2.width)/2 - width/2
+                        //anchors.leftMargin : 10
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
                             click_sound.play();;
-                            supervisor.programRestart();
+                            supervisor.programExit();
                             popup_program_exit.close();
                         }
                     }
                 }
+
+
+
+
             }
         }
     }
