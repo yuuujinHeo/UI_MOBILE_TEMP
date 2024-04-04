@@ -18,6 +18,7 @@ ServerHandler::ServerHandler()
     call_server->start(8000);
     myID = getSetting("robot","SERVER","my_id");
     checkUpdate();
+    startTime = QTime::currentTime();
 //    sendRobotConfig();
 //    sendMaps();
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
@@ -29,21 +30,25 @@ ServerHandler::ServerHandler()
 void ServerHandler::onTimer(){
     //주기적으로 서버에게 상태를 보냄.
     if(connection){
-        if(myID == "serving.001.01.test" || myID == ""){
-            getNewID();
-        }else if(!send_config){
-            sendRobotConfig();
-            sendSettingConfig();
-            sendUpdateConfig();
-            sendStaticConfig();
-        }else if(!send_map){
-            sendMaps();
-            TIMER_MS = 60000;
-            timer->start(TIMER_MS);
-        }else{
-            postStatus();
-        }
+        postStatus();
+//        if(myID == "serving.001.01.test" || myID == ""){
+//            getNewID();
+//        }else if(!send_config){
+//            sendRobotConfig();
+//            sendSettingConfig();
+//            sendUpdateConfig();
+//            sendStaticConfig();
+//        }else if(!send_map){
+//            sendMaps();
+//            TIMER_MS = 60000;
+//            timer->start(TIMER_MS);
+//        }else{
+//            postStatus();
+//        }
     }
+
+    QTime currentTime = QTime::currentTime();
+    elapsedTime = QTime(0,0).addSecs(startTime.secsTo(currentTime));
 }
 
 void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply){
@@ -196,50 +201,24 @@ void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
 
 
 void ServerHandler::postStatus(){
+    qDebug() << "POST STATUS " << elapsedTime.toString("hh:mm:ss");
     ClearJson(json_out);
-    json_out["id"] = myID;
+
+    json_out["robot_id"] = "YUJIN_NUC";
+    json_out["wifi_ip"] = probot->wifi_interface.ipv4;
     json_out["battery"] = probot->battery;
-    json_out["last_update_mode"] = getSetting("robot","VERSION","last_update_mode");
-    json_out["last_update_date"] = getSetting("robot","VERSION","last_update_date");
-    json_out["last_update_time"] = QDateTime::currentDateTime().toString("yyyyMMdd-hhmmss");
+    json_out["exec_time"] = elapsedTime.toString("hh:mm:ss");
     json_out["map_name"] = pmap->map_name;
-    json_out["robot_x"] = probot->curPose.point.x;
-    json_out["robot_y"] = probot->curPose.point.y;
-    json_out["robot_th"] = probot->curPose.angle;
-    json_out["velocity_preset"] = probot->cur_preset;
 
     json_out["state_ui"] = ui_state;
     json_out["state_charge"] = probot->status_charge;
     json_out["state_emo"] = probot->status_emo;
-    json_out["state_power"] = probot->status_power;
-    json_out["state_moving"] = probot->running_state;
+    json_out["state_running"] = probot->running_state;
     json_out["state_localization"] = probot->localization_state;
-    json_out["state_obs"] = probot->obs_state;
-    json_out["state_face"] = probot->obs_in_path_state;
     json_out["state_motorlock"] = probot->status_lock;
-    json_out["state_multirobot"] = probot->multirobot_state;
-
-    json_out["motor_connection_1"] = probot->motor[0].connection;
-    json_out["motor_state_1"] = probot->motor[0].status;
-    json_out["motor_temp_board_1"] = probot->motor[0].temperature;
-    json_out["motor_temp_motor_1"] = probot->motor[0].motor_temp;
-    json_out["motor_current_1"] = probot->motor[0].current;
-
-    json_out["motor_connection_2"] = probot->motor[1].connection;
-    json_out["motor_state_2"] = probot->motor[1].status;
-    json_out["motor_temp_board_2"] = probot->motor[1].temperature;
-    json_out["motor_temp_motor_2"] = probot->motor[1].motor_temp;
-    json_out["motor_current_2"] = probot->motor[1].current;
-
-    json_out["path_size"] = probot->curPath.size();
-    for(int i=0; i<probot->curPath.size(); i++){
-        json_out["path_x_"+QString::number(i)] = QString::number(probot->curPath[i].point.x);
-        json_out["path_y_"+QString::number(i)] = probot->curPath[i].point.y;
-        json_out["path_th_"+QString::number(i)] = probot->curPath[i].angle;
-    }
 
     QByteArray temp_array = QJsonDocument(json_out).toJson();
-    generalPost(temp_array,serverURL+"/setstatus");
+    newPost(temp_array);
 }
 
 void ServerHandler::uploadRelease(QString file, QString message){
@@ -374,46 +353,9 @@ QString ServerHandler::getSetting(QString file, QString group, QString name){
     return setting_robot.value(name).toString();
 }
 
-void ServerHandler::sendfilePost(QString file_dir, QString url){
-    QUrl serviceURL(url);
-    QNetworkRequest request(serviceURL);
-
-    QHttpMultiPart *files = new QHttpMultiPart(QHttpMultiPart::FormDataType);
-
-    QStringList file_dirs = file_dir.split("/");
-    QString filename = file_dirs[file_dirs.size()-1];
-
-    QHttpPart filepart;
-    filepart.setHeader(QNetworkRequest::ContentDispositionHeader,QVariant("form-data; name=\"file\"; filename=\""+filename+"\""));
-    QFile *file = new QFile(file_dir);
-    file->open(QIODevice::ReadOnly);
-    filepart.setBody(file->readAll());
-    file->setParent(files);
-
-    files->append(filepart);
-
-    quint32 random[6];
-    QRandomGenerator::global()->fillRange(random);
-    QByteArray boundary = "--boundary_zyl_"+ QByteArray::fromRawData(reinterpret_cast<char *>(random),sizeof(random)).toBase64();
-
-    QByteArray contentType;
-    contentType += "multipart/";
-    contentType += "form-data";
-    contentType += "; boundary=";
-    contentType += boundary;
-    files->setBoundary(boundary);
-    request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
-
-    QNetworkReply *reply = manager->post(request, files);
-    connect(reply, &QNetworkReply::finished, [=](){
-        files->setParent(reply);
-        parsingReply("POST",url,reply);
-    });
-}
-// 공통적으로 사용되는 POST 구문 : 출력으로 응답 정보를 보냄
-void ServerHandler::generalPost(QByteArray post_data, QString url){
+void ServerHandler::newPost(QByteArray post_data){
     QByteArray postDataSize = QByteArray::number(post_data.size());
-    QUrl serviceURL(url);
+    QUrl serviceURL(serverURL+"/setstatus");
     QNetworkRequest request(serviceURL);
     request.setRawHeader("Content-Type", "application/json");
     request.setRawHeader("Content-Length", postDataSize);
@@ -423,8 +365,60 @@ void ServerHandler::generalPost(QByteArray post_data, QString url){
 
     QNetworkReply *reply = manager->post(request, post_data);
     connect(reply, &QNetworkReply::finished, [=](){
-        parsingReply("POST",url,reply);
+        parsingReply("POST",serverURL+"/setstatus",reply);
     });
+}
+void ServerHandler::sendfilePost(QString file_dir, QString url){
+//    QUrl serviceURL(url);
+//    QNetworkRequest request(serviceURL);
+
+//    QHttpMultiPart *files = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+//    QStringList file_dirs = file_dir.split("/");
+//    QString filename = file_dirs[file_dirs.size()-1];
+
+//    QHttpPart filepart;
+//    filepart.setHeader(QNetworkRequest::ContentDispositionHeader,QVariant("form-data; name=\"file\"; filename=\""+filename+"\""));
+//    QFile *file = new QFile(file_dir);
+//    file->open(QIODevice::ReadOnly);
+//    filepart.setBody(file->readAll());
+//    file->setParent(files);
+
+//    files->append(filepart);
+
+//    quint32 random[6];
+//    QRandomGenerator::global()->fillRange(random);
+//    QByteArray boundary = "--boundary_zyl_"+ QByteArray::fromRawData(reinterpret_cast<char *>(random),sizeof(random)).toBase64();
+
+//    QByteArray contentType;
+//    contentType += "multipart/";
+//    contentType += "form-data";
+//    contentType += "; boundary=";
+//    contentType += boundary;
+//    files->setBoundary(boundary);
+//    request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
+
+//    QNetworkReply *reply = manager->post(request, files);
+//    connect(reply, &QNetworkReply::finished, [=](){
+//        files->setParent(reply);
+//        parsingReply("POST",url,reply);
+//    });
+}
+// 공통적으로 사용되는 POST 구문 : 출력으로 응답 정보를 보냄
+void ServerHandler::generalPost(QByteArray post_data, QString url){
+//    QByteArray postDataSize = QByteArray::number(post_data.size());
+//    QUrl serviceURL(url);
+//    QNetworkRequest request(serviceURL);
+//    request.setRawHeader("Content-Type", "application/json");
+//    request.setRawHeader("Content-Length", postDataSize);
+//    request.setRawHeader("Connection", "Keep-Alive");
+//    request.setRawHeader("AcceptEncoding", "gzip, deflate");
+//    request.setRawHeader("AcceptLanguage", "ko-KR,en,*");
+
+//    QNetworkReply *reply = manager->post(request, post_data);
+//    connect(reply, &QNetworkReply::finished, [=](){
+//        parsingReply("POST",url,reply);
+//    });
 }
 
 void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply){
@@ -607,33 +601,33 @@ void ServerHandler::rename_all(){
 }
 
 void ServerHandler::generalGet(QString url){
-    QUrl serviceURL(url);
-    QNetworkRequest request(serviceURL);
-    request.setRawHeader("Content-Type","application./json");
+//    QUrl serviceURL(url);
+//    QNetworkRequest request(serviceURL);
+//    request.setRawHeader("Content-Type","application./json");
 
-    QNetworkReply *reply = manager->get(request);
-    connect(reply, &QNetworkReply::finished, [=](){
-        parsingReply("GET",url,reply);
-    });
+//    QNetworkReply *reply = manager->get(request);
+//    connect(reply, &QNetworkReply::finished, [=](){
+//        parsingReply("GET",url,reply);
+//    });
 }
 void ServerHandler::generalPut(QString url, QByteArray put_data){
-    QUrl serviceURL(url);
-    QNetworkRequest request(serviceURL);
+//    QUrl serviceURL(url);
+//    QNetworkRequest request(serviceURL);
 
-    QNetworkReply *reply = manager->put(request, put_data);
-    connect(reply, &QNetworkReply::finished, [=](){
-        parsingReply("PUT",url,reply);
-    });
+//    QNetworkReply *reply = manager->put(request, put_data);
+//    connect(reply, &QNetworkReply::finished, [=](){
+//        parsingReply("PUT",url,reply);
+//    });
 }
 
 void ServerHandler::generalDelete(QString url){
-    QUrl serviceURL(url);
-    QNetworkRequest request(serviceURL);
+//    QUrl serviceURL(url);
+//    QNetworkRequest request(serviceURL);
 
-    QNetworkReply *reply = manager->deleteResource(request);
-    connect(reply, &QNetworkReply::finished, [=](){
-        parsingReply("DELETE",url,reply);
-    });
+//    QNetworkReply *reply = manager->deleteResource(request);
+//    connect(reply, &QNetworkReply::finished, [=](){
+//        parsingReply("DELETE",url,reply);
+//    });
 }
 
 void ServerHandler::ClearJson(QJsonObject &json){
