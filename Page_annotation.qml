@@ -4107,13 +4107,13 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                     width: parent.width
                                     height: 150
                                     Row{
                                         anchors.centerIn: parent
                                         spacing: 30
-                                        Item_buttons{
+                                        Item_buttons{ // 보기
                                             id: btn_view
                                             width: 100
                                             height: 100
@@ -4130,7 +4130,7 @@ Item {
                                                 map.clear("spline");
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 위치
                                             id: btn_draw
                                             width: 100
                                             height: 100
@@ -4138,6 +4138,7 @@ Item {
                                             type: "circle_all"
                                             selected: select_mode === "topo"
                                             source: "icon/icon_location.png"
+                                            overColor: true
                                             text: qsTr("위치")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to topo");
@@ -4155,7 +4156,7 @@ Item {
                                                 item_mm.update();
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 그리기
                                             id: btn_draw2
                                             width: 100
                                             height: 100
@@ -4172,7 +4173,7 @@ Item {
                                                     select_canvas = 1;
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 줄자
                                             id: btn_ruler
                                             width: 100
                                             height: 100
@@ -4180,6 +4181,7 @@ Item {
                                             type: "circle_all"
                                             selected: select_mode === "ruler"
                                             source: "icon/icon_ruler.png"
+                                            overColor: true
                                             text: qsTr("줄자")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to ruler");
