@@ -20,7 +20,7 @@ ServerHandler::ServerHandler()
     checkUpdate();
     startTime = QTime::currentTime();
 //    sendRobotConfig();
-//    sendMaps();
+    sendMaps();
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/ExtProcess","hello..4");
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/sh/autostart.sh","hello..4");
@@ -201,7 +201,7 @@ void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
 
 
 void ServerHandler::postStatus(){
-    qDebug() << "POST STATUS " << elapsedTime.toString("hh:mm:ss");
+    // qDebug() << "POST STATUS " << elapsedTime.toString("hh:mm:ss");
     ClearJson(json_out);
 
     json_out["robot_id"] = "YUJIN_NUC";
@@ -218,7 +218,7 @@ void ServerHandler::postStatus(){
     json_out["state_motorlock"] = probot->status_lock;
 
     QByteArray temp_array = QJsonDocument(json_out).toJson();
-    newPost(temp_array);
+    newPost(temp_array, serverURL+"/setstatus");
 }
 
 void ServerHandler::uploadRelease(QString file, QString message){
@@ -332,7 +332,7 @@ void ServerHandler::sendMaps(){
     QString dir = QDir::homePath()+"/"+getSetting("setting","MAP","map_name")+".zip";
     QFile config(dir);
     if(config.open(QIODevice::ReadOnly)){
-        sendfilePost(dir, serverURL+"/upload/map/"+myID);
+        newPostFile(dir, fileserverURL+"/upload/map");
     }else{
         plog->write("[SERVER] Send Map : Failed (File not open)");
     }
@@ -353,9 +353,9 @@ QString ServerHandler::getSetting(QString file, QString group, QString name){
     return setting_robot.value(name).toString();
 }
 
-void ServerHandler::newPost(QByteArray post_data){
+void ServerHandler::newPost(QByteArray post_data, QString url){
     QByteArray postDataSize = QByteArray::number(post_data.size());
-    QUrl serviceURL(serverURL+"/setstatus");
+    QUrl serviceURL(url);
     QNetworkRequest request(serviceURL);
     request.setRawHeader("Content-Type", "application/json");
     request.setRawHeader("Content-Length", postDataSize);
@@ -365,7 +365,43 @@ void ServerHandler::newPost(QByteArray post_data){
 
     QNetworkReply *reply = manager->post(request, post_data);
     connect(reply, &QNetworkReply::finished, [=](){
-        parsingReply("POST",serverURL+"/setstatus",reply);
+        parsingReply("POST",url,reply);
+    });
+}
+void ServerHandler::newPostFile(QString file_dir, QString url){
+    QUrl serviceURL(url);
+    QNetworkRequest request(serviceURL);
+
+    QHttpMultiPart *files = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    QStringList file_dirs = file_dir.split("/");
+    QString filename = file_dirs[file_dirs.size()-1];
+
+    QHttpPart filepart;
+    filepart.setHeader(QNetworkRequest::ContentDispositionHeader,QVariant("form-data; name=\"file\"; filename=\""+filename+"\""));
+    QFile *file = new QFile(file_dir);
+    file->open(QIODevice::ReadOnly);
+    filepart.setBody(file->readAll());
+    file->setParent(files);
+
+    files->append(filepart);
+
+    quint32 random[6];
+    QRandomGenerator::global()->fillRange(random);
+    QByteArray boundary = "--boundary_zyl_"+ QByteArray::fromRawData(reinterpret_cast<char *>(random),sizeof(random)).toBase64();
+
+    QByteArray contentType;
+    contentType += "multipart/";
+    contentType += "form-data";
+    contentType += "; boundary=";
+    contentType += boundary;
+    files->setBoundary(boundary);
+    request.setHeader(QNetworkRequest::ContentTypeHeader, contentType);
+
+    QNetworkReply *reply = manager->post(request, files);
+    connect(reply, &QNetworkReply::finished, [=](){
+        files->setParent(reply);
+        parsingReply("POST",url,reply);
     });
 }
 void ServerHandler::sendfilePost(QString file_dir, QString url){
