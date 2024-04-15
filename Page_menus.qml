@@ -174,6 +174,32 @@ Item {
     }
 
     Popup{
+        id: popup_status_detail
+        width: 350
+        height: 450
+        x: parent.width - width - 5
+        y: parent.height+5
+        bottomPadding: 0
+        topPadding: 0
+        leftPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+
+        onOpened: {
+            if(model_details.count == 0){
+                popup_status_detail.close();
+            }else{
+//                ani_popup_show.start();
+            }
+        }
+
+
+    }
+
+    Popup{
         id: popup_program_exit
         width: parent.width
         height: parent.height
@@ -187,21 +213,23 @@ Item {
             opacity: 0.8
         }
 
+
+
         Column{
             spacing: 50
             anchors.centerIn: parent
 
 
 
-            Image{
-                width: 30
-                height: 30
-                sourceSize.width: 30
-                sourceSize.height: 30
-                source: "icon/icon_power.png"
-                antialiasing: true
+            //Image{
+            //    width: 30
+            //    height: 30
+            //    sourceSize.width: 30
+            //    sourceSize.height: 30
+            //    source: "icon/icon_power.png"
+            //    antialiasing: true
 
-            }
+            //}
 
 
             Text{
@@ -211,10 +239,13 @@ Item {
                 color: "#12d27c"
                 text: qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
             }
+
+
             Row{
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 spacing: 30
+
 
                 Rectangle{ //취소
                     width: 200
@@ -337,9 +368,9 @@ Item {
                 }
 
 
-
-
             }
-        }
+
+
+       }
     }
 }
