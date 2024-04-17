@@ -376,13 +376,13 @@ Item {
                 supervisor.setSetting("setting","USE_SLAM/use_obs_preview",true);
             }
         }
-        if(combo_use_pivot_obs.ischanged){
-            if(combo_use_pivot_obs.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",true);
-            }
-        }
+        //if(combo_use_pivot_obs.ischanged){
+        //    if(combo_use_pivot_obs.currentIndex == 0){
+        //        supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",false);
+        //    }else{
+        //        supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",true);
+        //    }
+        //}
         if(combo_use_ignore_safetyzone_return.ischanged){
             if(combo_use_ignore_safetyzone_return.currentIndex == 0){
                 supervisor.setSetting("setting","USE_SLAM/use_ignore_safetyzone_return",false);
@@ -705,11 +705,11 @@ Item {
         }else{
             combo_use_avoid.currentIndex = 0;
         }
-        if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
-            combo_use_pivot_obs.currentIndex = 1;
-        }else{
-            combo_use_pivot_obs.currentIndex = 0;
-        }
+        //if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
+        //    combo_use_pivot_obs.currentIndex = 1;
+        //}else{
+        //    combo_use_pivot_obs.currentIndex = 0;
+        //}
         if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
             combo_multirobot.currentIndex = 1;
         }else{
@@ -1043,7 +1043,7 @@ Item {
         combo_use_earlystop_serving.ischanged = false;
         combo_use_avoid.ischanged = false;
         combo_use_obs_preview.ischanged = false;
-        combo_use_pivot_obs.ischanged = false;
+        //combo_use_pivot_obs.ischanged = false;
 
 
         combo_wheel_dir.ischanged = false;
@@ -1212,7 +1212,7 @@ Item {
 
 
 
-    Rectangle{
+    Rectangle{ // 카테고리 바 :설정, 현재 상태, 로봇, 주행, 인식
         id: dfdfd
         width: parent.width
         height: parent.height-statusbar.height
@@ -7309,7 +7309,8 @@ Item {
                         }
                     }
                 }
-                Rectangle{
+
+                Rectangle{ // 장애물 회피 - 장애물 감지 너비
                     id: set_obs_check_range
                     width: 840
                     height: 50
@@ -7373,52 +7374,52 @@ Item {
                         }
                     }
                 }
-                Rectangle{ // 제자리 회전 장애물 감지
-                    id: set_use_pivot_obs
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("제자리회전 장애물감지")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                    anchors.leftMargin = 30 - width*(1-scale)/2
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            ComboBox{
-                                id: combo_use_pivot_obs
-                                anchors.fill: parent
-                                property bool ischanged: false
-                                onCurrentIndexChanged: {
-                                    is_reset_slam = true;
-                                    ischanged = true;
-                                }
-                                model:[qsTr("사용안함"),qsTr("사용")]
-                            }
-                        }
-                    }
-                }
+                //Rectangle{ // 제자리 회전 장애물 감지
+                //    id: set_use_pivot_obs
+                //    width: 840
+                //    height: 50
+                //    Row{
+                //        anchors.fill: parent
+                //        Rectangle{
+                //            width: 350
+                //            height: parent.height
+                //            Text{
+                //                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.left: parent.left
+                //                anchors.leftMargin: 30
+                //                font.family: font_noto_r.name
+                //                text:qsTr("제자리회전 장애물감지")
+                //                font.pixelSize: 20
+                //                Component.onCompleted: {
+                //                    scale = 1;
+                //                    while(width*scale > parent.width*0.8){
+                //                        scale=scale-0.01;
+                //                    }
+                //                    anchors.leftMargin = 30 - width*(1-scale)/2
+                //                }
+                //            }
+                //        }
+                //        Rectangle{
+                //            width: 1
+                //            height: parent.height
+                //            color: "#d0d0d0"
+                //        }
+                //        Rectangle{
+                //            width: parent.width - 351
+                //            height: parent.height
+                //            ComboBox{
+                //                id: combo_use_pivot_obs
+                //                anchors.fill: parent
+                //                property bool ischanged: false
+                //                onCurrentIndexChanged: {
+                //                    is_reset_slam = true;
+                //                    ischanged = true;
+                //                }
+                //                model:[qsTr("사용안함"),qsTr("사용")]
+                //            }
+                //        }
+                //    }
+                //}
                 Rectangle{
                     id: set_use_obs_near
                     width: 840
