@@ -3729,7 +3729,7 @@ Item {
                 map.setTool("draw");
                 select_preset = 0;
                 if(select_canvas === 1){
-                    cur_mode_str = qsTr("노이거")
+                    cur_mode_str = qsTr("노이즈 제거")
                     slider_brush.value = 5;
                     supervisor.setMode("annot_drawing");
                     map.setDrawingColor(127);
@@ -4055,6 +4055,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowNode(show);
+                                                    //Supervisor.setShowNode(on);
                                                 }
                                             }
                                             Button_show{
@@ -4063,6 +4064,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowEdge(show);
+                                                    //Supervisor.setShowEdge(on);
                                                 }
                                             }
                                             Button_show{
@@ -4070,7 +4072,7 @@ Item {
                                                 text: qsTr("이름")
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
-                                                    Supervisor.setShowName(show);
+                                                    supervisor.setShowName(show);
                                                 }
                                             }
                                             Button_show{
@@ -4103,7 +4105,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowLocation(show);
-                                                    Supervisor.setshow
+                                                    //Supervisor.setshow
                                                 }
                                             }
                                             Button_show{

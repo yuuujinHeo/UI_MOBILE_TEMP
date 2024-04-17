@@ -286,9 +286,9 @@ Item {
         if(obs_margin0.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_margin0",obs_margin0.text);
         }
-        if(obs_near.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_near",obs_near.text);
-        }
+        //if(obs_near.ischanged){
+        //    supervisor.setSetting("setting","OBSTACLE/obs_near",obs_near.text);
+        //}
         if(obs_decel_gain.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_decel_gain",obs_decel_gain.text);
         }
@@ -361,13 +361,13 @@ Item {
             }
         }
 
-        if(combo_use_obs_near.ischanged){
-            if(combo_use_obs_near.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_obs_near",false);
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_obs_near",true);
-            }
-        }
+        //if(combo_use_obs_near.ischanged){
+        //    if(combo_use_obs_near.currentIndex == 0){
+        //        supervisor.setSetting("setting","USE_SLAM/use_obs_near",false);
+        //    }else{
+        //        supervisor.setSetting("setting","USE_SLAM/use_obs_near",true);
+        //    }
+        //}
 
         if(combo_use_obs_preview.ischanged){
             if(combo_use_obs_preview.currentIndex == 0){
@@ -720,11 +720,11 @@ Item {
         }else{
             combo_use_ignore_safetyzone_return.currentIndex = 0;
         }
-        if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
-            combo_use_obs_near.currentIndex = 1;
-        }else{
-            combo_use_obs_near.currentIndex = 0;
-        }
+        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
+        //    combo_use_obs_near.currentIndex = 1;
+        //}else{
+        //    combo_use_obs_near.currentIndex = 0;
+        //}
         if(supervisor.getSetting("setting","USE_SLAM","use_earlystop_resting") === "true"){
             combo_use_earlystop_resting.currentIndex = 1;
         }else{
@@ -822,13 +822,13 @@ Item {
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
         obs_early_stop_dist.text = supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
-        obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near");
+        //obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near");
         obs_margin1.text = supervisor.getSetting("setting","OBSTACLE","obs_margin1");
         obs_margin0.text = supervisor.getSetting("setting","OBSTACLE","obs_margin0");
         obs_detect_area.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
         obs_detect_sensitivity.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
         obs_height_min.text = supervisor.getSetting("setting","OBSTACLE","obs_height_min");
-        obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
+        //obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
 
         tfield_gitbranch.text = supervisor.getSetting("setting","UI","program_branch");
 
@@ -1038,7 +1038,7 @@ Item {
         st_v.ischanged = false;
 
         obs_preview_time.ischanged = false;
-        combo_use_obs_near.ischanged = false;
+        //combo_use_obs_near.ischanged = false;
         combo_use_earlystop_resting.ischanged = false;
         combo_use_earlystop_serving.ischanged = false;
         //combo_use_avoid.ischanged = false;
@@ -1111,10 +1111,10 @@ Item {
         obs_wait_time.ischanged = false;
         obs_height_max.ischanged = false;
         obs_height_min.ischanged = false;
-        obs_decel_gain.ischanged = false;
+        //obs_decel_gain.ischanged = false;
         obs_margin1.ischanged = false;
         obs_margin0.ischanged = false;
-        obs_near.ischanged = false;
+        //obs_near.ischanged = false;
         obs_early_stop_dist.ischanged = false;
         obs_detect_area.ischanged = false;
         obs_detect_sensitivity.ischanged = false;
@@ -7421,180 +7421,180 @@ Item {
                 //        }
                 //    }
                 //}
-                Rectangle{
-                    id: set_use_obs_near
-                    width: 840
-                    height: 50
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("근접 장애물 감속")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                    anchors.leftMargin = 30 - width*(1-scale)/2
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            ComboBox{
-                                id: combo_use_obs_near
-                                anchors.fill: parent
-                                property bool ischanged: false
-                                onCurrentIndexChanged: {
-                                    is_reset_slam = true;
-                                    ischanged = true;
-                                }
-                                model:[qsTr("사용안함"),qsTr("사용")]
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    id: set_obs_near
-                    width: 840
-                    height: 50
-                    visible: combo_use_obs_near.currentIndex === 1
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("근접 장애물 거리")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                    anchors.leftMargin = 30 - width*(1-scale)/2
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            TextField{
-                                id: obs_near
-                                anchors.fill: parent
-                                objectName: "obs_near"
-                                text:supervisor.getSetting("setting","OBSTACLE","obs_near");
-                                property bool ischanged: false
-                                MouseArea{
-                                    anchors.fill:parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        if(keypad.is_opened){
-                                            keypad.owner = obs_near;
-                                            obs_near.selectAll();
-                                        }else{
-                                            keypad.owner = obs_near;
-                                            obs_near.selectAll();
-                                            keypad.open();
-                                        }
-                                    }
-                                }
-                                color:ischanged?color_red:"black"
-                                onTextChanged: {
-                                    ischanged = true;
-                                    is_reset_slam = true;
+                //Rectangle{
+                //    id: set_use_obs_near
+                //    width: 840
+                //    height: 50
+                //    Row{
+                //        anchors.fill: parent
+                //        Rectangle{
+                //            width: 350
+                //            height: parent.height
+                //            Text{
+                //                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.left: parent.left
+                //                anchors.leftMargin: 30
+                //                font.family: font_noto_r.name
+                //                text:qsTr("근접 장애물 감속")
+                //                font.pixelSize: 20
+                //                Component.onCompleted: {
+                //                    scale = 1;
+                //                    while(width*scale > parent.width*0.8){
+                //                        scale=scale-0.01;
+                //                    }
+                //                    anchors.leftMargin = 30 - width*(1-scale)/2
+                //                }
+                //            }
+                //        }
+                //        Rectangle{
+                //            width: 1
+                //            height: parent.height
+                //            color: "#d0d0d0"
+                //        }
+                //        Rectangle{
+                //            width: parent.width - 351
+                //            height: parent.height
+                //            ComboBox{
+                //                id: combo_use_obs_near
+                //                anchors.fill: parent
+                //                property bool ischanged: false
+                //                onCurrentIndexChanged: {
+                //                    is_reset_slam = true;
+                //                    ischanged = true;
+                //                }
+                //                model:[qsTr("사용안함"),qsTr("사용")]
+                //            }
+                //        }
+                //    }
+                //}
+                //Rectangle{
+                //    id: set_obs_near
+                //    width: 840
+                //    height: 50
+                //    visible: combo_use_obs_near.currentIndex === 1
+                //    Row{
+                //        anchors.fill: parent
+                //        Rectangle{
+                //            width: 350
+                //            height: parent.height
+                //            Text{
+                //                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.left: parent.left
+                //                anchors.leftMargin: 30
+                //                font.family: font_noto_r.name
+                //                text:qsTr("근접 장애물 거리")
+                //                font.pixelSize: 20
+                //                Component.onCompleted: {
+                //                    scale = 1;
+                //                    while(width*scale > parent.width*0.8){
+                //                        scale=scale-0.01;
+                //                    }
+                //                    anchors.leftMargin = 30 - width*(1-scale)/2
+                //                }
+                //            }
+                //        }
+                //        Rectangle{
+                //            width: 1
+                //            height: parent.height
+                //            color: "#d0d0d0"
+                //        }
+                //        Rectangle{
+                //            width: parent.width - 351
+                //            height: parent.height
+                //            TextField{
+                //                id: obs_near
+                //                anchors.fill: parent
+                //                objectName: "obs_near"
+                //                text:supervisor.getSetting("setting","OBSTACLE","obs_near");
+                //                property bool ischanged: false
+                //                MouseArea{
+                //                    anchors.fill:parent
+                //                    onClicked: {
+                //                        click_sound.play();
+                //                        if(keypad.is_opened){
+                //                            keypad.owner = obs_near;
+                //                            obs_near.selectAll();
+                //                        }else{
+                //                            keypad.owner = obs_near;
+                //                            obs_near.selectAll();
+                //                            keypad.open();
+                //                        }
+                //                    }
+                //                }
+                //                color:ischanged?color_red:"black"
+                //                onTextChanged: {
+                //                    ischanged = true;
+                //                    is_reset_slam = true;
 
-                                }
-                            }
-                        }
-                    }
-                }
-                Rectangle{
-                    id: set_obs_decel_gain
-                    width: 840
-                    height: 50
-                    visible: combo_use_obs_near.currentIndex === 1
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("장애물 감속 게인")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                    anchors.leftMargin = 30 - width*(1-scale)/2
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            TextField{
-                                id: obs_decel_gain
-                                anchors.fill: parent
-                                objectName: "obs_decel_gain"
-                                text:supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
-                                property bool ischanged: false
-                                MouseArea{
-                                    anchors.fill:parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        if(keypad.is_opened){
-                                            keypad.owner = obs_decel_gain;
-                                            obs_decel_gain.selectAll();
-                                        }else{
-                                            keypad.owner = obs_decel_gain;
-                                            obs_decel_gain.selectAll();
-                                            keypad.open();
-                                        }
-                                    }
-                                }
-                                color:ischanged?color_red:"black"
-                                onTextChanged: {
-                                    ischanged = true;
-                                    is_reset_slam = true;
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
+                //Rectangle{
+                //    id: set_obs_decel_gain
+                //    width: 840
+                //    height: 50
+                //    visible: combo_use_obs_near.currentIndex === 1
+                //    Row{
+                //        anchors.fill: parent
+                //        Rectangle{
+                //            width: 350
+                //            height: parent.height
+                //            Text{
+                //                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.left: parent.left
+                //                anchors.leftMargin: 30
+                //                font.family: font_noto_r.name
+                //                text:qsTr("장애물 감속 게인")
+                //                font.pixelSize: 20
+                //                Component.onCompleted: {
+                //                    scale = 1;
+                //                    while(width*scale > parent.width*0.8){
+                //                        scale=scale-0.01;
+                //                    }
+                //                    anchors.leftMargin = 30 - width*(1-scale)/2
+                //                }
+                //            }
+                //        }
+                //        Rectangle{
+                //            width: 1
+                //            height: parent.height
+                //            color: "#d0d0d0"
+                //        }
+                //        Rectangle{
+                //            width: parent.width - 351
+                //            height: parent.height
+                //            TextField{
+                //                id: obs_decel_gain
+                //                anchors.fill: parent
+                //                objectName: "obs_decel_gain"
+                //                text:supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
+                //                property bool ischanged: false
+                //                MouseArea{
+                //                    anchors.fill:parent
+                //                    onClicked: {
+                //                        click_sound.play();
+                //                        if(keypad.is_opened){
+                //                            keypad.owner = obs_decel_gain;
+                //                            obs_decel_gain.selectAll();
+                //                        }else{
+                //                            keypad.owner = obs_decel_gain;
+                //                            obs_decel_gain.selectAll();
+                //                            keypad.open();
+                //                        }
+                //                    }
+                //                }
+                //                color:ischanged?color_red:"black"
+                //                onTextChanged: {
+                //                    ischanged = true;
+                //                    is_reset_slam = true;
 
-                                }
-                            }
-                        }
-                    }
-                }
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
 
                 Rectangle{
                     id: set_use_earlystop_resting
@@ -11661,14 +11661,17 @@ Item {
                 height: 60
                 radius: 10
                 visible: is_admin
-                color:"transparent"
+                //color:"transparent"
+                color: color_red
                 border.width: 1
-                border.color: "#7e7e7e"
+                //border.color: "#7e7e7e"
+                border.color: color_red
                 Text{
                     anchors.centerIn: parent
                     text:qsTr("관리자 메뉴")
                     font.family: font_noto_r.name
-                    font.pixelSize: 20
+                    font.pixelSize: 25
+                    color: "white"
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -11689,14 +11692,17 @@ Item {
                 width: 180
                 height: 60
                 radius: 10
-                color:"transparent"
+                //color:"transparent"
+                color:color_navy
                 border.width: 1
-                border.color: "#7e7e7e"
+                //border.color: "#7e7e7e"
+                border.color: color_navy
                 Text{
                     anchors.centerIn: parent
                     text:qsTr("설정 초기화")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
+                    color : "white"
                 }
                 MouseArea{
                     anchors.fill: parent
