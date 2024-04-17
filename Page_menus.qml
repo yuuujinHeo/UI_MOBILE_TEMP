@@ -155,7 +155,7 @@ Item {
             mainwindow.showMinimized();
         }
         onMenu3_clicked: {
-            click_sound.play();
+            click_sound.play();;
             popup_program_exit.open();
         }
     }
@@ -174,64 +174,20 @@ Item {
     }
 
     Popup{
-        id: popup_status_detail
-        width: 350
-        height: 450
-        x: parent.width - width - 5
-        y: parent.height+5
-        bottomPadding: 0
-        topPadding: 0
-        leftPadding: 0
-        rightPadding: 0
-        background: Rectangle{
-            anchors.fill: parent
-            color: "transparent"
-        }
-
-        onOpened: {
-            if(model_details.count == 0){
-                popup_status_detail.close();
-            }else{
-//                ani_popup_show.start();
-            }
-        }
-
-
-    }
-
-    Popup{
         id: popup_program_exit
         width: parent.width
         height: parent.height
         anchors.centerIn: parent
         visible: false
 
-
         background:Rectangle{
             anchors.fill: parent
             color: "#282828"
             opacity: 0.8
         }
-
-
-
         Column{
             spacing: 50
             anchors.centerIn: parent
-
-
-
-            //Image{
-            //    width: 30
-            //    height: 30
-            //    sourceSize.width: 30
-            //    sourceSize.height: 30
-            //    source: "icon/icon_power.png"
-            //    antialiasing: true
-
-            //}
-
-
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 font.family: font_noto_b.name
@@ -239,15 +195,11 @@ Item {
                 color: "#12d27c"
                 text: qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
             }
-
-
             Row{
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 spacing: 30
-
-
-                Rectangle{ //취소
+                Rectangle{
                     width: 200
                     height: 90
                     radius: 20
@@ -281,8 +233,7 @@ Item {
                         }
                     }
                 }
-
-                Rectangle{ // 재시작
+                Rectangle{
                     width: 200
                     height: 90
                     radius: 20
@@ -306,7 +257,7 @@ Item {
                         anchors.leftMargin: 20
                     }
                     Text{
-                        text:qsTr("재시작")
+                        text:qsTr("종료")
                         font.family: font_noto_b.name
                         font.pixelSize: 30
                         color:"#282828"
@@ -318,16 +269,15 @@ Item {
                         anchors.fill: parent
                         onClicked: {
                             click_sound.play();;
-                            supervisor.programRestart();
+                            supervisor.programExit();
                             popup_program_exit.close();
                         }
                     }
                 }
-
-                Rectangle{ // 종료
+                Rectangle{
                     width: 200
                     height: 90
-                    //radius: 20
+                    radius: 20
                     color: "#d0d0d0"
                     Rectangle{
                         color:"white"
@@ -348,29 +298,24 @@ Item {
                         anchors.leftMargin: 20
                     }
                     Text{
-                        text:qsTr("종료")
+                        text:qsTr("다시시작")
                         font.family: font_noto_b.name
                         font.pixelSize: 30
                         color:"#282828"
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.left: image_yes2.right
                         anchors.leftMargin : (parent.width - image_yes2.x - image_yes2.width)/2 - width/2
-                        //anchors.leftMargin : 10
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
                             click_sound.play();;
-                            supervisor.programExit();
+                            supervisor.programRestart();
                             popup_program_exit.close();
                         }
                     }
                 }
-
-
             }
-
-
-       }
+        }
     }
 }
