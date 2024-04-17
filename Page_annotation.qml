@@ -3691,6 +3691,15 @@ Item {
                 supervisor.setShowVelmap(true);
                 supervisor.setShowTline(true);
                 supervisor.setShowObject(true);
+
+                //supervisor.setShowNode(true);
+                //supervisor.setShowName(true);
+                //supervisor.setShowEdge(true);
+                //supervisor.setShowLocation(false);
+                //supervisor.setShowAvoid(false);
+                //supervisor.setShowVelmap(false);
+                //supervisor.setShowTline(false);
+                //supervisor.setShowObject(false);
                 update();
             }
             Component.onDestruction: {
@@ -3720,7 +3729,7 @@ Item {
                 map.setTool("draw");
                 select_preset = 0;
                 if(select_canvas === 1){
-                    cur_mode_str = qsTr("노이즈 제거")
+                    cur_mode_str = qsTr("노이거")
                     slider_brush.value = 5;
                     supervisor.setMode("annot_drawing");
                     map.setDrawingColor(127);
@@ -4061,7 +4070,7 @@ Item {
                                                 text: qsTr("이름")
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
-                                                    supervisor.setShowAvoid(show);
+                                                    Supervisor.setShowName(show);
                                                 }
                                             }
                                             Button_show{
@@ -4094,6 +4103,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowLocation(show);
+                                                    Supervisor.setshow
                                                 }
                                             }
                                             Button_show{
