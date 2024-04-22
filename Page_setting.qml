@@ -286,12 +286,12 @@ Item {
         if(obs_margin0.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_margin0",obs_margin0.text);
         }
-        //if(obs_near.ischanged){
+        //if(obs_near.ischanged){ //BJ
         //    supervisor.setSetting("setting","OBSTACLE/obs_near",obs_near.text);
         //}
-        if(obs_decel_gain.ischanged){
-            supervisor.setSetting("setting","OBSTACLE/obs_decel_gain",obs_decel_gain.text);
-        }
+        //if(obs_decel_gain.ischanged){
+        //    supervisor.setSetting("setting","OBSTACLE/obs_decel_gain",obs_decel_gain.text);
+        //}
         if(obs_early_stop_dist.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_early_stop_dist",obs_early_stop_dist.text);
         }
@@ -310,7 +310,7 @@ Item {
         if(obs_wait_time.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_wait_time",obs_wait_time.text);
         }
-        //if(obs_check_range.ischanged){
+        //if(obs_check_range.ischanged){ //BJ
         //    supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
         //}
 
@@ -332,7 +332,7 @@ Item {
 
 
         //USE_SLAM
-        //if(combo_use_avoid.ischanged){
+        //if(combo_use_avoid.ischanged){ //BJ
         //    if(combo_use_avoid.currentIndex == 0){
         //        supervisor.setSetting("setting","USE_SLAM/use_avoid",false);
         //    }else{
@@ -361,7 +361,7 @@ Item {
             }
         }
 
-        //if(combo_use_obs_near.ischanged){
+        //if(combo_use_obs_near.ischanged){ //BJ
         //    if(combo_use_obs_near.currentIndex == 0){
         //        supervisor.setSetting("setting","USE_SLAM/use_obs_near",false);
         //    }else{
@@ -376,7 +376,7 @@ Item {
                 supervisor.setSetting("setting","USE_SLAM/use_obs_preview",true);
             }
         }
-        //if(combo_use_pivot_obs.ischanged){
+        //if(combo_use_pivot_obs.ischanged){ //BJ
         //    if(combo_use_pivot_obs.currentIndex == 0){
         //        supervisor.setSetting("setting","USE_SLAM/use_pivot_obs",false);
         //    }else{
@@ -438,7 +438,7 @@ Item {
         if(path_ref_v_gain.ischanged){
             supervisor.setSetting("update","DRIVING/path_ref_v_gain",path_ref_v_gain.text);
         }
-        //if(path_shifting_val.ischanged){
+        //if(path_shifting_val.ischanged){ //BJ
         //    supervisor.setSetting("update","DRIVING/path_shifting_val",path_shifting_val.text);
         //}
         if(slam_submap_cnt.ischanged){
@@ -675,7 +675,7 @@ Item {
         path_delta_v_acc_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_acc_gain");
         path_delta_v_dec_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_dec_gain");
         path_ref_v_gain.text = supervisor.getSetting("update","DRIVING","path_ref_v_gain");
-        //path_shifting_val.text = supervisor.getSetting("update","DRIVING","path_shifting_val");
+        path_shifting_val.text = supervisor.getSetting("update","DRIVING","path_shifting_val"); //BJ
 
 
         slam_submap_cnt.text = supervisor.getSetting("update","SLAM","slam_submap_cnt");
@@ -700,26 +700,28 @@ Item {
         }else{
             combo_use_obs_preview.currentIndex = 0;
         }
+            //BJ
         //if(supervisor.getSetting("setting","USE_SLAM","use_avoid") === "true"){
         //    combo_use_avoid.currentIndex = 1;
         //}else{
         //    combo_use_avoid.currentIndex = 0;
         //}
-        //if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
-        //    combo_use_pivot_obs.currentIndex = 1;
-        //}else{
-        //    combo_use_pivot_obs.currentIndex = 0;
-        //}
-        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
-            combo_multirobot.currentIndex = 1;
+        if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
+            combo_use_pivot_obs.currentIndex = 1;
         }else{
-            combo_multirobot.currentIndex = 0;
-        }
+            combo_use_pivot_obs.currentIndex = 0;
+        } //BJ
+        //if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
+        //    combo_multirobot.currentIndex = 1;
+        //}else{
+        //    combo_multirobot.currentIndex = 0;
+        //}
         if(supervisor.getSetting("setting","USE_SLAM","use_ignore_safetyzone_return") === "true"){
             combo_use_ignore_safetyzone_return.currentIndex = 1;
         }else{
             combo_use_ignore_safetyzone_return.currentIndex = 0;
         }
+            //BJ
         //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
         //    combo_use_obs_near.currentIndex = 1;
         //}else{
@@ -817,18 +819,18 @@ Item {
 
 
         //OBSTACLE
-        //obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range");
+        obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
         obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
         obs_early_stop_dist.text = supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
-        //obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near");
+        obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near"); //BJ
         obs_margin1.text = supervisor.getSetting("setting","OBSTACLE","obs_margin1");
         obs_margin0.text = supervisor.getSetting("setting","OBSTACLE","obs_margin0");
         obs_detect_area.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
         obs_detect_sensitivity.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
         obs_height_min.text = supervisor.getSetting("setting","OBSTACLE","obs_height_min");
-        //obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain");
+        obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain"); //BJ
 
         tfield_gitbranch.text = supervisor.getSetting("setting","UI","program_branch");
 
@@ -1038,12 +1040,12 @@ Item {
         st_v.ischanged = false;
 
         obs_preview_time.ischanged = false;
-        //combo_use_obs_near.ischanged = false;
+        //combo_use_obs_near.ischanged = false; //BJ
         combo_use_earlystop_resting.ischanged = false;
         combo_use_earlystop_serving.ischanged = false;
-        //combo_use_avoid.ischanged = false;
+        //combo_use_avoid.ischanged = false; //BJ
         combo_use_obs_preview.ischanged = false;
-        //combo_use_pivot_obs.ischanged = false;
+        //combo_use_pivot_obs.ischanged = false; //BJ
 
 
         combo_wheel_dir.ischanged = false;
@@ -1085,7 +1087,7 @@ Item {
         path_delta_v_acc_gain.ischanged = false;
         path_delta_v_dec_gain.ischanged = false;
         path_ref_v_gain.ischanged = false;
-        //path_shifting_val.ischanged = false;
+        //path_shifting_val.ischanged = false; //BJ
 
         slam_submap_cnt.ischanged = false;
         slam_lc_dist.ischanged = false;
@@ -1105,16 +1107,16 @@ Item {
 
         tfield_gitbranch.ischanged = false;
         //OBSTACLE
-        //obs_check_range.ischanged = false;
+        //obs_check_range.ischanged = false; //BJ
         obs_deadzone.ischanged = false;
         obs_preview_time.ischanged = false;
         obs_wait_time.ischanged = false;
         obs_height_max.ischanged = false;
         obs_height_min.ischanged = false;
-        //obs_decel_gain.ischanged = false;
+        //obs_decel_gain.ischanged = false; //BJ
         obs_margin1.ischanged = false;
         obs_margin0.ischanged = false;
-        //obs_near.ischanged = false;
+        //obs_near.ischanged = false; //BJ
         obs_early_stop_dist.ischanged = false;
         obs_detect_area.ischanged = false;
         obs_detect_sensitivity.ischanged = false;
@@ -1194,7 +1196,7 @@ Item {
         if(path_delta_v_acc_gain.ischanged) is_changed = true;
         if(path_delta_v_dec_gain.ischanged) is_changed = true;
         if(path_ref_v_gain.ischanged) is_changed = true;
-        //if(path_shifting_val.ischanged) is_changed = true;
+        if(path_shifting_val.ischanged) is_changed = true; //BJ
         if(slam_submap_cnt.ischanged) is_changed = true;
         if(slam_lc_dist.ischanged) is_changed = true;
         if(slam_lc_icp_dist.ischanged) is_changed = true;

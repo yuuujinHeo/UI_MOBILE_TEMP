@@ -4029,7 +4029,7 @@ Item {
                                     height: 5
                                     color: color_light_gray
                                 }
-                                Rectangle{
+                                Rectangle{ // 보기
                                     width: parent.width
                                     height: 100
                                     Row{
@@ -4160,7 +4160,7 @@ Item {
                                                 supervisor.setShowNode(true);
                                                 supervisor.setShowName(true);
                                                 supervisor.setShowEdge(true);
-                                                supervisor.setShowLocation(false);
+                                                supervisor.setShowLocation(false); //false -> true?
                                                 supervisor.setShowAvoid(true);
                                                 supervisor.setShowVelmap(true);
                                                 supervisor.setShowTline(true);
@@ -4203,7 +4203,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ //draw
                                     width: parent.width
                                     visible: select_mode === "draw"
                                     height: 80
@@ -4272,7 +4272,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ // select_mod:topo
                                     visible: select_mode === "topo"
                                     width: parent.width
                                     height: 400
@@ -4386,7 +4386,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ //select_mod:draw
                                     width: parent.width
                                     height: 500
                                     color: color_light_gray
