@@ -11736,6 +11736,31 @@ Item {
                     }
                 }
             }
+
+
+            Rectangle{
+                id: btn_version
+                width: 180
+                height: 60
+                radius: 10
+                color: "transparent"
+                //border.width: 1
+                //border.color: "transparent"
+                Text{
+                    anchors.centerIn: parent
+                    text:qsTr("Version 1.1.0")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 25
+                    color: "black"
+                }
+                //MouseArea{
+                //    anchors.fill: parent
+                //    onClicked:{
+                //        click_sound.play();
+                //        save();
+                //    }
+                //}
+            }
         }
     }
 
