@@ -675,7 +675,7 @@ Item {
         path_delta_v_acc_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_acc_gain");
         path_delta_v_dec_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_dec_gain");
         path_ref_v_gain.text = supervisor.getSetting("update","DRIVING","path_ref_v_gain");
-        path_shifting_val.text = supervisor.getSetting("update","DRIVING","path_shifting_val"); //BJ
+        //path_shifting_val.text = supervisor.getSetting("update","DRIVING","path_shifting_val"); //BJ
 
 
         slam_submap_cnt.text = supervisor.getSetting("update","SLAM","slam_submap_cnt");
@@ -706,11 +706,11 @@ Item {
         //}else{
         //    combo_use_avoid.currentIndex = 0;
         //}
-        if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
-            combo_use_pivot_obs.currentIndex = 1;
-        }else{
-            combo_use_pivot_obs.currentIndex = 0;
-        } //BJ
+        //if(supervisor.getSetting("setting","USE_SLAM","use_pivot_obs") === "true"){
+        //    combo_use_pivot_obs.currentIndex = 1;
+        //}else{
+        //    combo_use_pivot_obs.currentIndex = 0;
+        //} //BJ
         //if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
         //    combo_multirobot.currentIndex = 1;
         //}else{
@@ -819,18 +819,18 @@ Item {
 
 
         //OBSTACLE
-        obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
+        //obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
         obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
         obs_early_stop_dist.text = supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
-        obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near"); //BJ
+        //obs_near.text = supervisor.getSetting("setting","OBSTACLE","obs_near"); //BJ
         obs_margin1.text = supervisor.getSetting("setting","OBSTACLE","obs_margin1");
         obs_margin0.text = supervisor.getSetting("setting","OBSTACLE","obs_margin0");
         obs_detect_area.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
         obs_detect_sensitivity.text = supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
         obs_height_min.text = supervisor.getSetting("setting","OBSTACLE","obs_height_min");
-        obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain"); //BJ
+        //obs_decel_gain.text = supervisor.getSetting("setting","OBSTACLE","obs_decel_gain"); //BJ
 
         tfield_gitbranch.text = supervisor.getSetting("setting","UI","program_branch");
 
@@ -1196,7 +1196,7 @@ Item {
         if(path_delta_v_acc_gain.ischanged) is_changed = true;
         if(path_delta_v_dec_gain.ischanged) is_changed = true;
         if(path_ref_v_gain.ischanged) is_changed = true;
-        if(path_shifting_val.ischanged) is_changed = true; //BJ
+        //if(path_shifting_val.ischanged) is_changed = true; //BJ
         if(slam_submap_cnt.ischanged) is_changed = true;
         if(slam_lc_dist.ischanged) is_changed = true;
         if(slam_lc_icp_dist.ischanged) is_changed = true;
