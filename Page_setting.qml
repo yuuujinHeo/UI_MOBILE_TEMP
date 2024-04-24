@@ -1452,7 +1452,7 @@ Item {
                     id: set_robot_1_serial
                     width: 840
                     height: 50
-                    visible: use_multirobot
+                    visible: false//use_multirobot
                     Row{
                         anchors.fill: parent
                         Rectangle{

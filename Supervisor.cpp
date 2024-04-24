@@ -228,6 +228,15 @@ void Supervisor::sendMapServer(){
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 }
 
+bool Supervisor::checkGroupName(QString name){
+    for(int i=0; i<pmap->location_groups.size(); i++){
+        if(pmap->location_groups[i] == name){
+            return false;
+        }
+    }
+    return true;
+}
+
 bool Supervisor::checkLocationName(int group, QString name){
     for(int i=0; i<pmap->locations.size(); i++){
         if(pmap->locations[i].group == group){
@@ -514,7 +523,7 @@ void Supervisor::readSetting(QString map_name){
     setting_config.beginGroup("ROBOT_TYPE");
     probot->model = setting_config.value("model").toString();
     probot->serial_num = setting_config.value("serial_num").toInt();
-    probot->name = probot->model + QString::number(probot->serial_num);
+    probot->name = probot->model;// + QString::number(probot->serial_num);
     probot->type = setting_config.value("type").toString();
     if(probot->type == "CLEANING"){
         use_cleaning_location = true;
@@ -702,6 +711,7 @@ void Supervisor::readSetting(QString map_name){
         int serv_num = setting_anot.value("num").toInt();
         total_serv_num +=serv_num;
         QString group_name = setting_anot.value("name").toString();
+        qDebug() << group_name;
         pmap->location_groups.append(group_name);
 
         for(int j=0; j<serv_num; j++){
@@ -3237,12 +3247,14 @@ int Supervisor::getObsinPath(){
 }
 
 void Supervisor::setMotorLock(bool onoff){
-    if(onoff){
-        plog->write("[COMMAND] SET MOTOR LOCK : ON");
-        ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_ON,"ROBOT_CMD_MOTOR_LOCK_ON");
-    }else{
-        plog->write("[COMMAND] SET MOTOR LOCK : OFF");
-        ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_OFF2,"ROBOT_CMD_MOTOR_LOCK_OFF2");
+    if(ipc->getConnection()){
+        if(onoff){
+            plog->write("[COMMAND] SET MOTOR LOCK : ON");
+            ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_ON,"ROBOT_CMD_MOTOR_LOCK_ON");
+        }else{
+            plog->write("[COMMAND] SET MOTOR LOCK : OFF");
+            ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_OFF2,"ROBOT_CMD_MOTOR_LOCK_OFF2");
+        }
     }
 }
 
