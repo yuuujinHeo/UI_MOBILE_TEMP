@@ -100,8 +100,22 @@ void MapHandler::loadFile(QString name, QString type){
 
     if(QFile::exists(file_path)){
         cv::Mat temp = cv::imread(file_path.toStdString(), cv::IMREAD_UNCHANGED);
-        if(temp.channels() == 3){
-            cv::cvtColor(temp,file_travelline,cv::COLOR_BGR2BGRA);
+        qDebug() << temp.channels();
+        if(temp.channels() == 1){
+            cv::cvtColor(temp,file_travelline,cv::COLOR_GRAY2BGRA);
+            for(int i=0; i<file_travelline.cols; i++){
+                for(int j=0; j<file_travelline.rows; j++){
+                    if(file_travelline.at<cv::Vec4b>(i,j)[0] == 0){
+                        file_travelline.at<cv::Vec4b>(i,j)[0] = 0;
+                        file_travelline.at<cv::Vec4b>(i,j)[1] = 0;
+                        file_travelline.at<cv::Vec4b>(i,j)[2] = 0;
+                        file_travelline.at<cv::Vec4b>(i,j)[3] = 0;
+                    }
+                }
+            }
+        }else if(temp.channels() == 3){
+//            temp.copyTo(file_travelline);
+            cv::cvtColor(file_travelline,file_travelline,cv::COLOR_BGR2BGRA);
             for(int i=0; i<file_travelline.cols; i++){
                 for(int j=0; j<file_travelline.rows; j++){
                     if(file_travelline.at<cv::Vec4b>(i,j)[0] == 0){
@@ -140,7 +154,20 @@ void MapHandler::loadFile(QString name, QString type){
     file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_travel_line_ui.png";
     if(QFile::exists(file_path)){
         cv::Mat temp = cv::imread(file_path.toStdString(), cv::IMREAD_UNCHANGED);
-        if(temp.channels() == 3){
+        if(temp.channels() == 1){
+            cv::cvtColor(temp,file_travelline_ui,cv::COLOR_GRAY2BGRA);
+            for(int i=0; i<file_travelline_ui.cols; i++){
+                for(int j=0; j<file_travelline_ui.rows; j++){
+                    if(file_travelline_ui.at<cv::Vec4b>(i,j)[0] == 0){
+                        file_travelline_ui.at<cv::Vec4b>(i,j)[0] = 0;
+                        file_travelline_ui.at<cv::Vec4b>(i,j)[1] = 0;
+                        file_travelline_ui.at<cv::Vec4b>(i,j)[2] = 0;
+                        file_travelline_ui.at<cv::Vec4b>(i,j)[3] = 0;
+                    }
+                }
+            }
+
+        }else if(temp.channels() == 3){
             cv::cvtColor(temp,file_travelline_ui,cv::COLOR_BGR2BGRA);
             for(int i=0; i<file_travelline_ui.cols; i++){
                 for(int j=0; j<file_travelline_ui.rows; j++){
@@ -1481,6 +1508,8 @@ void MapHandler::setMap(){
             }else{
                 cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
                 cv::addWeighted(temp_orin,1,temp_travel_ui,1,0,temp_orin);
+
+//                std::cout<<"wwwwwwwwwww"<<std::endl;
             }
 
         }
