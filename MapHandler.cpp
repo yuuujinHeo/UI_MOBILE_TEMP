@@ -1468,6 +1468,7 @@ void MapHandler::setMap(){
         if(show_velocitymap){
             if(mode == "annot_velmap"){
                 cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
+                //cv::add(temp_velmap,map_drawing,temp_velmap);
                 cv::add(temp_velmap,map_drawing,temp_velmap);
             }
             cv::add(temp_layer,temp_velmap,temp_layer);

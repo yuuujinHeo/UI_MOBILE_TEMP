@@ -3691,6 +3691,15 @@ Item {
                 supervisor.setShowVelmap(true);
                 supervisor.setShowTline(true);
                 supervisor.setShowObject(true);
+
+                //supervisor.setShowNode(true);
+                //supervisor.setShowName(true);
+                //supervisor.setShowEdge(true);
+                //supervisor.setShowLocation(false);
+                //supervisor.setShowAvoid(false);
+                //supervisor.setShowVelmap(false);
+                //supervisor.setShowTline(false);
+                //supervisor.setShowObject(false);
                 update();
             }
             Component.onDestruction: {
@@ -4020,7 +4029,7 @@ Item {
                                     height: 5
                                     color: color_light_gray
                                 }
-                                Rectangle{
+                                Rectangle{ // 보기
                                     width: parent.width
                                     height: 100
                                     Row{
@@ -4046,6 +4055,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowNode(show);
+                                                    //Supervisor.setShowNode(on);
                                                 }
                                             }
                                             Button_show{
@@ -4054,6 +4064,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowEdge(show);
+                                                    //Supervisor.setShowEdge(on);
                                                 }
                                             }
                                             Button_show{
@@ -4061,7 +4072,7 @@ Item {
                                                 text: qsTr("이름")
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
-                                                    supervisor.setShowAvoid(show);
+                                                    supervisor.setShowName(show);
                                                 }
                                             }
                                             Button_show{
@@ -4094,6 +4105,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowLocation(show);
+                                                    //Supervisor.setshow
                                                 }
                                             }
                                             Button_show{
@@ -4107,13 +4119,13 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                     width: parent.width
                                     height: 150
                                     Row{
                                         anchors.centerIn: parent
                                         spacing: 30
-                                        Item_buttons{
+                                        Item_buttons{ // 보기
                                             id: btn_view
                                             width: 100
                                             height: 100
@@ -4130,7 +4142,7 @@ Item {
                                                 map.clear("spline");
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 위치
                                             id: btn_draw
                                             width: 100
                                             height: 100
@@ -4138,6 +4150,7 @@ Item {
                                             type: "circle_all"
                                             selected: select_mode === "topo"
                                             source: "icon/icon_location.png"
+                                            overColor: true
                                             text: qsTr("위치")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to topo");
@@ -4147,7 +4160,7 @@ Item {
                                                 supervisor.setShowNode(true);
                                                 supervisor.setShowName(true);
                                                 supervisor.setShowEdge(true);
-                                                supervisor.setShowLocation(false);
+                                                supervisor.setShowLocation(false); //false -> true?
                                                 supervisor.setShowAvoid(true);
                                                 supervisor.setShowVelmap(true);
                                                 supervisor.setShowTline(true);
@@ -4155,7 +4168,7 @@ Item {
                                                 item_mm.update();
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 그리기
                                             id: btn_draw2
                                             width: 100
                                             height: 100
@@ -4172,7 +4185,7 @@ Item {
                                                     select_canvas = 1;
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 줄자
                                             id: btn_ruler
                                             width: 100
                                             height: 100
@@ -4180,6 +4193,7 @@ Item {
                                             type: "circle_all"
                                             selected: select_mode === "ruler"
                                             source: "icon/icon_ruler.png"
+                                            overColor: true
                                             text: qsTr("줄자")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to ruler");
@@ -4189,7 +4203,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ //draw
                                     width: parent.width
                                     visible: select_mode === "draw"
                                     height: 80
@@ -4258,7 +4272,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ // select_mod:topo
                                     visible: select_mode === "topo"
                                     width: parent.width
                                     height: 400
@@ -4372,7 +4386,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ //select_mod:draw
                                     width: parent.width
                                     height: 500
                                     color: color_light_gray
