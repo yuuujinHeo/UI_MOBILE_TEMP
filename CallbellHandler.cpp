@@ -37,11 +37,18 @@ void CallbellHandler::onTimer(){
     if(time_cnt > 10 && !m_serialPort->isOpen()){
         if(m_serialPort->open(QIODevice::ReadWrite)){
             plog->write("[CALLBELL] SERIAL "+m_serialPort->portName() + " OPEN SUCCESS!");
-        }else{
-//            plog->write("[CALLBELL] SERIAL "+m_serialPort->portName() + " OPEN FAIL");
         }
         time_cnt = 0;
     }
+
+    // sendCallTest();
+}
+
+void CallbellHandler::sendCallTest(){
+    // if(test.size() == 0) return;
+
+    // qDebug() << "TEST : " << test;
+    // m_serialPort->write(test);
 }
 
 void CallbellHandler::readData(){
@@ -52,63 +59,88 @@ void CallbellHandler::readData(){
     for(int i=0; i<data.size(); i++){
         str += QString().asprintf("0x%02X ", uchar(data[i]));
     }
-//    qDebug() << str;
-//    qDebug() << "CALLBELL" << data;
+   // qDebug() << "CALLBELL" << data;
+
+   /*
+    * Syscall protocol v0.4
+    *
+    *[sender -> receiver]
+    * Header
+    * [0]version (0x03)
+    * [1]flags (0x01)
+    * [2,3]length (0x0014)
+    * Basic data
+    * [4,5]option (0xA505)
+    * -> 0xA501(connect) 0xA505(bell push) | 0xA511(device check) 0xA514(sender call)
+    * [6,7]model number (0x00CC)
+    * [8,9]firmware version (0xA102)
+    * Bell data
+    * [10,11,12,13] bell unique ID (0x3F4E070F)
+    * [14] button info (0x0F)
+    * [15] bell info (0x01, 0x03(3bell))
+    * [16,17,18] reserved2 (0x000000)
+    * [19] check sum
+    *
+    *
+    *[receiver -> sender]
+    * Header
+    * [0]version (0x03)
+    * [1]flags (0x01)
+    * [2,3]length (0x0008)
+    * Basic data
+    * [4,5]option (0xC505)
+    * -> 0xC501(connect response) 0xC505(bell response) | 0xC511(device check) 0xC514(sender call)
+    * [6]result (0x00=success)
+    * [7]check sum
+    *
+    */
 
     while(datas.length() > 4){
         if(uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01){
             int size = (short)(uchar(datas[3]) | (uchar(datas[2])<<8));
-//            qDebug() << "SIZE : " << size;
-
             if(size < 0 || size > 24){
                 datas.remove(0, 1);
             }else{
                 if(size <= datas.length()){
                     uint option = (ushort)(uchar(datas[5]) | (uchar(datas[4])<<8));
-                    uint model_num = (ushort)(uchar(datas[7]) | (uchar(datas[6])<<8));
-                    uint firmware_ver = (ushort)(uchar(datas[9]) | (uchar(datas[8])<<8));
-                    uint bell_id;
-                    uint button_info;
-                    uint bell_info;
-//                    qDebug() << QString().asprintf("Option: %04X", option);
-//                    qDebug() << QString().asprintf("Model: %04X", model_num);
-//                    qDebug() << QString().asprintf("Firmware: %04X", firmware_ver);
 
-                    if(size == 12){
-                        // connection check
+                    if(option == 0xA501 && size == 12){
+                        //connection check
                         uchar checksum = uchar(datas[11]);
                         uchar temp_cs = CalcCheckSum(datas, size);
-
-//                        qDebug() << int(checksum) << " : " << int(temp_cs) ;
                         datas.remove(0, size);
-
-                        if((checksum == temp_cs) && (option == 0xA501)){
+                        if(checksum == temp_cs){
                             SendConnectionCheckMessage();
                         }
-                    }else if(size == 20){
+                    }else if(option == 0xA505 && size == 20){
                         // data check
+                        uint model_num = (ushort)(uchar(datas[7]) | (uchar(datas[6])<<8));
+                        uint firmware_ver = (ushort)(uchar(datas[9]) | (uchar(datas[8])<<8));
+                        uint bell_id;
+                        uint button_info;
+                        uint bell_info;
                         bell_id = (unsigned int)(uchar(datas[13]) | (uchar(datas[12])<<8) | (uchar(datas[11])<<16) | (uchar(datas[10])<<24));
                         button_info = uchar(datas[14]);
                         bell_info = uchar(datas[15]);
-//                        qDebug() << QString().asprintf("Bell ID: %08X", bell_id);
-//                        qDebug() << QString().asprintf("Button Info: %d", button_info);
-//                        qDebug() << QString().asprintf("Bell Info: %d", bell_info);
 
                         QString bell_str = QString().asprintf("%08X", bell_id);
+                        QString button_info_str = QString().asprintf("%02X", button_info);
+                        QString bell_info_str = QString().asprintf("%02X", bell_info);
 
+                        // qDebug() << bell_str << button_info_str << bell_info_str;
                         uchar checksum = uchar(datas[19]);
                         uchar temp_cs = CalcCheckSum(datas, size);
-
-//                        qDebug() << int(checksum) << " : " << int(temp_cs) ;
                         datas.remove(0, size);
-
-                        if((checksum == temp_cs) && (option == 0xA505)){
+                        if(checksum == temp_cs){
                             SendDataCheckMessage();
+                            // sendCall(bell_str);
                             last_bell_id = bell_str;
                             plog->write("[CALLBELL] NEW CALLING : " + last_bell_id);
                             emit new_call();
                         }
                     }
+
+
                 }else{
                     break;
                 }
@@ -125,6 +157,39 @@ void CallbellHandler::handleError(QSerialPort::SerialPortError error){
         if(m_serialPort->isOpen())
             m_serialPort->close();
     }
+}
+
+void CallbellHandler::sendCall(QString id){
+    QByteArray sendData;
+    sendData.push_back(uchar(0x03));
+    sendData.push_back(uchar(0x01));
+    sendData.push_back(uchar(0x00));
+    sendData.push_back(uchar(0x14));
+    sendData.push_back(uchar(0xC5));
+    sendData.push_back(uchar(0x14));
+    sendData.push_back(uchar(0x00));
+    sendData.push_back(uchar(0xCC));
+    sendData.push_back(uchar(0xA1));
+    sendData.push_back(uchar(0x02));
+
+    sendData.push_back(uchar(0x12));
+    sendData.push_back(uchar(0x34));
+    sendData.push_back(uchar(0x56));
+    sendData.push_back(uchar(0x78));
+
+    sendData.push_back(uchar(0x0F));
+    sendData.push_back(uchar(0x01));
+    sendData.push_back(uchar(0x00));
+    sendData.push_back(uchar(0x00));
+    sendData.push_back(uchar(0x00));
+    sendData.push_back(CalcCheckSum(sendData, 20));
+
+    QString strSend;
+    for(int i=0; i<sendData.size(); i++){
+        strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
+    }
+    qDebug() << "sendCall : " << id << strSend;
+    m_serialPort->write(sendData);
 }
 
 
@@ -162,7 +227,7 @@ void CallbellHandler::SendDataCheckMessage(){
     for(int i=0; i<sendData.size(); i++){
         strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
     }
-//    qDebug() << strSend;
+    qDebug() << "SendDataCheckMessage" << strSend;
     m_serialPort->write(sendData);
 }
 
