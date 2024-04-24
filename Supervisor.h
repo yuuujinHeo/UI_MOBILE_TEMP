@@ -84,6 +84,7 @@ public:
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
 
+    Q_INVOKABLE bool checkGroupName(QString name);
     Q_INVOKABLE bool checkLocationName(int group, QString name);
     ////*********************************************  IP SETTINGs   *********************************************////
 
