@@ -5908,6 +5908,9 @@ Item {
                     onClicked: {
                         if(tfield_group.text == ""){
                             click_sound_no.play();
+                        }else if(!supervisor.checkGroupName(tfield_group.text)){
+                            click_sound_no.play();
+                            tfield_group.color = color_red;
                         }else{
                             supervisor.addLocationGroup(tfield_group.text);
                             supervisor.writelog("[QML] MAP PAGE : ADD LOCATION GROUP -> "+tfield_group.text);

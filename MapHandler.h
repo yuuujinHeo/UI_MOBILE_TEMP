@@ -309,6 +309,7 @@ public:
         initDrawing();
     }
     void initDrawing(){
+        qDebug() << "initDrawing";
         map_drawing = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         map_drawing_tline = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         map_drawing_mask = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
