@@ -92,7 +92,8 @@ Item {
             spacing: 40
             anchors.centerIn: parent
             Repeater{
-                model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화"),qsTr("지정 순회")]
+                //model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화"),qsTr("지정 순회")]
+                model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화")]
                 Rectangle{
                     property int btn_size: 135
                     width: btn_size
@@ -119,9 +120,11 @@ Item {
                                         "image/image_slam.png"
                                     }else if(modelData === qsTr("현재맵 수정하기")){
                                         "image/image_annot.png"
-                                    }else if(modelData === qsTr("지정 순회")){
-                                        "image/image_patrol.png"
-                                    }else if(modelData === qsTr("위치 초기화")){
+                                    }
+                                    //else if(modelData === qsTr("지정 순회")){
+                                    //    "image/image_patrol.png"
+                                    //}
+                                    else if(modelData === qsTr("위치 초기화")){
                                         "image/image_localization.png"
                                     }
                                 }
@@ -157,17 +160,17 @@ Item {
                                 supervisor.writelog("[UI] MAP : move to Annotation");
                                 loadPage(pannotation);
                                 supervisor.setAnnotEditFlag(true);
-                            }else if(modelData === qsTr("지정 순회")){
-                                if(supervisor.isRobotReady()){
-                                    click_sound.play();
-                                    supervisor.writelog("[UI] MAP : Show Patrol Popup")
-                                    popup_patrol.open();
-                                    popup_patrol.mode = "sequence";
-                                }else{
-                                    click_sound_no.play();
-                                    supervisor.writelog("[UI] MAP : Show Patrol Popup -> Robot Not Ready")
-                                    robotnotready();
-                                }
+                            //}else if(modelData === qsTr("지정 순회")){
+                            //    if(supervisor.isRobotReady()){
+                            //        click_sound.play();
+                            //        supervisor.writelog("[UI] MAP : Show Patrol Popup")
+                            //        popup_patrol.open();
+                            //        popup_patrol.mode = "sequence";
+                            //    }else{
+                            //        click_sound_no.play();
+                            //        supervisor.writelog("[UI] MAP : Show Patrol Popup -> Robot Not Ready")
+                            //        robotnotready();
+                            //    }
                             }else if(modelData === qsTr("위치 초기화")){
                                 click_sound.play();
                                 supervisor.writelog("[UI] MAP : move to Localization")
