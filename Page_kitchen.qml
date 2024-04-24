@@ -119,7 +119,7 @@ Item {
 
     onCur_groupChanged: {
         cur_table = -1;
-        update_group();
+        update_table();
     }
 
     Rectangle{
@@ -230,6 +230,7 @@ Item {
         model_group.clear();
         var groupnum = -1;
         for(var i=0; i<supervisor.getLocationGroupNum(); i++){
+            console.log(i,supervisor.getLocGroupname(i),groupnum);
             if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
                 if(supervisor.getLocationGroupSize(i) > 0){
                     if(groupnum == -1){
@@ -250,8 +251,13 @@ Item {
                 }
             }
         }
-        if(cur_group == -1)
+
+        if(groupnum == -1){
+            cur_group = 0;
+        }else{
             cur_group = groupnum;
+
+        }
 
         if(model_group.count > 0){
             table_num = supervisor.getLocationGroupSize(model_group.get(cur_group).num);
