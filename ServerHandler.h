@@ -47,6 +47,9 @@ public:
     void setSetting(QString file, QString name, QString value);
     void postStatus();
 
+    void newPost(QByteArray post_data, QString url);
+    void newPostFile(QString file_dir, QString url);
+
     void checkUpdate();
     void doUpdate();
 
@@ -98,9 +101,14 @@ public:
     QString message;
 
     int TIMER_MS = 1000;
-    QString serverURL = "http://rbyujin.com:8080";
-    QString myID = "";
+//    QString serverURL = "http://rbyujin.com:8080";
+    QString serverURL = "http://127.0.0.1:11334";
+    QString fileserverURL = "http://127.0.0.1:11335";
+//    QString serverURL = "http://49.50.173.53:11334";
+    QString myID = "YUJIN_NUC";
 
+    QTime startTime;
+    QTime elapsedTime;
 signals:
     void updatefail();
     void updatesuccess();
