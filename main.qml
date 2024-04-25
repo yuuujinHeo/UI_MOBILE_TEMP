@@ -106,7 +106,7 @@ Window {
     function nolocation(){
         supervisor.writelog("[UI] No Location : "+supervisor.getcurLoc());
         supervisor.playVoice("error_no_path");
-        setNotice("no_path");
+        setNotice("no_location");
     }
 
     function setNotice(errnum){
@@ -126,6 +126,11 @@ Window {
             popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
             popup_notice.sub_str = "";
             popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+
         }else if(errstr === "localization"){
             popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
