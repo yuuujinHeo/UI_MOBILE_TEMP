@@ -142,22 +142,22 @@ Item {
         anchors.topMargin: 50
         Component.onCompleted: {
             addMenu("","icon/btn_menu.png");
-            addMenu(qsTr("최소화"),"icon/icon_minimize.png");
-            addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
+            //addMenu(qsTr("최소화"),"icon/icon_minimize.png");
+            //addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
         }
         onMenu1_clicked: {
             click_sound.play();
             loadPage(pkitchen);
         }
-        onMenu2_clicked: {
-            click_sound.play();
-            supervisor.writelog("[USER INPUT] Screen Minimized.");
-            mainwindow.showMinimized();
-        }
-        onMenu3_clicked: {
-            click_sound.play();;
-            popup_program_exit.open();
-        }
+        //onMenu2_clicked: {
+        //    click_sound.play();
+        //    supervisor.writelog("[USER INPUT] Screen Minimized.");
+        //    mainwindow.showMinimized();
+        //}
+        //onMenu3_clicked: {
+        //    click_sound.play();;
+        //    popup_program_exit.open();
+        //}
     }
 
     Popup_password{
