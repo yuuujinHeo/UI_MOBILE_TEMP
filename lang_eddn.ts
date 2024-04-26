@@ -3602,7 +3602,7 @@ You can now move the robot by pushing</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="9694"/>
-        <source>프로그램 연결 안됨</source>
+        <source>자율주행 프로그램 연결 안됨</source>
         <translation>Program not connected</translation>
     </message>
     <message>

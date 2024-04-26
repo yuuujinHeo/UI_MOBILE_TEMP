@@ -3710,6 +3710,12 @@ void Supervisor::onTimer(){
         connect(timer2, SIGNAL(timeout()),this,SLOT(clear_all()));
         timer2->start(500);
     }
+    if(start_clear_config){
+        start_clear_config = false;
+        timer2 = new QTimer();
+        connect(timer2, SIGNAL(timeout()),this,SLOT(clear_config()));
+        timer2->start(500);
+    }
 
     //************************** WiFi *********************************//
 
@@ -5180,6 +5186,125 @@ void Supervisor::resetClear(){
     start_clear = true;
 }
 
+void Supervisor::clear_config(){
+    plog->write("[COMMAND] Reset Config");
+    timer2->stop();
+
+    //maps 폴더 지움.
+    //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
+    //                          Q_ARG(QVariant,QVariant().fromValue(1)));
+
+    //QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
+    //QDir dir_maps(path_maps);
+    //if(dir_maps.removeRecursively()){
+    //    plog->write("[CLEAR] Reset Clear : Remove maps");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
+    //}else{
+    //    plog->write("[CLEAR] Reset Clear : Remove maps failed");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
+    //}
+    //QDir().mkdir(path_maps);
+
+    //temp 폴더 지움.
+    //QString path_temp = QDir::homePath()+"/RB_MOBILE/temp";
+    //QDir dir_temp(path_temp);
+    //if(dir_temp.removeRecursively()){
+    //    plog->write("[CLEAR] Reset Clear : Remove temp");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
+    //}else{
+    //    plog->write("[CLEAR] Reset Clear : Remove temp failed");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
+    //}
+
+
+    //patrol 폴더 지움.
+    //QString path_patrol = QDir::homePath()+"/RB_MOBILE/patrol";
+    //QDir dir_patrol(path_patrol);
+    //if(dir_patrol.removeRecursively()){
+    //    plog->write("[CLEAR] Reset Clear : Remove patrol");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
+    //}else{
+    //    plog->write("[CLEAR] Reset Clear : Remove patrol failed");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
+    //}
+
+    //myID 등  robot_config.ini 수정
+    //config 폴더 지움.
+    QString path_config = QDir::homePath()+"/RB_MOBILE/config";
+    QDir dir_config(path_config);
+    if(dir_config.removeRecursively()){
+        plog->write("[CLEAR] Reset Clear : Remove config");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(2)));
+    }else{
+        plog->write("[CLEAR] Reset Clear : Remove config failed");
+        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
+                                  Q_ARG(QVariant,QVariant().fromValue(3)));
+    }
+
+    QDir().mkdir(path_config);
+    makeRobotINI();
+    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : make new config")),
+                              Q_ARG(QVariant,QVariant().fromValue(2)));
+
+    //sh 파일 복구?
+    //checkShellFiles();
+    //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/sh directory : make new config")),
+    //                          Q_ARG(QVariant,QVariant().fromValue(2)));
+
+
+    //log 삭제
+    //QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
+    //if(dir_log.removeRecursively()){
+    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
+    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
+    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
+    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
+    //    plog->write("[CLEAR] Reset Clear : Remove log Success");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
+
+
+    //}else{
+    //    if(!dir_log.exists()){
+    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
+    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
+    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
+    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
+    //    }
+    //    plog->write("[CLEAR] Reset Clear : Remove log Failed");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
+
+    //}
+
+    //QMetaObject::invokeMethod(mMain, "setClearConifg",Qt::DirectConnection,
+    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" Reset Config Done ")),
+    //                          Q_ARG(QVariant,QVariant().fromValue(2)));
+}
+
+void Supervisor::resetClearConfig(){
+    start_clear_config = true;
+}
 
 
 int Supervisor::getTravellineIssue(){

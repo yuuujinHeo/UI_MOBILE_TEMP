@@ -52,6 +52,7 @@ public:
     //순회 모드, 순회 중 픽업해주세요 화면 띄울건지.
     bool use_cleaning_location = false;
     bool start_clear = false;
+    bool start_clear_config = false;
 
     ////*********************************************  STRUCT   ***************************************************////
     ST_MAP map;
@@ -90,6 +91,7 @@ public:
 
     bool cmd_accept = false;
     Q_INVOKABLE void resetClear();
+    Q_INVOKABLE void resetClearConfig();
     QString wifi_temp_ssd = "";
     Q_INVOKABLE int getWifiNum();
     Q_INVOKABLE int getWifiConnection();
@@ -980,6 +982,7 @@ public slots:
     void update_success();
     void update_fail();
     void clear_all();
+    void clear_config();
     void map_reset();
     void new_call_order(QString name);
     void play_voice(ST_VOICE voice);
