@@ -3712,9 +3712,9 @@ void Supervisor::onTimer(){
     }
     if(start_clear_config){
         start_clear_config = false;
-        timer2 = new QTimer();
-        connect(timer2, SIGNAL(timeout()),this,SLOT(clear_config()));
-        timer2->start(500);
+        timer3 = new QTimer();
+        connect(timer3, SIGNAL(timeout()),this,SLOT(clear_config()));
+        timer3->start(500);
     }
 
     //************************** WiFi *********************************//
@@ -5185,10 +5185,10 @@ void Supervisor::clear_all(){
 void Supervisor::resetClear(){
     start_clear = true;
 }
-
+/*
 void Supervisor::clear_config(){
     plog->write("[COMMAND] Reset Config");
-    timer2->stop();
+    timer3->stop();
 
     //maps 폴더 지움.
     //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
@@ -5243,25 +5243,25 @@ void Supervisor::clear_config(){
 
     //myID 등  robot_config.ini 수정
     //config 폴더 지움.
-    QString path_config = QDir::homePath()+"/RB_MOBILE/config";
-    QDir dir_config(path_config);
-    if(dir_config.removeRecursively()){
-        plog->write("[CLEAR] Reset Clear : Remove config");
-        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
-                                  Q_ARG(QVariant,QVariant().fromValue(2)));
-    }else{
-        plog->write("[CLEAR] Reset Clear : Remove config failed");
-        QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                                  Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
-                                  Q_ARG(QVariant,QVariant().fromValue(3)));
-    }
+    //QString path_config = QDir::homePath()+"/RB_MOBILE/config";
+    //QDir dir_config(path_config);
+    //if(dir_config.removeRecursively()){
+    //    plog->write("[CLEAR] Reset Clear : Remove config");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
+    //}else{
+    //    plog->write("[CLEAR] Reset Clear : Remove config failed");
+    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
+    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
+    //}
 
-    QDir().mkdir(path_config);
-    makeRobotINI();
-    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : make new config")),
-                              Q_ARG(QVariant,QVariant().fromValue(2)));
+    //QDir().mkdir(path_config);
+    //makeRobotINI();
+    //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
+    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : make new config")),
+    //                          Q_ARG(QVariant,QVariant().fromValue(2)));
 
     //sh 파일 복구?
     //checkShellFiles();
@@ -5301,7 +5301,40 @@ void Supervisor::clear_config(){
     //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" Reset Config Done ")),
     //                          Q_ARG(QVariant,QVariant().fromValue(2)));
 }
+*/
 
+void Supervisor::clear_config(){
+    plog->write("[COMMAND] Reset Config");
+    timer3->stop();  // 관련 타이머 정지
+
+    QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
+
+    // config 폴더 삭제
+    QString path_config = QDir::homePath() + "/RB_MOBILE/config";
+    QDir dir_config(path_config);
+    if (dir_config.removeRecursively()) {
+        plog->write("[CLEAR] Reset Clear : Remove config");
+        QMetaObject::invokeMethod(mMain, "setClear", Qt::DirectConnection,
+                                  Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/config directory : remove")),
+                                  Q_ARG(QVariant, QVariant().fromValue(2)));
+    } else {
+        plog->write("[CLEAR] Reset Clear : Remove config failed");
+        QMetaObject::invokeMethod(mMain, "setClear", Qt::DirectConnection,
+                                  Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/config directory : remove")),
+                                  Q_ARG(QVariant, QVariant().fromValue(3)));
+    }
+
+    // 새 config 폴더 생성
+    QDir().mkdir(path_config);
+    makeRobotINI();  // 새로운 robot_config.ini 파일 생성
+    QMetaObject::invokeMethod(mMain, "setClear", Qt::DirectConnection,
+                              Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/config directory : make new config")),
+                              Q_ARG(QVariant, QVariant().fromValue(2)));
+
+    QMetaObject::invokeMethod(mMain, "setClearConfig", Qt::DirectConnection,
+                              Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " Reset Config Done ")),
+                              Q_ARG(QVariant, QVariant().fromValue(2)));
+}
 void Supervisor::resetClearConfig(){
     start_clear_config = true;
 }

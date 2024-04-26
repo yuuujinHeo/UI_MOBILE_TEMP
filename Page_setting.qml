@@ -13314,9 +13314,9 @@ Item {
                         height: 80
                         text: qsTr("설정 초기화 시작")
                         fontsize: 30
-                        onClicked: {
-                            popup_clear_config.statenum = 1;
-                            supervisor.resetClearConfig();
+                        onClicked: { //TEMP
+                            //popup_clear_config.statenum = 1;
+                            //supervisor.resetClearConfig();
                         }
                     }
                     Item_buttons{

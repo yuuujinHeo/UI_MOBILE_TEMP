@@ -995,6 +995,7 @@ public slots:
 private:
     QTimer *timer;
     QTimer *timer2;
+    QTimer *timer3;
     QTimer *wifiTimer;
     QQuickWindow *mMain;
     QObject *mObject = nullptr;
