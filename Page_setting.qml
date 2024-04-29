@@ -11754,7 +11754,7 @@ Item {
                 //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.0")
+                    text:qsTr("Version 1.1.1")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
