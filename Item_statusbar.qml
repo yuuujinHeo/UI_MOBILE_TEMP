@@ -743,6 +743,7 @@ Item {
                 image_multi.visible = false;
             }
 
+
             if(supervisor.getPowerStatus() === 1){
                 if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1){
                     if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){

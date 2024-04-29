@@ -26,6 +26,7 @@ Item {
     property bool use_multirobot: false
     property bool wifi_update_auto: true
     property int debug_count: 0
+    property bool use_ccma:true // add by, 04.29.24
 
     onIs_adminChanged: {
         if(is_admin){
@@ -353,6 +354,14 @@ Item {
                 supervisor.setSetting("setting","USE_SLAM/use_multirobot","true");
             }
         }
+        if(combo_use_ccma.ischanged){
+            if(combo_use_ccma.currentIndex == 0){
+                supervisor.setSetting("setting","USE_SLAM/use_ccma","true");
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_ccma","false");
+            }
+        }
+
         if(combo_use_earlystop_resting.ischanged){
             if(combo_use_earlystop_resting.currentIndex == 0){
                 supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",false);
@@ -494,6 +503,8 @@ Item {
                 supervisor.setSetting("setting","USE_UI/use_current_pause","true");
             }
         }
+
+
 
         //if(pause_check_ms.ischanged){
         //    supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
@@ -9554,6 +9565,61 @@ Item {
                         }
                     }
                 }
+
+                Rectangle{
+                    id: set_use_ccma
+                    width: 840
+                    height: 50
+                    visible: is_admin || is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("부드러운 움직임")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+
+
+                            ComboBox{
+                                id: combo_use_ccma
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    ischanged = true;
+                                    if(currentIndex == 0){
+                                        use_ccma = true;
+                                        print("ccma mode : ",combo_use_ccma.currentIndex)
+                                    }else{
+                                        use_ccma = false;
+                                        print("ccma mode : ",combo_use_ccma.currentIndex)
+                                    }
+                                }
+                                model:[qsTr("사용안함"),qsTr("사용")]
+                            }
+                        }
+                    }
+                }
                 //Rectangle{
                 //    id: set_motor_current_margin
                 //    width: 840
@@ -11754,7 +11820,7 @@ Item {
                 //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.1")
+                    text:qsTr("Version 1.1.2")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
