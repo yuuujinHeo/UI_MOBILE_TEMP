@@ -1404,9 +1404,11 @@ void Supervisor::checkRobotINI(){
         setSetting("setting","USE_SLAM/use_early_stop_serving","false");
     if(getSetting("setting","USE_SLAM","use_obs_preview") == "")
         setSetting("setting","USE_SLAM/use_obs_preview","true");
+    if(getSetting("setting","USE_SLAM","use_ccma") == "") // bj
+        setSetting("setting","USE_SLAM/use_ccma","true"); //bj
 
-    if(getSetting("setting","SENSOR","cam_exposure")=="")
-        setSetting("setting","SENSOR/cam_exposure","2000");
+    //if(getSetting("setting","SENSOR","cam_exposure")=="")
+    //    setSetting("setting","SENSOR/cam_exposure","2000");
     if(getSetting("setting","SENSOR","mask")=="")
         setSetting("setting","SENSOR/mask","10.0");
     if(getSetting("setting","SENSOR","max_range")=="")

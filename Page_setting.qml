@@ -319,9 +319,9 @@ Item {
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
         }
 
-        if(cam_exposure.ischanged){
-            supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
-        }
+        //if(cam_exposure.ischanged){
+        //    supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
+        //}
 
         if(combo_auto_update.ischanged){
             if(combo_auto_update.currentIndex === 0){
@@ -356,9 +356,9 @@ Item {
         }
         if(combo_use_ccma.ischanged){
             if(combo_use_ccma.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_ccma","true");
-            }else{
                 supervisor.setSetting("setting","USE_SLAM/use_ccma","false");
+            }else{
+                supervisor.setSetting("setting","USE_SLAM/use_ccma","true");
             }
         }
 
@@ -426,9 +426,9 @@ Item {
         if(goal_near_th.ischanged){
             supervisor.setSetting("update","DRIVING/goal_near_th",goal_near_th.text);
         }
-        if(k_curve.ischanged){
-            supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
-        }
+        //if(k_curve.ischanged){
+        //    supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
+        //}
         if(k_v.ischanged){
             supervisor.setSetting("update","DRIVING/k_v",k_v.text);
         }
@@ -658,7 +658,7 @@ Item {
 
         left_camera_tf.text = supervisor.getSetting("static","SENSOR","left_camera_tf");
         right_camera_tf.text = supervisor.getSetting("static","SENSOR","right_camera_tf");
-        cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
+        //cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
 
         icp_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_dist");
         icp_error.text = supervisor.getSetting("update","LOCALIZATION","icp_error");
@@ -679,7 +679,7 @@ Item {
         goal_v.text = supervisor.getSetting("update","DRIVING","goal_v");
         goal_near_dist.text = supervisor.getSetting("update","DRIVING","goal_near_dist");
         goal_near_th.text = supervisor.getSetting("update","DRIVING","goal_near_th");
-        k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
+        //k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
         k_v.text = supervisor.getSetting("update","DRIVING","k_v");
         k_w.text = supervisor.getSetting("update","DRIVING","k_w");
         //k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
@@ -1046,7 +1046,7 @@ Item {
 
 
         max_range.ischanged = false;
-        cam_exposure.ischanged = false;
+        //cam_exposure.ischanged = false;
 
         st_v.ischanged = false;
 
@@ -1091,7 +1091,7 @@ Item {
 
 
         goal_near_th.ischanged = false;
-        k_curve.ischanged = false;
+        //k_curve.ischanged = false;
         k_v.ischanged = false;
         k_w.ischanged = false;
         //k_dd.ischanged = false;
@@ -1170,7 +1170,7 @@ Item {
         //if(wheel_radius.ischanged) is_changed = true;
         if(radius.ischanged) is_changed = true;
         if(max_range.ischanged) is_changed = true;
-        if(cam_exposure.ischanged) is_changed = true;
+        //if(cam_exposure.ischanged) is_changed = true;
         if(st_v.ischanged) is_changed = true;
         if(combo_wheel_dir.ischanged) is_changed = true;
         if(combo_left_id.ischanged) is_changed = true;
@@ -1200,7 +1200,7 @@ Item {
         if(goal_th.ischanged) is_changed = true;
         if(goal_near_dist.ischanged) is_changed = true;
         if(goal_near_th.ischanged) is_changed = true;
-        if(k_curve.ischanged) is_changed = true;
+        //if(k_curve.ischanged) is_changed = true;
         if(k_v.ischanged) is_changed = true;
         if(k_w.ischanged) is_changed = true;
         //if(k_dd.ischanged) is_changed = true;
@@ -6446,7 +6446,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:qsTr("카메라 설정")
+                        text:qsTr("센서 설정")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -6508,67 +6508,67 @@ Item {
                         }
                     }
                 }
-                Rectangle{
-                    id: set_cam_exposure
-                    width: 840
-                    height: 50
-                    visible: is_rainbow
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("노출 시간 [ms]")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            TextField{
-                                id: cam_exposure
-                                anchors.fill: parent
-                                text:supervisor.getSetting("setting","SENSOR","cam_exposure");
-                                property bool ischanged: false
-                                MouseArea{
-                                    anchors.fill:parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        if(keypad.is_opened){
-                                            keypad.owner = cam_exposure;
-                                            cam_exposure.selectAll();
-                                        }else{
-                                            keypad.owner = cam_exposure;
-                                            cam_exposure.selectAll();
-                                            keypad.open();
-                                        }
-                                    }
-                                }
-                                color:ischanged?color_red:"black"
-                                onTextChanged: {
-                                    ischanged = true;
-                                    is_reset_slam = true;
-                                }
-                            }
-                        }
-                    }
-                }
+                //Rectangle{
+                //    id: set_cam_exposure
+                //    width: 840
+                //    height: 50
+                //    visible: is_rainbow
+                //    Row{
+                //        anchors.fill: parent
+                //        Rectangle{
+                //            width: 350
+                //            height: parent.height
+                //            Text{
+                //                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.left: parent.left
+                //                anchors.leftMargin: 30
+                //                font.family: font_noto_r.name
+                //                text:qsTr("노출 시간 [ms]")
+                //                font.pixelSize: 20
+                //                Component.onCompleted: {
+                //                    scale = 1;
+                //                    while(width*scale > parent.width*0.8){
+                //                        scale=scale-0.01;
+                //                    }
+                //                }
+                //            }
+                //        }
+                //        Rectangle{
+                //            width: 1
+                //            height: parent.height
+                //            color: "#d0d0d0"
+                //        }
+                //        Rectangle{
+                //            width: parent.width - 351
+                //            height: parent.height
+                //            TextField{
+                //                id: cam_exposure
+                //                anchors.fill: parent
+                //                text:supervisor.getSetting("setting","SENSOR","cam_exposure");
+                //                property bool ischanged: false
+                //                MouseArea{
+                //                    anchors.fill:parent
+                //                    onClicked: {
+                //                        click_sound.play();
+                //                        if(keypad.is_opened){
+                //                            keypad.owner = cam_exposure;
+                //                            cam_exposure.selectAll();
+                //                        }else{
+                //                            keypad.owner = cam_exposure;
+                //                            cam_exposure.selectAll();
+                //                            keypad.open();
+                //                        }
+                //                    }
+                //                }
+                //                color:ischanged?color_red:"black"
+                //                onTextChanged: {
+                //                    ischanged = true;
+                //                    is_reset_slam = true;
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
                 Rectangle{
                     id: set_left_camera
                     width: 840
@@ -9905,67 +9905,67 @@ Item {
                         }
                     }
                 }
-                Rectangle{
-                    id: set_k_curve
-                    width: 840
-                    height: 50
-                    visible: false
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("k_curve")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            TextField{
-                                id: k_curve
-                                anchors.fill: parent
-                                property bool ischanged: false
-                                onTextChanged: {
-                                    is_reset_slam = true;
-                                    ischanged = true;
-                                }
-                                MouseArea{
-                                    anchors.fill:parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        if(keypad.is_opened){
-                                            keypad.owner = k_curve;
-                                            k_curve.selectAll();
-                                        }else{
-                                            keypad.owner = k_curve;
-                                            k_curve.selectAll();
-                                            keypad.open();
-                                        }
-                                    }
-                                }
-                                color:ischanged?color_red:"black"
-                                text:supervisor.getSetting("update","DRIVING","k_curve");
-                            }
-                        }
-                    }
-                }
+                //Rectangle{
+                //    id: set_k_curve
+                //    width: 840
+                //    height: 50
+                //    visible: false
+                //    Row{
+                //        anchors.fill: parent
+                //        Rectangle{
+                //            width: 350
+                //            height: parent.height
+                //            Text{
+                //                anchors.verticalCenter: parent.verticalCenter
+                //                anchors.left: parent.left
+                //                anchors.leftMargin: 30
+                //                font.family: font_noto_r.name
+                //                text:qsTr("k_curve")
+                //                font.pixelSize: 20
+                //                Component.onCompleted: {
+                //                    scale = 1;
+                //                    while(width*scale > parent.width*0.8){
+                //                        scale=scale-0.01;
+                //                    }
+                //                }
+                //            }
+                //        }
+                //        Rectangle{
+                //            width: 1
+                //            height: parent.height
+                //            color: "#d0d0d0"
+                //        }
+                //        Rectangle{
+                //            width: parent.width - 351
+                //            height: parent.height
+                //            TextField{
+                //                id: k_curve
+                //                anchors.fill: parent
+                //                property bool ischanged: false
+                //                onTextChanged: {
+                //                    is_reset_slam = true;
+                //                    ischanged = true;
+                //                }
+                //                MouseArea{
+                //                    anchors.fill:parent
+                //                    onClicked: {
+                //                        click_sound.play();
+                //                        if(keypad.is_opened){
+                //                            keypad.owner = k_curve;
+                //                            k_curve.selectAll();
+                //                        }else{
+                //                            keypad.owner = k_curve;
+                //                            k_curve.selectAll();
+                //                            keypad.open();
+                //                        }
+                //                    }
+                //                }
+                //                color:ischanged?color_red:"black"
+                //                text:supervisor.getSetting("update","DRIVING","k_curve");
+                //            }
+                //        }
+                //    }
+                //}
                 Rectangle{
                     id: set_k_v
                     width: 840
@@ -11820,7 +11820,7 @@ Item {
                 //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.2")
+                    text:qsTr("Version 1.1.3")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
