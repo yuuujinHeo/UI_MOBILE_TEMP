@@ -872,7 +872,6 @@ Item {
 
         //OBSTACLE
         //obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
-
         obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");

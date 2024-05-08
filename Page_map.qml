@@ -155,6 +155,17 @@ Item {
                                 supervisor.writelog("[UI] MAP : move to Annotation");
                                 loadPage(pannotation);
                                 supervisor.setAnnotEditFlag(true);
+                            //}else if(modelData === qsTr("지정 순회")){
+                            //    if(supervisor.isRobotReady()){
+                            //        click_sound.play();
+                            //        supervisor.writelog("[UI] MAP : Show Patrol Popup")
+                            //        popup_patrol.open();
+                            //        popup_patrol.mode = "sequence";
+                            //    }else{
+                            //        click_sound_no.play();
+                            //        supervisor.writelog("[UI] MAP : Show Patrol Popup -> Robot Not Ready")
+                            //        robotnotready();
+                            //    }
                             }else if(modelData === qsTr("위치 초기화")){
                                 click_sound.play();
                                 supervisor.writelog("[UI] MAP : move to Localization")
