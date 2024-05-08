@@ -180,6 +180,24 @@ Item {
             supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
         }
 
+        if(combo_use_lingbell.ischanged){
+            if(combo_use_lingbell.currentIndex === 1){
+                supervisor.setSetting("setting","CALL/use_lingbell","true");
+            }else{
+                supervisor.setSetting("setting","CALL/use_lingbell","false");
+            }
+        }
+        if(combo_use_lingbell_repeat.ischanged){
+            if(combo_use_lingbell_repeat.currentIndex === 1){
+                supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
+            }else{
+                supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
+            }
+        }
+        if(combo_lingbell_time.ischanged){
+            supervisor.setSetting("setting","CALL/lingbell_time",combo_lingbell_time.currentText);
+        }
+
         if(slider_volume_bgm.ischanged){
             supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value);
 //            volume_bgm = slider_volume_bgm.value.toFixed(0);
@@ -619,6 +637,41 @@ Item {
             combo_language.currentIndex = 0;
         }else if(supervisor.getSetting("setting","UI","language") === "english"){
             combo_language.currentIndex = 1;
+        }
+
+        if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+            combo_use_lingbell.currentIndex = 1;
+        }else{
+            combo_use_lingbell.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
+            combo_use_lingbell_repeat.currentIndex = 1;
+        }else{
+            combo_use_lingbell_repeat.currentIndex = 0;
+        }
+
+        if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
+            combo_lingbell_time.currentIndex = 0;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "4"){
+            combo_lingbell_time.currentIndex = 1;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "5"){
+            combo_lingbell_time.currentIndex = 2;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "6"){
+            combo_lingbell_time.currentIndex = 3;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "7"){
+            combo_lingbell_time.currentIndex = 4;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "8"){
+            combo_lingbell_time.currentIndex = 5;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "9"){
+            combo_lingbell_time.currentIndex = 6;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "10"){
+            combo_lingbell_time.currentIndex = 7;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "15"){
+            combo_lingbell_time.currentIndex = 8;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "20"){
+            combo_lingbell_time.currentIndex = 9;
+        }else{
+            combo_lingbell_time.currentIndex = 2;
         }
 
         if(supervisor.getSetting("setting","USE_UI","auto_update") === "true"){
@@ -1569,6 +1622,170 @@ Item {
                                     ischanged = true;
                                 }
                                 model:[qsTr("서빙용"),qsTr("호출용"),qsTr("서빙+호출용"), qsTr("퇴식전용")]
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    width: 1100
+                    height: 40
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
+                        text:qsTr("알림벨 설정")
+                        color: "white"
+                        font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: use_lingbell
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("알림벨 사용")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_lingbell
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: use_lingbell_repeat
+                    width: 840
+                    height: 50
+                    visible: combo_use_lingbell.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("반복 알림")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_lingbell_repeat
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: lingbell_time
+                    width: 840
+                    height: 50
+                    visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("반복 주기 [초]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_lingbell_time
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[3,4,5,6,7,8,9,10,15,20]
+                                }
                             }
                         }
                     }
@@ -12020,6 +12237,41 @@ Item {
 
     Popup_help{
         id: popup_help_setting
+    }
+
+    Popup{
+        id: popup_lingbell
+        anchors.centerIn: parent
+        width: 400
+        height: 400
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_light_gray
+            Column{
+                anchors.centerIn: parent
+                spacing: 20
+                TextField{
+                    id: field_lingbell_callnum
+                    text: "FFEEDD"
+                    width: 200
+                    height: 50
+                }
+                Item_buttons{
+                    type: "round_text"
+                    width: 160
+                    height: 50
+                    text: "CALL"
+                    onClicked:{
+                        supervisor.callCallbell(field_lingbell_callnum.text);
+                    }
+                }
+            }
+        }
     }
 
     Popup{
