@@ -201,7 +201,7 @@ void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
 
 
 void ServerHandler::postStatus(){
-    qDebug() << "POST STATUS " << serverURL <<  elapsedTime.toString("hh:mm:ss");
+    // qDebug() << "POST STATUS " << serverURL <<  elapsedTime.toString("hh:mm:ss");
 
     ClearJson(json_out);
 

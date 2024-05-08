@@ -1691,7 +1691,7 @@ Item {
                             Buttons{
                                 style: "dark"
                                 active: select_location>-1
-                                text: qsTr("호출벨 설정")
+                                text: qsTr("벨 설정")
                                 source: "icon/icon_callbell.png"
                                 onClicked: {
                                     if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && select_location === 2){
@@ -6223,6 +6223,11 @@ Item {
         onOpened:{
             ask_mode = true;
         }
+        onClosed:{
+
+            print("------------------------------");
+            readSetting();
+        }
 
         Rectangle{
             width: parent.width
@@ -6357,7 +6362,6 @@ Item {
                             onClicked:{
                                 field_lingbell_callnum.text = "";
                                 supervisor.resetLingbell(select_location);
-                                readSetting();
                                 popup_lingbell.close();
                             }
                         }
