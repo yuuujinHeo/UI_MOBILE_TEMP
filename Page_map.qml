@@ -92,7 +92,6 @@ Item {
             spacing: 40
             anchors.centerIn: parent
             Repeater{
-                //model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화"),qsTr("지정 순회")]
                 model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화")]
                 Rectangle{
                     property int btn_size: 135
@@ -120,11 +119,7 @@ Item {
                                         "image/image_slam.png"
                                     }else if(modelData === qsTr("현재맵 수정하기")){
                                         "image/image_annot.png"
-                                    }
-                                    //else if(modelData === qsTr("지정 순회")){
-                                    //    "image/image_patrol.png"
-                                    //}
-                                    else if(modelData === qsTr("위치 초기화")){
+                                    }else if(modelData === qsTr("위치 초기화")){
                                         "image/image_localization.png"
                                     }
                                 }

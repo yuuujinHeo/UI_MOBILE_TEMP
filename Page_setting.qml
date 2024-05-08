@@ -331,7 +331,6 @@ Item {
         //if(obs_check_range.ischanged){ //BJ
         //    supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
         //}
-
         if(max_range.ischanged){
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
         }
@@ -11963,22 +11962,13 @@ Item {
                 height: 60
                 radius: 10
                 color: "transparent"
-                //border.width: 1
-                //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.0")
+                    text:qsTr("Version 1.1.4")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
                 }
-                //MouseArea{
-                //    anchors.fill: parent
-                //    onClicked:{
-                //        click_sound.play();
-                //        save();
-                //    }
-                //}
             }
         }
     }
