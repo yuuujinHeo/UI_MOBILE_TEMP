@@ -141,6 +141,7 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(3+i),
+                                "ling_id" : supervisor.getLocationLingID(3+i),
                                  "callerror":false,
                                  "nameerror":false,
                                "error":false});
@@ -150,6 +151,7 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(2+i),
+                                "ling_id" : supervisor.getLocationLingID(2+i),
                                      "callerror":false,
                                      "nameerror":false,
                                "error":false});
@@ -170,13 +172,15 @@ Item {
                            "group":0,
                            "callerror":false,
                            "nameerror":false,
-                           "call_id":supervisor.getLocationCallID(0)});
+                           "call_id":supervisor.getLocationCallID(0),
+                            "ling_id":supervisor.getLocationLingID(0)});
         details.append({"ltype":"Resting",
                            "name":qsTr("대기위치"),
                            "group":0,
                            "callerror":false,
                            "nameerror":false,
-                           "call_id":supervisor.getLocationCallID(1)});
+                           "call_id":supervisor.getLocationCallID(1),
+                           "ling_id":supervisor.getLocationLingID(1)});
         if(supervisor.getRobotType()==="CLEANING"){
             if(supervisor.getLocationNum("Cleaning") > 0){
                 details.append({"ltype":"Cleaning",
@@ -184,14 +188,16 @@ Item {
                                    "group":0,
                                    "callerror":false,
                                    "nameerror":false,
-                                   "call_id":supervisor.getLocationCallID(2)});
+                                   "call_id":supervisor.getLocationCallID(2),
+                                   "ling_id":supervisor.getLocationLingID(2)});
             }else{
                 details.append({"ltype":"Cleaning",
                                    "name":qsTr("퇴식위치"),
                                    "group":0,
                                    "callerror":false,
                                    "nameerror":false,
-                                   "call_id":""});
+                                   "call_id":"",
+                                   "ling_id":""});
             }
 
         }
@@ -202,6 +208,7 @@ Item {
                             "name":locations.get(i).name,
                            "group":locations.get(i).group,
                             "call_id":locations.get(i).call_id,
+                            "ling_id":locations.get(i).ling_id,
                            "callerror":locations.get(i).callerror,
                                "nameerror":locations.get(i).nameerror});
 //                        print("detail append : ",i, locations.get(i).group, locations.get(i).number, getgroupsize(locations.get(i).group))
@@ -232,10 +239,8 @@ Item {
     }
 
     function checkLocationName(){
-        print("checkLocationName");
         for(var i=0; i<details.count; i++){
             for(var j=i+1; j<details.count; j++){
-                print("i,j : ",i,j,details.get(i).group,details.get(j).group);
                 if(details.get(i).group === details.get(j).group)
                     if(details.get(i).name === details.get(j).name){
                         details.get(i).nameerror = true;
@@ -243,7 +248,6 @@ Item {
                     }
             }
         }
-//        annot_pages.item.checkError();
     }
 
     function isError(){
@@ -1630,6 +1634,16 @@ Item {
                                 font.family: font_noto_r.name
                                 text: call_id===""?" - ":call_id
                             }
+                            Image{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.right
+                                anchors.leftMargin: 5
+                                source: "icon/icon_callbell.png"
+                                width: 35
+                                height: 35
+                                visible: ling_id!==""
+                            }
+
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
@@ -1682,16 +1696,24 @@ Item {
                                 onClicked: {
                                     if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && select_location === 2){
                                         if(supervisor.getLocationNum("Cleaning") > 0){
-                                            popup_location.mode = "callbell"
-                                            popup_location.loc = details.get(select_location).ltype;
-                                            popup_location.open();
+                                            if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+                                                popup_lingbell.open();
+                                            }else{
+                                                popup_location.mode = "callbell"
+                                                popup_location.loc = details.get(select_location).ltype;
+                                                popup_location.open();
+                                            }
                                         }else{
                                             click_sound_no.play();
                                         }
                                     }else{
-                                        popup_location.mode = "callbell"
-                                        popup_location.loc = details.get(select_location).ltype;
-                                        popup_location.open();
+                                        if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+                                            popup_lingbell.open();
+                                        }else{
+                                            popup_location.mode = "callbell"
+                                            popup_location.loc = details.get(select_location).ltype;
+                                            popup_location.open();
+                                        }
                                     }
 
                                 }
@@ -3691,6 +3713,15 @@ Item {
                 supervisor.setShowVelmap(true);
                 supervisor.setShowTline(true);
                 supervisor.setShowObject(true);
+
+                //supervisor.setShowNode(true);
+                //supervisor.setShowName(true);
+                //supervisor.setShowEdge(true);
+                //supervisor.setShowLocation(false);
+                //supervisor.setShowAvoid(false);
+                //supervisor.setShowVelmap(false);
+                //supervisor.setShowTline(false);
+                //supervisor.setShowObject(false);
                 update();
             }
             Component.onDestruction: {
@@ -4020,7 +4051,7 @@ Item {
                                     height: 5
                                     color: color_light_gray
                                 }
-                                Rectangle{
+                                Rectangle{ // 보기
                                     width: parent.width
                                     height: 100
                                     Row{
@@ -4046,6 +4077,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowNode(show);
+                                                    //Supervisor.setShowNode(on);
                                                 }
                                             }
                                             Button_show{
@@ -4054,6 +4086,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowEdge(show);
+                                                    //Supervisor.setShowEdge(on);
                                                 }
                                             }
                                             Button_show{
@@ -4061,7 +4094,7 @@ Item {
                                                 text: qsTr("이름")
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
-                                                    supervisor.setShowAvoid(show);
+                                                    supervisor.setShowName(show);
                                                 }
                                             }
                                             Button_show{
@@ -4094,6 +4127,7 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowLocation(show);
+                                                    //Supervisor.setshow
                                                 }
                                             }
                                             Button_show{
@@ -4107,13 +4141,13 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                     width: parent.width
                                     height: 150
                                     Row{
                                         anchors.centerIn: parent
                                         spacing: 30
-                                        Item_buttons{
+                                        Item_buttons{ // 보기
                                             id: btn_view
                                             width: 100
                                             height: 100
@@ -4130,7 +4164,7 @@ Item {
                                                 map.clear("spline");
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 위치
                                             id: btn_draw
                                             width: 100
                                             height: 100
@@ -4138,6 +4172,7 @@ Item {
                                             type: "circle_all"
                                             selected: select_mode === "topo"
                                             source: "icon/icon_location.png"
+                                            overColor: true
                                             text: qsTr("위치")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to topo");
@@ -4147,7 +4182,7 @@ Item {
                                                 supervisor.setShowNode(true);
                                                 supervisor.setShowName(true);
                                                 supervisor.setShowEdge(true);
-                                                supervisor.setShowLocation(false);
+                                                supervisor.setShowLocation(false); //false -> true?
                                                 supervisor.setShowAvoid(true);
                                                 supervisor.setShowVelmap(true);
                                                 supervisor.setShowTline(true);
@@ -4155,7 +4190,7 @@ Item {
                                                 item_mm.update();
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 그리기
                                             id: btn_draw2
                                             width: 100
                                             height: 100
@@ -4172,7 +4207,7 @@ Item {
                                                     select_canvas = 1;
                                             }
                                         }
-                                        Item_buttons{
+                                        Item_buttons{ // 줄자
                                             id: btn_ruler
                                             width: 100
                                             height: 100
@@ -4180,6 +4215,7 @@ Item {
                                             type: "circle_all"
                                             selected: select_mode === "ruler"
                                             source: "icon/icon_ruler.png"
+                                            overColor: true
                                             text: qsTr("줄자")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to ruler");
@@ -4189,7 +4225,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ //draw
                                     width: parent.width
                                     visible: select_mode === "draw"
                                     height: 80
@@ -4258,7 +4294,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ // select_mod:topo
                                     visible: select_mode === "topo"
                                     width: parent.width
                                     height: 400
@@ -4372,7 +4408,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{
+                                Rectangle{ //select_mod:draw
                                     width: parent.width
                                     height: 500
                                     color: color_light_gray
@@ -5894,6 +5930,9 @@ Item {
                     onClicked: {
                         if(tfield_group.text == ""){
                             click_sound_no.play();
+                        }else if(!supervisor.checkGroupName(tfield_group.text)){
+                            click_sound_no.play();
+                            tfield_group.color = color_red;
                         }else{
                             supervisor.addLocationGroup(tfield_group.text);
                             supervisor.writelog("[QML] MAP PAGE : ADD LOCATION GROUP -> "+tfield_group.text);
@@ -6167,6 +6206,175 @@ Item {
         }
     }
 
+    Popup{
+        id: popup_lingbell
+        width: 1280
+        height:800
+        bottomPadding: 0
+        topPadding: 0
+        leftPadding: 0
+        rightPadding: 0
+        background:Rectangle{
+            anchors.fill: parent
+            color: color_dark_black
+            opacity: 0.9
+        }
+        property bool ask_mode: true
+        onOpened:{
+            ask_mode = true;
+        }
+
+        Rectangle{
+            width: parent.width
+            height: 360
+            anchors.centerIn: parent
+            color: color_dark_navy
+            Column{
+                anchors.fill: parent
+                Rectangle{
+                    width: parent.width
+                    height: 100
+                    color: "transparent"
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 10
+                        Image{
+                            anchors.verticalCenter: parent.verticalCenter
+                            id: image_location2
+                            width:60
+                            height:60
+                            sourceSize.width: 60
+                            sourceSize.height: 60
+                            antialiasing: true
+                            source: "icon/icon_callbell.png"
+                            ColorOverlay{
+                                anchors.fill: parent
+                                source: parent
+                                color: "white"
+                            }
+                        }
+                        Text{
+                            id:text_loc2
+                            color: "white"
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 40
+                            text: qsTr("모드를 선택해주세요")
+                            Component.onCompleted: {
+                                while(width > back.width*0.7){
+                                    font.pixelSize-=1
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    width: parent.width
+                    height: 160
+                    color: "transparent"
+                    Column{
+                        anchors.centerIn: parent
+                        spacing: 10
+                        visible: !popup_lingbell.ask_mode
+                        Text{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            id:text_sub2
+                            color: color_light_gray
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 28
+                            text: qsTr("")
+                            Component.onCompleted: {
+                                while(width > parent.width*0.9){
+                                    font.pixelSize-=1
+                                }
+                            }
+                        }
+                        TextField{
+                            id: field_lingbell_callnum
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            font.family: font_noto_r.name
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 28
+                            text: "FF22EEDD"
+                            width: 300
+                            height: 50
+                        }
+                    }
+                }
+                Rectangle{
+                    width: parent.width
+                    height: 100
+                    color: "transparent"
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 15
+                        visible: popup_lingbell.ask_mode
+                        Buttons{
+                            id: btn_callbell
+                            style: "normal"
+                            text: qsTr("호출벨")
+                            onClicked:{
+                                popup_lingbell.close();
+                                popup_location.mode = "callbell"
+                                popup_location.loc = details.get(select_location).ltype;
+                                popup_location.open();
+                            }
+                        }
+                        Buttons{
+                            id: btn_lingbell
+                            style: "normal"
+                            text: qsTr("알림벨")
+                            onClicked:{
+                                popup_lingbell.ask_mode = false;
+                                text_sub2.text = qsTr("위치 : ")+supervisor.getLocationName(select_location)
+                                field_lingbell_callnum.text = supervisor.getLingbell(select_location);
+                            }
+                        }
+                        Buttons{
+                            style: "normal"
+                            text: qsTr("취소")
+                            onClicked:{
+                                popup_lingbell.close();
+                            }
+                        }
+                    }
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 15
+                        visible: !popup_lingbell.ask_mode
+                        Buttons{
+                            id: btn_exit
+                            style: "normal"
+                            text: qsTr("닫기")
+                            onClicked:{
+                                popup_lingbell.close();
+                            }
+                        }
+                        Buttons{
+                            style: "normal"
+                            text: qsTr("초기화")
+                            onClicked:{
+                                field_lingbell_callnum.text = "";
+                                supervisor.resetLingbell(select_location);
+                                readSetting();
+                                popup_lingbell.close();
+                            }
+                        }
+                        Buttons{
+                            id: btn_send
+                            style: "green"
+                            text: qsTr("설정")
+                            onClicked:{
+                                supervisor.callCallbell(field_lingbell_callnum.text);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     Popup{
         id: popup_location
@@ -6275,6 +6483,8 @@ Item {
                 }else{
                     row_call_force.visible = false;
                 }
+            }else if(mode == "lingbell"){
+
             }else if(mode == "save_exit"){
                 row_call_force.visible = false;
                 image_location.source = "icon/icon_save.png"

@@ -84,9 +84,11 @@ public:
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
 
+    Q_INVOKABLE bool checkGroupName(QString name);
     Q_INVOKABLE bool checkLocationName(int group, QString name);
     ////*********************************************  IP SETTINGs   *********************************************////
 
+    Q_INVOKABLE void callCallbell(QString id);
     bool cmd_accept = false;
     Q_INVOKABLE void resetClear();
     QString wifi_temp_ssd = "";
@@ -767,9 +769,12 @@ public:
     Q_INVOKABLE void clearCallQueue(){
         pmap->call_queue.clear();
     }
+    Q_INVOKABLE void resetLingbell(int id);
+    Q_INVOKABLE QString getLingbell(int id);//{return pmap->locations[id].ling_id;}
     Q_INVOKABLE QString getCall(int id){return pmap->locations[id].call_id;}
     Q_INVOKABLE void setCallbell(QString type, int id);
     Q_INVOKABLE void setCallbellForce(QString type, bool onoff);
+    Q_INVOKABLE QString makeLingbell();
 
     ////*********************************************  ANNOTATION 관련   ***************************************************////
 
@@ -789,6 +794,7 @@ public:
     Q_INVOKABLE int getLocationGroupSize(int num);
     Q_INVOKABLE int getLocationGroupNum(int num);
     Q_INVOKABLE QString getLocationCallID(int num);
+    Q_INVOKABLE QString getLocationLingID(int num);
 
     Q_INVOKABLE void setLocationGroup(int num, int group);
     Q_INVOKABLE void removeLocationGroup(int num);
