@@ -3713,15 +3713,6 @@ Item {
                 supervisor.setShowVelmap(true);
                 supervisor.setShowTline(true);
                 supervisor.setShowObject(true);
-
-                //supervisor.setShowNode(true);
-                //supervisor.setShowName(true);
-                //supervisor.setShowEdge(true);
-                //supervisor.setShowLocation(false);
-                //supervisor.setShowAvoid(false);
-                //supervisor.setShowVelmap(false);
-                //supervisor.setShowTline(false);
-                //supervisor.setShowObject(false);
                 update();
             }
             Component.onDestruction: {
@@ -4077,7 +4068,6 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowNode(show);
-                                                    //Supervisor.setShowNode(on);
                                                 }
                                             }
                                             Button_show{
@@ -4086,7 +4076,6 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowEdge(show);
-                                                    //Supervisor.setShowEdge(on);
                                                 }
                                             }
                                             Button_show{
@@ -4127,7 +4116,6 @@ Item {
                                                 text_color: color_dark_navy
                                                 onShowChanged:{
                                                     supervisor.setShowLocation(show);
-                                                    //Supervisor.setshow
                                                 }
                                             }
                                             Button_show{
@@ -4141,13 +4129,13 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                Rectangle{
                                     width: parent.width
                                     height: 150
                                     Row{
                                         anchors.centerIn: parent
                                         spacing: 30
-                                        Item_buttons{ // 보기
+                                        Item_buttons{
                                             id: btn_view
                                             width: 100
                                             height: 100
@@ -4164,7 +4152,7 @@ Item {
                                                 map.clear("spline");
                                             }
                                         }
-                                        Item_buttons{ // 위치
+                                        Item_buttons{
                                             id: btn_draw
                                             width: 100
                                             height: 100
@@ -4225,7 +4213,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{ //draw
+                                Rectangle{
                                     width: parent.width
                                     visible: select_mode === "draw"
                                     height: 80
@@ -4294,7 +4282,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{ // select_mod:topo
+                                Rectangle{
                                     visible: select_mode === "topo"
                                     width: parent.width
                                     height: 400
@@ -4408,7 +4396,7 @@ Item {
                                         }
                                     }
                                 }
-                                Rectangle{ //select_mod:draw
+                                Rectangle{
                                     width: parent.width
                                     height: 500
                                     color: color_light_gray
@@ -6224,11 +6212,9 @@ Item {
             ask_mode = true;
         }
         onClosed:{
-
             print("------------------------------");
             readSetting();
         }
-
         Rectangle{
             width: parent.width
             height: 360

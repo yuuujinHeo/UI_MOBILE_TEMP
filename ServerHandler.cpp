@@ -201,11 +201,10 @@ void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
 
 
 void ServerHandler::postStatus(){
-    // qDebug() << "POST STATUS " << serverURL <<  elapsedTime.toString("hh:mm:ss");
-
     ClearJson(json_out);
 
     json_out["robot_id"] = "CAPTAIN";
+
     json_out["wifi_ip"] = probot->wifi_interface.ipv4;
     json_out["battery"] = probot->battery;
     json_out["exec_time"] = elapsedTime.toString("hh:mm:ss");

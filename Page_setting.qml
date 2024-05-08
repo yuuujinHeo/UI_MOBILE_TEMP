@@ -331,7 +331,6 @@ Item {
         //if(obs_check_range.ischanged){ //BJ
         //    supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
         //}
-
         if(max_range.ischanged){
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
         }
@@ -873,6 +872,7 @@ Item {
 
         //OBSTACLE
         //obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
+
         obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
