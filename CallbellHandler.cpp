@@ -53,7 +53,7 @@ void CallbellHandler::readData(){
         str += QString().asprintf("0x%02X ", uchar(data[i]));
     }
 //    qDebug() << str;
-//    qDebug() << "CALLBELL" << data;
+    qDebug() << "CALLBELL" << data;
 
     while(datas.length() > 4){
         if(uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01){
