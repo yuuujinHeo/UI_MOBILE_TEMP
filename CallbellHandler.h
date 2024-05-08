@@ -18,6 +18,8 @@ public:
     bool isOpenPort(){return m_serialPort->isOpen();}
 
     int connection_count;
+    void sendCall(QString id);
+    void sendCallTest();
 
 public slots:
     void onTimer();

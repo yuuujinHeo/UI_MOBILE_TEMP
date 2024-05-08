@@ -56,6 +56,7 @@ typedef struct{
     cv::Point2f point;
     float angle;
     QString call_id;
+    QString ling_id;
     bool available;
     bool travelline_far;
     bool travelline_broken;
