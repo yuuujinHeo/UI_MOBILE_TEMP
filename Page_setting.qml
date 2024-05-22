@@ -9615,7 +9615,7 @@ Item {
                                         print("ccma mode : ",combo_use_ccma.currentIndex)
                                     }
                                 }
-                                model:[qsTr("사용안함"),qsTr("사용")]
+                                model:[qsTr("사용"),qsTr("사용안함")]
                             }
                         }
                     }
@@ -15744,6 +15744,7 @@ Item {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 width: rect_preset_l.width*0.8
                                 height: 70
+                                //visible: is_admin // add . 05.22
                                 radius: 5
                                 border.width: popup_preset.select_preset===1?3:1
                                 border.color: popup_preset.select_preset===1?color_green:"black"
@@ -15976,6 +15977,7 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.verticalCenterOffset: -50
                             rows: 6
+                            visible: is_admin // add. 05.22
                             columns: 3
                             horizontalItemAlignment: Grid.AlignHCenter
                             verticalItemAlignment: Grid.AlignVCenter
