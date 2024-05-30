@@ -501,6 +501,71 @@ void Supervisor::checkVersionAgain(){
     server->checkUpdate();
 }
 
+
+
+
+QString Supervisor::getGoqualID(){
+    return server->goqual_login.id;
+}
+QString Supervisor::getGoqualPassword(){
+    return server->goqual_login.passwd;
+}
+QString Supervisor::getGoqualClientID(){
+    return server->goqual_login.client_id;
+}
+QString Supervisor::getGoqualClientSecret(){
+    return server->goqual_login.client_secret;
+}
+QString Supervisor::getGoqualAccessKey(){
+    return server->goqual_token.access_key;
+}
+QString Supervisor::getGoqualRefreshKey(){
+    return server->goqual_token.refresh_key;
+}
+QString Supervisor::getGoqualExpiresIn(){
+    return QString::number(server->goqual_token.expires_in);
+}
+
+void Supervisor::getGoqualKey(){
+    server->getGoqualKey();
+}
+void Supervisor::refreshGoqualKey(){
+    server->refreshGoqualKey();
+}
+void Supervisor::getGoqualDeviceList(){
+    server->getGoqualDevices();
+}
+
+void Supervisor::setGoqualDevice(QString id, bool onoff){
+    qDebug() << "setRelay " << id << onoff;
+    server->setGoqualRelay(id,onoff);
+}
+
+
+int Supervisor::getGoqualDeviceSize(){
+    return server->goqual_relays.size();
+}
+
+QString Supervisor::getGoqualDeviceID(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        return server->goqual_relays[num].id;
+    }
+}
+
+QString Supervisor::getGoqualDeviceType(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        return server->goqual_relays[num].type;
+    }
+}
+bool Supervisor::getGoqualDeviceState(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        return server->goqual_relays[num].state;
+    }
+}
+
+
+
+
 void Supervisor::setSetting(QString file, QString name, QString value){
     QString ini_path = getIniPath(file);
     QSettings setting(ini_path, QSettings::IniFormat);

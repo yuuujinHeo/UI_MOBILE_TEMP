@@ -22,6 +22,10 @@
 
 #include <QTimer>
 
+#include <openssl/conf.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <openssl/aes.h>
 #include "GlobalHeader.h"
 #include "ZIPHandler.h"
 
@@ -49,6 +53,9 @@ public:
 
     void newPost(QByteArray post_data, QString url);
     void newPostFile(QString file_dir, QString url);
+
+    void goqualPost(QByteArray body, QString url);
+    void goqualGet(QString url);
 
     void checkUpdate();
     void doUpdate();
@@ -79,6 +86,19 @@ public:
     QMap<QString, ST_UPDATE> version_list;
     QString last_update_date;
     QString last_update_mode;
+
+    //---------------------goqual
+    QString goqual_url = "https://goqual.io";
+    ST_GOQUAL_LOGIN goqual_login;
+    ST_GOQUAL_TOKEN goqual_token;
+    QList<ST_GOQUAL_RELAY> goqual_relays;
+
+    QByteArray encrypt(const QByteArray &text);
+
+    void getGoqualKey();
+    void refreshGoqualKey();
+    void getGoqualDevices();
+    void setGoqualRelay(QString id, bool onoff);
 
     bool connection = true;
     bool send_config = false;
@@ -119,6 +139,7 @@ private slots:
     void onTimer();
 private:
     QNetworkAccessManager   *manager;
+    QNetworkAccessManager   *goqual_manager;
     QtHttpServer *call_server;
     QTimer  *timer;
 };

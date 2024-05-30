@@ -751,6 +751,27 @@ public:
 
     Q_INVOKABLE QString getnewMapname();
 
+
+
+    ////*************************************** goqual ****************************//
+    Q_INVOKABLE QString getGoqualID();
+    Q_INVOKABLE QString getGoqualPassword();
+    Q_INVOKABLE QString getGoqualClientID();
+    Q_INVOKABLE QString getGoqualClientSecret();
+    Q_INVOKABLE QString getGoqualAccessKey();
+    Q_INVOKABLE QString getGoqualRefreshKey();
+    Q_INVOKABLE QString getGoqualExpiresIn();
+
+    Q_INVOKABLE void getGoqualKey();
+    Q_INVOKABLE void refreshGoqualKey();
+    Q_INVOKABLE void getGoqualDeviceList();
+    Q_INVOKABLE void setGoqualDevice(QString id, bool onoff);
+
+    Q_INVOKABLE int getGoqualDeviceSize();
+    Q_INVOKABLE QString getGoqualDeviceID(int num);
+    Q_INVOKABLE QString getGoqualDeviceType(int num);
+    Q_INVOKABLE bool getGoqualDeviceState(int num);
+
     ////*********************************************  CALLING 관련   ***************************************************////
     Q_INVOKABLE QString getLastCall(){return call->getBellID();}
     Q_INVOKABLE int getCallSize(){

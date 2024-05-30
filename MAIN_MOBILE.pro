@@ -147,6 +147,7 @@ contains(QT_ARCH, x86_64){
             -lopencv_ximgproc
 
     INCLUDEPATH += /usr/local/include/
+    # INCLUDEPATH += /usr/local/include/cryptopp
     LIBS += -L/usr/local/lib/
     INCLUDEPATH += /usr/local/include/QuaZip-Qt5-1.4
     LIBS += -L/usr/lib/aarch64-linux-gnu/
@@ -154,6 +155,9 @@ contains(QT_ARCH, x86_64){
 
     # USB
     LIBS += -lusb-1.0
+    LIBS += -lssl -lcrypto
+    INCLUDEPATH += /usr/include/openssl
+    DEPENPATH += /usr/include/openssl
 }
 
 

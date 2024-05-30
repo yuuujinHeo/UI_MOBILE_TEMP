@@ -176,6 +176,21 @@ Item {
             }
         }
 
+        if(combo_use_dcrelay.ischanged){
+            if(combo_use_dcrelay.currentIndex == 1){
+                supervisor.setSetting("setting","USE_UI/use_goqual","true");
+            }else{
+                supervisor.setSetting("setting","USE_UI/use_goqual","false");
+            }
+        }
+
+        if(tfield_goqual_id.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_id",tfield_goqual_id.text);
+        }
+        if(tfield_goqual_passwd.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_passwd",tfield_goqual_passwd.text);
+        }
+
         if(combo_tray_num.ischanged){
             supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
         }
@@ -643,11 +658,24 @@ Item {
         }else{
             combo_use_lingbell.currentIndex = 0;
         }
+
         if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
             combo_use_lingbell_repeat.currentIndex = 1;
         }else{
             combo_use_lingbell_repeat.currentIndex = 0;
         }
+
+
+        if(supervisor.getSetting("setting","USE_UI","use_goqual") === "true"){
+            combo_use_dcrelay.currentIndex = 1;
+        }else{
+            combo_use_dcrelay.currentIndex = 0;
+        }
+
+        tfield_goqual_id.text = supervisor.getSetting("setting","GOQUAL","user_id");
+        tfield_goqual_passwd.text = supervisor.getSetting("setting","GOQUAL","user_passwd");
+
+
 
         if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
             combo_lingbell_time.currentIndex = 0;
@@ -1785,6 +1813,232 @@ Item {
                                         ischanged = true;
                                     }
                                     model:[3,4,5,6,7,8,9,10,15,20]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    width: 1100
+                    height: 40
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
+                        text:qsTr("스마트릴레이 설정")
+                        color: "white"
+                        font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: use_dcrelay
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("스마트릴레이 사용")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_dcrelay
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_state
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("연동 상태")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                Rectangle{
+                                    width: parent.width - 150
+                                    height: parent.height
+                                    color: "transparent"
+                                    Text{
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 30
+                                        text: qsTr("연동된 디바이스")
+                                    }
+                                }
+
+                                Item_buttons{
+                                    type: "white_btn"
+                                    width: 150
+                                    height: 50
+                                    text: qsTr("설정")
+                                    onClicked:{
+                                        click_sound.play();
+                                        popup_set_goqual.open();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: goqual_id
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("ID")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_id
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_passwd
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("PASSWD")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_passwd
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
                                 }
                             }
                         }
@@ -12228,6 +12482,248 @@ Item {
 
     Popup_help{
         id: popup_help_setting
+    }
+
+    Popup{
+        id: popup_set_goqual
+        anchors.centerIn: parent
+        width: 900
+        height: 600
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        onOpened:{
+            model_goqual_deivce.clear();
+            goqual_timer.start();
+        }
+        onClosed:{
+            goqual_timer.stop();
+        }
+
+        Timer{
+            id: goqual_timer
+            running: false
+            repeat: true
+            interval: 500
+            onTriggered:{
+                text_goqual_access_key.text = supervisor.getGoqualAccessKey();
+                text_goqual_refresh_key.text = supervisor.getGoqualRefreshKey();
+                text_goqual_expires_in.text = supervisor.getGoqualExpiresIn();
+
+                for(var i=0; i<supervisor.getGoqualDeviceSize(); i++){
+                    var match = false;
+                    for(var j=0; j<model_goqual_deivce.count; j++){
+                        if(model_goqual_deivce.get(j).id === supervisor.getGoqualDeviceID(i)){
+                            match = true;
+                            break;
+                        }
+                    }
+                    if(!match){
+                        model_goqual_deivce.append({"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"dev_state":supervisor.getGoqualDeviceState(i)});
+                    }
+
+                }
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            Column{
+                anchors.centerIn: parent
+                spacing: 30
+                Rectangle{
+                    width: 700
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: 200
+                    color: color_light_gray
+                    Column{
+                        anchors.centerIn: parent
+                        spacing: 30
+                        Grid{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            columns: 3
+                            rows: 3
+                            horizontalItemAlignment: Grid.AlignHCenter
+                            verticalItemAlignment: Grid.AlignVCenter
+                            spacing: 10
+                            Text{
+                                text: "access_key"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_access_key
+                            }
+                            Text{
+                                text: "refresh_key"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_refresh_key
+                            }
+                            Text{
+                                text: "expires_in"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_expires_in
+                            }
+                        }
+
+                        Row{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 30
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("get Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    click_sound.play();
+                                    supervisor.getGoqualKey();
+                                }
+                            }
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("refresh Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    click_sound.play();
+                                    supervisor.refreshGoqualKey();
+                                }
+                            }
+                        }
+                        Text{
+                            id: text_goqual_error
+                            color: color_red
+                            text: ""
+                        }
+                    }
+                }
+
+                Column{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 4
+                        Rectangle{
+                            width: 196
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "Type"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 196
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "ID"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 96
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "State"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 236
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "switch"
+                                color: "white"
+                            }
+                        }
+                    }
+
+                    Repeater{
+                        model: ListModel{id:model_goqual_deivce}
+                        Row{
+                            Row{
+                                Rectangle{
+                                    width: 200
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: type
+                                    }
+                                }
+                                Rectangle{
+                                    width: 200
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: id
+                                    }
+                                }
+                                Rectangle{
+                                    width: 100
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: dev_state
+                                    }
+                                }
+                                Rectangle{
+                                    width: 240
+                                    height: 50
+                                    Row{
+                                        anchors.centerIn: parent
+                                        spacing: 20
+                                        Buttons{
+                                            style: "normal"
+                                            text: qsTr("on")
+                                            width: 100
+                                            height: 40
+                                            onClicked:{
+                                                click_sound.play();
+                                                supervisor.setGoqualDevice(id,true);
+                                            }
+                                        }
+                                        Buttons{
+                                            style: "normal"
+                                            text: qsTr("off")
+                                            width: 100
+                                            height: 40
+                                            onClicked:{
+                                                click_sound.play();
+                                                supervisor.setGoqualDevice(id,false);
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+
+        }
     }
 
     Popup{

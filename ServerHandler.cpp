@@ -8,6 +8,7 @@ ServerHandler::ServerHandler()
 {
     // 네트워크 연결 관리
     manager = new QNetworkAccessManager(this);
+    goqual_manager = new QNetworkAccessManager(this);
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
@@ -20,17 +21,171 @@ ServerHandler::ServerHandler()
     checkUpdate();
     startTime = QTime::currentTime();
 //    sendRobotConfig();
-    sendMaps();
+    // sendMaps();
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/ExtProcess","hello..4");
 //    uploadRelease(QDir::homePath()+"/RB_MOBILE/sh/autostart.sh","hello..4");
 //    getGitCommits();
+
+
+
+    // goqual_login.client_id = getSetting("setting","GOQUAL","client_id");
+    // goqual_login.client_secret = getSetting("setting","GOQUAL","client_secret");
+    // goqual_login.app_key = getSetting("setting","GOQUAL","app_key");
+    goqual_login.id = getSetting("setting","GOQUAL","user_id");
+    goqual_login.passwd = getSetting("setting","GOQUAL","user_passwd");
+
+    goqual_token.access_key = getSetting("setting","GOQUAL","access_key");
+    goqual_token.refresh_key = getSetting("setting","GOQUAL","refresh_key");
+    goqual_token.expires_in = getSetting("setting","GOQUAL","expires_in").toInt();
+
+}
+
+// 오류를 출력하는 함수
+void handleErrors(void) {
+    ERR_print_errors_fp(stderr);
+    abort();
+}
+
+QByteArray ServerHandler::encrypt(const QByteArray &text) {
+    EVP_CIPHER_CTX *ctx;
+    int len;
+    int ciphertext_len;
+    QByteArray key = goqual_login.app_key.left(32).toUtf8();
+    QByteArray iv = goqual_login.app_key.left(16).toUtf8();
+
+    // 출력 버퍼 초기화
+    int ciphertext_buffer_len = text.size() + AES_BLOCK_SIZE;
+    unsigned char *ciphertext = new unsigned char[ciphertext_buffer_len];
+
+    // 컨텍스트 초기화
+    if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
+
+    // 초기화 벡터와 키를 사용하여 암호화 초기화
+    if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, (unsigned char*)key.data(), (unsigned char*)iv.data()))
+        handleErrors();
+
+    // 데이터를 암호화하고 출력 버퍼에 저장
+    if(1 != EVP_EncryptUpdate(ctx, ciphertext, &len, (unsigned char*)text.data(), text.size()))
+        handleErrors();
+    ciphertext_len = len;
+
+    // 암호화 완료
+    if(1 != EVP_EncryptFinal_ex(ctx, ciphertext + len, &len)) handleErrors();
+    ciphertext_len += len;
+
+    // 컨텍스트 정리
+    EVP_CIPHER_CTX_free(ctx);
+
+    // 결과를 QByteArray로 변환
+    QByteArray result((char*)ciphertext, ciphertext_len);
+    delete[] ciphertext;
+    return result;
+}
+
+// Base64url 인코딩 함수
+QString base64UrlEncode(const QByteArray &data) {
+    QString base64 = data.toBase64();
+    base64 = base64.replace("+", "-").replace("/", "_").replace("=", "");
+    return base64;
+}
+
+void ServerHandler::goqualPost(QByteArray body, QString url){
+    QByteArray postDataSize = QByteArray::number(body.size());
+    QUrl serviceURL(url);
+    QNetworkRequest request(serviceURL);
+    request.setRawHeader("Content-Type", "application/json");
+    request.setRawHeader("Content-Length", postDataSize);
+    request.setRawHeader("Connection", "Keep-Alive");
+    request.setRawHeader("AcceptEncoding", "gzip, deflate");
+    request.setRawHeader("AcceptLanguage", "ko-KR,en,*");
+    if(!url.contains("/token")){
+        QString auth = "Bearer "+goqual_token.access_key;
+        request.setRawHeader("Authorization",auth.toUtf8());
+    }
+    qDebug() << "POST===============================";
+    qDebug() << body;
+    QNetworkReply *reply = goqual_manager->post(request, body);
+    connect(reply, &QNetworkReply::finished, [=](){
+        parsingReply("GOQUAL",url,reply);
+    });
+}
+
+void ServerHandler::goqualGet(QString url){
+    QUrl serviceURL(url);
+    QNetworkRequest request(serviceURL);
+    QString auth = "Bearer "+goqual_token.access_key;
+
+    request.setRawHeader("Content-Type","application./json");
+    request.setRawHeader("Authorization",auth.toUtf8());
+
+    QNetworkReply *reply = goqual_manager->get(request);
+    connect(reply, &QNetworkReply::finished, [=](){
+        parsingReply("GOQUAL",url,reply);
+    });
+}
+
+void ServerHandler::getGoqualKey(){
+    goqual_login.id = getSetting("setting","GOQUAL","user_id");
+    goqual_login.passwd = getSetting("setting","GOQUAL","user_passwd");
+
+    QString strBody = "{\"client_id\":\""+goqual_login.client_id+"\","+
+          "\"client_secret\":\""+goqual_login.client_secret+"\","+
+          "\"grant_type\":\"password\","+
+          "\"username\":\""+goqual_login.id+"\","+
+          "\"password\":\""+goqual_login.passwd+"\"}";
+
+    qDebug() << "-----------------------------------------";
+    qDebug() << strBody;
+    QByteArray test = encrypt(strBody.toUtf8());
+    QJsonObject json;
+    json["data"] = base64UrlEncode(test);
+
+    QByteArray json_string = QJsonDocument(json).toJson();
+    goqualPost(json_string, goqual_url+"/openapi/token");
+
+}
+
+void ServerHandler::refreshGoqualKey(){
+    goqual_login.id = "01020866685";
+    goqual_login.passwd = "rainbow2011";
+
+    QString strBody = "{\"client_id\":\""+goqual_login.client_id+"\","+
+                      "\"client_secret\":\""+goqual_login.client_secret+"\","+
+                      "\"grant_type\":\"refresh_token\","+
+                      "\"refresh_token\":\""+goqual_token.refresh_key+"\"}";
+
+    qDebug() << "-----------------------------------------";
+    QByteArray test = encrypt(strBody.toUtf8());
+    QJsonObject json;
+    json["data"] = base64UrlEncode(test);
+
+    QByteArray json_string = QJsonDocument(json).toJson();
+    goqualPost(json_string, goqual_url+"/openapi/token/refresh");
+
+}
+
+void ServerHandler::getGoqualDevices(){
+    if(goqual_token.access_key != ""){
+        goqualGet(goqual_url+"/openapi/devices/state");
+    }
+}
+void ServerHandler::setGoqualRelay(QString id, bool onoff){
+    QJsonObject json;
+    json["deviceId"] = id;
+    QJsonObject requirements;
+    requirements["power1"] = onoff;
+    json["requirments"] = requirements;
+
+    QByteArray json_string = QJsonDocument(json).toJson();
+    goqualPost(json_string, goqual_url+"/openapi/control/"+id);
 }
 
 void ServerHandler::onTimer(){
     //주기적으로 서버에게 상태를 보냄.
+    getGoqualDevices();
     if(connection){
-        postStatus();
+        // postStatus();
 //        if(myID == "serving.001.01.test" || myID == ""){
 //            getNewID();
 //        }else if(!send_config){
@@ -218,7 +373,7 @@ void ServerHandler::postStatus(){
     json_out["state_motorlock"] = probot->status_lock;
 
     QByteArray temp_array = QJsonDocument(json_out).toJson();
-    newPost(temp_array, serverURL+"/setstatus");
+    // newPost(temp_array, serverURL+"/setstatus");
 }
 
 void ServerHandler::uploadRelease(QString file, QString message){
@@ -332,7 +487,7 @@ void ServerHandler::sendMaps(){
     QString dir = QDir::homePath()+"/"+getSetting("setting","MAP","map_name")+".zip";
     QFile config(dir);
     if(config.open(QIODevice::ReadOnly)){
-        newPostFile(dir, fileserverURL+"/upload/map");
+        // newPostFile(dir, fileserverURL+"/upload/map");
     }else{
         plog->write("[SERVER] Send Map : Failed (File not open)");
     }
@@ -458,8 +613,7 @@ void ServerHandler::generalPost(QByteArray post_data, QString url){
 }
 
 void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply){
-
-    if(reply->error() == QNetworkReply::NoError){
+        if(reply->error() == QNetworkReply::NoError){
         if(url.left(22) == "https://api.github.com"){
             QByteArray response = reply->readAll();
             ClearJson(json_in);
@@ -491,6 +645,36 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                 }else{
                     new_update_local = true;
                     plog->write("[SERVER] PROGRAM NEED UPDATE "+probot->program_date);
+                }
+            }
+        }else if(type == "GOQUAL"){
+            QByteArray response = reply->readAll();
+
+            if(url.contains("/token")){
+                QJsonObject json = QJsonDocument::fromJson(response).object();
+                qDebug() << "REPLY===============================";
+                qDebug() << "goqual response : " << json;
+                goqual_token.access_key = json["access_token"].toString();
+                goqual_token.refresh_key = json["refresh_token"].toString();
+                goqual_token.expires_in = json["expires_in"].toInt();
+
+                setSetting("setting","GOQUAL/access_key",goqual_token.access_key);
+                setSetting("setting","GOQUAL/refresh_key",goqual_token.refresh_key);
+                setSetting("setting","GOQUAL/expires_in",QString::number(goqual_token.expires_in));
+
+            }else if(url.contains("/devices/state")){
+                QJsonArray json = QJsonDocument::fromJson(response).array();
+                goqual_relays.clear();
+                for(int i=0; i<json.size(); i++){
+                    QJsonObject device = json[i].toObject();
+                    if(device["deviceType"].toString().contains("RelayController")){
+                        ST_GOQUAL_RELAY temp;
+                        temp.id = device["id"].toString();
+                        temp.type = device["deviceType"].toString();
+                        temp.state = device["deviceState"].toObject()["power1"].toBool();
+                        goqual_relays.append(temp);
+                    }
+
                 }
             }
         }else{
@@ -605,6 +789,7 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
         }
     }else{
         QString err = reply->errorString();
+        qDebug() << "ERROR==========================" << err;
         if(err == "Socket operation timed out"){
             if(connection){
                 plog->write("[Server] Time out : disconnected");
