@@ -144,6 +144,13 @@ typedef struct{
 }ST_WIFI;
 
 typedef struct{
+    QString version;
+    QString prev_version;
+    QString date;
+    QString message;
+}ST_VERSION;
+
+typedef struct{
     QString id;
     QString type;
     bool state;

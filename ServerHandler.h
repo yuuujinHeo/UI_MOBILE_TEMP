@@ -58,7 +58,7 @@ public:
     void goqualGet(QString url);
 
     void checkUpdate();
-    void doUpdate();
+    void doUpdateUI(QString version);
 
     void uploadRelease(QString file, QString message);
 
@@ -73,6 +73,11 @@ public:
 
     bool need_update();
     void rename_all();
+
+    //new
+    void getCurVersion(QString filename);
+    void getNewVersion(QString filename);
+    void getNewVersions(QString filename);
 
     void generalReply(QtHttpReply *reply, QByteArray post_data);
     void parsingReply(QString type, QString url, QNetworkReply *reply);
@@ -123,12 +128,16 @@ public:
     int TIMER_MS = 1000;
 //    QString serverURL = "http://rbyujin.com:8080";
     QString serverURL = "http://127.0.0.1:11334";
-    QString fileserverURL = "http://127.0.0.1:11335";
+    QString fileserverURL = "http://10.108.1.10:11335";
 //    QString serverURL = "http://49.50.173.53:11334";
     QString myID = "YUJIN_NUC";
 
     QTime startTime;
     QTime elapsedTime;
+
+    ST_VERSION ui_version;
+    ST_VERSION ui_version_new;
+    QList<ST_VERSION> ui_new_versions;
 signals:
     void updatefail();
     void updatesuccess();
@@ -136,6 +145,7 @@ signals:
 
 private slots:
     void onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply);
+    void onCallRequestReply2(QtHttpRequest *request, QtHttpReply *reply);
     void onTimer();
 private:
     QNetworkAccessManager   *manager;

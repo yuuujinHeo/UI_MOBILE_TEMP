@@ -183,7 +183,7 @@ void ServerHandler::setGoqualRelay(QString id, bool onoff){
 
 void ServerHandler::onTimer(){
     //주기적으로 서버에게 상태를 보냄.
-    getGoqualDevices();
+    // getGoqualDevices();
     if(connection){
         // postStatus();
 //        if(myID == "serving.001.01.test" || myID == ""){
@@ -209,10 +209,180 @@ void ServerHandler::onTimer(){
 void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply){
     QByteArray rcvData = request->getRawData();
     QJsonObject jin = QJsonDocument::fromJson(rcvData).object();
-//    qDebug() << "JSON IN : " << jin;
+    QJsonObject jout;
+
+
+
+    if(request->getCommand() == "GET"){
+        if(request->getUrl().toString().left(6) == "/state"){
+
+            QStringList temp = request->getUrl().toString().split("/");
+            if(temp.size() == 3){
+                QString table = temp[2];
+                jout["table"] = table;
+                jout["robot_name"] = probot->name;
+                // cur_reply_state.count = cur_state_request.count;
+                // cur_reply_state.table = cur_state_request.table;
+
+                //call_queue에 있는 지 여부 확인
+                bool match = false;
+                for(int i=0; i<pmap->call_queue.size(); i++){
+                    if(pmap->call_queue[i] == table){
+                        match = true;
+                        break;
+                    }
+                }
+
+                if(match){
+                    //현재 목표가 맞는지 확인
+                    //            qDebug() << probot->current_target.name << table << probot->running_state << ui_state;
+                    if(probot->current_target.name == table){
+                        if(ui_state == UI_STATE_MOVING){
+                            if(probot->running_state == ROBOT_MOVING_NOT_READY){
+                                jout["state"] = "error";
+                                jout["error_state"] = 3;
+                            }else if(probot->running_state == ROBOT_MOVING_READY){
+                                jout["state"] = "wait";
+                                jout["error_state"] = 1;
+                            }else{
+                                //moving, wait, paused
+                                jout["state"] = "moving";
+                                jout["error_state"] = 0;
+                            }
+                        }else if(ui_state == UI_STATE_PICKUP){
+                            jout["state"] = "arrived";
+                            jout["error_state"] = 0;
+                        }else{
+                            jout["state"] = "error";
+                            jout["error_state"] = 2;
+                        }
+                    }else{
+                        if(pmap->call_queue.size() == 0){
+                            jout["state"] = "none";
+                            jout["error_state"] = 0;
+                        }else{
+                            jout["state"] = "wait";
+                            jout["error_state"] = 0;
+                        }
+                    }
+                }else{
+                    jout["state"] = "none";
+                    jout["error_state"] = 0;
+                }
+
+                QByteArray json_string = QJsonDocument(jout).toJson();
+                generalReply(reply, json_string);
+            }else{
+                reply->setStatusCode(QtHttpReply::BadRequest);
+                emit reply->requestSendHeaders();
+                return;
+            }
+        }else{
+            reply->setStatusCode(QtHttpReply::BadRequest);
+            emit reply->requestSendHeaders();
+            return;
+        }
+    }else if(request->getCommand() == "POST"){
+        // cur_call_request.count++;
+        // cur_call_request.table = jin["table"].toString();
+        // cur_call_request.purpose = jin["purpose"].toString();
+        QString table = jin["table"].toString();
+
+        if(table == ""){
+            reply->setStatusCode(QtHttpReply::BadRequest);
+            emit reply->requestSendHeaders();
+            return;
+        }
+
+        if(request->getUrl() == QUrl("/call")){
+            //check locations
+            jout["table"] = table;
+            //check locations
+            int num = -1;
+            for(int i=0; i<pmap->locations.size(); i++){
+                if(pmap->locations[i].name == table){
+                    num = i;
+                    break;
+                }
+            }
+            // cur_reply_call.count = cur_call_request.count;
+            // cur_reply_call.table = cur_call_request.table;
+
+            if(num > -1){
+                //Queue 중복 확인
+                for(int i=0; i<pmap->call_queue.size(); i++){
+                    if(pmap->call_queue[i] == table){
+                        //already queue in
+                        QJsonObject jout;
+                        jout["command"] = jin["command"];
+                        jout["table"] = jin["table"];
+                        jout["robot_name"] = probot->name;
+                        jout["result"] = "duplicate";
+                        jout["error_state"] = 0;
+                        QByteArray json_string = QJsonDocument(jout).toJson();
+                        generalReply(reply, json_string);
+                        return;
+                    }
+                }
+                qDebug() << "ui state = " << ui_state;
+                //Robot State 확인
+                if(ui_state == UI_STATE_CHARGING){
+                    QJsonObject jout;
+                    jout["command"] = jin["command"];
+                    jout["table"] = jin["table"];
+                    jout["robot_name"] = "";
+                    jout["result"] = "none";
+                    jout["error_state"] = 2;
+                    QByteArray json_string = QJsonDocument(jout).toJson();
+                    generalReply(reply, json_string);
+                }else if(ui_state == UI_STATE_NONE || ui_state == UI_STATE_INITAILIZING || ui_state == UI_STATE_MOVEFAIL){
+                    QJsonObject jout;
+                    jout["command"] = jin["command"];
+                    jout["table"] = jin["table"];
+                    jout["robot_name"] = "";
+                    jout["result"] = "none";
+                    jout["error_state"] = 1;
+                    QByteArray json_string = QJsonDocument(jout).toJson();
+                    generalReply(reply, json_string);
+                }else{
+                    QJsonObject jout;
+                    jout["command"] = jin["command"];
+                    jout["table"] = jin["table"];
+                    jout["robot_name"] = probot->name;
+                    jout["result"] = "confirm";
+                    jout["error_state"] = 0;
+                    emit newCallOrder(table);
+                    QByteArray json_string = QJsonDocument(jout).toJson();
+                    generalReply(reply, json_string);
+                }
+            }else{
+                QJsonObject jout;
+                jout["command"] = jin["command"];
+                jout["table"] = jin["table"];
+                jout["robot_name"] = "";
+                jout["result"] = "none";
+                jout["error_state"] = 3;
+                QByteArray json_string = QJsonDocument(jout).toJson();
+                generalReply(reply, json_string);
+            }
+        }else{
+            reply->setStatusCode(QtHttpReply::BadRequest);
+            emit reply->requestSendHeaders();
+            return;
+        }
+    }else{
+        reply->setStatusCode(QtHttpReply::BadRequest);
+        emit reply->requestSendHeaders();
+        return;
+    }
+}
+void ServerHandler::onCallRequestReply2(QtHttpRequest *request, QtHttpReply *reply){
+    QByteArray rcvData = request->getRawData();
+    QJsonObject jin = QJsonDocument::fromJson(rcvData).object();
     QString msgType = jin["command"].toString();
     QString table = jin["table"].toString();
 
+    // qDebug() << request->getUrl() << request.g
     if(msgType == "calling"){
         //check locations
         int num = -1;
@@ -341,7 +511,7 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
 void ServerHandler::generalReply(QtHttpReply *reply, QByteArray post_data){
     QByteArray postDataSize = QByteArray::number(post_data.size());
 
-//    qDebug() << "REPLY : " << post_data;
+   qDebug() << "REPLY : " << post_data;
 
     reply->addHeader(QtHttpHeader::ContentType, QByteArrayLiteral("application/json"));
     reply->addHeader(QtHttpHeader::ContentLength, postDataSize);
@@ -404,9 +574,19 @@ void ServerHandler::checkUpdate(){
     }
 }
 
-void ServerHandler::doUpdate(){
-    plog->write("[SERVER] Do Update"+myID);
-    generalGet(serverURL+"/update/"+myID);
+void ServerHandler::doUpdateUI(QString version){
+    plog->write("[SERVER] Do Update");
+    // generalGet(serverURL+"/update/"+myID);
+    QJsonObject body;
+    QJsonObject auth;
+    auth["name"] = "rainbow";
+    body["program"] = "MAIN_MOBILE";
+    body["new_version"] = version;
+    body["cur_version"] = ui_version.version;
+    body["auth"] = auth;
+    body["path"] = QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE";
+    QByteArray temp_array = QJsonDocument(body).toJson();
+    generalPost(temp_array,serverURL+"/update");
 }
 
 void ServerHandler::getNewID(){
@@ -428,6 +608,18 @@ bool ServerHandler::need_update(){
     }else{
         return new_update_local;
     }
+}
+
+void ServerHandler::getNewVersion(QString filename){
+    generalGet(fileserverURL+"/versions/"+filename);
+}
+
+void ServerHandler::getCurVersion(QString filename){
+    generalGet(serverURL+"/versions/"+filename);
+}
+
+void ServerHandler::getNewVersions(QString filename){
+    generalGet(fileserverURL+"/versions/all/"+filename);
 }
 
 void ServerHandler::getGitCommits(){
@@ -597,23 +789,23 @@ void ServerHandler::sendfilePost(QString file_dir, QString url){
 }
 // 공통적으로 사용되는 POST 구문 : 출력으로 응답 정보를 보냄
 void ServerHandler::generalPost(QByteArray post_data, QString url){
-//    QByteArray postDataSize = QByteArray::number(post_data.size());
-//    QUrl serviceURL(url);
-//    QNetworkRequest request(serviceURL);
-//    request.setRawHeader("Content-Type", "application/json");
-//    request.setRawHeader("Content-Length", postDataSize);
-//    request.setRawHeader("Connection", "Keep-Alive");
-//    request.setRawHeader("AcceptEncoding", "gzip, deflate");
-//    request.setRawHeader("AcceptLanguage", "ko-KR,en,*");
+   QByteArray postDataSize = QByteArray::number(post_data.size());
+   QUrl serviceURL(url);
+   QNetworkRequest request(serviceURL);
+   request.setRawHeader("Content-Type", "application/json");
+   request.setRawHeader("Content-Length", postDataSize);
+   request.setRawHeader("Connection", "Keep-Alive");
+   request.setRawHeader("AcceptEncoding", "gzip, deflate");
+   request.setRawHeader("AcceptLanguage", "ko-KR,en,*");
 
-//    QNetworkReply *reply = manager->post(request, post_data);
-//    connect(reply, &QNetworkReply::finished, [=](){
-//        parsingReply("POST",url,reply);
-//    });
+   QNetworkReply *reply = manager->post(request, post_data);
+   connect(reply, &QNetworkReply::finished, [=](){
+       parsingReply("POST",url,reply);
+   });
 }
 
 void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply){
-        if(reply->error() == QNetworkReply::NoError){
+    if(reply->error() == QNetworkReply::NoError){
         if(url.left(22) == "https://api.github.com"){
             QByteArray response = reply->readAll();
             ClearJson(json_in);
@@ -645,6 +837,36 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                 }else{
                     new_update_local = true;
                     plog->write("[SERVER] PROGRAM NEED UPDATE "+probot->program_date);
+                }
+            }
+        }else if(url.contains(":11334")){
+            QByteArray response = reply->readAll();
+
+            if(url.contains("/versions/MAIN_MOBILE")){
+                QJsonObject temp = QJsonDocument::fromJson(response).object();
+                ui_version.version = temp["data"].toObject()["version"].toString();
+                ui_version.prev_version = temp["data"].toObject()["prev_version"].toString();
+                ui_version.date = temp["data"].toObject()["date"].toString();
+                qDebug() << "version get " << ui_version.version << ui_version.date;
+            }
+        }else if(url.contains(":11335")){
+            QByteArray response = reply->readAll();
+
+            if(url.contains("/versions/MAIN_MOBILE")){
+                QJsonObject temp = QJsonDocument::fromJson(response).object();
+                ui_version_new.version = temp["version"].toString();
+                ui_version_new.date = temp["date"].toString();
+                ui_version_new.message = temp["message"].toString();
+                qDebug() << "version (new) get " << ui_version.version << ui_version.date;
+            }else if(url.contains("/versions/all/MAIN_MOBILE")){
+                QJsonArray temp = QJsonDocument::fromJson(response).array();
+                ui_new_versions.clear();
+                for(int i=0; i<temp.size(); i++){
+                    ST_VERSION temp_version;
+                    temp_version.version = temp[i].toObject()["version"].toString();
+                    temp_version.date = temp[i].toObject()["date"].toString();
+                    temp_version.message = temp[i].toObject()["message"].toString();
+                    ui_new_versions.append(temp_version);
                 }
             }
         }else if(type == "GOQUAL"){
@@ -822,14 +1044,14 @@ void ServerHandler::rename_all(){
 }
 
 void ServerHandler::generalGet(QString url){
-//    QUrl serviceURL(url);
-//    QNetworkRequest request(serviceURL);
-//    request.setRawHeader("Content-Type","application./json");
+   QUrl serviceURL(url);
+   QNetworkRequest request(serviceURL);
+   request.setRawHeader("Content-Type","application./json");
 
-//    QNetworkReply *reply = manager->get(request);
-//    connect(reply, &QNetworkReply::finished, [=](){
-//        parsingReply("GET",url,reply);
-//    });
+   QNetworkReply *reply = manager->get(request);
+   connect(reply, &QNetworkReply::finished, [=](){
+       parsingReply("GET",url,reply);
+   });
 }
 void ServerHandler::generalPut(QString url, QByteArray put_data){
 //    QUrl serviceURL(url);

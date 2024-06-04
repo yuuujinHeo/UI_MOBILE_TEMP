@@ -43,7 +43,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             font.family: font_noto_r.name
             font.pixelSize: 20
-            text: robot_name
+            text: "0.0.7"// robot_name
             MouseArea{
                 anchors.fill: parent
                 onPressAndHold: {

@@ -389,6 +389,22 @@ bool Supervisor::isNeedUpdate(){
     //서버업데이트 필요한 지.
     return server->new_update;
 }
+void Supervisor::refreshVersion(){
+    qDebug() << "refreshVersion";
+    server->getCurVersion("MAIN_MOBILE");
+    server->getNewVersion("MAIN_MOBILE");
+    server->getNewVersions("MAIN_MOBILE");
+}
+QString Supervisor::getNewVersion(){
+    return server->ui_version_new.version;
+}
+QString Supervisor::getCurVersion(){
+    return server->ui_version.version;
+}
+QString Supervisor::getCurVersionDate(){
+    return server->ui_version.date;
+}
+
 QString Supervisor::getLocalVersion(){
     return getSetting("robot","VERSION","last_update_date");
 }
@@ -453,11 +469,26 @@ void Supervisor::checkCleaningLocation(){
         saveAnnotation("");
     }
 }
+int Supervisor::getNewVersionsSize(){
+    return server->ui_new_versions.size();
+}
+QString Supervisor::getNewVersion(int i){
+    return server->ui_new_versions[i].version;
+}
+QString Supervisor::getNewVersionDate(int i){
+    return server->ui_new_versions[i].date;
+
+}
+QString Supervisor::getNewVersionMessage(int i){
+    return server->ui_new_versions[i].message;
+
+}
 QString Supervisor::getCurrentCommit(QString name){
     return server->version_list[name].commit;
 }
-void Supervisor::updateProgram(){
-    server->doUpdate();
+void Supervisor::updateProgram(QString _v){
+    plog->write("[UPDATE] Update UI version : "+_v);
+    server->doUpdateUI(_v);
 }
 void Supervisor::updateProgramGitPull(){
 #ifdef EXTPROC_TEST

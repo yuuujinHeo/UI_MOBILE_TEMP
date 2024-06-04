@@ -26,6 +26,7 @@ Item {
     property bool use_multirobot: false
     property bool wifi_update_auto: true
     property int debug_count: 0
+    property int select_version: -1
 
     onIs_adminChanged: {
         if(is_admin){
@@ -13442,7 +13443,7 @@ Item {
                         onClicked:{
                             click_sound.play();
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
-                            popup_update.open();
+                            popup_update_new.open();
                         }
                     }
                 }
@@ -14755,6 +14756,286 @@ Item {
         }
     }
     Popup{
+        id: popup_update_new
+        width: 1280
+        height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors.centerIn: parent
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+
+        function newest(){
+            text_main_update.text = qsTr("프로그램이 이미 최신입니다");
+            text_serv_update.text = qsTr("");
+        }
+
+        function failed(){
+            text_main_update.text = qsTr("업데이트에 실패했습니다");
+            text_serv_update.text = qsTr("");
+        }
+
+        onOpened: {
+            supervisor.refreshVersion();
+            timer_update_popup.start();
+        }
+        onClosed:{
+            timer_update_popup.stop();
+        }
+
+        Timer{
+            id: timer_update_popup
+            running: false
+            repeat: true
+            interval: 1000
+            onTriggered:{
+                current_version.text = supervisor.getCurVersion();
+                new_version.text = supervisor.getNewVersion();
+                last_date.text = supervisor.getCurVersionDate();
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Column{
+                    spacing: 10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text:qsTr("현재 버전 : ")
+                        }
+                        Text{
+                            id: current_version
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getCurVersion()
+                        }
+                    }
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text:qsTr("최신 버전 : ")
+                        }
+                        Text{
+                            id: new_version
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getNewVersion()
+                        }
+                    }
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text:qsTr("마지막 업데이트 날짜 : ")
+                        }
+                        Text{
+                            id: last_date
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getCurVersionDate()
+                        }
+                    }
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Buttons{
+                        id: btn_update_new
+                        text:qsTr("업데이트")
+                        style: "green"
+                        onClicked: {
+                            click_sound.play();
+                            supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                            supervisor.updateProgram(supervisor.getNewVersion());
+                            // popup_update_new.close();
+                        }
+                    }
+                    Buttons{
+                        id: btn_rollback_new
+                        text:qsTr("롤백")
+                        style: "green"
+                        onClicked: {
+                            click_sound.play();
+                            popup_rollback.open();
+                            // popup_update_new.close();
+                        }
+                    }
+                    Buttons{
+                        id: btn_cancel_new
+                        text:qsTr("닫기")
+                        style: "normal"
+                        onClicked: {
+                            click_sound.play();
+                            popup_update_new.close();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup{
+        id: popup_rollback
+        width: 1280
+        height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors.centerIn: parent
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+
+        onOpened:{
+            model_versions.clear();
+            for(var i=0; i<supervisor.getNewVersionsSize(); i++){
+                model_versions.append({version:supervisor.getNewVersion(i),
+                                      date:supervisor.getNewVersionDate(i),
+                                      message:supervisor.getNewVersionMessage(i)});
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Flickable{
+                    width: popup_rollback.width
+                    height: 200
+                    contentHeight: cols_version.height
+                    clip: true
+                    Column{
+                        id: cols_version
+                        anchors.centerIn: parent
+                        spacing: 10
+                        Repeater{
+                            model: ListModel{id: model_versions}
+                            Rectangle{
+                                width: 800
+                                height: 80
+                                color: select_version===index?color_green:color_light_gray
+                                Rectangle{
+                                    width: 120
+                                    height: 50
+                                    radius: 30
+                                    color: color_light_gray
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 100
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: version
+                                        font.bold: true
+                                        font.pixelSize: 20
+                                    }
+                                }
+                                Column{
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 400
+                                    spacing: 10
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("message : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: message
+                                        }
+                                    }
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("date : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: date
+                                        }
+                                    }
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        select_version = index;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Buttons{
+                        text:qsTr("롤백")
+                        style: "green"
+                        onClicked: {
+                            if(select_version > -1 && select_version < model_versions.count){
+                                click_sound.play();
+                                supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                                supervisor.updateProgram(model_versions.get(select_version).version);
+                                popup_rollback.close();
+                            }else{
+                                click_sound_no.play();
+                            }
+
+                        }
+                    }
+                    Buttons{
+                        text:qsTr("닫기")
+                        style: "normal"
+                        onClicked: {
+                            click_sound.play();
+                            popup_rollback.close();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup{
         id: popup_update
         width: 1280
         height: 400
@@ -14849,7 +15130,7 @@ Item {
                     spacing: 10
                     anchors.horizontalCenter: parent.horizontalCenter
                     Row{
-                        id: current_version
+                        id: cur_version
                         anchors.horizontalCenter: parent.horizontalCenter
                         Text{
                             width: 200
@@ -14869,7 +15150,7 @@ Item {
                         }
                     }
                     Row{
-                        id: new_version
+                        id: new__version
                         anchors.horizontalCenter: parent.horizontalCenter
                         Text{
                             width: 200
