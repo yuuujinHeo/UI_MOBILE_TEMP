@@ -268,9 +268,12 @@ void Worker::connectWifi(){
         emit connect_wifi_success(argument[0]);
     }else if(result.contains("Secrets were required")){
         emit connect_wifi_fail(1, argument[0]);
-    }else if(result.contains("failed:")){
+    }else if(result.contains("[sudo]")){
         emit connect_wifi_fail(2, argument[0]);
-    }else{
+    }else if(result.contains("failed:")){
+        //emit connect_wifi_fail(2, argument[0]);
+    }
+    else{
         emit connect_wifi_fail(0, argument[0]);
     }
 
