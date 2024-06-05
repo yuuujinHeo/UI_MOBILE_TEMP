@@ -770,9 +770,12 @@ public:
     Q_INVOKABLE void clearCallQueue(){
         pmap->call_queue.clear();
     }
+    Q_INVOKABLE void resetLingbell(int id);
+    Q_INVOKABLE QString getLingbell(int id);//{return pmap->locations[id].ling_id;}
     Q_INVOKABLE QString getCall(int id){return pmap->locations[id].call_id;}
     Q_INVOKABLE void setCallbell(QString type, int id);
     Q_INVOKABLE void setCallbellForce(QString type, bool onoff);
+    Q_INVOKABLE QString makeLingbell();
 
     ////*********************************************  ANNOTATION 관련   ***************************************************////
 

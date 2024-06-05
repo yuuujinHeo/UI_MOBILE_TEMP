@@ -181,6 +181,24 @@ Item {
             supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
         }
 
+        if(combo_use_lingbell.ischanged){
+            if(combo_use_lingbell.currentIndex === 1){
+                supervisor.setSetting("setting","CALL/use_lingbell","true");
+            }else{
+                supervisor.setSetting("setting","CALL/use_lingbell","false");
+            }
+        }
+        if(combo_use_lingbell_repeat.ischanged){
+            if(combo_use_lingbell_repeat.currentIndex === 1){
+                supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
+            }else{
+                supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
+            }
+        }
+        if(combo_lingbell_time.ischanged){
+            supervisor.setSetting("setting","CALL/lingbell_time",combo_lingbell_time.currentText);
+        }
+
         if(slider_volume_bgm.ischanged){
             supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value);
 //            volume_bgm = slider_volume_bgm.value.toFixed(0);
@@ -630,6 +648,41 @@ Item {
             combo_language.currentIndex = 0;
         }else if(supervisor.getSetting("setting","UI","language") === "english"){
             combo_language.currentIndex = 1;
+        }
+
+        if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+            combo_use_lingbell.currentIndex = 1;
+        }else{
+            combo_use_lingbell.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
+            combo_use_lingbell_repeat.currentIndex = 1;
+        }else{
+            combo_use_lingbell_repeat.currentIndex = 0;
+        }
+
+        if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
+            combo_lingbell_time.currentIndex = 0;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "4"){
+            combo_lingbell_time.currentIndex = 1;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "5"){
+            combo_lingbell_time.currentIndex = 2;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "6"){
+            combo_lingbell_time.currentIndex = 3;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "7"){
+            combo_lingbell_time.currentIndex = 4;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "8"){
+            combo_lingbell_time.currentIndex = 5;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "9"){
+            combo_lingbell_time.currentIndex = 6;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "10"){
+            combo_lingbell_time.currentIndex = 7;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "15"){
+            combo_lingbell_time.currentIndex = 8;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "20"){
+            combo_lingbell_time.currentIndex = 9;
+        }else{
+            combo_lingbell_time.currentIndex = 2;
         }
 
         if(supervisor.getSetting("setting","USE_UI","auto_update") === "true"){
@@ -12255,6 +12308,41 @@ Item {
 
     Popup_help{
         id: popup_help_setting
+    }
+
+    Popup{
+        id: popup_lingbell
+        anchors.centerIn: parent
+        width: 400
+        height: 400
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_light_gray
+            Column{
+                anchors.centerIn: parent
+                spacing: 20
+                TextField{
+                    id: field_lingbell_callnum
+                    text: "FFEEDD"
+                    width: 200
+                    height: 50
+                }
+                Item_buttons{
+                    type: "round_text"
+                    width: 160
+                    height: 50
+                    text: "CALL"
+                    onClicked:{
+                        supervisor.callCallbell(field_lingbell_callnum.text);
+                    }
+                }
+            }
+        }
     }
 
     Popup{

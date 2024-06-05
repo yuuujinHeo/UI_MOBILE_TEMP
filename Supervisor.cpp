@@ -746,6 +746,30 @@ void Supervisor::readSetting(QString map_name){
     QMetaObject::invokeMethod(mMain, "update_ini");
 }
 
+QString Supervisor::makeLingbell(){
+    int maxnum = 1;
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->locations[i].ling_id.right(7).toInt();
+        }
+    }
+
+    return "F"+QString::asprintf("%07d",maxnum+1);
+}
+void Supervisor::resetLingbell(int id){
+    if(id>-1 && id<pmap->locations.size()){
+        pmap->locations[id].ling_id = "";
+    }
+}
+
+QString Supervisor::getLingbell(int id){
+    if(pmap->locations[id].ling_id == ""){
+        pmap->locations[id].ling_id = makeLingbell();
+    }
+
+    return pmap->locations[id].ling_id;
+}
+
 void Supervisor::editLocation(int num){
     if(getSetting("setting","ROBOT_TYPE","type") == "CLEANING"){
         if(pmap->locations[num].name == "CleaningTemp"){
@@ -1340,6 +1364,15 @@ void Supervisor::checkRobotINI(){
 
     if(getSetting("setting","CALL","call_maximum") == "")
         setSetting("setting","CALL/call_maximum","1");
+
+    if(getSetting("setting","CALL","use_lingbell") == "")
+        setSetting("setting","CALL/use_lingbell","false");
+
+    if(getSetting("setting","CALL","use_lingbell_repeat") == "")
+        setSetting("setting","CALL/use_lingbell_repeat","false");
+
+    if(getSetting("setting","CALL","lingbell_time") == "")
+        setSetting("setting","CALL/lingbell_time","5");
 
     if(getSetting("setting","PRESET1","name")==""){
         setSetting("setting","PRESET1/name","매우느리게");
@@ -3686,6 +3719,8 @@ void Supervisor::onTimer(){
     static int prev_charge_state = 0;
     static bool flag_annot_localization = false;
 
+    static int lingbell_count = 0;
+
     //init상태 체크 카운트
     static int timer_cnt = 0;
     static int current_cnt = 0;
@@ -3876,6 +3911,7 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else if(probot->is_calling){
                             if(pmap->call_queue.size() > 0){
@@ -3884,9 +3920,19 @@ void Supervisor::onTimer(){
                             }else{
                                 probot->is_calling = false;
                             }
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             ui_state = UI_STATE_CHARGING;
                         }else{
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+" -> Charging");
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             ui_state = UI_STATE_CHARGING;
                         }
                     }else if(probot->current_target.name == "Resting0"){
@@ -3898,6 +3944,7 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
 
                         }else if(probot->is_calling){
@@ -3912,10 +3959,20 @@ void Supervisor::onTimer(){
                                 probot->is_calling = false;
                                 plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
                             }
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             QMetaObject::invokeMethod(mMain, "waitkitchen");
                             ui_state = UI_STATE_CLEANING;
                         }else{
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             QMetaObject::invokeMethod(mMain, "waitkitchen");
                             ui_state = UI_STATE_INITAILIZING;
                         }
@@ -3929,6 +3986,7 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else if(probot->is_calling){
                             if(pmap->call_queue.size() > 0){
@@ -3942,9 +4000,19 @@ void Supervisor::onTimer(){
                                 probot->is_calling = false;
                                 plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
                             }
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
                             ui_state = UI_STATE_CLEANING;
                         }else{
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
                             ui_state = UI_STATE_CLEANING;
@@ -3957,10 +4025,12 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else if(probot->is_calling){
                             plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name + " -> Pickup");
                             probot->call_moving_count++;
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else{
                             LOCATION curLoc;
@@ -3984,6 +4054,7 @@ void Supervisor::onTimer(){
                                     probot->trays[i].location = clearLoc;
                                 }
                             }
+                            lingbell_count = 0;
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+", "+curLoc.name+" -> Pickup");
                             ui_state = UI_STATE_PICKUP;
                         }
@@ -4223,6 +4294,25 @@ void Supervisor::onTimer(){
                 pmap->call_queue.append(temp);
                 stateMoving();
                 break;
+            }
+        }
+
+        //Ling bell
+        if(!probot->is_patrol){
+            if(getSetting("setting","CALL","use_lingbell") == "true"){
+                if(lingbell_count == 0){
+                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                    call->sendCall(probot->current_target.ling_id);
+                    lingbell_count = 1;
+                }
+                if(getSetting("setting","CALL","use_lingbell_repeat") == "true"){
+                    if(lingbell_count++ > getSetting("setting","CALL","lingbell_time").toInt()*1000/MAIN_THREAD){
+                        plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                        call->sendCall(probot->current_target.ling_id);
+                        lingbell_count = 1;
+                    }
+                }else{
+                }
             }
         }
 

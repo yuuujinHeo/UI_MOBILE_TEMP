@@ -141,6 +141,7 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(3+i),
+                                "ling_id" : supervisor.getLocationLingID(3+i),
                                  "callerror":false,
                                  "nameerror":false,
                                "error":false});
@@ -150,6 +151,7 @@ Item {
                 locations.append({"name": supervisor.getLocationName(i,"Serving"),
                                "group":supervisor.getLocationGroupNum(i),
                                 "call_id" : supervisor.getLocationCallID(2+i),
+                                "ling_id" : supervisor.getLocationLingID(2+i),
                                      "callerror":false,
                                      "nameerror":false,
                                "error":false});
@@ -170,13 +172,15 @@ Item {
                            "group":0,
                            "callerror":false,
                            "nameerror":false,
-                           "call_id":supervisor.getLocationCallID(0)});
+                           "call_id":supervisor.getLocationCallID(0),
+                            "ling_id":supervisor.getLocationLingID(0)});
         details.append({"ltype":"Resting",
                            "name":qsTr("대기위치"),
                            "group":0,
                            "callerror":false,
                            "nameerror":false,
-                           "call_id":supervisor.getLocationCallID(1)});
+                           "call_id":supervisor.getLocationCallID(1),
+                           "ling_id":supervisor.getLocationLingID(1)});
         if(supervisor.getRobotType()==="CLEANING"){
             if(supervisor.getLocationNum("Cleaning") > 0){
                 details.append({"ltype":"Cleaning",
@@ -184,14 +188,16 @@ Item {
                                    "group":0,
                                    "callerror":false,
                                    "nameerror":false,
-                                   "call_id":supervisor.getLocationCallID(2)});
+                                   "call_id":supervisor.getLocationCallID(2),
+                                   "ling_id":supervisor.getLocationLingID(2)});
             }else{
                 details.append({"ltype":"Cleaning",
                                    "name":qsTr("퇴식위치"),
                                    "group":0,
                                    "callerror":false,
                                    "nameerror":false,
-                                   "call_id":""});
+                                   "call_id":"",
+                                   "ling_id":""});
             }
 
         }
@@ -202,6 +208,7 @@ Item {
                             "name":locations.get(i).name,
                            "group":locations.get(i).group,
                             "call_id":locations.get(i).call_id,
+                            "ling_id":locations.get(i).ling_id,
                            "callerror":locations.get(i).callerror,
                                "nameerror":locations.get(i).nameerror});
 //                        print("detail append : ",i, locations.get(i).group, locations.get(i).number, getgroupsize(locations.get(i).group))
@@ -1630,6 +1637,16 @@ Item {
                                 font.family: font_noto_r.name
                                 text: call_id===""?" - ":call_id
                             }
+                            Image{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.right
+                                anchors.leftMargin: 5
+                                source: "icon/icon_callbell.png"
+                                width: 35
+                                height: 35
+                                visible: ling_id!==""
+                            }
+
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
@@ -6471,6 +6488,8 @@ Item {
                 }else{
                     row_call_force.visible = false;
                 }
+            }else if(mode == "lingbell"){
+
             }else if(mode == "save_exit"){
                 row_call_force.visible = false;
                 image_location.source = "icon/icon_save.png"
