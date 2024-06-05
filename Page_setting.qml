@@ -1593,6 +1593,171 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
+                        text:qsTr("알림벨 설정")
+                        color: "white"
+                        font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: use_lingbell
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("알림벨 사용")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_lingbell
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: use_lingbell_repeat
+                    width: 840
+                    height: 50
+                    visible: combo_use_lingbell.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("반복 알림")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_lingbell_repeat
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: lingbell_time
+                    width: 840
+                    height: 50
+                    visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("반복 주기 [초]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_lingbell_time
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[3,4,5,6,7,8,9,10,15,20]
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                Rectangle{
+                    width: 1100
+                    height: 40
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
                         text:qsTr("기능 설정")
                         color: "white"
                         font.pixelSize: 20
@@ -11820,7 +11985,7 @@ Item {
                 //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.3")
+                    text:qsTr("Version 1.1.5") //lingbell + Wifi
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"

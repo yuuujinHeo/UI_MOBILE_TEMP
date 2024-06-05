@@ -1677,21 +1677,29 @@ Item {
                             Buttons{
                                 style: "dark"
                                 active: select_location>-1
-                                text: qsTr("호출벨 설정")
+                                text: qsTr("벨 설정")
                                 source: "icon/icon_callbell.png"
                                 onClicked: {
                                     if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && select_location === 2){
                                         if(supervisor.getLocationNum("Cleaning") > 0){
-                                            popup_location.mode = "callbell"
-                                            popup_location.loc = details.get(select_location).ltype;
-                                            popup_location.open();
+                                            if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+                                                popup_lingbell.open();
+                                            }else{
+                                                popup_location.mode = "callbell"
+                                                popup_location.loc = details.get(select_location).ltype;
+                                                popup_location.open();
+                                            }
                                         }else{
                                             click_sound_no.play();
                                         }
                                     }else{
-                                        popup_location.mode = "callbell"
-                                        popup_location.loc = details.get(select_location).ltype;
-                                        popup_location.open();
+                                        if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+                                            popup_lingbell.open();
+                                        }else{
+                                            popup_location.mode = "callbell"
+                                            popup_location.loc = details.get(select_location).ltype;
+                                            popup_location.open();
+                                        }
                                     }
 
                                 }
@@ -6176,6 +6184,177 @@ Item {
                                     popup_add_serving.close();
                                 }
                                 readSetting();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup{
+        id: popup_lingbell
+        width: 1280
+        height:800
+        bottomPadding: 0
+        topPadding: 0
+        leftPadding: 0
+        rightPadding: 0
+        background:Rectangle{
+            anchors.fill: parent
+            color: color_dark_black
+            opacity: 0.9
+        }
+        property bool ask_mode: true
+        onOpened:{
+            ask_mode = true;
+        }
+        onClosed:{
+            print("------------------------------");
+            readSetting();
+        }
+        Rectangle{
+            width: parent.width
+            height: 360
+            anchors.centerIn: parent
+            color: color_dark_navy
+            Column{
+                anchors.fill: parent
+                Rectangle{
+                    width: parent.width
+                    height: 100
+                    color: "transparent"
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 10
+                        Image{
+                            anchors.verticalCenter: parent.verticalCenter
+                            id: image_location2
+                            width:60
+                            height:60
+                            sourceSize.width: 60
+                            sourceSize.height: 60
+                            antialiasing: true
+                            source: "icon/icon_callbell.png"
+                            ColorOverlay{
+                                anchors.fill: parent
+                                source: parent
+                                color: "white"
+                            }
+                        }
+                        Text{
+                            id:text_loc2
+                            color: "white"
+                            anchors.verticalCenter: parent.verticalCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 40
+                            text: qsTr("모드를 선택해주세요")
+                            Component.onCompleted: {
+                                while(width > back.width*0.7){
+                                    font.pixelSize-=1
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    width: parent.width
+                    height: 160
+                    color: "transparent"
+                    Column{
+                        anchors.centerIn: parent
+                        spacing: 10
+                        visible: !popup_lingbell.ask_mode
+                        Text{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            id:text_sub2
+                            color: color_light_gray
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 28
+                            text: qsTr("")
+                            Component.onCompleted: {
+                                while(width > parent.width*0.9){
+                                    font.pixelSize-=1
+                                }
+                            }
+                        }
+                        TextField{
+                            id: field_lingbell_callnum
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            font.family: font_noto_r.name
+                            horizontalAlignment: Text.AlignHCenter
+                            font.pixelSize: 28
+                            text: "FF22EEDD"
+                            width: 300
+                            height: 50
+                        }
+                    }
+                }
+                Rectangle{
+                    width: parent.width
+                    height: 100
+                    color: "transparent"
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 15
+                        visible: popup_lingbell.ask_mode
+                        Buttons{
+                            id: btn_callbell
+                            style: "normal"
+                            text: qsTr("호출벨")
+                            onClicked:{
+                                popup_lingbell.close();
+                                popup_location.mode = "callbell"
+                                popup_location.loc = details.get(select_location).ltype;
+                                popup_location.open();
+                            }
+                        }
+                        Buttons{
+                            id: btn_lingbell
+                            style: "normal"
+                            text: qsTr("알림벨")
+                            onClicked:{
+                                popup_lingbell.ask_mode = false;
+                                text_sub2.text = qsTr("위치 : ")+supervisor.getLocationName(select_location)
+                                field_lingbell_callnum.text = supervisor.getLingbell(select_location);
+                            }
+                        }
+                        Buttons{
+                            style: "normal"
+                            text: qsTr("취소")
+                            onClicked:{
+                                popup_lingbell.close();
+                            }
+                        }
+                    }
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 15
+                        visible: !popup_lingbell.ask_mode
+                        Buttons{
+                            id: btn_exit
+                            style: "normal"
+                            text: qsTr("닫기")
+                            onClicked:{
+                                popup_lingbell.close();
+                            }
+                        }
+                        Buttons{
+                            style: "normal"
+                            text: qsTr("초기화")
+                            onClicked:{
+                                field_lingbell_callnum.text = "";
+                                supervisor.resetLingbell(select_location);
+                                popup_lingbell.close();
+                            }
+                        }
+                        Buttons{
+                            id: btn_send
+                            style: "green"
+                            text: qsTr("설정")
+                            onClicked:{
+                                supervisor.callCallbell(field_lingbell_callnum.text);
                             }
                         }
                     }
