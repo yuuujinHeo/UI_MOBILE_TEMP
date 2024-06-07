@@ -239,10 +239,8 @@ Item {
     }
 
     function checkLocationName(){
-        print("checkLocationName");
         for(var i=0; i<details.count; i++){
             for(var j=i+1; j<details.count; j++){
-                print("i,j : ",i,j,details.get(i).group,details.get(j).group);
                 if(details.get(i).group === details.get(j).group)
                     if(details.get(i).name === details.get(j).name){
                         details.get(i).nameerror = true;
@@ -250,7 +248,6 @@ Item {
                     }
             }
         }
-//        annot_pages.item.checkError();
     }
 
     function isError(){

@@ -2387,6 +2387,13 @@ QString Supervisor::getLocationCallID(int num){
     return "";
 }
 
+QString Supervisor::getLocationLingID(int num){
+    if(num>-1 && num < pmap->locations.size()){
+        return pmap->locations[num].ling_id;
+    }
+    return "";
+}
+
 void Supervisor::setLocationGroup(int num, int group){
     if(num > -1 && num < pmap->locations.size()){
         pmap->locations[num].group = group;
