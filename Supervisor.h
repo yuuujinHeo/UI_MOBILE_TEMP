@@ -52,7 +52,6 @@ public:
     //순회 모드, 순회 중 픽업해주세요 화면 띄울건지.
     bool use_cleaning_location = false;
     bool start_clear = false;
-    bool start_clear_config = false;
 
     ////*********************************************  STRUCT   ***************************************************////
     ST_MAP map;
@@ -89,9 +88,9 @@ public:
     Q_INVOKABLE bool checkLocationName(int group, QString name);
     ////*********************************************  IP SETTINGs   *********************************************////
 
+    Q_INVOKABLE void callCallbell(QString id);
     bool cmd_accept = false;
     Q_INVOKABLE void resetClear();
-    Q_INVOKABLE void resetClearConfig();
     QString wifi_temp_ssd = "";
     Q_INVOKABLE int getWifiNum();
     Q_INVOKABLE int getWifiConnection();
@@ -770,9 +769,12 @@ public:
     Q_INVOKABLE void clearCallQueue(){
         pmap->call_queue.clear();
     }
+    Q_INVOKABLE void resetLingbell(int id);
+    Q_INVOKABLE QString getLingbell(int id);//{return pmap->locations[id].ling_id;}
     Q_INVOKABLE QString getCall(int id){return pmap->locations[id].call_id;}
     Q_INVOKABLE void setCallbell(QString type, int id);
     Q_INVOKABLE void setCallbellForce(QString type, bool onoff);
+    Q_INVOKABLE QString makeLingbell();
 
     ////*********************************************  ANNOTATION 관련   ***************************************************////
 
@@ -792,6 +794,7 @@ public:
     Q_INVOKABLE int getLocationGroupSize(int num);
     Q_INVOKABLE int getLocationGroupNum(int num);
     Q_INVOKABLE QString getLocationCallID(int num);
+    Q_INVOKABLE QString getLocationLingID(int num);
 
     Q_INVOKABLE void setLocationGroup(int num, int group);
     Q_INVOKABLE void removeLocationGroup(int num);
@@ -982,7 +985,6 @@ public slots:
     void update_success();
     void update_fail();
     void clear_all();
-    void clear_config();
     void map_reset();
     void new_call_order(QString name);
     void play_voice(ST_VOICE voice);
@@ -995,7 +997,6 @@ public slots:
 private:
     QTimer *timer;
     QTimer *timer2;
-    QTimer *timer3;
     QTimer *wifiTimer;
     QQuickWindow *mMain;
     QObject *mObject = nullptr;

@@ -848,7 +848,7 @@ Item {
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
                             font.pixelSize: 30
-                            text: "순회"
+                            text: "Patrol"
                             color: color_blue
                         }
                         Rectangle{

@@ -26,7 +26,6 @@ Item {
     property bool use_multirobot: false
     property bool wifi_update_auto: true
     property int debug_count: 0
-    property bool use_ccma:true // add by, 04.29.24
 
     onIs_adminChanged: {
         if(is_admin){
@@ -181,6 +180,24 @@ Item {
             supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
         }
 
+        if(combo_use_lingbell.ischanged){
+            if(combo_use_lingbell.currentIndex === 1){
+                supervisor.setSetting("setting","CALL/use_lingbell","true");
+            }else{
+                supervisor.setSetting("setting","CALL/use_lingbell","false");
+            }
+        }
+        if(combo_use_lingbell_repeat.ischanged){
+            if(combo_use_lingbell_repeat.currentIndex === 1){
+                supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
+            }else{
+                supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
+            }
+        }
+        if(combo_lingbell_time.ischanged){
+            supervisor.setSetting("setting","CALL/lingbell_time",combo_lingbell_time.currentText);
+        }
+
         if(slider_volume_bgm.ischanged){
             supervisor.setSetting("setting","UI/volume_bgm",slider_volume_bgm.value);
 //            volume_bgm = slider_volume_bgm.value.toFixed(0);
@@ -256,12 +273,12 @@ Item {
         }
 
 
-        //if(wheel_base.ischanged){
-        //    supervisor.setSetting("static","ROBOT_HW/wheel_base",wheel_base.text);
-        //}
-        //if(wheel_radius.ischanged){
-        //    supervisor.setSetting("static","ROBOT_HW/wheel_radius",wheel_radius.text);
-        //}
+        if(wheel_base.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/wheel_base",wheel_base.text);
+        }
+        if(wheel_radius.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/wheel_radius",wheel_radius.text);
+        }
         if(radius.ischanged){
             supervisor.setSetting("static","ROBOT_HW/robot_radius",radius.text);
         }
@@ -314,14 +331,13 @@ Item {
         //if(obs_check_range.ischanged){ //BJ
         //    supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
         //}
-
         if(max_range.ischanged){
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
         }
 
-        //if(cam_exposure.ischanged){
-        //    supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
-        //}
+        if(cam_exposure.ischanged){
+            supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
+        }
 
         if(combo_auto_update.ischanged){
             if(combo_auto_update.currentIndex === 0){
@@ -354,14 +370,6 @@ Item {
                 supervisor.setSetting("setting","USE_SLAM/use_multirobot","true");
             }
         }
-        if(combo_use_ccma.ischanged){
-            if(combo_use_ccma.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_ccma","false");
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_ccma","true");
-            }
-        }
-
         if(combo_use_earlystop_resting.ischanged){
             if(combo_use_earlystop_resting.currentIndex == 0){
                 supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",false);
@@ -419,25 +427,25 @@ Item {
             supervisor.setSetting("update","MOTOR/right_id",combo_right_id.currentText);
         }
 
-        //if(gear_ratio.ischanged){
-        //    supervisor.setSetting("update","MOTOR/gear_ratio",gear_ratio.text);
-        //}
+        if(gear_ratio.ischanged){
+            supervisor.setSetting("update","MOTOR/gear_ratio",gear_ratio.text);
+        }
 
         if(goal_near_th.ischanged){
             supervisor.setSetting("update","DRIVING/goal_near_th",goal_near_th.text);
         }
-        //if(k_curve.ischanged){
-        //    supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
-        //}
+        if(k_curve.ischanged){
+            supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
+        }
         if(k_v.ischanged){
             supervisor.setSetting("update","DRIVING/k_v",k_v.text);
         }
         if(k_w.ischanged){
             supervisor.setSetting("update","DRIVING/k_w",k_w.text);
         }
-        //if(k_dd.ischanged){
-        //    supervisor.setSetting("update","DRIVING/k_dd",k_dd.text);
-        //}
+        if(k_dd.ischanged){
+            supervisor.setSetting("update","DRIVING/k_dd",k_dd.text);
+        }
         if(path_delta_v_acc_gain.ischanged){
             supervisor.setSetting("update","DRIVING/path_delta_v_acc_gain",path_delta_v_acc_gain.text);
         }
@@ -504,26 +512,24 @@ Item {
             }
         }
 
+        if(pause_check_ms.ischanged){
+            supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
+        }
+        if(pause_motor_current.ischanged){
+            supervisor.setSetting("update","DRIVING/pause_motor_current",pause_motor_current.text);
+        }
 
+        if(k_p.ischanged){
+            supervisor.setSetting("update","MOTOR/k_p",k_p.text);
+        }
 
-        //if(pause_check_ms.ischanged){
-        //    supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
-        //}
-        //if(pause_motor_current.ischanged){
-        //    supervisor.setSetting("update","DRIVING/pause_motor_current",pause_motor_current.text);
-        //}
+        if(k_i.ischanged){
+            supervisor.setSetting("update","MOTOR/k_i",k_i.text);
+        }
 
-        //if(k_p.ischanged){
-        //    supervisor.setSetting("update","MOTOR/k_p",k_p.text);
-        //}
-
-        //if(k_i.ischanged){
-        //    supervisor.setSetting("update","MOTOR/k_i",k_i.text);
-        //}
-
-        //if(k_d.ischanged){
-        //    supervisor.setSetting("update","MOTOR/k_d",k_d.text);
-        //}
+        if(k_d.ischanged){
+            supervisor.setSetting("update","MOTOR/k_d",k_d.text);
+        }
 
         if(motor_limit_v.ischanged){
             supervisor.setSetting("update","MOTOR/limit_v",motor_limit_v.text);
@@ -632,6 +638,41 @@ Item {
             combo_language.currentIndex = 1;
         }
 
+        if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+            combo_use_lingbell.currentIndex = 1;
+        }else{
+            combo_use_lingbell.currentIndex = 0;
+        }
+        if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
+            combo_use_lingbell_repeat.currentIndex = 1;
+        }else{
+            combo_use_lingbell_repeat.currentIndex = 0;
+        }
+
+        if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
+            combo_lingbell_time.currentIndex = 0;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "4"){
+            combo_lingbell_time.currentIndex = 1;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "5"){
+            combo_lingbell_time.currentIndex = 2;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "6"){
+            combo_lingbell_time.currentIndex = 3;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "7"){
+            combo_lingbell_time.currentIndex = 4;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "8"){
+            combo_lingbell_time.currentIndex = 5;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "9"){
+            combo_lingbell_time.currentIndex = 6;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "10"){
+            combo_lingbell_time.currentIndex = 7;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "15"){
+            combo_lingbell_time.currentIndex = 8;
+        }else if(supervisor.getSetting("setting","CALL","lingbell_time") === "20"){
+            combo_lingbell_time.currentIndex = 9;
+        }else{
+            combo_lingbell_time.currentIndex = 2;
+        }
+
         if(supervisor.getSetting("setting","USE_UI","auto_update") === "true"){
             combo_auto_update.currentIndex = 1;
         }else if(supervisor.getSetting("setting","USE_UI","auto_update") === "false"){
@@ -653,12 +694,12 @@ Item {
         fms_id.text = supervisor.getSetting("setting","SERVER","fms_id");
         fms_pw.text = supervisor.getSetting("setting","SERVER","fms_pw");
         combo_max_calling.currentIndex = parseInt(supervisor.getSetting("setting","CALL","call_maximum")) - 1;
-        //wheel_base.text = supervisor.getSetting("static","ROBOT_HW","wheel_base");
-        //wheel_radius.text = supervisor.getSetting("static","ROBOT_HW","wheel_radius");
+        wheel_base.text = supervisor.getSetting("static","ROBOT_HW","wheel_base");
+        wheel_radius.text = supervisor.getSetting("static","ROBOT_HW","wheel_radius");
 
         left_camera_tf.text = supervisor.getSetting("static","SENSOR","left_camera_tf");
         right_camera_tf.text = supervisor.getSetting("static","SENSOR","right_camera_tf");
-        //cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
+        cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
 
         icp_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_dist");
         icp_error.text = supervisor.getSetting("update","LOCALIZATION","icp_error");
@@ -679,10 +720,10 @@ Item {
         goal_v.text = supervisor.getSetting("update","DRIVING","goal_v");
         goal_near_dist.text = supervisor.getSetting("update","DRIVING","goal_near_dist");
         goal_near_th.text = supervisor.getSetting("update","DRIVING","goal_near_th");
-        //k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
+        k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
         k_v.text = supervisor.getSetting("update","DRIVING","k_v");
         k_w.text = supervisor.getSetting("update","DRIVING","k_w");
-        //k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
+        k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
         path_delta_v_acc_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_acc_gain");
         path_delta_v_dec_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_dec_gain");
         path_ref_v_gain.text = supervisor.getSetting("update","DRIVING","path_ref_v_gain");
@@ -765,10 +806,10 @@ Item {
         text_preset_name_4.text = supervisor.getSetting("setting","PRESET4","name");
         text_preset_name_5.text = supervisor.getSetting("setting","PRESET5","name");
 
-        //gear_ratio.text = supervisor.getSetting("update","MOTOR","gear_ratio");
-        //k_d.text = supervisor.getSetting("update","MOTOR","k_d");
-        //k_i.text = supervisor.getSetting("update","MOTOR","k_i");
-        //k_p.text = supervisor.getSetting("update","MOTOR","k_p");
+        gear_ratio.text = supervisor.getSetting("update","MOTOR","gear_ratio");
+        k_d.text = supervisor.getSetting("update","MOTOR","k_d");
+        k_i.text = supervisor.getSetting("update","MOTOR","k_i");
+        k_p.text = supervisor.getSetting("update","MOTOR","k_p");
 
         wifi_ssid.text = supervisor.getCurWifiSSID();
 //        wifi_passwd.text = supervisor.getSetting("setting","NETWORK","wifi_passwd");
@@ -782,8 +823,8 @@ Item {
             combo_wheel_dir.currentIndex = 1;
         }
 
-        //pause_motor_current.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
-        //pause_check_ms.text = supervisor.getSetting("update","DRIVING","pause_check_ms");
+        pause_motor_current.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
+        pause_check_ms.text = supervisor.getSetting("update","DRIVING","pause_check_ms");
         if(supervisor.getSetting("setting","USE_UI","use_current_pause") === "false"){
             combo_use_motorcurrent.currentIndex = 0;
         }else{
@@ -925,81 +966,81 @@ Item {
         dnsserv_3.ischanged = false;
         dnsserv_4.ischanged = false;
 
-        //var eip = supervisor.getethernetIP().split(".");
-        //if(eip.length >3){
-        //    ethernet_ip_1.text = eip[0];
-        //    ethernet_ip_2.text = eip[1];
-        //    ethernet_ip_3.text = eip[2];
-        //    ethernet_ip_4.text = eip[3];
-        //}
-        //var ethernet_netmask = supervisor.getethernetNetmask().split(".");
-        //if(ethernet_netmask.length >3){
-        //    ethernet_netmask_1.text = ethernet_netmask[0];
-        //    ethernet_netmask_2.text = ethernet_netmask[1];
-        //    ethernet_netmask_3.text = ethernet_netmask[2];
-        //    ethernet_netmask_4.text = ethernet_netmask[3];
-        //}else{
-        //    ethernet_netmask_1.text = "";
-        //    ethernet_netmask_2.text = "";
-        //    ethernet_netmask_3.text = "";
-        //    ethernet_netmask_4.text = "";
-        //}
-        //var ethernet_gateway = supervisor.getethernetGateway().split(".");
-        //if(ethernet_gateway.length >3){
-        //    ethernet_gateway_1.text = ethernet_gateway[0];
-        //    ethernet_gateway_2.text = ethernet_gateway[1];
-        //    ethernet_gateway_3.text = ethernet_gateway[2];
-        //    ethernet_gateway_4.text = ethernet_gateway[3];
-        //}else{
-        //    ethernet_gateway_1.text = "";
-        //    ethernet_gateway_2.text = "";
-        //    ethernet_gateway_3.text = "";
-        //    ethernet_gateway_4.text = "";
-        //}
-        //var ethernet_dns1 = supervisor.getethernetDNS().split(".");
-        //if(ethernet_dns1.length >3){
-        //    ethernet_dnsmain_1.text = ethernet_dns1[0];
-        //    ethernet_dnsmain_2.text = ethernet_dns1[1];
-        //    ethernet_dnsmain_3.text = ethernet_dns1[2];
-        //    ethernet_dnsmain_4.text = ethernet_dns1[3];
-        //}else{
-        //    ethernet_dnsmain_1.text = "";
-        //    ethernet_dnsmain_2.text = "";
-        //    ethernet_dnsmain_3.text = "";
-        //    ethernet_dnsmain_4.text = "";
-        //}
-        //var ethernet_dns2 = supervisor.getethernetDNS2().split(".");
-        //if(ethernet_dns2.length >3){
-        //    ethernet_dnsserv_1.text = ethernet_dns2[0];
-        //    ethernet_dnsserv_2.text = ethernet_dns2[1];
-        //    ethernet_dnsserv_3.text = ethernet_dns2[2];
-        //    ethernet_dnsserv_4.text = ethernet_dns2[3];
-        //}else{
-        //    ethernet_dnsserv_1.text = "";
-        //    ethernet_dnsserv_2.text = "";
-        //    ethernet_dnsserv_3.text = "";
-        //    ethernet_dnsserv_4.text = "";
-        //}
-        //ethernet_ip_1.ischanged = false;
-        //ethernet_ip_2.ischanged = false;
-        //ethernet_ip_3.ischanged = false;
-        //ethernet_ip_4.ischanged = false;
-        //ethernet_netmask_1.ischanged = false;
-        //ethernet_netmask_2.ischanged = false;
-        //ethernet_netmask_3.ischanged = false;
-        //ethernet_netmask_4.ischanged = false;
-        //ethernet_gateway_1.ischanged = false;
-        //ethernet_gateway_2.ischanged = false;
-        //ethernet_gateway_3.ischanged = false;
-        //ethernet_gateway_4.ischanged = false;
-        //ethernet_dnsmain_1.ischanged = false;
-        //ethernet_dnsmain_2.ischanged = false;
-        //ethernet_dnsmain_3.ischanged = false;
-        //ethernet_dnsmain_4.ischanged = false;
-        //ethernet_dnsserv_1.ischanged = false;
-        //ethernet_dnsserv_2.ischanged = false;
-        //ethernet_dnsserv_3.ischanged = false;
-        //ethernet_dnsserv_4.ischanged = false;
+        var eip = supervisor.getethernetIP().split(".");
+        if(eip.length >3){
+            ethernet_ip_1.text = eip[0];
+            ethernet_ip_2.text = eip[1];
+            ethernet_ip_3.text = eip[2];
+            ethernet_ip_4.text = eip[3];
+        }
+        var ethernet_netmask = supervisor.getethernetNetmask().split(".");
+        if(ethernet_netmask.length >3){
+            ethernet_netmask_1.text = ethernet_netmask[0];
+            ethernet_netmask_2.text = ethernet_netmask[1];
+            ethernet_netmask_3.text = ethernet_netmask[2];
+            ethernet_netmask_4.text = ethernet_netmask[3];
+        }else{
+            ethernet_netmask_1.text = "";
+            ethernet_netmask_2.text = "";
+            ethernet_netmask_3.text = "";
+            ethernet_netmask_4.text = "";
+        }
+        var ethernet_gateway = supervisor.getethernetGateway().split(".");
+        if(ethernet_gateway.length >3){
+            ethernet_gateway_1.text = ethernet_gateway[0];
+            ethernet_gateway_2.text = ethernet_gateway[1];
+            ethernet_gateway_3.text = ethernet_gateway[2];
+            ethernet_gateway_4.text = ethernet_gateway[3];
+        }else{
+            ethernet_gateway_1.text = "";
+            ethernet_gateway_2.text = "";
+            ethernet_gateway_3.text = "";
+            ethernet_gateway_4.text = "";
+        }
+        var ethernet_dns1 = supervisor.getethernetDNS().split(".");
+        if(ethernet_dns1.length >3){
+            ethernet_dnsmain_1.text = ethernet_dns1[0];
+            ethernet_dnsmain_2.text = ethernet_dns1[1];
+            ethernet_dnsmain_3.text = ethernet_dns1[2];
+            ethernet_dnsmain_4.text = ethernet_dns1[3];
+        }else{
+            ethernet_dnsmain_1.text = "";
+            ethernet_dnsmain_2.text = "";
+            ethernet_dnsmain_3.text = "";
+            ethernet_dnsmain_4.text = "";
+        }
+        var ethernet_dns2 = supervisor.getethernetDNS2().split(".");
+        if(ethernet_dns2.length >3){
+            ethernet_dnsserv_1.text = ethernet_dns2[0];
+            ethernet_dnsserv_2.text = ethernet_dns2[1];
+            ethernet_dnsserv_3.text = ethernet_dns2[2];
+            ethernet_dnsserv_4.text = ethernet_dns2[3];
+        }else{
+            ethernet_dnsserv_1.text = "";
+            ethernet_dnsserv_2.text = "";
+            ethernet_dnsserv_3.text = "";
+            ethernet_dnsserv_4.text = "";
+        }
+        ethernet_ip_1.ischanged = false;
+        ethernet_ip_2.ischanged = false;
+        ethernet_ip_3.ischanged = false;
+        ethernet_ip_4.ischanged = false;
+        ethernet_netmask_1.ischanged = false;
+        ethernet_netmask_2.ischanged = false;
+        ethernet_netmask_3.ischanged = false;
+        ethernet_netmask_4.ischanged = false;
+        ethernet_gateway_1.ischanged = false;
+        ethernet_gateway_2.ischanged = false;
+        ethernet_gateway_3.ischanged = false;
+        ethernet_gateway_4.ischanged = false;
+        ethernet_dnsmain_1.ischanged = false;
+        ethernet_dnsmain_2.ischanged = false;
+        ethernet_dnsmain_3.ischanged = false;
+        ethernet_dnsmain_4.ischanged = false;
+        ethernet_dnsserv_1.ischanged = false;
+        ethernet_dnsserv_2.ischanged = false;
+        ethernet_dnsserv_3.ischanged = false;
+        ethernet_dnsserv_4.ischanged = false;
 
 
         ip = supervisor.getSetting("setting","SERVER","fms_ip").split(".");
@@ -1040,13 +1081,13 @@ Item {
         fms_id.ischanged = false;
         fms_pw.ischanged = false;
 
-        //wheel_base.ischanged = false;
-        //wheel_radius.ischanged = false;
+        wheel_base.ischanged = false;
+        wheel_radius.ischanged = false;
         radius.ischanged = false;
 
 
         max_range.ischanged = false;
-        //cam_exposure.ischanged = false;
+        cam_exposure.ischanged = false;
 
         st_v.ischanged = false;
 
@@ -1062,10 +1103,10 @@ Item {
         combo_wheel_dir.ischanged = false;
         combo_left_id.ischanged = false;
         combo_right_id.ischanged = false;
-        //gear_ratio.ischanged = false;
-        //k_p.ischanged = false;
-        //k_i.ischanged = false;
-        //k_d.ischanged = false;
+        gear_ratio.ischanged = false;
+        k_p.ischanged = false;
+        k_i.ischanged = false;
+        k_d.ischanged = false;
         combo_use_motorcurrent.ischanged = false;
         combo_camera_model.ischanged = false;
         motor_limit_v.ischanged = false;
@@ -1085,16 +1126,16 @@ Item {
         goal_dist.ischanged = false;
         goal_v.ischanged = false;
         goal_th.ischanged = false;
-        //pause_motor_current.ischanged = false;
-        //pause_check_ms.ischanged = false;
+        pause_motor_current.ischanged = false;
+        pause_check_ms.ischanged = false;
         goal_near_dist.ischanged = false;
 
 
         goal_near_th.ischanged = false;
-        //k_curve.ischanged = false;
+        k_curve.ischanged = false;
         k_v.ischanged = false;
         k_w.ischanged = false;
-        //k_dd.ischanged = false;
+        k_dd.ischanged = false;
         path_delta_v_acc_gain.ischanged = false;
         path_delta_v_dec_gain.ischanged = false;
         path_ref_v_gain.ischanged = false;
@@ -1155,8 +1196,8 @@ Item {
         if(ip_3.ischanged) is_changed = true;
         if(ip_4.ischanged) is_changed = true;
         if(combo_use_motorcurrent.ischanged) is_changed = true;
-        //if(pause_motor_current.ischanged) is_changed = true;
-        //if(pause_check_ms.ischanged) is_changed = true;
+        if(pause_motor_current.ischanged) is_changed = true;
+        if(pause_check_ms.ischanged) is_changed = true;
         if(combo_camera_model.ischanged) is_changed = true;
         if(gateway_1.ischanged) is_changed = true;
         if(gateway_2.ischanged) is_changed = true;
@@ -1166,19 +1207,19 @@ Item {
         if(dnsmain_2.ischanged) is_changed = true;
         if(dnsmain_3.ischanged) is_changed = true;
         if(dnsmain_4.ischanged) is_changed = true;
-        //if(wheel_base.ischanged) is_changed = true;
-        //if(wheel_radius.ischanged) is_changed = true;
+        if(wheel_base.ischanged) is_changed = true;
+        if(wheel_radius.ischanged) is_changed = true;
         if(radius.ischanged) is_changed = true;
         if(max_range.ischanged) is_changed = true;
-        //if(cam_exposure.ischanged) is_changed = true;
+        if(cam_exposure.ischanged) is_changed = true;
         if(st_v.ischanged) is_changed = true;
         if(combo_wheel_dir.ischanged) is_changed = true;
         if(combo_left_id.ischanged) is_changed = true;
         if(combo_right_id.ischanged) is_changed = true;
-        //if(gear_ratio.ischanged) is_changed = true;
-        //if(k_p.ischanged) is_changed = true;
-        //if(k_i.ischanged) is_changed = true;
-        //if(k_d.ischanged) is_changed = true;
+        if(gear_ratio.ischanged) is_changed = true;
+        if(k_p.ischanged) is_changed = true;
+        if(k_i.ischanged) is_changed = true;
+        if(k_d.ischanged) is_changed = true;
         if(motor_limit_v.ischanged) is_changed = true;
         if(motor_limit_v_acc.ischanged) is_changed = true;
         if(motor_limit_w.ischanged) is_changed = true;
@@ -1200,10 +1241,10 @@ Item {
         if(goal_th.ischanged) is_changed = true;
         if(goal_near_dist.ischanged) is_changed = true;
         if(goal_near_th.ischanged) is_changed = true;
-        //if(k_curve.ischanged) is_changed = true;
+        if(k_curve.ischanged) is_changed = true;
         if(k_v.ischanged) is_changed = true;
         if(k_w.ischanged) is_changed = true;
-        //if(k_dd.ischanged) is_changed = true;
+        if(k_dd.ischanged) is_changed = true;
         if(path_delta_v_acc_gain.ischanged) is_changed = true;
         if(path_delta_v_dec_gain.ischanged) is_changed = true;
         if(path_ref_v_gain.ischanged) is_changed = true;
@@ -1580,6 +1621,170 @@ Item {
                                     ischanged = true;
                                 }
                                 model:[qsTr("서빙용"),qsTr("호출용"),qsTr("서빙+호출용"), qsTr("퇴식전용")]
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    width: 1100
+                    height: 40
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
+                        text:qsTr("알림벨 설정")
+                        color: "white"
+                        font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: use_lingbell
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("알림벨 사용")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_lingbell
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: use_lingbell_repeat
+                    width: 840
+                    height: 50
+                    visible: combo_use_lingbell.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("반복 알림")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_lingbell_repeat
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: lingbell_time
+                    width: 840
+                    height: 50
+                    visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("반복 주기 [초]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_lingbell_time
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[3,4,5,6,7,8,9,10,15,20]
+                                }
                             }
                         }
                     }
@@ -3633,132 +3838,132 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_wheelbase
-                //    width: 840
-                //    visible: is_rainbow
-                //    height: 50
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("휠 베이스 반경 [m]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                    anchors.leftMargin = 30 - width*(1-scale)/2
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: wheel_base
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = wheel_base;
-                //                            wheel_base.selectAll();
-                //                        }else{
-                //                            keypad.owner = wheel_base;
-                //                            wheel_base.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color: ischanged?color_red:"black"
-                //                text:supervisor.getSetting("static","ROBOT_HW","wheel_base");
+                Rectangle{
+                    id: set_wheelbase
+                    width: 840
+                    visible: is_rainbow
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("휠 베이스 반경 [m]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: wheel_base
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = wheel_base;
+                                            wheel_base.selectAll();
+                                        }else{
+                                            keypad.owner = wheel_base;
+                                            wheel_base.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color: ischanged?color_red:"black"
+                                text:supervisor.getSetting("static","ROBOT_HW","wheel_base");
 
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_wheelradius
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("휠 반지름 반경 [m]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                    anchors.leftMargin = 30 - width*(1-scale)/2
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: wheel_radius
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = wheel_radius;
-                //                            wheel_radius.selectAll();
-                //                        }else{
-                //                            keypad.owner = wheel_radius;
-                //                            wheel_radius.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color: ischanged?color_red:"black"
-                //                text:supervisor.getSetting("setting","ROBOT_HW","wheel_radius");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_wheelradius
+                    width: 840
+                    height: 50
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("휠 반지름 반경 [m]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: wheel_radius
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = wheel_radius;
+                                            wheel_radius.selectAll();
+                                        }else{
+                                            keypad.owner = wheel_radius;
+                                            wheel_radius.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color: ischanged?color_red:"black"
+                                text:supervisor.getSetting("setting","ROBOT_HW","wheel_radius");
 
-                //            }
-                //        }
-                //    }
-                //}
+                            }
+                        }
+                    }
+                }
 
                 Rectangle{
                     width: 1100
@@ -3847,8 +4052,6 @@ Item {
 
                     }
                 }
-
-                /*
                 Rectangle{
                     id: set_ethernet
                     width: 840
@@ -4111,7 +4314,7 @@ Item {
                                         }
                                     }
                                 }
-                                Row{ // Netmask
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
@@ -4321,7 +4524,7 @@ Item {
                                         }
                                     }
                                 }
-                                Row{ //Gate way
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
@@ -4519,7 +4722,7 @@ Item {
                                 }
 
 
-                                Row{ // DNS 1
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
@@ -4715,7 +4918,7 @@ Item {
                                     }
                                 }
 
-                                Row{ //DNS 2
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
@@ -4912,7 +5115,7 @@ Item {
                                     }
                                 }
 
-                                Row{ // 변경값적용
+                                Row{
                                     visible: is_admin
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 30
@@ -5108,8 +5311,6 @@ Item {
                         }
                     }
                 }
-                */
-
                 Rectangle{
                     id: set_wifi
                     width: 840
@@ -6446,7 +6647,7 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:qsTr("센서 설정")
+                        text:qsTr("카메라 설정")
                         color: "white"
                         font.pixelSize: 20
                         Component.onCompleted: {
@@ -6508,67 +6709,67 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_cam_exposure
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("노출 시간 [ms]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: cam_exposure
-                //                anchors.fill: parent
-                //                text:supervisor.getSetting("setting","SENSOR","cam_exposure");
-                //                property bool ischanged: false
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = cam_exposure;
-                //                            cam_exposure.selectAll();
-                //                        }else{
-                //                            keypad.owner = cam_exposure;
-                //                            cam_exposure.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_cam_exposure
+                    width: 840
+                    height: 50
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("노출 시간 [ms]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: cam_exposure
+                                anchors.fill: parent
+                                text:supervisor.getSetting("setting","SENSOR","cam_exposure");
+                                property bool ischanged: false
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = cam_exposure;
+                                            cam_exposure.selectAll();
+                                        }else{
+                                            keypad.owner = cam_exposure;
+                                            cam_exposure.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_left_camera
                     width: 840
@@ -9565,12 +9766,11 @@ Item {
                         }
                     }
                 }
-
                 Rectangle{
-                    id: set_use_ccma
+                    id: set_motor_current_margin
                     width: 840
                     height: 50
-                    visible: is_admin || is_rainbow
+                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9581,7 +9781,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("부드러운 움직임")
+                                text:qsTr("모터전류 제한값 [mA]")
                                 font.pixelSize: 20
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9599,147 +9799,93 @@ Item {
                         Rectangle{
                             width: parent.width - 351
                             height: parent.height
-
-
-                            ComboBox{
-                                id: combo_use_ccma
+                            TextField{
+                                id: pause_motor_current
                                 anchors.fill: parent
                                 property bool ischanged: false
-                                onCurrentIndexChanged: {
+                                onTextChanged: {
                                     ischanged = true;
-                                    if(currentIndex == 0){
-                                        use_ccma = true;
-                                        print("ccma mode : ",combo_use_ccma.currentIndex)
-                                    }else{
-                                        use_ccma = false;
-                                        print("ccma mode : ",combo_use_ccma.currentIndex)
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = pause_motor_current;
+                                            pause_motor_current.selectAll();
+                                        }else{
+                                            keypad.owner = pause_motor_current;
+                                            pause_motor_current.selectAll();
+                                            keypad.open();
+                                        }
                                     }
                                 }
-                                model:[qsTr("사용"),qsTr("사용안함")]
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","pause_motor_current");
+
                             }
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_motor_current_margin
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터전류 제한값 [mA]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: pause_motor_current
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = pause_motor_current;
-                //                            pause_motor_current.selectAll();
-                //                        }else{
-                //                            keypad.owner = pause_motor_current;
-                //                            pause_motor_current.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","pause_motor_current");
-
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터전류 제한시간 [ms]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: pause_check_ms
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = pause_check_ms;
-                //                            pause_check_ms.selectAll();
-                //                        }else{
-                //                            keypad.owner = pause_check_ms;
-                //                            pause_check_ms.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","pause_check_ms");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    width: 840
+                    height: 50
+                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터전류 제한시간 [ms]")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: pause_check_ms
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = pause_check_ms;
+                                            pause_check_ms.selectAll();
+                                        }else{
+                                            keypad.owner = pause_check_ms;
+                                            pause_check_ms.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","pause_check_ms");
+                            }
+                        }
+                    }
+                }
 
                 Rectangle{
                     width: 1100
@@ -9905,67 +10051,67 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_k_curve
-                //    width: 840
-                //    height: 50
-                //    visible: false
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("k_curve")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_curve
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_curve;
-                //                            k_curve.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_curve;
-                //                            k_curve.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","k_curve");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_k_curve
+                    width: 840
+                    height: 50
+                    visible: false
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("k_curve")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_curve
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_curve;
+                                            k_curve.selectAll();
+                                        }else{
+                                            keypad.owner = k_curve;
+                                            k_curve.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","k_curve");
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_k_v
                     width: 840
@@ -10088,67 +10234,67 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_k_dd
-                //    visible: is_rainbow
-                //    width: 840
-                //    height: 50
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("k_dd")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_dd
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_dd;
-                //                            k_dd.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_dd;
-                //                            k_dd.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","k_dd");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_k_dd
+                    visible: is_rainbow
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("k_dd")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_dd
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_dd;
+                                            k_dd.selectAll();
+                                        }else{
+                                            keypad.owner = k_dd;
+                                            k_dd.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","k_dd");
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_path_delta_v_acc_gain
                     width: 840
@@ -10546,250 +10692,250 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_gear_ratio
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 기어비")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: gear_ratio
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = gear_ratio;
-                //                            gear_ratio.selectAll();
-                //                        }else{
-                //                            keypad.owner = gear_ratio;
-                //                            gear_ratio.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","gear_ratio");
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_kp
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 P 게인")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_p
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_p;
-                //                            k_p.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_p;
-                //                            k_p.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","k_p");
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_ki
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 I 게인")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_i
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_i;
-                //                            k_i.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_i;
-                //                            k_i.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","k_i");
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_kd
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 D 게인")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_d
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_d;
-                //                            k_d.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_d;
-                //                            k_d.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","k_d");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_gear_ratio
+                    width: 840
+                    height: 50
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 기어비")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: gear_ratio
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = gear_ratio;
+                                            gear_ratio.selectAll();
+                                        }else{
+                                            keypad.owner = gear_ratio;
+                                            gear_ratio.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","gear_ratio");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_kp
+                    width: 840
+                    height: 50
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 P 게인")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_p
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_p;
+                                            k_p.selectAll();
+                                        }else{
+                                            keypad.owner = k_p;
+                                            k_p.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","k_p");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_ki
+                    width: 840
+                    height: 50
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 I 게인")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_i
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_i;
+                                            k_i.selectAll();
+                                        }else{
+                                            keypad.owner = k_i;
+                                            k_i.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","k_i");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_kd
+                    width: 840
+                    height: 50
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 D 게인")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_d
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        click_sound.play();
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_d;
+                                            k_d.selectAll();
+                                        }else{
+                                            keypad.owner = k_d;
+                                            k_d.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","k_d");
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_limit_v
                     width: 840
@@ -11339,13 +11485,13 @@ Item {
                                             }else if(state === 1){//connected ethernet but slamnav disconnected(ERROR)
                                                 text_network.text = qsTr("프로그램과 연결되지 않았습니다")
                                             }else if(state === 2){//slamnav connected but wifi disconnected(WARNING)
-                                                text_network.text = qsTr("자율주행 프로그램 연결 성공")
+                                                text_network.text = qsTr("프로그램 연결 성공")
                                                 text_network2.text = qsTr("(와이파이는 연결되지 않았습니다)")
                                             }else if(state === 3){//slamnav, wifi connected but not internet(WARNING)
-                                                text_network.text = qsTr("자율주행 프로그램 연결 성공")
+                                                text_network.text = qsTr("프로그램 연결 성공")
                                                 text_network2.text = qsTr("(인터넷은 연결되지 않았습니다)")
                                             }else if(state === 4){//all good
-                                                text_network.text = qsTr("자율주행 프로그램 연결 성공")
+                                                text_network.text = qsTr("프로그램 연결 성공")
                                             }
                                         }
                                         color: "transparent"
@@ -11536,16 +11682,16 @@ Item {
                                             }else if(state === 2){
                                                 text_motor_1.text = qsTr("비상스위치가 눌려있습니다")
                                             }else if(state === 3){
-                                                text_motor_1.text = qsTr("모터1와 연결되지 않았습니다")
+                                                text_motor_1.text = qsTr("모터와 연결되지 않았습니다")
                                             }else if(state === 4){
-                                                text_motor_1.text = qsTr("모터1에 에러가 발생했습니다")
+                                                text_motor_1.text = qsTr("모터에 에러가 발생했습니다")
                                                 text_motor_11.text = supervisor.getMotorStatusStr(0);
                                             }else if(state === 5){
                                                 text_motor_1.text = qsTr("모터락이 해제되었습니다")
                                             }else if(state === 6){
-                                                text_motor_1.text = qsTr("모터1 온도가 기준치 이상입니다")
+                                                text_motor_1.text = qsTr("모터온도가 기준치 이상입니다")
                                             }else if(state === 7){
-                                                text_motor_1.text = qsTr("모터1 상태 정상")
+                                                text_motor_1.text = qsTr("모터상태 정상")
                                             }
                                         }
                                         Row{
@@ -11602,22 +11748,22 @@ Item {
                                         onStateChanged: {
                                             text_motor_22.text = "";
                                             if(state === 0){
-                                                text_motor_2.text = qsTr("자율주행 프로그램과 연결되지 않았습니다")
+                                                text_motor_2.text = qsTr("프로그램과 연결되지 않았습니다")
                                             }else if(state === 1){
                                                 text_motor_2.text = qsTr("전원이 OFF 상태입니다")
                                             }else if(state === 2){
                                                 text_motor_2.text = qsTr("비상스위치가 눌려있습니다")
                                             }else if(state === 3){
-                                                text_motor_2.text = qsTr("모터2와 연결되지 않았습니다")
+                                                text_motor_2.text = qsTr("모터와 연결되지 않았습니다")
                                             }else if(state === 4){
-                                                text_motor_2.text = qsTr("모터2에 에러가 발생했습니다")
+                                                text_motor_2.text = qsTr("모터에 에러가 발생했습니다")
                                                 text_motor_22.text = supervisor.getMotorStatusStr(1);
                                             }else if(state === 5){
                                                 text_motor_2.text = qsTr("모터락이 해제되었습니다")
                                             }else if(state === 6){
-                                                text_motor_2.text = qsTr("모터2 온도가 기준치 이상입니다")
+                                                text_motor_2.text = qsTr("모터온도가 기준치 이상입니다")
                                             }else if(state === 7){
-                                                text_motor_2.text = qsTr("모터2 상태 정상")
+                                                text_motor_2.text = qsTr("모터상태 정상")
                                             }
                                         }
                                         Row{
@@ -11771,7 +11917,7 @@ Item {
                 border.color: color_navy
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("원래대로")
+                    text:qsTr("설정 초기화")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color : "white"
@@ -11816,22 +11962,13 @@ Item {
                 height: 60
                 radius: 10
                 color: "transparent"
-                //border.width: 1
-                //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.3")
+                    text:qsTr("Version 1.1.4")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
                 }
-                //MouseArea{
-                //    anchors.fill: parent
-                //    onClicked:{
-                //        click_sound.play();
-                //        save();
-                //    }
-                //}
             }
         }
     }
@@ -11858,7 +11995,7 @@ Item {
 
             //new(use Checker)
             wifi_con.connection = supervisor.getWifiConnection();
-            //ethernet_con.connection = supervisor.getEthernetConnection();
+            ethernet_con.connection = supervisor.getEthernetConnection();
             internet_con.connection = supervisor.getInternetConnection();
             wifi_ssid.text = supervisor.getCurWifiSSID();
 
@@ -12082,7 +12219,7 @@ Item {
                 }else{
                     state_network.state = 0;
                 }
-                text_robot.text = qsTr("자율주행 프로그램 연결 안됨")
+                text_robot.text = qsTr("프로그램 연결 안됨")
             }
 
         }
@@ -12090,6 +12227,41 @@ Item {
 
     Popup_help{
         id: popup_help_setting
+    }
+
+    Popup{
+        id: popup_lingbell
+        anchors.centerIn: parent
+        width: 400
+        height: 400
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_light_gray
+            Column{
+                anchors.centerIn: parent
+                spacing: 20
+                TextField{
+                    id: field_lingbell_callnum
+                    text: "FFEEDD"
+                    width: 200
+                    height: 50
+                }
+                Item_buttons{
+                    type: "round_text"
+                    width: 160
+                    height: 50
+                    text: "CALL"
+                    onClicked:{
+                        supervisor.callCallbell(field_lingbell_callnum.text);
+                    }
+                }
+            }
+        }
     }
 
     Popup{
@@ -12701,8 +12873,7 @@ Item {
             width: parent.width*0.99
             height: parent.height*0.99
             Rectangle{
-                //color: color_dark_navy
-                color: color_red
+                color: color_dark_navy
                 radius: 10
                 id: rect_prd_top
                 width: parent.width
@@ -12735,15 +12906,15 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-                    color:color_green
+                    color:color_navy
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
                         height: 140
                         radius: 20
                         color:"transparent"
-                        border.width: 3
-                        border.color: color_green
+                        border.width: 1
+                        border.color: "white"
                         Column{
                             anchors.centerIn: parent
                             spacing: 15
@@ -13050,15 +13221,15 @@ Item {
                     height: 150
                     radius: 20
                     visible: is_rainbow
-                    color: color_red
+                    color: color_navy
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
                         height: 140
                         radius: 20
                         color:"transparent"
-                        border.width: 3
-                        border.color: color_red
+                        border.width: 2
+                        border.color: "white"
                         Column{
                             anchors.centerIn: parent
                             spacing: 15
@@ -13092,55 +13263,6 @@ Item {
                             click_sound.play();
                             supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
                             popup_clear.open();
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_config_init
-                    width: 170
-                    height: 150
-                    radius: 20
-                    visible: is_rainbow
-                    color: color_navy
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
-                        radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
-                            anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_researching.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
-                            }
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("설정 초기화")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] RESET CONFIG -> REMOVE CONFIG");
-                            popup_clear_config.open();
                         }
                     }
                 }
@@ -13194,7 +13316,7 @@ Item {
                     text:qsTr("정말로 공장초기화를 하시겠습니까?")
                     font.family: font_noto_r.name
                     font.pixelSize: 70
-                    color: color_red
+                    color: color_blue
                 }
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -13313,176 +13435,6 @@ Item {
             }
         }
     }
-
-
-    Popup{
-        id: popup_clear_config
-        anchors.centerIn: parent
-        width: 1280
-        height: 400
-        leftPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        background: Rectangle{
-            anchors.fill: parent
-            color : "transparent"
-        }
-        property var statenum: 0
-        onOpened:{
-            statenum = 0;
-            model_clear_config.clear();
-        }
-
-        function addClearState(name, prev_state){
-            var tt = name.split(" ");
-            if(model_clear_config.count > 0){
-                listview_clear_config.model.set(model_clear_config.count-1,{"done":prev_state});
-            }
-            if(tt[tt.length-1] === "done"){
-                listview_clear_config.model.append({"name":name,"done":2});
-                btn_clear_done.enabled = true;
-            }else{
-                listview_clear_config.model.append({"name":name,"done":1});
-            }
-            listview_clear_config.currentIndex = model_clear_config.count - 1;
-
-        }
-
-        Rectangle{
-            id: rect_clear_config_notice
-            visible: popup_clear_config.statenum === 0
-            width: parent.width
-            height: parent.height
-            color: color_dark_navy
-            Column{
-                anchors.centerIn: parent
-                spacing: 40
-                Text{
-                    text:qsTr("정말로 설정 초기화 하시겠습니까?")
-                    font.family: font_noto_r.name
-                    font.pixelSize: 70
-                    color: color_blue
-                }
-                Text{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text:qsTr("모든 설정이 기본세팅으로 변경됩니다.")
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    color: "white"
-                }
-                Row{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 60
-                    Item_buttons{
-                        type: "round_text"
-                        width: 180
-                        height: 80
-                        text: qsTr("설정 초기화 시작")
-                        fontsize: 30
-                        onClicked: { //TEMP
-                            //popup_clear_config.statenum = 1;
-                            //supervisor.resetClearConfig();
-                        }
-                    }
-                    Item_buttons{
-                        type: "round_text"
-                        width: 180
-                        height: 80
-                        text: qsTr("취소")
-                        fontsize: 30
-                        onClicked: {
-                            popup_clear_config.close();
-                        }
-                    }
-                }
-            }
-
-        }
-        Rectangle{
-            id: rect_clear_config_ing
-            visible: popup_clear_config.statenum === 1
-            width: parent.width
-            height: parent.height
-            color: color_dark_navy
-            Component{
-                id: contactDel_config
-                Item{
-                    width: 500
-                    height: 40
-                    Rectangle{
-                        width: 500
-                        height: 40
-                        color: "transparent"
-                        Row{
-                            spacing: 20
-                            Rectangle{
-                                width: 40
-                                height: 40
-                                color: "transparent"
-                                Image{
-                                    anchors.fill: parent
-                                    sourceSize.width: width
-                                    sourceSize.height: height
-                                    source: done===2?"icon/icon_yes.png":done===1?"icon/icon_run.png":"icon/icon_error.png"
-                                }
-                            }
-                            Rectangle{
-                                width: 500 - 40
-                                height: 40
-                                color: "transparent"
-                                Text{
-                                    color: "white"
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: name
-                                    font.family: font_noto_r.name
-                                    font.pixelSize: 20
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Column{
-                anchors.centerIn: parent
-                spacing: 40
-                ListView{
-                    id: listview_clear_config
-                    width: 500
-                    height: 200
-                    clip: true
-                    spacing: 10
-                    model:ListModel{
-                        id:model_clear_config
-                        onCountChanged: {
-                            print(count);
-                        }
-                    }
-                    delegate: contactDel_config
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Row{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 60
-                    Item_buttons{
-                        id: btn_clear_config_done
-                        type: "round_text"
-                        width: 180
-                        enabled: false
-                        height: 80
-                        text: qsTr("종 료")
-                        fontsize: 30
-                        onClicked: {
-                            supervisor.programRestart();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     Popup{
         id: popup_usb_notice
         anchors.centerIn: parent
@@ -14059,7 +14011,7 @@ Item {
                     font.pixelSize: 20
                     horizontalAlignment: Text.AlignHCenter
                     color: color_red
-                    text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 제거후, 다시 연결하면 인식될 수 있습니다")
+                    text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다")
                 }
                 Column{
                     anchors.centerIn: parent
@@ -15744,7 +15696,6 @@ Item {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 width: rect_preset_l.width*0.8
                                 height: 70
-                                //visible: is_admin // add . 05.22
                                 radius: 5
                                 border.width: popup_preset.select_preset===1?3:1
                                 border.color: popup_preset.select_preset===1?color_green:"black"
@@ -15977,7 +15928,6 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.verticalCenterOffset: -50
                             rows: 6
-                            visible: is_admin // add. 05.22
                             columns: 3
                             horizontalItemAlignment: Grid.AlignHCenter
                             verticalItemAlignment: Grid.AlignVCenter

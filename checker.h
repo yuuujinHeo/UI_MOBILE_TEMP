@@ -71,8 +71,7 @@ public slots:
         QByteArray error = process->readAllStandardError();
         qDebug() << "Error Connect Wifi" << error;
         if(error.contains("[sudo]")){
-            //process->write("rainbow\n");
-            process->write("odroid\n");
+            process->write("rainbow\n");
             if(!process->waitForFinished()){
                 emit connect_wifi_fail(3, argument[0]);
                 emit finished(this);

@@ -642,10 +642,16 @@ void Supervisor::readSetting(QString map_name){
         temp_loc.group_name = "Charging";
         temp_loc.type = "Charging";
         temp_loc.name = strlist[0];
-        if(strlist.size() > 4)
-            temp_loc.call_id = strlist[4];
-        else
+        if(strlist.size() > 4){
+            temp_loc.call_id = strlist[4].split(":")[0];
+            if(strlist[4].split(":").size()>1)
+                temp_loc.ling_id = strlist[4].split(":")[1];
+            else
+                temp_loc.ling_id = "";
+        }else{
             temp_loc.call_id = "";
+            temp_loc.ling_id = "";
+        }
         pmap->locations.push_back(temp_loc);
     }
     setting_anot.endGroup();
@@ -662,10 +668,16 @@ void Supervisor::readSetting(QString map_name){
         temp_loc.group = 0;
         temp_loc.group_name = "Resting";
         temp_loc.name = strlist[0];
-        if(strlist.size() > 4)
-            temp_loc.call_id = strlist[4];
-        else
+        if(strlist.size() > 4){
+            temp_loc.call_id = strlist[4].split(":")[0];
+            if(strlist[4].split(":").size()>1)
+                temp_loc.ling_id = strlist[4].split(":")[1];
+            else
+                temp_loc.ling_id = "";
+        }else{
             temp_loc.call_id = "";
+            temp_loc.ling_id = "";
+        }
         pmap->locations.push_back(temp_loc);
     }
     setting_anot.endGroup();
@@ -681,10 +693,16 @@ void Supervisor::readSetting(QString map_name){
             temp_loc.group = 0;
             temp_loc.group_name = "Cleaning";
             temp_loc.name = strlist[0];
-            if(strlist.size() > 4)
-                temp_loc.call_id = strlist[4];
-            else
+            if(strlist.size() > 4){
+                temp_loc.call_id = strlist[4].split(":")[0];
+                if(strlist[4].split(":").size()>1)
+                    temp_loc.ling_id = strlist[4].split(":")[1];
+                else
+                    temp_loc.ling_id = "";
+            }else{
                 temp_loc.call_id = "";
+                temp_loc.ling_id = "";
+            }
             pmap->locations.push_back(temp_loc);
         }else if(strlist_rest.size() > 1){
             temp_loc.point = cv::Point2f(strlist_rest[1].toFloat(),strlist_rest[2].toFloat());
@@ -694,6 +712,7 @@ void Supervisor::readSetting(QString map_name){
             temp_loc.type = "Cleaning";
             temp_loc.name = "CleaningTemp";
             temp_loc.call_id = "";
+            temp_loc.ling_id = "";
             pmap->locations.push_back(temp_loc);
         }
         setting_anot.endGroup();
@@ -722,10 +741,16 @@ void Supervisor::readSetting(QString map_name){
             temp_loc.type = "Serving";
             temp_loc.name = strlist[0];
             temp_loc.group_name = pmap->location_groups[i];
-            if(strlist.size() > 4)
-                temp_loc.call_id = strlist[4];
-            else
+            if(strlist.size() > 4){
+                temp_loc.call_id = strlist[4].split(":")[0];
+                if(strlist[4].split(":").size()>1)
+                    temp_loc.ling_id = strlist[4].split(":")[1];
+                else
+                    temp_loc.ling_id = "";
+            }else{
                 temp_loc.call_id = "";
+                temp_loc.ling_id = "";
+            }
 
             temp_loc.group = i;
             pmap->locations.push_back(temp_loc);
@@ -746,6 +771,29 @@ void Supervisor::readSetting(QString map_name){
     QMetaObject::invokeMethod(mMain, "update_ini");
 }
 
+QString Supervisor::makeLingbell(){
+    int maxnum = 1;
+    for(int i=0; i<pmap->locations.size(); i++){
+        if(pmap->locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->locations[i].ling_id.right(7).toInt();
+        }
+    }
+
+    return "F"+QString::asprintf("%07d",maxnum+1);
+}
+void Supervisor::resetLingbell(int id){
+    if(id>-1 && id<pmap->locations.size()){
+        pmap->locations[id].ling_id = "";
+    }
+}
+
+QString Supervisor::getLingbell(int id){
+    if(pmap->locations[id].ling_id == ""){
+        pmap->locations[id].ling_id = makeLingbell();
+    }
+
+    return pmap->locations[id].ling_id;
+}
 void Supervisor::editLocation(int num){
     if(getSetting("setting","ROBOT_TYPE","type") == "CLEANING"){
         if(pmap->locations[num].name == "CleaningTemp"){
@@ -1226,6 +1274,7 @@ void Supervisor::checkRobotINI(){
         setSetting("update","MOTOR/wheel_dir","-1");
 
 
+
     if(getSetting("update","DRIVING","cur_preset") == "")
         setSetting("update","DRIVING/cur_preset","3");
     if(getSetting("update","DRIVING","comeback_preset") == "")
@@ -1341,6 +1390,15 @@ void Supervisor::checkRobotINI(){
     if(getSetting("setting","CALL","call_maximum") == "")
         setSetting("setting","CALL/call_maximum","1");
 
+    if(getSetting("setting","CALL","use_lingbell") == "")
+        setSetting("setting","CALL/use_lingbell","false");
+
+    if(getSetting("setting","CALL","use_lingbell_repeat") == "")
+        setSetting("setting","CALL/use_lingbell_repeat","false");
+
+    if(getSetting("setting","CALL","lingbell_time") == "")
+        setSetting("setting","CALL/lingbell_time","5");
+
     if(getSetting("setting","PRESET1","name")==""){
         setSetting("setting","PRESET1/name","매우느리게");
         setSetting("setting","PRESET1/limit_pivot","30.0");
@@ -1404,11 +1462,9 @@ void Supervisor::checkRobotINI(){
         setSetting("setting","USE_SLAM/use_early_stop_serving","false");
     if(getSetting("setting","USE_SLAM","use_obs_preview") == "")
         setSetting("setting","USE_SLAM/use_obs_preview","true");
-    if(getSetting("setting","USE_SLAM","use_ccma") == "") // bj
-        setSetting("setting","USE_SLAM/use_ccma","true"); //bj
 
-    //if(getSetting("setting","SENSOR","cam_exposure")=="")
-    //    setSetting("setting","SENSOR/cam_exposure","2000");
+    if(getSetting("setting","SENSOR","cam_exposure")=="")
+        setSetting("setting","SENSOR/cam_exposure","2000");
     if(getSetting("setting","SENSOR","mask")=="")
         setSetting("setting","SENSOR/mask","10.0");
     if(getSetting("setting","SENSOR","max_range")=="")
@@ -1775,7 +1831,6 @@ void Supervisor::slam_restInit(){
     ipc->set_cmd(ROBOT_CMD_SLAM_RESTING, "LOCALIZATION REST INIT");
 }
 void Supervisor::slam_fullautoInit(){
-
     plog->write("[LOCALIZATION] FULL AUTO INIT : "+QString::number(pmap->map_rotate_angle));
     ipc->set_cmd(ROBOT_CMD_SLAM_FULL_AUTO, "LOCALIZATION FULL AUTO INIT");
 
@@ -2111,10 +2166,14 @@ void Supervisor::readusbrecentfile(){
     zip->getZip(path);
 }
 
+void Supervisor::callCallbell(QString id){
+    call->sendCall(id);
+}
+
 void Supervisor::updateUSB(){
     QString updatestr = QDir::homePath()+"/RB_MOBILE/sh/updateusb.sh";
     if(!QFile::exists(updatestr)){
-        makeUSBShell();;
+        makeUSBShell();
     }
     updatestr = QDir::homePath()+"/RB_MOBILE/sh/updatedummy.sh";
     if(!QFile::exists(updatestr)){
@@ -2354,6 +2413,12 @@ QString Supervisor::getLocationCallID(int num){
     return "";
 }
 
+QString Supervisor::getLocationLingID(int num){
+    if(num>-1 && num < pmap->locations.size()){
+        return pmap->locations[num].ling_id;
+    }
+    return "";
+}
 void Supervisor::setLocationGroup(int num, int group){
     if(num > -1 && num < pmap->locations.size()){
         pmap->locations[num].group = group;
@@ -2884,20 +2949,20 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     //name,x,y,th,num,locnum,callid
     for(int i=0; i<pmap->locations.size(); i++){
         if(pmap->locations[i].type == "Charging"){
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
             settings.setValue("charging_locations/loc"+QString::number(charging_num),str_name);
             charging_num++;
         }else if(pmap->locations[i].type == "Resting"){
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
             settings.setValue("resting_locations/loc"+QString::number(resting_num),str_name);
             resting_num++;
         }else if(pmap->locations[i].type == "Cleaning"){
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
             settings.setValue("cleaning_locations/loc"+QString::number(cleaning_num),str_name);
             cleaning_num++;
         }else if(pmap->locations[i].type == "Serving"){
             QString groupname = "serving_" + QString::number(pmap->locations[i].group);
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id;
+            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
             settings.setValue(groupname+"/loc"+QString::number(group_num[pmap->locations[i].group]),str_name);
             group_num[pmap->locations[i].group]++;
         }
@@ -3686,6 +3751,7 @@ void Supervisor::onTimer(){
     static int prev_charge_state = 0;
     static bool flag_annot_localization = false;
 
+    static int lingbell_count = 0;
     //init상태 체크 카운트
     static int timer_cnt = 0;
     static int current_cnt = 0;
@@ -3711,12 +3777,6 @@ void Supervisor::onTimer(){
         timer2 = new QTimer();
         connect(timer2, SIGNAL(timeout()),this,SLOT(clear_all()));
         timer2->start(500);
-    }
-    if(start_clear_config){
-        start_clear_config = false;
-        timer3 = new QTimer();
-        connect(timer3, SIGNAL(timeout()),this,SLOT(clear_config()));
-        timer3->start(500);
     }
 
     //************************** WiFi *********************************//
@@ -3815,6 +3875,7 @@ void Supervisor::onTimer(){
     }
     case UI_STATE_CHARGING:{
         patrol_mode = PATROL_NONE;
+
         if(probot->status_charge_connect == 0){
             plog->write("[STATE] Charging : Charge Connect = 0 -> None");
             stateInit();
@@ -3876,6 +3937,7 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else if(probot->is_calling){
                             if(pmap->call_queue.size() > 0){
@@ -3884,9 +3946,19 @@ void Supervisor::onTimer(){
                             }else{
                                 probot->is_calling = false;
                             }
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             ui_state = UI_STATE_CHARGING;
                         }else{
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+" -> Charging");
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             ui_state = UI_STATE_CHARGING;
                         }
                     }else if(probot->current_target.name == "Resting0"){
@@ -3898,6 +3970,7 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
 
                         }else if(probot->is_calling){
@@ -3912,10 +3985,20 @@ void Supervisor::onTimer(){
                                 probot->is_calling = false;
                                 plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
                             }
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             QMetaObject::invokeMethod(mMain, "waitkitchen");
                             ui_state = UI_STATE_CLEANING;
                         }else{
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             QMetaObject::invokeMethod(mMain, "waitkitchen");
                             ui_state = UI_STATE_INITAILIZING;
                         }
@@ -3929,6 +4012,7 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else if(probot->is_calling){
                             if(pmap->call_queue.size() > 0){
@@ -3942,9 +4026,19 @@ void Supervisor::onTimer(){
                                 probot->is_calling = false;
                                 plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
                             }
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
                             ui_state = UI_STATE_CLEANING;
                         }else{
+                            //Ling bell
+                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
+                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                call->sendCall(probot->current_target.ling_id);
+                            }
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
                             ui_state = UI_STATE_CLEANING;
@@ -3957,10 +4051,12 @@ void Supervisor::onTimer(){
                             if(current_patrol.voice_mode != "none"){//basic
                                 playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
                             }
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else if(probot->is_calling){
                             plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name + " -> Pickup");
                             probot->call_moving_count++;
+                            lingbell_count = 0;
                             ui_state = UI_STATE_PICKUP;
                         }else{
                             LOCATION curLoc;
@@ -3984,6 +4080,7 @@ void Supervisor::onTimer(){
                                     probot->trays[i].location = clearLoc;
                                 }
                             }
+                            lingbell_count = 0;
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+", "+curLoc.name+" -> Pickup");
                             ui_state = UI_STATE_PICKUP;
                         }
@@ -4223,6 +4320,25 @@ void Supervisor::onTimer(){
                 pmap->call_queue.append(temp);
                 stateMoving();
                 break;
+            }
+        }
+
+        //Ling bell
+        if(!probot->is_patrol){
+            if(getSetting("setting","CALL","use_lingbell") == "true"){
+                if(lingbell_count == 0){
+                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                    call->sendCall(probot->current_target.ling_id);
+                    lingbell_count = 1;
+                }
+                if(getSetting("setting","CALL","use_lingbell_repeat") == "true"){
+                    if(lingbell_count++ > getSetting("setting","CALL","lingbell_time").toInt()*1000/MAIN_THREAD){
+                        plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                        call->sendCall(probot->current_target.ling_id);
+                        lingbell_count = 1;
+                    }
+                }else{
+                }
             }
         }
 
@@ -5187,159 +5303,7 @@ void Supervisor::clear_all(){
 void Supervisor::resetClear(){
     start_clear = true;
 }
-/*
-void Supervisor::clear_config(){
-    plog->write("[COMMAND] Reset Config");
-    timer3->stop();
 
-    //maps 폴더 지움.
-    //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
-    //                          Q_ARG(QVariant,QVariant().fromValue(1)));
-
-    //QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
-    //QDir dir_maps(path_maps);
-    //if(dir_maps.removeRecursively()){
-    //    plog->write("[CLEAR] Reset Clear : Remove maps");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
-    //}else{
-    //    plog->write("[CLEAR] Reset Clear : Remove maps failed");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
-    //}
-    //QDir().mkdir(path_maps);
-
-    //temp 폴더 지움.
-    //QString path_temp = QDir::homePath()+"/RB_MOBILE/temp";
-    //QDir dir_temp(path_temp);
-    //if(dir_temp.removeRecursively()){
-    //    plog->write("[CLEAR] Reset Clear : Remove temp");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
-    //}else{
-    //    plog->write("[CLEAR] Reset Clear : Remove temp failed");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
-    //}
-
-
-    //patrol 폴더 지움.
-    //QString path_patrol = QDir::homePath()+"/RB_MOBILE/patrol";
-    //QDir dir_patrol(path_patrol);
-    //if(dir_patrol.removeRecursively()){
-    //    plog->write("[CLEAR] Reset Clear : Remove patrol");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
-    //}else{
-    //    plog->write("[CLEAR] Reset Clear : Remove patrol failed");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
-    //}
-
-    //myID 등  robot_config.ini 수정
-    //config 폴더 지움.
-    //QString path_config = QDir::homePath()+"/RB_MOBILE/config";
-    //QDir dir_config(path_config);
-    //if(dir_config.removeRecursively()){
-    //    plog->write("[CLEAR] Reset Clear : Remove config");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
-    //}else{
-    //    plog->write("[CLEAR] Reset Clear : Remove config failed");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
-    //}
-
-    //QDir().mkdir(path_config);
-    //makeRobotINI();
-    //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : make new config")),
-    //                          Q_ARG(QVariant,QVariant().fromValue(2)));
-
-    //sh 파일 복구?
-    //checkShellFiles();
-    //QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/sh directory : make new config")),
-    //                          Q_ARG(QVariant,QVariant().fromValue(2)));
-
-
-    //log 삭제
-    //QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
-    //if(dir_log.removeRecursively()){
-    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
-    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
-    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
-    //    QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
-    //    plog->write("[CLEAR] Reset Clear : Remove log Success");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(2)));
-
-
-    //}else{
-    //    if(!dir_log.exists()){
-    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
-    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
-    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
-    //        QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/sn_log");
-    //    }
-    //    plog->write("[CLEAR] Reset Clear : Remove log Failed");
-    //    QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-    //                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
-    //                              Q_ARG(QVariant,QVariant().fromValue(3)));
-
-    //}
-
-    //QMetaObject::invokeMethod(mMain, "setClearConifg",Qt::DirectConnection,
-    //                          Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" Reset Config Done ")),
-    //                          Q_ARG(QVariant,QVariant().fromValue(2)));
-}
-*/
-
-void Supervisor::clear_config(){
-    plog->write("[COMMAND] Reset Config");
-    timer3->stop();  // 관련 타이머 정지
-
-    QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
-
-    // config 폴더 삭제
-    QString path_config = QDir::homePath() + "/RB_MOBILE/config";
-    QDir dir_config(path_config);
-    if (dir_config.removeRecursively()) {
-        plog->write("[CLEAR] Reset Clear : Remove config");
-        QMetaObject::invokeMethod(mMain, "setClear", Qt::DirectConnection,
-                                  Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/config directory : remove")),
-                                  Q_ARG(QVariant, QVariant().fromValue(2)));
-    } else {
-        plog->write("[CLEAR] Reset Clear : Remove config failed");
-        QMetaObject::invokeMethod(mMain, "setClear", Qt::DirectConnection,
-                                  Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/config directory : remove")),
-                                  Q_ARG(QVariant, QVariant().fromValue(3)));
-    }
-
-    // 새 config 폴더 생성
-    QDir().mkdir(path_config);
-    makeRobotINI();  // 새로운 robot_config.ini 파일 생성
-    QMetaObject::invokeMethod(mMain, "setClear", Qt::DirectConnection,
-                              Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/config directory : make new config")),
-                              Q_ARG(QVariant, QVariant().fromValue(2)));
-
-    QMetaObject::invokeMethod(mMain, "setClearConfig", Qt::DirectConnection,
-                              Q_ARG(QVariant, QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " Reset Config Done ")),
-                              Q_ARG(QVariant, QVariant().fromValue(2)));
-}
-void Supervisor::resetClearConfig(){
-    start_clear_config = true;
-}
 
 
 int Supervisor::getTravellineIssue(){
