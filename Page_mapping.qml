@@ -335,14 +335,14 @@ Item {
                             font.family: font_noto_r.name
                             font.pixelSize: 30
                             color: "white"
-                            text: qsTr("맵 픽셀 당 크기")
+                            text: qsTr("맵 해상도") // 맵 픽셀 당 크기
                         }
                         Text{
                             anchors.right: parent.right
                             font.family: font_noto_r.name
                             font.pixelSize: 15
                             color: "white"
-                            text: qsTr("픽셀크기가 작을 수록 정밀한 로봇 이동이 가능합니다")
+                            text: qsTr("맵 해상도가 정밀할 수록 정밀한 로봇 이동이 가능합니다") //픽셀크기가 작을 수록 정밀한 로봇 이동이 가능합니다
                         }
                     }
 
@@ -361,7 +361,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: "3 cm"
+                                text: "정밀" //3cm
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -383,7 +383,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: "5 cm"
+                                text: "보통" //5cm
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -451,7 +451,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: qsTr("맵 픽셀 당 크기")
+                                text: qsTr("맵 해상도") // 맵 픽셀 당 크기
                             }
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
