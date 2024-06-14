@@ -2060,7 +2060,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:[qsTr("사용 안함"), qsTr("아주느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("아주빠르게")]
+                                model:[qsTr("사용 안함"), qsTr("매우느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("매우빠르게")] //아주느리게, 아주빠르게
                             }
                         }
                     }
@@ -13004,114 +13004,114 @@ Item {
                 }
 
 
-                Rectangle{
-                    id: btn_usb_upload
-                    width: 170
-                    height: 150
-                    radius: 20
-//                    visible: false
-                    color: enabled?color_navy:color_light_gray
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
-                        radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
-                            anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/save_r.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
-                            }
+                //Rectangle{
+                //    id: btn_usb_upload
+                //    width: 170
+                //    height: 150
+                //    radius: 20
+//              //      visible: false
+                //    color: enabled?color_navy:color_light_gray
+                //    Rectangle{
+                //        anchors.centerIn: parent
+                //        width: 160
+                //        height: 140
+                //        radius: 20
+                //        color:"transparent"
+                //        border.width: 1
+                //        border.color: "white"
+                //        Column{
+                //            anchors.centerIn: parent
+                //            spacing: 15
+                //            Image{
+                //                source: "icon/save_r.png"
+                //                width: 40
+                //                height: 40
+                //                sourceSize.width: width
+                //                sourceSize.height: height
+                //                anchors.horizontalCenter: parent.horizontalCenter
+                //                ColorOverlay{
+                //                    anchors.fill: parent
+                //                    source: parent
+                //                    color: "white"
+                //                }
+                //            }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("USB에 저장하기")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
+                //            Text{
+                //                anchors.horizontalCenter: parent.horizontalCenter
+                //                text: qsTr("USB에 저장하기")
+                //                color: "white"
+                //                font.family: font_noto_r.name
+                //                font.pixelSize: 20
+                //            }
+                //        }
 
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
-                            popup_usb_select.open();
-                        }
-                    }
-                }
+                //    }
+                //    MouseArea{
+                //        anchors.fill: parent
+                //        onClicked:{
+                //            click_sound.play();
+                //            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
+                //            popup_usb_select.open();
+                //        }
+                //    }
+                //}
 
 
-                Rectangle{
-                    id: btn_usb_download
-                    width: 170
-                    height: 150
-                    radius: 20
-                    visible: false
-                    color: enabled?color_navy:color_light_gray
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
-                        radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
-                            anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/load_r.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
-                            }
+                //Rectangle{
+                //    id: btn_usb_download
+                //    width: 170
+                //    height: 150
+                //    radius: 20
+                //    visible: false
+                //    color: enabled?color_navy:color_light_gray
+                //    Rectangle{
+                //        anchors.centerIn: parent
+                //        width: 160
+                //        height: 140
+                //        radius: 20
+                //        color:"transparent"
+                //        border.width: 1
+                //        border.color: "white"
+                //        Column{
+                //            anchors.centerIn: parent
+                //            spacing: 15
+                //            Image{
+                //                source: "icon/load_r.png"
+                //                width: 40
+                //                height: 40
+                //                sourceSize.width: width
+                //                sourceSize.height: height
+                //                anchors.horizontalCenter: parent.horizontalCenter
+                //                ColorOverlay{
+                //                    anchors.fill: parent
+                //                    source: parent
+                //                    color: "white"
+                //                }
+                //            }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("USB에서 받아오기")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
+                //            Text{
+                //                anchors.horizontalCenter: parent.horizontalCenter
+                //                text: qsTr("USB에서 받아오기")
+                //                color: "white"
+                //                font.family: font_noto_r.name
+                //                font.pixelSize: 20
+                //            }
+                //        }
 
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
-                            if(is_admin){
-                                popup_usb_download.open();
-                            }else{
-                                popup_password.open();
-                            }
-                        }
-                    }
-                }
+                //    }
+                //    MouseArea{
+                //        anchors.fill: parent
+                //        onClicked:{
+                //            click_sound.play();
+                //            supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
+                //            if(is_admin){
+                //                popup_usb_download.open();
+                //            }else{
+                //                popup_password.open();
+                //            }
+                //        }
+                //    }
+                //}
 
                 Rectangle{
                     id: btn_reset_slam
@@ -13435,759 +13435,762 @@ Item {
             }
         }
     }
-    Popup{
-        id: popup_usb_notice
-        anchors.centerIn: parent
-        width: 500
-        height: 500
-        leftPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        background: Rectangle{
-            anchors.fill: parent
-            color : "transparent"
-        }
-        function setProperty(mo,na,ui,slam,config,map,log){
-            mode = mo;
-            name = na;
-            is_ui = ui;
-            is_slam = slam;
-            is_map = map;
-            is_log = log;
-            is_config = config;
-        }
 
-        property bool is_ui: false
-        property bool is_slam: false
-        property bool is_map: false
-        property bool is_log: false
-        property bool is_config: false
-        property string name: "Desktop"
-        property string mode: "compress";
-        property bool is_new: true
-        Timer{
-            id: timer_usb_check
-            running: false
-            repeat: true
-            interval: 300
-            onTriggered: {
-                if(popup_usb_notice.is_new){
-                    popup_usb_notice.is_new = false;
-                    if(popup_usb_notice.mode == "compress"){
-                        supervisor.usbsave(popup_usb_notice.name, popup_usb_notice.is_ui, popup_usb_notice.is_slam, popup_usb_notice.is_config, popup_usb_notice.is_map, popup_usb_notice.is_log);
-                    }else if(popup_usb_notice.mode == "extract_recent"){
-                        supervisor.readusbrecentfile();
-                    }else if(popup_usb_notice.mode == "extract"){
+    // Popup{
+    //     id: popup_usb_notice
+    //     anchors.centerIn: parent
+    //     width: 500
+    //     height: 500
+    //     leftPadding: 0
+    //     topPadding: 0
+    //     bottomPadding: 0
+    //     rightPadding: 0
+    //     background: Rectangle{
+    //         anchors.fill: parent
+    //         color : "transparent"
+    //     }
+    //     function setProperty(mo,na,ui,slam,config,map,log){
+    //         mode = mo;
+    //         name = na;
+    //         is_ui = ui;
+    //         is_slam = slam;
+    //         is_map = map;
+    //         is_log = log;
+    //         is_config = config;
+    //     }
 
-                    }
-                }
-                text_usb_state.color = "white"
+    //     property bool is_ui: false
+    //     property bool is_slam: false
+    //     property bool is_map: false
+    //     property bool is_log: false
+    //     property bool is_config: false
+    //     property string name: "Desktop"
+    //     property string mode: "compress";
+    //     property bool is_new: true
+    //     Timer{
+    //         id: timer_usb_check
+    //         running: false
+    //         repeat: true
+    //         interval: 300
+    //         onTriggered: {
+    //             if(popup_usb_notice.is_new){
+    //                 popup_usb_notice.is_new = false;
+    //                 if(popup_usb_notice.mode == "compress"){
+    //                     supervisor.usbsave(popup_usb_notice.name, popup_usb_notice.is_ui, popup_usb_notice.is_slam, popup_usb_notice.is_config, popup_usb_notice.is_map, popup_usb_notice.is_log);
+    //                 }else if(popup_usb_notice.mode == "extract_recent"){
+    //                     supervisor.readusbrecentfile();
+    //                 }else if(popup_usb_notice.mode == "extract"){
 
-                if(supervisor.getzipstate() === 1){
-                    if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = qsTr("파일을 압축하여 저장 중..");
-                    }else{
-                        text_usb_state.text = qsTr("파일을 가져오는 중..");
-                    }
-                }else if(supervisor.getzipstate() === 2){
-                    if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = qsTr("저장에 성공하였습니다");
-                    }else{
-                        btn_usb_confirm.visible = true;
-                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
-                    }
+    //                 }
+    //             }
+    //             text_usb_state.color = "white"
 
-                }else if(supervisor.getzipstate() === 3){
-                    if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = qsTr("저장에 성공하였지만 일부 과정에서 에러가 발생했습니다");
-                    }else{
-                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다");
-                        btn_usb_confirm.visible = true;
-                    }
-                    model_usb_error.clear();
-                    for(var i=0; i<supervisor.getusberrorsize(); i++){
-                        model_usb_error.append({"error":supervisor.getusberror(i)});
-                    }
-                }else if(supervisor.getzipstate() === 4){
-                    text_usb_state.color = color_red;
-                    if(popup_usb_notice.mode== "compress"){
-                        text_usb_state.text = qsTr("저장에 실패했습니다");
-                    }else{
-                        text_usb_state.text = qsTr("파일을 가져오지 못했습니다");
-                    }
-                    model_usb_error.clear();
-                    for(var i=0; i<supervisor.getusberrorsize(); i++){
-                        model_usb_error.append({"error":supervisor.getusberror(i)});
-                    }
-                }else{
-                    print(supervisor.getzipstate());
-                    text_usb_state.text = qsTr("잠시만 기다려주세요");
-                }
-            }
-        }
-        onOpened:{
-            timer_usb_check.start();
-            model_usb_error.clear();
-            btn_usb_confirm.visible = false;
-            text_usb_state.text = qsTr("잠시만 기다려주세요");
-            is_new = true;
-        }
-        onClosed: {
-            timer_usb_check.stop();
-        }
-        Rectangle{
-            width: parent.width
-            height: parent.height
-            radius: 20
-            color: color_dark_navy
-            Column{
-                anchors.centerIn: parent
-                spacing: 10
-                Text{
-                    id: text_usb_state
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.family: font_noto_r.name
-                    color: "white"
-                    font.pixelSize: 30
-                    horizontalAlignment: Text.AlignHCenter
-                    text:qsTr("잠시만 기다려주세요")
-                }
-                Repeater{
-                    model: ListModel{id:model_usb_error}
-                    Rectangle{
-                        width: 400
-                        height: 30
-                        color: color_navy
-                        Text{
-                            anchors.centerIn: parent
-                            font.family: font_noto_r.name
-                            font.pixelSize: 12
-                            color: "white"
-                            horizontalAlignment: Text.AlignHCenter
-                            text:error
-                        }
-                    }
+    //             if(supervisor.getzipstate() === 1){
+    //                 if(popup_usb_notice.mode== "compress"){
+    //                     text_usb_state.text = qsTr("파일을 압축하여 저장 중..");
+    //                 }else{
+    //                     text_usb_state.text = qsTr("파일을 가져오는 중..");
+    //                 }
+    //             }else if(supervisor.getzipstate() === 2){
+    //                 if(popup_usb_notice.mode== "compress"){
+    //                     text_usb_state.text = qsTr("저장에 성공하였습니다");
+    //                 }else{
+    //                     btn_usb_confirm.visible = true;
+    //                     text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+    //                 }
 
-                }
+    //             }else if(supervisor.getzipstate() === 3){
+    //                 if(popup_usb_notice.mode== "compress"){
+    //                     text_usb_state.text = qsTr("저장에 성공하였지만 일부 과정에서 에러가 발생했습니다");
+    //                 }else{
+    //                     text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다");
+    //                     btn_usb_confirm.visible = true;
+    //                 }
+    //                 model_usb_error.clear();
+    //                 for(var i=0; i<supervisor.getusberrorsize(); i++){
+    //                     model_usb_error.append({"error":supervisor.getusberror(i)});
+    //                 }
+    //             }else if(supervisor.getzipstate() === 4){
+    //                 text_usb_state.color = color_red;
+    //                 if(popup_usb_notice.mode== "compress"){
+    //                     text_usb_state.text = qsTr("저장에 실패했습니다");
+    //                 }else{
+    //                     text_usb_state.text = qsTr("파일을 가져오지 못했습니다");
+    //                 }
+    //                 model_usb_error.clear();
+    //                 for(var i=0; i<supervisor.getusberrorsize(); i++){
+    //                     model_usb_error.append({"error":supervisor.getusberror(i)});
+    //                 }
+    //             }else{
+    //                 print(supervisor.getzipstate());
+    //                 text_usb_state.text = qsTr("잠시만 기다려주세요");
+    //             }
+    //         }
+    //     }
+    //     onOpened:{
+    //         timer_usb_check.start();
+    //         model_usb_error.clear();
+    //         btn_usb_confirm.visible = false;
+    //         text_usb_state.text = qsTr("잠시만 기다려주세요");
+    //         is_new = true;
+    //     }
+    //     onClosed: {
+    //         timer_usb_check.stop();
+    //     }
+    //     Rectangle{
+    //         width: parent.width
+    //         height: parent.height
+    //         radius: 20
+    //         color: color_dark_navy
+    //         Column{
+    //             anchors.centerIn: parent
+    //             spacing: 10
+    //             Text{
+    //                 id: text_usb_state
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //                 font.family: font_noto_r.name
+    //                 color: "white"
+    //                 font.pixelSize: 30
+    //                 horizontalAlignment: Text.AlignHCenter
+    //                 text:qsTr("잠시만 기다려주세요")
+    //             }
+    //             Repeater{
+    //                 model: ListModel{id:model_usb_error}
+    //                 Rectangle{
+    //                     width: 400
+    //                     height: 30
+    //                     color: color_navy
+    //                     Text{
+    //                         anchors.centerIn: parent
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 12
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text:error
+    //                     }
+    //                 }
 
-                Rectangle{
-                    id: btn_usb_confirm
-                    visible: false
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    width: 100
-                    height: 50
-                    radius: 5
-                    border.width: 1
-                    Text{
-                        anchors.centerIn: parent
-                        font.family:font_noto_r.name
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            if(popup_usb_notice.mode== "compress"){
+    //             }
 
-                            }else{
-                                supervisor.updateUSB();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    Popup{
-        id: popup_usb_download
-        anchors.centerIn: parent
-        width: 400
-        height: 500
-        leftPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        background: Rectangle{
-            color: "transparent"
-        }
-        property var index: 0
-        property bool is_ui: false
-        property bool is_slam: false
-        property bool is_map: false
-        property bool is_log: false
-        property bool is_config: false
-        property string set_name: ""
-        onOpened:{
-            timer_usb_new.start();
+    //             Rectangle{
+    //                 id: btn_usb_confirm
+    //                 visible: false
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //                 width: 100
+    //                 height: 50
+    //                 radius: 5
+    //                 border.width: 1
+    //                 Text{
+    //                     anchors.centerIn: parent
+    //                     font.family:font_noto_r.name
+    //                 }
+    //                 MouseArea{
+    //                     anchors.fill: parent
+    //                     onClicked:{
+    //                         click_sound.play();
+    //                         if(popup_usb_notice.mode== "compress"){
 
-            model_usb_file_list.clear();
-            for(var i=0; i<supervisor.getusbfilesize(); i++){
-                model_usb_file_list.append({"name":supervisor.getusbfile(i)});
-            }
+    //                         }else{
+    //                             supervisor.updateUSB();
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
-            text_recent_file.text = supervisor.getusbrecentfile();
-            if(text_recent_file.text == ""){
-                notice_recent.visible = false;
-                btn_recent_confirm.visible = false;
-            }else{
-                notice_recent.visible = true;
-                btn_recent_confirm.visible = true;
-            }
-        }
-        onClosed:{
-            timer_usb_new.stop();
-        }
+    // Popup{
+    //     id: popup_usb_download
+    //    anchors.centerIn: parent
+    //    width: 400
+    //    height: 500
+    //    leftPadding: 0
+    //    topPadding: 0
+    //    bottomPadding: 0
+    //    rightPadding: 0
+    //    background: Rectangle{
+    //        color: "transparent"
+    //    }
+    //    property var index: 0
+    //    property bool is_ui: false
+    //    property bool is_slam: false
+    //    property bool is_map: false
+    //    property bool is_log: false
+    //    property bool is_config: false
+    //    property string set_name: ""
+    //    onOpened:{
+    //        timer_usb_new.start();
+//
+//    //        model_usb_file_list.clear();
+//    //        for(var i=0; i<supervisor.getusbfilesize(); i++){
+//    //            model_usb_file_list.append({"name":supervisor.getusbfile(i)});
+//    //        }
+//
+//    //        text_recent_file.text = supervisor.getusbrecentfile();
+//    //        if(text_recent_file.text == ""){
+//    //            notice_recent.visible = false;
+//    //            btn_recent_confirm.visible = false;
+//    //        }else{
+//    //            notice_recent.visible = true;
+//    //            btn_recent_confirm.visible = true;
+    //        }
+    //    }
+    //    onClosed:{
+    //        timer_usb_new.stop();
+    //    }
+//
+//    //    Rectangle{
+//    //        anchors.fill: parent
+//    //        Rectangle{
+////  //              id: rect_1
+//    //            width: parent.width
+//    //            height: 50
+//    //            color: color_dark_navy
+    //            Text{
+    //                anchors.centerIn: parent
+    //                font.family: font_noto_r.name
+    //                font.pixelSize: 15
+    //                color: "white"
+    //                text: {
+    //                    if(popup_usb_download.index === 0)
+    //                        qsTr("가져오실 파일 목록을 선택해주세요")
+    //                    else if(popup_usb_download.index === 1)
+    //                        qsTr("가져오실 목록을 선택해주세요")
+    //                }
+    //            }
+    //        }
+//
+//    //        Column{
+//    //            anchors.centerIn: parent
+//    //            visible: popup_usb_download.index === 0
+//    //            spacing: 10
+//    //            Rectangle{
+//    //                id: notice_recent
+//    //                width: 200
+    //                height: 50
+    //                color: color_navy
+    //                anchors.horizontalCenter: parent.horizontalCenter
+    //                Text{
+    //                    text:qsTr("가장 최신 파일")
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    color: "white"
+    //                }
+    //            }
+    //            Rectangle{
+    //                width: 280
+    //                radius: 10
+    //                anchors.horizontalCenter: parent.horizontalCenter
+    //                height: 50
+    //                color: color_light_gray
+    //                Text{
+    //                    id: text_recent_file
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:""
+    //                }
+    //            }
+    //            Rectangle{
+    //                id: btn_recent_confirm
+    //                visible: false
+    //                width: 100
+    //                radius: 5
+    //                anchors.horizontalCenter: parent.horizontalCenter
+    //                height: 50
+    //                border.width:1
+    //                color: "white"//color_light_gray
+    //                Text{
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:qsTr("확인")
+    //                }
+    //                MouseArea{
+    //                    anchors.fill: parent
+    //                    onClicked:{
+    //                        click_sound.play();
+    //                        supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
+    //                        popup_usb_notice.mode = "extract_recent";
+    //                        popup_usb_notice.open();
+//  //                          supervisor.readusbrecentfile();
+    //                    }
+    //                }
+    //            }
+//
+//    //            Rectangle{
+//    //                width: 200
+//    //                height: 50
+//    //                color: color_navy
+//    //                anchors.horizontalCenter: parent.horizontalCenter
+//    //                Text{
+//    //                    text:qsTr("그 외 발견한 파일 목록")
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    color: "white"
+    //                }
+    //            }
+    //            Repeater{
+    //                model: ListModel{id:model_usb_file_list}
+    //                Rectangle{
+    //                    width: 280
+    //                    radius: 10
+    //                    height: 50
+    //                    color: color_light_gray
+    //                    Text{
+    //                        anchors.centerIn: parent
+    //                        font.family: font_noto_r.name
+    //                        font.pixelSize: 10
+    //                        text: name
+    //                    }
+    //                    MouseArea{
+    //                        anchors.fill: parent
+    //                        onClicked: {
+    //                            click_sound.play();
+//  //                              popup_usb_download.index = 1;
+//  //                              popup_usb_download.set_name = name;
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        Column{
+    //            anchors.centerIn: parent
+    //            spacing: 10
+    //            visible: popup_usb_download.index === 1
+    //            Rectangle{
+    //                width: 280
+    //                radius: 10
+    //                height: 50
+    //                color: popup_usb_download.is_ui?color_green:color_light_gray
+    //                Text{
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:qsTr("UI")
+    //                }
+    //                MouseArea{
+    //                    anchors.fill: parent
+    //                    onClicked: {
+    //                        click_sound.play();
+    //                        popup_usb_download.is_ui = !popup_usb_download.is_ui;
+    //                    }
+    //                }
+    //            }
+    //            Rectangle{
+    //                width: 280
+    //                radius: 10
+    //                height: 50
+    //                color: popup_usb_download.is_slam?color_green:color_light_gray
+    //                Text{
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:qsTr("SLAMNAV")
+    //                }
+    //                MouseArea{
+    //                    anchors.fill: parent
+    //                    onClicked: {
+    //                        click_sound.play();
+    //                        popup_usb_download.is_slam = !popup_usb_download.is_slam;
+    //                    }
+    //                }
+    //            }
+    //            Rectangle{
+    //                width: 280
+    //                radius: 10
+    //                height: 50
+    //                color: popup_usb_download.is_config?color_green:color_light_gray
+    //                Text{
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:qsTr("robot_config")
+    //                }
+    //                MouseArea{
+    //                    anchors.fill: parent
+    //                    onClicked: {
+    //                        click_sound.play();
+    //                        popup_usb_download.is_config = !popup_usb_download.is_config;
+    //                    }
+    //                }
+    //            }
+    //            Rectangle{
+    //                width: 280
+    //                radius: 10
+    //                height: 50
+    //                color: popup_usb_download.is_map?color_green:color_light_gray
+    //                Text{
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:qsTr("maps")
+    //                }
+    //                MouseArea{
+    //                    anchors.fill: parent
+    //                    onClicked: {
+    //                        click_sound.play();
+    //                        popup_usb_download.is_map = !popup_usb_download.is_map;
+    //                    }
+    //                }
+    //            }
+    //            Rectangle{
+    //                width: 280
+    //                radius: 10
+    //                height: 50
+    //                color: popup_usb_download.is_log?color_green:color_light_gray
+    //                Text{
+    //                    anchors.centerIn: parent
+    //                    font.family: font_noto_r.name
+    //                    font.pixelSize: 15
+    //                    text:qsTr("Log")
+    //                }
+    //                MouseArea{
+    //                    anchors.fill: parent
+    //                    onClicked: {
+    //                        click_sound.play();
+    //                        popup_usb_download.is_log = !popup_usb_download.is_log;
+    //                    }
+    //                }
+    //            }
+    //        }
+    //        Rectangle{
+    //            width: 250
+    //            radius: 10
+    //            height: 50
+    //            color: "black"
+    //            anchors.bottom: parent.bottom
+    //            anchors.horizontalCenter: parent.horizontalCenter
+    //            anchors.bottomMargin: 30
+    //            visible: popup_usb_download.index === 1
+    //            Text{
+    //                anchors.centerIn: parent
+    //                font.family: font_noto_r.name
+    //                font.pixelSize: 15
+    //                color:"white"
+    //                text:qsTr("확인")
+    //            }
+    //            MouseArea{
+    //                anchors.fill: parent
+    //                onClicked: {
+    //                    click_sound.play();
+    //                    popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+    //                    popup_usb_download.close();
+    //                    popup_usb_notice.open();
+    //                }
+    //            }
+    //        }
+//
+//    //    }
+//    //    Timer{
+//    //        id: timer_usb_new
+//    //        interval: 500
+//    //        running: false
+//    //        repeat: true
+//    //        onTriggered: {
+    //            if(supervisor.getusbsize() > 0){
+    //            }else{
+    //            }
+    //        }
+    //    }
+    //}
+    //Popup{
+    //    id: popup_usb_select
+    //    anchors.centerIn: parent
+    //    width: 700
+    //    height: 600
+    //    leftPadding: 0
+    //    topPadding: 0
+    //    bottomPadding: 0
+    //    rightPadding: 0
+    //    property int usb_size: 0
+    //    property int index: 0
+    //    property bool is_ui: false
+    //    property bool is_slam: false
+    //    property bool is_map: false
+    //    property bool is_log: false
+    //    property bool is_config: false
+    //    property string set_name: "Desktop"
+    //    background: Rectangle{
+    //        anchors.fill: parent
+    //        color: "transparent"
+    //    }
+    //    onOpened: {
+    //        if(supervisor.getusbsize() > 0){
+    //            text_no_usb.visible =false;
+    //        }else{
+    //            text_no_usb.visible = true;
+    //        }
+//
+//    //        timer_check_usb_new.start();
+//    //        index = 0;
+//    //        is_ui = true;
+//    //        is_slam = true;
+//    //        is_map = false;
+//    //        is_log = false;
+//    //        is_config = true;
+    //        model_usb_list.clear();
+    //        for(var i=0; i<supervisor.getusbsize(); i++){
+    //            print(i, supervisor.getusbname(i));
+    //            model_usb_list.append({"name":supervisor.getusbname(i)});
+    //        }
+    //        model_usb_list.append({"name":"Desktop"});
+    //    }
+    //    onClosed: {
+    //        timer_check_usb_new.stop();
+    //    }
+//
+//    //    Timer{
+//    //        id: timer_check_usb_new
+//    //        interval: 500
+//    //        running: false
+//    //        repeat: true
+//    //        onTriggered: {
+//    //            if(supervisor.getusbsize() > 0){
+    //                text_no_usb.visible =false;
+    //            }else if(popup_usb_select.index === 0){
+    //                text_no_usb.visible = true;
+    //            }
+    //            model_usb_list.clear();
+    //            for(var i=0; i<supervisor.getusbsize(); i++){
+    //                model_usb_list.append({"name":supervisor.getusbname(i)});
+    //            }
+    //            model_usb_list.append({"name":"Desktop"});
+    //        }
+    //    }
+//
+//    //    Rectangle{
+//    //        radius: 20
+//    //        clip: true
+//    //        anchors.centerIn: parent
+//    //        width: parent.width*0.99
+//    //        height: parent.height*0.99
+//    //        border.width: 3
+    //        border.color: color_dark_navy
+    //        Rectangle{
+    //            radius: 20
+    //            id: rect_ttt
+    //            width: parent.width
+    //            anchors.horizontalCenter: parent.horizontalCenter
+    //            anchors.top: parent.top
+    //            Rectangle{
+    //                width: parent.width
+    //                anchors.horizontalCenter: parent.horizontalCenter
+    //                anchors.bottom: parent.bottom
+    //                height: 20
+    //                color: color_dark_navy
+    //            }
+    //            height: 80
+    //            color: color_dark_navy
+    //            Text{
+    //                anchors.centerIn: parent
+    //                font.family: font_noto_r.name
+    //                font.pixelSize: 25
+    //                color: "white"
+    //                text: {
+    //                    if(popup_usb_select.index === 0)
+    //                        qsTr("저장소를 선택해주세요")
+    //                    else if(popup_usb_select.index === 1)
+    //                        qsTr("저장할 목록을 선택해주세요")
+    //                }
+    //            }
+    //        }
+    //        Rectangle{
+    //            width: parent.width
+    //            color: "transparent"
+    //            height: parent.height - rect_ttt.height
+    //            anchors.top: rect_ttt.bottom
+    //            Text{
+    //                id: text_no_usb
+    //                visible: false
+    //                anchors.top: parent.top
+    //                anchors.topMargin: 20
+    //                anchors.horizontalCenter: parent.horizontalCenter
+    //                font.family: font_noto_r.name
+    //                font.pixelSize: 20
+    //                horizontalAlignment: Text.AlignHCenter
+    //                color: color_red
+    //                text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다")
+    //            }
+    //            Column{
+    //                anchors.centerIn: parent
+    //                spacing: 30
+    //                Column{
+    //                    anchors.horizontalCenter: parent.horizontalCenter
+    //                    visible: popup_usb_select.index === 0
+    //                    spacing: 10
+//
+//    //                    Rectangle{
+//    //                        width: 400
+//    //                        height: 40
+//    //                        color: "black"
+//    //                        Text{
+//    //                            color: "white"
+//    //                            anchors.centerIn: parent
+    //                            font.family: font_noto_r.name
+    //                            font.pixelSize: 15
+    //                            text:qsTr("저장소 목록")
+    //                        }
+    //                    }
+    //                    Repeater{
+    //                        anchors.horizontalCenter: parent.horizontalCenter
+    //                        model: ListModel{id:model_usb_list}
+    //                        Rectangle{
+    //                            anchors.horizontalCenter: parent.horizontalCenter
+    //                            width: 300
+    //                            radius: 10
+    //                            height: 50
+    //                            color: color_light_gray
+    //                            Text{
+    //                                anchors.centerIn: parent
+    //                                font.family: font_noto_r.name
+    //                                font.pixelSize: 15
+    //                                text: name
+    //                            }
+    //                            MouseArea{
+    //                                anchors.fill: parent
+    //                                onClicked: {
+    //                                    click_sound.play();
+    //                                    text_no_usb.visible = false;
+    //                                    popup_usb_select.index = 1;
+    //                                    popup_usb_select.set_name = name;
+    //                                }
+    //                            }
+    //                        }
+    //                    }
+    //                }
+    //                Column{
+    //                    anchors.horizontalCenter: parent.horizontalCenter
+    //                    spacing: 10
+    //                    visible: popup_usb_select.index === 1
+    //                    Rectangle{
+    //                        width: 280
+    //                        radius: 10
+    //                        height: 50
+    //                        color: popup_usb_select.is_ui?color_green:color_light_gray
+    //                        Text{
+    //                            anchors.centerIn: parent
+    //                            font.family: font_noto_r.name
+    //                            font.pixelSize: 15
+    //                            text:qsTr("UI 실행파일")
+    //                        }
+    //                        MouseArea{
+    //                            anchors.fill: parent
+    //                            onClicked: {
+    //                                click_sound.play();
+    //                                popup_usb_select.is_ui = !popup_usb_select.is_ui;
+    //                            }
+    //                        }
+    //                    }
+    //                    Rectangle{
+    //                        width: 280
+    //                        radius: 10
+    //                        height: 50
+    //                        color: popup_usb_select.is_slam?color_green:color_light_gray
+    //                        Text{
+    //                            anchors.centerIn: parent
+    //                            font.family: font_noto_r.name
+    //                            font.pixelSize: 15
+    //                            text:qsTr("슬램 네비게이션 실행파일")
+    //                        }
+    //                        MouseArea{
+    //                            anchors.fill: parent
+    //                            onClicked: {
+    //                                click_sound.play();
+    //                                popup_usb_select.is_slam = !popup_usb_select.is_slam;
+    //                            }
+    //                        }
+    //                    }
+    //                    Rectangle{
+    //                        width: 280
+    //                        radius: 10
+    //                        height: 50
+    //                        color: popup_usb_select.is_config?color_green:color_light_gray
+    //                        Text{
+    //                            anchors.centerIn: parent
+    //                            font.family: font_noto_r.name
+    //                            font.pixelSize: 15
+    //                            text:qsTr("설정파일")
+    //                        }
+    //                        MouseArea{
+    //                            anchors.fill: parent
+    //                            onClicked: {
+    //                                click_sound.play();
+    //                                popup_usb_select.is_config = !popup_usb_select.is_config;
+    //                            }
+    //                        }
+    //                    }
+    //                    Rectangle{
+    //                        width: 280
+    //                        radius: 10
+    //                        height: 50
+    //                        color: popup_usb_select.is_map?color_green:color_light_gray
+    //                        Text{
+    //                            anchors.centerIn: parent
+    //                            font.family: font_noto_r.name
+    //                            font.pixelSize: 15
+    //                            text:qsTr("맵 폴더")
+    //                        }
+    //                        MouseArea{
+    //                            anchors.fill: parent
+    //                            onClicked: {
+    //                                click_sound.play();
+    //                                popup_usb_select.is_map = !popup_usb_select.is_map;
+    //                            }
+    //                        }
+    //                    }
+    //                    Rectangle{
+    //                        width: 280
+    //                        radius: 10
+    //                        height: 50
+    //                        color: popup_usb_select.is_log?color_green:color_light_gray
+    //                        Text{
+    //                            anchors.centerIn: parent
+    //                            font.family: font_noto_r.name
+    //                            font.pixelSize: 15
+    //                            text:qsTr("로그")
+    //                        }
+    //                        MouseArea{
+    //                            anchors.fill: parent
+    //                            onClicked: {
+    //                                click_sound.play();
+    //                                popup_usb_select.is_log = !popup_usb_select.is_log;
+    //                            }
+    //                        }
+    //                    }
+    //                }
+    //                Rectangle{
+    //                    width: 250
+    //                    radius: 10
+    //                    height: 50
+    //                    color: "black"
+    //                    anchors.horizontalCenter: parent.horizontalCenter
+    //                    visible: popup_usb_select.index === 1
+    //                    Text{
+    //                        anchors.centerIn: parent
+    //                        font.family: font_noto_r.name
+    //                        font.pixelSize: 15
+    //                        color:"white"
+    //                        text:qsTr("확인")
+    //                    }
+    //                    MouseArea{
+    //                        anchors.fill: parent
+    //                        onClicked: {
+    //                            click_sound.play();
+    //                            popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
+    //                            popup_usb_select.close();
+    //                            popup_usb_notice.open();
+    //                        }
+    //                    }
+    //                }
+    //            }
+    //        }
+    //    }
+    //}
 
-        Rectangle{
-            anchors.fill: parent
-            Rectangle{
-//                id: rect_1
-                width: parent.width
-                height: 50
-                color: color_dark_navy
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 15
-                    color: "white"
-                    text: {
-                        if(popup_usb_download.index === 0)
-                            qsTr("가져오실 파일 목록을 선택해주세요")
-                        else if(popup_usb_download.index === 1)
-                            qsTr("가져오실 목록을 선택해주세요")
-                    }
-                }
-            }
-
-            Column{
-                anchors.centerIn: parent
-                visible: popup_usb_download.index === 0
-                spacing: 10
-                Rectangle{
-                    id: notice_recent
-                    width: 200
-                    height: 50
-                    color: color_navy
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Text{
-                        text:qsTr("가장 최신 파일")
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        color: "white"
-                    }
-                }
-                Rectangle{
-                    width: 280
-                    radius: 10
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    height: 50
-                    color: color_light_gray
-                    Text{
-                        id: text_recent_file
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:""
-                    }
-                }
-                Rectangle{
-                    id: btn_recent_confirm
-                    visible: false
-                    width: 100
-                    radius: 5
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    height: 50
-                    border.width:1
-                    color: "white"//color_light_gray
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:qsTr("확인")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
-                            popup_usb_notice.mode = "extract_recent";
-                            popup_usb_notice.open();
-//                            supervisor.readusbrecentfile();
-                        }
-                    }
-                }
-
-                Rectangle{
-                    width: 200
-                    height: 50
-                    color: color_navy
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Text{
-                        text:qsTr("그 외 발견한 파일 목록")
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        color: "white"
-                    }
-                }
-                Repeater{
-                    model: ListModel{id:model_usb_file_list}
-                    Rectangle{
-                        width: 280
-                        radius: 10
-                        height: 50
-                        color: color_light_gray
-                        Text{
-                            anchors.centerIn: parent
-                            font.family: font_noto_r.name
-                            font.pixelSize: 10
-                            text: name
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked: {
-                                click_sound.play();
-//                                popup_usb_download.index = 1;
-//                                popup_usb_download.set_name = name;
-                            }
-                        }
-                    }
-                }
-            }
-            Column{
-                anchors.centerIn: parent
-                spacing: 10
-                visible: popup_usb_download.index === 1
-                Rectangle{
-                    width: 280
-                    radius: 10
-                    height: 50
-                    color: popup_usb_download.is_ui?color_green:color_light_gray
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:qsTr("UI")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_usb_download.is_ui = !popup_usb_download.is_ui;
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 280
-                    radius: 10
-                    height: 50
-                    color: popup_usb_download.is_slam?color_green:color_light_gray
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:qsTr("SLAMNAV")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_usb_download.is_slam = !popup_usb_download.is_slam;
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 280
-                    radius: 10
-                    height: 50
-                    color: popup_usb_download.is_config?color_green:color_light_gray
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:qsTr("robot_config")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_usb_download.is_config = !popup_usb_download.is_config;
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 280
-                    radius: 10
-                    height: 50
-                    color: popup_usb_download.is_map?color_green:color_light_gray
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:qsTr("maps")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_usb_download.is_map = !popup_usb_download.is_map;
-                        }
-                    }
-                }
-                Rectangle{
-                    width: 280
-                    radius: 10
-                    height: 50
-                    color: popup_usb_download.is_log?color_green:color_light_gray
-                    Text{
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: 15
-                        text:qsTr("Log")
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            click_sound.play();
-                            popup_usb_download.is_log = !popup_usb_download.is_log;
-                        }
-                    }
-                }
-            }
-            Rectangle{
-                width: 250
-                radius: 10
-                height: 50
-                color: "black"
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottomMargin: 30
-                visible: popup_usb_download.index === 1
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 15
-                    color:"white"
-                    text:qsTr("확인")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
-                        popup_usb_download.close();
-                        popup_usb_notice.open();
-                    }
-                }
-            }
-
-        }
-        Timer{
-            id: timer_usb_new
-            interval: 500
-            running: false
-            repeat: true
-            onTriggered: {
-                if(supervisor.getusbsize() > 0){
-                }else{
-                }
-            }
-        }
-    }
-    Popup{
-        id: popup_usb_select
-        anchors.centerIn: parent
-        width: 700
-        height: 600
-        leftPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        property int usb_size: 0
-        property int index: 0
-        property bool is_ui: false
-        property bool is_slam: false
-        property bool is_map: false
-        property bool is_log: false
-        property bool is_config: false
-        property string set_name: "Desktop"
-        background: Rectangle{
-            anchors.fill: parent
-            color: "transparent"
-        }
-        onOpened: {
-            if(supervisor.getusbsize() > 0){
-                text_no_usb.visible =false;
-            }else{
-                text_no_usb.visible = true;
-            }
-
-            timer_check_usb_new.start();
-            index = 0;
-            is_ui = true;
-            is_slam = true;
-            is_map = false;
-            is_log = false;
-            is_config = true;
-            model_usb_list.clear();
-            for(var i=0; i<supervisor.getusbsize(); i++){
-                print(i, supervisor.getusbname(i));
-                model_usb_list.append({"name":supervisor.getusbname(i)});
-            }
-            model_usb_list.append({"name":"Desktop"});
-        }
-        onClosed: {
-            timer_check_usb_new.stop();
-        }
-
-        Timer{
-            id: timer_check_usb_new
-            interval: 500
-            running: false
-            repeat: true
-            onTriggered: {
-                if(supervisor.getusbsize() > 0){
-                    text_no_usb.visible =false;
-                }else if(popup_usb_select.index === 0){
-                    text_no_usb.visible = true;
-                }
-                model_usb_list.clear();
-                for(var i=0; i<supervisor.getusbsize(); i++){
-                    model_usb_list.append({"name":supervisor.getusbname(i)});
-                }
-                model_usb_list.append({"name":"Desktop"});
-            }
-        }
-
-        Rectangle{
-            radius: 20
-            clip: true
-            anchors.centerIn: parent
-            width: parent.width*0.99
-            height: parent.height*0.99
-            border.width: 3
-            border.color: color_dark_navy
-            Rectangle{
-                radius: 20
-                id: rect_ttt
-                width: parent.width
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                Rectangle{
-                    width: parent.width
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.bottom: parent.bottom
-                    height: 20
-                    color: color_dark_navy
-                }
-                height: 80
-                color: color_dark_navy
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 25
-                    color: "white"
-                    text: {
-                        if(popup_usb_select.index === 0)
-                            qsTr("저장소를 선택해주세요")
-                        else if(popup_usb_select.index === 1)
-                            qsTr("저장할 목록을 선택해주세요")
-                    }
-                }
-            }
-            Rectangle{
-                width: parent.width
-                color: "transparent"
-                height: parent.height - rect_ttt.height
-                anchors.top: rect_ttt.bottom
-                Text{
-                    id: text_no_usb
-                    visible: false
-                    anchors.top: parent.top
-                    anchors.topMargin: 20
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.family: font_noto_r.name
-                    font.pixelSize: 20
-                    horizontalAlignment: Text.AlignHCenter
-                    color: color_red
-                    text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다")
-                }
-                Column{
-                    anchors.centerIn: parent
-                    spacing: 30
-                    Column{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        visible: popup_usb_select.index === 0
-                        spacing: 10
-
-                        Rectangle{
-                            width: 400
-                            height: 40
-                            color: "black"
-                            Text{
-                                color: "white"
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text:qsTr("저장소 목록")
-                            }
-                        }
-                        Repeater{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            model: ListModel{id:model_usb_list}
-                            Rectangle{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                width: 300
-                                radius: 10
-                                height: 50
-                                color: color_light_gray
-                                Text{
-                                    anchors.centerIn: parent
-                                    font.family: font_noto_r.name
-                                    font.pixelSize: 15
-                                    text: name
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        text_no_usb.visible = false;
-                                        popup_usb_select.index = 1;
-                                        popup_usb_select.set_name = name;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    Column{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 10
-                        visible: popup_usb_select.index === 1
-                        Rectangle{
-                            width: 280
-                            radius: 10
-                            height: 50
-                            color: popup_usb_select.is_ui?color_green:color_light_gray
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text:qsTr("UI 실행파일")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_select.is_ui = !popup_usb_select.is_ui;
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 280
-                            radius: 10
-                            height: 50
-                            color: popup_usb_select.is_slam?color_green:color_light_gray
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text:qsTr("슬램 네비게이션 실행파일")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_select.is_slam = !popup_usb_select.is_slam;
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 280
-                            radius: 10
-                            height: 50
-                            color: popup_usb_select.is_config?color_green:color_light_gray
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text:qsTr("설정파일")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_select.is_config = !popup_usb_select.is_config;
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 280
-                            radius: 10
-                            height: 50
-                            color: popup_usb_select.is_map?color_green:color_light_gray
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text:qsTr("맵 폴더")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_select.is_map = !popup_usb_select.is_map;
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 280
-                            radius: 10
-                            height: 50
-                            color: popup_usb_select.is_log?color_green:color_light_gray
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                text:qsTr("로그")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_select.is_log = !popup_usb_select.is_log;
-                                }
-                            }
-                        }
-                    }
-                    Rectangle{
-                        width: 250
-                        radius: 10
-                        height: 50
-                        color: "black"
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        visible: popup_usb_select.index === 1
-                        Text{
-                            anchors.centerIn: parent
-                            font.family: font_noto_r.name
-                            font.pixelSize: 15
-                            color:"white"
-                            text:qsTr("확인")
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked: {
-                                click_sound.play();
-                                popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
-                                popup_usb_select.close();
-                                popup_usb_notice.open();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
     Popup{
         id: popup_change_call
         width: 400
