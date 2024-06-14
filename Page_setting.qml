@@ -1836,6 +1836,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             Row{
+
                                 anchors.centerIn: parent
                                 spacing: 5
                                 Rectangle{
@@ -1843,6 +1844,7 @@ Item {
                                     height: 50
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
+
                                     Text{
                                         id: text_preset_name_1
                                         anchors.centerIn: parent
@@ -1985,6 +1987,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     color: color_dark_navy
+                                    visible: is_admin //Add
                                     Text{
                                         anchors.centerIn: parent
                                         text: qsTr("변경")
@@ -13146,7 +13149,7 @@ Item {
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("SLAM 재시작")
+                                text: qsTr("자율주행 재시작") //SLAM 재시작
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -15624,7 +15627,7 @@ Item {
                         font.family: font_noto_r.name
                         font.pixelSize: 30
                         font.bold: true
-                        text:qsTr("로봇 프리셋 설정")
+                        text:qsTr("로봇 속도 설정")
                     }
                     Rectangle{
                         anchors.bottom: parent.bottom
