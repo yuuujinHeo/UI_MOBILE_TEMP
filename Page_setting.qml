@@ -11967,7 +11967,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.6") //wifi-update, remove-mini/off
+                    text:qsTr("Version 1.1.7") //Maphandler - update
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
