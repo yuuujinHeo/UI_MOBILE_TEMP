@@ -26,12 +26,12 @@ CallbellHandler::CallbellHandler()
         if(m_serialPort->open(QIODevice::ReadWrite)){
             plog->write("[CALLBELL] Port ttyUSB1 Open Success");
         }else{
-            m_serialPort->setPortName("ttyUSB0");
-            if(m_serialPort->open(QIODevice::ReadWrite)){
-                plog->write("[CALLBELL] Port ttyUSB0 Open Success");
-            }else{
-                plog->write("[CALLBELL] Port Open Failed");
-            }
+//            m_serialPort->setPortName("ttyUSB0");
+//            if(m_serialPort->open(QIODevice::ReadWrite)){
+//                plog->write("[CALLBELL] Port ttyUSB0 Open Success");
+//            }else{
+//                plog->write("[CALLBELL] Port Open Failed");
+//            }
         }
     }
 

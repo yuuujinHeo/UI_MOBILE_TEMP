@@ -97,6 +97,7 @@ void MapHandler::loadFile(QString name, QString type){
     }else{
         file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_travel_line.png";
     }
+    qDebug() << file_width;
 
     if(QFile::exists(file_path)){
         cv::Mat temp = cv::imread(file_path.toStdString(), cv::IMREAD_UNCHANGED);
@@ -128,6 +129,8 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_travelline = temp;
+        }else if(temp.channels() == 1){
+            cv::cvtColor(temp,file_travelline,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_travelline,file_travelline,0);
         cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -181,6 +184,8 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_travelline_ui = temp;
+        }else if(temp.channels() == 1){
+            cv::cvtColor(temp,file_travelline_ui,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_travelline_ui,file_travelline_ui,0);
         cv::rotate(file_travelline_ui,file_travelline_ui,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -223,6 +228,8 @@ void MapHandler::loadFile(QString name, QString type){
 
         }else if(temp.channels() == 4){
             file_velocity = temp;
+        }else if(temp.channels() == 1){
+            cv::cvtColor(temp,file_velocity,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_velocity,file_velocity,0);
         cv::rotate(file_velocity,file_velocity,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -268,6 +275,9 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_object = temp;
+        }else if(temp.channels() == 1){
+//            file_object = temp;
+            cv::cvtColor(temp,file_object,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_object,file_object,0);
         cv::rotate(file_object,file_object,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -305,6 +315,9 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_avoid = temp;
+        }else if(temp.channels() == 1){
+//            file_object = temp;
+            cv::cvtColor(temp,file_avoid,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_avoid,file_avoid,0);
         cv::rotate(file_avoid,file_avoid,cv::ROTATE_90_COUNTERCLOCKWISE);
