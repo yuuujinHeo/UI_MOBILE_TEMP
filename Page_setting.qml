@@ -11968,7 +11968,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.7") //Maphandler - update
+                    text:qsTr("Version 1.1.8") // 설정초기화 숨김,
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
