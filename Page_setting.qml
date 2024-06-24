@@ -11936,6 +11936,40 @@ Item {
                 }
             }
             Rectangle{
+                id: btn_manual
+                width: 180
+                height: 60
+                radius: 10
+                //visible: is_admin
+                //color:"transparent"
+                color: color_blue
+                border.width: 1
+                //border.color: "#7e7e7e"
+                border.color: color_blue
+                Text{
+                    anchors.centerIn: parent
+                    text:qsTr("매뉴얼")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 25
+                    color: "white"
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked:{
+                        click_sound.play();
+                        supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANUAL MENU");
+                        if(is_admin){
+                            popup_manual_detail.open();
+                        }else{
+                            //popup_password.open_menu = true;
+                            //popup_password.open();
+                            popup_manual.open();
+                        }
+                    }
+                }
+            }
+
+            Rectangle{
                 id: btn_confirm
                 width: 180
                 height: 60
@@ -11958,6 +11992,7 @@ Item {
                     }
                 }
             }
+
 
 
             Rectangle{
@@ -12877,7 +12912,7 @@ Item {
             width: parent.width*0.99
             height: parent.height*0.99
             Rectangle{
-                color: color_dark_navy
+                color: color_red
                 radius: 10
                 id: rect_prd_top
                 width: parent.width
@@ -12910,7 +12945,7 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-                    color:color_navy
+                    color:color_green
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13225,7 +13260,7 @@ Item {
                     height: 150
                     radius: 20
                     visible: is_rainbow
-                    color: color_navy
+                    color: color_red
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13273,6 +13308,359 @@ Item {
             }
         }
     }
+
+
+
+    Popup{
+        id: popup_manual
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top2
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_dark_navy
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 3
+                columns: 2
+                spacing: 30
+                Rectangle{
+                    id: btn_QuickGuide
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("퀵 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            click_sound.play();
+                            supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                            popup_update.open();
+                        }
+                    }
+                }
+
+
+
+
+            }
+        }
+    }
+
+    Popup{
+        id: popup_manual_detail
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top3
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_blue
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 2
+                columns: 2
+                spacing: 30
+
+                Rectangle{
+                    id: btn_QuickGuide2
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("퀵 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                    //        popup_update.open();
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_Guide
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                //source: "icon/icon_bookmark.png"
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                //ColorOverlay{
+                                //    anchors.fill: parent
+                                //    source: parent
+                                //    color: "white"
+                                //}
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text:qsTr("풀 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
+                    //        loader_page.source = plog;
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_maint
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("유지보수 매뉴얼") //
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[UI] SETTING PAGE -> maint manual kill");
+                    //        supervisor.restartSLAM();
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_multi
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("멀티환경 구축")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> Multi Setting");
+                    //        popup_password.open();
+                    //        popup_password.is_editmode = true;
+                    //    }
+                    //}
+                }
+
+            }
+        }
+    }
+
+    //add manual
     Popup{
         id: popup_clear
         anchors.centerIn: parent
