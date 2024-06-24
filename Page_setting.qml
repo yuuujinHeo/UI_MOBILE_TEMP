@@ -11913,6 +11913,7 @@ Item {
                 width: 180
                 height: 60
                 radius: 10
+                visible: is_admin || is_rainbow
                 //color:"transparent"
                 color:color_navy
                 border.width: 1
