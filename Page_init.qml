@@ -2339,6 +2339,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_ui?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -2358,6 +2359,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_slam?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -2623,12 +2625,16 @@ Item {
                             click_sound.play();
                             if(popup_usb_notice.mode== "compress"){
                                 //창 닫기
-                                popup_usb_notice.visible = false;
-                                popup_usb_download.visible = false;
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }else{
                                 //supervisor.updateUSB();
-                                popup_usb_notice.visible = false;
-                                popup_usb_download.visible = false;
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }
                         }
                     }

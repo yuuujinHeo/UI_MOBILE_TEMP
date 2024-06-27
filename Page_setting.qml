@@ -1597,7 +1597,7 @@ Item {
                                 onClicked:{
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle(qsTr("플랫폼 타입"));
-                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 확인하세요"));
+                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 인하세요"));
                                     popup_help_setting.addLine(qsTr("서빙용 : 각 테이블에 서빙을 합니다 (기본)"));
                                     popup_help_setting.addLine(qsTr("호출용 : 호출벨이 울리면 이동합니다 (지원가능여부확인)"));
                                     popup_help_setting.addLine(qsTr("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 (서빙 우선)"));
@@ -14243,6 +14243,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_config?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -14281,6 +14282,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_log?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -14537,7 +14539,8 @@ Item {
                 }
                 Column{
                     anchors.centerIn: parent
-                    spacing: 30
+                    spacing: 10
+                    anchors.bottomMargin: 30
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: popup_usb_select.index === 0
@@ -14584,6 +14587,7 @@ Item {
                     }
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
+                        //anchors.centerIn: parent.anchors
                         spacing: 10
                         visible: popup_usb_select.index === 1
                         Rectangle{
@@ -14630,7 +14634,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
-                            visible:true
+                            visible:is_rainbow
                             color: popup_usb_select.is_config?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14688,82 +14692,82 @@ Item {
                         }
                     }
 
-                    Column{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.bottom: parent.bottom
-                        spacing: 10
-                        anchors.bottomMargin: 30
-                        //bottomMargin: 30
-                        visible: popup_usb_download.index === 1
-
-                        Rectangle{
-                            width: 250
-                            radius: 10
-                            height: 50
-                            color: "black"
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                color:"white"
-                                text: qsTr("확인")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
-                                    popup_usb_download.close();
-                                    popup_usb_notice.open();
-                                }
-                            }
-                        }
-
-                        Rectangle{
-                            width: 250
-                            radius: 10
-                            height: 50
-                            color: "black"
-                            Text{
-                                anchors.centerIn: parent
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                color:"white"
-                                text: qsTr("취소0")
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    popup_usb_download.close();
-                                }
-                            }
-                        }
-                    }
-                    //Rectangle{
-                    //    width: 250
-                    //    radius: 10
-                    //    height: 50
-                    //    color: "black"
+                    //Column{
                     //    anchors.horizontalCenter: parent.horizontalCenter
-                    //    visible: popup_usb_select.index === 1
-                    //    Text{
-                    //        anchors.centerIn: parent
-                    //        font.family: font_noto_r.name
-                    //        font.pixelSize: 15
-                    //        color:"white"
-                    //        text:qsTr("확인")
+                    //    anchors.bottom: parent.bottom
+                    //    spacing: 10
+                    //    anchors.bottomMargin: 30
+                    //    //bottomMargin: 30
+                    //    visible: popup_usb_download.index === 1
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("확인")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                click_sound.play();
+                    //                popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                    //                popup_usb_download.close();
+                    //                popup_usb_notice.open();
+                    //            }
+                    //        }
                     //    }
-                    //    MouseArea{
-                    //        anchors.fill: parent
-                    //        onClicked: {
-                    //            click_sound.play();
-                    //            popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
-                    //            popup_usb_select.close();
-                    //            popup_usb_notice.open();
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("취소0")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                click_sound.play();
+                    //                popup_usb_download.close();
+                    //            }
                     //        }
                     //    }
                     //}
+                    Rectangle{
+                        width: 250
+                        radius: 10
+                        height: 50
+                        color: "black"
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        visible: popup_usb_select.index === 1
+                        Text{
+                            anchors.centerIn: parent
+                            font.family: font_noto_r.name
+                            font.pixelSize: 15
+                            color:"white"
+                            text:qsTr("확인")
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                click_sound.play();
+                                popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
+                                popup_usb_select.close();
+                                popup_usb_notice.open();
+                            }
+                        }
+                    }
                     //Rectangle{
                     //    width: 250
                     //    radius: 10
