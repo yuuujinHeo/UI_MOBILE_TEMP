@@ -2139,6 +2139,8 @@ QString Supervisor::getusbrecentfile(){
         }
     }
     return filename;
+
+
 }
 QString Supervisor::getusberror(int num){
     if(num > -1 && num < zip->errorlist.size()){
