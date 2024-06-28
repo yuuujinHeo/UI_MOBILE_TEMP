@@ -17,7 +17,7 @@ CMD_CLIENT::~CMD_CLIENT()
 void CMD_CLIENT::init()
 {
     //QString url = "ws://127.0.0.1:12335"; //what??? diff with SLAMNAV
-    QString url = "ws://127.0.0.1:12334"; // change : 24.06.27
+    QString url = "ws://127.0.0.1:12335"; // change : 24.06.27
     plog->write("[IPC] Command Client : Init "+url);
     client.open(QUrl(url));
     reconnect_timer.start(1000);
@@ -54,7 +54,7 @@ void CMD_CLIENT::reconnect_loop()
         if(is_connected == false)
         {
             //client.open(QUrl("ws://127.0.0.1:12335"));
-            client.open(QUrl("ws://127.0.0.1:12334")); // change :24.06.27
+            client.open(QUrl("ws://127.0.0.1:12335")); // change :24.06.27
         }
     }
 }
