@@ -22,7 +22,7 @@ Item {
     }
 
     Component.onCompleted: {
-        init();
+//        init();
         statusbar.visible = false;
 
     }

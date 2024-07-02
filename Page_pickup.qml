@@ -20,7 +20,7 @@ Item {
     property var tray_num: parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))
 
     Component.onCompleted: {
-        init();
+//        init();
     }
 
     function init(){
@@ -38,6 +38,7 @@ Item {
 
         if(!supervisor.isPatrolPage())
             supervisor.playVoice("pickup");
+
         statusbar.visible = false;
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
         if(tray_num === 2){

@@ -607,6 +607,7 @@ Window {
         focus: true
         anchors.fill: parent
         onLoaded: {
+            supervisor.writelog("[LoaderQML] Load "+item.objectName);
             supervisor.setCurrentPage(item.objectName);
             timer_update.start();
             loader_page.item.init();

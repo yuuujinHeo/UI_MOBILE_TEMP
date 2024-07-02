@@ -75,7 +75,7 @@ Item {
     }
 
     Component.onCompleted: {
-        init();
+//        init();
     }
 
     function updatepath(){

@@ -11,7 +11,7 @@ Item {
     height: 800
 
     Component.onCompleted: {
-        init();
+//        init();
     }
     property int type: 0
 

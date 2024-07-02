@@ -41,7 +41,7 @@ Item {
         supervisor.getAllWifiList();
         supervisor.getWifiIP();
         supervisor.requestSystemVolume();
-        init();
+//        init();
     }
 
     function setVoiceModel(){

@@ -69,7 +69,7 @@ Item {
 
     signal doubleclicked
     Component.onCompleted: {
-        init();
+//        init();
     }
 
     Component.onDestruction:  {
