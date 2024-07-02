@@ -3611,8 +3611,9 @@ void Supervisor::checkUpdate(){//need check
 void Supervisor::setlanguage(QString lan){
     QString path = "";
     if(lan == "KR"){
-    }else if(lan=="US"){
-        path = QDir::homePath() + "/RB_MOBILE/config/locale/lang_en.qm";
+    }else if(lan=="US" || lan=="english"){
+        //path = QDir::homePath() + "/RB_MOBILE/config/locale/lang_en.qm";
+        path = QDir::homePath() + "/RB_MOBILE/config/locale/lang_eddn.qm";
     }
 
     app->removeTranslator(translator);
