@@ -154,7 +154,7 @@ Item{
                 color: color_dark_gray
                 font.family: font_noto_b.name
                 text: qsTr("로봇을 <font color=\"#12d27c\">대기위치로 이동</font>시켜 주세요")
-                font.pixelSize: 60
+                font.pixelSize: 53
             }
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter

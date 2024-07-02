@@ -763,18 +763,18 @@ Item {
         //}else{
         //    combo_use_pivot_obs.currentIndex = 0;
         //} //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
-        //    combo_multirobot.currentIndex = 1;
-        //}else{
-        //    combo_multirobot.currentIndex = 0;
-        //}
+        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
+            combo_multirobot.currentIndex = 1;
+        }else{
+            combo_multirobot.currentIndex = 0;
+        }
         if(supervisor.getSetting("setting","USE_SLAM","use_ignore_safetyzone_return") === "true"){
             combo_use_ignore_safetyzone_return.currentIndex = 1;
         }else{
             combo_use_ignore_safetyzone_return.currentIndex = 0;
         }
             //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
+        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){ // 제자리 회전 감지
         //    combo_use_obs_near.currentIndex = 1;
         //}else{
         //    combo_use_obs_near.currentIndex = 0;
@@ -1630,6 +1630,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -1643,6 +1644,7 @@ Item {
                     id: use_lingbell
                     width: 840
                     height: 50
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1692,7 +1694,9 @@ Item {
                     id: use_lingbell_repeat
                     width: 840
                     height: 50
-                    visible: combo_use_lingbell.currentIndex === 1
+                    //visible: combo_use_lingbell.currentIndex === 1
+                    visible: false
+
                     Row{
                         anchors.fill: parent
                         Rectangle{
