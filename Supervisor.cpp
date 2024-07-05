@@ -389,6 +389,22 @@ bool Supervisor::isNeedUpdate(){
     //서버업데이트 필요한 지.
     return server->new_update;
 }
+void Supervisor::refreshVersion(){
+    qDebug() << "refreshVersion";
+    server->getCurVersion("MAIN_MOBILE");
+    server->getNewVersion("MAIN_MOBILE");
+    server->getNewVersions("MAIN_MOBILE");
+}
+QString Supervisor::getNewVersion(){
+    return server->ui_version_new.version;
+}
+QString Supervisor::getCurVersion(){
+    return server->ui_version.version;
+}
+QString Supervisor::getCurVersionDate(){
+    return server->ui_version.date;
+}
+
 QString Supervisor::getLocalVersion(){
     return getSetting("robot","VERSION","last_update_date");
 }
@@ -453,8 +469,26 @@ void Supervisor::checkCleaningLocation(){
         saveAnnotation("");
     }
 }
+int Supervisor::getNewVersionsSize(){
+    return server->ui_new_versions.size();
+}
+QString Supervisor::getNewVersion(int i){
+    return server->ui_new_versions[i].version;
+}
+QString Supervisor::getNewVersionDate(int i){
+    return server->ui_new_versions[i].date;
+
+}
+QString Supervisor::getNewVersionMessage(int i){
+    return server->ui_new_versions[i].message;
+
+}
 QString Supervisor::getCurrentCommit(QString name){
     return server->version_list[name].commit;
+}
+void Supervisor::updateProgram(QString _v){
+    plog->write("[UPDATE] Update UI version : "+_v);
+    server->doUpdateUI(_v);
 }
 void Supervisor::updateProgram(){
     server->doUpdate();
@@ -500,6 +534,71 @@ void Supervisor::checkVersionAgain(){
     server->check_update = true;
     server->checkUpdate();
 }
+
+
+
+
+QString Supervisor::getGoqualID(){
+    return server->goqual_login.id;
+}
+QString Supervisor::getGoqualPassword(){
+    return server->goqual_login.passwd;
+}
+QString Supervisor::getGoqualClientID(){
+    return server->goqual_login.client_id;
+}
+QString Supervisor::getGoqualClientSecret(){
+    return server->goqual_login.client_secret;
+}
+QString Supervisor::getGoqualAccessKey(){
+    return server->goqual_token.access_key;
+}
+QString Supervisor::getGoqualRefreshKey(){
+    return server->goqual_token.refresh_key;
+}
+QString Supervisor::getGoqualExpiresIn(){
+    return QString::number(server->goqual_token.expires_in);
+}
+
+void Supervisor::getGoqualKey(){
+    server->getGoqualKey();
+}
+void Supervisor::refreshGoqualKey(){
+    server->refreshGoqualKey();
+}
+void Supervisor::getGoqualDeviceList(){
+    server->getGoqualDevices();
+}
+
+void Supervisor::setGoqualDevice(QString id, bool onoff){
+    qDebug() << "setRelay " << id << onoff;
+    server->setGoqualRelay(id,onoff);
+}
+
+
+int Supervisor::getGoqualDeviceSize(){
+    return server->goqual_relays.size();
+}
+
+QString Supervisor::getGoqualDeviceID(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        return server->goqual_relays[num].id;
+    }
+}
+
+QString Supervisor::getGoqualDeviceType(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        return server->goqual_relays[num].type;
+    }
+}
+bool Supervisor::getGoqualDeviceState(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        return server->goqual_relays[num].state;
+    }
+}
+
+
+
 
 void Supervisor::setSetting(QString file, QString name, QString value){
     QString ini_path = getIniPath(file);

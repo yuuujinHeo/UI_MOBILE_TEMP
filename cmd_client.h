@@ -22,12 +22,16 @@ public:
 
     void init();
 
+    void test();
+
 signals:
 
 private slots:
     void connected();
     void disconnected();
     void reconnect_loop();
+    void onTextMessageReceived(QString message);
+    void onError(QAbstractSocket::SocketError error);
 
 public slots:
     void cts_cmd(QByteArray cur_cmd);

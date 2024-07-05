@@ -606,11 +606,23 @@ public:
 
     ////*********************************************  GIT 관련   ***************************************************////
     Q_INVOKABLE void updateProgram();
+    Q_INVOKABLE void updateProgram(QString _v);
     Q_INVOKABLE void gitReset();
     Q_INVOKABLE void updateProgramGitPull();
     Q_INVOKABLE void checkVersionAgain();
     Q_INVOKABLE bool isNewVersion();
     Q_INVOKABLE bool isNeedUpdate();
+
+    Q_INVOKABLE void refreshVersion();
+    Q_INVOKABLE QString getNewVersion();
+    Q_INVOKABLE QString getCurVersion();
+    Q_INVOKABLE QString getCurVersionDate();
+    Q_INVOKABLE int getNewVersionsSize();
+    Q_INVOKABLE QString getNewVersion(int i);
+    Q_INVOKABLE QString getNewVersionDate(int i);
+    Q_INVOKABLE QString getNewVersionMessage(int i);
+
+
     Q_INVOKABLE QString getLocalVersion();
     Q_INVOKABLE QString getServerVersion();
     Q_INVOKABLE QString getLocalVersionDate();
@@ -750,6 +762,27 @@ public:
     Q_INVOKABLE void setObjectingflag(bool flag);
 
     Q_INVOKABLE QString getnewMapname();
+
+
+
+    ////*************************************** goqual ****************************//
+    Q_INVOKABLE QString getGoqualID();
+    Q_INVOKABLE QString getGoqualPassword();
+    Q_INVOKABLE QString getGoqualClientID();
+    Q_INVOKABLE QString getGoqualClientSecret();
+    Q_INVOKABLE QString getGoqualAccessKey();
+    Q_INVOKABLE QString getGoqualRefreshKey();
+    Q_INVOKABLE QString getGoqualExpiresIn();
+
+    Q_INVOKABLE void getGoqualKey();
+    Q_INVOKABLE void refreshGoqualKey();
+    Q_INVOKABLE void getGoqualDeviceList();
+    Q_INVOKABLE void setGoqualDevice(QString id, bool onoff);
+
+    Q_INVOKABLE int getGoqualDeviceSize();
+    Q_INVOKABLE QString getGoqualDeviceID(int num);
+    Q_INVOKABLE QString getGoqualDeviceType(int num);
+    Q_INVOKABLE bool getGoqualDeviceState(int num);
 
     ////*********************************************  CALLING 관련   ***************************************************////
     Q_INVOKABLE QString getLastCall(){return call->getBellID();}

@@ -897,20 +897,19 @@ void Checker::getNetworkState(){
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     foreach (const QNetworkInterface &interface, interfaces) {
         if(interface.type() == QNetworkInterface::Ethernet){
-            probot->ethernet_interface.name = interface.name();
-            probot->ethernet_interface.type = interface.type();
+            if(interface.name().left(1) == "e"){
+                probot->ethernet_interface.name = interface.name();
+                probot->ethernet_interface.type = interface.type();
+                probot->ethernet_interface.mac = interface.hardwareAddress();
 
             // 이 인터페이스의 IP 주소 목록을 가져옴
             QList<QNetworkAddressEntry> addressEntries = interface.addressEntries();
-
-//            probot->ethernet_interface.ipv4 = "";
-//            probot->ethernet_interface.netmask = "";
-
-            foreach (const QNetworkAddressEntry &entry, addressEntries) {
+                foreach (const QNetworkAddressEntry &entry, addressEntries) {
                 if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol){
                     probot->ethernet_interface.state = NET_CON;
 //                    probot->ethernet_interface.ipv4 = entry.ip().toString();
 //                    probot->ethernet_interface.netmask = entry.netmask().toString();
+                    }
                 }
             }
         }else if(interface.type() == QNetworkInterface::Wifi){

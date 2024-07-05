@@ -143,6 +143,33 @@ typedef struct{
     int prev_state=0;
 }ST_WIFI;
 
+typedef struct{
+    QString version;
+    QString prev_version;
+    QString date;
+    QString message;
+}ST_VERSION;
+
+typedef struct{
+    QString id;
+    QString type;
+    bool state;
+}ST_GOQUAL_RELAY;
+
+typedef struct{
+    QString client_id = "435a57bb447c4e6a962dc739824dbfcd";
+    QString client_secret ="bcf9787d32f3497090455665715cf2c3";
+    QString app_key = "2gh7YVc2sOMRu2cR-fRvL3j_ROxmFdE-dJAOoh6nL51=";
+    QString id;
+    QString passwd;
+}ST_GOQUAL_LOGIN;
+
+typedef struct{
+    QString access_key;
+    QString refresh_key;
+    int expires_in;
+}ST_GOQUAL_TOKEN;
+
 enum{
     NET_DISCON = 0,
     NET_CONNECTING,
@@ -160,6 +187,7 @@ typedef struct{
     QString gateway;
     QString dns1;
     QString dns2;
+    QString mac;
 }ST_NET_INTERFACE;
 
 typedef struct{

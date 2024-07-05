@@ -26,6 +26,7 @@ Item {
     property bool use_multirobot: false
     property bool wifi_update_auto: true
     property int debug_count: 0
+    property int select_version: -1
 
     onIs_adminChanged: {
         if(is_admin){
@@ -174,6 +175,21 @@ Item {
             }else if(combo_platform_type.currentIndex == 3){
                 supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
             }
+        }
+
+        if(combo_use_dcrelay.ischanged){
+            if(combo_use_dcrelay.currentIndex == 1){
+                supervisor.setSetting("setting","USE_UI/use_goqual","true");
+            }else{
+                supervisor.setSetting("setting","USE_UI/use_goqual","false");
+            }
+        }
+
+        if(tfield_goqual_id.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_id",tfield_goqual_id.text);
+        }
+        if(tfield_goqual_passwd.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_passwd",tfield_goqual_passwd.text);
         }
 
         if(combo_tray_num.ischanged){
@@ -643,11 +659,24 @@ Item {
         }else{
             combo_use_lingbell.currentIndex = 0;
         }
+
         if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
             combo_use_lingbell_repeat.currentIndex = 1;
         }else{
             combo_use_lingbell_repeat.currentIndex = 0;
         }
+
+
+        if(supervisor.getSetting("setting","USE_UI","use_goqual") === "true"){
+            combo_use_dcrelay.currentIndex = 1;
+        }else{
+            combo_use_dcrelay.currentIndex = 0;
+        }
+
+        tfield_goqual_id.text = supervisor.getSetting("setting","GOQUAL","user_id");
+        tfield_goqual_passwd.text = supervisor.getSetting("setting","GOQUAL","user_passwd");
+
+
 
         if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
             combo_lingbell_time.currentIndex = 0;
@@ -1597,7 +1626,7 @@ Item {
                                 onClicked:{
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle(qsTr("플랫폼 타입"));
-                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 인하세요"));
+                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 확인하세요"));
                                     popup_help_setting.addLine(qsTr("서빙용 : 각 테이블에 서빙을 합니다 (기본)"));
                                     popup_help_setting.addLine(qsTr("호출용 : 호출벨이 울리면 이동합니다 (지원가능여부확인)"));
                                     popup_help_setting.addLine(qsTr("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 (서빙 우선)"));
@@ -1788,6 +1817,232 @@ Item {
                                         ischanged = true;
                                     }
                                     model:[3,4,5,6,7,8,9,10,15,20]
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    width: 1100
+                    height: 40
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
+                        text:qsTr("스마트릴레이 설정")
+                        color: "white"
+                        font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: use_dcrelay
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("스마트릴레이 사용")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_dcrelay
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_state
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("연동 상태")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                Rectangle{
+                                    width: parent.width - 150
+                                    height: parent.height
+                                    color: "transparent"
+                                    Text{
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 30
+                                        text: qsTr("연동된 디바이스")
+                                    }
+                                }
+
+                                Item_buttons{
+                                    type: "white_btn"
+                                    width: 150
+                                    height: 50
+                                    text: qsTr("설정")
+                                    onClicked:{
+                                        click_sound.play();
+                                        popup_set_goqual.open();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: goqual_id
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("ID")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_id
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_passwd
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("PASSWD")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_passwd
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
                                 }
                             }
                         }
@@ -12273,6 +12528,248 @@ Item {
     }
 
     Popup{
+        id: popup_set_goqual
+        anchors.centerIn: parent
+        width: 900
+        height: 600
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        onOpened:{
+            model_goqual_deivce.clear();
+            goqual_timer.start();
+        }
+        onClosed:{
+            goqual_timer.stop();
+        }
+
+        Timer{
+            id: goqual_timer
+            running: false
+            repeat: true
+            interval: 500
+            onTriggered:{
+                text_goqual_access_key.text = supervisor.getGoqualAccessKey();
+                text_goqual_refresh_key.text = supervisor.getGoqualRefreshKey();
+                text_goqual_expires_in.text = supervisor.getGoqualExpiresIn();
+
+                for(var i=0; i<supervisor.getGoqualDeviceSize(); i++){
+                    var match = false;
+                    for(var j=0; j<model_goqual_deivce.count; j++){
+                        if(model_goqual_deivce.get(j).id === supervisor.getGoqualDeviceID(i)){
+                            match = true;
+                            break;
+                        }
+                    }
+                    if(!match){
+                        model_goqual_deivce.append({"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"dev_state":supervisor.getGoqualDeviceState(i)});
+                    }
+
+                }
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            Column{
+                anchors.centerIn: parent
+                spacing: 30
+                Rectangle{
+                    width: 700
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: 200
+                    color: color_light_gray
+                    Column{
+                        anchors.centerIn: parent
+                        spacing: 30
+                        Grid{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            columns: 3
+                            rows: 3
+                            horizontalItemAlignment: Grid.AlignHCenter
+                            verticalItemAlignment: Grid.AlignVCenter
+                            spacing: 10
+                            Text{
+                                text: "access_key"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_access_key
+                            }
+                            Text{
+                                text: "refresh_key"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_refresh_key
+                            }
+                            Text{
+                                text: "expires_in"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_expires_in
+                            }
+                        }
+
+                        Row{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 30
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("get Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    click_sound.play();
+                                    supervisor.getGoqualKey();
+                                }
+                            }
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("refresh Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    click_sound.play();
+                                    supervisor.refreshGoqualKey();
+                                }
+                            }
+                        }
+                        Text{
+                            id: text_goqual_error
+                            color: color_red
+                            text: ""
+                        }
+                    }
+                }
+
+                Column{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 4
+                        Rectangle{
+                            width: 196
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "Type"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 196
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "ID"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 96
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "State"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 236
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "switch"
+                                color: "white"
+                            }
+                        }
+                    }
+
+                    Repeater{
+                        model: ListModel{id:model_goqual_deivce}
+                        Row{
+                            Row{
+                                Rectangle{
+                                    width: 200
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: type
+                                    }
+                                }
+                                Rectangle{
+                                    width: 200
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: id
+                                    }
+                                }
+                                Rectangle{
+                                    width: 100
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: dev_state
+                                    }
+                                }
+                                Rectangle{
+                                    width: 240
+                                    height: 50
+                                    Row{
+                                        anchors.centerIn: parent
+                                        spacing: 20
+                                        Buttons{
+                                            style: "normal"
+                                            text: qsTr("on")
+                                            width: 100
+                                            height: 40
+                                            onClicked:{
+                                                click_sound.play();
+                                                supervisor.setGoqualDevice(id,true);
+                                            }
+                                        }
+                                        Buttons{
+                                            style: "normal"
+                                            text: qsTr("off")
+                                            width: 100
+                                            height: 40
+                                            onClicked:{
+                                                click_sound.play();
+                                                supervisor.setGoqualDevice(id,false);
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+
+        }
+    }
+
+    Popup{
         id: popup_lingbell
         anchors.centerIn: parent
         width: 400
@@ -14869,6 +15366,286 @@ Item {
             }
         }
     }
+    Popup{
+        id: popup_update_new
+        width: 1280
+        height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors.centerIn: parent
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+
+        function newest(){
+            text_main_update.text = qsTr("프로그램이 이미 최신입니다");
+            text_serv_update.text = qsTr("");
+        }
+
+        function failed(){
+            text_main_update.text = qsTr("업데이트에 실패했습니다");
+            text_serv_update.text = qsTr("");
+        }
+
+        onOpened: {
+            supervisor.refreshVersion();
+            timer_update_popup.start();
+        }
+        onClosed:{
+            timer_update_popup.stop();
+        }
+
+        Timer{
+            id: timer_update_popup
+            running: false
+            repeat: true
+            interval: 1000
+            onTriggered:{
+                current_version.text = supervisor.getCurVersion();
+                new_version.text = supervisor.getNewVersion();
+                last_date.text = supervisor.getCurVersionDate();
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Column{
+                    spacing: 10
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text:qsTr("현재 버전 : ")
+                        }
+                        Text{
+                            id: current_version
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getCurVersion()
+                        }
+                    }
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text:qsTr("최신 버전 : ")
+                        }
+                        Text{
+                            id: new_version
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getNewVersion()
+                        }
+                    }
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        Text{
+                            width: 200
+                            horizontalAlignment: Text.AlignHCenter
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            text:qsTr("마지막 업데이트 날짜 : ")
+                        }
+                        Text{
+                            id: last_date
+                            width: 500
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                            horizontalAlignment: Text.AlignHCenter
+                            text: supervisor.getCurVersionDate()
+                        }
+                    }
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Buttons{
+                        id: btn_update_new
+                        text:qsTr("업데이트")
+                        style: "green"
+                        onClicked: {
+                            click_sound.play();
+                            supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                            supervisor.updateProgram(supervisor.getNewVersion());
+                            // popup_update_new.close();
+                        }
+                    }
+                    Buttons{
+                        id: btn_rollback_new
+                        text:qsTr("롤백")
+                        style: "green"
+                        onClicked: {
+                            click_sound.play();
+                            popup_rollback.open();
+                            // popup_update_new.close();
+                        }
+                    }
+                    Buttons{
+                        id: btn_cancel_new
+                        text:qsTr("닫기")
+                        style: "normal"
+                        onClicked: {
+                            click_sound.play();
+                            popup_update_new.close();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup{
+        id: popup_rollback
+        width: 1280
+        height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors.centerIn: parent
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+
+        onOpened:{
+            model_versions.clear();
+            for(var i=0; i<supervisor.getNewVersionsSize(); i++){
+                model_versions.append({version:supervisor.getNewVersion(i),
+                                      date:supervisor.getNewVersionDate(i),
+                                      message:supervisor.getNewVersionMessage(i)});
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Flickable{
+                    width: popup_rollback.width
+                    height: 200
+                    contentHeight: cols_version.height
+                    clip: true
+                    Column{
+                        id: cols_version
+                        anchors.centerIn: parent
+                        spacing: 10
+                        Repeater{
+                            model: ListModel{id: model_versions}
+                            Rectangle{
+                                width: 800
+                                height: 80
+                                color: select_version===index?color_green:color_light_gray
+                                Rectangle{
+                                    width: 120
+                                    height: 50
+                                    radius: 30
+                                    color: color_light_gray
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 100
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: version
+                                        font.bold: true
+                                        font.pixelSize: 20
+                                    }
+                                }
+                                Column{
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 400
+                                    spacing: 10
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("message : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: message
+                                        }
+                                    }
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("date : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: date
+                                        }
+                                    }
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        select_version = index;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Buttons{
+                        text:qsTr("롤백")
+                        style: "green"
+                        onClicked: {
+                            if(select_version > -1 && select_version < model_versions.count){
+                                click_sound.play();
+                                supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                                supervisor.updateProgram(model_versions.get(select_version).version);
+                                popup_rollback.close();
+                            }else{
+                                click_sound_no.play();
+                            }
+
+                        }
+                    }
+                    Buttons{
+                        text:qsTr("닫기")
+                        style: "normal"
+                        onClicked: {
+                            click_sound.play();
+                            popup_rollback.close();
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     Popup{
         id: popup_update
         width: 1280
