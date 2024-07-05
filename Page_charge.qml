@@ -35,7 +35,7 @@ Item {
 
     Component.onCompleted: {
         statusbar.visible = true;
-        init();
+//        init();
     }
 
     function setInit(){

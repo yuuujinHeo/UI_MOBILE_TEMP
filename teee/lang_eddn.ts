@@ -42,9 +42,7 @@ Press the button below after moving</translation>
         <location filename="Item_localization.qml" line="116"/>
         <source>로봇이 위치를 찾았습니다.
 로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요</source>
-        <translation type="unfinished">The robot has located its position. 
-Please press the confirm button 
-if the values remain correct after rotating the robot.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Item_localization.qml" line="123"/>
@@ -55,22 +53,22 @@ if the values remain correct after rotating the robot.</translation>
         <location filename="Item_localization.qml" line="129"/>
         <location filename="Item_localization.qml" line="137"/>
         <source>주행 준비가 되지 않았습니다</source>
-        <translation>The robot is not ready to drive.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Item_localization.qml" line="156"/>
         <source>로봇을 &lt;font color=&quot;#12d27c&quot;&gt;대기위치로 이동&lt;/font&gt;시켜 주세요</source>
-        <translation>Please move the robot to the &lt;font color=\&quot;#12d27c\&quot;&gt;standby position &lt;/font&gt; </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Item_localization.qml" line="163"/>
         <source>이동하신 후 시작 버튼을 눌러주세요</source>
-        <translation>After moving, please press the start button.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Item_localization.qml" line="181"/>
         <source>시    작</source>
-        <translation>Start</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Item_localization.qml" line="239"/>
@@ -165,7 +163,7 @@ if the values remain correct after rotating the robot.</translation>
         <location filename="Item_statusbar.qml" line="67"/>
         <location filename="Item_statusbar.qml" line="90"/>
         <source>디버그모드</source>
-        <translation>Debug</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Item_statusbar.qml" line="76"/>
@@ -667,12 +665,12 @@ Be careful not to crop the areas where the robot needs to move</translation>
     <message>
         <location filename="Page_annotation.qml" line="6352"/>
         <source>닫기</source>
-        <translation>Close</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_annotation.qml" line="6369"/>
         <source>설정</source>
-        <translation>Setting</translation>
+        <translation type="unfinished">Setting</translation>
     </message>
     <message>
         <location filename="Page_annotation.qml" line="6433"/>
@@ -1155,7 +1153,7 @@ Save</translation>
     <message>
         <location filename="Page_annotation.qml" line="1160"/>
         <source>충전위치로 이동하신 후 저장해주세요</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_annotation.qml" line="1166"/>
@@ -1964,7 +1962,7 @@ Pressing &apos;Localization&apos; in the map menu will take you back to the init
     <message>
         <location filename="Page_init.qml" line="2620"/>
         <source>확 인</source>
-        <translation>Confirm</translation>
+        <translation type="unfinished">Confirm</translation>
     </message>
     <message>
         <source>파일을 성공적으로 가져왔습니다
@@ -2273,11 +2271,6 @@ To issue an immediate move command, please press close</translation>
         <translation>Group</translation>
     </message>
     <message>
-        <location filename="Page_kitchen.qml" line="879"/>
-        <source>순회</source>
-        <translation>Patrol</translation>
-    </message>
-    <message>
         <location filename="Page_kitchen.qml" line="1021"/>
         <source>가로줄개수</source>
         <translation>row</translation>
@@ -2561,12 +2554,12 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_menus.qml" line="72"/>
         <source>맵</source>
-        <translation>Map</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_menus.qml" line="117"/>
         <source>설 정</source>
-        <translation>Setting</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_menus.qml" line="196"/>
@@ -2867,7 +2860,7 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_pickup_calling.qml" line="132"/>
         <source>확인</source>
-        <translation>Confirm</translation>
+        <translation type="unfinished">Confirm</translation>
     </message>
     <message>
         <location filename="Page_pickup_calling.qml" line="157"/>
@@ -2930,7 +2923,7 @@ You can now move the robot by pushing</translation>
         <location filename="Page_setting.qml" line="2231"/>
         <location filename="Page_setting.qml" line="8434"/>
         <source>?</source>
-        <translation>?</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="1539"/>
@@ -3010,27 +3003,27 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="1855"/>
         <source>preset 1</source>
-        <translation>Pokey</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="1883"/>
         <source>preset 2</source>
-        <translation>Slowly</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="1911"/>
         <source>preset 3</source>
-        <translation>Normal</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="1939"/>
         <source>preset 4</source>
-        <translation>Quickly</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="1968"/>
         <source>preset 5</source>
-        <translation>Rapidly</translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="1997"/>
@@ -3073,7 +3066,7 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="2070"/>
         <source>느리게</source>
-        <translation>Slowly</translation>
+        <translation>Slow</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2070"/>
@@ -3083,7 +3076,7 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="2070"/>
         <source>빠르게</source>
-        <translation>Quickly</translation>
+        <translation>Fast</translation>
     </message>
     <message>
         <source>아주빠르게</source>
@@ -3349,42 +3342,42 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="2070"/>
         <source>매우느리게</source>
-        <translation>Pokey</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2070"/>
         <source>매우빠르게</source>
-        <translation>Rapidly</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2433"/>
         <source>표시 언어</source>
-        <translation>Language</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2505"/>
         <source>동그란눈 얼굴</source>
-        <translation>Eyes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2505"/>
         <source>네모눈 얼굴</source>
-        <translation>Boxy Eyes</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2505"/>
         <source>사용자 지정화면</source>
-        <translation>Customize</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2613"/>
         <source>로봇 음성</source>
-        <translation>Robot voice</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2644"/>
         <source>기본 음성</source>
-        <translation>Default</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="2644"/>
@@ -4231,7 +4224,7 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="11565"/>
         <source>배터리가 부족합니다</source>
-        <translation>Low Battery</translation>
+        <translation type="unfinished">Low Battery</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="11567"/>
@@ -4241,7 +4234,7 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="11626"/>
         <source>위치를 찾을 수 없습니다</source>
-        <translation>Cannot find the location</translation>
+        <translation type="unfinished">Cannot find the location</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="11628"/>
@@ -4263,7 +4256,7 @@ You can now move the robot by pushing</translation>
         <location filename="Page_setting.qml" line="11692"/>
         <location filename="Page_setting.qml" line="11764"/>
         <source>모터와 연결되지 않았습니다</source>
-        <translation>The motor is not connected</translation>
+        <translation type="unfinished">The motor is not connected</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="11694"/>
@@ -4292,12 +4285,12 @@ You can now move the robot by pushing</translation>
     <message>
         <location filename="Page_setting.qml" line="11955"/>
         <source>매뉴얼</source>
-        <translation>Guide</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="12010"/>
         <source>Version 1.1.8</source>
-        <translation>Version 1.1.8</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="12336"/>
@@ -4722,17 +4715,17 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="3983"/>
         <source>네트워크 설정</source>
-        <translation>Network setting</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="4002"/>
         <source>인터넷 연결상태</source>
-        <translation>Internet connection</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="4076"/>
         <source>유선 연결상태</source>
-        <translation>Wired Connection</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="4335"/>
@@ -4755,7 +4748,7 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="5335"/>
         <source>무선 연결상태</source>
-        <translation>Wi-Fi connection</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="13196"/>
@@ -4766,13 +4759,13 @@ Please unplug and reconnect the USB for it to be recognized</translation>
         <location filename="Page_setting.qml" line="13362"/>
         <location filename="Page_setting.qml" line="13464"/>
         <source>서빙로봇 매뉴얼</source>
-        <translation>Robot guid</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="13401"/>
         <location filename="Page_setting.qml" line="13504"/>
         <source>퀵 가이드</source>
-        <translation>Quick guid</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="13555"/>
@@ -4798,24 +4791,24 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="14016"/>
         <source>확 인</source>
-        <translation>Confirm</translation>
+        <translation type="unfinished">Confirm</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="14256"/>
         <location filename="Page_setting.qml" line="14647"/>
         <source>로봇 설정값</source>
-        <translation>Setting</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="14275"/>
         <location filename="Page_setting.qml" line="14667"/>
         <source>맵</source>
-        <translation>Map</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15095"/>
         <source>RESET</source>
-        <translation>REST</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15413"/>
@@ -4836,13 +4829,13 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="15508"/>
         <source>취 소</source>
-        <translation>Cancel</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15518"/>
         <location filename="Page_setting.qml" line="15781"/>
         <source>저 장</source>
-        <translation>Save</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15538"/>
@@ -4853,7 +4846,7 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="15580"/>
         <source>속도 : </source>
-        <translation>Speed:</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15597"/>
@@ -4958,12 +4951,12 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="15770"/>
         <source>닫 기</source>
-        <translation>Close</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15863"/>
         <source>주행 시작</source>
-        <translation>Go</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="15874"/>
@@ -5003,7 +4996,7 @@ Please unplug and reconnect the USB for it to be recognized</translation>
     <message>
         <location filename="Page_setting.qml" line="16235"/>
         <source>로봇 속도 설정</source>
-        <translation>Speed preset</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Page_setting.qml" line="16415"/>
@@ -5341,12 +5334,12 @@ If you cancel, the changes will not be saved</translation>
         <location filename="Popup_notice.qml" line="74"/>
         <location filename="Popup_notice.qml" line="80"/>
         <source>취 소</source>
-        <translation>Cancel</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
     <message>
         <location filename="Popup_notice.qml" line="83"/>
         <source>확 인</source>
-        <translation>Confirm</translation>
+        <translation type="unfinished">Confirm</translation>
     </message>
 </context>
 <context>
@@ -5354,7 +5347,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="Popup_password.qml" line="80"/>
         <source>비밀번호를 입력해주세요</source>
-        <translation>Please enter the password</translation>
+        <translation type="unfinished">Please enter the password</translation>
     </message>
 </context>
 <context>
@@ -5362,7 +5355,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="Popup_patrol.qml" line="66"/>
         <source>감사합니다</source>
-        <translation>Thank you</translation>
+        <translation type="unfinished">Thank you</translation>
     </message>
     <message>
         <location filename="Popup_patrol.qml" line="67"/>
@@ -5486,7 +5479,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="Popup_patrol.qml" line="508"/>
         <source>저장</source>
-        <translation>Save</translation>
+        <translation type="unfinished">Save</translation>
     </message>
     <message>
         <location filename="Popup_patrol.qml" line="533"/>
@@ -5496,7 +5489,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="Popup_patrol.qml" line="547"/>
         <source>삭제</source>
-        <translation>Delete</translation>
+        <translation type="unfinished">Delete</translation>
     </message>
     <message>
         <location filename="Popup_patrol.qml" line="566"/>
@@ -5505,7 +5498,7 @@ If you cancel, the changes will not be saved</translation>
         <location filename="Popup_patrol.qml" line="1530"/>
         <location filename="Popup_patrol.qml" line="1713"/>
         <source>취소</source>
-        <translation>Cancel</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
     <message>
         <location filename="Popup_patrol.qml" line="600"/>
@@ -5556,7 +5549,7 @@ If you cancel, the changes will not be saved</translation>
         <location filename="Popup_patrol.qml" line="821"/>
         <location filename="Popup_patrol.qml" line="868"/>
         <source>설정</source>
-        <translation>Setting</translation>
+        <translation type="unfinished">Setting</translation>
     </message>
     <message>
         <location filename="Popup_patrol.qml" line="836"/>
@@ -5771,7 +5764,7 @@ If you cancel, the changes will not be saved</translation>
         <location filename="Popup_patrol.qml" line="1518"/>
         <location filename="Popup_patrol.qml" line="1702"/>
         <source>확인</source>
-        <translation>Confirm</translation>
+        <translation type="unfinished">Confirm</translation>
     </message>
     <message>
         <location filename="Popup_patrol.qml" line="1421"/>
@@ -6051,7 +6044,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="Popup_wifi.qml" line="831"/>
         <source>IP</source>
-        <translation type="unfinished">IP</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Popup_wifi.qml" line="1765"/>
@@ -6380,17 +6373,17 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="main.qml" line="811"/>
         <source>취 소</source>
-        <translation>Cancel</translation>
+        <translation type="unfinished">Cancel</translation>
     </message>
     <message>
         <location filename="main.qml" line="811"/>
         <source>확 인</source>
-        <translation>Confirm</translation>
+        <translation type="unfinished">Confirm</translation>
     </message>
     <message>
         <location filename="main.qml" line="832"/>
         <source>원래대로</source>
-        <translation>As usual</translation>
+        <translation type="unfinished">As usual</translation>
     </message>
     <message>
         <location filename="main.qml" line="838"/>
@@ -6400,7 +6393,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="main.qml" line="842"/>
         <source>종 료</source>
-        <translation>Exit</translation>
+        <translation type="unfinished">Exit</translation>
     </message>
     <message>
         <location filename="main.qml" line="846"/>
@@ -6410,7 +6403,7 @@ If you cancel, the changes will not be saved</translation>
     <message>
         <location filename="main.qml" line="852"/>
         <source>건너뛰기</source>
-        <translation>Skip</translation>
+        <translation type="unfinished">Skip</translation>
     </message>
     <message>
         <location filename="main.qml" line="857"/>

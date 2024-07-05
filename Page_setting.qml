@@ -41,7 +41,7 @@ Item {
         supervisor.getAllWifiList();
         supervisor.getWifiIP();
         supervisor.requestSystemVolume();
-        init();
+//        init();
     }
 
     function setVoiceModel(){
@@ -763,18 +763,18 @@ Item {
         //}else{
         //    combo_use_pivot_obs.currentIndex = 0;
         //} //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
-        //    combo_multirobot.currentIndex = 1;
-        //}else{
-        //    combo_multirobot.currentIndex = 0;
-        //}
+        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
+            combo_multirobot.currentIndex = 1;
+        }else{
+            combo_multirobot.currentIndex = 0;
+        }
         if(supervisor.getSetting("setting","USE_SLAM","use_ignore_safetyzone_return") === "true"){
             combo_use_ignore_safetyzone_return.currentIndex = 1;
         }else{
             combo_use_ignore_safetyzone_return.currentIndex = 0;
         }
             //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
+        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){ // 제자리 회전 감지
         //    combo_use_obs_near.currentIndex = 1;
         //}else{
         //    combo_use_obs_near.currentIndex = 0;
@@ -1597,7 +1597,7 @@ Item {
                                 onClicked:{
                                     popup_help_setting.open();
                                     popup_help_setting.setTitle(qsTr("플랫폼 타입"));
-                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 확인하세요"));
+                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 인하세요"));
                                     popup_help_setting.addLine(qsTr("서빙용 : 각 테이블에 서빙을 합니다 (기본)"));
                                     popup_help_setting.addLine(qsTr("호출용 : 호출벨이 울리면 이동합니다 (지원가능여부확인)"));
                                     popup_help_setting.addLine(qsTr("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 (서빙 우선)"));
@@ -1630,6 +1630,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -1643,6 +1644,7 @@ Item {
                     id: use_lingbell
                     width: 840
                     height: 50
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1692,7 +1694,9 @@ Item {
                     id: use_lingbell_repeat
                     width: 840
                     height: 50
-                    visible: combo_use_lingbell.currentIndex === 1
+                    //visible: combo_use_lingbell.currentIndex === 1
+                    visible: false
+
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1836,6 +1840,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             Row{
+
                                 anchors.centerIn: parent
                                 spacing: 5
                                 Rectangle{
@@ -1843,6 +1848,7 @@ Item {
                                     height: 50
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
+
                                     Text{
                                         id: text_preset_name_1
                                         anchors.centerIn: parent
@@ -1985,6 +1991,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     color: color_dark_navy
+                                    visible: is_admin //Add
                                     Text{
                                         anchors.centerIn: parent
                                         text: qsTr("변경")
@@ -2060,7 +2067,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:[qsTr("사용 안함"), qsTr("아주느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("아주빠르게")]
+                                model:[qsTr("사용 안함"), qsTr("매우느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("매우빠르게")] //아주느리게, 아주빠르게
                             }
                         }
                     }
@@ -11910,6 +11917,7 @@ Item {
                 width: 180
                 height: 60
                 radius: 10
+                visible: is_admin || is_rainbow
                 //color:"transparent"
                 color:color_navy
                 border.width: 1
@@ -11931,6 +11939,40 @@ Item {
                     }
                 }
             }
+            Rectangle{
+                id: btn_manual
+                width: 180
+                height: 60
+                radius: 10
+                //visible: is_admin
+                //color:"transparent"
+                color: color_blue
+                border.width: 1
+                //border.color: "#7e7e7e"
+                border.color: color_blue
+                Text{
+                    anchors.centerIn: parent
+                    text:qsTr("매뉴얼")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 25
+                    color: "white"
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked:{
+                        click_sound.play();
+                        supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANUAL MENU");
+                        if(is_admin){
+                            popup_manual_detail.open();
+                        }else{
+                            //popup_password.open_menu = true;
+                            //popup_password.open();
+                            popup_manual.open();
+                        }
+                    }
+                }
+            }
+
             Rectangle{
                 id: btn_confirm
                 width: 180
@@ -11956,6 +11998,7 @@ Item {
             }
 
 
+
             Rectangle{
                 id: btn_version
                 width: 180
@@ -11964,7 +12007,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.5") //wifi-update, remove-mini/off
+                    text:qsTr("Version 1.1.8") // 설정초기화 숨김,
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
@@ -12873,7 +12916,7 @@ Item {
             width: parent.width*0.99
             height: parent.height*0.99
             Rectangle{
-                color: color_dark_navy
+                color: color_red
                 radius: 10
                 id: rect_prd_top
                 width: parent.width
@@ -12906,7 +12949,7 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-                    color:color_navy
+                    color:color_green
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -12957,7 +13000,8 @@ Item {
                     height: 150
                     radius: 20
                     color:color_navy
-                    visible: false
+                    //visible: false
+                    visible: is_rainbow
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13009,7 +13053,8 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-//                    visible: false
+                    //visible: false
+                    visible: is_admin
                     color: enabled?color_navy:color_light_gray
                     Rectangle{
                         anchors.centerIn: parent
@@ -13057,13 +13102,15 @@ Item {
                 }
 
 
-                Rectangle{
+                Rectangle{ // USB에서 받아오기
                     id: btn_usb_download
                     width: 170
                     height: 150
                     radius: 20
-                    visible: false
-                    color: enabled?color_navy:color_light_gray
+                    // visible: false
+                    visible: is_admin
+                    //color: enabled?color_navy:color_light_gray
+                    color: color_navy
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13146,7 +13193,7 @@ Item {
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("SLAM 재시작")
+                                text: qsTr("자율주행 재시작") //SLAM 재시작
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -13169,6 +13216,7 @@ Item {
                     height: 150
                     radius: 20
                     color: color_navy
+                    visible: false
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13221,7 +13269,7 @@ Item {
                     height: 150
                     radius: 20
                     visible: is_rainbow
-                    color: color_navy
+                    color: color_red
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13269,6 +13317,359 @@ Item {
             }
         }
     }
+
+
+
+    Popup{
+        id: popup_manual
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top2
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_dark_navy
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 3
+                columns: 2
+                spacing: 30
+                Rectangle{
+                    id: btn_QuickGuide
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("퀵 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            click_sound.play();
+                            supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                            popup_update.open();
+                        }
+                    }
+                }
+
+
+
+
+            }
+        }
+    }
+
+    Popup{
+        id: popup_manual_detail
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top3
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_blue
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 2
+                columns: 2
+                spacing: 30
+
+                Rectangle{
+                    id: btn_QuickGuide2
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("퀵 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                    //        popup_update.open();
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_Guide
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                //source: "icon/icon_bookmark.png"
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                //ColorOverlay{
+                                //    anchors.fill: parent
+                                //    source: parent
+                                //    color: "white"
+                                //}
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text:qsTr("풀 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
+                    //        loader_page.source = plog;
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_maint
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("유지보수 매뉴얼") //
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[UI] SETTING PAGE -> maint manual kill");
+                    //        supervisor.restartSLAM();
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_multi
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("멀티환경 구축")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        click_sound.play();
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> Multi Setting");
+                    //        popup_password.open();
+                    //        popup_password.is_editmode = true;
+                    //    }
+                    //}
+                }
+
+            }
+        }
+    }
+
+    //add manual
     Popup{
         id: popup_clear
         anchors.centerIn: parent
@@ -13435,6 +13836,7 @@ Item {
             }
         }
     }
+
     Popup{
         id: popup_usb_notice
         anchors.centerIn: parent
@@ -13466,6 +13868,17 @@ Item {
         property string name: "Desktop"
         property string mode: "compress";
         property bool is_new: true
+
+        Timer{
+                id: timer_close_popup
+                interval: 1500 // 1.5초
+                running: false
+                repeat: false
+                onTriggered: {
+                    popup_usb_notice.close();
+                }
+            }
+
         Timer{
             id: timer_usb_check
             running: false
@@ -13493,17 +13906,24 @@ Item {
                 }else if(supervisor.getzipstate() === 2){
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 성공하였습니다");
+                        //popup_usb_notice.close()
+                        timer_close_popup.start(); // 1.5초 후에 창 닫기 타이머 시작
+
                     }else{
                         btn_usb_confirm.visible = true;
-                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        //text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 눌러주세요");
+                        //btn_usb_confirm.close()
+
                     }
 
                 }else if(supervisor.getzipstate() === 3){
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 성공하였지만 일부 과정에서 에러가 발생했습니다");
+                        //btn_usb_confirm.close()
                     }else{
                         text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다");
-                        btn_usb_confirm.visible = true;
+                        //btn_usb_confirm.close()
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -13513,8 +13933,11 @@ Item {
                     text_usb_state.color = color_red;
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 실패했습니다");
+                        //btn_usb_confirm.close()
                     }else{
                         text_usb_state.text = qsTr("파일을 가져오지 못했습니다");
+                        //btn_usb_confirm.visible = true; // "확 인" 버튼 보이게 하기
+                        //btn_usb_confirm.close()
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -13526,6 +13949,8 @@ Item {
                 }
             }
         }
+
+
         onOpened:{
             timer_usb_check.start();
             model_usb_error.clear();
@@ -13571,9 +13996,12 @@ Item {
 
                 }
 
+
+
                 Rectangle{
                     id: btn_usb_confirm
-                    visible: false
+                    //visible: false
+                    visible: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 100
                     height: 50
@@ -13582,15 +14010,28 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family:font_noto_r.name
+                        color: color_dark_navy
+                        font.pixelSize: 15
+                        horizontalAlignment: Text.AlignHCenter
+                        text:qsTr("확 인")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
                             click_sound.play();
                             if(popup_usb_notice.mode== "compress"){
-
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }else{
-                                supervisor.updateUSB();
+                                //supervisor.updateUSB();
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }
                         }
                     }
@@ -13598,8 +14039,9 @@ Item {
             }
         }
     }
-    Popup{
-        id: popup_usb_download
+
+     Popup{
+         id: popup_usb_download
         anchors.centerIn: parent
         width: 400
         height: 500
@@ -13626,6 +14068,7 @@ Item {
             }
 
             text_recent_file.text = supervisor.getusbrecentfile();
+            //text_recent_file.text = supervisor.readusbrecentfile();
             if(text_recent_file.text == ""){
                 notice_recent.visible = false;
                 btn_recent_confirm.visible = false;
@@ -13641,7 +14084,7 @@ Item {
         Rectangle{
             anchors.fill: parent
             Rectangle{
-//                id: rect_1
+                  id: rect_1
                 width: parent.width
                 height: 50
                 color: color_dark_navy
@@ -13713,10 +14156,11 @@ Item {
                             supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
                             popup_usb_notice.mode = "extract_recent";
                             popup_usb_notice.open();
-//                            supervisor.readusbrecentfile();
+                              supervisor.readusbrecentfile();
                         }
                     }
                 }
+
 
                 Rectangle{
                     width: 200
@@ -13748,8 +14192,8 @@ Item {
                             anchors.fill: parent
                             onClicked: {
                                 click_sound.play();
-//                                popup_usb_download.index = 1;
-//                                popup_usb_download.set_name = name;
+                                  popup_usb_download.index = 1;
+                                  popup_usb_download.set_name = name;
                             }
                         }
                     }
@@ -13763,6 +14207,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_ui?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -13782,6 +14227,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_slam?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -13801,12 +14247,13 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_config?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("robot_config")
+                        text:qsTr("로봇 설정값")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -13825,7 +14272,7 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("maps")
+                        text:qsTr("맵")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -13839,12 +14286,13 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_log?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("Log")
+                        text:qsTr("로그")
                     }
                     MouseArea{
                         anchors.fill: parent
@@ -13855,32 +14303,111 @@ Item {
                     }
                 }
             }
-            Rectangle{
-                width: 250
-                radius: 10
-                height: 50
-                color: "black"
-                anchors.bottom: parent.bottom
+
+            Column{
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                spacing: 10
                 anchors.bottomMargin: 30
+                //bottomMargin: 30
                 visible: popup_usb_download.index === 1
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 15
-                    color:"white"
-                    text:qsTr("확인")
+
+                Rectangle{
+                    width: 250
+                    radius: 10
+                    height: 50
+                    color: "black"
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                        color:"white"
+                        text: qsTr("확인")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            click_sound.play();
+                            popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                            popup_usb_download.close();
+                            popup_usb_notice.open();
+                        }
+                    }
                 }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
-                        popup_usb_download.close();
-                        popup_usb_notice.open();
+
+                Rectangle{
+                    width: 250
+                    radius: 10
+                    height: 50
+                    color: "black"
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                        color:"white"
+                        text: qsTr("취소")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            click_sound.play();
+                            popup_usb_download.close();
+                        }
                     }
                 }
             }
+            //Rectangle{
+            //    width: 250
+            //    radius: 10
+            //    height: 50
+            //    color: "black"
+            //    anchors.bottom: parent.bottom
+            //    anchors.horizontalCenter: parent.horizontalCenter
+            //    anchors.bottomMargin: 30
+            //    visible: popup_usb_download.index === 1
+            //    Text{
+            //        anchors.centerIn: parent
+            //        font.family: font_noto_r.name
+            //        font.pixelSize: 15
+            //        color:"white"
+            //        text:qsTr("확인")
+            //    }
+            //    MouseArea{
+            //        anchors.fill: parent
+            //        onClicked: {
+            //            click_sound.play();
+            //            popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+            //            popup_usb_download.close();
+            //            popup_usb_notice.open();
+            //        }
+            //    }
+            //}
+
+            //Rectangle{
+            //    width: 250
+            //    radius: 10
+            //    height: 50
+            //    color: "black"
+            //    anchors.bottom: parent.bottom
+            //    anchors.horizontalCenter: parent.horizontalCenter
+            //    anchors.bottomMargin: 30
+            //    visible: popup_usb_download.index === 1
+            //    Text{
+            //        anchors.centerIn: parent
+            //        font.family: font_noto_r.name
+            //        font.pixelSize: 15
+            //        color:"white"
+            //        text:qsTr("취소")
+            //    }
+            //    MouseArea{
+            //        anchors.fill: parent
+            //        onClicked: {
+            //            click_sound.play();
+            //            popup_usb_download.close();
+            //        }
+            //    }
+            //}
+
 
         }
         Timer{
@@ -13895,6 +14422,7 @@ Item {
             }
         }
     }
+
     Popup{
         id: popup_usb_select
         anchors.centerIn: parent
@@ -13925,11 +14453,11 @@ Item {
 
             timer_check_usb_new.start();
             index = 0;
-            is_ui = true;
-            is_slam = true;
-            is_map = false;
+            //is_ui = true;
+            //is_slam = true;
+            is_map = true;
             is_log = false;
-            is_config = true;
+            is_config = false;
             model_usb_list.clear();
             for(var i=0; i<supervisor.getusbsize(); i++){
                 print(i, supervisor.getusbname(i));
@@ -14015,7 +14543,8 @@ Item {
                 }
                 Column{
                     anchors.centerIn: parent
-                    spacing: 30
+                    spacing: 10
+                    anchors.bottomMargin: 30
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: popup_usb_select.index === 0
@@ -14062,12 +14591,14 @@ Item {
                     }
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
+                        //anchors.centerIn: parent.anchors
                         spacing: 10
                         visible: popup_usb_select.index === 1
                         Rectangle{
                             width: 280
                             radius: 10
                             height: 50
+                            visible: false
                             color: popup_usb_select.is_ui?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14087,6 +14618,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible: false
                             color: popup_usb_select.is_slam?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14106,12 +14638,13 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:is_rainbow
                             color: popup_usb_select.is_config?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text:qsTr("설정파일")
+                                text:qsTr("로봇 설정값") //설정파일
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -14125,12 +14658,13 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:true
                             color: popup_usb_select.is_map?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text:qsTr("맵 폴더")
+                                text:qsTr("맵")
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -14144,6 +14678,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:is_rainbow
                             color: popup_usb_select.is_log?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14160,6 +14695,59 @@ Item {
                             }
                         }
                     }
+
+                    //Column{
+                    //    anchors.horizontalCenter: parent.horizontalCenter
+                    //    anchors.bottom: parent.bottom
+                    //    spacing: 10
+                    //    anchors.bottomMargin: 30
+                    //    //bottomMargin: 30
+                    //    visible: popup_usb_download.index === 1
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("확인")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                click_sound.play();
+                    //                popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                    //                popup_usb_download.close();
+                    //                popup_usb_notice.open();
+                    //            }
+                    //        }
+                    //    }
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("취소0")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                click_sound.play();
+                    //                popup_usb_download.close();
+                    //            }
+                    //        }
+                    //    }
+                    //}
                     Rectangle{
                         width: 250
                         radius: 10
@@ -14184,10 +14772,33 @@ Item {
                             }
                         }
                     }
+                    //Rectangle{
+                    //    width: 250
+                    //    radius: 10
+                    //    height: 50
+                    //    color: "black"
+                    //    anchors.horizontalCenter: parent.horizontalCenter
+                    //    visible: popup_usb_select.index === 1
+                    //    Text{
+                    //        anchors.centerIn: parent
+                    //        font.family: font_noto_r.name
+                    //        font.pixelSize: 15
+                    //        color:"white"
+                    //        text:qsTr("취소")
+                    //    }
+                    //    MouseArea{
+                    //        anchors.fill: parent
+                    //        onClicked: {
+                    //            click_sound.play();
+                    //            popup_usb_select.close();
+                    //        }
+                    //    }
+                    //}
                 }
             }
         }
     }
+
     Popup{
         id: popup_change_call
         width: 400
@@ -15621,7 +16232,7 @@ Item {
                         font.family: font_noto_r.name
                         font.pixelSize: 30
                         font.bold: true
-                        text:qsTr("로봇 프리셋 설정")
+                        text:qsTr("로봇 속도 설정")
                     }
                     Rectangle{
                         anchors.bottom: parent.bottom

@@ -302,15 +302,16 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: slider_mapsize.value.toString() + " [pixel]"
+                                //text: slider_mapsize.value.toString() + " [pixel]"
+                                text:available_size.toString() + " m X " + available_size.toString() + " m";
                             }
                         }
                         Text{
                             anchors.right: parent.right
                             font.family: font_noto_r.name
-                            font.pixelSize: 15
-                            color: "white"
-                            text: qsTr("맵의 크기가 커질 수록 이동을 시작할 때나 맵을 그릴 때 느려질 수 있습니다")
+                            font.pixelSize: 20
+                            color: color_green
+                            text: qsTr("크기가 커질 수록 이동을 시작할 때나 맵을 그릴 때 느려질 수 있습니다")
                         }
                     }
                     Slider{
@@ -335,14 +336,14 @@ Item {
                             font.family: font_noto_r.name
                             font.pixelSize: 30
                             color: "white"
-                            text: qsTr("맵 픽셀 당 크기")
+                            text: qsTr("맵 해상도") // 맵 픽셀 당 크기
                         }
                         Text{
                             anchors.right: parent.right
                             font.family: font_noto_r.name
-                            font.pixelSize: 15
-                            color: "white"
-                            text: qsTr("픽셀크기가 작을 수록 정밀한 로봇 이동이 가능합니다")
+                            font.pixelSize: 20
+                            color: color_green
+                            text: qsTr("해상도가 정밀할 수록 정밀한 로봇 이동이 가능합니다") //픽셀크기가 작을 수록 정밀한 로봇 이동이 가능합니다
                         }
                     }
 
@@ -361,7 +362,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: "3 cm"
+                                text: "정밀" //3cm
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -383,7 +384,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: "5 cm"
+                                text: "보통" //5cm
                             }
                             MouseArea{
                                 anchors.fill: parent
@@ -451,7 +452,7 @@ Item {
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 color: "white"
-                                text: qsTr("맵 픽셀 당 크기")
+                                text: qsTr("맵 해상도") // 맵 픽셀 당 크기
                             }
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
@@ -495,7 +496,8 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.family: font_noto_r.name
                     color: color_blue
-                    text:available_size.toString() + " m X " + available_size.toString() + " m";
+                    //text:available_size.toString() + " m X " + available_size.toString() + " m";
+                    text: slider_mapsize.value.toString() + " [pixel]"
                 }
             }
 

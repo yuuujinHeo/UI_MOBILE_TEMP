@@ -95,7 +95,7 @@ Item{
         onTriggered: {
             local_find_state = supervisor.getLocalizationState();
             if(local_find_state===0){//not ready
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다..")
+                text_finding.text = qsTr("로봇이 위치를 찾고 있습니다..") //로봇의 위치를 찾고 있습니다
                 timeout_cnt = 0;
                 show_success = false;
                 show_failed = false;
@@ -107,26 +107,26 @@ Item{
                     show_timeout = true;
                 }
 //                btn_do_autoinit.running = true;
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다...")
+                text_finding.text = qsTr("로봇이 위치를 찾고 있습니다...") //로봇의 위치를 찾고 있습니다
                 show_success = false;
                 show_failed = false;
             }else if(local_find_state === 2){//success
                 timeout_cnt = 0;
                 show_timeout = false;
-                text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
+                text_finding.text = qsTr("로봇이 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요") //로봇의 위치를 찾고 있습니다
                 show_success = true;
                 show_failed = true;
 //                btn_do_autoinit.running = false;
             }else if(local_find_state === 3){//failed
                 timeout_cnt = 0;
                 show_timeout = false;
-                text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
+                text_finding.text = qsTr("로봇이 위치를 찾지 못했습니다") //로봇의 위치를 찾지 못했습니다
                 show_success = false;
                 show_failed = true;
 //                btn_do_autoinit.running = false;
             }else{
                 show_timeout = false;
-                text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
+                text_finding.text = qsTr("주행 준비가 되지 않았습니다") //로봇과 연결이 되지 않았습니다
             }
 
             if(!supervisor.getIPCConnection()){
@@ -134,7 +134,7 @@ Item{
                 show_restart = true;
                 show_success = false;
                 show_failed = false;
-                text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
+                text_finding.text = qsTr("주행 준비가 되지 않았습니다") //로봇과 연결이 되지 않았습니다
             }
         }
     }
@@ -154,7 +154,7 @@ Item{
                 color: color_dark_gray
                 font.family: font_noto_b.name
                 text: qsTr("로봇을 <font color=\"#12d27c\">대기위치로 이동</font>시켜 주세요")
-                font.pixelSize: 60
+                font.pixelSize: 53
             }
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -307,7 +307,7 @@ Item{
         color: color_light_gray
         Text{
             id: text_finding
-            text: qsTr("로봇의 위치를 찾고 있습니다")
+            text: qsTr("로봇이 위치를 찾고 있습니다") //로봇의 위치를 찾고 있습니다
             color: color_dark_navy
             Behavior on opacity {
                 NumberAnimation{

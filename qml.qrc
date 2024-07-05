@@ -344,5 +344,6 @@
         <file>icon/image_battery_4.png</file>
         <file>Button_menu.qml</file>
         <file>Button_show.qml</file>
+        <file>image/serving_manual_qr.png</file>
     </qresource>
 </RCC>

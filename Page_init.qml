@@ -2339,6 +2339,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_ui?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -2358,6 +2359,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_slam?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -2530,7 +2532,8 @@ Item {
                         text_usb_state.text = qsTr("저장에 성공하였습니다");
                     }else{
                         btn_usb_confirm.visible = true;
-                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        //text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 눌러주세요");
                     }
 
                 }else if(supervisor.getzipstate() === 3){
@@ -2601,7 +2604,8 @@ Item {
 
                 Rectangle{
                     id: btn_usb_confirm
-                    visible: false
+                    //visible: false
+                    visible: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 100
                     height: 50
@@ -2610,15 +2614,27 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family:font_noto_r.name
+                        color: color_dark_navy
+                        font.pixelSize: 15
+                        horizontalAlignment: Text.AlignHCenter
+                        text:qsTr("확 인")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
                             click_sound.play();
                             if(popup_usb_notice.mode== "compress"){
-
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }else{
-                                supervisor.updateUSB();
+                                //supervisor.updateUSB();
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }
                         }
                     }

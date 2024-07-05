@@ -108,7 +108,6 @@ Window {
         supervisor.playVoice("error_no_path");
         setNotice("no_location");
     }
-
     function setNotice(errnum){
         supervisor.writelog("[UI] Set Notice : "+errnum+" (cur Page : "+loader_page.item.objectName+")")
         if(loader_page.item.objectName === "page_init" || loader_page.item.objectName === "page_mapping"){
@@ -608,6 +607,7 @@ Window {
         focus: true
         anchors.fill: parent
         onLoaded: {
+            supervisor.writelog("[LoaderQML] Load "+item.objectName);
             supervisor.setCurrentPage(item.objectName);
             timer_update.start();
             loader_page.item.init();

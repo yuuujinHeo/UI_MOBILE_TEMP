@@ -254,12 +254,12 @@ Item {
 
         if(supervisor.getEthernetConnection()===2){
             if(supervisor.getIPCConnection()){
-                model_details.append({"detail":qsTr("로봇과 연결되었습니다"),"detail2":supervisor.getethernetIP(),"icon":"icon/icon_ethernet_good.png","error":false});
+                model_details.append({"detail":qsTr("주행 준비가 되었습니다"),"detail2":supervisor.getethernetIP(),"icon":"icon/icon_ethernet_good.png","error":false}); //로봇과 연결되었습니다
             }else{
-                model_details.append({"detail":qsTr("로봇과 연결할 수 없습니다"),"detail2":qsTr("프로그램이 실행되지 않았습니다"),"icon":"icon/icon_ethernet_no.png","error":true});
+                model_details.append({"detail":qsTr("주행할 수 없습니다"),"detail2":qsTr("프로그램이 실행되지 않았습니다"),"icon":"icon/icon_ethernet_no.png","error":true});
             }
         }else{
-            model_details.append({"detail":qsTr("로봇과 연결할 수 없습니다"),"detail2":qsTr("이더넷연결을 확인하세요"),"icon":"icon/icon_ethernet_discon.png","error":true});
+            model_details.append({"detail":qsTr("주행할 수 없습니다"),"detail2":qsTr("이더넷연결을 확인하세요"),"icon":"icon/icon_ethernet_discon.png","error":true});
         }
 
         if(supervisor.getWifiConnection()===2){

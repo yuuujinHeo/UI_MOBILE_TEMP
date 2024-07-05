@@ -181,16 +181,44 @@ Item {
                         text_go.text = qsTr("모터락해제됨")
                         text_go.font.pixelSize = 25
                     }else if(supervisor.getLocalizationState() === 2){
-                        btn_go.active = true;
-                        menubar.menu2_en = true;
-                        menubar.menu3_en = true;
-                        menubar.menu4_en = true;
-                        rect_go.color = color_blue;
-                        btn_patrol.active = true;
-                        text_go.color = "white";
-                        text_go.text = qsTr("서빙 시작")
-                        text_go.font.pixelSize = 35
-                    }else{
+                        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                            btn_go.active = true;
+                            menubar.menu2_en = true;
+                            menubar.menu3_en = true;
+                            menubar.menu4_en = true;
+                            rect_go.color = color_green;
+                            btn_patrol.active = true;
+                            text_go.color = "white";
+                            text_go.text = qsTr("퇴식 테이블로")
+                            text_go.font.pixelSize = 35
+                        }
+
+                        else{
+                            btn_go.active = true;
+                            menubar.menu2_en = true;
+                            menubar.menu3_en = true;
+                            menubar.menu4_en = true;
+                            rect_go.color = color_blue;
+                            btn_patrol.active = true;
+                            text_go.color = "white";
+                            text_go.text = qsTr("서빙 시작")
+                            text_go.font.pixelSize = 35
+                        }
+                    }
+
+                    //}
+                    //}else if(supervisor.getLocalizationState() === 2){ // origin code
+                    //    btn_go.active = true;
+                    //    menubar.menu2_en = true;
+                    //    menubar.menu3_en = true;
+                    //    menubar.menu4_en = true;
+                    //    rect_go.color = color_blue;
+                    //    btn_patrol.active = true;
+                    //    text_go.color = "white";
+                    //    text_go.text = qsTr("서빙 시작")
+                    //    text_go.font.pixelSize = 35
+                    //}
+                    else{
                         btn_go.active = false;
                         menubar.menu2_en = false;
                         menubar.menu3_en = false;
@@ -848,7 +876,7 @@ Item {
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
                             font.pixelSize: 30
-                            text: "Patrol"
+                            text: qsTr("순회") //Patrol
                             color: color_blue
                         }
                         Rectangle{
