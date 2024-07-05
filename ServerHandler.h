@@ -36,6 +36,8 @@
 #include <QApplication>
 #include <websocket/QtHttpHeader.h>
 
+#define SERVER_URL "http://127.0.0.1:11334"
+#define MONITOR_URL "http://10.108.1.10:11335"
 
 class ServerHandler : public QObject
 {
@@ -62,6 +64,8 @@ public:
 
     void uploadRelease(QString file, QString message);
 
+    void serverPost(QString url, QByteArray body);
+
     void getNewID();
     void sendRobotConfig();
     void sendUpdateConfig();
@@ -73,6 +77,7 @@ public:
 
     bool need_update();
     void rename_all();
+    void sendStatus();
 
     //new
     void getCurVersion(QString filename);
@@ -81,6 +86,7 @@ public:
 
     void generalReply(QtHttpReply *reply, QByteArray post_data);
     void parsingReply(QString type, QString url, QNetworkReply *reply);
+    void parsingServer(QString url, QNetworkReply *reply);
     QString getSetting(QString file, QString group, QString name);
     QJsonObject json_in;
     QJsonObject json_out;
@@ -105,6 +111,7 @@ public:
     void getGoqualDevices();
     void setGoqualRelay(QString id, bool onoff);
 
+    bool mobile_connection = true;
     bool connection = true;
     bool send_config = false;
     bool send_map = false;

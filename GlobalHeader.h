@@ -187,6 +187,7 @@ typedef struct{
     QString gateway;
     QString dns1;
     QString dns2;
+    QString mac;
 }ST_NET_INTERFACE;
 
 typedef struct{

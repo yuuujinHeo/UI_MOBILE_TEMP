@@ -335,7 +335,7 @@ void MapHandler::loadFile(QString name, QString type){
     initLocation();
     initRotate();
     setMap();
-    plog->write("[MAP] Load File : " + name + " (type = "+type+", width = "+draw_width+") => "+log_str);
+    plog->write("[MAP] Load File : " + name + " (type = "+type+", width = "+QString::number(draw_width)+") => "+log_str);
 }
 
 void MapHandler::setMapOrin(QString type){

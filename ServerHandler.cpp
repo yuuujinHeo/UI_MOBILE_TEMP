@@ -184,8 +184,19 @@ void ServerHandler::setGoqualRelay(QString id, bool onoff){
 void ServerHandler::onTimer(){
     //주기적으로 서버에게 상태를 보냄.
     // getGoqualDevices();
+
+    //Mobile Server
+    if(mobile_connection){
+        sendStatus();
+    }else{
+        static int count=0;
+        if(++count%10 == 0){
+            sendStatus();
+        }
+    }
+
+
     if(connection){
-        // postStatus();
 //        if(myID == "serving.001.01.test" || myID == ""){
 //            getNewID();
 //        }else if(!send_config){
@@ -204,6 +215,17 @@ void ServerHandler::onTimer(){
 
     QTime currentTime = QTime::currentTime();
     elapsedTime = QTime(0,0).addSecs(startTime.secsTo(currentTime));
+}
+
+void ServerHandler::sendStatus(){
+    QJsonObject jout;
+
+    jout["battery"] = probot->battery;
+    jout["map_name"] = pmap->map_name;
+
+    QByteArray ba = QJsonDocument(jout).toJson();
+
+    serverPost("/status",ba);
 }
 
 void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply){
@@ -700,6 +722,22 @@ QString ServerHandler::getSetting(QString file, QString group, QString name){
     return setting_robot.value(name).toString();
 }
 
+void ServerHandler::serverPost(QString url, QByteArray body){
+    QUrl _url(SERVER_URL+url);
+    QNetworkRequest request(_url);
+    QByteArray postDataSize = QByteArray::number(body.size());
+    request.setRawHeader("Content-Type", "application/json");
+    request.setRawHeader("Content-Length", postDataSize);
+    request.setRawHeader("Connection", "Keep-Alive");
+    request.setRawHeader("AcceptEncoding", "gzip, deflate");
+    request.setRawHeader("AcceptLanguage", "ko-KR,en,*");
+
+    QNetworkReply *reply = manager->post(request, body);
+    connect(reply, &QNetworkReply::finished, [=](){
+        parsingServer(url,reply);
+    });
+}
+
 void ServerHandler::newPost(QByteArray post_data, QString url){
     QByteArray postDataSize = QByteArray::number(post_data.size());
     QUrl serviceURL(url);
@@ -804,6 +842,28 @@ void ServerHandler::generalPost(QByteArray post_data, QString url){
    });
 }
 
+void ServerHandler::parsingServer(QString url, QNetworkReply *reply){
+    if(reply->error() == QNetworkReply::NoError){
+        QByteArray response = reply->readAll();
+        mobile_connection = true;
+
+        if(url.contains("/versions/MAIN_MOBILE")){
+            QJsonObject temp = QJsonDocument::fromJson(response).object();
+            ui_version.version = temp["data"].toObject()["version"].toString();
+            ui_version.prev_version = temp["data"].toObject()["prev_version"].toString();
+            ui_version.date = temp["data"].toObject()["date"].toString();
+            qDebug() << "version get " << ui_version.version << ui_version.date;
+        }
+
+    }else{
+        QString err = reply->errorString();
+        qDebug() << "ERROR==========================" << err;
+        if(reply->error()>0 && reply->error()<100){
+            mobile_connection = false;
+        }
+    }
+}
+
 void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply){
     if(reply->error() == QNetworkReply::NoError){
         if(url.left(22) == "https://api.github.com"){
@@ -840,15 +900,6 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                 }
             }
         }else if(url.contains(":11334")){
-            QByteArray response = reply->readAll();
-
-            if(url.contains("/versions/MAIN_MOBILE")){
-                QJsonObject temp = QJsonDocument::fromJson(response).object();
-                ui_version.version = temp["data"].toObject()["version"].toString();
-                ui_version.prev_version = temp["data"].toObject()["prev_version"].toString();
-                ui_version.date = temp["data"].toObject()["date"].toString();
-                qDebug() << "version get " << ui_version.version << ui_version.date;
-            }
         }else if(url.contains(":11335")){
             QByteArray response = reply->readAll();
 

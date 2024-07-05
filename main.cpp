@@ -29,15 +29,23 @@ int main(int argc, char *argv[])
 
 
     QString ini_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.ini";
-    QSettings setting_robot(ini_path, QSettings::IniFormat);
-    setting_robot.beginGroup("UI");
-    if(setting_robot.value("language").toString() == "english"){
-        QTranslator *translator = new QTranslator();
-        QString pahhh = QApplication::applicationDirPath() + "/lang_eddn.qm";
-        app->installTranslator(translator);
-    }else{
+    // QSettings setting_robot(ini_path, QSettings::IniFormat);
+    // setting_robot.beginGroup("UI");
+    // if(setting_robot.value("language").toString() == "english"){
+    //     QTranslator *translator = new QTranslator();
+    //     QString pahhh = QApplication::applicationDirPath() + "/lang_eddn.qm";
+    //     qDebug() << "ENGLISH???????????????????????????????" << pahhh;
+    //     translator->load(pahhh);
+    //     if(translator->load(pahhh)){
+    //         plog->write("[sucess");
+    //         app->installTranslator(translator);
+    //     }else{
+    //         plog->write("[fa");
+    //     }
+    //     // app->installTranslator(translator);
+    // }else{
 
-    }
+    // }
 
 
     QQmlApplicationEngine engine;

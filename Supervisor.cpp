@@ -1114,10 +1114,10 @@ void Supervisor::slam_map_reload(QString filename, int mode){
         send_msg.cmd = ROBOT_CMD_MAP_RELOAD;
         memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
         ipc->set_cmd(send_msg,"MAP HARD RELOAD");
-        probot->localization_state = 0;
-        probot->motor[0].status = 0;
-        probot->motor[1].status = 0;
-        probot->localization_confirm = false;
+        // probot->localization_state = 0;
+        // probot->motor[0].status = 0;
+        // probot->motor[1].status = 0;
+        // probot->localization_confirm = false;
     }else{
         send_msg.cmd = ROBOT_CMD_MAP_SOFT_RELOAD;
         memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
@@ -1132,7 +1132,7 @@ void Supervisor::slam_ini_reload(){
 
 ////*********************************************  INIT PAGE 관련   ***************************************************////
 bool Supervisor::isConnectServer(){
-    return server->connection && server->first_response;
+    return server->mobile_connection;
 }
 void Supervisor::deleteEditedMap(){
     plog->write("[USER INPUT] Remove Edited Map Data");
@@ -3705,8 +3705,8 @@ void Supervisor::checkUpdate(){//need check
 void Supervisor::setlanguage(QString lan){
     QString path = "";
     if(lan == "KR"){
-    }else if(lan=="US"){
-        path = QDir::homePath() + "/RB_MOBILE/config/locale/lang_en.qm";
+    }else if(lan=="US" || lan=="english"){
+        path = QDir::homePath() + "/RB_MOBILE/config/locale/lang_eddn.qm";
     }
 
     app->removeTranslator(translator);
