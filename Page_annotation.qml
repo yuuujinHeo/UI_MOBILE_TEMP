@@ -41,9 +41,98 @@ Item {
 
     function setMappingFlag(){
         annotation_after_mapping = true;
-        popup_loading.close();
         annot_pages.sourceComponent = page_annot_start;
     }
+
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }
+    }
+
     onSelect_locationChanged: {
         print("select_location : ",select_location)
     }
@@ -76,7 +165,6 @@ Item {
 
 
     function movestart(){
-        popup_loading.close();
         var location_name = supervisor.getcurLoc();
         if(location_name === "Charging0"){
             location_name = qsTr("충전위치");
@@ -109,9 +197,6 @@ Item {
                 annot_pages.sourceComponent = page_annot_localization;
             }
         }
-    }
-    Component.onDestruction: {
-        popup_notice.close();
     }
 
     ListModel{
@@ -336,7 +421,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[ANNOTATION] MENU : Clear and New Annotation");
                                         annot_pages.sourceComponent = page_annot_start;
                                         supervisor.deleteEditedMap();
@@ -360,7 +445,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         popup_ask_reset.close();
                                     }
                                 }
@@ -561,7 +646,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onPressed: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         timer_rotate.cw = false;
                         timer_rotate.start();
                     }
@@ -594,7 +679,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onPressed: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         timer_rotate.cw = true;
                         timer_rotate.start();
                     }
@@ -1392,7 +1477,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(supervisor.getRobotType() === "CLEANING"){
                                         if(select_location>3){
                                             beforeY = list_location_detail.contentY - 55
@@ -1441,7 +1526,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location<details.count-1){
                                         beforeY = list_location_detail.contentY + 55
                                         var refY = beforeY - list_location_detail.originY;
@@ -1494,7 +1579,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location === index){
                                         select_location = -1;
                                     }else{
@@ -1591,7 +1676,7 @@ Item {
                             MouseArea{
                                 anchors.fill:parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location === index){
                                         select_location = -1;
                                     }else{
@@ -1600,7 +1685,7 @@ Item {
                                     map_location_list.setCurrentLocation(select_location);
                                 }
                                 onPressAndHold: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(ltype === "Serving"){
                                         keyboard.owner = tx_name;
                                         tx_name.selectAll();
@@ -1647,7 +1732,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location === index){
                                         select_location = -1;
                                     }else{
@@ -1704,7 +1789,7 @@ Item {
                                                 popup_location.open();
                                             }
                                         }else{
-                                            click_sound_no.play();
+                                            supervisor.playSound('no');
                                         }
                                     }else{
                                         if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
@@ -1725,12 +1810,12 @@ Item {
                                 source: "icon/icon_testmoving.png"
                                 onClicked: {
                                     if(supervisor.isRobotReady()){
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[ANNOTATION] TEST MOVING : "+details.get(select_location).name);
                                         supervisor.moveToServingTest(details.get(select_location).group, details.get(select_location).name);
-                                        popup_loading.open();
+                                        // popup_loading.open();
                                     }else{
-                                        click_sound_no.play();
+                                        supervisor.playSound('no');
                                         robotnotready();
                                     }
                                 }
@@ -2109,7 +2194,6 @@ Item {
             }
             Component.onCompleted: {
                 select_preset = 0;
-                popup_loading.close();
                 is_edited = false;
                 supervisor.setMotorLock(false);
                 map.setEnable(true);
@@ -2637,7 +2721,7 @@ Item {
                                                 anchors.fill: parent
                                                 enabled: menu_rect.enabled
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = false;
@@ -2673,7 +2757,7 @@ Item {
                                                 enabled: menu_rect.enabled
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = true;
@@ -2712,7 +2796,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -2735,7 +2819,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -2786,7 +2870,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -2880,7 +2964,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set tool to draw");
                                                                 map.clear("spline");
                                                                 map.setTool("draw");
@@ -2931,7 +3015,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 if(select_mode === 2){
                                                                     if(select_preset === 1){
@@ -2979,7 +3063,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 supervisor.writelog("[ANNOTATION] Object : Set tool to straight")
                                                                 map.setTool("straight");
@@ -3044,7 +3128,7 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onClicked:{
-                                                                        click_sound.play();
+                                                                        supervisor.playSound('click');
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase");
                                                                         map.clear("spline");
@@ -3100,7 +3184,7 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onClicked:{
-                                                                        click_sound.play();
+                                                                        supervisor.playSound('click');
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase2");
                                                                         map.clear("spline");
@@ -3147,7 +3231,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 map.setDrawingColor(255);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3179,7 +3263,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 map.setDrawingColor(127);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3212,7 +3296,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 map.setDrawingColor(0);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3268,7 +3352,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 select_preset = 1;
                                                                 is_edited = true;
                                                                 map.setDrawingColor(100);
@@ -3313,7 +3397,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 select_preset = 2;
                                                                 map.setDrawingColor(200);
@@ -3557,14 +3641,14 @@ Item {
                                                                     MouseArea{
                                                                         anchors.fill: parent
                                                                         onPressed:{
-                                                                            click_sound.play();
+                                                                            supervisor.playSound('click');
                                                                             parent.color = color_light_gray
                                                                         }
                                                                         onReleased: {
                                                                             if(select_tline_issue === index){
                                                                                 parent.color = "white";
                                                                             }else{
-                                                                                click_sound.play();;
+                                                                                supervisor.playSound('click');;
                                                                                 parent.color = color_warning;
                                                                                 select_tline_issue = index;
                                                                             }
@@ -4246,7 +4330,7 @@ Item {
                                                 anchors.fill: parent
 //                                                enabled: menu_rect.enabled
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = false;
@@ -4282,7 +4366,7 @@ Item {
 //                                                enabled: menu_rect.enabled
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = true;
@@ -4491,7 +4575,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             supervisor.writelog("[ANNOTATION] Map Editor : Set tool to draw");
                                                             map.clear("spline");
                                                             map.setTool("draw");
@@ -4541,7 +4625,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
 //                                                            if(select_mode === 2){
 //                                                                if(select_preset === 1){
@@ -4595,7 +4679,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             supervisor.writelog("[ANNOTATION] Object : Set tool to straight")
                                                             map.setTool("straight");
@@ -4649,7 +4733,7 @@ Item {
                                                             MouseArea{
                                                                 anchors.fill: parent
                                                                 onClicked:{
-                                                                    click_sound.play();
+                                                                    supervisor.playSound('click');
                                                                     is_edited = true;
                                                                     supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase");
                                                                     map.clear("spline");
@@ -4706,7 +4790,7 @@ Item {
                                                             MouseArea{
                                                                 anchors.fill: parent
                                                                 onClicked:{
-                                                                    click_sound.play();
+                                                                    supervisor.playSound('click');
                                                                     is_edited = true;
                                                                     supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase2");
                                                                     map.clear("spline");
@@ -4753,7 +4837,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             map.setDrawingColor(255);
                                                             map.setDrawingWidth(slider_brush.value);
@@ -4785,7 +4869,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             map.setDrawingColor(127);
                                                             map.setDrawingWidth(slider_brush.value);
@@ -4817,7 +4901,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             map.setDrawingColor(0);
                                                             map.setDrawingWidth(slider_brush.value);
@@ -4872,7 +4956,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             select_preset = 1;
                                                             is_edited = true;
                                                             map.setDrawingColor(100);
@@ -4917,7 +5001,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             select_preset = 2;
                                                             map.setDrawingColor(200);
@@ -5153,14 +5237,14 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onPressed:{
-                                                                        click_sound.play();
+                                                                        supervisor.playSound('click');
                                                                         parent.color = color_light_gray
                                                                     }
                                                                     onReleased: {
                                                                         if(select_tline_issue === index){
                                                                             parent.color = "white";
                                                                         }else{
-                                                                            click_sound.play();;
+                                                                            supervisor.playSound('click');;
                                                                             parent.color = color_warning;
                                                                             select_tline_issue = index;
                                                                         }
@@ -5481,7 +5565,7 @@ Item {
                                             enabled: parent.enabled
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 popup_add_location_group.open();
                                             }
                                         }
@@ -5524,7 +5608,7 @@ Item {
                                             enabled: parent.enabled
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 keyboard.owner = tfield_name;
                                                 tfield_name.selectAll();
                                                 keyboard.open();
@@ -5661,7 +5745,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.sendMapServer();
                             popup_ask_mapload.close();
                         }
@@ -5686,7 +5770,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.loadMapServer();
                             popup_ask_mapload.close();
                         }
@@ -5710,7 +5794,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             popup_ask_mapload.close();
                             popup_map_list.open();
                         }
@@ -5852,7 +5936,7 @@ Item {
                 onClicked:{
                     if(robot_paused){
                     }else{
-                        click_sound.play();
+                        supervisor.playSound('click');
                         supervisor.writelog("[USER INPUT] MOVING PAUSE 2")
                         supervisor.movePause();
                     }
@@ -5904,7 +5988,7 @@ Item {
                 Buttons{
                     style: "keyboard"
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click');
                         keyboard.owner = tfield_group;
                         tfield_group.selectAll();
                         keyboard.open();
@@ -5929,9 +6013,9 @@ Item {
                     text: qsTr("확인")
                     onClicked: {
                         if(tfield_group.text == ""){
-                            click_sound_no.play();
+                            supervisor.playSound('no');
                         }else if(!supervisor.checkGroupName(tfield_group.text)){
-                            click_sound_no.play();
+                            supervisor.playSound('no');
                             tfield_group.color = color_red;
                         }else{
                             supervisor.addLocationGroup(tfield_group.text);
@@ -6069,7 +6153,7 @@ Item {
                                             width: 120
                                             text: qsTr("임의생성")
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 textfield_loc_name.text = supervisor.getNewServingName(popup_add_serving.cur_group);
                                             }
                                         }
@@ -6091,7 +6175,7 @@ Item {
                                             style:"keyboard_dark"
                                             anchors.verticalCenter: parent.verticalCenter
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 keyboard.owner = textfield_loc_name;
                                                 textfield_loc_name.selectAll();
                                                 keyboard.open();
@@ -6179,10 +6263,10 @@ Item {
                             text: qsTr("확인")
                             onClicked: {
                                 if(textfield_loc_name.text == ""){
-                                    click_sound_no.play();
+                                    supervisor.playSound('no');
                                     textfield_loc_name.color = color_red;
                                 }else if(!supervisor.checkLocationName(popup_add_serving.cur_group, textfield_loc_name.text)){
-                                    click_sound_no.play();
+                                    supervisor.playSound('no');
                                     textfield_loc_name.color = color_red;
                                     text_loc_check.text = qsTr("이미 중복되는 이름이 있습니다");
                                 }else{
@@ -6719,8 +6803,81 @@ Item {
         }
     }
 
+    Tool_Keyboard{
+        id: keyboard
+    }
 
     Popup_help{
         id: popup_annot_help
     }
+
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName == "page_moving" || loader_page.item.objectName == "page_moving_custom"){
+                    loadPage(pinit);
+                }
+
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName == "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("재시작")){
+                supervisor.writelog("[UI] PopupNotice : Restart");
+                supervisor.programRestart();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("종 료")){
+                supervisor.writelog("[UI] PopupNotice : Terminate");
+                supervisor.programExit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("디버그모드 해제")){
+                supervisor.writelog("[UI] PopupNotice : Debug Mode off");
+                loadPage(pinit);
+                supervisor.resetLocalization();
+                supervisor.stateInit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("건너뛰기")){
+                supervisor.writelog("[INIT] Debug Mode On");
+                supervisor.passInit();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 사용")){
+                supervisor.saveAnnotation(supervisor.getMapname());
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                loader_page.item.setAnnotLocation();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 미사용")){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                popup_notice.close();
+            }
+        }
+    }
+
 }

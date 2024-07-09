@@ -355,7 +355,7 @@ Item{
         enabled: item_Buttons.enabled
         anchors.fill: parent
         onPressed:{
-            click_sound.play();
+            supervisor.playSound('click');
             item_Buttons.pressed = true;
         }
         onReleased:{

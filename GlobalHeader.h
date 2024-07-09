@@ -6,6 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <QDir>
 #include <QPixmap>
+#include <QSettings>
 #include "MapHeader.h"
 #include "cv_to_qt.h"
 
@@ -45,6 +46,10 @@ POSE setAxisBack(cv::Point2f _point, float _angle);
 
 bool sortLocation2(const LOCATION &l1, const LOCATION &l2);
 bool sortWifi(const QString &w1, const QString &w2);
+
+QString getIniPath(QString file);
+
+QString getSettings(QString file, QString group, QString name);
 
 typedef struct{
     QString group;
@@ -277,8 +282,6 @@ typedef struct{
     bool con_internet = false;
     int con_internet2 = NET_DISCON;
     int wifi_connection = 0;
-
-    int master_volume = 50;
 
 #ifdef EXTPROC_TEST
 #else

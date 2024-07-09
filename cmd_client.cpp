@@ -80,11 +80,10 @@ void CMD_CLIENT::test(){
 
     // 서버로 JSON 데이터 전송
     client.sendTextMessage(jsonDoc.toJson(QJsonDocument::Compact));
-
 }
 
 void CMD_CLIENT::onError(QAbstractSocket::SocketError error){
-    std::cerr << "WebSocket error: " << error << std::endl;
+    // std::cerr << "WebSocket error: " << error << std::endl;
 }
 
 void CMD_CLIENT::onTextMessageReceived(QString message) {
@@ -108,11 +107,10 @@ void CMD_CLIENT::onTextMessageReceived(QString message) {
 
 void CMD_CLIENT::init()
 {
-    //QString url = "ws://127.0.0.1:12335"; //what??? diff with SLAMNAV
     QString url = "ws://127.0.0.1:12335"; // change : 24.06.27
     plog->write("[IPC] Command Client : Init "+url);
     client.open(QUrl(url));
-    reconnect_timer.start(1000);
+    reconnect_timer.start(3000);
 }
 
 void CMD_CLIENT::connected()

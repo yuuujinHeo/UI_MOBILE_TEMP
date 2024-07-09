@@ -67,7 +67,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onPressed:{
-//                click_sound.play();
+//                supervisor.playSound('click');
                 btn.color = push_color;
             }
             onReleased: {
@@ -76,9 +76,4 @@ Item {
             }
         }
     }
-
-//    SoundEffect{
-//        id: click_sound
-//        source: "bgm/click.wav"
-//    }
 }

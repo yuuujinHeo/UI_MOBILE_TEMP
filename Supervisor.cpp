@@ -31,6 +31,17 @@ bool is_test_moving = false;
 bool is_debug = false;
 #define MAIN_THREAD 200
 
+QString getIniPath(QString file){
+    return QDir::homePath()+"/RB_MOBILE/config/"+file+"_config.ini";
+}
+
+QString getSettings(QString file, QString group, QString name){
+    QString ini_path = getIniPath(file);
+    QSettings setting_robot(ini_path, QSettings::IniFormat);
+    setting_robot.beginGroup(group);
+    return setting_robot.value(name).toString();
+}
+
 Supervisor::Supervisor(QObject *parent)
     : QObject(parent)
 {
@@ -52,6 +63,7 @@ Supervisor::Supervisor(QObject *parent)
 
     voice_player = new QMediaPlayer();
     bgm_player = new QMediaPlayer();
+    click_effect = new QSoundEffect();
     list_bgm = new QMediaPlaylist();
 
     mMain = nullptr;
@@ -214,9 +226,9 @@ QString Supervisor::getTravelPath(QString name){
 QString Supervisor::getCostPath(QString name){
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_cost.png";
 }
-QString Supervisor::getIniPath(QString file){
-    return QDir::homePath()+"/RB_MOBILE/config/"+file+"_config.ini";
-}
+// QString Supervisor::getIniPath(QString file){
+//     return QDir::homePath()+"/RB_MOBILE/config/"+file+"_config.ini";
+// }
 
 ////*********************************수정해야해*****************************************//
 void Supervisor::loadMapServer(){
@@ -378,6 +390,30 @@ void Supervisor::git_pull_fail(int reason){
     }else{//nothing
         plog->write("[UPDATE] Git Pull : Failed -> Program Already Newest");
         QMetaObject::invokeMethod(mMain, "git_pull_already");
+    }
+}
+
+void Supervisor::playSound(QString name, int volume){
+    click_effect->stop();
+
+    if(volume == -1){
+        volume = getSetting("setting","UI","volume_button").toInt();
+    }
+
+    qDebug() << "playSound : " << name << volume;
+
+    if(name == "click"){
+        click_effect->setSource(QUrl("qrc:/bgm/click.wav"));
+        click_effect->setVolume(float(volume)/100.0);
+        click_effect->play();
+    }else if(name == "no"){
+        click_effect->setSource(QUrl("qrc:/bgm/click_error.wav"));
+        click_effect->setVolume(float(volume)/100.0);
+        click_effect->play();
+    }else if(name == "start"){
+        click_effect->setSource(QUrl("qrc:/bgm/click_start.wav"));
+        click_effect->setVolume(float(volume)/100.0);
+        click_effect->play();
     }
 }
 
@@ -607,10 +643,11 @@ void Supervisor::setSetting(QString file, QString name, QString value){
     plog->write("[SETTING] SET "+name+" VALUE TO "+value);
 }
 QString Supervisor::getSetting(QString file, QString group, QString name){
-    QString ini_path = getIniPath(file);
-    QSettings setting_robot(ini_path, QSettings::IniFormat);
-    setting_robot.beginGroup(group);
-    return setting_robot.value(name).toString();
+    return getSettings(file,group,name);
+    // QString ini_path = getIniPath(file);
+    // QSettings setting_robot(ini_path, QSettings::IniFormat);
+    // setting_robot.beginGroup(group);
+    // return setting_robot.value(name).toString();
 }
 
 void Supervisor::readSetting(QString map_name){
@@ -912,25 +949,12 @@ void Supervisor::map_reset(){
 
 void Supervisor::setSystemVolume(int volume){
     qDebug() << "setSystemVolume" << volume;
-    setMasterVolume(volume);
-//#ifdef EXTPROC_TEST
-//    checker->setSystemVolume(volume);
-//#else
-//    ExtProcess::Command temp;
-//    temp.cmd = ExtProcess::PROCESS_CMD_SET_SYSTEM_VOLUME;
-//    temp.params[0] = volume;
-//    extproc->set_command(temp);
-//#endif
+    // setMasterVolume(volume);
+    checker->setSystemVolume(volume);
 }
 
 void Supervisor::requestSystemVolume(){
-#ifdef EXTPROC_TEST
     checker->getSystemVolume();
-#else
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_GET_SYSTEM_VOLUME;
-    extproc->set_command(temp);
-#endif
 }
 
 
@@ -2140,9 +2164,9 @@ void Supervisor::playBGM(int volume){
 }
 void Supervisor::setvolumeBGM(int volume){
     bgm_player->setVolume(getVolume(volume));
+    plog->write("[SOUND] playBGMVolume : "+QString::number(volume));
 }
 void Supervisor::stopBGM(){
-    qDebug() << "stopBGM";
     bgm_player->stop();
 }
 
@@ -3218,7 +3242,7 @@ void Supervisor::setPreset(int preset){
 
 void Supervisor::confirmPickup(){
     if(ui_state == UI_STATE_PICKUP){
-        if(pmap->call_queue.size() > 0){
+        if(pmap->call_queue.size() > 0 && probot->is_calling){
             plog->write("[COMMAND] confirmPickup : Call queue pop front "+pmap->call_queue[0]);
             pmap->call_queue.pop_front();
         }
@@ -3232,7 +3256,7 @@ void Supervisor::confirmPickup(){
         }
     }else{
         probot->current_target.name = "";
-        plog->write("[COMMAND] confirmPickup : (ui_state "+QString::number(ui_state)+")");
+        plog->write("[COMMAND] confirmPickup : (ui_state "+QString::number(ui_state)+") -> noting to do");
     }
 }
 QList<int> Supervisor::getPickuptrays(){
@@ -3307,7 +3331,7 @@ QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
 int Supervisor::getMultiState(){
-
+    return 0;
 }
 void Supervisor::resetHomeFolders(){
     plog->write("[USER INPUT] RESET HOME FOLDERS");
@@ -4225,11 +4249,10 @@ void Supervisor::onTimer(){
                                         plog->write("[STATE] Moving : New Call but ID Wrong ("+pmap->call_queue[0]+")");
                                         pmap->call_queue.pop_front();
                                     }
-
                                 }
 
                                 if(cur_target.name == ""){
-                                    if(getSetting("setting","SERVER","use_server_call") == "true"){//not used
+                                    if(getSetting("setting","SERVER","use_server_call") == "true"){
 
                                     }else{
                                         //3. PATROLLING
@@ -4555,28 +4578,15 @@ void Supervisor::onTimer(){
 }
 
 int Supervisor::getVolume(int volume){
-    float vol = (volume*probot->master_volume)/100.;
+    return volume;
+    float vol = (volume)/100.;
     int voli = (int)vol;
     return voli;
 }
 float Supervisor::getVolume(float volume){
-    float vol = volume*probot->master_volume/100.;
+    return volume;
+    float vol = volume/100.;
     return vol;
-}
-int Supervisor::getMasterVolume(){
-    return probot->master_volume;
-}
-void Supervisor::setMasterVolume(int volume){
-    plog->write("[SETTING] Set Master Volume : "+QString::number(probot->master_volume)+" -> "+ QString::number(volume));
-    int prev_volume = probot->master_volume;
-    probot->master_volume = volume;
-    int prev_v = bgm_player->volume();
-
-    int pp = ((float)prev_v/prev_volume)*100;
-
-    qDebug() << prev_volume << volume << prev_v << pp;
-    setvolumeBGM(pp);
-    QMetaObject::invokeMethod(mMain,"volume_reset");
 }
 QString Supervisor::curUiState(){
     if(ui_state == UI_STATE_NONE){
@@ -4741,7 +4751,8 @@ float Supervisor::getICPError(){
 QString Supervisor::getWifiSSID(int num){//need check
 #ifdef EXTPROC_TEST
     if(num < probot->wifi_list.size() && num > -1){
-        return probot->wifi_list[num].ssid;
+        qDebug() << probot->wifi_list[num].ssid;
+        return QString::fromLocal8Bit(probot->wifi_list[num].ssid.toUtf8());
     }else{
         return "unknown";
     }
@@ -4770,24 +4781,8 @@ int Supervisor::getInternetConnection(){
         return probot->con_internet2;
     }
 }
-int Supervisor::getWifiConnection(){//need check
-#ifdef EXTPROC_TEST
+int Supervisor::getWifiConnection(){
     return probot->wifi_interface.state;
-#else
-    if(ssid == ""){
-        ssid = probot->wifi_ssid;
-    }
-//    qDebug() << "getwificonnection" << ssid << probot->wifi_ssid <<  probot->wifi_connection;
-    if(probot->wifi_ssid == ssid){
-        return probot->wifi_connection;
-    }else{
-        return 0;
-    }
-//    return probot->wifi_map[ssid].state;
-#endif
-}
-void Supervisor::setWifiConnection(QString ssid, int con){
-    probot->wifi_map[ssid].state = con;
 }
 
 void Supervisor::process_accept(int cmd){//need check
@@ -4821,61 +4816,6 @@ void Supervisor::set_wifi_fail(int reason,QString ssid){
 void Supervisor::process_done(int cmd){//need check
 #ifdef EXTPROC_TEST
 #else
-//    qDebug() << "Process done" << cmd;
-    if(cmd == ExtProcess::PROCESS_CMD_SET_WIFI_IP){
-        getWifiIP();
-        QMetaObject::invokeMethod(mMain,"wifireset");
-        setWifiConnection(probot->wifi_ssid,2);
-    }else if(cmd == ExtProcess::PROCESS_CMD_GET_WIFI_LIST){
-        QMetaObject::invokeMethod(mMain, "wifisuccess");
-    }else if(cmd == ExtProcess::PROCESS_CMD_CHECK_CONNECTION){
-        QMetaObject::invokeMethod(mMain, "checkwifidone");
-    }else if(cmd == ExtProcess::PROCESS_CMD_CONNECT_WIFI){
-        readWifiState(probot->wifi_ssid);
-        QMetaObject::invokeMethod(mMain, "checkwifidone");
-    }else if(cmd == ExtProcess::PROCESS_CMD_GET_WIFI_IP){
-        QMetaObject::invokeMethod(mMain, "wifisuccess");
-    }else if(cmd == ExtProcess::PROCESS_CMD_GIT_PULL || cmd == ExtProcess::PROCESS_CMD_GIT_UPDATE ||  cmd == ExtProcess::PROCESS_CMD_GIT_RESET){
-        setSetting("robot","VERSION/last_update_mode","git");
-        setSetting("robot","VERSION/last_update_date",probot->program_date);
-        readSetting();
-        QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
-        QApplication::exit(12);
-    }else if(cmd == ExtProcess::PROCESS_CMD_UNZIP){
-        plog->write("[UPDATE] Unzip Success");
-        QDir updatedir(QDir::homePath() + "/RB_MOBILE/temp/update");
-        QString jsondir = QDir::homePath() + "/RB_MOBILE/temp/update/update.json";
-        QFile json(jsondir);
-        QStringList filelist = updatedir.entryList();
-        if(json.open(QFile::ReadOnly)){
-            QStringList keys = server->update_list.keys();
-            if(keys.size() > 0){
-                for(QString key : keys){
-                    QString keyname = key + server->update_list[key].extension;
-
-                    for(QString file : filelist){
-                        if(keyname == file){
-                            server->update_list[key].file_exist = true;
-                            break;
-                        }
-                        server->update_list[key].file_exist = false;
-                    }
-                }
-                for(QString key : keys){
-                    if(server->update_list[key].file_exist){
-                        plog->write("[UPDATE] File Update : "+ key + " is Exist");
-                    }else{
-                        plog->write("[UPDATE] File Update : "+ key + " is not Found");
-                    }
-                }
-                QMetaObject::invokeMethod(mMain,"unzip_done");
-            }else{
-                //error
-                plog->write("[UPDATE] File Update : No zip File");
-                QMetaObject::invokeMethod(mMain,"unzip_failed");
-            }
-        }
-    }
 #endif
 }
 
@@ -4907,16 +4847,7 @@ void Supervisor::process_timeout(int cmd){//need check
 }
 
 void Supervisor::connectWifi(QString ssid, QString passwd){
-#ifdef EXTPROC_TEST
     checker->connectWifi(ssid, passwd);
-#else
-    plog->write("[COMMAND] connectWifi : "+ssid+", "+passwd+" (cur Connection : "+probot->wifi_connection+", SSID : "+probot->wifi_ssid+")");
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_CONNECT_WIFI;
-    memcpy(temp.params,ssid.toUtf8(),sizeof(char)*100);
-    memcpy(temp.params2,passwd.toUtf8(),sizeof(char)*100);
-    extproc->set_command(temp);
-#endif
 }
 
 void Supervisor::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
@@ -4945,59 +4876,14 @@ void Supervisor::setWifi(QString ip, QString gateway, QString dns){
 #endif
 }
 
-void Supervisor::readWifiState(QString ssid){//need check
-#ifdef EXTPROC_TEST
-#else
-    if(probot->wifi_ssid == ""){
-        QMetaObject::invokeMethod(mMain, "checkwifidone");
-    }else{
-        if(ssid == ""){
-            ssid = probot->wifi_ssid;
-        }
-        if(probot->wifi_ssid != ssid){
-            QMetaObject::invokeMethod(mMain, "checkwifidone");
-        }else{
-            ExtProcess::Command temp;
-            temp.cmd = ExtProcess::PROCESS_CMD_CHECK_CONNECTION;
-            memcpy(temp.params,ssid.toUtf8(),sizeof(char)*100);
-            extproc->set_command(temp);
-        }
-
-    }
-#endif
-}
-
-void Supervisor::getWifiIP(){
-#ifdef EXTPROC_TEST
-//    checker->getCurrentInterface();
-#else
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_IP;
-    if(probot->wifi_ssid == ""){
-
-    }else{
-        memcpy(temp.params,probot->wifi_ssid.toUtf8(),sizeof(char)*100);
-        extproc->set_command(temp);
-    }
-#endif
-
-}
 QString Supervisor::getcurIPMethod(){
     return probot->wifi_interface.method;
 }
 QString Supervisor::getcurIP(){
-#ifdef EXTPROC_TEST
     return probot->wifi_interface.ipv4;
-#else
-    return probot->cur_ip;
-#endif
 }
 QString Supervisor::getcurGateway(){
-#ifdef EXTPROC_TEST
     return probot->wifi_interface.gateway;
-#else
-    return probot->cur_gateway;
-#endif
 }
 
 QString Supervisor::getcurNetmask(){
@@ -5007,11 +4893,7 @@ QString Supervisor::getcurDNS2(){
     return probot->wifi_interface.dns2;
 }
 QString Supervisor::getcurDNS(){
-#ifdef EXTPROC_TEST
     return probot->wifi_interface.dns1;
-#else
-    return probot->cur_dns;
-#endif
 }
 
 QString Supervisor::getethernetIP(){
@@ -5029,103 +4911,41 @@ QString Supervisor::getethernetDNS(){
 QString Supervisor::getethernetDNS2(){
     return probot->ethernet_interface.dns2;
 }
-void Supervisor::getAllWifiList(){//need check
-#ifdef EXTPROC_TEST
+void Supervisor::getAllWifiList(){
     checker->getWifiList(true);
-#else
-    ExtProcess::Command temp;
-    temp.cmd = ExtProcess::PROCESS_CMD_GET_WIFI_LIST;
-    extproc->set_command(temp, "Get Wifi List");
-    QNetworkConfigurationManager ncm;
-    QList<QNetworkConfiguration> lists = ncm.allConfigurations();
-    for(QNetworkConfiguration e : lists){
-        if(e.bearerType() == QNetworkConfiguration::BearerWLAN)
-        {
-            if(e.state() == QNetworkConfiguration::Active){
-                defaultWifiConf = e;
-            }
-        }
-    }
-//    qDebug() << "default : " << defaultWifiConf.name() << defaultWifiConf.state();
-    if(defaultWifiConf.name() != ""){
-        probot->wifi_ssid = defaultWifiConf.name();
-        probot->wifi_connection = WIFI_CONNECT;
-    }
-#endif
 }
 bool Supervisor::getWifiSecurity(QString ssid){
-#ifdef EXTPROC_TEST
     for(ST_WIFI w : probot->wifi_list){
         if(w.ssid == ssid){
             return w.security;
         }
     }
     return false;
-#else
-    return probot->wifi_map[ssid].security;
-#endif
 }
 int Supervisor::getWifiLevel(){
-#ifdef EXTPROC_TEST
     for(ST_WIFI w : probot->wifi_list){
         if(w.ssid == probot->wifi_interface.ssid){
             return w.level;
         }
     }
     return 0;
-#else
-    //    qDebug() << probot->wifi_interface.ssid << probot->wifi_map[probot->wifi_interface.ssid].level;
-        if(probot->wifi_map[probot->wifi_interface.ssid].ssid == probot->wifi_interface.ssid){
-            if(probot->wifi_map[probot->wifi_interface.ssid].level < 20){
-                return 0;
-            }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 40){
-                return 1;
-            }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 60){
-                return 2;
-            }else if(probot->wifi_map[probot->wifi_interface.ssid].level < 80){
-                return 3;
-            }else{
-                return 4;
-            }
-        }else{
-            return 3;
-        }
-#endif
 }
 int Supervisor::getWifiLevel(QString ssid){
-#ifdef EXTPROC_TEST
     for(ST_WIFI w : probot->wifi_list){
         if(w.ssid == ssid){
             return w.level;
         }
     }
     return 0;
-#else
-    if(probot->wifi_map[ssid].level < 20){
-        return 0;
-    }else if(probot->wifi_map[ssid].level < 40){
-        return 1;
-    }else if(probot->wifi_map[ssid].level < 60){
-        return 2;
-    }else if(probot->wifi_map[ssid].level < 80){
-        return 3;
-    }else{
-        return 4;
-    }
-#endif
 }
 int Supervisor::getWifiRate(QString ssid){
     return probot->wifi_map[ssid].rate;
 }
 bool Supervisor::getWifiInuse(QString ssid){
-#ifdef EXTPROC_TEST
     if(ssid == probot->wifi_interface.ssid)
         return true;
     else
         return false;
-#else
-    return probot->wifi_map[ssid].inuse;
-#endif
 }
 
 void Supervisor::cleanTray(){

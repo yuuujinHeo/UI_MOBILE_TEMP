@@ -156,9 +156,9 @@ Item {
         onPressed:{
             if(active){
                 setPressed();
-                click_sound.play();
+                supervisor.playSound('click');
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
             }
         }
         onReleased:{

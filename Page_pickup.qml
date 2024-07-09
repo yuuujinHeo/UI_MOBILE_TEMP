@@ -19,12 +19,8 @@ Item {
     property bool blink_3: false
     property var tray_num: parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))
 
-    Component.onCompleted: {
-//        init();
-    }
-
     function init(){
-        supervisor.writelog("[QML] PICKUP PAGE Init");
+        supervisor.writelog("[QML-Pickup] PICKUP PAGE Init");
         pickup_1 = false;
         pickup_2 = false;
         pickup_3 = false;
@@ -34,7 +30,6 @@ Item {
         btn_confirm.visible = true;
         text_hello.visible = false;
         timer_hello.stop();
-//        voice_pickup.play();
 
         if(!supervisor.isPatrolPage())
             supervisor.playVoice("pickup");
@@ -58,6 +53,7 @@ Item {
         pickup_2 = true;
         pickup_3 = true;
     }
+
     function set_tray(){
         var trays = supervisor.getPickuptrays();
         if(trays.length === parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))){
@@ -73,6 +69,7 @@ Item {
                 }else{
                     tempstr += qsTr("과 ") + Number(trays[i])+qsTr("번");
                 }
+
                 if(trays[i] === 1){
                     pickup_1 = true;
                 }else if(trays[i] === 2){
@@ -254,11 +251,12 @@ Item {
                         }
                     }
                 }
+
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
                         //click_start.play();
-                        click_sound.play();
+                        supervisor.playSound('click');
                         supervisor.writelog("[USER INPUT] PICKUP CONFIRM clicked");
                         supervisor.playVoice("thanks");
                         column_pickup.visible = false;
@@ -291,12 +289,12 @@ Item {
         z: 99
         property int password: 0
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             password++;
             if(password > 4){
                 password = 0;
                 supervisor.moveStop();
-                supervisor.writelog("[UI] PagePickup : Debug Pass -> PageKitchen");
+                supervisor.writelog("[QML-Pickup] PagePickup : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
             }
         }
@@ -310,7 +308,7 @@ Item {
         repeat: false
         onTriggered: {
             supervisor.confirmPickup();
-            supervisor.writelog("[QML] PICKUP PAGE -> Move to Next");
+            supervisor.writelog("[QML-Pickup] PICKUP PAGE -> Move to Next");
         }
     }
 }

@@ -345,5 +345,6 @@
         <file>Button_menu.qml</file>
         <file>Button_show.qml</file>
         <file>image/serving_manual_qr.png</file>
+        <file>Popup_loading.qml</file>
     </qresource>
 </RCC>

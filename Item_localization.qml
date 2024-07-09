@@ -1,14 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-//import QtQuick.Dialogs 1.2
-import Qt.labs.platform 1.0 as Platform
-import QtQuick.Shapes 1.15
-//import QtQuick.Shapes 1.12
 import QtGraphicalEffects 1.0
-import QtMultimedia 5.12
 import "."
 import io.qt.Supervisor 1.0
+// import Qt.labs.platform 1.0 as Platform
+// import QtQuick.Shapes 1.15
+// import QtMultimedia 5.12
 
 Item{
     id: item_localization
@@ -26,13 +24,11 @@ Item{
     property bool mapping_mode: false
     property bool auto_init: false
 
-
     signal passed;
     signal confirmed;
     signal backed;
 
     Component.onCompleted: {
-        popup_loading.close();
         supervisor.resetLocalizationConfirm();
         if(auto_init){
             supervisor.writelog("[INIT] Localization : Auto Init")
@@ -67,25 +63,6 @@ Item{
         }
     }
 
-//    Timer{
-//        running: auto_init
-//        interval: 500
-//        onTriggered:{
-//            supervisor.writelog("[INIT] Localization : Auto Init")
-//            timer_check_localization.start();
-//            supervisor.slam_autoInit();
-//        }
-//    }
-
-//    Timer{
-//        running: true
-//        interval: 1000
-//        onTriggered:{
-//            supervisor.writelog("[INIT] Localization : Motor Lock off")
-//            supervisor.setMotorLock(false);
-//        }
-//    }
-
     Timer{
         id: timer_check_localization
         property int timeout_cnt: 0
@@ -100,13 +77,11 @@ Item{
                 show_success = false;
                 show_failed = false;
                 show_timeout = false;
-//                btn_do_autoinit.running = false;
                 show_restart = false;
             }else if(local_find_state === 1){
                 if(timeout_cnt++ > 20){
                     show_timeout = true;
                 }
-//                btn_do_autoinit.running = true;
                 text_finding.text = qsTr("로봇이 위치를 찾고 있습니다...") //로봇의 위치를 찾고 있습니다
                 show_success = false;
                 show_failed = false;
@@ -116,14 +91,12 @@ Item{
                 text_finding.text = qsTr("로봇이 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요") //로봇의 위치를 찾고 있습니다
                 show_success = true;
                 show_failed = true;
-//                btn_do_autoinit.running = false;
             }else if(local_find_state === 3){//failed
                 timeout_cnt = 0;
                 show_timeout = false;
                 text_finding.text = qsTr("로봇이 위치를 찾지 못했습니다") //로봇의 위치를 찾지 못했습니다
                 show_success = false;
                 show_failed = true;
-//                btn_do_autoinit.running = false;
             }else{
                 show_timeout = false;
                 text_finding.text = qsTr("주행 준비가 되지 않았습니다") //로봇과 연결이 되지 않았습니다
@@ -186,7 +159,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onPressed:{
-                    click_sound.play();
+                    supervisor.playSound('click');
                     parent.color = color_mid_green;
                 }
                 onReleased: {
@@ -244,7 +217,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.writelog("[INIT] Localization : Make new map")
                     loadPage(pmapping);
                 }
@@ -289,7 +262,7 @@ Item{
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.writelog("[INIT] Debug Mode On");
                     supervisor.passInit();
                     passed();
@@ -402,6 +375,7 @@ Item{
         }
     }
 
+
     MouseArea{
         width: 50
         height: 50
@@ -409,7 +383,7 @@ Item{
         anchors.right: parent.right
         property int count: 0
         onClicked:{
-            click_sound.play();
+            supervisor.playSound('click');
             if(count++ > 4){
                 count = 0;
                 show_debug = true;

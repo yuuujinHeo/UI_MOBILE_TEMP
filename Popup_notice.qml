@@ -173,7 +173,7 @@ Popup{
                                 anchors.fill: parent
                                 onPressed:{
                                     parent.color = mode===0?color_more_gray:color_dark_green
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                 }
                                 onReleased:{
                                     parent.color = mode===0?color_dark_gray:color_green

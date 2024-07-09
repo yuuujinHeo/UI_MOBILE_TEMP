@@ -115,7 +115,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         popup_help.setTitle(qsTr("맵 생성"));
                         popup_help.addTip(qsTr("맵 생성이 무엇인가요?","로봇을 처음 세팅하거나 매장의 환경이 많이 바뀌었을 때 매장의 지도를 다시 그려야 합니다\n맵을 생성하고 저장하면 기존의 데이터는 더 이상 사용하지 않으며 새로 세팅해야 합니다\n맵을 그린 뒤 각각의 서빙, 충전 위치 등을 지정하고 이동경로를 학습하려면 [시작] 버튼을 누르세요"));
                         popup_help.addTip(qsTr("맵 생성을 했다가 다시 되돌릴 수 있나요?","맵을 저장하지 않으면 기존 데이터를 덮어쓰지 않습니다\n만일 맵을 저장했다 하더라도 기존에 저장된 맵과 서빙포인트를 되살리고 싶다면 맵 설정 페이지에서 맵 불러오기를 실행하세요"));
@@ -166,7 +166,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         supervisor.writelog("[MAPPING] START Mapping : next page")
                         mapping_pages.sourceComponent = page_mapping_set;
                         parent.color = "transparent";
@@ -204,7 +204,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         if(pbefore === pannotation){
                             loadPage(pinit);
                         }else{
@@ -367,7 +367,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();;
+                                    supervisor.playSound('click');;
                                     select_grid = 3;
                                 }
                             }
@@ -389,7 +389,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();;
+                                    supervisor.playSound('click');;
                                     select_grid = 5;
                                 }
                             }
@@ -411,7 +411,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();;
+                                    supervisor.playSound('click');;
                                     popup_select_grid.open();
                                 }
                             }
@@ -534,7 +534,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         map_name = textfield_name.text;
                         map_width = slider_mapsize.value;
                         grid_width = (select_grid/100);
@@ -577,7 +577,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         supervisor.writelog("[MAPPING] START Mapping : prev page")
                         mapping_pages.sourceComponent = page_mapping_start;
                         parent.color = "transparent";
@@ -631,7 +631,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         popup_help.setTitle(qsTr("맵 생성"));
                         popup_help.addTip(qsTr("맵을 새로 그리고 싶어요","[취소] 버튼을 누르고 새로 시작해 주세요"));
                         popup_help.addTip(qsTr("맵이 틀어진 것 같아요","맵을 그리다보면 간혹 기존 맵과 일치하지 않게 틀어진 맵이 추가로 그려질 수 있습니다\n이때 틀어졌다고 판단되는 구간에서 잠시 정지하여 기다려주세요\n로봇은 주기적으로 맵의 오차를 계산하고 이를 복구하기 위해 노력합니다"));
@@ -686,7 +686,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         supervisor.writelog("[MAPPING] Mapping : Loop Closing");
                         supervisor.loopClosing();
                         parent.color = "transparent";
@@ -726,7 +726,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         popup_loading.open();
                         supervisor.writelog("[MAPPING] Mapping : save mapping");
                         supervisor.saveMapping(map_name);
@@ -783,7 +783,7 @@ Item {
                         parent.color = color_mid_navy;
                     }
                     onReleased: {
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         supervisor.writelog("[MAPPING] START Mapping : Stop and canceled")
                         supervisor.stopMapping();
                         mapping_pages.sourceComponent = page_mapping_start;
@@ -798,103 +798,102 @@ Item {
 
 
 
-    Component{
-        id: page_mapping_done
-        Item{
-            width: mapping_pages.width
-            height: mapping_pages.height
-            property bool detect_done: false
-            Rectangle{
-                anchors.fill: parent
-                color: color_dark_navy
-            }
-            Component.onCompleted: {
-                popup_loading.open();
-            }
-            Timer{
-                running: true
-//                repeat: true
-                interval: 1000
-                onTriggered: {
-                    if(supervisor.getIPCConnection()){
-                        popup_loading.close();
-                        supervisor.setMap(map_name);
-                        detect_done = true;
-                        stop();
-                    }
-                }
-            }
-            Column{
-                anchors.centerIn: parent
-                spacing: 30
-                opacity: detect_done?1:0
-                Behavior on opacity {
-                    NumberAnimation{
-                        duration : 500
-                    }
-                }
-                Text{
-                    text: qsTr("맵 생성을 완료하였습니다")
-                    color: "white"
-                    font.pixelSize: 60
-                    font.family: font_noto_b.name
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Text{
-                    text: qsTr("다음으로 맵 설정을 진행합니다")
-                    color: "white"
-                    font.pixelSize: 60
-                    font.family: font_noto_b.name
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-            }
-            Rectangle{
-                id: btn_right
-                anchors.bottom: parent.bottom
-                anchors.right: parent.right
-                anchors.bottomMargin: 50
-                anchors.rightMargin: 50
-                opacity: detect_done?1:0
-                Behavior on opacity {
-                    NumberAnimation{
-                        duration : 500
-                    }
-                }
-                width: 200
-                height: 80
-                radius: 15
-                border.width: 2
-                border.color: "white"
-                color: "transparent"
-                Text{
-                    Component.onCompleted: {
-                        scale = 1;
-                        while(width*scale > 180){
-                            scale=scale-0.01;
-                        }
-                    }
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    color: "white"
-                    text: qsTr("맵 설정")
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onPressed:{
-                        parent.color = color_mid_navy;
-                    }
-                    onReleased: {
-                        click_sound.play();;
-                        supervisor.writelog("[MAPPING] START Annotation");
-                        loadPage(pannotation);
-                        loader_page.item.setMappingFlag();
-                        parent.color = "transparent";
-                    }
-                }
-            }
-        }
-    }
+    // Component{
+    //     id: page_mapping_done
+    //     Item{
+    //         width: mapping_pages.width
+    //         height: mapping_pages.height
+    //         property bool detect_done: false
+    //         Rectangle{
+    //             anchors.fill: parent
+    //             color: color_dark_navy
+    //         }
+    //         Component.onCompleted: {
+    //             popup_loading.open();
+    //         }
+    //         Timer{
+    //             running: true
+    //             interval: 1000
+    //             onTriggered: {
+    //                 if(supervisor.getIPCConnection()){
+    //                     popup_loading.close();
+    //                     supervisor.setMap(map_name);
+    //                     detect_done = true;
+    //                     stop();
+    //                 }
+    //             }
+    //         }
+    //         Column{
+    //             anchors.centerIn: parent
+    //             spacing: 30
+    //             opacity: detect_done?1:0
+    //             Behavior on opacity {
+    //                 NumberAnimation{
+    //                     duration : 500
+    //                 }
+    //             }
+    //             Text{
+    //                 text: qsTr("맵 생성을 완료하였습니다")
+    //                 color: "white"
+    //                 font.pixelSize: 60
+    //                 font.family: font_noto_b.name
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //             }
+    //             Text{
+    //                 text: qsTr("다음으로 맵 설정을 진행합니다")
+    //                 color: "white"
+    //                 font.pixelSize: 60
+    //                 font.family: font_noto_b.name
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //             }
+    //         }
+    //         Rectangle{
+    //             id: btn_right
+    //             anchors.bottom: parent.bottom
+    //             anchors.right: parent.right
+    //             anchors.bottomMargin: 50
+    //             anchors.rightMargin: 50
+    //             opacity: detect_done?1:0
+    //             Behavior on opacity {
+    //                 NumberAnimation{
+    //                     duration : 500
+    //                 }
+    //             }
+    //             width: 200
+    //             height: 80
+    //             radius: 15
+    //             border.width: 2
+    //             border.color: "white"
+    //             color: "transparent"
+    //             Text{
+    //                 Component.onCompleted: {
+    //                     scale = 1;
+    //                     while(width*scale > 180){
+    //                         scale=scale-0.01;
+    //                     }
+    //                 }
+    //                 anchors.centerIn: parent
+    //                 font.family: font_noto_r.name
+    //                 font.pixelSize: 30
+    //                 color: "white"
+    //                 text: qsTr("맵 설정")
+    //             }
+    //             MouseArea{
+    //                 anchors.fill: parent
+    //                 onPressed:{
+    //                     parent.color = color_mid_navy;
+    //                 }
+    //                 onReleased: {
+    //                     supervisor.playSound('click');;
+    //                     supervisor.writelog("[MAPPING] START Annotation");
+    //                     loadPage(pannotation);
+    //                     loader_page.item.setMappingFlag();
+    //                     parent.color = "transparent";
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 
     Popup_help{
         id: popup_help
@@ -902,5 +901,8 @@ Item {
 
     Tool_Keyboard{
         id: keyboard
+    }
+    Popup_loading{
+        id: popup_loading
     }
 }

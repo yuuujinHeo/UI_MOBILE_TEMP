@@ -12,6 +12,7 @@
 #include <QObject>
 #include <QThread>
 #include "GlobalHeader.h"
+
 enum{
     PROCESS_CMD_NONE = 0,
     PROCESS_CMD_SET_SYSTEM_VOLUME,
@@ -42,36 +43,34 @@ public slots:
     void setEthernet();
     void gitPull();
     void gitReset();
-    void pactlGet();
-    void pactlSet();
     void setProperties(bool isprint){
         is_print = isprint;
     }
     void getNetworkState();
     void network_output();
+
     void error_git_pull(){
         QByteArray error = process->readAllStandardError();
         if(error.contains("error:")){
             is_error = true;
         }
-        qDebug() << "Error Git Pull" << error;
+        plog->write("[checker] GitPull Error : "+error);
     }
 
     void error_git_reset(){
         QByteArray error = process->readAllStandardError();
-        qDebug() << "Error Git Reset" << error;
+        plog->write("[checker] GitReset Error : "+error);
     }
     void error_set_wifi(){
         QByteArray error = process->readAllStandardError();
-        qDebug() << "Error Set Wifi" << error;
+        plog->write("[checker] setWifi Error : "+error);
         emit connect_wifi_fail(1, argument[0]);
         emit finished(this);
     }
     void error_connect_wifi(){
         QByteArray error = process->readAllStandardError();
-        qDebug() << "Error Connect Wifi" << error;
+        plog->write("[checker] connectWifi Error : "+error);
         if(error.contains("[sudo]")){
-            //process->write("rainbow\n");
             process->write("odroid\n");
             if(!process->waitForFinished()){
                 emit connect_wifi_fail(3, argument[0]);

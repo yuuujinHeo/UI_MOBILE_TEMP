@@ -11,12 +11,6 @@ Item {
     width: 1280
     height: 800
 
-    Component.onCompleted: {
-    }
-    Component.onDestruction: {
-        popup_notice.close();
-    }
-
     function init(){
         print("kitchen init");
         statusbar.visible = true;
@@ -66,21 +60,13 @@ Item {
         }
 
         update_group();
-
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             if(supervisor.isCallingMode() || supervisor.getCallQueueSize() > 0){
                 popup_clean_calling.cleaninglocation = false;
                 popup_clean_calling.open();
             }
         }
-//        supervisor.moveStop();
         supervisor.setMotorLock(true);
-
-//        if(supervisor.getSetting("setting","USE_UI","use_restinglock")==="true"){
-//            supervisor.setMotorLock(false);
-//        }else{
-//            supervisor.setMotorLock(true);
-//        }
     }
 
 
@@ -204,21 +190,7 @@ Item {
                             text_go.text = qsTr("서빙 시작")
                             text_go.font.pixelSize = 35
                         }
-                    }
-
-                    //}
-                    //}else if(supervisor.getLocalizationState() === 2){ // origin code
-                    //    btn_go.active = true;
-                    //    menubar.menu2_en = true;
-                    //    menubar.menu3_en = true;
-                    //    menubar.menu4_en = true;
-                    //    rect_go.color = color_blue;
-                    //    btn_patrol.active = true;
-                    //    text_go.color = "white";
-                    //    text_go.text = qsTr("서빙 시작")
-                    //    text_go.font.pixelSize = 35
-                    //}
-                    else{
+                    }else{
                         btn_go.active = false;
                         menubar.menu2_en = false;
                         menubar.menu3_en = false;
@@ -416,7 +388,7 @@ Item {
                         property var firstX;
                         property int width_dis: 0
                         onPressed: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             firstX = mouseX;
                             width_dis = 0;
                         }
@@ -465,7 +437,6 @@ Item {
                 }
             }
         }
-
     }
 
     Rectangle{
@@ -521,8 +492,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
-                                print("cur group change : ",num)
+                                supervisor.playSound('click');
                                 cur_group = num;
                             }
                         }
@@ -607,7 +577,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onPressAndHold: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     btn_lock.visible = false;
                     btns_table.visible = true;
                 }
@@ -641,7 +611,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(col_num > 1)
                             supervisor.setTableColNum(--col_num);
                     }
@@ -668,7 +638,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(col_num < max_col)
                             supervisor.setTableColNum(++col_num);
                     }
@@ -691,7 +661,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         btn_lock.visible = true;
                         btns_table.visible = false;
                     }
@@ -745,7 +715,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(cur_table === num)
                             cur_table = -1;
                         else
@@ -786,7 +756,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         cur_table = num;
                     }
                 }
@@ -856,7 +826,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             print("cur group change2 : ",num)
                                             cur_group = num;
                                         }
@@ -995,7 +965,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onPressAndHold: {
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 btn_lock_group.visible = false;
                                 btns_table_group.visible = true;
                             }
@@ -1045,7 +1015,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_row_num",row_num-1);
                                         row_num--;
                                         update_table();
@@ -1077,7 +1047,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_row_num",row_num+1);
                                         row_num++;
                                         update_table();
@@ -1117,7 +1087,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_col_num",col_num-1);
                                         col_num--;
                                         update_table();
@@ -1149,7 +1119,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_col_num",col_num+1);
                                         col_num++;
                                         update_table();
@@ -1175,7 +1145,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     btn_lock_group.visible = true;
                                     btns_table_group.visible = false;
                                 }
@@ -1232,12 +1202,12 @@ Item {
                 if(active){
                     hold = false;
                     if(cur_table==-1){
-                        click_sound_no.play();
+                        supervisor.playSound('no');
                     }else{
-                        click_sound.play();
+                        supervisor.playSound('click');
                     }
                 }else{
-                    click_sound_no.play();
+                    supervisor.playSound('no');
                     cur_table = -1;
                 }
             }
@@ -1364,7 +1334,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 1;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1390,7 +1360,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 2;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1416,7 +1386,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 3;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1442,7 +1412,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 4;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1468,7 +1438,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 5;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1525,7 +1495,7 @@ Item {
             id: btn_go2
             anchors.fill: parent
             onClicked: {
-                click_sound.play();
+                supervisor.playSound('click');
                 popup_patrol.open();
             }
         }
@@ -1550,40 +1520,40 @@ Item {
             }
         }
         onMenu1_clicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             cur_table = -1;
             loadPage(pmenu);
         }
         onMenu2_clicked: {
             cur_table = -1;
             if(menu2_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Charging";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
         onMenu3_clicked: {
             cur_table = -1;
             if(menu3_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Resting";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
         onMenu4_clicked: {
             cur_table = -1;
             if(menu4_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Cleaning";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
@@ -1664,7 +1634,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     move_loc = "None";
                     popup_question.close();
                 }
@@ -1710,7 +1680,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.setMotorLock(true);
                     if(move_loc === "Resting"){
                         supervisor.moveToWait();
@@ -1887,7 +1857,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.clearCallQueue();
                         }
                     }
@@ -1915,7 +1885,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.cleanTray();
                         }
                     }
@@ -1943,7 +1913,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.moveToWait();
                         }
                     }
@@ -1972,7 +1942,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.stateInit();
                             popup_clean_calling.close();
                         }
@@ -2014,7 +1984,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.cleanTray();
                             popup_clean_calling.close();
                         }

@@ -324,7 +324,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(select_map_list === index){
                                                         select_map_list = -1;
                                                     }else{
@@ -641,7 +641,7 @@ Popup{
                                                             MouseArea{
                                                                 anchors.fill: parent
                                                                 onClicked:{
-                                                                    click_sound.play();;
+                                                                    supervisor.playSound('click');;
                                                                     cur_group = index;
                                                                 }
                                                             }
@@ -826,7 +826,7 @@ Popup{
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             if(index == 2){
                                                                 if(show_location){
                                                                     parent.color = "black";
@@ -919,7 +919,7 @@ Popup{
                     MouseArea{
                         anchors.fill:parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             keyboard.owner = textfield_new_map;
                             keyboard.owner_text = "textfield_new_map";
                             textfield_new_map.selectAll();
@@ -1013,7 +1013,7 @@ Popup{
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();;
+                                supervisor.playSound('click');;
                                 popup_annotation_delete.close();
                             }
                         }
@@ -1036,7 +1036,7 @@ Popup{
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();;
+                                supervisor.playSound('click');;
                                 supervisor.deleteAnnotation();
                                 supervisor.setMap(name);
                                 loadPage(pmap);

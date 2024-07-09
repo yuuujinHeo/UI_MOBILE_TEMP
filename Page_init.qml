@@ -4,10 +4,8 @@ import "."
 import io.qt.Supervisor 1.0
 import io.qt.MapViewer 1.0
 import QtGraphicalEffects 1.0
-import io.qt.Supervisor 1.0
 import io.qt.CameraView 1.0
 import QtMultimedia 5.12
-
 
 Item {
     id: page_init
@@ -19,50 +17,112 @@ Item {
     property int init_mode: 0
 
     property bool show_debug: false
-//    property bool wifi_update_auto: true
 
     Component.onCompleted: {
-        popup_notice.close();
         init_mode = 0;
         supervisor.clearSharedMemory();
         supervisor.setUiState(1);
-        supervisor.checkUpdate();
     }
 
-    Component.onDestruction: {
-        popup_notice.close();
-    }
-
-    function update_fail(){
-        popup_updating.fail();
-    }
-
-    function update_success(){
-        popup_updating.success();
-    }
-
-    function update_unzip_done(){
-        popup_updating.state = 5;
-    }
-
-    function update_unzip_failed(){
-        popup_updating.state = 4;
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }
     }
 
     function init(){
         if(loader_init.item.objectName == "init_init"){
-            popup_loading.close();
             loader_init.item.ip_update();
         }
     }
 
     function wifistatein(){
-        popup_loading.close();
         loader_init.item.updatewifiState();
     }
     function wifi_con_failed(){
-//        popup_wifi.con_fail();
-//        popup_loading.close();
         loader_init.item.connect_fail();
     }
     function wifi_con_success(){
@@ -115,324 +175,6 @@ Item {
                     font.pixelSize: 15
                 }
             }
-        }
-    }
-
-    //0. 새로운 업데이트
-    Component{
-        id: item_program_update
-        Item{
-            objectName: "item_program_update"
-            anchors.fill: parent
-            Component.onCompleted: {
-                statusbar.visible = true;
-            }
-            property string text_message: "No Message"
-            Rectangle{
-                anchors.fill: parent
-                color: "#f4f4f4"
-            }
-            Column{
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenterOffset: -80
-                Text{
-                    font.family: font_noto_r.name
-                    color: "#7e7e7e"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    text: qsTr("새로운 업데이트가 있습니다")
-                    font.pixelSize: 60
-                }
-                Text{
-                    font.family: font_noto_r.name
-                    color: "#7e7e7e"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    horizontalAlignment: Text.AlignHCenter
-                    text: qsTr("업데이트를 진행하면 프로그램이 재시작됩니다")
-                    font.pixelSize: 40
-                }
-            }
-            Row{
-                spacing: 40
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 140
-                anchors.horizontalCenter: parent.horizontalCenter
-                Rectangle{
-                    id: btn_update
-                    width: 230
-                    height: 130
-                    radius: 40
-                    color: color_navy
-                    Row{
-                        spacing: 15
-                        anchors.centerIn: parent
-                        Row{
-                            id: image_robot_con
-                            anchors.verticalCenter: parent.verticalCenter
-                            Image{
-                                id: image_tx
-                                width: 15
-                                height: 28
-                                mipmap: true
-                                antialiasing: true
-                                sourceSize.width: 15
-                                sourceSize.height: 28
-                                source: "icon/data_gray.png"
-                            }
-                            Image{
-                                id: image_rx
-                                mipmap: true
-                                antialiasing: true
-                                width: 15
-                                height: 28
-                                sourceSize.width: 15
-                                sourceSize.height: 28
-                                anchors.top: image_tx.top
-                                anchors.topMargin: 1
-                                rotation: 180
-                                source: "icon/data_green.png"
-                            }
-                        }
-                        Text{
-                            text: qsTr("업데이트")
-                            anchors.verticalCenter: parent.verticalCenter
-                            color: "white"
-                            font.family: font_noto_r.name
-                            font.pixelSize: 30
-                            horizontalAlignment: Text.AlignHCenter
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            parent.color = color_mid_navy;
-                        }
-                        onReleased: {
-                            start_sound.play();
-                            supervisor.writelog("[INIT] PROGRAM UPDATE")
-                            supervisor.updateProgram();
-                            popup_updating.open();
-                            parent.color = color_navy;
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_show_update
-                    width: 230
-                    height: 130
-                    radius: 40
-                    color: "transparent"
-                    border.width: 2
-                    border.color: color_navy
-                    Row{
-                        spacing: 15
-                        anchors.centerIn: parent
-                        Image{
-                            id: image_charge1
-                            width: 40
-                            height: 40
-                            sourceSize.width: width
-                            sourceSize.height: height
-                            source:"icon/icon_local_error.png"
-                            anchors.verticalCenter: parent.verticalCenter
-                            ColorOverlay{
-                                source: parent
-                                anchors.fill: parent
-                                color: color_navy
-                            }
-                        }
-                        Text{
-                            id: text_slam_pass
-                            text: qsTr("내용보기")
-                            color: color_navy
-                            font.family: font_noto_r.name
-                            font.pixelSize: 30
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            parent.color = color_gray;
-                        }
-                        onReleased: {
-                            click_sound.play();;
-                            supervisor.writelog("[INIT] Show Update Popup")
-                            popup_show_update.open();
-                            parent.color = "transparent";
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_lcm_pass
-                    width: 230
-                    height: 130
-                    radius: 30
-                    color: "transparent"
-                    border.width: 2
-                    border.color: color_navy
-                    Row{
-                        spacing: 15
-                        anchors.centerIn: parent
-                        Text{
-                            text: qsTr("업데이트 안함")
-                            horizontalAlignment: Text.AlignHCenter
-                            color: color_navy
-                            font.family: font_noto_r.name
-                            font.pixelSize: 30
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onPressed:{
-                            parent.color = color_gray;
-                        }
-                        onReleased: {
-                            click_sound.play();;
-                            supervisor.writelog("[INIT] Program Update Pass")
-                            init_mode = 1;
-                            parent.color = "transparent";
-                        }
-                    }
-                }
-            }
-            Popup{
-                id: popup_show_update
-                anchors.centerIn: parent
-                property string date: "2023:11:08:23:33:02"
-                width: 1000
-                height: 650
-                background: Rectangle{
-                    anchors.fill: parent
-                    color: "transparent"
-                }
-                onOpened:{
-                    date = supervisor.getUpdateDate();
-                    model_update.clear();
-                    for(var i=0; i<supervisor.getUpdateSize(); i++){
-                        var name = supervisor.getUpdateFileName(i);
-                        model_update.append({"name":name,"commit":supervisor.getUpdateCommit(name),"message":supervisor.getUpdateMessage(name),
-                                            "last_date":supervisor.getLastUpdateDate(name),"orin_commit": supervisor.getCurrentCommit(name)});
-                    }
-                }
-
-                Rectangle{
-                    width: parent.width
-                    height: parent.height
-                    radius: 20
-                    Row{
-                        id: dd2
-                        spacing: 50
-                        anchors.top: parent.top
-                        anchors.topMargin: 30
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        Text{
-                            text: qsTr("업데이트")
-                            font.family: font_noto_r.name
-                            font.pixelSize: 50
-                            anchors.verticalCenter: parent.verticalCenter
-                        }
-                        Text{
-                            text: qsTr("요청 날짜 : ") + popup_show_update.date
-                            font.family: font_noto_r.name
-                            font.pixelSize: 20
-                            anchors.bottom: parent.bottom
-                        }
-                    }
-                    Item_buttons{
-                        type: "circle_image"
-                        source: "icon/icon_remove.png"
-                        width: 60
-                        anchors.verticalCenter: dd2.verticalCenter
-                        anchors.right: parent.right
-                        anchors.rightMargin: 60
-                        height: 60
-                        onClicked:{
-                            popup_show_update.close();
-                        }
-                    }
-                    Rectangle{
-                        id: dd3
-                        width: 850
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: dd2.bottom
-                        anchors.topMargin: 10
-                        height: 2
-                        color: color_dark_navy
-                    }
-                    Flickable{
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: dd3.bottom
-                        anchors.topMargin: 25
-                        width: 800
-                        clip: true
-                        height: parent.height - 180
-                        contentHeight: cols_uu.height
-                        Column{
-                            id: cols_uu
-                            anchors.centerIn: parent
-                            spacing: 20
-                            Repeater{
-                                model: ListModel{id: model_update}
-                                Rectangle{
-                                    width: 800
-                                    height: 130
-                                    radius: 10
-                                    color: color_light_gray
-                                    Row{
-                                        anchors.centerIn: parent
-                                        Rectangle{
-                                            width: 350
-                                            height: 130
-                                            color: "transparent"
-
-                                            Text{
-                                                anchors.centerIn: parent
-                                                text: name
-                                                font.family: font_noto_r.name
-                                                font.pixelSize: 30
-                                            }
-                                        }
-                                        Rectangle{
-                                            width: 450
-                                            height: 130
-                                            color: "transparent"
-
-                                            Column{
-                                                anchors.left: parent.left
-                                                anchors.leftMargin: 50
-                                                anchors.verticalCenter: parent.verticalCenter
-
-                                                Text{
-                                                    text: qsTr("업데이트 버전 : ") + commit
-                                                    font.family: font_noto_r.name
-                                                    font.pixelSize: 15
-                                                }
-                                                Text{
-                                                    text: qsTr("기존 버전 : ") + orin_commit
-                                                    font.family: font_noto_r.name
-                                                    font.pixelSize: 15
-                                                }
-                                                Text{
-                                                    text: qsTr("마지막 업데이트 : ") + last_date
-                                                    font.family: font_noto_r.name
-                                                    font.pixelSize: 15
-                                                }
-                                                Text{
-                                                    text: qsTr("메시지 : ") + message
-                                                    font.family: font_noto_r.name
-                                                    font.pixelSize: 15
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
         }
     }
 
@@ -505,8 +247,8 @@ Item {
                             parent.color = color_mid_navy;
                         }
                         onReleased: {
-                            start_sound.play();
-                            supervisor.writelog("[INIT] PROGRAM RESTART")
+                            supervisor.playSound('start');
+                            supervisor.writelog("[INIT] Program Restart")
                             supervisor.programRestart();
                             parent.color = color_navy;
                         }
@@ -539,7 +281,7 @@ Item {
                             parent.color = color_gray;
                         }
                         onReleased: {
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             supervisor.writelog("[INIT] PASS IPC Connection")
 
                             popup_notice.init();
@@ -555,7 +297,6 @@ Item {
 
             }
 
-
             MouseArea{
                 id: area_debug
                 width: 100
@@ -565,7 +306,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound.play();;
+                    supervisor.playSound('click');
                     password++;
                     if(password > 4){
                         password = 0;
@@ -661,7 +402,6 @@ Item {
                 dnsmain_2.focus = false;
                 dnsmain_3.focus = false;
                 dnsmain_4.focus = false;
-//                print("ip_update");
             }
 
             SwipeView{
@@ -672,7 +412,6 @@ Item {
                 onCurrentIndexChanged: {
                     currentItem.init();
                 }
-
                 clip: true
                 Item{
                     id: wizard_intro
@@ -732,7 +471,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : LOAD MAP FROM USB")
                                         popup_usb_download.open();
                                     }
@@ -754,7 +493,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        start_sound.play();
+                                        supervisor.playSound('start');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : NEXT")
                                         swipeview_wizard.currentIndex++;
                                     }
@@ -782,7 +521,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
 
                                         popup_notice.init();
                                         popup_notice.style = "warning";
@@ -833,7 +572,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO BOTH")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
                                         swipeview_wizard.currentIndex++;
@@ -858,7 +597,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO Serving")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","SERVING");
                                         swipeview_wizard.currentIndex++;
@@ -882,7 +621,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CALLING")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","CALLING");
                                         swipeview_wizard.currentIndex++;
@@ -906,7 +645,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : SET ROBOT TYPE TO CLEANING")
                                         supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
                                         swipeview_wizard.currentIndex++;
@@ -1043,7 +782,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();;
+                                supervisor.playSound('click');
                                 supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
                                 swipeview_wizard.currentIndex--;
                             }
@@ -1068,7 +807,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();;
+                                supervisor.playSound('click');
                                 supervisor.setSetting("setting","ROBOT_TYPE/model",textfield_name.text);
                                 supervisor.setSetting("setting","ROBOT_TYPE/serial_num",combobox_serialnum.currentText);
                                 supervisor.writelog("[USER INPUT] INIT PAGE : NEXT")
@@ -1249,7 +988,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();;
+                                            supervisor.playSound('click');
                                             supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA Position Switch")
                                             wizard_camera.is_switched = true;
                                             var temp_id = wizard_camera.left_id;
@@ -1342,7 +1081,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();;
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[USER INPUT] INIT PAGE : PASS SETTING CAMERA");
                                         swipeview_wizard.currentIndex++;
                                     }
@@ -1372,7 +1111,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 supervisor.writelog("[USER INPUT] INIT PAGE : PREV")
                                 swipeview_wizard.currentIndex--;
                             }
@@ -1397,7 +1136,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();;
+                                supervisor.playSound('click');
                                 if(!rect_no_camera.visible){
                                     supervisor.writelog("[USER INPUT] INIT PAGE : NEXT")
                                     supervisor.setCamera(text_camera_1.text,text_camera_2.text);
@@ -1462,7 +1201,7 @@ Item {
                                         height: 60
                                         text: qsTr("건너뛰기")
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             popup_wifi_pass.close();
                                             supervisor.writelog("[USER INPUT] INIT PAGE : SKIP WIFI SETTING");
                                             swipeview_wizard.currentIndex++;
@@ -1524,7 +1263,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     password++;
                     if(password > 4){
                         password = 0;
@@ -1623,7 +1362,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             parent.color = color_mid_navy;
                         }
                         onReleased: {
@@ -1672,7 +1411,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            start_sound.play();
+                            supervisor.playSound('start');
                             parent.color = color_mid_navy;
                         }
                         onReleased: {
@@ -1723,7 +1462,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             parent.color = color_gray;
                         }
                         onReleased: {
@@ -1771,7 +1510,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onPressed:{
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             parent.color = color_gray;
                         }
                         onReleased: {
@@ -1799,7 +1538,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound.play();;
+                    supervisor.playSound('click');
                     password++;
                     if(password > 4){
                         password = 0;
@@ -1825,7 +1564,6 @@ Item {
                 start_mode: true
                 auto_init: false
                 onConfirmed: {
-                    print("kk");
                     supervisor.confirmLocalization();
                     update_timer.start();
                 }
@@ -1942,7 +1680,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         popup_notice.init();
                         popup_notice.style = "warning";
                         popup_notice.main_str = qsTr("초기화를 건너뛰겠습니까?")
@@ -1961,7 +1699,7 @@ Item {
                 z: 99
                 property var password: 0
                 onClicked: {
-                    click_sound.play();;
+                    supervisor.playSound('click');
                     password++;
                     if(password > 4){
                         password = 0;
@@ -1970,208 +1708,6 @@ Item {
                 }
             }
         }
-    }
-
-    Popup{
-        id: popup_updating
-        y: statusbar.height
-        leftPadding: 0
-        rightPadding: 0
-        topPadding: 0
-        closePolicy: Popup.NoAutoClose
-        bottomPadding: 0
-        width: 1280
-        height: 800 - statusbar.height
-        background: Rectangle{
-            anchors.fill: parent
-            color: color_light_gray
-        }
-        property var state: 0
-        onStateChanged: {
-            if(state === 0){
-                //처음 시작. 파일 받아오는 중
-                text_update_state.text = qsTr("파일 받아오는 중...")
-                image_upate_state.visible = false;
-                loadi2.play("image/loading_rb.gif");
-            }else if(state === 1){
-                //파일 받아오기 실패
-                loadi2.stop();
-                text_update_state.text = qsTr("서버로부터 파일을 받아오지 못했습니다");
-                image_upate_state.visible = true;
-                image_upate_state.color_ov = color_red;
-                image_upate_state.source = "image/robot_head_sleep.png";
-            }else if(state === 2){
-                //파일 받아오기 성공
-                loadi2.stop();
-                text_update_state.text = qsTr("업데이트 파일을 다운로드 했습니다");
-                image_upate_state.visible = true;
-                image_upate_state.color_ov = color_green;
-                image_upate_state.source = "image/robot_head.png";
-            }else if(state === 3){
-                //집 풀기 중
-                text_update_state.text = qsTr("파일 설치하는 중...")
-                image_upate_state.visible = false;
-                loadi2.play("image/loading_rb.gif");
-            }else if(state === 4){
-                //집 풀기 실패
-                loadi2.stop();
-                text_update_state.text = qsTr("서버로부터 파일을 받아오지 못했습니");
-                image_upate_state.visible = true;
-                image_upate_state.color_ov = 다color_red;
-                image_upate_state.source = "image/robot_head_sleep.png";
-            }else if(state === 5){
-                //집 풀기 성공
-                loadi2.stop();
-                text_update_state.text = qsTr("업데이트 파일을 설치 했습니다");
-                image_upate_state.visible = true;
-                image_upate_state.color_ov = color_green;
-                image_upate_state.source = "image/robot_head.png";
-            }
-        }
-
-        onOpened:{
-            state = 0;
-            text_update_state.text = qsTr("파일 받아오는 중...")
-            image_upate_state.visible = false;
-            loadi2.play("image/loading_rb.gif");
-        }
-        onClosed: {
-            loadi2.stop();
-        }
-        function fail(){
-            state = 1;
-        }
-        function success(){
-            state = 2;
-        }
-
-        Rectangle{
-            width: parent.width
-            height: parent.height
-            color: "transparent"
-            AnimatedImage{
-                id: loadi2
-                cache: false
-                width: parent.width*0.8
-                height: parent.height*0.9
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                function play(name){
-                    source = name;
-                    visible = true;
-                }
-                function stop(){
-                    visible = false;
-                    source = "";
-                }
-                source:  ""
-            }
-            Column{
-                spacing: 80
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 160
-                Column{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 30
-                    Image{
-                        id: image_upate_state
-                        property color color_ov
-                        width: 280
-                        height: 170
-                        sourceSize.width: width
-                        sourceSize.height: height
-                        visible: false
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        source: "image/robot_head.png"
-                        ColorOverlay{
-                            visible: false
-                            anchors.fill: parent
-                            source: parent
-                            color: parent.color_ov
-                        }
-                    }
-
-                    Text{
-                        id: text_update_state
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        text: qsTr("파일 받아오는 중...")
-                        color: color_dark_gray
-                        font.family: font_noto_r.name
-                        font.pixelSize: 40
-                    }
-                }
-                Row{
-                    id: row_btn
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 50
-                    Item_buttons{
-                        visible: popup_updating.state === 2
-                        type: "round_text"
-                        text: qsTr("업데이트 시작")
-                        width: 250
-                        height: 100
-                        onClicked:{
-                            popup_updating.state = 3;
-                            supervisor.startUpdate();
-                        }
-                    }
-                    Item_buttons{
-                        visible: popup_updating.state === 5
-                        type: "round_text"
-                        text: qsTr("재시작")
-                        width: 250
-                        height: 100
-                        onClicked:{
-                            supervisor.restartUpdate();
-                        }
-                    }
-                    Item_buttons{
-                        visible: popup_updating.state === 1
-                        type: "round_text"
-                        text: qsTr("취소")
-                        width: 200
-                        height: 100
-                        onClicked:{
-                            popup_updating.close();
-                        }
-                    }
-                    Item_buttons{
-                        visible: popup_updating.state === 1
-                        type: "round_text"
-                        text: qsTr("재시도")
-                        width: 200
-                        height: 100
-                        onClicked:{
-                            popup_updating.close();
-                            supervisor.updateProgram();
-                            popup_updating.open();
-                        }
-                    }
-
-                }
-            }
-
-
-            MouseArea{
-                id: area_debug
-                width: 100
-                height: 100
-                anchors.right: parent.right
-                anchors.bottom : parent.bottom
-                z: 99
-                property var password: 0
-                onClicked: {
-                    click_sound.play();
-                    password++;
-                    if(password > 4){
-                        password = 0;
-                        popup_loading.close();
-                    }
-                }
-            }
-        }
-
     }
 
     Popup{
@@ -2285,11 +1821,10 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
                             popup_usb_notice.mode = "extract_recent";
                             popup_usb_notice.open();
-//                            supervisor.readusbrecentfile();
                         }
                     }
                 }
@@ -2323,7 +1858,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();;
+                                supervisor.playSound('click');
 //                                popup_usb_download.index = 1;
 //                                popup_usb_download.set_name = name;
                             }
@@ -2350,7 +1885,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             popup_usb_download.is_ui = !popup_usb_download.is_ui;
                         }
                     }
@@ -2370,7 +1905,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             popup_usb_download.is_slam = !popup_usb_download.is_slam;
                         }
                     }
@@ -2389,7 +1924,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            supervisor.playSound('click');
                             popup_usb_download.is_config = !popup_usb_download.is_config;
                         }
                     }
@@ -2408,7 +1943,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             popup_usb_download.is_map = !popup_usb_download.is_map;
                         }
                     }
@@ -2427,7 +1962,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             popup_usb_download.is_log = !popup_usb_download.is_log;
                         }
                     }
@@ -2452,7 +1987,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
                         popup_usb_download.close();
                         popup_usb_notice.open();
@@ -2622,7 +2157,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             if(popup_usb_notice.mode== "compress"){
                                 //창 닫기
                                 //popup_usb_notice.visible = false;
@@ -2649,55 +2184,6 @@ Item {
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     Timer{
-        id: failload_timer
-        interval: 2000
-        running: false
-        repeat: false
-        onTriggered: {
-            loader_init.item.disable_failload();
-        }
-    }
-    Timer{
-        id: timer_wait_lcm
-        interval: 3000
-        running: false
-        repeat: false
-        onTriggered: {
-            supervisor.writelog("[INIT] IPC not Connected.");
-            loader_init.sourceComponent = item_ipc;
-
-        }
-    }
-    Timer{
-        id: timer_check_version
-        interval: 1000
-        running: false
-        repeat: true
-        property var count: 0
-        onTriggered: {
-            if(init_mode == 0){
-                if(count < 2){
-                    count++;
-                }else{
-                    init_mode = 1;
-                    supervisor.writelog("[INIT] Program version check : None");
-                }
-            }
-
-        }
-
-    }
-
-    Timer{
-        id: start_timer
-        running: true
-        interval: 500
-        onTriggered: {
-            update_timer.start();
-        }
-    }
-
-    Timer{
         id:timer_motor_init
         running: false
         interval: 500
@@ -2710,22 +2196,12 @@ Item {
     Timer{
         id: update_timer
         interval: 500
-        running: false
+        running: start
         repeat: true
         onTriggered: {
             if(init_mode == 0){
-                //=============================== Init Check 0 : Program Update ==============================//
-                if(supervisor.checkNewUpdateProgram()){
-                    if(loader_init.item.objectName != "item_program_update"){
-                        supervisor.writelog("[INIT] Program version check : New Version ");
-                        loader_init.sourceComponent = item_program_update;
-                    }
-                }else{
-                    supervisor.writelog("[INIT] Program version check : No Version  -> Pass");
-                    init_mode = 1;
-                }
-            }
-            if(init_mode == 1){
+                init_mode = 1;
+            }else if(init_mode == 1){
                 //=============================== Init Check 1 : IPC ==============================//
                 if(testMode){
                     supervisor.writelog("[INIT] IPC Connection Check : Success(DEBUG)");
@@ -2753,10 +2229,6 @@ Item {
                 }
             }
             if(init_mode == 3){
-                if(supervisor.getLockStatus()===1){
-                    print("now 3")
-                    supervisor.setMotorLock(false);
-                }
                 //=============================== Init Check 3 : 맵 확인 ==============================//
                 var map_name = supervisor.getMapname();
                 //annotation과 map 존재여부 확인
@@ -2767,6 +2239,9 @@ Item {
                 }else{
                     //annotation, map 둘 중 하나라도 없으면 안내페이지 표시
                     if(loader_init.item.objectName != "item_map"){
+                        if(supervisor.getLockStatus()===1){
+                            supervisor.setMotorLock(false);
+                        }
                         supervisor.writelog("[INIT] Map Check : Failed (" + map_name+")");
                         loader_init.sourceComponent = item_map
                     }else{
@@ -2781,9 +2256,6 @@ Item {
                 }
             }
             if(init_mode == 4){
-                if(supervisor.getLockStatus()===1){
-                    supervisor.setMotorLock(false);
-                }
                 //======================= Init Check 4 : 로봇 상태 확인(Charging. Localization) =========================//
                 if(supervisor.getChargeConnectStatus() === 1){
                     supervisor.writelog("[INIT] Charging Detected");
@@ -2799,12 +2271,8 @@ Item {
             }
             if(init_mode == 5){
                 //=============================== Init Check 5 : 로봇 상태 확인(Motor) ==============================//
-                if(supervisor.getLockStatus()===0){
-                    supervisor.setMotorLock(true);
-                }
 
                 if(supervisor.getChargeConnectStatus() === 1){
-//                    dochargeininit();
                     supervisor.writelog("[INIT] Charging Detected");
                 }else if(supervisor.getIPCConnection() && supervisor.getMotorState() === 1){
                     timer_motor_init.stop();
@@ -2815,11 +2283,84 @@ Item {
                     loadPage(pkitchen);
                 }else{
                     if(loader_init.item.objectName != "init_motor"){
-//                        supervisor.writelog("[INIT] Motor Check : Failed");
+                        if(supervisor.getLockStatus()===0){
+                            supervisor.setMotorLock(true);
+                        }
                         timer_motor_init.start();
-//                        loader_init.sourceComponent = item_motor_init
                     }
                 }
+            }
+        }
+    }
+    Tool_Keyboard{
+        id: keyboard
+    }
+
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName == "page_moving" || loader_page.item.objectName == "page_moving_custom"){
+                    loadPage(pinit);
+                }
+
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName == "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("재시작")){
+                supervisor.writelog("[UI] PopupNotice : Restart");
+                supervisor.programRestart();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("종 료")){
+                supervisor.writelog("[UI] PopupNotice : Terminate");
+                supervisor.programExit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("디버그모드 해제")){
+                supervisor.writelog("[UI] PopupNotice : Debug Mode off");
+                loadPage(pinit);
+                supervisor.resetLocalization();
+                supervisor.stateInit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("건너뛰기")){
+                supervisor.writelog("[INIT] Debug Mode On");
+                supervisor.passInit();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 사용")){
+                supervisor.saveAnnotation(supervisor.getMapname());
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                loader_page.item.setAnnotLocation();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 미사용")){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                popup_notice.close();
             }
         }
     }

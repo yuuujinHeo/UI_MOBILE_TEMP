@@ -55,8 +55,6 @@ Item {
 
     property int cur_group: 0
 
-
-
     function init(){
         statusbar.visible = true;
         if(supervisor.isExistAnnotation(supervisor.getMapname())){
@@ -143,31 +141,31 @@ Item {
                             rect_btn.color = "white";
                             if(modelData === qsTr("맵 새로만들기")){
                                 if(!supervisor.getIPCConnection()){
-                                    click_sound_no.play();
+                                    supervisor.playSound('no');
                                     openNotice("ipc_discon");
                                 }else{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     supervisor.writelog("[UI] MAP : move to Mapping");
                                     loadPage(pmapping);
                                 }
                             }else if(modelData === qsTr("현재맵 수정하기")){
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to Annotation");
                                 loadPage(pannotation);
                                 supervisor.setAnnotEditFlag(true);
                             //}else if(modelData === qsTr("지정 순회")){
                             //    if(supervisor.isRobotReady()){
-                            //        click_sound.play();
+                            //        supervisor.playSound('click');
                             //        supervisor.writelog("[UI] MAP : Show Patrol Popup")
                             //        popup_patrol.open();
                             //        popup_patrol.mode = "sequence";
                             //    }else{
-                            //        click_sound_no.play();
+                            //        supervisor.playSound('no');
                             //        supervisor.writelog("[UI] MAP : Show Patrol Popup -> Robot Not Ready")
                             //        robotnotready();
                             //    }
                             }else if(modelData === qsTr("위치 초기화")){
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to Localization")
                                 supervisor.resetLocalization();
                                 loadPage(pinit);
@@ -234,7 +232,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onClicked: {
-                click_sound.play();;
+                supervisor.playSound('click');;
                 supervisor.writelog("[UI] MAP : move to backPage");
                 loadPage(pmenu);
             }
@@ -271,7 +269,7 @@ Item {
                 id:area_compo
                 anchors.fill:parent
                 onClicked: {
-                    click_sound.play();;
+                    supervisor.playSound('click');;
                     map.select_location_show = supervisor.getLocNum(name);
                     list_location2.currentIndex = index;
                     map.update_canvas();
@@ -323,7 +321,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onClicked:{
-                click_sound.play();
+                supervisor.playSound('click');
                 popup_help.close();
             }
         }

@@ -781,7 +781,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     if(supervisor.getRobotFollowing()){
                         supervisor.setRobotFollowing(false);
                     }else{
@@ -811,7 +811,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     if(parent.active){
                         supervisor.setShowLidar(false);
                     }else{
@@ -840,7 +840,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     if(parent.active){
                         supervisor.setShowLocation(false);
                     }else{

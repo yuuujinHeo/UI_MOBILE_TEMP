@@ -20,11 +20,7 @@ Item {
     property string pos_name: ""
     property int password: 0
     property real volume: 1
-    onVolumeChanged:{
-        print("move page volume : ", volume)
-    }
     onVideo_audioChanged: {
-        print("video audio changed : ",video_audio)
         loader_background.item.init();
     }
 
@@ -37,6 +33,95 @@ Item {
     function resumeGif(){
         if(background_mode === "image")
             loader_background.item.resume();
+    }
+
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+            popup_notice.closemode = false;
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+            popup_notice.closemode = false;
+            popup_notice.open();
+        }
     }
 
     function setPage(name){
@@ -68,13 +153,8 @@ Item {
     }
 
     signal doubleclicked
-    Component.onCompleted: {
-//        init();
-    }
-
     Component.onDestruction:  {
         supervisor.stopBGM();
-        popup_notice.close();
     }
 
     function saveMovingPage(){
@@ -97,7 +177,6 @@ Item {
             supervisor.setServingPageVideoAudio(video_audio);
             supervisor.setServingPageAudio(volume);
         }
-
     }
 
     function setEdit(tt){
@@ -106,10 +185,12 @@ Item {
     }
 
     function init(){
-        supervisor.writelog("[QML] MOVING CUSTOM PAGE init "+page+" : "+objectName+", "+edit_mode);
-
+        supervisor.writelog("[QML-MovingCustom] MOVING CUSTOM PAGE init "+page+" : "+objectName+", "+edit_mode);
         supervisor.stopBGM();
-        popup_pause.close();
+
+        if(popup_pause.opened())
+            popup_pause.close();
+
         if(!edit_mode){
             statusbar.visible = false;
         }else{
@@ -143,9 +224,8 @@ Item {
                 }
                 print("object append : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i),supervisor.getPageObjectX(i),supervisor.getPageObjectY(i),supervisor.getPageObjectWidth(i),supervisor.getPageObjectHeight(i));
             }
-
             background_mode = supervisor.getMovingPageBackground();
-            print("background mode = ",background_mode);
+            supervisor.writelog("[QML-MovingCustom] background : "+background_mode);
             if(background_mode === "none" || background_mode === "color"){
                 background_source = supervisor.getMovingPageColor();
                 loader_background.sourceComponent = compo_color;
@@ -162,7 +242,6 @@ Item {
             }
         }else if(page == "serving"){
             page_moving_custom.select_obj = -1;
-
             print(supervisor.getServingObjectSize())
             for(var i=0; i<supervisor.getServingObjectSize(); i++){
                 if(supervisor.getServingObjectType(i)==="image"){
@@ -188,7 +267,6 @@ Item {
                 }
                 print("object append : ",supervisor.getServingObjectType(i),supervisor.getServingObjectSource(i),supervisor.getServingObjectX(i),supervisor.getServingObjectY(i),supervisor.getServingObjectWidth(i),supervisor.getServingObjectHeight(i));
             }
-
             background_mode = supervisor.getServingPageBackground();
             print("background mode = ",background_mode);
             if(background_mode === "none" || background_mode === "color"){
@@ -210,7 +288,6 @@ Item {
         if(background_mode !== "video" && !edit_mode){
             supervisor.playBGM();
         }
-
     }
 
     function update(){
@@ -237,7 +314,6 @@ Item {
                                      "ob_height":supervisor.getPageObjectHeight(i)*height/800,
                                      "fontsize":supervisor.getPageObjectFontsize(i)});
                 }
-    //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
         }else if(page == "serving"){
             for(var i=0; i<model_obj.count; i++){
@@ -262,7 +338,6 @@ Item {
                                      "ob_height":supervisor.getServingObjectHeight(i)*height/800,
                                      "fontsize":supervisor.getServingObjectFontsize(i)});
                 }
-    //            print("object set : ",supervisor.getPageObjectType(i),supervisor.getPageObjectSource(i))
             }
         }
 
@@ -299,7 +374,6 @@ Item {
                 print("background changes , ",video_audio);
             }
         }
-
     }
 
     Loader{
@@ -404,9 +478,9 @@ Item {
                 }else{
                     supervisor.stopBGM();
                     if(page == "moving"){
-                        video.volume = supervisor.getVolume(supervisor.getMovingPageAudio());
+                        video.volume = supervisor.getMovingPageAudio()/100;
                     }else if(page == "serving"){
-                        video.volume = supervisor.getVolume(supervisor.getServingPageAudio());
+                        video.volume = supervisor.getServingPageAudio()/100;
                     }
                 }
             }
@@ -414,7 +488,7 @@ Item {
             function setVol(vol){
                 print("video set vol ",vol,video_audio)
                 if(video_audio == "video"){
-                    video.volume = supervisor.getVolume(vol);
+                    video.volume = vol/100;
                 }else if(video_audio == "music1"){
                     supervisor.setvolumeBGM(vol*100);
                 }
@@ -432,7 +506,7 @@ Item {
                 anchors.fill: parent
                 fillMode: VideoOutput.Stretch
                 source: background_source
-                volume: supervisor.getVolume(0.5)
+                volume: 0.5
                 flushMode: VideoOutput.FirstFrame
                 autoPlay: true
                 loops:MediaPlayer.Infinite
@@ -753,7 +827,7 @@ Item {
                         anchors.fill: parent
                         z: 99
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             popup_notice.init();
                             popup_notice.closemode = false;
                             popup_notice.style = "warning";
@@ -784,7 +858,7 @@ Item {
                         z: 99
                         propagateComposedEvents: true
                         onPressed:{
-                            click_sound.play();;
+                            supervisor.playSound('click');;
                             parent.color = color_dark_navy
                         }
                         onReleased:{
@@ -815,7 +889,7 @@ Item {
                         anchors.fill: parent
                         z: 99
                         onClicked:{
-                            click_sound.play();;
+                            supervisor.playSound('click');;
                             supervisor.writelog("[UI] PageMovingCustom : Path Resume");
                             supervisor.moveResume();
                         }
@@ -889,7 +963,7 @@ Item {
         anchors.fill: parent
         visible: !edit_mode && !robot_paused
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             if(!robot_paused){
                 supervisor.writelog("[UI] PageMovingCustom : Move Pause")
                 supervisor.movePause();
@@ -905,7 +979,7 @@ Item {
         anchors.right: parent.right
         z: 99
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             password++;
             if(password > 4){
                 password = 0;
@@ -919,4 +993,73 @@ Item {
             mainwindow.showMinimized();
         }
     }
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName == "page_moving" || loader_page.item.objectName == "page_moving_custom"){
+                    loadPage(pinit);
+                }
+
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName == "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("재시작")){
+                supervisor.writelog("[UI] PopupNotice : Restart");
+                supervisor.programRestart();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("종 료")){
+                supervisor.writelog("[UI] PopupNotice : Terminate");
+                supervisor.programExit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("디버그모드 해제")){
+                supervisor.writelog("[UI] PopupNotice : Debug Mode off");
+                loadPage(pinit);
+                supervisor.resetLocalization();
+                supervisor.stateInit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("건너뛰기")){
+                supervisor.writelog("[INIT] Debug Mode On");
+                supervisor.passInit();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 사용")){
+                supervisor.saveAnnotation(supervisor.getMapname());
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                loader_page.item.setAnnotLocation();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 미사용")){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                popup_notice.close();
+            }
+        }
+    }
+
 }

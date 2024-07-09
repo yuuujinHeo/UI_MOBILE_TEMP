@@ -6,6 +6,7 @@
 #include <QThread>
 #include <QQuickWindow>
 #include "GlobalHeader.h"
+#include <QSoundEffect>
 #include "CallbellHandler.h"
 #include "ZIPHandler.h"
 #include "python_wrapper.h"
@@ -14,7 +15,6 @@
 #include <QMediaPlaylist>
 #include "ServerHandler.h"
 #include <QMediaPlayer>
-#include "MapView.h"
 #include "TTSHandler.h"
 #include "MapHandler.h"
 #include "ExtProcess.h"
@@ -45,7 +45,6 @@ public:
     ~Supervisor();
 public:
     ////*********************************************  FLAGS   ***************************************************////
-
     //넘어가기(debug)사용 시 true -> slam auto kill 안함
     bool debug_mode = false;
 
@@ -57,7 +56,7 @@ public:
     ST_MAP map;
     ST_ROBOT robot;
     ST_SETTING setting;
-//    ST_PATROLMODE patrol;
+
     ServerHandler *server;
 
     ////*********************************************  VARIABLE   ***************************************************////
@@ -69,14 +68,11 @@ public:
     QList<QString> map_list;
     QList<QString> map_detail_list;
 
+    bool cmd_accept = false;
     int setting_call_num = -1;
     int patrol_num = -1;
 
-    int foundCount;
-    QNetworkConfiguration netcfg;
-    QStringList WiFisList;
-    QList<QNetworkConfiguration> netcfgList;
-    QNetworkConfiguration defaultWifiConf;
+
 
     QString curPage = "";
     Q_INVOKABLE void setCurrentPage(QString page){curPage = page;}
@@ -86,52 +82,54 @@ public:
 
     Q_INVOKABLE bool checkGroupName(QString name);
     Q_INVOKABLE bool checkLocationName(int group, QString name);
-    ////*********************************************  IP SETTINGs   *********************************************////
 
-    Q_INVOKABLE void callCallbell(QString id);
-    bool cmd_accept = false;
-    Q_INVOKABLE void resetClear();
-    QString wifi_temp_ssd = "";
+    ////*********************************************  IP SETTINGs   *********************************************////
     Q_INVOKABLE int getWifiNum();
     Q_INVOKABLE int getWifiConnection();
     Q_INVOKABLE int getEthernetConnection();
     Q_INVOKABLE int getInternetConnection();
-    void setWifiConnection(QString ssid, int con);
-    Q_INVOKABLE QString getCurWifiSSID();
-    Q_INVOKABLE QString getWifiSSID(int num);
     Q_INVOKABLE void connectWifi(QString ssid, QString passwd);
-
-    Q_INVOKABLE int getMasterVolume();
-    Q_INVOKABLE void setMasterVolume(int volume);
-
-    Q_INVOKABLE bool getWifiSecurity(QString ssid);
-    Q_INVOKABLE int getWifiLevel(QString ssid);
-    Q_INVOKABLE int getWifiLevel();
-    Q_INVOKABLE int getWifiRate(QString ssid);
-    Q_INVOKABLE bool getWifiInuse(QString ssid);
-    Q_INVOKABLE void getAllWifiList();
-    Q_INVOKABLE void getWifiIP();
     Q_INVOKABLE void setWifiDHCP();
     Q_INVOKABLE void setWifi(QString ip, QString gateway, QString dns);
     Q_INVOKABLE void setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
     Q_INVOKABLE void setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
+
+    Q_INVOKABLE void getAllWifiList();
+    Q_INVOKABLE QString getWifiSSID(int num);
+    Q_INVOKABLE bool getWifiSecurity(QString ssid);
+    Q_INVOKABLE int getWifiLevel(QString ssid);
+    Q_INVOKABLE int getWifiRate(QString ssid);
+    Q_INVOKABLE bool getWifiInuse(QString ssid);
+
+    Q_INVOKABLE QString getCurWifiSSID();
     Q_INVOKABLE QString getcurIP();
     Q_INVOKABLE QString getcurGateway();
     Q_INVOKABLE QString getcurNetmask();
     Q_INVOKABLE QString getcurDNS2();
     Q_INVOKABLE QString getcurDNS();
+    Q_INVOKABLE int getWifiLevel();
+
     Q_INVOKABLE QString getethernetIP();
     Q_INVOKABLE QString getethernetGateway();
     Q_INVOKABLE QString getethernetNetmask();
     Q_INVOKABLE QString getethernetDNS2();
     Q_INVOKABLE QString getethernetDNS();
     Q_INVOKABLE QString getcurIPMethod();
-    Q_INVOKABLE void readWifiState(QString ssid);
+    ////*********************************************  State  *********************************************////
+    Q_INVOKABLE void resetClear();
 
+    ////*********************************************  Calling  *********************************************////
+    Q_INVOKABLE void callCallbell(QString id);
+
+
+
+    ////*********************************************  Setting  *********************************************////
+    // Q_INVOKABLE int getMasterVolume();
+    // Q_INVOKABLE void setMasterVolume(int volume);
     Q_INVOKABLE int getVolume(int volume);
     Q_INVOKABLE float getVolume(float volume);
     Q_INVOKABLE int getSystemVolume(){
-        return probot->master_volume;
+        return probot->volume_system;
 //        return probot->volume_system;
     }
 //    Q_INVOKABLE void setBGM
@@ -194,6 +192,7 @@ public:
     Q_INVOKABLE void saveTTSVoice();
     Q_INVOKABLE void makePatrolTTS(int language, int voice, QString text, bool play=true);
 
+
     Q_INVOKABLE int getTTSNameNum();
     Q_INVOKABLE int getTTSLanguageNum();
 
@@ -229,12 +228,15 @@ public:
 
     QMediaPlayer *bgm_player;
     QMediaPlayer *voice_player;
+    QSoundEffect *click_effect;
     QMediaPlaylist *list_bgm;
 
     Q_INVOKABLE void playBGM(int volume = -1);
     Q_INVOKABLE void stopBGM();
     Q_INVOKABLE bool isplayBGM();
     Q_INVOKABLE void setvolumeBGM(int volume);
+
+    Q_INVOKABLE void playSound(QString name, int volume=-1);
 
     Q_INVOKABLE int getTTSSpeed(){return tts->curVoice.speed;}
     Q_INVOKABLE int getTTSPitch(){return tts->curVoice.pitch;}
@@ -578,7 +580,7 @@ public:
     Q_INVOKABLE QString getMetaPath(QString name);
     Q_INVOKABLE QString getTravelPath(QString name);
     Q_INVOKABLE QString getCostPath(QString name);
-    Q_INVOKABLE QString getIniPath(QString file);
+    // Q_INVOKABLE QString getIniPath(QString file);
 
     ////*********************************************  SETTING 관련   ***************************************************////
     Q_INVOKABLE void setSetting(QString file, QString name, QString value);

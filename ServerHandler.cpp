@@ -197,7 +197,7 @@ void ServerHandler::onTimer(){
 
 
     if(connection){
-        postStatus();
+        // postStatus();
 //        if(myID == "serving.001.01.test" || myID == ""){
 //            getNewID();
 //        }else if(!send_config){

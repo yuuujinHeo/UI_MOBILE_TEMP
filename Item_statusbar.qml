@@ -2,9 +2,6 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import "."
 import io.qt.Supervisor 1.0
-import QtMultimedia 5.12
-import QtQuick.Shapes 1.12
-import QtQuick.Dialogs 1.3
 import QtGraphicalEffects 1.0
 
 Item {
@@ -47,13 +44,12 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onPressAndHold: {
-                    click_sound.play();
-                    supervisor.writelog("[USER INPUT] Screen Minimized.");
+                    supervisor.playSound('click');
+                    supervisor.writelog("[QML-STATUSBAR] Screen Minimized");
                     mainwindow.showMinimized()
                 }
                 onDoubleClicked: {
-                    click_sound.play();
-//                    popup_menu.open();
+                    supervisor.playSound('click');
                 }
             }
         }
@@ -71,40 +67,18 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onDoubleClicked: {
-                    click_sound.play();
-                    popup_notice.init();
-                    popup_notice.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
-                    popup_notice.sub_str = qsTr("초기화면으로 이동되며 저장되지 않은 내용은 사라집니다")
-                    popup_notice.addButton(qsTr("디버그모드 해제"))
-                    popup_notice.open();
-                }
-            }
-        }
-        Text{
-            anchors.left: textTime.right
-            anchors.leftMargin:100
-            horizontalAlignment: Text.AlignHCenter
-            anchors.verticalCenter: parent.verticalCenter
-            font.family: font_noto_r.name
-            font.pixelSize: 30
-            text: qsTr("디버그모드")
-            color: "white"
-            visible:false// debug_mode
-            font.bold: true
-            MouseArea{
-                anchors.fill: parent
-                onDoubleClicked: {
-                    click_sound.play();
-                    popup_notice.init();
-                    popup_notice.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
-                    popup_notice.sub_str = qsTr("초기화면으로 이동되며 저장되지 않은 내용은 사라집니다")
-                    popup_notice.addButton(qsTr("디버그모드 해제"),color_green,"white")
-                    popup_notice.open();
+                    supervisor.playSound('click');
+                    popup_notice_main.init();
+                    popup_notice_main.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
+                    popup_notice_main.sub_str = qsTr("초기화면으로 이동되며 저장되지 않은 내용은 사라집니다")
+                    popup_notice_main.addButton(qsTr("디버그모드 해제"),color_green,"white")
+                    popup_notice_main.open();
                 }
             }
         }
         Text{
             id: textTime
+            visible: supervisor.getSetting("setting","USE_UI","show_time")==="true"
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             text: curTime
@@ -114,6 +88,7 @@ Item {
         }
         Image{
             id: image_clock
+            visible: supervisor.getSetting("setting","USE_UI","show_time")==="true"
             source:"icon/icon_clock.png"
             anchors.right: textTime.left
             width: 40
@@ -122,7 +97,6 @@ Item {
             sourceSize.height: 40
             anchors.rightMargin: 5
             anchors.verticalCenter: textTime.verticalCenter
-
         }
 
         Row{
@@ -223,14 +197,10 @@ Item {
         MouseArea{
             anchors.fill: rows_icon
             onClicked: {
-                click_sound.play();
+                supervisor.playSound('click');
                 update_init();
                 update_detail();
                 popup_status_detail.open();
-            }
-            onPressAndHold:{
-                //debug_mode
-                popup_tts.open();
             }
         }
     }
@@ -241,7 +211,7 @@ Item {
 
     function update_init(){
         rect_back.sound = supervisor.getSystemVolume();
-
+        console.log("init : " , rect_back.sound);
     }
 
     function update_detail(){
@@ -328,8 +298,6 @@ Item {
         onOpened: {
             if(model_details.count == 0){
                 popup_status_detail.close();
-            }else{
-//                ani_popup_show.start();
             }
         }
 
@@ -360,12 +328,12 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
-                                popup_notice.init();
-                                popup_notice.main_str = qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
-                                popup_notice.addButton(qsTr("재시작"))
-                                popup_notice.addButton(qsTr("종 료"))
-                                popup_notice.open();
+                                supervisor.playSound('click');
+                                popup_notice_main.init();
+                                popup_notice_main.main_str = qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
+                                popup_notice_main.addButton(qsTr("재시작"))
+                                popup_notice_main.addButton(qsTr("종 료"))
+                                popup_notice_main.open();
                             }
                         }
                     }
@@ -380,11 +348,11 @@ Item {
                             anchors.fill: parent
                             onClicked:{
                                 if(loader_page.item.objectName != "page_init" || loader_page.item.objectName != "page_setting"){
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     loadPage(psetting);
                                     popup_status_detail.close();
                                 }else{
-                                    click_sound_no.play();
+                                    supervisor.playSound('no');
                                 }
                             }
                         }
@@ -412,7 +380,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 if(supervisor.getLockStatus() === 1){
                                     supervisor.setMotorLock(false);
                                 }else{
@@ -446,7 +414,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 if(btn_cursor.view){
                                     supervisor.setCursorView(false);
                                     btn_cursor.view = false;
@@ -475,13 +443,13 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
-                                popup_notice.init();
-                                popup_notice.style = "info";
-                                popup_notice.main_str = qsTr("위치초기화를 다시 하시겠습니까?")
-                                popup_notice.sub_str = qsTr("위치초기화 페이지로 이동합니다")
-                                popup_notice.addButton(qsTr("위치초기화"),color_green,"white")
-                                popup_notice.open();
+                                supervisor.playSound('click');
+                                popup_notice_main.init();
+                                popup_notice_main.style = "info";
+                                popup_notice_main.main_str = qsTr("위치초기화를 다시 하시겠습니까?")
+                                popup_notice_main.sub_str = qsTr("위치초기화 페이지로 이동합니다")
+                                popup_notice_main.addButton(qsTr("위치초기화"),color_green,"white")
+                                popup_notice_main.open();
                                 popup_status_detail.close();
                             }
                         }
@@ -503,13 +471,9 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 supervisor.writelog("[USER INPUT] Screen Minimized.");
-//                                if(debug_mode){
-//                                    mainwindow.showMinimized();
-//                                }else{
-                                    popup_password_minimize.open();
-//                                }
+                                popup_password_minimize.open();
                             }
                         }
                     }
@@ -534,7 +498,6 @@ Item {
                                 duration: 50
                             }
                         }
-
                         color: color_green
                         radius: 20
                     }
