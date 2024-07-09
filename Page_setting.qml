@@ -40,7 +40,6 @@ Item {
         is_rainbow = false;
         is_reset_slam = false;
         supervisor.getAllWifiList();
-        supervisor.requestSystemVolume();
     }
 
     function setVoiceModel(){

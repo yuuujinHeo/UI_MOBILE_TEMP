@@ -68,7 +68,6 @@ Supervisor::Supervisor(QObject *parent)
 
     mMain = nullptr;
     usb_list.clear();
-    usb_backup_list.clear();
     ui_state = UI_STATE_NONE;
 
     probot = &robot;
@@ -661,11 +660,6 @@ void Supervisor::readSetting(QString map_name){
     probot->serial_num = setting_config.value("serial_num").toInt();
     probot->name = probot->model;// + QString::number(probot->serial_num);
     probot->type = setting_config.value("type").toString();
-    if(probot->type == "CLEANING"){
-        use_cleaning_location = true;
-    }else{
-        use_cleaning_location = false;
-    }
     setting_config.endGroup();
 
     setting.tray_num = getSetting("setting","ROBOT_TYPE","tray_num").toInt();
@@ -952,11 +946,6 @@ void Supervisor::setSystemVolume(int volume){
     // setMasterVolume(volume);
     checker->setSystemVolume(volume);
 }
-
-void Supervisor::requestSystemVolume(){
-    checker->getSystemVolume();
-}
-
 
 int Supervisor::getLocationNum(QString group, QString name){
     for(int i=0; i<pmap->locations.size(); i++){
@@ -1705,12 +1694,6 @@ bool Supervisor::rotate_map(QString _src, QString _dst, int mode){
 bool Supervisor::getIPCConnection(){
     return ipc->getConnection();
 }
-bool Supervisor::getIPCRX(){
-    return ipc->flag_rx;
-}
-bool Supervisor::getIPCTX(){
-    return ipc->flag_tx;
-}
 int  Supervisor::getusbsize(){
     return usb_list.size();
 }
@@ -1880,20 +1863,6 @@ void Supervisor::startMapping(int mapsize, float grid){
     ipc->startMapping(mapsize, grid);
     ipc->is_mapping = true;
 }
-void Supervisor::startDrawingObject(){
-    plog->write("[COMMAND] Start Drawing Object");
-    ipc->startObject();
-}
-
-void Supervisor::stopDrawingObject(){
-    plog->write("[COMMAND] Stop Drawing Object");
-    ipc->stopObject();
-}
-
-void Supervisor::saveDrawingObject(){
-    plog->write("[COMMAND] Save Drawing Object");
-    ipc->saveObject();
-}
 
 void Supervisor::stopMapping(){
     plog->write("[USER INPUT] STOP MAPPING");
@@ -1976,7 +1945,7 @@ void Supervisor::play_voice(ST_VOICE voice){
     if(voice.volume == -1){
         voice.volume = getSetting("setting","UI","volume_voice").toInt();
     }
-    voice_player->setVolume(getVolume(voice.volume));
+    voice_player->setVolume(voice.volume);
     voice_player->play();
     plog->write("[SOUND] play_voice : "+voice.file_path + "(volume = "+QString::number(voice.volume)+")");
 }
@@ -2059,7 +2028,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
 
         voice_player->stop();
         voice_player->setMedia(QUrl("qrc:/voice/"+v.voice+"_"+file+".mp3"));
-        voice_player->setVolume(getVolume(volume));
+        voice_player->setVolume(volume);
         voice_player->play();
         plog->write("[SUPERVISOR] Play Voice (Basic) : "+v.voice + ", " + file);
     }else{
@@ -2081,7 +2050,7 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
         if(QFile::exists(filepath)){
             voice_player->stop();
             voice_player->setMedia(QUrl::fromLocalFile(filepath));
-            voice_player->setVolume(getVolume(volume));
+            voice_player->setVolume(volume);
             voice_player->play();
             plog->write("[SOUND] PlayVoiceTTS : "+filepath+", "+QString::number(volume));
         }else{
@@ -2159,23 +2128,15 @@ void Supervisor::playBGM(int volume){
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
     plog->write("[SOUND] playBGM : "+QString::number(volume));
-    bgm_player->setVolume(getVolume(volume));
+    bgm_player->setVolume(volume);
     bgm_player->play();
 }
 void Supervisor::setvolumeBGM(int volume){
-    bgm_player->setVolume(getVolume(volume));
+    bgm_player->setVolume(volume);
     plog->write("[SOUND] playBGMVolume : "+QString::number(volume));
 }
 void Supervisor::stopBGM(){
     bgm_player->stop();
-}
-
-bool Supervisor::getObjectingflag(){
-    return ipc->flag_objecting;
-}
-
-void Supervisor::setObjectingflag(bool flag){
-    ipc->flag_objecting = flag;
 }
 
 QString Supervisor::getnewMapname(){
@@ -2820,9 +2781,6 @@ bool Supervisor::isExistLocation(int group, int num){
         }
         return false;
     }
-}
-float Supervisor::getLidar(int num){
-    return probot->lidar_data[num];
 }
 
 float setAxis(float _angle){
@@ -4289,7 +4247,7 @@ void Supervisor::onTimer(){
 
                         count_moveto = 0;
                         if(cur_target.name == ""){
-                            if(use_cleaning_location){
+                            if(probot->type == "CLEANING"){
                                 //세팅 되지 않음 -> 고 홈
                                 plog->write("[STATE] Moving : No Target -> Back to Cleaning0");
                                 probot->call_moving_count = 0;
@@ -4577,17 +4535,6 @@ void Supervisor::onTimer(){
     prev_charge_state = probot->status_charge_connect;
 }
 
-int Supervisor::getVolume(int volume){
-    return volume;
-    float vol = (volume)/100.;
-    int voli = (int)vol;
-    return voli;
-}
-float Supervisor::getVolume(float volume){
-    return volume;
-    float vol = volume/100.;
-    return vol;
-}
 QString Supervisor::curUiState(){
     if(ui_state == UI_STATE_NONE){
         return "None";
@@ -4630,9 +4577,6 @@ QString Supervisor::getLogAuth(int num){
         return str.split("[")[1].split("]")[0];
     else
         return "";
-}
-bool Supervisor::checkCallQueue(){
-    return false;
 }
 QString Supervisor::getLogMessage(int num){
     QString str = curLog[num];
