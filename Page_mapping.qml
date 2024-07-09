@@ -594,6 +594,7 @@ Item {
             width: mapping_pages.width
             height: mapping_pages.height
             Component.onCompleted: {
+                mapping_view.init();
                 mapping_view.setTool("move");
                 mapping_view.setViewer("mapping");
                 mapping_view.setEnable(true)
@@ -743,7 +744,7 @@ Item {
                     supervisor.writelog("[MAPPING] Mapping : save mapping done1");
                     popup_loading.close();
                     supervisor.writelog("[MAPPING] Mapping : save mapping done2");
-                    supervisor.setMap(map_name);
+                    supervisor.loadMap(map_name);
                     supervisor.writelog("[MAPPING] Mapping : save mapping done3");
                     loadPage(pannotation);
                     supervisor.writelog("[MAPPING] Mapping : save mapping done4");
@@ -817,7 +818,7 @@ Item {
     //             onTriggered: {
     //                 if(supervisor.getIPCConnection()){
     //                     popup_loading.close();
-    //                     supervisor.setMap(map_name);
+    //                     supervisor.loadMap(map_name);
     //                     detect_done = true;
     //                     stop();
     //                 }

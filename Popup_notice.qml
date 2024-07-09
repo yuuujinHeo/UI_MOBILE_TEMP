@@ -9,7 +9,7 @@ Popup{
     property string main_str: ""
     property string sub_str: ""
     property string style: "warning"
-    property bool closemode: true
+    property bool is_open: false
     leftPadding: 0
     rightPadding: 0
     topPadding: 0
@@ -24,7 +24,7 @@ Popup{
     signal clicked
 
     function init(){
-        closemode = true;
+        console.log("popup notice init");
         model_btn.clear();
         style = "warning";
         main_str = "";
@@ -42,9 +42,9 @@ Popup{
     ListModel{
         id: model_btn
     }
-
-
     onOpened:{
+        is_open = true;
+        console.log("poupup notice open");
         if(style == "notice"){
             image_warn.source = "icon/icon_bookmark.png"
             text_main.color = "white";
@@ -82,6 +82,9 @@ Popup{
         }else{
             addButton(qsTr("확 인"));
         }
+    }
+    onClosed:{
+        is_open = false;
     }
 
     Rectangle{
@@ -186,6 +189,5 @@ Popup{
                 }
             }
         }
-
     }
 }

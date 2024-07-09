@@ -63,7 +63,7 @@ Item {
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("로봇이 수동모드입니다");
             popup_notice.sub_str = "";
-            popup_notice.closemode = false;
+
             popup_notice.addButton(qsTr("모터초기화"))
             popup_notice.open();
         }else if(errstr === 5){
@@ -88,38 +88,38 @@ Item {
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("모터초기화가 필요합니다");
             popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
-            popup_notice.closemode = false;
+
             popup_notice.addButton(qsTr("모터초기화"))
             popup_notice.open();
         }else if(errstr === "debug"){
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("디버그 모드입니다")
             popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
-            popup_notice.closemode = false;
+
             popup_notice.open();
         }else if(errstr === "charging"){
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
             popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
-            popup_notice.closemode = false;
+
             popup_notice.open();
         }else if(errstr === "running"){
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
             popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
-            popup_notice.closemode = false;
+
             popup_notice.open();
         }else if(errstr === "ipc_discon"){
             popup_notice.style = "error";
             popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
             popup_notice.sub_str = "";
-            popup_notice.closemode = false;
+
             popup_notice.open();
         }else if(errstr === "motor"){
             popup_notice.style = "error";
             popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
             popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
-            popup_notice.closemode = false;
+
             popup_notice.open();
         }
     }
@@ -829,7 +829,7 @@ Item {
                         onClicked:{
                             supervisor.playSound('click');
                             popup_notice.init();
-                            popup_notice.closemode = false;
+
                             popup_notice.style = "warning";
                             popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
                             popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
@@ -915,7 +915,7 @@ Item {
 
                 if(!lock_notice){
                     popup_notice.init();
-                    popup_notice.closemode = false;
+
                     popup_notice.style = "warning";
                     popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
                     popup_notice.sub_str = ""

@@ -1247,22 +1247,6 @@ QString Supervisor::getAvailableMapPath(int num){
     }
     return "";
 }
-int Supervisor::getMapFileSize(QString name){
-    std::string path = QString(QDir::homePath()+"/RB_MOBILE/maps/"+name).toStdString();
-    QDir directory(path.c_str());
-    QStringList FileList = directory.entryList();
-    map_detail_list.clear();
-    for(int i=0; i<FileList.size(); i++){
-        if(FileList[i] == "." || FileList[i] == ".."){
-            continue;
-        }
-        map_detail_list.push_back(FileList[i]);
-    }
-    return map_detail_list.size();
-}
-QString Supervisor::getMapFile(int num){
-    return map_detail_list[num];
-}
 bool Supervisor::isExistMap(QString name){
     if(name==""){
         name = getMapname();
@@ -1329,7 +1313,6 @@ bool Supervisor::isExistRawMap(QString name){
 }
 bool Supervisor::isLoadMap(){
     //기본 설정된 맵파일 확인
-//    qDebug() << getMapname() << getMapPath(getMapname()) <<QFile::exists(getMapPath(getMapname()));
     if(QFile::exists(getMapPath(getMapname()))){
         return true;
     }
@@ -1730,13 +1713,6 @@ void Supervisor::saveMapfromUsb(QString path){
         plog->write("[SETTING - ERROR] Save Map from USB (Origin not found): "+kk[kk.length()-1]);
     }
 }
-void Supervisor::setMap(QString name){
-    setSetting("setting","MAP/map_path",QDir::homePath()+"/RB_MOBILE/maps/"+name);
-    setSetting("setting","MAP/map_name",name);
-    readSetting(name);
-    slam_map_reload(name);
-}
-
 void Supervisor::CopyPath(QString src, QString dst){
     QDir dir(src);
     if (! dir.exists())
@@ -1870,7 +1846,6 @@ void Supervisor::stopMapping(){
     ipc->is_mapping = false;
     ipc->stopMapping();
     readSetting(getMapname());
-//    maph->loadFile(getMapname(),"");
 }
 void Supervisor::saveMapping(QString name){
     ipc->flag_mapping = false;
@@ -3235,9 +3210,6 @@ void Supervisor::moveResume(){
     plog->write("[COMMAND] Move Resume");
     ipc->moveResume();
 }
-void Supervisor::clearFlagStop(){
-
-}
 void Supervisor::moveStopFlag(){
     plog->write("[COMMAND] Move Stop Flag");
     patrol_mode = PATROL_NONE;
@@ -3290,31 +3262,6 @@ QString Supervisor::getcurLoc(){
 }
 int Supervisor::getMultiState(){
     return 0;
-}
-void Supervisor::resetHomeFolders(){
-    plog->write("[USER INPUT] RESET HOME FOLDERS");
-
-//    QDir lcm_orin(QGuiApplication::applicationDirPath() + "/lcm_types");
-//    QDir lcm_target(QDir::homePath() + "/lcm_types");
-
-//    qDebug() <<QGuiApplication::applicationDirPath() + "/lcm_types";
-//    qDebug() <<QDir::homePath() + "/lcm_types";
-//    if(lcm_orin.exists()){
-//        if(!lcm_target.exists()){
-//            plog->write("[SUPERVISOR] MAKE LCM_TYPES FOLDER INTO HOME");
-//            lcm_target.mkpath(".");
-//        }
-
-//        QStringList files = lcm_orin.entryList(QDir::Files);
-//        for(int i=0; i<files.count(); i++){
-//            qDebug() << QGuiApplication::applicationDirPath() + "/lcm_types/" + files[i];
-//            qDebug() << QDir::homePath() + "/lcm_types/" + files[i];
-//            QFile::copy(QGuiApplication::applicationDirPath() + "/lcm_types/" + files[i],
-//                        QDir::homePath() + "/lcm_types/" + files[i]);
-//            plog->write("[SUPERVISOR] COPY LCM_TYPES : " + files[i]);
-//        }
-//        files.clear();
-//    }
 }
 
 
@@ -3440,6 +3387,7 @@ int Supervisor::getLocalizationState(){
 int Supervisor::getStateMoving(){
     return probot->running_state;
 }
+
 QString Supervisor::getStateMovingStr(){
     if(probot->running_state == 0){
         return tr("준비 안됨");
@@ -3455,30 +3403,12 @@ QString Supervisor::getStateMovingStr(){
         return tr("알수 없음 ")+QString::number(probot->running_state);
     }
 }
-int Supervisor::getErrcode(){
-    return probot->err_code;
-}
 QString Supervisor::getRobotName(){
     if(is_debug){
         return robot.name + "_" + robot.name_debug;
     }else{
         return robot.name;
     }
-}
-float Supervisor::getRobotRadius(){
-    return probot->radius;
-}
-float Supervisor::getRobotx(){
-    POSE temp = setAxis(probot->curPose);
-    return temp.point.x;
-}
-float Supervisor::getRoboty(){
-    POSE temp = setAxis(probot->curPose);
-    return temp.point.y;
-}
-float Supervisor::getRobotth(){
-    POSE temp = setAxis(probot->curPose);
-    return temp.angle;
 }
 float Supervisor::getlastRobotx(){
     POSE temp = setAxis(probot->lastPose);
@@ -3491,50 +3421,6 @@ float Supervisor::getlastRoboty(){
 float Supervisor::getlastRobotth(){
     POSE temp = setAxis(probot->lastPose);
     return temp.angle;
-}
-int Supervisor::getPathNum(){
-    if(ipc->flag_path){
-        return 0;
-    }else{
-        return probot->pathSize;
-    }
-}
-float Supervisor::getPathx(int num){
-    if(ipc->flag_path ){
-        return 0;
-    }else{
-        POSE temp = setAxis(probot->curPath[num]);
-        return temp.point.x;
-    }
-}
-float Supervisor::getPathy(int num){
-    if(ipc->flag_path){
-        return 0;
-    }else{
-        POSE temp = setAxis(probot->curPath[num]);
-        return temp.point.y;
-    }
-}
-float Supervisor::getPathth(int num){
-    if(ipc->flag_path){
-        return 0;
-    }else{
-        POSE temp = setAxis(probot->curPath[num]);
-        return temp.angle;
-    }
-}
-int Supervisor::getLocalPathNum(){
-    return probot->localpathSize;
-
-}
-float Supervisor::getLocalPathx(int num){
-    POSE temp = setAxis(probot->localPath[num]);
-    return temp.point.x;
-
-}
-float Supervisor::getLocalPathy(int num){
-    POSE temp = setAxis(probot->localPath[num]);
-    return temp.point.y;
 }
 int Supervisor::getuistate(){
     return ui_state;
@@ -4921,7 +4807,7 @@ void Supervisor::confirmLocalizationAnnot(){
 //    debug_mode = false;
 }
 
-void Supervisor::clearRobot(){
+void Supervisor::clearStatusAll(){
     probot->status_power = 0;
     probot->status_emo = 0;
     probot->status_remote = 0;
@@ -4959,7 +4845,6 @@ void Supervisor::clearRobot(){
     probot->map_rotate_angle = 0;
 
     probot->localization_confirm = false;
-    probot->err_code = 0;
     probot->curPose.point.x = 0;
     probot->curPose.point.y = 0;
     probot->curPose.angle = 0;
@@ -5015,8 +4900,8 @@ void Supervisor::clearStatus(){
     probot->motor[0].status = 0;
     probot->motor[1].status = 0;
     pmap->call_queue.clear();
-
 }
+
 void Supervisor::stateMoving(){
     plog->write("[STATE] STATE MOVING");
     ui_state = UI_STATE_MOVING;
@@ -5025,8 +4910,8 @@ void Supervisor::stateMoving(){
     patrol_wait_count = 0;
     probot->current_target.name = "";
     probot->call_moving_count = 0;
-
 }
+
 void Supervisor::stateInit(){
     if(ui_state != UI_STATE_NONE){
         plog->write("[STATE] STATE INIT");
@@ -5046,7 +4931,7 @@ void Supervisor::stateInit(){
 void Supervisor::killSLAM(){
     plog->write("[COMMAND] killSLAM");
     ipc->set_cmd(ROBOT_CMD_RESTART,"Kill Slam");
-    clearRobot();
+    clearStatusAll();
     stateInit();
 }
 
@@ -5166,7 +5051,7 @@ void Supervisor::clear_all(){
                               Q_ARG(QVariant,QVariant().fromValue(2)));
 }
 
-void Supervisor::resetClear(){
+void Supervisor::factoryInit(){
     start_clear = true;
 }
 

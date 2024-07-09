@@ -76,10 +76,8 @@ public:
     }
 
     //reset
-    Q_INVOKABLE void resetClear();
-    Q_INVOKABLE void clearFlagStop();
-    Q_INVOKABLE void resetHomeFolders();
-    void clearRobot();
+    Q_INVOKABLE void factoryInit();
+    Q_INVOKABLE void clearStatusAll();
     Q_INVOKABLE void clearStatus();
     Q_INVOKABLE void resetLocalization();
     Q_INVOKABLE void resetLocalizationConfirm();
@@ -90,13 +88,12 @@ public:
 
     //status
     Q_INVOKABLE bool isRobotReady(bool print=true);
-    Q_INVOKABLE int getObsState(){return probot->obs_state;}
     Q_INVOKABLE int getBattery();
     Q_INVOKABLE int getMotorState();
     Q_INVOKABLE int getLocalizationState();
     Q_INVOKABLE int getStateMoving();
     Q_INVOKABLE QString getStateMovingStr();
-    Q_INVOKABLE int getErrcode();
+    Q_INVOKABLE int getObsState(){return probot->obs_state;}
 
     Q_INVOKABLE bool getIPCConnection();
     Q_INVOKABLE bool getMotorConnection(int id);
@@ -120,38 +117,20 @@ public:
     Q_INVOKABLE int getObsinPath();
     Q_INVOKABLE int getRobotcurPreset();
 
-    Q_INVOKABLE void setMotorLock(bool onoff);
-    Q_INVOKABLE float getRobotRadius();
-    Q_INVOKABLE float getRobotx();
-    Q_INVOKABLE float getRoboty();
-    Q_INVOKABLE float getRobotth();
     Q_INVOKABLE float getlastRobotx();
     Q_INVOKABLE float getlastRoboty();
     Q_INVOKABLE float getlastRobotth();
 
-    Q_INVOKABLE int getPathNum();
-    Q_INVOKABLE float getPathx(int num);
-    Q_INVOKABLE float getPathy(int num);
-    Q_INVOKABLE float getPathth(int num);
-    Q_INVOKABLE int getLocalPathNum();
-    Q_INVOKABLE float getLocalPathx(int num);
-    Q_INVOKABLE float getLocalPathy(int num);
-
     Q_INVOKABLE float getICPRatio();
     Q_INVOKABLE float getICPError();
-
 
     ////*********************************************  MAP Load 관련   ***************************************************////
     QList<QString> map_list;
     QList<QString> map_detail_list;
 
-
     //load
-    Q_INVOKABLE void setName(QString name){maph->setName(name);}
-    Q_INVOKABLE void setMap(){maph->setMap();}
     Q_INVOKABLE void setMapOrin(QString type){maph->setMapOrin(type);}
-    Q_INVOKABLE void loadFile(QString name, QString type){maph->loadFile(name,type);}
-    Q_INVOKABLE void loadFile(){maph->loadFile();}
+    Q_INVOKABLE void loadFile(QString name="", QString type=""){maph->loadFile(name,type);}
     Q_INVOKABLE void loadAnnotation(){maph->loadAnnotation();}
     Q_INVOKABLE void removeMap(QString filename);
     Q_INVOKABLE void loadMap(QString name);
@@ -168,13 +147,10 @@ public:
     Q_INVOKABLE QString getAnnotModifiedDate(){return pmap->annot_modified_date;}
     Q_INVOKABLE int getAvailableMap();
     Q_INVOKABLE QString getAvailableMapPath(int num);
-    Q_INVOKABLE int getMapFileSize(QString name);
-    Q_INVOKABLE QString getMapFile(int num);
     Q_INVOKABLE void deleteEditedMap();
     Q_INVOKABLE void deleteAnnotation();
     void CopyPath(QString srcs, QString dst);
     Q_INVOKABLE int copyMap(QString orinname, QString newname);
-    Q_INVOKABLE void setMap(QString name);
 
     //path
     Q_INVOKABLE QString getMapname();
@@ -324,6 +300,7 @@ public:
     Q_INVOKABLE bool rotate_map(QString _src, QString _dst, int mode);
     Q_INVOKABLE bool saveAnnotation(QString filename, bool reload=true);
     Q_INVOKABLE void saveNode();
+    Q_INVOKABLE void setMap(){maph->setMap();}
 
     //interact
     Q_INVOKABLE void pressed(QString tool, int x, int y){maph->pressed(tool, x, y);}
@@ -642,6 +619,7 @@ public:
     Q_INVOKABLE void slam_restInit();
 
     //moving
+    Q_INVOKABLE void setMotorLock(bool onoff);
     Q_INVOKABLE void startServing();
     Q_INVOKABLE void startServing(int group, int table);
     Q_INVOKABLE void moveToServingTest(int group, QString name);

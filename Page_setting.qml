@@ -14274,7 +14274,7 @@ Item {
                         fontsize: 30
                         onClicked: {
                             popup_clear.statenum = 1;
-                            supervisor.resetClear();
+                            supervisor.factoryInit();
                         }
                     }
                     Item_buttons{
@@ -15361,48 +15361,6 @@ Item {
                 text:qsTr("변경하실 호출벨을 눌러주세요")
                 font.family: font_noto_r.name
                 font.pixelSize: 25
-            }
-        }
-    }
-    Popup{
-        id: popup_reset
-        width: 400
-        height: 300
-        anchors.centerIn: parent
-        leftPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        Rectangle{
-            anchors.fill: parent
-            Column{
-                anchors.centerIn: parent
-                spacing: 20
-                Text{
-                    text:qsTr("정말 덮어씌우시겠습니까?")
-                    font.family: font_noto_b.name
-                    font.pixelSize: 20
-                }
-                Rectangle{
-                    width: 100
-                    height: 50
-                    border.width: 1
-                    radius: 5
-                    Text{
-                        anchors.centerIn: parent
-                        text:qsTr("확인")
-                        font.family: font_noto_r.name
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] RESET HOME FOLDERS")
-                            supervisor.resetHomeFolders();
-                            popup_reset.close();
-                        }
-                    }
-                }
             }
         }
     }

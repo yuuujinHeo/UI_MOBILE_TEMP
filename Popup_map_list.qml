@@ -28,6 +28,7 @@ Popup{
     onOpened: {
         update_list();
         var mapname = supervisor.getMapname();
+        map_list_view.init();
         map_list_view.setEnable(true);
         map_list_view.setViewer("annot_view");
     }
@@ -85,7 +86,6 @@ Popup{
             grid_width_str = supervisor.getGridWidth().toFixed(2).toString()+" m";
             modify_date_str = supervisor.getAnnotModifiedDate();
 
-            print("15");
             if(supervisor.isExistAvoidMap(model_maps.get(select_map_list).name)){
                 radio_avoidmap.setEnabled(true);
             }else{
@@ -211,7 +211,7 @@ Popup{
                         onClicked: {
                             if(select_map_list > -1){
                                 supervisor.writelog("[USER INPUT] Map used changed : " + model_maps.get(select_map_list).name);
-                                supervisor.setMap(model_maps.get(select_map_list).name);
+                                supervisor.loadMap(model_maps.get(select_map_list).name);
                                 loader_page.item.init();
                                 popup_map_list.close();
                             }
@@ -230,7 +230,7 @@ Popup{
                                 popup_copymap.orin_name = model_maps.get(select_map_list).name;
 
 
-//                                    supervisor.setMap(model_maps.get(select_map_list).name);
+//                                    supervisor.loadMap(model_maps.get(select_map_list).name);
 //                                    loader_page.item.init();
 //                                    popup_map_list.close();
                             }
@@ -1038,7 +1038,7 @@ Popup{
                             onClicked:{
                                 supervisor.playSound('click');;
                                 supervisor.deleteAnnotation();
-                                supervisor.setMap(name);
+                                supervisor.loadMap(name);
                                 loadPage(pmap);
                                 loader_page.item.loadmap(popup_annotation_delete.name,"RAW");
                                 loader_page.item.is_init_state = true;

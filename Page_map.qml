@@ -187,7 +187,7 @@ Item {
         anchors.bottom: parent.bottom
 
         Component.onCompleted: {
-//            map_current.loadmap(supervisor.getMapname(),"EDITED")
+            map_current.init();
             map_current.setEnable(true);
             map_current.setViewer("current");
         }

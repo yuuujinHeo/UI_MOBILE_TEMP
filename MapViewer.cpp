@@ -18,7 +18,5 @@ void MapViewer::onTimer(){
 }
 void MapViewer::paint(QPainter *painter){
     QPixmap temp = pmap->map;
-//    temp.scaled(width(),height(),Qt::IgnoreAspectRatio,Qt::FastTransformation);
-//    painter->drawPixmap(0,0,width(),height(),temp);
     painter->drawPixmap(0,0,width(),height(),temp.scaled(width(),height(),Qt::IgnoreAspectRatio,Qt::FastTransformation));
 }

@@ -45,91 +45,93 @@ Item {
     }
 
     function openNotice(errstr){
-        popup_notice.init();
-        popup_notice.style = "warning";
-        if(errstr === "no_path"){
-            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
-            popup_notice.sub_str = "";
-            popup_notice.open();
-        }else if(errstr === "no_location"){
-            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
-            popup_notice.sub_str = "";
-            popup_notice.open();
-        }else if(errstr === "localization"){
-            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
-            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
-            popup_notice.addButton(qsTr("위치초기화"));
-            popup_notice.open();
-        }else if(errstr === "emo"){
-            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
-            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
-            popup_notice.open();
-        }else if(errstr === 3){
-            popup_notice.main_str = qsTr("경로가 취소되었습니다");
-            popup_notice.sub_str = "";
-            popup_notice.open();
-        }else if(errstr === "motor_lock"){
+        if(!popup_notice.is_open){
+            popup_notice.init();
             popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
-            popup_notice.sub_str = "";
-            popup_notice.closemode = false;
-            popup_notice.addButton(qsTr("모터초기화"))
-            popup_notice.open();
-        }else if(errstr === 5){
-            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
-            popup_notice.sub_str = "";
-            popup_notice.open();
-        }else if(errstr === 6){
-            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
-            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
-            popup_notice.open();
-        }else if(errstr === "no_location"){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
-            popup_notice.sub_str = qsTr("");
-            popup_notice.open();
-        }else if(errstr === "no_patrol"){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
-            popup_notice.sub_str = qsTr("");
-            popup_notice.open();
-        }else if(errstr === "motor_notready"){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
-            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
-            popup_notice.closemode = false;
-            popup_notice.addButton(qsTr("모터초기화"))
-            popup_notice.open();
-        }else if(errstr === "debug"){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("디버그 모드입니다")
-            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
-            popup_notice.closemode = false;
-            popup_notice.open();
-        }else if(errstr === "charging"){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
-            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
-            popup_notice.closemode = false;
-            popup_notice.open();
-        }else if(errstr === "running"){
-            popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
-            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
-            popup_notice.closemode = false;
-            popup_notice.open();
-        }else if(errstr === "ipc_discon"){
-            popup_notice.style = "error";
-            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
-            popup_notice.sub_str = "";
-            popup_notice.closemode = false;
-            popup_notice.open();
-        }else if(errstr === "motor"){
-            popup_notice.style = "error";
-            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
-            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
-            popup_notice.closemode = false;
-            popup_notice.open();
+            if(errstr === "no_path"){
+                popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === "no_location"){
+                popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === "localization"){
+                popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+                popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+                popup_notice.addButton(qsTr("위치초기화"));
+                popup_notice.open();
+            }else if(errstr === "emo"){
+                popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+                popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+                popup_notice.open();
+            }else if(errstr === 3){
+                popup_notice.main_str = qsTr("경로가 취소되었습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === "motor_lock"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+                popup_notice.sub_str = "";
+
+                popup_notice.addButton(qsTr("모터초기화"))
+                popup_notice.open();
+            }else if(errstr === 5){
+                popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === 6){
+                popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+                popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+                popup_notice.open();
+            }else if(errstr === "no_location"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+                popup_notice.sub_str = qsTr("");
+                popup_notice.open();
+            }else if(errstr === "no_patrol"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+                popup_notice.sub_str = qsTr("");
+                popup_notice.open();
+            }else if(errstr === "motor_notready"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+                popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+
+                popup_notice.addButton(qsTr("모터초기화"))
+                popup_notice.open();
+            }else if(errstr === "debug"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("디버그 모드입니다")
+                popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+
+                popup_notice.open();
+            }else if(errstr === "charging"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+                popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+
+                popup_notice.open();
+            }else if(errstr === "running"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+                popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+
+                popup_notice.open();
+            }else if(errstr === "ipc_discon"){
+                popup_notice.style = "error";
+                popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+                popup_notice.sub_str = "";
+                //
+                popup_notice.open();
+            }else if(errstr === "motor"){
+                popup_notice.style = "error";
+                popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+                popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+                //
+                popup_notice.open();
+            }
         }
     }
 
@@ -161,9 +163,6 @@ Item {
     function init(){
         supervisor.stopBGM();
     }
-
-
-
     function movestart(){
         var location_name = supervisor.getcurLoc();
         if(location_name === "Charging0"){
@@ -197,6 +196,10 @@ Item {
                 annot_pages.sourceComponent = page_annot_localization;
             }
         }
+    }
+
+    Component.onDestruction: {
+        popup_notice.close();
     }
 
     ListModel{
@@ -576,6 +579,8 @@ Item {
             }
             Component.onCompleted: {
                 supervisor.writelog("[UI] PageAnnot : page_annot_start (rotate, cut map) ");
+
+                map.init();
                 map.setEnable(true);
                 supervisor.setMotorLock(true);
             }
@@ -906,6 +911,7 @@ Item {
             Component.onCompleted: {
                 supervisor.writelog("[UI] PageAnnot : page_annot_location) ");
                 supervisor.setMotorLock(false);
+                map_location_view.init();
                 map_location_view.setEnable(true);
                 map_location_view.setTool("move");
                 map_location_view.setViewer("annot_location");
@@ -1388,6 +1394,7 @@ Item {
                 readSetting();
                 list_location_detail.currentIndex = select_location;
                 map_location_list.init();
+                map_location_list.initMap();
                 map_location_list.setViewer("serving_list");
                 map_location_list.setEnable(true);
                 map_location_list.setTool("none");
@@ -2196,6 +2203,7 @@ Item {
                 select_preset = 0;
                 is_edited = false;
                 supervisor.setMotorLock(false);
+                map.init();
                 map.setEnable(true);
                 map.clear("all");
                 map.setTool("move");
@@ -4068,6 +4076,7 @@ Item {
                     show_connection: false
                     show_ratio: false
                     Component.onCompleted: {
+                        init();
                         setEnable(true);
                         supervisor.setMapSize(objectName,width,height);
                         map.setDrawingColor(255);
@@ -6044,6 +6053,7 @@ Item {
         }
         onOpened:{
             update();
+            map_location.init();
             map_location.setViewer("add_serving");
             map_location.setEnable(true);
             textfield_loc_name.text = "";

@@ -46,16 +46,21 @@ Item {
     property bool is_drawing_redo: false
 
     signal clicked
-    Component.onCompleted: {
+
+    function init(){
         mapview.setName(objectName);
-        supervisor.setName(objectName);
+    }
+
+    function initMap(){
+        clear("all");
+        setTool("move");
     }
 
     function setEnable(en){
         enabled = en;
         mapview.setActive(en);
         supervisor.setEnable(en);
-//        print("set enable ",objectName,en);
+       print("set enable ",objectName,en);
     }
 
 
@@ -198,10 +203,6 @@ Item {
         supervisor.redoLine();
     }
 
-    function init(){
-        clear("all");
-        setTool("move");
-    }
 
     function removelocation(num){
         supervisor.removeLocation(num);
@@ -261,7 +262,7 @@ Item {
 
         }else if(mode==="edited"){
             supervisor.saveMap();
-            supervisor.setMap(map_name);
+            supervisor.loadMap(map_name);
             supervisor.slam_map_reload(supervisor.getMapname());
         }else if(mode==="location_cur"){
             last_robot_x = supervisor.getlastRobotx();
@@ -301,7 +302,6 @@ Item {
            last_robot_x = supervisor.getlastRobotx();
            last_robot_y = supervisor.getlastRoboty();
            last_robot_th = supervisor.getlastRobotth();
-//           /*print(*/last_robot_x,last_robot_y,last_robot_th);
            supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
            supervisor.saveLocation(type,group, name);
        }else if(mode==="location"){
@@ -321,7 +321,6 @@ Item {
     }
 
     function setAutoInit(x,y,th){
-//        print(objectName+" ?:",x,y,th);
         supervisor.setInitPose(x,y,th);
         supervisor.setInitPos(x,y,th);
     }
@@ -331,8 +330,6 @@ Item {
         id: mapview
         width: parent.width
         height: parent.height
-        Component.onCompleted: {
-        }
         clip: true
 
         Rectangle{
@@ -435,7 +432,6 @@ Item {
             }
         }
 
-
         Row{
             visible: show_ratio
             anchors.top: parent.top
@@ -464,38 +460,8 @@ Item {
                 }
             }
         }
-
-//        Rectangle{
-//            id: rect_ratio
-//            width: parent.width*0.1
-//            visible: show_ratio
-//            height: parent.width*0.02
-//            anchors.top: parent.top
-//            anchors.topMargin: 20
-//            anchors.right: parent.right
-//            anchors.rightMargin: 20
-//            color: color_dark_gray
-//            Rectangle{
-//                id: ratio
-//                property var value:0
-//                property var limit:0
-//                width: parent.width*value
-//                height: parent.height
-//                Behavior on width{
-//                    NumberAnimation{
-//                        duration: 200
-//                    }
-//                }
-//                color:{
-//                    if(value < limit){
-//                        color_red
-//                    }else{
-//                        color_green
-//                    }
-//                }
-//            }
-//        }
     }
+
     MouseArea{
         anchors.fill: parent
         hoverEnabled: true
@@ -546,13 +512,13 @@ Item {
 
 //            print(point1.x, width, supervisor.getX(), firstX);
             if(tool == "move" || item_keyevent.shift_hold){
-                if(double_touch){
-                    firstX = supervisor.getX() + (point1.x)*supervisor.getScale()*supervisor.getFileWidth()/width;
-                    firstY = supervisor.getY() + (point1.y)*supervisor.getScale()*supervisor.getFileWidth()/width;
-                    var dx = Math.abs(point1.x-point2.x);
-                    var dy = Math.abs(point1.y-point2.y);
-                    firstDist = Math.sqrt(dx*dx + dy*dy);
-                }
+                // if(double_touch){
+                //     firstX = supervisor.getX() + (point1.x)*supervisor.getScale()*supervisor.getFileWidth()/width;
+                //     firstY = supervisor.getY() + (point1.y)*supervisor.getScale()*supervisor.getFileWidth()/width;
+                //     var dx = Math.abs(point1.x-point2.x);
+                //     var dy = Math.abs(point1.y-point2.y);
+                //     firstDist = Math.sqrt(dx*dx + dy*dy);
+                // }
             }else if(tool == "draw"){
                 supervisor.setShowBrush(true);
                 supervisor.startDrawing(firstX, firstY);
@@ -590,15 +556,6 @@ Item {
                 supervisor.setInitPose(firstX,firstY,0);
             }else if(tool === "cut_map"){
                 select_point = supervisor.getPointBox(firstX,firstY);
-//                if(select_point === -1){
-//                    if(double_touch){
-//                        firstX = supervisor.getX() + (point1.x+point2.x)*supervisor.getScale()*supervisor.getFileWidth()/width/2;
-//                        firstY = supervisor.getY() + (point1.y+point2.y)*supervisor.getScale()*supervisor.getFileWidth()/width/2;
-//                        var dx = Math.abs(point1.x-point2.x);
-//                        var dy = Math.abs(point1.y-point2.y);
-//                        firstDist = Math.sqrt(dx*dx + dy*dy);
-//                    }
-//                }
             }else if(tool === "ruler"){
 //                supervisor.setRulerInit(firstX, firstY);
             }
@@ -669,48 +626,48 @@ Item {
                 var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
                 var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
                 if(tool == "move" || item_keyevent.shift_hold){
-                    if(double_touch){
-                        if(point1.pressed && point2.pressed){
-                            newX = (point1.x)*supervisor.getScale();
-                            newY = (point1.y)*supervisor.getScale();
+//                     if(double_touch){
+// //                         if(point1.pressed && point2.pressed){
+// //                             newX = (point1.x)*supervisor.getScale();
+// //                             newY = (point1.y)*supervisor.getScale();
 
-                            var dx = Math.abs(point1.x - point2.x)
-                            var dy = Math.abs(point1.y - point2.y)
-                            var dist = Math.sqrt(dx*dx + dy*dy);
-                            var thres = 10;
+// //                             var dx = Math.abs(point1.x - point2.x)
+// //                             var dy = Math.abs(point1.y - point2.y)
+// //                             var dist = Math.sqrt(dx*dx + dy*dy);
+// //                             var thres = 10;
 
-                            if(firstDist-dist > 0){
-                                supervisor.zoomOut(newX,newY,firstDist-dist);
-                            }
-                            if(dist-firstDist > 0){
-                                supervisor.zoomIn(newX,newY,dist-firstDist);
-                            }
-//                            for(var i=0; i<(firstDist-dist)/thres; i++){
-////                                supervisor.scaledOut(1,1);
-//                                supervisor.zoomOut(newX,newY);
-//                            }
-//                            for(var i=0; i<(dist-firstDist)/thres; i++){
-////                                supervisor.scaledIn(1,1);
-//                                supervisor.zoomIn(newX,newY);
-//                            }
-                            newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            firstDist = dist;
-                            supervisor.move(firstX-newX, firstY-newY);
-                        }else{
-//                            double_touch = false;
-                        }
-                    }else{
-                        if(point1.pressed){
-                            newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                        }else if(point2.pressed){
-                            newX = point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            newY = point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                        }
-//                        supervisor.setRobotFollowing(false);
-                        supervisor.move(firstX-newX, firstY-newY);
-                    }
+// //                             if(firstDist-dist > 0){
+// //                                 supervisor.zoomOut(newX,newY,firstDist-dist);
+// //                             }
+// //                             if(dist-firstDist > 0){
+// //                                 supervisor.zoomIn(newX,newY,dist-firstDist);
+// //                             }
+// // //                            for(var i=0; i<(firstDist-dist)/thres; i++){
+// // ////                                supervisor.scaledOut(1,1);
+// // //                                supervisor.zoomOut(newX,newY);
+// // //                            }
+// // //                            for(var i=0; i<(dist-firstDist)/thres; i++){
+// // ////                                supervisor.scaledIn(1,1);
+// // //                                supervisor.zoomIn(newX,newY);
+// // //                            }
+// //                             newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
+// //                             newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
+// //                             firstDist = dist;
+// //                             supervisor.move(firstX-newX, firstY-newY);
+//                         }else{
+// //                            double_touch = false;
+//                         }
+//                     }else{
+//                         if(point1.pressed){
+//                             newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
+//                             newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
+//                         }else if(point2.pressed){
+//                             newX = point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
+//                             newY = point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
+//                         }
+// //                        supervisor.setRobotFollowing(false);
+//                         supervisor.move(firstX-newX, firstY-newY);
+//                     }
                 }else if(tool == "draw"){
                     supervisor.addLinePoint(newX, newY);
                 }else if(tool == "draw_rect"){
@@ -751,8 +708,6 @@ Item {
             }
         }
     }
-
-    //Buttons
 
     Column{
         anchors.top: parent.top

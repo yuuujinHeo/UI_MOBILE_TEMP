@@ -30,6 +30,7 @@ Item{
 
     Component.onCompleted: {
         supervisor.resetLocalizationConfirm();
+        // supervisor.resetLocalization();
         if(auto_init){
             supervisor.writelog("[INIT] Localization : Auto Init")
             timer_check_localization.start();
@@ -400,6 +401,7 @@ Item{
         leftPadding: 0
         rightPadding: 0
         onOpened: {
+            map.init();
             map.setViewer("localization");
             map.setEnable(true);
 
