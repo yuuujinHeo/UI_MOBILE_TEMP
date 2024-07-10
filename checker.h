@@ -71,7 +71,12 @@ public slots:
         QByteArray error = process->readAllStandardError();
         plog->write("[checker] connectWifi Error : "+error);
         if(error.contains("[sudo]")){
-            process->write("odroid\n");
+
+            if(QDir::homePath().split("/")[2]=="odroid"){
+                process->write("odroid\n");
+            }else{
+                process->write("rainbow\n");
+            }
             if(!process->waitForFinished()){
                 emit connect_wifi_fail(3, argument[0]);
                 emit finished(this);

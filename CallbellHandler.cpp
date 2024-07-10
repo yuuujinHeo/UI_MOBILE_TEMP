@@ -151,8 +151,8 @@ void CallbellHandler::readData(){
 }
 
 void CallbellHandler::handleError(QSerialPort::SerialPortError error){
-    plog->write("[CALLBELL] SerialPort Error : "+QString::number(error));
     if(error == QSerialPort::ResourceError){
+        plog->write("[CALLBELL] SerialPort Error : "+QString::number(error));
         if(m_serialPort->isOpen())
             m_serialPort->close();
     }

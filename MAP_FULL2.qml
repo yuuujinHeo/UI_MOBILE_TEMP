@@ -509,16 +509,8 @@ Item {
                 firstY = supervisor.getY() + point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
             }
 
-
 //            print(point1.x, width, supervisor.getX(), firstX);
             if(tool == "move" || item_keyevent.shift_hold){
-                // if(double_touch){
-                //     firstX = supervisor.getX() + (point1.x)*supervisor.getScale()*supervisor.getFileWidth()/width;
-                //     firstY = supervisor.getY() + (point1.y)*supervisor.getScale()*supervisor.getFileWidth()/width;
-                //     var dx = Math.abs(point1.x-point2.x);
-                //     var dy = Math.abs(point1.y-point2.y);
-                //     firstDist = Math.sqrt(dx*dx + dy*dy);
-                // }
             }else if(tool == "draw"){
                 supervisor.setShowBrush(true);
                 supervisor.startDrawing(firstX, firstY);
@@ -626,48 +618,7 @@ Item {
                 var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
                 var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
                 if(tool == "move" || item_keyevent.shift_hold){
-//                     if(double_touch){
-// //                         if(point1.pressed && point2.pressed){
-// //                             newX = (point1.x)*supervisor.getScale();
-// //                             newY = (point1.y)*supervisor.getScale();
 
-// //                             var dx = Math.abs(point1.x - point2.x)
-// //                             var dy = Math.abs(point1.y - point2.y)
-// //                             var dist = Math.sqrt(dx*dx + dy*dy);
-// //                             var thres = 10;
-
-// //                             if(firstDist-dist > 0){
-// //                                 supervisor.zoomOut(newX,newY,firstDist-dist);
-// //                             }
-// //                             if(dist-firstDist > 0){
-// //                                 supervisor.zoomIn(newX,newY,dist-firstDist);
-// //                             }
-// // //                            for(var i=0; i<(firstDist-dist)/thres; i++){
-// // ////                                supervisor.scaledOut(1,1);
-// // //                                supervisor.zoomOut(newX,newY);
-// // //                            }
-// // //                            for(var i=0; i<(dist-firstDist)/thres; i++){
-// // ////                                supervisor.scaledIn(1,1);
-// // //                                supervisor.zoomIn(newX,newY);
-// // //                            }
-// //                             newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-// //                             newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-// //                             firstDist = dist;
-// //                             supervisor.move(firstX-newX, firstY-newY);
-//                         }else{
-// //                            double_touch = false;
-//                         }
-//                     }else{
-//                         if(point1.pressed){
-//                             newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-//                             newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-//                         }else if(point2.pressed){
-//                             newX = point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-//                             newY = point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-//                         }
-// //                        supervisor.setRobotFollowing(false);
-//                         supervisor.move(firstX-newX, firstY-newY);
-//                     }
                 }else if(tool == "draw"){
                     supervisor.addLinePoint(newX, newY);
                 }else if(tool == "draw_rect"){

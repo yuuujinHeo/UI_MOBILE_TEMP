@@ -2397,10 +2397,10 @@ QString Supervisor::getNewServingName(int group){
         groupname = "서빙";
     }
 
-    while(isDuplicateName(group, groupname+QString::number(count))){
+    while(isDuplicateName(group, groupname+QString::number(count+1))){
         count++;
     }
-    return groupname+QString::number(count);
+    return groupname+QString::number(count+1);
 }
 
 bool Supervisor::isDuplicateName(int group, QString name){
@@ -3739,8 +3739,8 @@ void Supervisor::onTimer(){
     if(sddd++ > 10){
         sddd = 0;
         checker->getCurrentInterface();
-        checker->getSystemVolume();
-        checker->getWifiList();
+        // checker->getSystemVolume();
+        // checker->getWifiList();
     }
     if(start_clear){
         start_clear = false;
@@ -4384,7 +4384,7 @@ void Supervisor::onTimer(){
         if(ui_state != UI_STATE_NONE){
             plog->write("[STATE] "+curUiState()+" : SLAMNAV Disconnected -> None");
             QMetaObject::invokeMethod(mMain, "disconnected");
-            debug_mode = false;
+            // debug_mode = false;
             stateInit();
         }
     }
