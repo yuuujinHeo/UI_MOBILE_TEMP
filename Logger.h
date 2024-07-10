@@ -10,21 +10,19 @@ class Logger : QObject
 {
     Q_OBJECT
 
-    static Logger instance;
+    // static Logger instance;
 
 public:
     Logger();
     void reset();
 
     void write(const QString str, bool print=true);
-    static void write_space();
+    // static void write_space();
 
 private:
     QFile *file;
     QString prev_str;
-
     QString filename;
-
     QString getFileName();
 };
 

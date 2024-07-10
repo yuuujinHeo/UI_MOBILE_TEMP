@@ -6,6 +6,7 @@
 #include <opencv2/opencv.hpp>
 #include <QDir>
 #include <QPixmap>
+#include <QSettings>
 #include "MapHeader.h"
 #include "cv_to_qt.h"
 
@@ -45,6 +46,10 @@ POSE setAxisBack(cv::Point2f _point, float _angle);
 
 bool sortLocation2(const LOCATION &l1, const LOCATION &l2);
 bool sortWifi(const QString &w1, const QString &w2);
+
+QString getIniPath(QString file);
+
+QString getSettings(QString file, QString group, QString name);
 
 typedef struct{
     QString group;
@@ -143,6 +148,33 @@ typedef struct{
     int prev_state=0;
 }ST_WIFI;
 
+typedef struct{
+    QString version;
+    QString prev_version;
+    QString date;
+    QString message;
+}ST_VERSION;
+
+typedef struct{
+    QString id;
+    QString type;
+    bool state;
+}ST_GOQUAL_RELAY;
+
+typedef struct{
+    QString client_id = "435a57bb447c4e6a962dc739824dbfcd";
+    QString client_secret ="bcf9787d32f3497090455665715cf2c3";
+    QString app_key = "2gh7YVc2sOMRu2cR-fRvL3j_ROxmFdE-dJAOoh6nL51=";
+    QString id;
+    QString passwd;
+}ST_GOQUAL_LOGIN;
+
+typedef struct{
+    QString access_key;
+    QString refresh_key;
+    int expires_in;
+}ST_GOQUAL_TOKEN;
+
 enum{
     NET_DISCON = 0,
     NET_CONNECTING,
@@ -160,6 +192,7 @@ typedef struct{
     QString gateway;
     QString dns1;
     QString dns2;
+    QString mac;
 }ST_NET_INTERFACE;
 
 typedef struct{
@@ -249,8 +282,6 @@ typedef struct{
     bool con_internet = false;
     int con_internet2 = NET_DISCON;
     int wifi_connection = 0;
-
-    int master_volume = 50;
 
 #ifdef EXTPROC_TEST
 #else

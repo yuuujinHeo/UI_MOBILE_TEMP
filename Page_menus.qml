@@ -79,7 +79,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     popup_password.open();
                 }
             }
@@ -124,7 +124,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     loadPage(psetting);
                 }
             }
@@ -142,20 +142,20 @@ Item {
         anchors.topMargin: 50
         Component.onCompleted: {
             addMenu("","icon/btn_menu.png");
-            addMenu(qsTr("최소화"),"icon/icon_minimize.png");
-            addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
+            //addMenu(qsTr("최소화"),"icon/icon_minimize.png");
+            //addMenu(qsTr("프로그램 종료"),"icon/icon_power.png");
         }
         onMenu1_clicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             loadPage(pkitchen);
         }
         onMenu2_clicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             supervisor.writelog("[USER INPUT] Screen Minimized.");
             mainwindow.showMinimized();
         }
         onMenu3_clicked: {
-            click_sound.play();;
+            supervisor.playSound('click');;
             popup_program_exit.open();
         }
     }
@@ -228,7 +228,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            supervisor.playSound('click');;
                             popup_program_exit.close();
                         }
                     }
@@ -268,7 +268,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            supervisor.playSound('click');;
                             supervisor.programExit();
                             popup_program_exit.close();
                         }
@@ -309,7 +309,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();;
+                            supervisor.playSound('click');;
                             supervisor.programRestart();
                             popup_program_exit.close();
                         }

@@ -52,9 +52,6 @@ bool sortWifi2(const ST_WIFI &w1, const ST_WIFI &w2){
     }
 }
 
-
-
-
 void Worker::getWifiInterface(){
     process = new QProcess();
 
@@ -69,12 +66,12 @@ void Worker::getWifiInterface(){
     process->start("iwlist", QStringList() << probot->wifi_interface.name << "scan");
 
     if(!process->waitForFinished()){
+        process->close();
         emit finished(this);
         return;
     }
 
     QByteArray result = process->readAllStandardOutput();
-//    qDebug() << result;
     QList<QByteArray> lines = result.split('\n');
 
     QList<ST_WIFI> wifiList;
@@ -107,10 +104,28 @@ void Worker::getWifiInterface(){
                 }
             }
             wifiinfo.clear();
-        }
-        if(line.contains("ESSID")){
-            QString temp = QString::fromUtf8(line.split('"')[1]);
-            wifiinfo["ESSID"]=temp;
+        }else if(line.contains("ESSID")){
+            QByteArray temp = line.split('"')[1];
+            if(temp.contains('\\\\x')){
+                QByteArray t;
+                for (int i = 0; i < temp.size(); ++i) {
+                    if (temp[i] == '\\' && temp[i + 1] == 'x') {
+                        bool ok;
+                        char byte = temp.mid(i + 2, 2).toInt(&ok, 16);
+                        if (ok) {
+                            t.append(byte);
+                            i += 3; // '\xNN'을 건너뜀
+                        } else {
+                            t.append(temp[i]);
+                        }
+                    } else {
+                        t.append(temp[i]);
+                    }
+                }
+                wifiinfo["ESSID"] = QString::fromUtf8(t);
+            }else{
+                wifiinfo["ESSID"]=QString::fromUtf8(temp);
+            }
         }else if(line.contains("Encryption key")){
             QString temp = QString::fromUtf8(line.split(':')[1]);
             wifiinfo["SECURITY"]=temp;
@@ -160,41 +175,19 @@ void Worker::getWifiInterface(){
 
     probot->wifi_list.clear();
     probot->wifi_list = wifiList;
+    process->close();
     emit finished(this);
 }
-void Worker::pactlGet(){
-    process = new QProcess();
-    process->start("pactl",QStringList() << "list" << "sink-inputs");
 
-    if(!process->waitForFinished()){
-        emit finished(this);
-        return;
-    }
-
-    QByteArray result = process->readAllStandardOutput();
-    QList<QByteArray> lines = result.split('\n');
-
-    QString number;
-    int temp_volume = 50;
-    for(QByteArray line : lines){
-        if(line.contains("Sink Input")){
-            number = line.split('#')[1];
-        }else if(line.contains("application.name")){
-
-        }
-    }
-    emit finished(this);
-
-}
-void Worker::pactlSet(){
-
-}
 
 void Worker::getSystemVolume(){
     process = new QProcess();
-    process->start("amixer",QStringList() << "-D" << "pulse" << "sget" << "Master");
+    QString cmd = "pactl";
+    QStringList lists = QStringList() << "list" << "sinks";
+    process->start(cmd,lists);
 
     if(!process->waitForFinished()){
+        process->close();
         emit finished(this);
         return;
     }
@@ -202,26 +195,38 @@ void Worker::getSystemVolume(){
     QByteArray result = process->readAllStandardOutput();
     QList<QByteArray> lines = result.split('\n');
 
+    QString temp = "Name: "+getSettings("static","SOUND","default_sink");
+    bool match=false;
     for(QByteArray line : lines){
-        if(line.contains("Front Left:")){
-            QString percent = line.split('[')[1].split('%')[0];
-            probot->volume_system = percent.toInt();
-//            plog->write("[WORKER - "+name+"] Get System Volume : "+ QString::number(probot->volume_system));
+        if(line.contains(temp.toUtf8())){
+            qDebug() << line;
+            match=true;
+        }else if(match && line.contains("Volume: front-left")){
+            int num = line.split('/')[1].split('%')[0].toInt();
+            qDebug() << "num is = "<<num;
+            probot->volume_system = num;
             break;
         }
     }
+    qDebug() << "---------------------------------------------------------------------------";
+    qDebug() << probot->volume_system << getSettings("static","SOUND","default_sink");
+
+    process->close();
     emit finished(this);
 }
 void Worker::setSystemVolume(){
     if(argument.size() > 0){
         QString volume = argument[0];
         process = new QProcess();
-        if(volume == "0"){
-            process->start("amixer",QStringList() << "-D" << "pulse" << "sset" << "Master" << volume+"%" << "mute");
-        }else{
-            process->start("amixer",QStringList() << "-D" << "pulse" << "sset" << "Master" << volume+"%" << "unmute");
-        }
+
+        QString cmd = "pactl";
+        QStringList lists = QStringList() << "set-sink-volume" << getSettings("static","SOUND","default_sink") << volume+"%";
+        qDebug() << "---------------------------------------------------------------------------";
+        qDebug() << cmd << lists << getSettings("static","SOUND","default_sink");
+        process->start(cmd,lists);
+
         if(!process->waitForFinished()){
+            process->close();
             emit finished(this);
             return;
         }
@@ -230,6 +235,8 @@ void Worker::setSystemVolume(){
         qDebug() << result;
         plog->write("[WORKER - "+name+"] Set System Volume : Done ("+volume+")");
     }
+
+    process->close();
     emit finished(this);
 }
 void Worker::connectWifi(){
@@ -254,6 +261,7 @@ void Worker::connectWifi(){
 
     if(!process->waitForFinished()){
         emit connect_wifi_fail(3, argument[0]);
+        process->close();
         emit finished(this);
         return;
     }
@@ -274,6 +282,7 @@ void Worker::connectWifi(){
         emit connect_wifi_fail(0, argument[0]);
     }
 
+    process->close();
     emit finished(this);
 }
 
@@ -309,6 +318,7 @@ void Worker::setIP(){
 
     if(!process->waitForFinished()){
         emit set_wifi_fail(0, argument[0]);
+        process->close();
         emit finished(this);
         return;
     }
@@ -321,6 +331,7 @@ void Worker::setIP(){
 
     if(!process->waitForFinished()){
         emit set_wifi_fail(0, argument[0]);
+        process->close();
         emit finished(this);
         return;
     }
@@ -331,6 +342,7 @@ void Worker::setIP(){
     getNetworkState();
 
     emit set_wifi_success(argument[0]);
+    process->close();
     emit finished(this);
 }
 
@@ -356,6 +368,7 @@ void Worker::setEthernet(){
 
     if(!process->waitForFinished()){
         emit set_wifi_fail(0, argument[0]);
+        process->close();
         emit finished(this);
         return;
     }
@@ -368,11 +381,13 @@ void Worker::setEthernet(){
 
     if(!process->waitForFinished()){
         emit set_wifi_fail(0, argument[0]);
+        process->close();
         emit finished(this);
         return;
     }
     result = process->readAllStandardOutput();
     emit set_wifi_success(argument[0]);
+    process->close();
     emit finished(this);
 }
 void Worker::gitReset(){
@@ -383,12 +398,14 @@ void Worker::gitReset(){
     connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_reset()));
 
     if(!process->waitForFinished()){
+        process->close();
         emit finished(this);
         return;
     }
     QByteArray result = process->readAllStandardOutput();
     qDebug() << "Result : " << result;
     gitPull();
+    process->close();
 //    emit finished(this);
 }
 
@@ -415,6 +432,7 @@ void Worker::getNetworkState(){
     }
 
     if(!process->waitForFinished()){
+        process->close();
         emit finished(this);
         return;
     }
@@ -537,11 +555,10 @@ void Worker::getNetworkState(){
         }
     }
 
-//    qDebug() << probot->wifi_interface.ssid << probot->wifi_interface.ipv4 << probot->wifi_interface.dns1 << probot->ethernet_interface.name;
-
     if(argument.size()>1){
 
     }else{
+        process->close();
         emit finished(this);
     }
 }
@@ -554,6 +571,7 @@ void Worker::gitPull(){
     connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
 
     if(!process->waitForFinished()){
+        process->close();
         emit finished(this);
         return;
     }
@@ -569,6 +587,7 @@ void Worker::gitPull(){
         plog->write("[UPDATE] Git Pull : Success");
         emit git_pull_success();
     }
+    process->close();
     emit finished(this);
 //    qDebug() << "Result : " << result;
 }
@@ -585,6 +604,7 @@ void Worker::checkPing(){
 
     if(!process->waitForFinished(1000)){
         probot->con_internet = false;
+        process->close();
         emit finished(this);
         return;
     }
@@ -595,6 +615,7 @@ void Worker::checkPing(){
     } else {
         probot->con_internet = false;
     }
+    process->close();
     emit finished(this);
 }
 
@@ -897,20 +918,19 @@ void Checker::getNetworkState(){
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     foreach (const QNetworkInterface &interface, interfaces) {
         if(interface.type() == QNetworkInterface::Ethernet){
-            probot->ethernet_interface.name = interface.name();
-            probot->ethernet_interface.type = interface.type();
+            if(interface.name().left(1) == "e"){
+                probot->ethernet_interface.name = interface.name();
+                probot->ethernet_interface.type = interface.type();
+                probot->ethernet_interface.mac = interface.hardwareAddress();
 
             // 이 인터페이스의 IP 주소 목록을 가져옴
             QList<QNetworkAddressEntry> addressEntries = interface.addressEntries();
-
-//            probot->ethernet_interface.ipv4 = "";
-//            probot->ethernet_interface.netmask = "";
-
-            foreach (const QNetworkAddressEntry &entry, addressEntries) {
+                foreach (const QNetworkAddressEntry &entry, addressEntries) {
                 if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol){
                     probot->ethernet_interface.state = NET_CON;
 //                    probot->ethernet_interface.ipv4 = entry.ip().toString();
 //                    probot->ethernet_interface.netmask = entry.netmask().toString();
+                    }
                 }
             }
         }else if(interface.type() == QNetworkInterface::Wifi){

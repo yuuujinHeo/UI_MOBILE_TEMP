@@ -151,7 +151,7 @@ Popup{
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(name==="clear"){
                                         popup_password.setfailclear();
                                         popup_password.input_len = 0;

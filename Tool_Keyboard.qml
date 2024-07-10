@@ -124,7 +124,7 @@ Popup {
         width: parent.width
         height: parent.height - rect_keyboard.height
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             tool_keyboard.close();
             owner.focus = false;
         }
@@ -201,7 +201,7 @@ Popup {
                     property var firstHeight: keyboard_height
                     property var firstPos: 0
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(on_bottom){
                             on_bottom = false;
                         }else{
@@ -239,7 +239,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             if(mode === "korean"){
                                                 emitter.setHangul(owner, modelData);
                                             }else{
@@ -266,13 +266,13 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         emitter.keyPressed(owner,Qt.Key_Backspace);
                                         if(!is_capslock)
                                             is_shift = false;
                                     }
                                     onPressAndHold: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         timer_backspace.start();
                                     }
                                     onReleased: {
@@ -312,7 +312,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             if(mode === "korean"){
                                                 emitter.setHangul(owner, modelData);
                                             }else{
@@ -338,7 +338,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         owner.focus = false;
                                         tool_keyboard.close();
                                         emitter.initHangul();
@@ -364,7 +364,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         if(is_shift){
                                             is_capslock = false;
                                             is_shift = false;
@@ -373,7 +373,7 @@ Popup {
                                         }
                                     }
                                     onPressAndHold: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         is_shift = true;
                                         is_capslock = true;
                                     }
@@ -396,7 +396,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             if(modelData === "♣"){
                                                 emitter.initHangul();
                                                 is_capslock = false;
@@ -438,14 +438,14 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         emitter.keyPressed(owner,Qt.Key_Left);
                                         emitter.initHangul();
                                         if(!is_capslock)
                                             is_shift = false;
                                     }
                                     onPressAndHold: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         timer_left.start();
                                     }
                                     onReleased: {
@@ -473,7 +473,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         emitter.keyPressed(owner,Qt.Key_Space);
                                         emitter.initHangul();
                                         if(!is_capslock)
@@ -496,7 +496,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         if(mode === "korean"){
                                             mode = "english";
                                         }else{
@@ -520,14 +520,14 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         emitter.keyPressed(owner,Qt.Key_Right);
                                         emitter.initHangul();
                                         if(!is_capslock)
                                             is_shift = false;
                                     }
                                     onPressAndHold: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         timer_right.start();
                                     }
                                     onReleased: {
@@ -571,7 +571,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             emitter.keyPressed(owner,modelData);
                                             emitter.initHangul();
                                             if(!is_capslock)
@@ -601,7 +601,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                             click_sound.play();
+                                             supervisor.playSound('click');
                                             emitter.keyPressed(owner,modelData);
                                             emitter.initHangul();
                                             if(!is_capslock)
@@ -631,7 +631,7 @@ Popup {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                             click_sound.play();
+                                             supervisor.playSound('click');
                                             emitter.keyPressed(owner,modelData);
                                             emitter.initHangul();
                                             if(!is_capslock)
@@ -659,7 +659,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                         click_sound.play();
+                                         supervisor.playSound('click');
                                         emitter.keyPressed(owner,"0");
                                         emitter.initHangul();
                                         if(!is_capslock)
@@ -681,7 +681,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                         click_sound.play();
+                                         supervisor.playSound('click');
                                         emitter.keyPressed(owner,".");
                                         emitter.initHangul();
                                         if(!is_capslock)
@@ -708,7 +708,7 @@ Popup {
         enabled: false
         height: parent.height - rect_keyboard.height
         onClicked: {
-             click_sound.play();
+             supervisor.playSound('click');
             tool_keyboard.close();
             owner.focus = false;
         }

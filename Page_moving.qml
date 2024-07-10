@@ -19,12 +19,11 @@ Item {
 
     function movedone(){
         loadPage(pkitchen);
+        popup_notice.close();
     }
 
     Component.onCompleted: {
-        init();
         statusbar.visible = false;
-
     }
 
     onPos_nameChanged: {
@@ -39,7 +38,95 @@ Item {
 
     Component.onDestruction:  {
         supervisor.stopBGM();
-        popup_notice.close();
+    }
+
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+
+            popup_notice.open();
+        }
     }
 
     function init(){
@@ -80,7 +167,6 @@ Item {
         }
         robot_paused = false;
         supervisor.playBGM();
-
     }
 
     Rectangle{
@@ -88,10 +174,11 @@ Item {
         anchors.fill: parent
         color: "#282828"
     }
+
     AnimatedImage{
         id: face_image
         visible: false
-        cache: false
+        cache: true
         property string cur_source: ""
         function play(name){
             source = name;
@@ -126,15 +213,10 @@ Item {
                     height = 400;
                     width = sourceSize.width * 400/sourceSize.height;
                  }
-                print("====>>> ",sourceSize.width, sourceSize.height, width, height)
             }
             anchors.centerIn: parent
         }
     }
-
-
-
-
 
     Column{
         anchors.verticalCenter: parent.verticalCenter
@@ -218,7 +300,7 @@ Item {
                     z: 99
                     propagateComposedEvents: true
                     onPressed:{
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         parent.color = color_dark_navy
                     }
                     onReleased:{
@@ -266,9 +348,6 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 z: 99
-                onClicked:{
-                    popup_pause.visible = false;
-                }
             }
         }
         Text{
@@ -313,9 +392,9 @@ Item {
                     anchors.fill: parent
                     z: 99
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click');
                         popup_notice.init();
-                        popup_notice.closemode = false;
+
                         popup_notice.style = "warning";
                         popup_notice.main_str = qsTr("로봇을 수동으로 이동하시겠습니까?")
                         popup_notice.sub_str = qsTr("기존의 경로는 취소되며 대기화면으로 넘어갑니다")
@@ -344,7 +423,7 @@ Item {
                     z: 99
                     propagateComposedEvents: true
                     onPressed:{
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         parent.color = color_dark_navy
                     }
                     onReleased:{
@@ -375,7 +454,7 @@ Item {
                     anchors.fill: parent
                     z: 99
                     onClicked:{
-                        click_sound.play();;
+                        supervisor.playSound('click');;
                         supervisor.writelog("[USER INPUT] MOVING PAUSED : RESUME");
                         supervisor.moveResume();
                     }
@@ -401,7 +480,7 @@ Item {
                 motor_lock = false;
 
                 popup_notice.init();
-                popup_notice.closemode = false;
+
                 popup_notice.style = "warning";
                 popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
                 popup_notice.sub_str = ""
@@ -417,15 +496,15 @@ Item {
                     if(supervisor.getStateMoving() === 4){
                         robot_paused = true;
                         popup_pause.visible = true;
-                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Paused");
+                        supervisor.writelog("[UI] PageMoving : Check State -> Robot Paused");
                     }else if(supervisor.getStateMoving() === 0){
                         robot_paused = true;
                         popup_pause.visible = true;
-                        supervisor.writelog("[UI] PageMovingCustom : Check State -> Robot Not Moving");
+                        supervisor.writelog("[UI] PageMoving : Check State -> Robot Not Moving");
                     }else{
                         popup_pause.visible = false;
                         robot_paused = false;
-                        supervisor.writelog("[UI] PageMovingCustom : Check State -> "+Number(supervisor.getStateMoving()));
+                        supervisor.writelog("[UI] PageMoving : Check State -> "+Number(supervisor.getStateMoving()));
                     }
                 }
                 prev_state = supervisor.getStateMoving();
@@ -486,7 +565,7 @@ Item {
         anchors.fill: parent
         visible: !robot_paused
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             if(!robot_paused){
                 supervisor.movePause();
             }
@@ -501,7 +580,7 @@ Item {
         anchors.right: parent.right
         z: 99
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             password++;
             if(password > 4){
                 password = 0;
@@ -511,9 +590,46 @@ Item {
             }
         }
         onPressAndHold: {
-            click_sound.play();
+            supervisor.playSound('click');
             password = 0;
             mainwindow.showMinimized();
+        }
+    }
+
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName === "page_moving" || loader_page.item.objectName === "page_moving_custom"){
+                    loadPage(pinit);
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName === "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }
         }
     }
 

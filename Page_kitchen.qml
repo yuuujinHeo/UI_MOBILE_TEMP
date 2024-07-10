@@ -11,12 +11,6 @@ Item {
     width: 1280
     height: 800
 
-    Component.onCompleted: {
-    }
-    Component.onDestruction: {
-        popup_notice.close();
-    }
-
     function init(){
         print("kitchen init");
         statusbar.visible = true;
@@ -66,23 +60,104 @@ Item {
         }
 
         update_group();
-
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             if(supervisor.isCallingMode() || supervisor.getCallQueueSize() > 0){
                 popup_clean_calling.cleaninglocation = false;
                 popup_clean_calling.open();
             }
         }
-//        supervisor.moveStop();
         supervisor.setMotorLock(true);
-
-//        if(supervisor.getSetting("setting","USE_UI","use_restinglock")==="true"){
-//            supervisor.setMotorLock(false);
-//        }else{
-//            supervisor.setMotorLock(true);
-//        }
     }
 
+
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+
+            popup_notice.open();
+        }
+    }
 
     function cleaning(){
             popup_clean_calling.cleaninglocation = true;
@@ -181,15 +256,29 @@ Item {
                         text_go.text = qsTr("모터락해제됨")
                         text_go.font.pixelSize = 25
                     }else if(supervisor.getLocalizationState() === 2){
-                        btn_go.active = true;
-                        menubar.menu2_en = true;
-                        menubar.menu3_en = true;
-                        menubar.menu4_en = true;
-                        rect_go.color = color_blue;
-                        btn_patrol.active = true;
-                        text_go.color = "white";
-                        text_go.text = qsTr("서빙 시작")
-                        text_go.font.pixelSize = 35
+                        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                            btn_go.active = true;
+                            menubar.menu2_en = true;
+                            menubar.menu3_en = true;
+                            menubar.menu4_en = true;
+                            rect_go.color = color_green;
+                            btn_patrol.active = true;
+                            text_go.color = "white";
+                            text_go.text = qsTr("퇴식 테이블로")
+                            text_go.font.pixelSize = 35
+                        }
+
+                        else{
+                            btn_go.active = true;
+                            menubar.menu2_en = true;
+                            menubar.menu3_en = true;
+                            menubar.menu4_en = true;
+                            rect_go.color = color_blue;
+                            btn_patrol.active = true;
+                            text_go.color = "white";
+                            text_go.text = qsTr("서빙 시작")
+                            text_go.font.pixelSize = 35
+                        }
                     }else{
                         btn_go.active = false;
                         menubar.menu2_en = false;
@@ -388,7 +477,7 @@ Item {
                         property var firstX;
                         property int width_dis: 0
                         onPressed: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             firstX = mouseX;
                             width_dis = 0;
                         }
@@ -437,7 +526,6 @@ Item {
                 }
             }
         }
-
     }
 
     Rectangle{
@@ -493,8 +581,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
-                                print("cur group change : ",num)
+                                supervisor.playSound('click');
                                 cur_group = num;
                             }
                         }
@@ -579,7 +666,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onPressAndHold: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     btn_lock.visible = false;
                     btns_table.visible = true;
                 }
@@ -613,7 +700,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(col_num > 1)
                             supervisor.setTableColNum(--col_num);
                     }
@@ -640,7 +727,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(col_num < max_col)
                             supervisor.setTableColNum(++col_num);
                     }
@@ -663,7 +750,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         btn_lock.visible = true;
                         btns_table.visible = false;
                     }
@@ -717,7 +804,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(cur_table === num)
                             cur_table = -1;
                         else
@@ -758,7 +845,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         cur_table = num;
                     }
                 }
@@ -828,7 +915,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             print("cur group change2 : ",num)
                                             cur_group = num;
                                         }
@@ -848,7 +935,7 @@ Item {
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
                             font.pixelSize: 30
-                            text: "Patrol"
+                            text: qsTr("순회") //Patrol
                             color: color_blue
                         }
                         Rectangle{
@@ -967,7 +1054,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onPressAndHold: {
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 btn_lock_group.visible = false;
                                 btns_table_group.visible = true;
                             }
@@ -1017,7 +1104,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_row_num",row_num-1);
                                         row_num--;
                                         update_table();
@@ -1049,7 +1136,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_row_num",row_num+1);
                                         row_num++;
                                         update_table();
@@ -1089,7 +1176,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_col_num",col_num-1);
                                         col_num--;
                                         update_table();
@@ -1121,7 +1208,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.setSetting("setting","UI/group_col_num",col_num+1);
                                         col_num++;
                                         update_table();
@@ -1147,7 +1234,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     btn_lock_group.visible = true;
                                     btns_table_group.visible = false;
                                 }
@@ -1204,12 +1291,12 @@ Item {
                 if(active){
                     hold = false;
                     if(cur_table==-1){
-                        click_sound_no.play();
+                        supervisor.playSound('no');
                     }else{
-                        click_sound.play();
+                        supervisor.playSound('click');
                     }
                 }else{
-                    click_sound_no.play();
+                    supervisor.playSound('no');
                     cur_table = -1;
                 }
             }
@@ -1336,7 +1423,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 1;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1362,7 +1449,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 2;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1388,7 +1475,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 3;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1414,7 +1501,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 4;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1440,7 +1527,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 5;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1497,7 +1584,7 @@ Item {
             id: btn_go2
             anchors.fill: parent
             onClicked: {
-                click_sound.play();
+                supervisor.playSound('click');
                 popup_patrol.open();
             }
         }
@@ -1522,40 +1609,40 @@ Item {
             }
         }
         onMenu1_clicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             cur_table = -1;
             loadPage(pmenu);
         }
         onMenu2_clicked: {
             cur_table = -1;
             if(menu2_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Charging";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
         onMenu3_clicked: {
             cur_table = -1;
             if(menu3_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Resting";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
         onMenu4_clicked: {
             cur_table = -1;
             if(menu4_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Cleaning";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
@@ -1636,7 +1723,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     move_loc = "None";
                     popup_question.close();
                 }
@@ -1682,7 +1769,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.setMotorLock(true);
                     if(move_loc === "Resting"){
                         supervisor.moveToWait();
@@ -1859,7 +1946,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.clearCallQueue();
                         }
                     }
@@ -1887,7 +1974,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.cleanTray();
                         }
                     }
@@ -1915,7 +2002,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.moveToWait();
                         }
                     }
@@ -1944,7 +2031,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.stateInit();
                             popup_clean_calling.close();
                         }
@@ -1986,7 +2073,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.cleanTray();
                             popup_clean_calling.close();
                         }
@@ -1997,4 +2084,42 @@ Item {
         }
     ListModel{id:model_group_table_temp}
     }
+
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName === "page_moving" || loader_page.item.objectName === "page_moving_custom"){
+                    loadPage(pinit);
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName === "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }
+        }
+    }
+
 }

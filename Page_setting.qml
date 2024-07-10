@@ -26,6 +26,7 @@ Item {
     property bool use_multirobot: false
     property bool wifi_update_auto: true
     property int debug_count: 0
+    property int select_version: -1
 
     onIs_adminChanged: {
         if(is_admin){
@@ -39,9 +40,6 @@ Item {
         is_rainbow = false;
         is_reset_slam = false;
         supervisor.getAllWifiList();
-        supervisor.getWifiIP();
-        supervisor.requestSystemVolume();
-        init();
     }
 
     function setVoiceModel(){
@@ -106,7 +104,6 @@ Item {
     }
 
     function wifistatein(){
-        popup_loading.close();
         popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
     }
 
@@ -143,6 +140,14 @@ Item {
             supervisor.setSetting("setting","CALL/call_maximum",combo_max_calling.currentText);
         }
 
+        if(combo_show_time.ischanged){
+            if(combo_show_time.currentIndex == 0){
+                supervisor.setSetting("setting","USE_UI/show_time","false");
+            }else{
+                supervisor.setSetting("setting","USE_UI/show_time","true");
+            }
+        }
+
         supervisor.setPreset(cur_preset);
         if(combo_language.ischanged){
             var str_lan;
@@ -174,6 +179,21 @@ Item {
             }else if(combo_platform_type.currentIndex == 3){
                 supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
             }
+        }
+
+        if(combo_use_dcrelay.ischanged){
+            if(combo_use_dcrelay.currentIndex == 1){
+                supervisor.setSetting("setting","USE_UI/use_goqual","true");
+            }else{
+                supervisor.setSetting("setting","USE_UI/use_goqual","false");
+            }
+        }
+
+        if(tfield_goqual_id.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_id",tfield_goqual_id.text);
+        }
+        if(tfield_goqual_passwd.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_passwd",tfield_goqual_passwd.text);
         }
 
         if(combo_tray_num.ischanged){
@@ -210,7 +230,6 @@ Item {
 
         if(slider_volume_button.ischanged){
             supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value);
-            volume_button = slider_volume_button.value.toFixed(0);
         }
 
         if(combo_movingpage.ischanged){
@@ -615,7 +634,6 @@ Item {
     }
     function init(){
         supervisor.writelog("[QML] SETTING PAGE init");
-        wifi_check();
 
         cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
         combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
@@ -643,11 +661,30 @@ Item {
         }else{
             combo_use_lingbell.currentIndex = 0;
         }
+        if(supervisor.getSetting("setting","USE_UI","show_time") === "true"){
+            combo_show_time.currentIndex = 1;
+        }else{
+            combo_show_time.currentIndex = 0;
+        }
+
+
         if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
             combo_use_lingbell_repeat.currentIndex = 1;
         }else{
             combo_use_lingbell_repeat.currentIndex = 0;
         }
+
+
+        if(supervisor.getSetting("setting","USE_UI","use_goqual") === "true"){
+            combo_use_dcrelay.currentIndex = 1;
+        }else{
+            combo_use_dcrelay.currentIndex = 0;
+        }
+
+        tfield_goqual_id.text = supervisor.getSetting("setting","GOQUAL","user_id");
+        tfield_goqual_passwd.text = supervisor.getSetting("setting","GOQUAL","user_passwd");
+
+
 
         if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
             combo_lingbell_time.currentIndex = 0;
@@ -763,18 +800,18 @@ Item {
         //}else{
         //    combo_use_pivot_obs.currentIndex = 0;
         //} //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
-        //    combo_multirobot.currentIndex = 1;
-        //}else{
-        //    combo_multirobot.currentIndex = 0;
-        //}
+        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
+            combo_multirobot.currentIndex = 1;
+        }else{
+            combo_multirobot.currentIndex = 0;
+        }
         if(supervisor.getSetting("setting","USE_SLAM","use_ignore_safetyzone_return") === "true"){
             combo_use_ignore_safetyzone_return.currentIndex = 1;
         }else{
             combo_use_ignore_safetyzone_return.currentIndex = 0;
         }
             //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
+        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){ // 제자리 회전 감지
         //    combo_use_obs_near.currentIndex = 1;
         //}else{
         //    combo_use_obs_near.currentIndex = 0;
@@ -798,7 +835,6 @@ Item {
         slider_volume_bgm.value = Number(supervisor.getSetting("setting","UI","volume_bgm"));
         slider_volume_voice.value = Number(supervisor.getSetting("setting","UI","volume_voice"));
         slider_volume_button.value = Number(supervisor.getSetting("setting","UI","volume_button"));
-        volume_button = slider_volume_button.value;
 
         text_preset_name_1.text = supervisor.getSetting("setting","PRESET1","name");
         text_preset_name_2.text = supervisor.getSetting("setting","PRESET2","name");
@@ -1260,12 +1296,6 @@ Item {
 
         return is_changed;
     }
-    function wifi_check(){
-        supervisor.readWifiState("");
-    }
-
-
-
     Rectangle{ // 카테고리 바 :설정, 현재 상태, 로봇, 주행, 인식
         id: dfdfd
         width: parent.width
@@ -1290,7 +1320,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onDoubleClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         popup_password.open();
                     }
                 }
@@ -1310,7 +1340,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                       click_sound.play();
+                       supervisor.playSound('click', slider_volume_button.value);
                        select_category = "status";
                     }
                 }
@@ -1338,7 +1368,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                        select_category = "robot";
                     }
                 }
@@ -1367,7 +1397,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                        select_category = "moving";
                     }
                 }
@@ -1396,7 +1426,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                        select_category = "slam";
                     }
                 }
@@ -1488,7 +1518,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = platform_name;
                                         keyboard.owner_text = "platform_name";
                                         platform_name.selectAll();
@@ -1630,6 +1660,7 @@ Item {
                     width: 1100
                     height: 40
                     color: "black"
+                    visible: false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -1643,6 +1674,7 @@ Item {
                     id: use_lingbell
                     width: 840
                     height: 50
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1692,7 +1724,9 @@ Item {
                     id: use_lingbell_repeat
                     width: 840
                     height: 50
-                    visible: combo_use_lingbell.currentIndex === 1
+                    //visible: combo_use_lingbell.currentIndex === 1
+                    visible: false
+
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1798,6 +1832,232 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
+                        text:qsTr("스마트릴레이 설정")
+                        color: "white"
+                        font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: use_dcrelay
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("스마트릴레이 사용")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_dcrelay
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_state
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("연동 상태")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                Rectangle{
+                                    width: parent.width - 150
+                                    height: parent.height
+                                    color: "transparent"
+                                    Text{
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 30
+                                        text: qsTr("연동된 디바이스")
+                                    }
+                                }
+
+                                Item_buttons{
+                                    type: "white_btn"
+                                    width: 150
+                                    height: 50
+                                    text: qsTr("설정")
+                                    onClicked:{
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        popup_set_goqual.open();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: goqual_id
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("ID")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_id
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_passwd
+                    width: 840
+                    height: 50
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("PASSWD")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_passwd
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    width: 1100
+                    height: 40
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
                         text:qsTr("기능 설정")
                         color: "white"
                         font.pixelSize: 20
@@ -1836,6 +2096,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             Row{
+
                                 anchors.centerIn: parent
                                 spacing: 5
                                 Rectangle{
@@ -1843,6 +2104,7 @@ Item {
                                     height: 50
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
+
                                     Text{
                                         id: text_preset_name_1
                                         anchors.centerIn: parent
@@ -1854,7 +2116,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 1;
                                         }
                                     }
@@ -1882,7 +2144,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 2
                                         }
                                     }
@@ -1910,7 +2172,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 3
                                         }
                                     }
@@ -1938,7 +2200,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 4
 
                                         }
@@ -1967,7 +2229,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 5
                                         }
                                     }
@@ -1985,6 +2247,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     color: color_dark_navy
+                                    visible: is_admin //Add
                                     Text{
                                         anchors.centerIn: parent
                                         text: qsTr("변경")
@@ -1995,7 +2258,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_preset.select_preset = cur_preset;
                                             popup_preset.open();
                                         }
@@ -2060,7 +2323,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:[qsTr("사용 안함"), qsTr("아주느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("아주빠르게")]
+                                model:[qsTr("사용 안함"), qsTr("매우느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("매우빠르게")] //아주느리게, 아주빠르게
                             }
                         }
                     }
@@ -2308,6 +2571,52 @@ Item {
                         text:qsTr("UI 설정")
                         color: "white"
                         font.pixelSize: 20
+                    }
+                }
+                Rectangle{
+                    id: set_show_time
+                    width: 840
+                    height: 50
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("시간 표시")
+                                font.pixelSize: 20
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_show_time
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    ischanged = true;
+                                }
+                                model:[qsTr("표시안함"), qsTr("표시")]
+
+                            }
+                        }
                     }
                 }
                 Rectangle{
@@ -2580,7 +2889,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_set_patrolpage.page = "moving";
                                         popup_set_patrolpage.open();
                                     }
@@ -2690,7 +2999,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound_no.play();
+                                            supervisor.playSound('no', slider_volume_button.value);
                                         }
                                     }
                                 }
@@ -2710,7 +3019,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_mention.open();
                                         }
                                     }
@@ -2782,7 +3091,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_voice.open();
                                         }
                                     }
@@ -2794,7 +3103,6 @@ Item {
                 Rectangle{
                     id: set_system_volume
                     width: 840
-                    visible: false
                     height: 50
                     Row{
                         anchors.fill: parent
@@ -2835,7 +3143,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
 
                                             if(slider_volume_system.value == 0){
                                                 slider_volume_system.value  = 50;
@@ -2843,14 +3151,12 @@ Item {
                                                 slider_volume_system.value  = 0;
                                             }
                                             supervisor.setSystemVolume(slider_volume_system.value);
-
                                         }
                                     }
                                 }
                                 Slider{
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_system
-//                                    anchors.centerIn: parent
                                     width: tt.width*0.7 + 10 + ttet2132.width
                                     height: 50
                                     from: 0
@@ -2863,7 +3169,6 @@ Item {
                                     onPressedChanged: {
                                         if(!pressed){
                                             supervisor.setSystemVolume(slider_volume_system.value);
-                                            click_sound.play();
                                         }
                                     }
                                 }
@@ -2914,7 +3219,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(slider_volume_bgm.value == 0){
                                                 slider_volume_bgm.value  = Number(supervisor.getSetting("setting","UI","volume_bgm"));
                                             }else{
@@ -2927,7 +3232,6 @@ Item {
                                 Slider{
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_bgm
-//                                    anchors.centerIn: parent
                                     width: tt.width*0.7
                                     height: 50
                                     stepSize: 1
@@ -2937,14 +3241,13 @@ Item {
                                     onValueChanged: {
                                         ischanged = true;
                                     }
-//                                    onPressedChanged: {
-//                                        if(pressed){
+                                    onPressedChanged: {
+                                        if(pressed){
 
-//                                        }else{
-//                                            supervisor.setvolumeBGM(value);
-//                                        }
-//                                    }
-
+                                        }else{
+                                            supervisor.setvolumeBGM(slider_volume_bgm.value);
+                                        }
+                                    }
                                     value: supervisor.getSetting("setting","UI","volume_bgm")
                                 }
 
@@ -2955,13 +3258,11 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(supervisor.isplayBGM()){
-//                                                bgm_test.stop();
                                                 supervisor.stopBGM();
                                                 ttet2132.source = "icon/icon_test_play.png";
                                             }else{
-//                                                bgm_test.play();e
                                                 supervisor.playBGM(slider_volume_bgm.value);
                                                 ttet2132.source = "icon/icon_test_stop.png";
                                             }
@@ -3016,7 +3317,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(slider_volume_voice.value == 0){
                                                 slider_volume_voice.value  = Number(supervisor.getSetting("setting","UI","volume_voice"));
                                             }else{
@@ -3037,6 +3338,13 @@ Item {
                                     onValueChanged: {
                                         ischanged = true;
                                     }
+                                    onPressedChanged: {
+                                        if(pressed){
+
+                                        }else{
+                                            supervisor.playVoice("move_serving","","","",slider_volume_voice.value);
+                                        }
+                                    }
                                     value: supervisor.getSetting("setting","UI","volume_voice")
                                 }
                                 Image{
@@ -3046,8 +3354,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
-                                            print("test play")
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             supervisor.playVoice("move_serving","","","",slider_volume_voice.value);
                                         }
                                     }
@@ -3100,8 +3407,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
-//                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(slider_volume_button.value == 0){
                                                 slider_volume_button.value  = Number(supervisor.getSetting("setting","UI","volume_button"));
                                             }else{
@@ -3121,19 +3427,14 @@ Item {
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
-                                        click_sound.volume = supervisor.getVolume(value/100);
-                                        volume_button = value;
-                                        print(value);
                                     }
                                     onPressedChanged: {
                                         if(pressed){
 
                                         }else{
-                                            click_sound.volume = supervisor.getVolume(value/100);
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                         }
                                     }
-
                                     value: supervisor.getSetting("setting","UI","volume_button")
                                 }
                                 Image{
@@ -3142,7 +3443,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                         }
                                     }
                                 }
@@ -3219,7 +3520,7 @@ Item {
                                         enabled: parent.enabled
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             keyboard.owner = tfield_gitbranch;
                                             tfield_gitbranch.selectAll();
                                             keyboard.open();
@@ -3232,7 +3533,7 @@ Item {
                                     width: 100
                                     onClicked:{
                                         supervisor.setSetting("setting","UI/program_branch",tfield_gitbranch.text);
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         tfield_gitbranch.ischanged = false;
                                     }
                                     height: parent.height
@@ -3397,7 +3698,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_1;
                                                 server_ip_1.selectAll();
@@ -3435,7 +3736,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_2;
                                                 server_ip_2.selectAll();
@@ -3476,7 +3777,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_3;
                                                 server_ip_3.selectAll();
@@ -3517,7 +3818,7 @@ Item {
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_4;
                                                 server_ip_4.selectAll();
@@ -3560,7 +3861,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             server_ip_1.ischanged = false;
                                             server_ip_2.ischanged = false;
                                             server_ip_3.ischanged = false;
@@ -3618,7 +3919,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keyboard.is_opened){
                                             keyboard.owner = fms_id;
                                             fms_id.selectAll();
@@ -3679,7 +3980,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keyboard.is_opened){
                                             keyboard.owner = fms_pw;
                                             fms_pw.selectAll();
@@ -3757,7 +4058,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = radius;
                                             radius.selectAll();
@@ -3820,7 +4121,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = robot_length;
                                             robot_length.selectAll();
@@ -3883,7 +4184,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = wheel_base;
                                             wheel_base.selectAll();
@@ -3946,7 +4247,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = wheel_radius;
                                             wheel_radius.selectAll();
@@ -4159,7 +4460,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_1;
                                                             ethernet_ip_1.selectAll();
@@ -4199,7 +4500,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_2;
                                                             ethernet_ip_2.selectAll();
@@ -4241,7 +4542,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_3;
                                                             ethernet_ip_3.selectAll();
@@ -4283,7 +4584,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_4;
                                                             ethernet_ip_4.selectAll();
@@ -4355,7 +4656,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_1;
                                                             ethernet_netmask_1.selectAll();
@@ -4397,7 +4698,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_2;
                                                             ethernet_netmask_2.selectAll();
@@ -4442,7 +4743,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_3;
                                                             ethernet_netmask_3.selectAll();
@@ -4490,7 +4791,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_4;
                                                             ethernet_netmask_4.selectAll();
@@ -4565,7 +4866,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_1;
                                                             ethernet_gateway_1.selectAll();
@@ -4604,7 +4905,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_2;
                                                             ethernet_gateway_2.selectAll();
@@ -4646,7 +4947,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_3;
                                                             ethernet_gateway_3.selectAll();
@@ -4688,7 +4989,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_4;
                                                             ethernet_gateway_4.selectAll();
@@ -4763,7 +5064,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_1;
                                                             ethernet_dnsmain_1.selectAll();
@@ -4802,7 +5103,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_2;
                                                             ethernet_dnsmain_2.selectAll();
@@ -4844,7 +5145,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_3;
                                                             ethernet_dnsmain_3.selectAll();
@@ -4886,7 +5187,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_4;
                                                             ethernet_dnsmain_4.selectAll();
@@ -4959,7 +5260,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_1;
                                                             ethernet_dnsserv_1.selectAll();
@@ -4999,7 +5300,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_2;
                                                             ethernet_dnsserv_2.selectAll();
@@ -5041,7 +5342,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_3;
                                                             ethernet_dnsserv_3.selectAll();
@@ -5083,7 +5384,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_4;
                                                             ethernet_dnsserv_4.selectAll();
@@ -5274,7 +5575,7 @@ Item {
 
 
                                             if(success){
-                                                click_sound.play();
+                                                supervisor.playSound('click', slider_volume_button.value);
                                                 ethernet_ip_1.ischanged = false;
                                                 ethernet_ip_2.ischanged = false;
                                                 ethernet_ip_3.ischanged = false;
@@ -5302,7 +5603,7 @@ Item {
                                                 var dns2_str = ethernet_dnsserv_1.text===""?"":ethernet_dnsserv_1.text + "." + ethernet_dnsserv_2.text + "." + ethernet_dnsserv_3.text + "." + ethernet_dnsserv_4.text;
                                                 supervisor.setEthernet(ip_str, netmask_str, gateway_str,dns1_str,dns2_str);
                                             }else{
-                                                click_sound_no.play();
+                                                supervisor.playSound('no', slider_volume_button.value);
                                             }
                                         }
                                     }
@@ -5455,7 +5756,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_1;
                                                             ip_1.selectAll();
@@ -5494,7 +5795,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_2;
                                                             ip_2.selectAll();
@@ -5536,7 +5837,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_3;
                                                             ip_3.selectAll();
@@ -5578,7 +5879,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_4;
                                                             ip_4.selectAll();
@@ -5652,7 +5953,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_1;
                                                             netmask_1.selectAll();
@@ -5694,7 +5995,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_2;
                                                             netmask_2.selectAll();
@@ -5739,7 +6040,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_3;
                                                             netmask_3.selectAll();
@@ -5784,7 +6085,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_4;
                                                             netmask_4.selectAll();
@@ -5862,7 +6163,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_1;
                                                             gateway_1.selectAll();
@@ -5901,7 +6202,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_2;
                                                             gateway_2.selectAll();
@@ -5943,7 +6244,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_3;
                                                             gateway_3.selectAll();
@@ -5985,7 +6286,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_4;
                                                             gateway_4.selectAll();
@@ -6059,7 +6360,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_1;
                                                             dnsmain_1.selectAll();
@@ -6098,7 +6399,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_2;
                                                             dnsmain_2.selectAll();
@@ -6140,7 +6441,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_3;
                                                             dnsmain_3.selectAll();
@@ -6182,7 +6483,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_4;
                                                             dnsmain_4.selectAll();
@@ -6255,7 +6556,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_1;
                                                             dnsserv_1.selectAll();
@@ -6294,7 +6595,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_2;
                                                             dnsserv_2.selectAll();
@@ -6336,7 +6637,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_3;
                                                             dnsserv_3.selectAll();
@@ -6378,7 +6679,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_4;
                                                             dnsserv_4.selectAll();
@@ -6750,7 +7051,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = cam_exposure;
                                             cam_exposure.selectAll();
@@ -6827,7 +7128,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_camera.open();
                                     }
                                 }
@@ -6862,7 +7163,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
 
                                 }
                             }
@@ -6898,7 +7199,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_camera.open();
                                         }
                                     }
@@ -6962,7 +7263,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_tf.open();
                                     }
                                 }
@@ -7027,7 +7328,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_tf.open();
                                     }
                                 }
@@ -7092,7 +7393,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_tf.open();
                                     }
                                 }
@@ -7143,7 +7444,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_height_min;
                                             obs_height_min.selectAll();
@@ -7207,7 +7508,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_height_max;
                                             obs_height_max.selectAll();
@@ -7268,7 +7569,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = max_range;
                                             max_range.selectAll();
@@ -7334,7 +7635,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_near;
                                             icp_near.selectAll();
@@ -7463,7 +7764,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_preview_time;
                                             obs_preview_time.selectAll();
@@ -7571,7 +7872,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = obs_check_range;
                 //                            obs_check_range.selectAll();
@@ -7728,7 +8029,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = obs_near;
                 //                            obs_near.selectAll();
@@ -7792,7 +8093,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = obs_decel_gain;
                 //                            obs_decel_gain.selectAll();
@@ -7949,7 +8250,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_early_stop_dist;
                                             obs_early_stop_dist.selectAll();
@@ -8060,7 +8361,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_margin1;
                                             obs_margin1.selectAll();
@@ -8123,7 +8424,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_margin0;
                                             obs_margin0.selectAll();
@@ -8185,7 +8486,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_detect_area;
                                             obs_detect_area.selectAll();
@@ -8248,7 +8549,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_detect_sensitivity;
                                             obs_detect_sensitivity.selectAll();
@@ -8313,7 +8614,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_deadzone;
                                             obs_deadzone.selectAll();
@@ -8374,7 +8675,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_wait_time;
                                             obs_wait_time.selectAll();
@@ -8451,7 +8752,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = look_ahead_dist;
                                             look_ahead_dist.selectAll();
@@ -8513,7 +8814,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = min_look_ahead_dist;
                                             min_look_ahead_dist.selectAll();
@@ -8576,7 +8877,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_out_dist;
                                             path_out_dist.selectAll();
@@ -8651,7 +8952,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_init_ratio;
                                             icp_init_ratio.selectAll();
@@ -8711,7 +9012,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_init_error;
                                             icp_init_error.selectAll();
@@ -8772,7 +9073,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_dist;
                                             icp_dist.selectAll();
@@ -8833,7 +9134,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_error;
                                             icp_error.selectAll();
@@ -8894,7 +9195,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_ratio;
                                             icp_ratio.selectAll();
@@ -8955,7 +9256,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_odometry_weight;
                                             icp_odometry_weight.selectAll();
@@ -9016,7 +9317,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_repeat_dist;
                                             icp_repeat_dist.selectAll();
@@ -9077,7 +9378,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_repeat_time;
                                             icp_repeat_time.selectAll();
@@ -9156,7 +9457,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_dist;
                                             goal_dist.selectAll();
@@ -9217,7 +9518,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_th;
                                             goal_th.selectAll();
@@ -9279,7 +9580,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_near_dist;
                                             goal_near_dist.selectAll();
@@ -9340,7 +9641,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_near_th;
                                             goal_near_th.selectAll();
@@ -9416,7 +9717,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = slam_submap_cnt;
                                             slam_submap_cnt.selectAll();
@@ -9477,7 +9778,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = slam_lc_dist;
                                             slam_lc_dist.selectAll();
@@ -9538,7 +9839,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = slam_lc_icp_dist;
                                             slam_lc_icp_dist.selectAll();
@@ -9599,7 +9900,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = map_size;
                                             map_size.selectAll();
@@ -9660,7 +9961,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = grid_size;
                                             grid_size.selectAll();
@@ -9809,7 +10110,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = pause_motor_current;
                                             pause_motor_current.selectAll();
@@ -9869,7 +10170,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = pause_check_ms;
                                             pause_check_ms.selectAll();
@@ -9952,7 +10253,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = st_v;
                                             st_v.selectAll();
@@ -10013,7 +10314,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_v;
                                             goal_v.selectAll();
@@ -10095,7 +10396,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_curve;
                                             k_curve.selectAll();
@@ -10156,7 +10457,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_v;
                                             k_v.selectAll();
@@ -10217,7 +10518,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_w;
                                             k_w.selectAll();
@@ -10278,7 +10579,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_dd;
                                             k_dd.selectAll();
@@ -10339,7 +10640,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_delta_v_acc_gain;
                                             path_delta_v_acc_gain.selectAll();
@@ -10400,7 +10701,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_delta_v_dec_gain;
                                             path_delta_v_dec_gain.selectAll();
@@ -10461,7 +10762,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_ref_v_gain;
                                             path_ref_v_gain.selectAll();
@@ -10522,7 +10823,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = path_shifting_val;
                 //                            path_shifting_val.selectAll();
@@ -10736,7 +11037,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = gear_ratio;
                                             gear_ratio.selectAll();
@@ -10797,7 +11098,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_p;
                                             k_p.selectAll();
@@ -10858,7 +11159,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_i;
                                             k_i.selectAll();
@@ -10919,7 +11220,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_d;
                                             k_d.selectAll();
@@ -10980,7 +11281,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_v;
                                             motor_limit_v.selectAll();
@@ -11041,7 +11342,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_v_acc;
                                             motor_limit_v_acc.selectAll();
@@ -11102,7 +11403,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_w;
                                             motor_limit_w.selectAll();
@@ -11164,7 +11465,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_w_acc;
                                             motor_limit_w_acc.selectAll();
@@ -11829,7 +12130,7 @@ Item {
                 }
 
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click', slider_volume_button.value);
                     if(debug_count++ > 3){
                         debug_count = 0;
                         popup_robot_details.open();
@@ -11857,7 +12158,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();;
+                    supervisor.playSound('click', slider_volume_button.value);;
                     supervisor.writelog("[UI] MAP : move to backPage");
                     if(check_update()){
                         popup_changed.open();
@@ -11894,7 +12195,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANAGER MENU");
                         if(is_admin){
                             popup_manager.open();
@@ -11910,6 +12211,7 @@ Item {
                 width: 180
                 height: 60
                 radius: 10
+                visible: is_admin || is_rainbow
                 //color:"transparent"
                 color:color_navy
                 border.width: 1
@@ -11925,12 +12227,46 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.writelog("[USER INPUT] SETTING PAGE -> RESET DEFAULT");
                         init();
                     }
                 }
             }
+            Rectangle{
+                id: btn_manual
+                width: 180
+                height: 60
+                radius: 10
+                //visible: is_admin
+                //color:"transparent"
+                color: color_blue
+                border.width: 1
+                //border.color: "#7e7e7e"
+                border.color: color_blue
+                Text{
+                    anchors.centerIn: parent
+                    text:qsTr("매뉴얼")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 25
+                    color: "white"
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked:{
+                        supervisor.playSound('click', slider_volume_button.value);
+                        supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANUAL MENU");
+                        if(is_admin){
+                            popup_manual_detail.open();
+                        }else{
+                            //popup_password.open_menu = true;
+                            //popup_password.open();
+                            popup_manual.open();
+                        }
+                    }
+                }
+            }
+
             Rectangle{
                 id: btn_confirm
                 width: 180
@@ -11949,11 +12285,13 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();
+                        console.log("?????????"+slider_volume_button.value);
+                        supervisor.playSound('click', slider_volume_button.value);
                         save();
                     }
                 }
             }
+
 
 
             Rectangle{
@@ -11964,7 +12302,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.4")
+                    text:qsTr("Version 1.1.8") // 설정초기화 숨김,
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
@@ -12227,6 +12565,248 @@ Item {
 
     Popup_help{
         id: popup_help_setting
+    }
+
+    Popup{
+        id: popup_set_goqual
+        anchors.centerIn: parent
+        width: 900
+        height: 600
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        onOpened:{
+            model_goqual_deivce.clear();
+            goqual_timer.start();
+        }
+        onClosed:{
+            goqual_timer.stop();
+        }
+
+        Timer{
+            id: goqual_timer
+            running: false
+            repeat: true
+            interval: 500
+            onTriggered:{
+                text_goqual_access_key.text = supervisor.getGoqualAccessKey();
+                text_goqual_refresh_key.text = supervisor.getGoqualRefreshKey();
+                text_goqual_expires_in.text = supervisor.getGoqualExpiresIn();
+
+                for(var i=0; i<supervisor.getGoqualDeviceSize(); i++){
+                    var match = false;
+                    for(var j=0; j<model_goqual_deivce.count; j++){
+                        if(model_goqual_deivce.get(j).id === supervisor.getGoqualDeviceID(i)){
+                            match = true;
+                            break;
+                        }
+                    }
+                    if(!match){
+                        model_goqual_deivce.append({"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"dev_state":supervisor.getGoqualDeviceState(i)});
+                    }
+
+                }
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            Column{
+                anchors.centerIn: parent
+                spacing: 30
+                Rectangle{
+                    width: 700
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: 200
+                    color: color_light_gray
+                    Column{
+                        anchors.centerIn: parent
+                        spacing: 30
+                        Grid{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            columns: 3
+                            rows: 3
+                            horizontalItemAlignment: Grid.AlignHCenter
+                            verticalItemAlignment: Grid.AlignVCenter
+                            spacing: 10
+                            Text{
+                                text: "access_key"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_access_key
+                            }
+                            Text{
+                                text: "refresh_key"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_refresh_key
+                            }
+                            Text{
+                                text: "expires_in"
+                                font.bold: true
+                            }
+                            Text{
+                                text: " : "
+                            }
+                            Text{
+                                id: text_goqual_expires_in
+                            }
+                        }
+
+                        Row{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 30
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("get Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    supervisor.playSound('click', slider_volume_button.value);
+                                    supervisor.getGoqualKey();
+                                }
+                            }
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("refresh Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    supervisor.playSound('click', slider_volume_button.value);
+                                    supervisor.refreshGoqualKey();
+                                }
+                            }
+                        }
+                        Text{
+                            id: text_goqual_error
+                            color: color_red
+                            text: ""
+                        }
+                    }
+                }
+
+                Column{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Row{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 4
+                        Rectangle{
+                            width: 196
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "Type"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 196
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "ID"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 96
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "State"
+                                color: "white"
+                            }
+                        }
+                        Rectangle{
+                            width: 236
+                            height: 40
+                            color: color_navy
+                            Text{
+                                anchors.centerIn: parent
+                                text: "switch"
+                                color: "white"
+                            }
+                        }
+                    }
+
+                    Repeater{
+                        model: ListModel{id:model_goqual_deivce}
+                        Row{
+                            Row{
+                                Rectangle{
+                                    width: 200
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: type
+                                    }
+                                }
+                                Rectangle{
+                                    width: 200
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: id
+                                    }
+                                }
+                                Rectangle{
+                                    width: 100
+                                    height: 50
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: dev_state
+                                    }
+                                }
+                                Rectangle{
+                                    width: 240
+                                    height: 50
+                                    Row{
+                                        anchors.centerIn: parent
+                                        spacing: 20
+                                        Buttons{
+                                            style: "normal"
+                                            text: qsTr("on")
+                                            width: 100
+                                            height: 40
+                                            onClicked:{
+                                                supervisor.playSound('click', slider_volume_button.value);
+                                                supervisor.setGoqualDevice(id,true);
+                                            }
+                                        }
+                                        Buttons{
+                                            style: "normal"
+                                            text: qsTr("off")
+                                            width: 100
+                                            height: 40
+                                            onClicked:{
+                                                supervisor.playSound('click', slider_volume_button.value);
+                                                supervisor.setGoqualDevice(id,false);
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                        }
+
+                    }
+                }
+            }
+
+        }
     }
 
     Popup{
@@ -12873,7 +13453,7 @@ Item {
             width: parent.width*0.99
             height: parent.height*0.99
             Rectangle{
-                color: color_dark_navy
+                color: color_red
                 radius: 10
                 id: rect_prd_top
                 width: parent.width
@@ -12906,7 +13486,7 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-                    color:color_navy
+                    color:color_green
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -12944,7 +13524,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
                             popup_update.open();
                         }
@@ -12957,7 +13537,8 @@ Item {
                     height: 150
                     radius: 20
                     color:color_navy
-                    visible: false
+                    //visible: false
+                    visible: is_rainbow
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -12996,7 +13577,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
                             loader_page.source = plog;
                         }
@@ -13009,7 +13590,8 @@ Item {
                     width: 170
                     height: 150
                     radius: 20
-//                    visible: false
+                    //visible: false
+                    visible: is_admin
                     color: enabled?color_navy:color_light_gray
                     Rectangle{
                         anchors.centerIn: parent
@@ -13049,7 +13631,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
                             popup_usb_select.open();
                         }
@@ -13057,13 +13639,15 @@ Item {
                 }
 
 
-                Rectangle{
+                Rectangle{ // USB에서 받아오기
                     id: btn_usb_download
                     width: 170
                     height: 150
                     radius: 20
-                    visible: false
-                    color: enabled?color_navy:color_light_gray
+                    // visible: false
+                    visible: is_admin
+                    //color: enabled?color_navy:color_light_gray
+                    color: color_navy
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13102,7 +13686,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
                             if(is_admin){
                                 popup_usb_download.open();
@@ -13146,7 +13730,7 @@ Item {
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("SLAM 재시작")
+                                text: qsTr("자율주행 재시작") //SLAM 재시작
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -13157,7 +13741,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[UI] SETTING PAGE -> KILL SLAM");
                             supervisor.restartSLAM();
                         }
@@ -13169,6 +13753,7 @@ Item {
                     height: 150
                     radius: 20
                     color: color_navy
+                    visible: false
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13207,7 +13792,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
                             popup_password.open();
                             popup_password.is_editmode = true;
@@ -13221,7 +13806,7 @@ Item {
                     height: 150
                     radius: 20
                     visible: is_rainbow
-                    color: color_navy
+                    color: color_red
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13260,7 +13845,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
                             popup_clear.open();
                         }
@@ -13269,6 +13854,359 @@ Item {
             }
         }
     }
+
+
+
+    Popup{
+        id: popup_manual
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top2
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_dark_navy
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 3
+                columns: 2
+                spacing: 30
+                Rectangle{
+                    id: btn_QuickGuide
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("퀵 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            supervisor.playSound('click', slider_volume_button.value);
+                            supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                            popup_update.open();
+                        }
+                    }
+                }
+
+
+
+
+            }
+        }
+    }
+
+    Popup{
+        id: popup_manual_detail
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top3
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_blue
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 2
+                columns: 2
+                spacing: 30
+
+                Rectangle{
+                    id: btn_QuickGuide2
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("퀵 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                    //        popup_update.open();
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_Guide
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color:color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                //source: "icon/icon_bookmark.png"
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                //ColorOverlay{
+                                //    anchors.fill: parent
+                                //    source: parent
+                                //    color: "white"
+                                //}
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text:qsTr("풀 가이드")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
+                    //        loader_page.source = plog;
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_maint
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("유지보수 매뉴얼") //
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[UI] SETTING PAGE -> maint manual kill");
+                    //        supervisor.restartSLAM();
+                    //    }
+                    //}
+                }
+
+                Rectangle{
+                    id: btn_multi
+                    width: 170
+                    height: 150
+                    radius: 20
+                    color: color_navy
+                    Rectangle{
+                        anchors.centerIn: parent
+                        width: 160
+                        height: 140
+                        radius: 20
+                        color:"transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Column{
+                            anchors.centerIn: parent
+                            spacing: 15
+                            Image{
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
+                                sourceSize.width: width
+                                sourceSize.height: height
+                                anchors.horizontalCenter: parent.horizontalCenter
+
+                            }
+
+                            Text{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: qsTr("멀티환경 구축")
+                                color: "white"
+                                font.family: font_noto_r.name
+                                font.pixelSize: 20
+                            }
+                        }
+
+                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> Multi Setting");
+                    //        popup_password.open();
+                    //        popup_password.is_editmode = true;
+                    //    }
+                    //}
+                }
+
+            }
+        }
+    }
+
+    //add manual
     Popup{
         id: popup_clear
         anchors.centerIn: parent
@@ -13336,7 +14274,7 @@ Item {
                         fontsize: 30
                         onClicked: {
                             popup_clear.statenum = 1;
-                            supervisor.resetClear();
+                            supervisor.factoryInit();
                         }
                     }
                     Item_buttons{
@@ -13435,6 +14373,7 @@ Item {
             }
         }
     }
+
     Popup{
         id: popup_usb_notice
         anchors.centerIn: parent
@@ -13466,6 +14405,17 @@ Item {
         property string name: "Desktop"
         property string mode: "compress";
         property bool is_new: true
+
+        Timer{
+                id: timer_close_popup
+                interval: 1500 // 1.5초
+                running: false
+                repeat: false
+                onTriggered: {
+                    popup_usb_notice.close();
+                }
+            }
+
         Timer{
             id: timer_usb_check
             running: false
@@ -13493,17 +14443,24 @@ Item {
                 }else if(supervisor.getzipstate() === 2){
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 성공하였습니다");
+                        //popup_usb_notice.close()
+                        timer_close_popup.start(); // 1.5초 후에 창 닫기 타이머 시작
+
                     }else{
                         btn_usb_confirm.visible = true;
-                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        //text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 눌러주세요");
+                        //btn_usb_confirm.close()
+
                     }
 
                 }else if(supervisor.getzipstate() === 3){
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 성공하였지만 일부 과정에서 에러가 발생했습니다");
+                        //btn_usb_confirm.close()
                     }else{
                         text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다");
-                        btn_usb_confirm.visible = true;
+                        //btn_usb_confirm.close()
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -13513,8 +14470,11 @@ Item {
                     text_usb_state.color = color_red;
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 실패했습니다");
+                        //btn_usb_confirm.close()
                     }else{
                         text_usb_state.text = qsTr("파일을 가져오지 못했습니다");
+                        //btn_usb_confirm.visible = true; // "확 인" 버튼 보이게 하기
+                        //btn_usb_confirm.close()
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -13526,6 +14486,8 @@ Item {
                 }
             }
         }
+
+
         onOpened:{
             timer_usb_check.start();
             model_usb_error.clear();
@@ -13571,9 +14533,12 @@ Item {
 
                 }
 
+
+
                 Rectangle{
                     id: btn_usb_confirm
-                    visible: false
+                    //visible: false
+                    visible: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 100
                     height: 50
@@ -13582,15 +14547,28 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family:font_noto_r.name
+                        color: color_dark_navy
+                        font.pixelSize: 15
+                        horizontalAlignment: Text.AlignHCenter
+                        text:qsTr("확 인")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             if(popup_usb_notice.mode== "compress"){
-
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }else{
-                                supervisor.updateUSB();
+                                //supervisor.updateUSB();
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }
                         }
                     }
@@ -13598,8 +14576,9 @@ Item {
             }
         }
     }
-    Popup{
-        id: popup_usb_download
+
+     Popup{
+         id: popup_usb_download
         anchors.centerIn: parent
         width: 400
         height: 500
@@ -13626,6 +14605,7 @@ Item {
             }
 
             text_recent_file.text = supervisor.getusbrecentfile();
+            //text_recent_file.text = supervisor.readusbrecentfile();
             if(text_recent_file.text == ""){
                 notice_recent.visible = false;
                 btn_recent_confirm.visible = false;
@@ -13641,7 +14621,7 @@ Item {
         Rectangle{
             anchors.fill: parent
             Rectangle{
-//                id: rect_1
+                  id: rect_1
                 width: parent.width
                 height: 50
                 color: color_dark_navy
@@ -13709,14 +14689,15 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
                             popup_usb_notice.mode = "extract_recent";
                             popup_usb_notice.open();
-//                            supervisor.readusbrecentfile();
+                              supervisor.readusbrecentfile();
                         }
                     }
                 }
+
 
                 Rectangle{
                     width: 200
@@ -13747,9 +14728,9 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
-//                                popup_usb_download.index = 1;
-//                                popup_usb_download.set_name = name;
+                                supervisor.playSound('click', slider_volume_button.value);
+                                  popup_usb_download.index = 1;
+                                  popup_usb_download.set_name = name;
                             }
                         }
                     }
@@ -13763,6 +14744,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_ui?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -13773,7 +14755,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_ui = !popup_usb_download.is_ui;
                         }
                     }
@@ -13782,6 +14764,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_slam?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -13792,7 +14775,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_slam = !popup_usb_download.is_slam;
                         }
                     }
@@ -13801,17 +14784,18 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_config?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("robot_config")
+                        text:qsTr("로봇 설정값")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_config = !popup_usb_download.is_config;
                         }
                     }
@@ -13825,12 +14809,12 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("maps")
+                        text:qsTr("맵")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_map = !popup_usb_download.is_map;
                         }
                     }
@@ -13839,48 +14823,128 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_log?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("Log")
+                        text:qsTr("로그")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_log = !popup_usb_download.is_log;
                         }
                     }
                 }
             }
-            Rectangle{
-                width: 250
-                radius: 10
-                height: 50
-                color: "black"
-                anchors.bottom: parent.bottom
+
+            Column{
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                spacing: 10
                 anchors.bottomMargin: 30
+                //bottomMargin: 30
                 visible: popup_usb_download.index === 1
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 15
-                    color:"white"
-                    text:qsTr("확인")
+
+                Rectangle{
+                    width: 250
+                    radius: 10
+                    height: 50
+                    color: "black"
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                        color:"white"
+                        text: qsTr("확인")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            supervisor.playSound('click', slider_volume_button.value);
+                            popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                            popup_usb_download.close();
+                            popup_usb_notice.open();
+                        }
+                    }
                 }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
-                        popup_usb_download.close();
-                        popup_usb_notice.open();
+
+                Rectangle{
+                    width: 250
+                    radius: 10
+                    height: 50
+                    color: "black"
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                        color:"white"
+                        text: qsTr("취소")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            supervisor.playSound('click', slider_volume_button.value);
+                            popup_usb_download.close();
+                        }
                     }
                 }
             }
+            //Rectangle{
+            //    width: 250
+            //    radius: 10
+            //    height: 50
+            //    color: "black"
+            //    anchors.bottom: parent.bottom
+            //    anchors.horizontalCenter: parent.horizontalCenter
+            //    anchors.bottomMargin: 30
+            //    visible: popup_usb_download.index === 1
+            //    Text{
+            //        anchors.centerIn: parent
+            //        font.family: font_noto_r.name
+            //        font.pixelSize: 15
+            //        color:"white"
+            //        text:qsTr("확인")
+            //    }
+            //    MouseArea{
+            //        anchors.fill: parent
+            //        onClicked: {
+            //            supervisor.playSound('click', slider_volume_button.value);
+            //            popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+            //            popup_usb_download.close();
+            //            popup_usb_notice.open();
+            //        }
+            //    }
+            //}
+
+            //Rectangle{
+            //    width: 250
+            //    radius: 10
+            //    height: 50
+            //    color: "black"
+            //    anchors.bottom: parent.bottom
+            //    anchors.horizontalCenter: parent.horizontalCenter
+            //    anchors.bottomMargin: 30
+            //    visible: popup_usb_download.index === 1
+            //    Text{
+            //        anchors.centerIn: parent
+            //        font.family: font_noto_r.name
+            //        font.pixelSize: 15
+            //        color:"white"
+            //        text:qsTr("취소")
+            //    }
+            //    MouseArea{
+            //        anchors.fill: parent
+            //        onClicked: {
+            //            supervisor.playSound('click', slider_volume_button.value);
+            //            popup_usb_download.close();
+            //        }
+            //    }
+            //}
+
 
         }
         Timer{
@@ -13895,6 +14959,7 @@ Item {
             }
         }
     }
+
     Popup{
         id: popup_usb_select
         anchors.centerIn: parent
@@ -13925,11 +14990,11 @@ Item {
 
             timer_check_usb_new.start();
             index = 0;
-            is_ui = true;
-            is_slam = true;
-            is_map = false;
+            //is_ui = true;
+            //is_slam = true;
+            is_map = true;
             is_log = false;
-            is_config = true;
+            is_config = false;
             model_usb_list.clear();
             for(var i=0; i<supervisor.getusbsize(); i++){
                 print(i, supervisor.getusbname(i));
@@ -14015,7 +15080,8 @@ Item {
                 }
                 Column{
                     anchors.centerIn: parent
-                    spacing: 30
+                    spacing: 10
+                    anchors.bottomMargin: 30
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: popup_usb_select.index === 0
@@ -14051,7 +15117,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         text_no_usb.visible = false;
                                         popup_usb_select.index = 1;
                                         popup_usb_select.set_name = name;
@@ -14062,12 +15128,14 @@ Item {
                     }
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
+                        //anchors.centerIn: parent.anchors
                         spacing: 10
                         visible: popup_usb_select.index === 1
                         Rectangle{
                             width: 280
                             radius: 10
                             height: 50
+                            visible: false
                             color: popup_usb_select.is_ui?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14078,7 +15146,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_ui = !popup_usb_select.is_ui;
                                 }
                             }
@@ -14087,6 +15155,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible: false
                             color: popup_usb_select.is_slam?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14097,7 +15166,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_slam = !popup_usb_select.is_slam;
                                 }
                             }
@@ -14106,17 +15175,18 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:is_rainbow
                             color: popup_usb_select.is_config?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text:qsTr("설정파일")
+                                text:qsTr("로봇 설정값") //설정파일
                             }
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_config = !popup_usb_select.is_config;
                                 }
                             }
@@ -14125,17 +15195,18 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:true
                             color: popup_usb_select.is_map?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text:qsTr("맵 폴더")
+                                text:qsTr("맵")
                             }
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_map = !popup_usb_select.is_map;
                                 }
                             }
@@ -14144,6 +15215,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:is_rainbow
                             color: popup_usb_select.is_log?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14154,12 +15226,65 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_log = !popup_usb_select.is_log;
                                 }
                             }
                         }
                     }
+
+                    //Column{
+                    //    anchors.horizontalCenter: parent.horizontalCenter
+                    //    anchors.bottom: parent.bottom
+                    //    spacing: 10
+                    //    anchors.bottomMargin: 30
+                    //    //bottomMargin: 30
+                    //    visible: popup_usb_download.index === 1
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("확인")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                supervisor.playSound('click', slider_volume_button.value);
+                    //                popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                    //                popup_usb_download.close();
+                    //                popup_usb_notice.open();
+                    //            }
+                    //        }
+                    //    }
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("취소0")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                supervisor.playSound('click', slider_volume_button.value);
+                    //                popup_usb_download.close();
+                    //            }
+                    //        }
+                    //    }
+                    //}
                     Rectangle{
                         width: 250
                         radius: 10
@@ -14177,17 +15302,40 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
                                 popup_usb_select.close();
                                 popup_usb_notice.open();
                             }
                         }
                     }
+                    //Rectangle{
+                    //    width: 250
+                    //    radius: 10
+                    //    height: 50
+                    //    color: "black"
+                    //    anchors.horizontalCenter: parent.horizontalCenter
+                    //    visible: popup_usb_select.index === 1
+                    //    Text{
+                    //        anchors.centerIn: parent
+                    //        font.family: font_noto_r.name
+                    //        font.pixelSize: 15
+                    //        color:"white"
+                    //        text:qsTr("취소")
+                    //    }
+                    //    MouseArea{
+                    //        anchors.fill: parent
+                    //        onClicked: {
+                    //            supervisor.playSound('click', slider_volume_button.value);
+                    //            popup_usb_select.close();
+                    //        }
+                    //    }
+                    //}
                 }
             }
         }
     }
+
     Popup{
         id: popup_change_call
         width: 400
@@ -14216,48 +15364,286 @@ Item {
             }
         }
     }
+    // Popup{
+    //     id: popup_update_new
+    //     width: 1280
+    //     height: 400
+    //     leftPadding: 0
+    //     rightPadding: 0
+    //     topPadding: 0
+    //     bottomPadding: 0
+    //     anchors.centerIn: parent
+    //     background: Rectangle{
+    //         anchors.fill: parent
+    //         color: "transparent"
+    //     }
+
+    //     function newest(){
+    //         text_main_update.text = qsTr("프로그램이 이미 최신입니다");
+    //         text_serv_update.text = qsTr("");
+    //     }
+
+    //     function failed(){
+    //         text_main_update.text = qsTr("업데이트에 실패했습니다");
+    //         text_serv_update.text = qsTr("");
+    //     }
+
+    //     onOpened: {
+    //         supervisor.refreshVersion();
+    //         timer_update_popup.start();
+    //     }
+    //     onClosed:{
+    //         timer_update_popup.stop();
+    //     }
+
+    //     Timer{
+    //         id: timer_update_popup
+    //         running: false
+    //         repeat: true
+    //         interval: 1000
+    //         onTriggered:{
+    //             current_version.text = supervisor.getCurVersion();
+    //             new_version.text = supervisor.getNewVersion();
+    //             last_date.text = supervisor.getCurVersionDate();
+    //         }
+    //     }
+
+    //     Rectangle{
+    //         width: parent.width
+    //         height: parent.height
+    //         color: color_navy
+    //         Column{
+    //             anchors.centerIn: parent
+    //             spacing: 40
+    //             Column{
+    //                 spacing: 10
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //                 Row{
+    //                     anchors.horizontalCenter: parent.horizontalCenter
+    //                     Text{
+    //                         width: 200
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         text:qsTr("현재 버전 : ")
+    //                     }
+    //                     Text{
+    //                         id: current_version
+    //                         width: 500
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text: supervisor.getCurVersion()
+    //                     }
+    //                 }
+    //                 Row{
+    //                     anchors.horizontalCenter: parent.horizontalCenter
+    //                     Text{
+    //                         width: 200
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         text:qsTr("최신 버전 : ")
+    //                     }
+    //                     Text{
+    //                         id: new_version
+    //                         width: 500
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text: supervisor.getNewVersion()
+    //                     }
+    //                 }
+    //                 Row{
+    //                     anchors.horizontalCenter: parent.horizontalCenter
+    //                     Text{
+    //                         width: 200
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         text:qsTr("마지막 업데이트 날짜 : ")
+    //                     }
+    //                     Text{
+    //                         id: last_date
+    //                         width: 500
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text: supervisor.getCurVersionDate()
+    //                     }
+    //                 }
+    //             }
+    //             Row{
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //                 spacing: 20
+    //                 Buttons{
+    //                     id: btn_update_new
+    //                     text:qsTr("업데이트")
+    //                     style: "green"
+    //                     onClicked: {
+    //                         supervisor.playSound('click', slider_volume_button.value);
+    //                         supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+    //                         supervisor.updateProgram(supervisor.getNewVersion());
+    //                         // popup_update_new.close();
+    //                     }
+    //                 }
+    //                 Buttons{
+    //                     id: btn_rollback_new
+    //                     text:qsTr("롤백")
+    //                     style: "green"
+    //                     onClicked: {
+    //                         supervisor.playSound('click', slider_volume_button.value);
+    //                         popup_rollback.open();
+    //                         // popup_update_new.close();
+    //                     }
+    //                 }
+    //                 Buttons{
+    //                     id: btn_cancel_new
+    //                     text:qsTr("닫기")
+    //                     style: "normal"
+    //                     onClicked: {
+    //                         supervisor.playSound('click', slider_volume_button.value);
+    //                         popup_update_new.close();
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
     Popup{
-        id: popup_reset
-        width: 400
-        height: 300
-        anchors.centerIn: parent
+        id: popup_rollback
+        width: 1280
+        height: 400
         leftPadding: 0
+        rightPadding: 0
         topPadding: 0
         bottomPadding: 0
-        rightPadding: 0
-        Rectangle{
+        anchors.centerIn: parent
+        background: Rectangle{
             anchors.fill: parent
+            color: "transparent"
+        }
+
+        onOpened:{
+            model_versions.clear();
+            for(var i=0; i<supervisor.getNewVersionsSize(); i++){
+                model_versions.append({version:supervisor.getNewVersion(i),
+                                      date:supervisor.getNewVersionDate(i),
+                                      message:supervisor.getNewVersionMessage(i)});
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
             Column{
                 anchors.centerIn: parent
-                spacing: 20
-                Text{
-                    text:qsTr("정말 덮어씌우시겠습니까?")
-                    font.family: font_noto_b.name
-                    font.pixelSize: 20
-                }
-                Rectangle{
-                    width: 100
-                    height: 50
-                    border.width: 1
-                    radius: 5
-                    Text{
+                spacing: 40
+                Flickable{
+                    width: popup_rollback.width
+                    height: 200
+                    contentHeight: cols_version.height
+                    clip: true
+                    Column{
+                        id: cols_version
                         anchors.centerIn: parent
-                        text:qsTr("확인")
-                        font.family: font_noto_r.name
+                        spacing: 10
+                        Repeater{
+                            model: ListModel{id: model_versions}
+                            Rectangle{
+                                width: 800
+                                height: 80
+                                color: select_version===index?color_green:color_light_gray
+                                Rectangle{
+                                    width: 120
+                                    height: 50
+                                    radius: 30
+                                    color: color_light_gray
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 100
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: version
+                                        font.bold: true
+                                        font.pixelSize: 20
+                                    }
+                                }
+                                Column{
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 400
+                                    spacing: 10
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("message : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: message
+                                        }
+                                    }
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("date : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: date
+                                        }
+                                    }
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        select_version = index;
+                                    }
+                                }
+                            }
+                        }
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] RESET HOME FOLDERS")
-                            supervisor.resetHomeFolders();
-                            popup_reset.close();
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Buttons{
+                        text:qsTr("롤백")
+                        style: "green"
+                        onClicked: {
+                            if(select_version > -1 && select_version < model_versions.count){
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                                supervisor.updateProgram(model_versions.get(select_version).version);
+                                popup_rollback.close();
+                            }else{
+                                supervisor.playSound('no', slider_volume_button.value);
+                            }
+
+                        }
+                    }
+                    Buttons{
+                        text:qsTr("닫기")
+                        style: "normal"
+                        onClicked: {
+                            supervisor.playSound('click', slider_volume_button.value);
+                            popup_rollback.close();
                         }
                     }
                 }
             }
         }
     }
+
     Popup{
         id: popup_update
         width: 1280
@@ -14414,7 +15800,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
                                 supervisor.updateProgram();
                                 popup_update.close();
@@ -14439,7 +15825,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_update.close();
                             }
                         }
@@ -14462,7 +15848,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_loading.open();
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update(Git Pull) Start");
                                 supervisor.updateProgramGitPull();
@@ -14489,7 +15875,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_loading.open();
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update(Git Reset) Start");
                                 supervisor.gitReset();
@@ -14505,7 +15891,7 @@ Item {
                 anchors.right: parent.right
                 property var count: 0
                 onClicked:{
-                    click_sound.play();
+                    supervisor.playSound('click', slider_volume_button.value);
                     if(++count > 4){
                         count = 0;
                         supervisor.writelog("[USER INPUT] SETTING : Show Git Pull Button");
@@ -14713,7 +16099,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(popup_camera.is_switched){
                                     is_reset_slam = true;
                                     supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA SWITCH LEFT("+text_camera_1.text+") RIGHT("+text_camera_2.text+")");
@@ -14746,7 +16132,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA Position Switch")
                                 popup_camera.is_switched = true;
                                 var temp_id = popup_camera.left_id;
@@ -14772,7 +16158,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_camera.close();
                             }
                         }
@@ -14873,7 +16259,7 @@ Item {
                     height: 55
                     text: qsTr("이전음성 초기화")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.clearTTSVoice(combo_voice_language.currentIndex, combo_voice_name_2.currentIndex);
                     }
                 }
@@ -14883,7 +16269,7 @@ Item {
                     height: 55
                     text: qsTr("한꺼번에 만들기")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.setTTSMode("tts");
                         supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
                         supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
@@ -14896,7 +16282,7 @@ Item {
                     height: 55
                     text: qsTr("취 소")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         popup_voice.close();
                     }
                 }
@@ -14906,7 +16292,7 @@ Item {
                     height: 55
                     text: qsTr("저 장")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.setTTSMode("tts");
                         supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
                         supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
@@ -14949,7 +16335,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.setTTSMode("tts");
                                 supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
                                 supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
@@ -15158,7 +16544,7 @@ Item {
                     height: 55
                     text: qsTr("닫 기")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         combo_voice_language.currentIndex = supervisor.getTTSLanguageNum();
                         popup_mention.close();
                     }
@@ -15169,7 +16555,7 @@ Item {
                     height: 55
                     text: qsTr("저 장")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         if(combo_voice_language.currentIndex != combo_voice_lan_2.currentIndex){
                             popup_change_voice_language.open();
                         }else{
@@ -15223,7 +16609,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_change_voice_language.open();
                             }
                         }
@@ -15292,7 +16678,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_1;
                                         tfield_text_1.selectAll();
                                         keyboard.open();
@@ -15338,7 +16724,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_2;
                                         tfield_text_2.selectAll();
                                         keyboard.open();
@@ -15399,7 +16785,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_3;
                                         tfield_text_3.selectAll();
                                         keyboard.open();
@@ -15446,7 +16832,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_4;
                                         tfield_text_4.selectAll();
                                         keyboard.open();
@@ -15508,7 +16894,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_5;
                                         tfield_text_5.selectAll();
                                         keyboard.open();
@@ -15554,7 +16940,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_6;
                                         tfield_text_6.selectAll();
                                         keyboard.open();
@@ -15621,7 +17007,7 @@ Item {
                         font.family: font_noto_r.name
                         font.pixelSize: 30
                         font.bold: true
-                        text:qsTr("로봇 프리셋 설정")
+                        text:qsTr("로봇 속도 설정")
                     }
                     Rectangle{
                         anchors.bottom: parent.bottom
@@ -15668,7 +17054,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_preset.update();
                                         }
                                     }
@@ -15686,7 +17072,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_preset_name.open();
                                         }
                                     }
@@ -15716,7 +17102,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 1;
                                         popup_preset.update();
                                     }
@@ -15746,7 +17132,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 2;
                                         popup_preset.update();
                                     }
@@ -15776,7 +17162,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 3;
                                         popup_preset.update();
                                     }
@@ -15806,7 +17192,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 4;
                                         popup_preset.update();
                                     }
@@ -15836,7 +17222,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 5;
                                         popup_preset.update();
                                     }
@@ -15876,7 +17262,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.close();
                                     }
                                 }
@@ -15896,7 +17282,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(popup_preset.select_preset === 1){
                                             supervisor.setSetting("setting","PRESET1/name",text_preset_1.text);
                                         }else if(popup_preset.select_preset === 2){
@@ -15953,7 +17339,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_pivot;
                                             preset_limit_pivot.selectAll();
@@ -15991,7 +17377,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_pivot_acc;
                                             preset_limit_pivot_acc.selectAll();
@@ -16026,7 +17412,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_v;
                                             preset_limit_v.selectAll();
@@ -16062,7 +17448,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_vacc;
                                             preset_limit_vacc.selectAll();
@@ -16098,7 +17484,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_w;
                                             preset_limit_w.selectAll();
@@ -16135,7 +17521,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_wacc;
                                             preset_limit_wacc.selectAll();
@@ -16175,7 +17561,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         if(keyboard.is_opened){
                             keyboard.owner = preset_name;
                             preset_name.selectAll();
@@ -16202,7 +17588,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_preset_name.close();
                         }
                     }
@@ -16219,7 +17605,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.setSetting("setting","PRESET"+Number(popup_preset.select_preset)+"/name",preset_name.text);
                             popup_preset.update();
                             popup_preset_name.close();
@@ -16300,7 +17686,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_preset_set.close();
                             }
                         }
@@ -16318,7 +17704,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.setSetting("update","DRIVING/cur_preset",Number(popup_preset_set.preset_num));
                                 is_reset_slam = true;
                                 popup_preset_set.close();
@@ -16505,7 +17891,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_x;
                                     tf_lidar_x.selectAll();
@@ -16527,7 +17913,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_y;
                                     tf_lidar_y.selectAll();
@@ -16549,7 +17935,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_z;
                                     tf_lidar_z.selectAll();
@@ -16572,7 +17958,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_rx;
                                     tf_lidar_rx.selectAll();
@@ -16595,7 +17981,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_ry;
                                     tf_lidar_ry.selectAll();
@@ -16618,7 +18004,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_rz;
                                     tf_lidar_rz.selectAll();
@@ -16648,7 +18034,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_x;
                                     tf_left_x.selectAll();
@@ -16670,7 +18056,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_y;
                                     tf_left_y.selectAll();
@@ -16692,7 +18078,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_z;
                                     tf_left_z.selectAll();
@@ -16714,7 +18100,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_rx;
                                     tf_left_rx.selectAll();
@@ -16736,7 +18122,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_ry;
                                     tf_left_ry.selectAll();
@@ -16758,7 +18144,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_rz;
                                     tf_left_rz.selectAll();
@@ -16790,7 +18176,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_x;
                                     tf_right_x.selectAll();
@@ -16812,7 +18198,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_y;
                                     tf_right_y.selectAll();
@@ -16834,7 +18220,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_z;
                                     tf_right_z.selectAll();
@@ -16856,7 +18242,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_rx;
                                     tf_right_rx.selectAll();
@@ -16878,7 +18264,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_ry;
                                     tf_right_ry.selectAll();
@@ -16900,7 +18286,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_rz;
                                     tf_right_rz.selectAll();
@@ -16933,7 +18319,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_tf.close();
                             }
                         }
@@ -16954,7 +18340,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.writelog("[USER INPUT] SETTING CAMERA TF CHANGED");
 
                                 var lidar_str = tf_lidar_x.text + "," + tf_lidar_y.text + "," + tf_lidar_z.text;
@@ -17042,7 +18428,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 backPage();
                             }
                         }
@@ -17060,7 +18446,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 save();
                                 backPage();
                             }
@@ -17078,8 +18464,15 @@ Item {
     Popup_map_list{
         id: popup_maplist
     }
-//    SoundEffect{
-//        id: click
-//        source: "bgm/click.wav"
-//    }
+    Popup_loading{
+        id: popup_loading
+    }
+
+    Tool_Keyboard{
+        id: keyboard
+    }
+    Tool_KeyPad{
+        id: keypad
+    }
+
 }
