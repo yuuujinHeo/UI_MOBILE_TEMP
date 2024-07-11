@@ -128,21 +128,21 @@ Item{
                 color: color_dark_gray
                 font.family: font_noto_b.name
                 text: qsTr("로봇을 <font color=\"#12d27c\">대기위치로 이동</font>시켜 주세요")
-                font.pixelSize: 53
+                font.pixelSize: 60
             }
             Text{
                 anchors.horizontalCenter: parent.horizontalCenter
                 color: color_dark_gray
                 font.family: font_noto_b.name
                 text: qsTr("이동하신 후 시작 버튼을 눌러주세요")
-                font.pixelSize: 53
+                font.pixelSize: 60
             }
         }
 
         Rectangle{
             id: btn_slam_do_init
-            width: 310
-            height: 130
+            width: 340
+            height: 150
             radius: 70
             opacity: 0
             color: color_green
@@ -155,7 +155,7 @@ Item{
                 text: qsTr("시    작")
                 color: "white"
                 font.family: font_noto_r.name
-                font.pixelSize: 47
+                font.pixelSize: 55
             }
             MouseArea{
                 anchors.fill: parent
@@ -183,7 +183,7 @@ Item{
         Rectangle{
             id: btn_slam_manual_init
             width: 188
-            height: 100
+            height: 110
             radius: 60
             color: "transparent"
             border.width: 3
@@ -212,7 +212,7 @@ Item{
                     id: text_slam_pass
                     text: qsTr("맵 새로만들기")
                     font.family: font_noto_r.name
-                    font.pixelSize: 15
+                    font.pixelSize: 20
                 }
             }
             MouseArea{
@@ -227,7 +227,7 @@ Item{
         Rectangle{
             id: btn_slam_pass
             width: 188
-            height: 100
+            height: 110
             radius: 60
             color: "transparent"
             border.width: 3
@@ -257,7 +257,7 @@ Item{
                 Text{
                     text: qsTr("넘어가기")
                     font.family: font_noto_r.name
-                    font.pixelSize: 15
+                    font.pixelSize: 20
                 }
             }
             MouseArea{
@@ -289,7 +289,7 @@ Item{
                 }
             }
             horizontalAlignment:Text.AlignHCenter
-            font.pixelSize: 40
+            font.pixelSize: 50
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 50

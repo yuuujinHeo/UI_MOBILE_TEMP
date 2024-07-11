@@ -186,6 +186,7 @@ Item {
     }
 
     Component.onCompleted: {
+        statusbar.visible = false;
         if(annotation_after_mapping){
             annot_pages.sourceComponent = page_annot_start;
         }else{
@@ -350,7 +351,7 @@ Item {
     Loader{
         id: annot_pages
         width: 1280
-        height: 800 - statusbar.height
+        height: 800// - statusbar.height
         anchors.bottom: parent.bottom
         clip: true
         sourceComponent: page_annot_start
@@ -510,7 +511,7 @@ Item {
                 Button_menu{
                     style: "navy"
                     source: "icon/icon_pen.png"
-                    text: qsTr("맵 세부수정")
+                    text: qsTr("맵 수정")
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor2;
@@ -519,8 +520,7 @@ Item {
                 Button_menu{
                     style: "navy"
                     source: "icon/icon_pen.png"
-                    text: qsTr("맵 세부수정\n(디버깅)")
-                    visible: supervisor.isDebugMode()
+                    text: qsTr("맵 수정\n(전문가용)")
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor3;
@@ -3829,7 +3829,6 @@ Item {
                     supervisor.setShowEdge(false);
                     supervisor.setShowName(false);
                     supervisor.setShowLocation(true);
-
                 }
             }
 
@@ -4060,71 +4059,164 @@ Item {
                 }
             }
 
-            Row{
-                MAP_FULL2{
-                    id: map
-                    enabled: true
-                    objectName: "annot_mapedit"
-                    width: annot_pages.height
-                    height: annot_pages.height
-                    tool: "move"
-                    show_connection: false
-                    show_ratio: false
-                    Component.onCompleted: {
-                        init();
-                        setEnable(true);
-                        supervisor.setMapSize(objectName,width,height);
-                        map.setDrawingColor(255);
-                        map.setDrawingWidth(10);
-                    }
-                    onClicked:{
-                        item_keyevent.focus = true;
-                    }
-                }
+            Column{
+                anchors.fill: parent
                 Rectangle{
-                    id: rect_menus
-                    width: annot_pages.width - annot_pages.height
-                    height: annot_pages.height
-                    color: color_light_gray
-                    Column{
-                        anchors.fill: parent
-                        Rectangle{
-                            width:parent.width
-                            height: 100
-                            Row{
+                    width:parent.width
+                    height: 100
+                    Rectangle{ // 보기
+                        width: 520
+                        height: 100
+                        anchors.left: parent.left
+                        anchors.leftMargin: 30
+                        Row{
+                            anchors.centerIn: parent
+                            spacing: 30
+                            Text{
+                                text: qsTr("보기")
+                                font.family: font_noto_b.name
+                                font.bold: true
+                                font.pixelSize: 30
                                 anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 30
-                                spacing: 30
-                                Buttons{
-                                    style: "green"
-                                    text: "저 장"
-                                    onClicked:{
-                                        save();
-                                        supervisor.slam_map_reload(supervisor.getMapname());
-                                        page_after_localization = page_annot_menu;
-                                        annot_pages.sourceComponent = page_annot_localization;
+                            }
+                            Grid{
+                                columns: 4
+                                rows: 2
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 5
+                                horizontalItemAlignment: Grid.AlignHCenter
+                                verticalItemAlignment: Grid.AlignVCenter
+                                Button_show{
+                                    id: show_node
+                                    text: qsTr("노드")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowNode(show);
+                                        //Supervisor.setShowNode(on);
                                     }
                                 }
-                                Buttons{
-                                    style: "dark"
-                                    text: "종 료"
-                                    onClicked:{
-                                        supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
-                                        if(is_edited){
-                                            popup_location.mode = "save_exit";
-                                            popup_location.open();
-//                                            popup_save_map.open()
-//                                            popup_save_map.back_page = true;
-                                        }else{
-                                            supervisor.slam_map_reload(supervisor.getMapname());
-                                            page_after_localization = page_annot_menu;
-                                            annot_pages.sourceComponent = page_annot_localization;
-                                        }
+                                Button_show{
+                                    id: show_edge
+                                    text:qsTr("엣지")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowEdge(show);
+                                        //Supervisor.setShowEdge(on);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_name
+                                    text: qsTr("이름")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowName(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_avoid
+                                    text: qsTr("회피구역")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowAvoid(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_wall
+                                    text: qsTr("가상벽")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowObject(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_tline
+                                    text: qsTr("경로")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowTline(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_annot
+                                    text: qsTr("위치")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowLocation(show);
+                                        //Supervisor.setshow
+                                    }
+                                }
+                                Button_show{
+                                    id: show_velmap
+                                    text: qsTr("안전구역")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowVelmap(show);
                                     }
                                 }
                             }
                         }
+                    }
+
+                    Row{
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
+                        anchors.rightMargin: 30
+                        spacing: 30
+                        Buttons{
+                            style: "green"
+                            text: "저 장"
+                            onClicked:{
+                                save();
+                                supervisor.slam_map_reload(supervisor.getMapname());
+                                page_after_localization = page_annot_menu;
+                                annot_pages.sourceComponent = page_annot_localization;
+                            }
+                        }
+                        Buttons{
+                            style: "dark"
+                            text: "종 료"
+                            onClicked:{
+                                supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
+                                if(is_edited){
+                                    popup_location.mode = "save_exit";
+                                    popup_location.open();
+//                                            popup_save_map.open()
+//                                            popup_save_map.back_page = true;
+                                }else{
+                                    supervisor.slam_map_reload(supervisor.getMapname());
+                                    page_after_localization = page_annot_menu;
+                                    annot_pages.sourceComponent = page_annot_localization;
+                                }
+                            }
+                        }
+                    }
+                }
+                Row{
+                    MAP_FULL2{
+                        id: map
+                        enabled: true
+                        objectName: "annot_mapedit"
+                        width: annot_pages.height-100
+                        height: annot_pages.height-100
+                        tool: "move"
+                        show_connection: false
+                        show_ratio: false
+                        Component.onCompleted: {
+                            init();
+                            setEnable(true);
+                            supervisor.setMapSize(objectName,width,height);
+                            map.setDrawingColor(255);
+                            map.setDrawingWidth(10);
+                        }
+                        onClicked:{
+                            item_keyevent.focus = true;
+                        }
+                    }
+                    Rectangle{
+                        id: rect_menus
+                        width: annot_pages.width - map.width
+                        height: annot_pages.height-100
+                        color: color_light_gray
                         Flickable{
                             width: parent.width
                             height: parent.height - 100
@@ -4135,101 +4227,6 @@ Item {
                                 spacing: 10
                                 width: parent.width
                                 Rectangle{
-                                    width: parent.width
-                                    height: 5
-                                    color: color_light_gray
-                                }
-                                Rectangle{ // 보기
-                                    width: parent.width
-                                    height: 100
-                                    Row{
-                                        anchors.centerIn: parent
-                                        spacing: 30
-                                        Text{
-                                            text: qsTr("보기")
-                                            font.family: font_noto_b.name
-                                            font.bold: true
-                                            font.pixelSize: 30
-                                            anchors.verticalCenter: parent.verticalCenter
-                                        }
-                                        Grid{
-                                            columns: 4
-                                            rows: 2
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            spacing: 5
-                                            horizontalItemAlignment: Grid.AlignHCenter
-                                            verticalItemAlignment: Grid.AlignVCenter
-                                            Button_show{
-                                                id: show_node
-                                                text: qsTr("노드")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowNode(show);
-                                                    //Supervisor.setShowNode(on);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_edge
-                                                text:qsTr("엣지")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowEdge(show);
-                                                    //Supervisor.setShowEdge(on);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_name
-                                                text: qsTr("이름")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowName(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_avoid
-                                                text: qsTr("회피구역")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowAvoid(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_wall
-                                                text: qsTr("가상벽")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowObject(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_tline
-                                                text: qsTr("경로")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowTline(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_annot
-                                                text: qsTr("위치")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowLocation(show);
-                                                    //Supervisor.setshow
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_velmap
-                                                text: qsTr("안전구역")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowVelmap(show);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                Rectangle{ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                     width: parent.width
                                     height: 150
                                     Row{
@@ -5264,8 +5261,10 @@ Item {
                                 }
                             }
                         }
+
                     }
                 }
+
             }
 
             Popup{

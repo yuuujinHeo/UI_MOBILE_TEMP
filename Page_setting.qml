@@ -220,13 +220,13 @@ Item {
                 supervisor.setSetting("setting","CALL/use_lingbell","false");
             }
         }
-        if(combo_use_lingbell_repeat.ischanged){
-            if(combo_use_lingbell_repeat.currentIndex === 1){
-                supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
-            }else{
-                supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
-            }
-        }
+        // if(combo_use_lingbell_repeat.ischanged){
+        //     if(combo_use_lingbell_repeat.currentIndex === 1){
+        //         supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
+        //     }else{
+        //         supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
+        //     }
+        // }
         if(combo_lingbell_time.ischanged){
             supervisor.setSetting("setting","CALL/lingbell_time",combo_lingbell_time.currentText);
         }
@@ -13575,6 +13575,7 @@ Item {
             anchors.centerIn: parent
             width: parent.width*0.99
             height: parent.height*0.99
+
             Rectangle{
                 color: color_red
                 radius: 10
@@ -13597,380 +13598,492 @@ Item {
                     text: qsTr("관리자 메뉴")
                 }
             }
-            Grid{
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: 40
-                rows: 3
-                columns: 2
-                spacing: 30
-                Rectangle{
-                    id: btn_update
-                    width: 170
-                    height: 150
-                    radius: 20
-                    color:color_green
+            Flickable{
+                width: parent.width
+                height: parent.height-80
+                anchors.bottom: parent.bottom
+                contentHeight: grid_manager.height
+                clip: false
+                Grid{
+                    id: grid_manager
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 40
+                    rows: 3
+                    columns: 2
+                    spacing: 30
                     Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                        id: btn_update
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
+                        color:color_green
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_researching.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_researching.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("프로그램 업데이트")
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                                popup_update.open();
+                            }
+                        }
+                    }
+
+                    Rectangle{
+                        id: btn_log
+                        width: 170
+                        height: 150
+                        radius: 20
+                        color:color_navy
+                        //visible: false
+                        visible: false
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_bookmark.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text:qsTr("로그 확인")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("프로그램 업데이트")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
+                                loader_page.source = plog;
                             }
                         }
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
-                            popup_update.open();
-                        }
-                    }
-                }
 
-                Rectangle{
-                    id: btn_log
-                    width: 170
-                    height: 150
-                    radius: 20
-                    color:color_navy
-                    //visible: false
-                    visible: is_rainbow
+
                     Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                        id: btn_usb_upload
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
+                        //visible: false
+                        visible: is_admin
+                        color: enabled?color_navy:color_light_gray
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_bookmark.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/save_r.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("USB에 저장하기")
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text:qsTr("로그 확인")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
+                                popup_usb_select.open();
                             }
                         }
-
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
-                            loader_page.source = plog;
-                        }
-                    }
-                }
 
 
-                Rectangle{
-                    id: btn_usb_upload
-                    width: 170
-                    height: 150
-                    radius: 20
-                    //visible: false
-                    visible: is_admin
-                    color: enabled?color_navy:color_light_gray
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                    Rectangle{ // USB에서 받아오기
+                        id: btn_usb_download
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
+                        // visible: false
+                        visible: is_admin
+                        //color: enabled?color_navy:color_light_gray
+                        color: color_navy
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/save_r.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/load_r.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("USB에서 받아오기")
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("USB에 저장하기")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
+                                if(is_admin){
+                                    popup_usb_download.open();
+                                }else{
+                                    popup_password.open();
+                                }
                             }
                         }
-
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
-                            popup_usb_select.open();
-                        }
-                    }
-                }
 
-
-                Rectangle{ // USB에서 받아오기
-                    id: btn_usb_download
-                    width: 170
-                    height: 150
-                    radius: 20
-                    // visible: false
-                    visible: is_admin
-                    //color: enabled?color_navy:color_light_gray
-                    color: color_navy
                     Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                        id: btn_reset_slam
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
+                        color: color_navy
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/load_r.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_run.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("자율주행 재시작") //SLAM 재시작
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("USB에서 받아오기")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[UI] SETTING PAGE -> KILL SLAM");
+                                supervisor.restartSLAM();
                             }
                         }
-
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
-                            if(is_admin){
-                                popup_usb_download.open();
-                            }else{
+                    Rectangle{
+                        id: btn_edit_passwd
+                        width: 170
+                        height: 150
+                        radius: 20
+                        color: color_navy
+                        visible: false
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/image_setting.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("비밀번호 변경")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
                                 popup_password.open();
+                                popup_password.is_editmode = true;
                             }
                         }
                     }
-                }
 
-                Rectangle{
-                    id: btn_reset_slam
-                    width: 170
-                    height: 150
-                    radius: 20
-                    color: color_navy
                     Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                        id: btn_all_init
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
+                        visible: is_rainbow
+                        color: color_red
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_run.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 2
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_researching.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("공장 초기화")
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("자율주행 재시작") //SLAM 재시작
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
+                                popup_clear.open();
                             }
                         }
+                    }
 
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[UI] SETTING PAGE -> KILL SLAM");
-                            supervisor.restartSLAM();
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_edit_passwd
-                    width: 170
-                    height: 150
-                    radius: 20
-                    color: color_navy
-                    visible: false
                     Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                        id: btn_save_setting
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
+                        visible: is_rainbow
+                        color: color_red
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/image_setting.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 2
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_save.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("세팅 저장")
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("비밀번호 변경")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] save Setting");
+                                supervisor.saveSetting();
+                                popup_manager.close();
                             }
                         }
-
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
-                            popup_password.open();
-                            popup_password.is_editmode = true;
-                        }
-                    }
-                }
 
-                Rectangle{
-                    id: btn_all_init
-                    width: 170
-                    height: 150
-                    radius: 20
-                    visible: is_rainbow
-                    color: color_red
                     Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
+                        id: btn_load_setting
+                        width: 170
+                        height: 150
                         radius: 20
-                        color:"transparent"
-                        border.width: 2
-                        border.color: "white"
-                        Column{
+                        visible: is_admin
+                        color: color_red
+                        Rectangle{
                             anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_researching.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 2
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_save2.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("세팅 불러오기")
                                     color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
                                 }
                             }
 
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("공장 초기화")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
                         }
-
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            supervisor.playSound('click', slider_volume_button.value);
-                            supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
-                            popup_clear.open();
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                popup_load_setting.open();
+                            }
                         }
                     }
                 }
@@ -13978,7 +14091,89 @@ Item {
         }
     }
 
+    Popup{
+        id: popup_load_setting
+        width: 1280
+        height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors.centerIn: parent
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Text{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.family: font_noto_r.name
+                    font.pixelSize: 50
+                    color: "white"
+                    text: qsTr("저장된 초기세팅을 불러오겠습니까?")
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Rectangle{
+                        width: 180
+                        height: 60
+                        radius: 10
+                        color: "#12d27c"
+                        border.width: 1
+                        border.color: "#12d27c"
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("불러오기")
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] load Setting");
+                                supervisor.loadSetting();
+                                popup_load_setting.close();
+                                popup_manager.close();
+                                init();
+                            }
+                        }
+                    }
+                    Rectangle{
+                        width: 180
+                        height: 60
+                        radius: 10
+                        color: "transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("닫기")
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                supervisor.playSound('click', slider_volume_button.value);
+                                popup_load_setting.close();
+                            }
+                        }
+                    }
 
+                }
+            }
+        }
+    }
 
     Popup{
         id: popup_manual
@@ -18487,10 +18682,13 @@ Item {
         id: popup_wifi
         onDone: {
             popup_wifi.close();
-            update();
         }
         onCancel: {
             popup_wifi.close();
+        }
+        onClosed: {
+            console.log("init neeeeeeeeeeeeeeeeeeeeeeed")
+            page_setting.init();
         }
     }
 

@@ -166,7 +166,7 @@ Item {
                     text: "Copyrights Rainbow Robotics Inc. All rights reserved."
                     color: "#7e7e7e"
                     font.family: font_noto_b.name
-                    font.pixelSize: 15
+                    font.pixelSize: 20
                 }
             }
         }
@@ -195,7 +195,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenterOffset: -100
                 text: qsTr("로봇과 연결이 되지 않습니다\n재시작 후에도 연결이 되지 않으면 로봇을 재부팅해주세요")
-                font.pixelSize: 40
+                font.pixelSize: 50
             }
 
             Row{
