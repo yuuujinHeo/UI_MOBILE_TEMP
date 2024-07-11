@@ -244,7 +244,6 @@ Item {
         }
     }
     function rotate(dir){
-//        print("rotate map : "+dir)
         if(dir === "cw"){
             supervisor.rotateMapCW();
         }else if(dir === "ccw"){
@@ -498,59 +497,6 @@ Item {
             }else if(point2.pressed){
                 supervisor.pressed(tool, point2.x, point2.y);
             }
-
-            if(point1.pressed && point2.pressed){
-                double_touch = true;
-            }else if(point1.pressed){
-                firstX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                firstY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-            }else if(point2.pressed){
-                firstX = supervisor.getX() + point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                firstY = supervisor.getY() + point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-            }
-
-//            print(point1.x, width, supervisor.getX(), firstX);
-            if(tool == "move" || item_keyevent.shift_hold){
-            }else if(tool == "draw"){
-                supervisor.setShowBrush(true);
-                supervisor.startDrawing(firstX, firstY);
-            }else if(tool == "draw_rect"){
-                supervisor.setShowBrush(false);
-                supervisor.startDrawingRect(firstX,firstY);
-            }else if(tool == "straight"){
-                supervisor.setShowBrush(true);
-                supervisor.startDrawingLine(firstX, firstY);
-            }else if(tool == "dot_spline"){
-//                supervisor.startSpline(firstX, firstY);
-                supervisor.addSpline(firstX,firstY);
-            }else if(tool == "add_object"){
-                supervisor.addObject(firstX,firstY);
-            }else if(tool == "edit_object"){
-                supervisor.editObjectStart(firstX,firstY);
-            }else if(tool == "add_point"){
-                supervisor.addObjectPoint(firstX,firstY);
-            }else if(tool == "erase"){
-                supervisor.setShowBrush(true);
-                supervisor.setLineColor(-1);
-                supervisor.startDrawing(firstX, firstY);
-            }else if(tool == "erase2"){
-                supervisor.setShowBrush(true);
-                supervisor.setLineColor(-1);
-                supervisor.startErase2(firstX, firstY);
-            }else if( tool === "add_location"){
-                supervisor.addLocation(firstX, firstY,0);
-            }else if( tool === "edit_location"){
-                supervisor.editLocation(firstX, firstY,0);
-            }else if(tool === "edit_location_new"){
-                supervisor.addLocation(firstX, firstY,0);
-            }else if( tool === "slam_init"){
-                supervisor.setInitFlag(true);
-                supervisor.setInitPose(firstX,firstY,0);
-            }else if(tool === "cut_map"){
-                select_point = supervisor.getPointBox(firstX,firstY);
-            }else if(tool === "ruler"){
-//                supervisor.setRulerInit(firstX, firstY);
-            }
         }
         onReleased: {
             supervisor.setShowBrush(false);
@@ -572,90 +518,18 @@ Item {
                             loader_page.item.setobjcur(-1);
                         }
                     }
-                }else if(tool == "draw"){
-                    supervisor.endDrawing(newX, newY);
-                }else if(tool == "draw_rect"){
-                    supervisor.endDrawingRect();
-                }else if(tool == "straight"){
-                    supervisor.stopDrawingLine(newX, newY);
-                }else if(tool == "erase"){
-                    supervisor.endDrawing(newX, newY);
-                }else if(tool == "erase2"){
-                    supervisor.endErase2(newX, newY);
-                }else if( tool === "edit_location"){
-//                    var angle = Math.atan2((newX-firstX),(newY-firstY));
-//                    supervisor.editLocation(firstX, firstY,angle);
-                }else if(tool == "add_object"){
-//                    supervisor
-                }else if(tool == "edit_object"){
-                    supervisor.setObjPose();
-                }else if(tool == "add_point"){
-
-                }else if( tool === "add_location"){
-
                 }else if( tool === "slam_init"){
-                    supervisor.setInitFlag(false);
-                    var angle = Math.atan2((newY-firstY),(newX-firstX));
-//                    print("Released : ",firstX,firstY,angle);
-                    supervisor.setInitPos(firstX, firstY, angle);
                     supervisor.slam_setInit();
-                }else if( tool == "ruler"){
-//                    supervisor.setRulerPoint(newX, newY);
                 }
             }
         }
         onTouchUpdated: {
-//            print(point1.pressed,point2.pressed,tool);
             if(point1.pressed && point2.pressed){
                 supervisor.double_moved(tool, point1.x, point1.y, point2.x, point2.y);
             }else if(point1.pressed){
                 supervisor.moved(tool, point1.x, point1.y);
             }else if(point2.pressed){
                 supervisor.moved(tool, point2.x, point2.y);
-            }
-
-            if(point1.pressed || point2.pressed){
-                var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                if(tool == "move" || item_keyevent.shift_hold){
-
-                }else if(tool == "draw"){
-                    supervisor.addLinePoint(newX, newY);
-                }else if(tool == "draw_rect"){
-                    supervisor.setDrawingRect(newX, newY);
-                }else if(tool == "cut_map"){
-                    supervisor.setBoxPoint(select_point,newX,newY);
-                }else if(tool == "straight"){
-                    supervisor.setDrawingLine(newX, newY);
-                }else if(tool == "erase"){
-                    supervisor.addLinePoint(newX, newY);
-                }else if(tool == "erase2"){
-                    supervisor.addErase2(newX, newY);
-                }else if(tool == "add_object"){
-                    supervisor.setObject(newX,newY);
-                }else if(tool == "edit_object"){
-                    supervisor.editObject(newX,newY);
-                }else if(tool == "add_point"){
-                    supervisor.setObject(newX,newY);
-                }else if( tool === "edit_location_new"){
-                    var angle = Math.atan2((newY-firstY),(newX-firstX));
-                    supervisor.addLocation(firstX, firstY,angle);
-                }else if( tool === "add_location"){
-                    angle = Math.atan2((newY-firstY),(newX-firstX));
-                    supervisor.addLocation(firstX, firstY,angle);
-                }else if( tool === "edit_location"){
-                    angle = Math.atan2((newY-firstY),(newX-firstX));
-//                    print(angle, newX-firstX, newY-firstY);
-                    supervisor.editLocation(firstX, firstY,angle);
-                }else if( tool === "slam_init"){
-                    angle = Math.atan2((newY-firstY),(newX-firstX));
-                    print("Update : ",firstX,firstY,angle);
-                    supervisor.setInitPose(firstX,firstY,angle);
-                }else if(tool === "ruler"){
-
-                }
-            }else{
-                double_touch = false;
             }
         }
     }

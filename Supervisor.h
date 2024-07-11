@@ -258,25 +258,27 @@ public:
     //drawing
     Q_INVOKABLE bool getDrawingFlag(){return maph->getDrawingFlag();}
     Q_INVOKABLE bool getDrawingUndoFlag(){return maph->getDrawingUndoFlag();}
-    Q_INVOKABLE void startDrawing(int x, int y){maph->startDrawing(x,y);}
-    Q_INVOKABLE void addLinePoint(int x, int y){maph->addLinePoint(x,y);}
-    Q_INVOKABLE void endDrawing(int x, int y){maph->endDrawing(x,y);}
-    Q_INVOKABLE void startErase2(int x, int y){maph->startErase2(x,y);}
-    Q_INVOKABLE void addErase2(int x, int y){maph->addErase2(x,y);}
-    Q_INVOKABLE void endErase2(int x, int y){maph->endErase2(x,y);}
-    Q_INVOKABLE void startDrawingRect(int x, int y){maph->startDrawingRect(x,y);}
-    Q_INVOKABLE void setDrawingRect(int x, int y){maph->setDrawingRect(x,y);}
-    Q_INVOKABLE void endDrawingRect(){maph->endDrawingRect();}
+
+
+    // Q_INVOKABLE void startDrawing(int x, int y){maph->startDrawing(x,y);}
+    // Q_INVOKABLE void addLinePoint(int x, int y){maph->addLinePoint(x,y);}
+    // Q_INVOKABLE void endDrawing(int x, int y){maph->endDrawing(x,y);}
+    // Q_INVOKABLE void startErase2(int x, int y){maph->startErase2(x,y);}
+    // Q_INVOKABLE void addErase2(int x, int y){maph->addErase2(x,y);}
+    // Q_INVOKABLE void endErase2(int x, int y){maph->endErase2(x,y);}
+    // Q_INVOKABLE void startDrawingRect(int x, int y){maph->startDrawingRect(x,y);}
+    // Q_INVOKABLE void setDrawingRect(int x, int y){maph->setDrawingRect(x,y);}
+    // Q_INVOKABLE void endDrawingRect(){maph->endDrawingRect();}
     Q_INVOKABLE void clearDrawing(){maph->clearDrawing();}
     Q_INVOKABLE void undoLine(){maph->undoLine();}
     Q_INVOKABLE void redoLine(){maph->redoLine();}
-    Q_INVOKABLE void startSpline(int x, int y){maph->startSpline(x,y);}
-    Q_INVOKABLE void addSpline(int x, int y){maph->addSpline(x,y);}
-    Q_INVOKABLE void drawSpline(){maph->drawSpline();}
+    // Q_INVOKABLE void startSpline(int x, int y){maph->startSpline(x,y);}
+    // Q_INVOKABLE void addSpline(int x, int y){maph->addSpline(x,y);}
+    // Q_INVOKABLE void drawSpline(){maph->drawSpline();}
     Q_INVOKABLE void endSpline(bool save){maph->endSpline(save);}
-    Q_INVOKABLE void startDrawingLine(int x, int y){maph->startDrawingLine(x,y);}
-    Q_INVOKABLE void setDrawingLine(int x, int y){maph->setDrawingLine(x,y);}
-    Q_INVOKABLE void stopDrawingLine(int x, int y){maph->stopDrawingLine(x,y);}
+    // Q_INVOKABLE void startDrawingLine(int x, int y){maph->startDrawingLine(x,y);}
+    // Q_INVOKABLE void setDrawingLine(int x, int y){maph->setDrawingLine(x,y);}
+    // Q_INVOKABLE void stopDrawingLine(int x, int y){maph->stopDrawingLine(x,y);}
     Q_INVOKABLE void setLineColor(int color){maph->setLineColor(color);}
     Q_INVOKABLE void setLineWidth(int width){maph->setLineWidth(width);}
 
@@ -346,7 +348,7 @@ public:
     Q_INVOKABLE void addLocation(int x, int y,float th){
         maph->addLocation(x,y,th);
     }
-    Q_INVOKABLE void addLocationCur(int x, int y,float th){maph->addLocationCur(x,y,th);}
+    // Q_INVOKABLE void addLocationCur(int x, int y,float th){maph->addLocationCur(x,y,th);}
     Q_INVOKABLE void setLocation(int x, int y, float th){maph->setLocation(x,y,th);}
     Q_INVOKABLE void editLocation(int num);
     Q_INVOKABLE int getLocationNum(int x, int y){return maph->getLocationNum(x,y);}
@@ -382,7 +384,7 @@ public:
     Q_INVOKABLE void saveLocations();
 
     //object
-    Q_INVOKABLE void setObjPose();
+    // Q_INVOKABLE void setObjPose();
     Q_INVOKABLE int getObjectNum(int x, int y);
     Q_INVOKABLE int getObjectPointNum(int x, int y);
     Q_INVOKABLE void addObject(int x, int y);
@@ -655,6 +657,8 @@ public:
     Q_INVOKABLE QString getRobotType();
     Q_INVOKABLE QString getRobotName();
     Q_INVOKABLE int getMultiState();
+    Q_INVOKABLE void saveSetting();
+    Q_INVOKABLE void loadSetting();
 
     //network
     Q_INVOKABLE int getWifiNum();

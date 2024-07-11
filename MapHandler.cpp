@@ -2048,13 +2048,13 @@ bool MapHandler::getDrawingUndoFlag(){
 }
 
 void MapHandler::startDrawingLine(int x, int y){
-//    new_straight_flag = true;
-//    spline_dot.clear();
-//    straight[0].x = x;
-//    straight[0].y = y;
-//    straight[1].x = x;
-//    straight[1].y = y;
-//    setMap();
+   // new_straight_flag = true;
+   // spline_dot.clear();
+   // straight[0].x = x;
+   // straight[0].y = y;
+   // straight[1].x = x;
+   // straight[1].y = y;
+   // setMap();
 }
 
 void MapHandler::startSpline(int x, int y){
@@ -2835,6 +2835,16 @@ void MapHandler::setDrawingLine(int x, int y){
 //    setMapDrawing();
 //    setMap();
 }
+void MapHandler::saveStraight(){
+    new_straight_flag = false;
+    LINE temp_line;
+    temp_line.color = cur_line_color;
+    temp_line.width = cur_line_width;
+    temp_line.points = straight_point;
+    lines.push_back(temp_line);
+    setMapDrawing();
+    setMap();
+}
 void MapHandler::stopDrawingLine(int x, int y){
 //    //qDebug() << "stopDrawingLine";
 //    line.clear();
@@ -2960,6 +2970,7 @@ void MapHandler::endDrawing(int x, int y){
         d_list.push_back(sum_d);
         x_list.push_back(line[0].x);
         y_list.push_back(line[0].y);
+
         for(size_t p = 1; p<line.size(); p++){
             double x0 = line[p-1].x;
             double y0 = line[p-1].y;
@@ -2995,12 +3006,14 @@ void MapHandler::endDrawing(int x, int y){
         temp_line.points = line;
     }
 
+    qDebug() << "enddrawing " << lines.size();
     lines.push_back(temp_line);
     line.clear();
     initDrawing();
     setMapDrawing();
     setMap();
 }
+
 void MapHandler::endErase2(int x, int y){
     line.clear();
 //    initDrawing();
@@ -3027,16 +3040,16 @@ void MapHandler::clearDrawing(){
 }
 
 void MapHandler::undoLine(){
+    qDebug() << "undo" << lines.size();
+
     line.clear();
-    if(straight_point.size() > 0){
-        straight_point.clear();
-        setMapDrawing();
-        setMap();
-    }else if(spline_dot.size() > 0){
+    if(spline_dot.size() > 0){
+        qDebug() << "spline";
         dot_trash.push_back(spline_dot[spline_dot.size()-1]);
         spline_dot.pop_back();
         drawSpline();
     }else if(lines.size() > 0 || line.size() > 0){
+        qDebug() << "lines";
         lines_trash.push_back(lines[lines.size()-1]);
         lines.pop_back();
         setMapDrawing();
@@ -3640,16 +3653,79 @@ void MapHandler::setStraightPoint(int x, int y){//released
     setMap();
 }
 
-
+void MapHandler::setObjPose(){
+    pmap->list_obj_dR.clear();
+    pmap->list_obj_uL.clear();
+    for(int i=0; i<pmap->objects.size(); i++){
+        cv::Point2f temp_uL;
+        cv::Point2f temp_dR;
+        //Find Square Pos
+        temp_uL.x = pmap->objects[i].points[0].x;
+        temp_uL.y = pmap->objects[i].points[0].y;
+        temp_dR.x = pmap->objects[i].points[0].x;
+        temp_dR.y = pmap->objects[i].points[0].y;
+        for(int j=1; j<pmap->objects[i].points.size(); j++){
+            if(temp_uL.x > pmap->objects[i].points[j].x){
+                temp_uL.x = pmap->objects[i].points[j].x;
+            }
+            if(temp_uL.y > pmap->objects[i].points[j].y){
+                temp_uL.y = pmap->objects[i].points[j].y;
+            }
+            if(temp_dR.x < pmap->objects[i].points[j].x){
+                temp_dR.x = pmap->objects[i].points[j].x;
+            }
+            if(temp_dR.y < pmap->objects[i].points[j].y){
+                temp_dR.y = pmap->objects[i].points[j].y;
+            }
+        }
+        pmap->list_obj_dR.push_back(temp_uL);
+        pmap->list_obj_uL.push_back(temp_dR);
+    }
+}
 
 void MapHandler::pressed(QString tool, int _x, int _y){
     float x = _x*scale*file_width/canvas_width;
     float y = _y*scale*file_width/canvas_height;
     float X = draw_x + x;
     float Y = draw_y + y;
-    if(tool == "move"){
-        move_init_pose.x = X;
-        move_init_pose.y = Y;
+    move_init_pose.x = X;
+    move_init_pose.y = Y;
+    if(tool == "move" || shift_move){
+    }else if(tool == "draw"){
+        setShowBrush(true);
+        startDrawing(X,Y);
+    }else if(tool == "draw_rect"){
+        setShowBrush(false);
+        startDrawingRect(X,Y);
+    }else if(tool == "straight"){
+        setStraightInit(X,Y);
+    }else if(tool == "dot_spline"){
+        addSpline(X,Y);
+    }else if(tool == "add_object"){
+        addObject(X,Y);
+    }else if(tool == "edit_object"){
+        editObjectStart(X,Y);
+    }else if(tool == "add_point"){
+        addObjectPoint(X,Y);
+    }else if(tool == "erase"){
+        setShowBrush(true);
+        setLineColor(-1);
+        startDrawing(X,Y);
+    }else if(tool == "erase2"){
+        setShowBrush(true);
+        setLineColor(-1);
+        startErase2(X,Y);
+    }else if(tool == "add_location"){
+        addLocation(X,Y,0);
+    }else if(tool == "edit_location"){
+        editLocation(X,Y,0);
+    }else if(tool == "edit_location_new"){
+        addLocation(X,Y,0);
+    }else if(tool == "slam_init"){
+        setInitFlag(true);
+        setInitPose(X,Y,0);
+    }else if(tool == "cut_map"){
+        select_box = getPointBox(X,Y);
     }else if(tool == "ruler"){
         setRulerInit(X,Y);
     }else if(tool == "straight"){
@@ -3664,7 +3740,7 @@ void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2
     float y1 = draw_y + _y1*scale*file_width/canvas_height;
     float x2 = draw_x + _x2*scale*file_width/canvas_width;
     float y2 = draw_y + _y2*scale*file_width/canvas_height;
-    if(tool == "move"){
+    if(tool == "move"|| shift_move){
         float dx = x1-x2;
         float dy = y1-y2;
         zoom_init_distance = sqrt(dx*dx + dy*dy);
@@ -3678,9 +3754,42 @@ void MapHandler::moved(QString tool, int _x, int _y){
     float y = _y*scale*file_width/canvas_height;
     float X = draw_x + x;
     float Y = draw_y + y;
-    if(tool == "move"){
+    if(tool == "move"|| shift_move){
         move(move_init_pose.x - x, move_init_pose.y - y);
         qDebug() << move_init_pose.x << x;
+    }else if(tool == "draw"){
+        addLinePoint(X,Y);
+    }else if(tool == "draw_rect"){
+        setDrawingRect(X,Y);
+    }else if(tool == "cut_map"){
+        setBoxPoint(select_box,X,Y);
+    }else if(tool == "straight"){
+        if(calculateDistance(cv::Point2f(X,Y),straight_init_point) > 10){
+            press_release = false;
+            setStraightEnd(X,Y);
+        }
+    }else if(tool == "erase"){
+        addLinePoint(X,Y);
+    }else if(tool == "erase2"){
+        addErase2(X,Y);
+    }else if(tool == "add_object"){
+        setObject(X,Y);
+    }else if(tool == "edit_object"){
+        editObject(X,Y);
+    }else if(tool == "add_point"){
+        setObject(X,Y);
+    }else if(tool == "edit_location_new"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        addLocation(X,Y,angle);
+    }else if(tool == "add_location"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        addLocation(X,Y,angle);
+    }else if(tool == "edit_location"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        editLocation(X,Y,angle);
+    }else if(tool == "slam_init"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        setInitPose(X,Y,angle);
     }else if(tool == "ruler"){
         if(calculateDistance(cv::Point2f(X,Y),ruler_init_point) > 10){
             press_release = false;
@@ -3716,19 +3825,44 @@ void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
         move(move_init_pose.x - x1, move_init_pose.y - y1);
     }
 }
-void MapHandler::released(QString tool, int x, int y){
 
+void MapHandler::released(QString tool, int _x, int _y){
+    float x = _x*scale*file_width/canvas_width;
+    float y = _y*scale*file_width/canvas_height;
+    float X = draw_x + x;
+    float Y = draw_y + y;
 }
+
 void MapHandler::double_released(QString tool, int x1, int y1, int x2, int y2){
     float x = draw_x + x1*scale*file_width/canvas_width;
     float y = draw_y + y1*scale*file_width/canvas_height;
     qDebug() << "released " << tool << press_release;
-    if(tool == "ruler"){
+    if(tool == "move"|| shift_move){
+
+    }else if(tool == "draw"){
+        endDrawing(x,y);
+    }else if(tool == "draw_rect"){
+        endDrawingRect();
+    }else if(tool == "straight"){
+        if(press_release){
+            setStraightPoint(x,y);
+        }else{
+            saveStraight();
+        }
+    }else if(tool == "erase"){
+        endDrawing(x,y);
+    }else if(tool == "erase2"){
+        endErase2(x,y);
+    }else if(tool == "edit_object"){
+        setObjPose();
+    }else if(tool == "slam_init"){
+        setInitFlag(false);
+        float angle = atan2((y-move_init_pose.y),(x-move_init_pose.x));
+        setInitPose(move_init_pose.x, move_init_pose.y, angle);
+    }else if(tool == "ruler"){
         if(press_release){
             setRulerPoint(x,y);
         }
-    }else if(tool == "straight"){
-        setStraightPoint(x,y);
     }
     press_release = false;
 }

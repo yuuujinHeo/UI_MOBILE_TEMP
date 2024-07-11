@@ -633,7 +633,114 @@ bool Supervisor::getGoqualDeviceState(int num){
 }
 
 
+void Supervisor::saveSetting(){
+    plog->write("[COMMAND] saveSetting");
+    QString setting_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.ini";
+    QString update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.ini";
+    QString static_path = QDir::homePath()+"/RB_MOBILE/config/static_config.ini";
 
+    QString new_setting_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.backup";
+    QString new_update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.backup";
+    QString new_static_path = QDir::homePath()+"/RB_MOBILE/config/static_config.backup";
+
+    if(QFile::exists(setting_path)){
+
+        if(QFile::exists(new_setting_path)){
+            QFile::remove(new_setting_path);
+        }
+
+        if(QFile::copy(setting_path, new_setting_path)){
+            plog->write("[COMMAND] saveSetting : setting_config -> success");
+        }else{
+            plog->write("[COMMAND] saveSetting : setting_config -> failed");
+        }
+    }else{
+        plog->write("[COMMAND] saveSetting : setting_config -> no file found");
+    }
+
+    if(QFile::exists(update_path)){
+
+        if(QFile::exists(new_update_path)){
+            QFile::remove(new_update_path);
+        }
+        if(QFile::copy(update_path, new_update_path)){
+            plog->write("[COMMAND] saveSetting : update_config -> success");
+        }else{
+            plog->write("[COMMAND] saveSetting : update_config -> failed");
+        }
+    }else{
+        plog->write("[COMMAND] saveSetting : update_config -> no file found");
+    }
+
+    if(QFile::exists(static_path)){
+
+        if(QFile::exists(new_static_path)){
+            QFile::remove(new_static_path);
+        }
+        if(QFile::copy(static_path, new_static_path)){
+            plog->write("[COMMAND] saveSetting : static_config -> success");
+        }else{
+            plog->write("[COMMAND] saveSetting : static_config -> failed");
+        }
+    }else{
+        plog->write("[COMMAND] saveSetting : static_config -> no file found");
+    }
+}
+
+void Supervisor::loadSetting(){
+    plog->write("[COMMAND] loadSetting");
+
+    QString setting_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.ini";
+    QString update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.ini";
+    QString static_path = QDir::homePath()+"/RB_MOBILE/config/static_config.ini";
+
+    QString backup_setting_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.backup";
+    QString backup_update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.backup";
+    QString backup_static_path = QDir::homePath()+"/RB_MOBILE/config/static_config.backup";
+
+    if(QFile::exists(backup_setting_path)){
+
+        if(QFile::exists(setting_path)){
+            QFile::remove(setting_path);
+        }
+        if(QFile::copy(backup_setting_path, setting_path)){
+            plog->write("[COMMAND] loadSetting : setting_config -> success");
+        }else{
+            plog->write("[COMMAND] loadSetting : setting_config -> failed");
+        }
+    }else{
+        plog->write("[COMMAND] loadSetting : setting_config -> no file found");
+    }
+
+    if(QFile::exists(backup_update_path)){
+
+        if(QFile::exists(update_path)){
+            QFile::remove(update_path);
+        }
+        if(QFile::copy(backup_update_path, update_path)){
+            plog->write("[COMMAND] loadSetting : update_config -> success");
+        }else{
+            plog->write("[COMMAND] loadSetting : update_config -> failed");
+        }
+    }else{
+        plog->write("[COMMAND] loadSetting : update_config -> no file found");
+    }
+
+    if(QFile::exists(backup_static_path)){
+
+        if(QFile::exists(static_path)){
+            QFile::remove(static_path);
+        }
+        if(QFile::copy(backup_static_path, static_path)){
+            plog->write("[COMMAND] loadSetting : static_config -> success");
+        }else{
+            plog->write("[COMMAND] loadSetting : static_config -> failed");
+        }
+    }else{
+        plog->write("[COMMAND] loadSetting : static_config -> no file found");
+    }
+
+}
 
 void Supervisor::setSetting(QString file, QString name, QString value){
     QString ini_path = getIniPath(file);
@@ -1038,7 +1145,7 @@ void Supervisor::editObject(int x, int y){
 }
 void Supervisor::saveObject(){
     maph->saveObject();
-    setObjPose();
+    maph->setObjPose();
 }
 void Supervisor::clearObject(){
     qDebug() << "clear";
@@ -2349,36 +2456,6 @@ void Supervisor::makeUSBShell(){
 }
 
 ////*********************************************  ANNOTATION 관련   ***************************************************////
-void Supervisor::setObjPose(){
-    pmap->list_obj_dR.clear();
-    pmap->list_obj_uL.clear();
-    for(int i=0; i<pmap->objects.size(); i++){
-        cv::Point2f temp_uL;
-        cv::Point2f temp_dR;
-        //Find Square Pos
-        temp_uL.x = pmap->objects[i].points[0].x;
-        temp_uL.y = pmap->objects[i].points[0].y;
-        temp_dR.x = pmap->objects[i].points[0].x;
-        temp_dR.y = pmap->objects[i].points[0].y;
-        for(int j=1; j<pmap->objects[i].points.size(); j++){
-            if(temp_uL.x > pmap->objects[i].points[j].x){
-                temp_uL.x = pmap->objects[i].points[j].x;
-            }
-            if(temp_uL.y > pmap->objects[i].points[j].y){
-                temp_uL.y = pmap->objects[i].points[j].y;
-            }
-            if(temp_dR.x < pmap->objects[i].points[j].x){
-                temp_dR.x = pmap->objects[i].points[j].x;
-            }
-            if(temp_dR.y < pmap->objects[i].points[j].y){
-                temp_dR.y = pmap->objects[i].points[j].y;
-            }
-        }
-        pmap->list_obj_dR.push_back(temp_uL);
-        pmap->list_obj_uL.push_back(temp_dR);
-    }
-}
-
 /////Location
 ///
 QString Supervisor::getNewServingName(int group){
@@ -2949,7 +3026,7 @@ void Supervisor::removeObject(int num){
 //    clear_all();
     if(num > -1 && num < pmap->objects.size()){
         pmap->objects.removeAt(num);
-        setObjPose();
+        maph->setObjPose();
         pmap->annotation_edited = true;
         maph->clearObject();
         QMetaObject::invokeMethod(mMain, "updateobject");

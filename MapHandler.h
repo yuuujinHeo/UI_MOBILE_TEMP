@@ -88,6 +88,7 @@ public:
     int canvas_width = 0;
     int canvas_height = 0;
 
+
     //------------file load--------------//
     Q_INVOKABLE void loadFile(QString name="", QString type="");
     void setMapOrin(QString type);
@@ -98,6 +99,7 @@ public:
     Q_INVOKABLE void setFullScreen();
     Q_INVOKABLE void setMapDrawing();
 
+    void setObjPose();
     //------------map variables--------------//
     Q_INVOKABLE void setTool(QString name){tool = name;setMap();}
     Q_INVOKABLE QString getTool(){return tool;}
@@ -205,6 +207,7 @@ public:
     //------------drawing--------------//
     bool flag_drawing=false;
     cv::Point2f prev_pose;
+    int select_box;
     void drawTline();
     Q_INVOKABLE void startDrawingTline();
     Q_INVOKABLE void stopDrawingTline();
@@ -266,6 +269,7 @@ public:
     Q_INVOKABLE void setStraightInit(int x, int y);
     Q_INVOKABLE void setStraightEnd(int x, int y);
     Q_INVOKABLE void setStraightPoint(int x, int y);
+    Q_INVOKABLE void saveStraight();
 
 
 
@@ -425,6 +429,7 @@ public:
     void removeObject(int num);
     void redoObject();
     bool getObjectFlag();
+
 private:
     //직접 불러오는거
     //map_raw.png
