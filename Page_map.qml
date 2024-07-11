@@ -152,6 +152,7 @@ Item {
                                 supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to Annotation");
                                 loadPage(pannotation);
+                                loader_page.item.init();
                                 supervisor.setAnnotEditFlag(true);
                             //}else if(modelData === qsTr("지정 순회")){
                             //    if(supervisor.isRobotReady()){

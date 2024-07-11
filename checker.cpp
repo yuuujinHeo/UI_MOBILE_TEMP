@@ -928,8 +928,6 @@ void Checker::getNetworkState(){
                 foreach (const QNetworkAddressEntry &entry, addressEntries) {
                 if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol){
                     probot->ethernet_interface.state = NET_CON;
-//                    probot->ethernet_interface.ipv4 = entry.ip().toString();
-//                    probot->ethernet_interface.netmask = entry.netmask().toString();
                     }
                 }
             }
@@ -940,15 +938,9 @@ void Checker::getNetworkState(){
             // 이 인터페이스의 IP 주소 목록을 가져옴
             QList<QNetworkAddressEntry> addressEntries = interface.addressEntries();
 
-//            probot->wifi_interface.ipv4 = "";
-//            probot->wifi_interface.netmask = "";
-
             foreach (const QNetworkAddressEntry &entry, addressEntries) {
                 if(entry.ip().protocol() == QAbstractSocket::IPv4Protocol){
                     probot->wifi_interface.state = NET_CON;
-//                    qDebug() << "what the fuck " << entry.ip().toString();
-//                    probot->wifi_interface.ipv4 = entry.ip().toString();
-//                    probot->wifi_interface.netmask = entry.netmask().toString();
                 }
             }
         }

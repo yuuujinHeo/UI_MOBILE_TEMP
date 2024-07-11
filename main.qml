@@ -106,6 +106,7 @@ Window {
         supervisor.playVoice("error_no_path");
         setNotice("no_location");
     }
+
     function setNotice(errnum){
         supervisor.writelog("[UI] Set Notice : "+errnum+" (cur Page : "+loader_page.item.objectName+")")
         if(loader_page.item.objectName === "page_init" || loader_page.item.objectName === "page_mapping"){
@@ -188,15 +189,6 @@ Window {
             supervisor.writelog("[UI] Robot not running");
             setNotice("no_path");
         }
-
-        if(loader_page.item.objectName == "page_annotation" || loader_page.item.objectName == "page_kitchen"){
-
-        }else if(loader_page.item.objectName == "page_mapping" || loader_page.item.objectName == "page_init" || loader_page.item.objectName == "page_map" || loader_page.item.objectName == "page_setting"){
-
-        }else if(loader_page.item.objectName == "page_moving"){
-
-        }
-
     }
 
     function checkwifidone(){
@@ -204,7 +196,6 @@ Window {
             loader_page.item.wifistatein();
         }
     }
-
 
     //Moving 상태에서 로봇이 Moving 시작했을 때
     function movestart(){

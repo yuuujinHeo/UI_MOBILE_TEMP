@@ -3790,8 +3790,6 @@ void Supervisor::makeAllKillShell(){//need check
 
 //// *********************************** TIMER *********************************** ////
 void Supervisor::onTimer(){
-    static int count_pass = 0;
-    static int prev_state = -1;
     static int prev_local_state = -1;
     static int prev_motor_1_state = -1;
     static int prev_motor_2_state = -1;
@@ -3799,7 +3797,6 @@ void Supervisor::onTimer(){
     static bool flag_annot_localization = false;
 
     static int lingbell_count = 0;
-    //init상태 체크 카운트
     static int timer_cnt = 0;
     static int current_cnt = 0;
 
@@ -3812,13 +3809,12 @@ void Supervisor::onTimer(){
         setWindow(qobject_cast<QQuickWindow*>(object));
     }
 
-    static int sddd = 0;
-    if(sddd++ > 10){
-        sddd = 0;
+    //
+    if(timer_cnt++ > 10){
+        timer_cnt = 0;
         checker->getCurrentInterface();
-        // checker->getSystemVolume();
-        // checker->getWifiList();
     }
+
     if(start_clear){
         start_clear = false;
         timer2 = new QTimer();
@@ -4491,7 +4487,6 @@ void Supervisor::onTimer(){
     }
 
     timer_cnt++;
-    prev_state = ui_state;
     prev_motor_1_state = probot->motor[0].status;
     prev_motor_2_state = probot->motor[1].status;
     prev_local_state = probot->localization_state;
