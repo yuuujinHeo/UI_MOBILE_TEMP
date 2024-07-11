@@ -1276,6 +1276,7 @@ Item {
             anchors.fill: parent
             Component.onCompleted: {
                 statusbar.visible = true;
+                supervisor.setMotorLock(false);
             }
             function enable_usb(){
                 btn_usb_load.enabled = true;
@@ -2233,9 +2234,6 @@ Item {
                 }else{
                     //annotation, map 둘 중 하나라도 없으면 안내페이지 표시
                     if(loader_init.item.objectName != "item_map"){
-                        if(supervisor.getLockStatus()===1){
-                            supervisor.setMotorLock(false);
-                        }
                         supervisor.writelog("[INIT] Map Check : Failed (" + map_name+")");
                         loader_init.sourceComponent = item_map
                     }else{
@@ -2277,9 +2275,6 @@ Item {
                     loadPage(pkitchen);
                 }else{
                     if(loader_init.item.objectName != "init_motor"){
-                        if(supervisor.getLockStatus()===0){
-                            supervisor.setMotorLock(true);
-                        }
                         timer_motor_init.start();
                     }
                 }

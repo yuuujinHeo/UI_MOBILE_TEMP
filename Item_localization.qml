@@ -36,7 +36,6 @@ Item{
             timer_check_localization.start();
             supervisor.slam_autoInit();
         }
-
         supervisor.writelog("[INIT] Localization : Motor Lock off")
         supervisor.setMotorLock(false);
 

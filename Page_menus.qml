@@ -12,7 +12,7 @@ Item {
 
 
     function init(){
-
+        statusbar.visible = true;
     }
 
     Rectangle{

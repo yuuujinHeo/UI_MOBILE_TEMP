@@ -850,24 +850,24 @@ Item {
             onReleased:{
                 if(active){
                     if(!hold){
-                        if(cur_table>-1){
-                            supervisor.setMotorLock(true);
-                            if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
-                                for(var i=0; i<tray_num; i++){
-//                                    print(i, traymodel.get(i).setting, traymodel.get(i).group, traymodel.get(i).table);
-                                    if(traymodel.get(i).setting){
-                                        supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
-                                    }
+                        if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
+                            for(var i=0; i<tray_num; i++){
+                                print(i, traymodel.get(i).setting, traymodel.get(i).group, traymodel.get(i).table);
+                                if(traymodel.get(i).setting){
+                                    supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
                                 }
-                                supervisor.writelog("[UI] PageKitchen : start Serving (use tray)");
-                                supervisor.startServing();
-                            }else{
+                            }
+                            supervisor.writelog("[UI] PageKitchen : start Serving (use tray)");
+                            supervisor.startServing();
+                        }else{
+                            if(cur_table>-1){
+                                supervisor.setMotorLock(true);
                                 supervisor.writelog("[UI] PageKitchen : start Serving");
                                 supervisor.startServing(model_group.get(cur_group).num,cur_table);
+                                cur_table = -1;
+                            }else{
+                                supervisor.writelog("[UI] PageKitchen : start Serving but cur_table -1");
                             }
-                            cur_table = -1;
-                        }else{
-                            supervisor.writelog("[UI] PageKitchen : start Serving but cur_table -1");
                         }
                     }
                 }else{

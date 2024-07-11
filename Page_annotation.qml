@@ -162,6 +162,12 @@ Item {
 
     function init(){
         supervisor.stopBGM();
+        if(supervisor.getLocalizationState() === 2){
+            annot_pages.sourceComponent = page_annot_menu;
+        }else{
+            page_after_localization = page_annot_menu;
+            annot_pages.sourceComponent = page_annot_localization;
+        }
     }
     function movestart(){
         var location_name = supervisor.getcurLoc();
@@ -187,16 +193,6 @@ Item {
 
     Component.onCompleted: {
         statusbar.visible = false;
-        if(annotation_after_mapping){
-            annot_pages.sourceComponent = page_annot_start;
-        }else{
-            if(supervisor.getLocalizationState() === 2){
-                annot_pages.sourceComponent = page_annot_menu;
-            }else{
-                page_after_localization = page_annot_menu;
-                annot_pages.sourceComponent = page_annot_localization;
-            }
-        }
     }
 
     Component.onDestruction: {
@@ -354,7 +350,7 @@ Item {
         height: 800// - statusbar.height
         anchors.bottom: parent.bottom
         clip: true
-        sourceComponent: page_annot_start
+        sourceComponent: page_annot_menu
     }
     Component{
         id: page_annot_menu
@@ -709,7 +705,6 @@ Item {
                 }
             }
 
-
             Item_buttons{
                 width: 200
                 height: 80
@@ -723,7 +718,6 @@ Item {
                     if(map.getCutFlag() && !annotation_after_mapping){
                         popup_location.mode = "save_rotate";
                         popup_location.open();
-//                        popup_save_rotate.open();
                     }else{
                         map.save("rotate");
                         if(annotation_after_mapping){
@@ -2594,7 +2588,7 @@ Item {
                         }
 
                         Item_buttonRectIcon{
-                            enabled: select_mode != 1
+                            visible: select_mode != 1
                             selected: show_velmap
                             icon: "icon/icon_slowarea.png"
                             name: qsTr("안전속도 구간")
@@ -2608,7 +2602,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
-                            enabled: select_mode != 1
+                            visible: select_mode != 1
                             selected: show_object
                             icon: "icon/icon_wall.png"
                             name: qsTr("가상벽 그리기")
@@ -2622,7 +2616,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
-                            enabled: select_mode != 1
+                            visible: select_mode != 1
                             selected: show_tline
                             icon: "icon/icon_auto_init.png"
                             name: qsTr("이동경로")
@@ -2636,7 +2630,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
-                            enabled: select_mode != 1
+                            visible: select_mode != 1
                             selected: show_avoid
                             icon: "icon/icon_avoid.png"
                             name: qsTr("장애물 회피구역")
