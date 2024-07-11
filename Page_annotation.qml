@@ -1106,7 +1106,7 @@ Item {
                     font_color: exist?"white":color_red
                     text: qsTr("충전위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_charge.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Charging";
@@ -1123,7 +1123,7 @@ Item {
                     font_color: exist?"white":color_red
                     text: qsTr("대기위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/btn_wait.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Resting";
@@ -1141,7 +1141,7 @@ Item {
                     font_color: exist?"white":color_red
                     text: qsTr("퇴식위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_clean.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Cleaning";
@@ -1155,7 +1155,7 @@ Item {
                     height: 80
                     text: qsTr("서빙위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_drink.png"
                     onClicked: {
                         popup_add_serving.open();
                     }
@@ -1183,7 +1183,7 @@ Item {
                     }
 
                     text: qsTr("충전위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_charge.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Charging";
@@ -1200,7 +1200,7 @@ Item {
                     property bool exist: false
                     font_color: exist?"white":color_red
                     text: qsTr("대기위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/btn_wait.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Resting";
@@ -1217,7 +1217,7 @@ Item {
                     property bool exist: false
                     font_color: exist?"white":color_red
                     text: qsTr("퇴식위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_clean.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Cleaning";
@@ -1231,7 +1231,7 @@ Item {
                     height: 120
                     im_width: 80
                     text: qsTr("서빙위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_drink.png"
                     onClicked: {
                         popup_add_serving.open();
                     }
@@ -2183,6 +2183,7 @@ Item {
             width: annot_pages.width
             height: annot_pages.height
             property int select_mode: 1
+            property int select_node_tab: 1
             property int select_preset: 0
             property bool is_edited: false
             property bool show_tline: false
@@ -3825,6 +3826,14 @@ Item {
                     supervisor.setShowName(true);
                     supervisor.setShowLocation(false);
                 }else if(select_mode == "draw"){
+                    supervisor.setShowEdge(false);
+                    if(select_canvas === 1){
+                        supervisor.setShowAvoid(false);
+                        supervisor.setShowVelmap(false);
+                        supervisor.setShowTline(false);
+                        supervisor.setShowObject(false);
+                    }
+
                     supervisor.setShowNode(false);
                     supervisor.setShowEdge(false);
                     supervisor.setShowName(false);
@@ -3839,6 +3848,10 @@ Item {
                 if(select_canvas === 1){
                     cur_mode_str = qsTr("노이즈 제거")
                     slider_brush.value = 5;
+                    supervisor.setShowAvoid(false);
+                    supervisor.setShowVelmap(false);
+                    supervisor.setShowTline(false);
+                    supervisor.setShowObject(false);
                     supervisor.setMode("annot_drawing");
                     map.setDrawingColor(127);
                 }else if(select_canvas === 2){
@@ -3909,7 +3922,6 @@ Item {
                         return false;
                     }
                 }
-
             }
             function prev_mode(){
                 if(select_canvas === 1){
@@ -4098,6 +4110,7 @@ Item {
                                 Button_show{
                                     id: show_edge
                                     text:qsTr("엣지")
+                                    enabled: select_mode != "draw"
                                     text_color: color_dark_navy
                                     onShowChanged:{
                                         supervisor.setShowEdge(show);
@@ -4115,6 +4128,7 @@ Item {
                                 Button_show{
                                     id: show_avoid
                                     text: qsTr("회피구역")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
                                     text_color: color_dark_navy
                                     onShowChanged:{
                                         supervisor.setShowAvoid(show);
@@ -4123,6 +4137,7 @@ Item {
                                 Button_show{
                                     id: show_wall
                                     text: qsTr("가상벽")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
                                     text_color: color_dark_navy
                                     onShowChanged:{
                                         supervisor.setShowObject(show);
@@ -4131,6 +4146,7 @@ Item {
                                 Button_show{
                                     id: show_tline
                                     text: qsTr("경로")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
                                     text_color: color_dark_navy
                                     onShowChanged:{
                                         supervisor.setShowTline(show);
@@ -4148,6 +4164,7 @@ Item {
                                 Button_show{
                                     id: show_velmap
                                     text: qsTr("안전구역")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
                                     text_color: color_dark_navy
                                     onShowChanged:{
                                         supervisor.setShowVelmap(show);
@@ -4219,7 +4236,9 @@ Item {
                         color: color_light_gray
                         Flickable{
                             width: parent.width
-                            height: parent.height - 100
+                            anchors.top: parent.top
+                            anchors.topMargin: 10
+                            height: parent.height-10
                             clip: true
                             contentHeight: cols_menus.height
                             Column{
@@ -4238,14 +4257,13 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "move"
+                                            selected: map.tool === "move"
                                             source: "icon/icon_move.png"
                                             overColor: true
-                                            text: qsTr("보기")
+                                            text: qsTr("이동")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to move");
                                                 map.setTool("move");
-                                                select_mode = "move";
                                                 map.clear("spline");
                                             }
                                         }
@@ -4255,7 +4273,7 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "topo"
+                                            selected: map.tool === "topo"
                                             source: "icon/icon_location.png"
                                             overColor: true
                                             text: qsTr("위치")
@@ -4263,7 +4281,7 @@ Item {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to topo");
                                                 map.setTool("topo");
                                                 select_mode = "topo";
-                                                supervisor.setMode("none");
+                                                // supervisor.setMode("none");
                                                 supervisor.setShowNode(true);
                                                 supervisor.setShowName(true);
                                                 supervisor.setShowEdge(true);
@@ -4281,7 +4299,7 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "draw"
+                                            selected: map.tool === "draw" || map.tool === "straight" || map.tool === "dot_spline" || map.tool === "erase2" || map.tool === "erase" || map.tool === "draw_rect"
                                             source: "icon/icon_draw.png"
                                             text: qsTr("그리기")
                                             onClicked: {
@@ -4298,14 +4316,162 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "ruler"
+                                            selected: map.tool === "ruler"
                                             source: "icon/icon_ruler.png"
                                             overColor: true
                                             text: qsTr("줄자")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to ruler");
                                                 map.setTool("ruler");
-                                                select_mode = "ruler"
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Rectangle{ // select_mod:topo
+                                    visible: select_mode === "topo"
+                                    width: parent.width
+                                    height: 600
+                                    Column{
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.top: parent.top
+                                        anchors.topMargin: 50
+                                        spacing: 30
+                                        Column{
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            spacing: 20
+                                            Text{
+                                                text: qsTr("annotation");
+                                            }
+                                            Row{
+                                                spacing: 20
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("load\nannotation.ini")
+                                                    onClicked: {
+                                                        popup_location.mode = "load_annot";
+                                                        popup_location.open();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("save\nannotation.ini")
+                                                    onClicked: {
+                                                        supervisor.saveTline();
+                                                        supervisor.saveObsAreaPNG();
+                                                        supervisor.saveNode();
+                                                        supervisor.loadFile();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("이동경로 생성")
+                                                    onClicked: {
+                                                        supervisor.autoTline();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Row{
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            spacing: 20
+                                            Column{
+                                                spacing: 20
+                                                Text{
+                                                    text: qsTr("add");
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("경로추가\n[B]")
+                                                    onClicked: {
+                                                        supervisor.addNode("","Route");
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("위치추가\n[N]")
+                                                    onClicked: {
+                                                        popup_add_location.open();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("링크\n[L]")
+                                                    onClicked: {
+                                                        supervisor.linkNode();
+                                                    }
+                                                }
+                                            }
+                                            Column{
+                                                spacing: 20
+                                                Text{
+                                                    text: qsTr("edit");
+
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("변경\n[E]")
+                                                    onClicked: {
+                                                        supervisor.editNode();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("삭제\n[D]")
+                                                    onClicked: {
+                                                        supervisor.deleteNode();
+                                                    }
+                                                }
+                                            }
+                                            Column{
+                                                spacing: 20
+                                                Text{
+                                                    text: qsTr("align");
+
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("가로정렬\n[Z]")
+                                                    onClicked: {
+                                                        supervisor.alignNode("y");
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("세로정렬\n[X]")
+                                                    onClicked: {
+                                                        supervisor.alignNode("x");
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("방향정렬\n[C]")
+                                                    onClicked: {
+                                                        supervisor.alignNode("th");
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -4375,120 +4541,6 @@ Item {
                                                         next_mode();
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
-                                }
-                                Rectangle{ // select_mod:topo
-                                    visible: select_mode === "topo"
-                                    width: parent.width
-                                    height: 400
-                                    Grid{
-                                        columns: 3
-                                        rows: 5
-                                        anchors.centerIn: parent
-                                        spacing: 20
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("경로추가\n[B]")
-                                            onClicked: {
-                                                supervisor.addNode("","Route");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("위치추가\n[N]")
-                                            onClicked: {
-                                                popup_add_location.open();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("가로정렬\n[Z]")
-                                            onClicked: {
-                                                supervisor.alignNode("y");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("변경\n[E]")
-                                            onClicked: {
-                                                supervisor.editNode();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("삭제\n[D]")
-                                            onClicked: {
-                                                supervisor.deleteNode();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("세로정렬\n[X]")
-                                            onClicked: {
-                                                supervisor.alignNode("x");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("링크\n[L]")
-                                            onClicked: {
-                                                supervisor.linkNode();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("이동경로 생성")
-                                            onClicked: {
-                                                supervisor.autoTline();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("방향정렬\n[C]")
-                                            onClicked: {
-                                                supervisor.alignNode("th");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("load\nannotation.ini")
-                                            onClicked: {
-                                                popup_location.mode = "load_annot";
-                                                popup_location.open();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("save\nannotation.ini")
-                                            onClicked: {
-                                                supervisor.saveTline();
-                                                supervisor.saveObsAreaPNG();
-                                                supervisor.saveNode();
-                                                supervisor.loadFile();
                                             }
                                         }
                                     }
@@ -5261,10 +5313,8 @@ Item {
                                 }
                             }
                         }
-
                     }
                 }
-
             }
 
             Popup{

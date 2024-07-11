@@ -425,7 +425,6 @@ void MapHandler::setMode(QString name){
     show_travelline = false;
     show_avoid = false;
 
-
     show_object = false;
     show_location = false;
     show_location_icon = false;
@@ -495,9 +494,6 @@ void MapHandler::setMode(QString name){
     }else{
         setFullScreen();
     }
-
-
-
     setMap();
 }
 
@@ -533,6 +529,7 @@ void MapHandler::initLocation(){
 }
 
 void MapHandler::setFullScreen(){
+    qDebug() << "setfullscreen";
     draw_x = 0;
     draw_y = 0;
     draw_width = file_width;
@@ -1471,51 +1468,54 @@ void MapHandler::setMap(){
         file_object.copyTo(temp_obj);
         file_avoid.copyTo(temp_avoid);
 
-        if(show_velocitymap){
-            if(mode == "annot_velmap"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
-                cv::add(temp_velmap,map_drawing,temp_velmap);
-            }
-            cv::add(temp_layer,temp_velmap,temp_layer);
-        }
-
-        if(show_avoid){
-            if(mode == "annot_obs_area"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
-                cv::add(temp_avoid,map_drawing,temp_avoid);
-            }
-            cv::add(temp_layer,temp_avoid,temp_layer);
-        }
-        if(show_object){
-            if(mode == "annot_object_png"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
-                cv::add(temp_obj,map_drawing,temp_obj);
-            }
-            cv::multiply(cv::Scalar::all(1.0)-temp_obj,temp_layer,temp_layer);
-            cv::add(temp_layer,temp_obj,temp_layer);
-        }
-
-        if(show_velocitymap || show_object || show_avoid){
-            cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
-        }
-
-        if(show_travelline){
-            if(flag_drawing){
-                cv::add(temp_orin,map_drawing_tline,temp_orin);
-            }
-            if(mode == "annot_tline" || mode == "annot_location"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel_ui,temp_travel_ui);
-                cv::add(temp_travel_ui,map_drawing,temp_travel_ui);
-                cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
-                cv::add(temp_orin,temp_travel_ui,temp_orin);
-            }else{
-                cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
-                cv::addWeighted(temp_orin,1,temp_travel_ui,1,0,temp_orin);
+        if(mode != "annot_drawing"){
+            if(show_velocitymap){
+                if(mode == "annot_velmap"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
+                    cv::add(temp_velmap,map_drawing,temp_velmap);
+                }
+                cv::add(temp_layer,temp_velmap,temp_layer);
             }
 
-        }
+            if(show_avoid){
+                if(mode == "annot_obs_area"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
+                    cv::add(temp_avoid,map_drawing,temp_avoid);
+                }
+                cv::add(temp_layer,temp_avoid,temp_layer);
+            }
+            if(show_object){
+                if(mode == "annot_object_png"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
+                    cv::add(temp_obj,map_drawing,temp_obj);
+                }
+                cv::multiply(cv::Scalar::all(1.0)-temp_obj,temp_layer,temp_layer);
+                cv::add(temp_layer,temp_obj,temp_layer);
+            }
 
-        if(!show_object && !show_velocitymap && !show_travelline && !show_avoid){
+            if(show_velocitymap || show_object || show_avoid){
+                cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
+            }
+
+            if(show_travelline){
+                if(flag_drawing){
+                    cv::add(temp_orin,map_drawing_tline,temp_orin);
+                }
+                if(mode == "annot_tline" || mode == "annot_location"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel_ui,temp_travel_ui);
+                    cv::add(temp_travel_ui,map_drawing,temp_travel_ui);
+                    cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
+                    cv::add(temp_orin,temp_travel_ui,temp_orin);
+                }else{
+                    cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
+                    cv::addWeighted(temp_orin,1,temp_travel_ui,1,0,temp_orin);
+                }
+            }
+            if(!show_object && !show_velocitymap && !show_travelline && !show_avoid){
+                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
+                cv::add(temp_orin,map_drawing,temp_orin);
+            }
+        }else{
             cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
             cv::add(temp_orin,map_drawing,temp_orin);
         }

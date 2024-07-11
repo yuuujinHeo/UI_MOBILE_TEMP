@@ -499,7 +499,6 @@ Window {
         height: parent.height
         objectName: "popup_patrol_page_main"
     }
-
     Loader{
         id: loader_page
         focus: true
