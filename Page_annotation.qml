@@ -566,6 +566,7 @@ Item {
         Item{
             width: annot_pages.width
             height: annot_pages.height
+            property bool edited: false
             Rectangle{
                 anchors.fill: parent
                 color: color_dark_navy
@@ -609,6 +610,7 @@ Item {
                 repeat: true
                 property bool cw: true
                 onTriggered: {
+                    edited = true;
                     if(cw){
                         map.rotate("cw");
                     }else{
@@ -719,16 +721,28 @@ Item {
                         popup_location.mode = "save_rotate";
                         popup_location.open();
                     }else{
-                        map.save("rotate");
-                        if(annotation_after_mapping){
-                            supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Location");
-                            page_after_localization = page_annot_location;
-                            annot_pages.sourceComponent = page_annot_localization;
+                        if(map.getCutFlag() || edited){
+                            map.save("rotate");
+                            if(annotation_after_mapping){
+                                supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Location");
+                                page_after_localization = page_annot_location;
+                                annot_pages.sourceComponent = page_annot_localization;
+                            }else{
+                                supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Menu");
+                                annot_pages.sourceComponent = page_annot_menu;
+                            }
+                            supervisor.slam_map_reload(supervisor.getMapname());
                         }else{
-                            supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Menu");
-                            annot_pages.sourceComponent = page_annot_menu;
+                            if(annotation_after_mapping){
+                                supervisor.writelog("[UI] PageAnnot : no Save Rotate, Cut Map -> Location");
+                                page_after_localization = page_annot_location;
+                                annot_pages.sourceComponent = page_annot_localization;
+                            }else{
+                                supervisor.writelog("[UI] PageAnnot : no Save Rotate, Cut Map -> Menu");
+                                annot_pages.sourceComponent = page_annot_menu;
+                            }
                         }
-                        supervisor.slam_map_reload(supervisor.getMapname());
+
                     }
                 }
             }
