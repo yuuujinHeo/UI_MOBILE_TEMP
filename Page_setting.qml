@@ -12700,6 +12700,7 @@ Item {
             color: "transparent"
         }
         onOpened:{
+            supervisor.getGoqualDeviceList();
             model_goqual_deivce.clear();
             goqual_timer.start();
         }
