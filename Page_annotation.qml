@@ -2593,6 +2593,7 @@ Item {
                         }
 
                         Item_buttonRectIcon{
+                            enabled: select_mode != 1
                             selected: show_velmap
                             icon: "icon/icon_slowarea.png"
                             name: qsTr("안전속도 구간")
@@ -2606,6 +2607,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
+                            enabled: select_mode != 1
                             selected: show_object
                             icon: "icon/icon_wall.png"
                             name: qsTr("가상벽 그리기")
@@ -2619,6 +2621,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
+                            enabled: select_mode != 1
                             selected: show_tline
                             icon: "icon/icon_auto_init.png"
                             name: qsTr("이동경로")
@@ -2632,6 +2635,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
+                            enabled: select_mode != 1
                             selected: show_avoid
                             icon: "icon/icon_avoid.png"
                             name: qsTr("장애물 회피구역")
@@ -3805,15 +3809,6 @@ Item {
                 supervisor.setShowVelmap(true);
                 supervisor.setShowTline(true);
                 supervisor.setShowObject(true);
-
-                //supervisor.setShowNode(true);
-                //supervisor.setShowName(true);
-                //supervisor.setShowEdge(true);
-                //supervisor.setShowLocation(false);
-                //supervisor.setShowAvoid(false);
-                //supervisor.setShowVelmap(false);
-                //supervisor.setShowTline(false);
-                //supervisor.setShowObject(false);
                 update();
             }
             Component.onDestruction: {

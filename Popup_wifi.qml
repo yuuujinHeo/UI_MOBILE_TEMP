@@ -156,16 +156,20 @@ Popup{
     function con_success(){
         connection = 2;
         ip_update();
+        popup_loading.close();
     }
     function con_fail(){
         connection = 0;
         popup_fail_con.open();
+        popup_loading.close();
     }
     function set_success(){
         ip_update();
+        popup_loading.close();
     }
     function set_fail(){
         ip_update();
+        popup_loading.close();
     }
 
     Timer{

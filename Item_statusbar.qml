@@ -39,7 +39,7 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             anchors.verticalCenter: parent.verticalCenter
             font.family: font_noto_r.name
-            font.pixelSize: 20
+            font.pixelSize: 30
             text: robot_name
             MouseArea{
                 anchors.fill: parent
@@ -84,7 +84,7 @@ Item {
             text: curTime
             color: color_mid_black
             font.family: font_noto_b.name
-            font.pixelSize: 20
+            font.pixelSize: 30
         }
         Image{
             id: image_clock
@@ -196,7 +196,7 @@ Item {
         }
         MouseArea{
             anchors.fill: rows_icon
-            onClicked: {
+            onPressAndHold: {
                 supervisor.playSound('click');
                 update_init();
                 update_detail();
@@ -216,7 +216,6 @@ Item {
 
     function update_detail(){
         model_details.clear();
-
 
         if(supervisor.isConnectServer()){
             model_details.append({"detail":qsTr("서버에 연결되었습니다"),"detail2":"","icon":"icon/icon_server_good.png","error":false});
@@ -263,7 +262,7 @@ Item {
 
 
         if(supervisor.getLocalizationState() !== 2){
-            model_details.append({"detail":qsTr("로봇 위치초기화가 필요합니다"),"detail2":"","icon":"icon/icon_local_error.png","error":true});
+            model_details.append({"detail":qsTr("위치초기화가 필요합니다"),"detail2":"","icon":"icon/icon_local_error.png","error":true});
         }
 
         if(supervisor.getEmoStatus()===1){
@@ -307,319 +306,326 @@ Item {
             height: parent.height
             radius: 10
             color: color_mid_black
-            Column{
-                id: col_details
-                width: parent.width
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.top: parent.top
-                anchors.topMargin: 10
-                spacing: 15
-                Row{
-                    anchors.right: parent.right
-                    anchors.rightMargin: 10
-                    spacing: 20
-                    Image{
-                        width: 30
-                        height: 30
-                        sourceSize.width: 30
-                        sourceSize.height: 30
-                        source: "icon/icon_power.png"
-                        antialiasing: true
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                supervisor.playSound('click');
-                                popup_notice_main.init();
-                                popup_notice_main.main_str = qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
-                                popup_notice_main.addButton(qsTr("재시작"))
-                                popup_notice_main.addButton(qsTr("종 료"))
-                                popup_notice_main.open();
-                            }
-                        }
-                    }
-                    Image{
-                        width: 30
-                        height: 30
-                        sourceSize.width: 30
-                        sourceSize.height: 30
-                        source: "icon/icon_setting.png"
-                        antialiasing: true
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                if(loader_page.item.objectName != "page_init" || loader_page.item.objectName != "page_setting"){
-                                    supervisor.playSound('click');
-                                    loadPage(psetting);
-                                    popup_status_detail.close();
-                                }else{
-                                    supervisor.playSound('no');
-                                }
-                            }
-                        }
-                    }
-                }
-                Row{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 25
-                    Rectangle{
-                        id: btn_motorlock
-                        width: 55
-                        height: 55
-                        radius: 55
-                        color: color_light_gray
-                        Image{
-                            id: image_motorlock
-                            anchors.centerIn: parent
-                            source: "icon/icon_motor_unlock.png"
-                            width: 38
-                            height: 38
-                            sourceSize.width: 38
-                            sourceSize.height: 38
-                            antialiasing: true
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                supervisor.playSound('click');
-                                if(supervisor.getLockStatus() === 1){
-                                    supervisor.setMotorLock(false);
-                                }else{
-                                    supervisor.setMotorLock(true);
-                                }
-                            }
-                        }
-                    }
-                    Rectangle{
-                        id: btn_cursor
-                        width: 55
-                        height: 55
-                        radius: 55
-                        property bool view: false
-                        color: view?color_green:color_light_gray
-                        Image{
-                            anchors.centerIn: parent
-                            source: "icon/icon_cursor.png"
-                            width: 38
-                            height: 38
-                            sourceSize.width: 38
-                            sourceSize.height: 38
-                            antialiasing: true
-                            ColorOverlay{
-                                anchors.fill: parent
-                                color: "white"
-                                source: parent
-                                visible: btn_cursor.view
-                            }
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                supervisor.playSound('click');
-                                if(btn_cursor.view){
-                                    supervisor.setCursorView(false);
-                                    btn_cursor.view = false;
-                                }else{
-                                    supervisor.setCursorView(true);
-                                    btn_cursor.view = true;
-                                }
-                            }
-                        }
-                    }
-                    Rectangle{
-                        id: btn_localization
-                        width: 55
-                        height: 55
-                        radius: 55
-                        color: color_light_gray
-                        Image{
-                            anchors.centerIn: parent
-                            source: "icon/icon_init.png"
-                            width: 38
-                            height: 38
-                            sourceSize.width: 38
-                            sourceSize.height: 38
-                            antialiasing: true
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                supervisor.playSound('click');
-                                popup_notice_main.init();
-                                popup_notice_main.style = "info";
-                                popup_notice_main.main_str = qsTr("위치초기화를 다시 하시겠습니까?")
-                                popup_notice_main.sub_str = qsTr("위치초기화 페이지로 이동합니다")
-                                popup_notice_main.addButton(qsTr("위치초기화"),color_green,"white")
-                                popup_notice_main.open();
-                                popup_status_detail.close();
-                            }
-                        }
-                    }
-                    Rectangle{
-                        width: 55
-                        height: 55
-                        radius: 55
-                        color: color_light_gray
-                        Image{
-                            anchors.centerIn: parent
-                            source: "icon/icon_minimize.png"
-                            width: 38
-                            height: 38
-                            sourceSize.width: 38
-                            sourceSize.height: 38
-                            antialiasing: true
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                supervisor.playSound('click');
-                                supervisor.writelog("[USER INPUT] Screen Minimized.");
-                                popup_password_minimize.open();
-                            }
-                        }
-                    }
-                }
+            opacity: 0.9
+        }
 
-
-                Rectangle{
-                    id: rect_back
-                    width: parent.width*0.85
-                    height: 35
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    color: color_dark_black
-                    radius: 20
-                    property int sound : 0
-                    clip: true
-                    Rectangle{
-                        id: rect_sound
-                        width: rect_back.width*rect_back.sound/100
-                        height: 35
-                        Behavior on width {
-                            NumberAnimation{
-                                duration: 50
-                            }
-                        }
-                        color: color_green
-                        radius: 20
-                    }
-                    Image{
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.left: parent.left
-                        anchors.leftMargin: 15
-                        width: 20
-                        height: 20
-                        sourceSize.width: 20
-                        sourceSize.height: 20
-                        antialiasing: true
-                        source:{
-                            if(rect_back.sound>80){
-                                "qrc:/icon/icon_volume_3.png"
-                            }else if(rect_back.sound>40){
-                                "qrc:/icon/icon_volume_2.png"
-                            }else if(rect_back.sound>0){
-                                "qrc:/icon/icon_volume_1.png"
-                            }else if(rect_back.sound === 0){
-                                "qrc:/icon/icon_volume_0.png"
-                            }
-                        }
-                        ColorOverlay{
-                            anchors.fill: parent
-                            color: color_light_gray
-                            source: parent
-                        }
-                    }
-
+        Column{
+            id: col_details
+            width: parent.width
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top: parent.top
+            anchors.topMargin: 20
+            spacing: 20
+            Row{
+                visible: false
+                anchors.right: parent.right
+                anchors.rightMargin: 10
+                spacing: 20
+                Image{
+                    width: 30
+                    height: 30
+                    sourceSize.width: 30
+                    sourceSize.height: 30
+                    source: "icon/icon_power.png"
+                    antialiasing: true
                     MouseArea{
                         anchors.fill: parent
-                        onPressed: {
-                            rect_back.sound = ((mouseX/width)*100).toFixed(0);
+                        onClicked:{
+                            supervisor.playSound('click');
+                            popup_notice_main.init();
+                            popup_notice_main.main_str = qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
+                            popup_notice_main.addButton(qsTr("재시작"))
+                            popup_notice_main.addButton(qsTr("종 료"))
+                            popup_notice_main.open();
                         }
-                        onReleased:{
-                            supervisor.setSystemVolume(rect_back.sound);
-                        }
-                        onPositionChanged: {
-                            if(mouseX<0){
-                                rect_back.sound = 0;
-                            }else if(mouseX>width){
-                                rect_back.sound = 100;
+                    }
+                }
+                Image{
+                    width: 30
+                    height: 30
+                    sourceSize.width: 30
+                    sourceSize.height: 30
+                    source: "icon/icon_setting.png"
+                    antialiasing: true
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            if(loader_page.item.objectName != "page_init" || loader_page.item.objectName != "page_setting"){
+                                supervisor.playSound('click');
+                                loadPage(psetting);
+                                popup_status_detail.close();
                             }else{
-                                rect_back.sound = ((mouseX/width)*100).toFixed(0);
+                                supervisor.playSound('no');
                             }
                         }
                     }
-
                 }
-
+            }
+            Row{
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 20
                 Rectangle{
-                    width: parent.width*0.9
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    height: 1
-                    color: color_gray
+                    id: btn_motorlock
+                    width: 60
+                    height: 60
+                    radius: 40
+                    color: color_light_gray
+                    Image{
+                        id: image_motorlock
+                        anchors.centerIn: parent
+                        source: "icon/icon_motor_unlock.png"
+                        width: 38
+                        height: 38
+                        sourceSize.width: 38
+                        sourceSize.height: 38
+                        antialiasing: true
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            supervisor.playSound('click');
+                            if(supervisor.getLockStatus() === 1){
+                                supervisor.setMotorLock(false);
+                            }else{
+                                supervisor.setMotorLock(true);
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: btn_cursor
+                    width: 60
+                    height: 60
+                    radius: 40
+                    property bool view: false
+                    color: view?color_green:color_light_gray
+                    Image{
+                        anchors.centerIn: parent
+                        source: "icon/icon_cursor.png"
+                        width: 38
+                        height: 38
+                        sourceSize.width: 38
+                        sourceSize.height: 38
+                        antialiasing: true
+                        ColorOverlay{
+                            anchors.fill: parent
+                            color: "white"
+                            source: parent
+                            visible: btn_cursor.view
+                        }
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            supervisor.playSound('click');
+                            if(btn_cursor.view){
+                                supervisor.setCursorView(false);
+                                btn_cursor.view = false;
+                            }else{
+                                supervisor.setCursorView(true);
+                                btn_cursor.view = true;
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: btn_localization
+                    width: 60
+                    height: 60
+                    radius: 40
+                    color: color_light_gray
+                    Image{
+                        anchors.centerIn: parent
+                        source: "icon/icon_init.png"
+                        width: 38
+                        height: 38
+                        sourceSize.width: 38
+                        sourceSize.height: 38
+                        antialiasing: true
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            supervisor.playSound('click');
+                            popup_notice_main.init();
+                            popup_notice_main.style = "info";
+                            popup_notice_main.main_str = qsTr("위치초기화를 다시 하시겠습니까?")
+                            popup_notice_main.sub_str = qsTr("위치초기화 페이지로 이동합니다")
+                            popup_notice_main.addButton(qsTr("위치초기화"),color_green,"white")
+                            popup_notice_main.open();
+                            popup_status_detail.close();
+                        }
+                    }
+                }
+                Rectangle{
+                    width: 60
+                    height: 60
+                    radius: 40
+                    color: color_light_gray
+                    Image{
+                        anchors.centerIn: parent
+                        source: "icon/icon_minimize.png"
+                        width: 38
+                        height: 38
+                        sourceSize.width: 38
+                        sourceSize.height: 38
+                        antialiasing: true
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked:{
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] Screen Minimized.");
+                            popup_password_minimize.open();
+                        }
+                    }
+                }
+            }
+
+
+            Rectangle{
+                id: rect_back
+                width: parent.width*0.85
+                height: 35
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: color_dark_black
+                radius: 20
+                visible: false
+                property int sound : 0
+                clip: true
+                Rectangle{
+                    id: rect_sound
+                    width: rect_back.width*rect_back.sound/100
+                    height: 35
+                    Behavior on width {
+                        NumberAnimation{
+                            duration: 50
+                        }
+                    }
+                    color: color_green
+                    radius: 20
+                }
+                Image{
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.left: parent.left
+                    anchors.leftMargin: 15
+                    width: 20
+                    height: 20
+                    sourceSize.width: 20
+                    sourceSize.height: 20
+                    antialiasing: true
+                    visible: false
+                    source:{
+                        if(rect_back.sound>80){
+                            "qrc:/icon/icon_volume_3.png"
+                        }else if(rect_back.sound>40){
+                            "qrc:/icon/icon_volume_2.png"
+                        }else if(rect_back.sound>0){
+                            "qrc:/icon/icon_volume_1.png"
+                        }else if(rect_back.sound === 0){
+                            "qrc:/icon/icon_volume_0.png"
+                        }
+                    }
+                    ColorOverlay{
+                        anchors.fill: parent
+                        color: color_light_gray
+                        source: parent
+                    }
                 }
 
-                Flickable{
-                    width: rre.width*0.9
+                MouseArea{
+                    anchors.fill: parent
+                    onPressed: {
+                        rect_back.sound = ((mouseX/width)*100).toFixed(0);
+                    }
+                    onReleased:{
+                        supervisor.setSystemVolume(rect_back.sound);
+                    }
+                    onPositionChanged: {
+                        if(mouseX<0){
+                            rect_back.sound = 0;
+                        }else if(mouseX>width){
+                            rect_back.sound = 100;
+                        }else{
+                            rect_back.sound = ((mouseX/width)*100).toFixed(0);
+                        }
+                    }
+                }
+
+            }
+
+            Rectangle{
+                width: parent.width*0.9
+                anchors.horizontalCenter: parent.horizontalCenter
+                height: 1
+                color: color_dark_gray
+                opacity: 0.9
+            }
+
+            Flickable{
+                width: rre.width*0.9
+                anchors.horizontalCenter: parent.horizontalCenter
+                clip: true
+                height: 300
+                contentHeight: col_detail.height
+                Column{
+                    id: col_detail
                     anchors.horizontalCenter: parent.horizontalCenter
-                    clip: true
-                    height: 250
-                    contentHeight: col_detail.height
-                    Column{
-                        id: col_detail
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 10
-                        Repeater{
-                            model: model_details
-                            Rectangle{
-                                width: rre.width*0.9
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                height: 70
-                                radius: 5
-                                color: color_dark_black
-                                Row{
-                                    spacing: 10
+                    anchors.top: parent.top
+                    spacing: 15
+                    Repeater{
+                        model: model_details
+                        Rectangle{
+                            width: rre.width*0.9
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            height: 90
+                            radius: 5
+                            color: color_dark_black
+                            Row{
+                                spacing: 10
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 10
+                                Rectangle{
+                                    width: 45
+                                    height: 45
+                                    radius: 45
+                                    color: "white"
                                     anchors.verticalCenter: parent.verticalCenter
-                                    anchors.left: parent.left
-                                    anchors.leftMargin: 10
-                                    Rectangle{
-                                        width: 45
-                                        height: 45
-                                        radius: 45
-                                        color: "white"
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        Image{
-                                            source: icon
-                                            width: 30
-                                            height: 30
-                                            sourceSize.width: 30
-                                            sourceSize.height: 30
-                                            antialiasing: true
-                                            anchors.centerIn: parent
+                                    Image{
+                                        source: icon
+                                        width: 30
+                                        height: 30
+                                        sourceSize.width: 30
+                                        sourceSize.height: 30
+                                        antialiasing: true
+                                        anchors.centerIn: parent
+                                    }
+                                }
+
+                                Rectangle{
+                                    width: rre.width*0.9-65
+                                    height: 80
+                                    color: "transparent"
+                                    Column{
+                                        anchors.centerIn: parent
+                                        Text{
+                                            text: detail
+                                            // anchors.horizontalCenter: parent.horizontalCenter
+                                            font.family: font_noto_r.name
+                                            font.pixelSize: 23
+                                            color: error===true?"red":"green"
+                                        }
+                                        Text{
+                                            text: detail2
+                                            visible: text !== ""
+                                            // anchors.horizontalCenter: parent.horizontalCenter
+                                            font.family: font_noto_r.name
+                                            font.pixelSize: 18
+                                            color: color_gray
+
                                         }
                                     }
-
-                                    Rectangle{
-                                        width: rre.width*0.9-65
-                                        height: 70
-                                        color: "transparent"
-                                        Column{
-                                            anchors.centerIn: parent
-                                            Text{
-                                                text: detail
-                                                anchors.horizontalCenter: parent.horizontalCenter
-                                                font.family: font_noto_r.name
-                                                font.pixelSize: 18
-                                                color: error===true?"red":"green"
-                                            }
-                                            Text{
-                                                text: detail2
-                                                visible: text !== ""
-                                                anchors.horizontalCenter: parent.horizontalCenter
-                                                font.family: font_noto_r.name
-                                                font.pixelSize: 15
-                                                color: color_gray
-                                            }
-                                        }
-                                    }
-
                                 }
                             }
                         }
@@ -627,6 +633,7 @@ Item {
                 }
             }
         }
+
     }
 
 

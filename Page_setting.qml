@@ -28,6 +28,15 @@ Item {
     property int debug_count: 0
     property int select_version: -1
 
+    property int category_font_size: 25
+    property int group_font_size: 30
+    property int name_font_size: 25
+    property int info_font_size: 20
+
+    property int caterogy_height: 45
+    property int group_height: 60
+    property int setting_height: 60
+
     onIs_adminChanged: {
         if(is_admin){
             init();
@@ -40,6 +49,10 @@ Item {
         is_rainbow = false;
         is_reset_slam = false;
         supervisor.getAllWifiList();
+    }
+
+    Component.onDestruction: {
+        supervisor.stopBGM();
     }
 
     function setVoiceModel(){
@@ -668,11 +681,11 @@ Item {
         }
 
 
-        if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
-            combo_use_lingbell_repeat.currentIndex = 1;
-        }else{
-            combo_use_lingbell_repeat.currentIndex = 0;
-        }
+        // if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
+        //     combo_use_lingbell_repeat.currentIndex = 1;
+        // }else{
+        //     combo_use_lingbell_repeat.currentIndex = 0;
+        // }
 
 
         if(supervisor.getSetting("setting","USE_UI","use_goqual") === "true"){
@@ -1308,14 +1321,14 @@ Item {
             spacing: 5
             Rectangle{
                 width: 250
-                height: 50
+                height: caterogy_height
                 color: "#323744"
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("설정")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -1328,14 +1341,14 @@ Item {
             Rectangle{
                 id: rect_category_1
                 width: 240
-                height: 50
+                height: caterogy_height
                 color: "#647087"
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("현재상태")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -1356,14 +1369,14 @@ Item {
             Rectangle{
                 id: rect_category_2
                 width: 240
-                height: 50
+                height: caterogy_height
                 color: "#647087"
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("로봇")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -1384,7 +1397,7 @@ Item {
             Rectangle{
                 id: rect_category_3
                 width: 264
-                height: 50
+                height: caterogy_height
                 visible: is_rainbow
                 color: "#647087"
                 Text{
@@ -1392,7 +1405,7 @@ Item {
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("주행")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -1413,7 +1426,7 @@ Item {
             Rectangle{
                 id: rect_category_4
                 width: 240
-                height: 50
+                height: caterogy_height
                 color: "#647087"
                 visible: is_admin || is_rainbow
                 Text{
@@ -1421,7 +1434,7 @@ Item {
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("인식")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -1463,7 +1476,7 @@ Item {
                 spacing:10
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -1471,13 +1484,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("로봇 기본 정보")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_robot_1
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1489,7 +1502,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("플랫폼 이름 (영문)")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1515,6 +1528,7 @@ Item {
                                 onTextChanged: {
                                     ischanged = true;
                                 }
+                                font.pixelSize: info_font_size
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
@@ -1535,7 +1549,7 @@ Item {
                 Rectangle{
                     id: set_robot_1_serial
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false//use_multirobot
                     Row{
                         anchors.fill: parent
@@ -1548,7 +1562,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("플랫폼 넘버 (중복주의)")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1596,7 +1610,7 @@ Item {
                 Rectangle{
                     id: set_robot_2
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1608,30 +1622,12 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("플랫폼 타입")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text:qsTr("?")
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle(qsTr("플랫폼 타입"));
-                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 확인하세요"));
-                                    popup_help_setting.addLine(qsTr("서빙용 : 각 테이블에 서빙을 합니다 (기본)"));
-                                    popup_help_setting.addLine(qsTr("호출용 : 호출벨이 울리면 이동합니다 (지원가능여부확인)"));
-                                    popup_help_setting.addLine(qsTr("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 (서빙 우선)"));
-                                    popup_help_setting.addLine(qsTr("퇴식전용 : 퇴식위치를 별도로 사용합니다 (그 외 서빙+호출용과 동일)"));
                                 }
                             }
                         }
@@ -1650,6 +1646,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
+                                font.pixelSize: info_font_size
                                 model:[qsTr("서빙용"),qsTr("호출용"),qsTr("서빙+호출용"), qsTr("퇴식전용")]
                             }
                         }
@@ -1658,7 +1655,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: false
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -1667,13 +1664,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("알림벨 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: use_lingbell
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -1686,7 +1683,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("알림벨 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1714,70 +1711,19 @@ Item {
                                     onCurrentIndexChanged: {
                                         ischanged = true;
                                     }
+                                    font.pixelSize: info_font_size
                                     model:[qsTr("사용안함"), qsTr("사용")]
                                 }
                             }
                         }
                     }
                 }
-                Rectangle{
-                    id: use_lingbell_repeat
-                    width: 840
-                    height: 50
-                    //visible: combo_use_lingbell.currentIndex === 1
-                    visible: false
-
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("반복 알림")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                    anchors.leftMargin = 30 - width*(1-scale)/2
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            Row{
-                                anchors.fill: parent
-                                ComboBox{
-                                    id: combo_use_lingbell_repeat
-                                    width: parent.width
-                                    height: parent.height
-                                    property bool ischanged: false
-                                    onCurrentIndexChanged: {
-                                        ischanged = true;
-                                    }
-                                    model:[qsTr("사용안함"), qsTr("사용")]
-                                }
-                            }
-                        }
-                    }
-                }
-
                 Rectangle{
                     id: lingbell_time
                     width: 840
-                    height: 50
-                    visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
+                    height: setting_height
+                    visible: false
+                    // visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1789,7 +1735,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("반복 주기 [초]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1810,6 +1756,7 @@ Item {
                             Row{
                                 anchors.fill: parent
                                 ComboBox{
+                                    font.pixelSize: info_font_size
                                     id: combo_lingbell_time
                                     width: parent.width
                                     height: parent.height
@@ -1826,7 +1773,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -1834,13 +1781,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("스마트릴레이 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: use_dcrelay
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1852,7 +1799,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("스마트릴레이 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1876,6 +1823,7 @@ Item {
                                     id: combo_use_dcrelay
                                     width: parent.width
                                     height: parent.height
+                                    font.pixelSize: info_font_size
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
                                         ischanged = true;
@@ -1889,7 +1837,7 @@ Item {
                 Rectangle{
                     id: goqual_state
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_use_dcrelay.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -1902,7 +1850,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("연동 상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1930,6 +1878,7 @@ Item {
                                         anchors.verticalCenter: parent.verticalCenter
                                         anchors.left: parent.left
                                         anchors.leftMargin: 30
+                                        font.pixelSize: info_font_size
                                         text: qsTr("연동된 디바이스")
                                     }
                                 }
@@ -1937,7 +1886,7 @@ Item {
                                 Item_buttons{
                                     type: "white_btn"
                                     width: 150
-                                    height: 50
+                                    height: setting_height
                                     text: qsTr("설정")
                                     onClicked:{
                                         supervisor.playSound('click', slider_volume_button.value);
@@ -1952,7 +1901,7 @@ Item {
                 Rectangle{
                     id: goqual_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_use_dcrelay.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -1965,7 +1914,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("ID")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1990,6 +1939,7 @@ Item {
                                     width: parent.width
                                     height: parent.height
                                     property bool ischanged: false
+                                    font.pixelSize: info_font_size
                                     text:"master"
                                     onTextChanged: {
                                         ischanged = true;
@@ -2002,7 +1952,7 @@ Item {
                 Rectangle{
                     id: goqual_passwd
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_use_dcrelay.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -2015,7 +1965,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("PASSWD")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2040,6 +1990,7 @@ Item {
                                     width: parent.width
                                     height: parent.height
                                     property bool ischanged: false
+                                    font.pixelSize: info_font_size
                                     text:"master"
                                     onTextChanged: {
                                         ischanged = true;
@@ -2060,13 +2011,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("기능 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_preset
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2078,7 +2029,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("이동 속도")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2096,21 +2047,19 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             Row{
-
                                 anchors.centerIn: parent
                                 spacing: 5
                                 Rectangle{
                                     width:70
-                                    height: 50
+                                    height: setting_height
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
-
                                     Text{
                                         id: text_preset_name_1
                                         anchors.centerIn: parent
                                         text:qsTr("preset 1")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===1?color_green:color_mid_black
                                     }
                                     MouseArea{
@@ -2130,7 +2079,7 @@ Item {
                                 }
                                 Rectangle{
                                     width:70
-                                    height: 50
+                                    height: setting_height
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     Text{
@@ -2138,7 +2087,7 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 2")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===2?color_green:color_mid_black
                                     }
                                     MouseArea{
@@ -2166,7 +2115,7 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 3")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===3?color_green:color_mid_black
                                     }
                                     MouseArea{
@@ -2194,7 +2143,7 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 4")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===4?color_green:color_mid_black
                                     }
                                     MouseArea{
@@ -2215,7 +2164,7 @@ Item {
                                 }
                                 Rectangle{
                                     width:70
-                                    height: 50
+                                    height: setting_height
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     Text{
@@ -2223,7 +2172,7 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 5")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===5?color_green:color_mid_black
                                     }
                                     MouseArea{
@@ -2253,7 +2202,7 @@ Item {
                                         text: qsTr("변경")
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: info_font_size
                                     }
                                     MouseArea{
                                         anchors.fill: parent
@@ -2271,7 +2220,7 @@ Item {
                 Rectangle{
                     id: set_comeback_preset
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2283,7 +2232,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("복귀 속도 지정")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2319,6 +2268,7 @@ Item {
                             ComboBox{
                                 id: combo_comeback_preset
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2331,7 +2281,7 @@ Item {
                 Rectangle{
                     id: set_robot_442
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2343,7 +2293,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 호출 횟수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2381,6 +2331,7 @@ Item {
                                 id: combo_max_calling
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
@@ -2392,7 +2343,7 @@ Item {
                 Rectangle{
                     id: set_call_notice
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2404,7 +2355,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("호출복귀 후 재정비")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2442,6 +2393,7 @@ Item {
                             ComboBox{
                                 id: combo_use_calling_notice
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2455,7 +2407,7 @@ Item {
                 Rectangle{
                     id: set_resting_lock
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false//is_admin
                     Row{
                         anchors.fill: parent
@@ -2468,7 +2420,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("대기장소 모터 락 해제")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2504,6 +2456,7 @@ Item {
                             ComboBox{
                                 id: combo_resting_lock
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2517,7 +2470,7 @@ Item {
                 Rectangle{
                     id: set_auto_update
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2529,7 +2482,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("시작시 업데이트 검사")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2550,6 +2503,7 @@ Item {
                             ComboBox{
                                 id: combo_auto_update
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2562,7 +2516,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -2570,13 +2524,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("UI 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_show_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2588,7 +2542,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("시간 표시")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2609,6 +2563,7 @@ Item {
                             ComboBox{
                                 id: combo_show_time
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2622,8 +2577,7 @@ Item {
                 Rectangle{
                     id: set_use_tray
                     width: 840
-                    height: 50
-                    visible: is_admin
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2635,7 +2589,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("트레이 별 서빙")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2655,6 +2609,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_use_tray
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -2674,8 +2629,8 @@ Item {
                 Rectangle{
                     id: set_tray_num
                     width: 840
-                    height: 50
-                    visible: is_rainbow && use_tray
+                    height: setting_height
+                    visible: use_tray
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2687,7 +2642,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("트레이 개수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2706,6 +2661,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             ComboBox{
+                                font.pixelSize: info_font_size
                                 id: combo_tray_num
                                 anchors.fill: parent
                                 property bool ischanged: false
@@ -2720,7 +2676,7 @@ Item {
                 Rectangle{
                     id: set_language
                     width: 840
-                    height: 50
+                    height: setting_height
 //                    visible: false
                     Row{
                         anchors.fill: parent
@@ -2733,7 +2689,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("표시 언어")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2752,6 +2708,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_language
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -2765,7 +2722,7 @@ Item {
                 Rectangle{
                     id: set_movingpage
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2777,7 +2734,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("이동 중 화면")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2799,7 +2756,8 @@ Item {
                                 ComboBox{
                                     id: combo_movingpage
                                     width: currentIndex===3?409:489
-                                    height: 50
+                                    height: setting_height
+                                    font.pixelSize: info_font_size
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
                                         ischanged = true;
@@ -2808,11 +2766,12 @@ Item {
                                 }
                                 Rectangle{
                                     width: 70
-                                    height: 50
+                                    height: setting_height
                                     visible: combo_movingpage.currentIndex === 3
                                     color: color_dark_navy
                                     Text{
                                         anchors.centerIn: parent
+                                        font.pixelSize: info_font_size
                                         text: qsTr("설정")
                                         color: "white"
                                     }
@@ -2832,7 +2791,7 @@ Item {
                 Rectangle{
                     id: set_patrolpage
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -2845,7 +2804,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("순회 중 화면")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2866,6 +2825,7 @@ Item {
                                 id: combo_patrolpage
                                 width: currentIndex === 2?parent.width - 100 : parent.width
                                 height: parent.height
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2884,7 +2844,7 @@ Item {
                                     color: "white"
                                     text: qsTr("설정")
                                     font.family: font_noto_r.name
-                                    font.pixelSize: 15
+                                    font.pixelSize: info_font_size
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -2901,7 +2861,7 @@ Item {
                 Rectangle{
                     id: set_voice_mode
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2913,7 +2873,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("로봇 음성")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2935,6 +2895,7 @@ Item {
                                 ComboBox{
                                     id: combo_voice_mode
                                     width: parent.width
+                                    font.pixelSize: info_font_size
                                     height: parent.height
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
@@ -2953,7 +2914,7 @@ Item {
                 Rectangle{
                     id: set_voice_language
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_voice_mode.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -2966,7 +2927,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음성 언어")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2988,6 +2949,7 @@ Item {
                                 ComboBox{
                                     id: combo_voice_language
                                     width: parent.width - 100
+                                    font.pixelSize: info_font_size
                                     height: parent.height
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
@@ -3014,7 +2976,7 @@ Item {
                                         text: qsTr("설정")
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 15
+                                        font.pixelSize: info_font_size
                                     }
                                     MouseArea{
                                         anchors.fill: parent
@@ -3032,7 +2994,7 @@ Item {
                 Rectangle{
                     id: set_voice_name
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -3045,7 +3007,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음성")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3069,6 +3031,7 @@ Item {
                                     width: combo_voice_mode.currentIndex === 1?parent.width-100 : parent.width
                                     height: parent.height
                                     property bool ischanged: false
+                                    font.pixelSize: info_font_size
                                     onCurrentIndexChanged: {
                                         ischanged = true;
                                     }
@@ -3086,7 +3049,7 @@ Item {
                                         text: qsTr("상세설정")
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 15
+                                        font.pixelSize: info_font_size
                                     }
                                     MouseArea{
                                         anchors.fill: parent
@@ -3103,7 +3066,8 @@ Item {
                 Rectangle{
                     id: set_system_volume
                     width: 840
-                    height: 50
+                    height: setting_height
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3115,7 +3079,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("시스템 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3158,7 +3122,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_system
                                     width: tt.width*0.7 + 10 + ttet2132.width
-                                    height: 50
+                                    height: setting_height
                                     from: 0
                                     to: 100
                                     property bool ischanged: false
@@ -3179,7 +3143,7 @@ Item {
                 Rectangle{
                     id: set_bgm_volume
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3191,7 +3155,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음악 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3233,7 +3197,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_bgm
                                     width: tt.width*0.7
-                                    height: 50
+                                    height: setting_height
                                     stepSize: 1
                                     from: 0
                                     to: 100
@@ -3276,7 +3240,7 @@ Item {
                 Rectangle{
                     id: set_voice_volume
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3288,7 +3252,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음성 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3330,7 +3294,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_voice
                                     width: te.width*0.7
-                                    height: 50
+                                    height: setting_height
                                     from: 0
                                     to: 100
                                     stepSize: 1
@@ -3367,7 +3331,7 @@ Item {
                 Rectangle{
                     id: set_voice_button
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3379,7 +3343,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("버튼클릭 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3420,7 +3384,7 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_button
                                     width: te.width*0.7
-                                    height: 50
+                                    height: setting_height
                                     from: 0
                                     to: 100
                                     stepSize: 1
@@ -3454,7 +3418,7 @@ Item {
                 Rectangle{
                     id: set_branch
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -3467,7 +3431,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("깃 브랜치")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3490,6 +3454,7 @@ Item {
                                 TextField{
                                     width: parent.width - 160
                                     height: parent.height
+                                    font.pixelSize: info_font_size
                                     id: tfield_gitbranch
                                     property bool ischanged: false
                                     text:"master"
@@ -3499,7 +3464,7 @@ Item {
                                 }
                                 Rectangle{
                                     width: 50
-                                    height: 50
+                                    height: setting_height
                                     radius:10
                                     color: color_dark_navy
                                     anchors.verticalCenter: parent.verticalCenter
@@ -3546,7 +3511,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     visible: is_admin
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -3555,14 +3520,14 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("멀티로봇")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_use_multirobot
                     width: 840
                     visible: is_admin
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3574,7 +3539,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("멀티로봇 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3595,6 +3560,7 @@ Item {
                                 id: combo_multirobot
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                     if(currentIndex == 0){
@@ -3613,7 +3579,7 @@ Item {
                     id: set_use_server_call
                     width: 840
                     visible: is_admin && use_multirobot
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3625,7 +3591,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서버 호출 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3645,6 +3611,7 @@ Item {
                             ComboBox{
                                 id: combo_server_calling
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -3658,7 +3625,7 @@ Item {
                     id: set_server_ip
                     width: 840
                     visible: is_admin && use_multirobot
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3670,7 +3637,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서버 IP")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3694,7 +3661,8 @@ Item {
                                 TextField{
                                     id: server_ip_1
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
@@ -3732,7 +3700,8 @@ Item {
                                 TextField{
                                     id: server_ip_2
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
@@ -3769,11 +3738,13 @@ Item {
                                 Text{
                                     anchors.verticalCenter: parent.verticalCenter
                                     text:"."
+                                    font.pixelSize: info_font_size
                                 }
                                 TextField{
                                     id: server_ip_3
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
@@ -3810,11 +3781,13 @@ Item {
                                 Text{
                                     anchors.verticalCenter: parent.verticalCenter
                                     text:"."
+                                    font.pixelSize: info_font_size
                                 }
                                 TextField{
                                     id: server_ip_4
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
@@ -3854,6 +3827,7 @@ Item {
                                     color: "black"
                                     Text{
                                         anchors.centerIn: parent
+                                        font.pixelSize: info_font_size
                                         color: "white"
                                         font.family: font_noto_r.name
                                         text: qsTr("변경")
@@ -3878,7 +3852,7 @@ Item {
                 Rectangle{
                     id: set_server_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_admin && use_multirobot
                     Row{
                         anchors.fill: parent
@@ -3891,7 +3865,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("FMS 아이디")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3911,6 +3885,7 @@ Item {
                             TextField{
                                 id: fms_id
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
@@ -3939,7 +3914,7 @@ Item {
                 Rectangle{
                     id: set_server_pw
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_admin &&  use_multirobot
                     Row{
                         anchors.fill: parent
@@ -3952,7 +3927,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("FMS 비밀번호")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3971,6 +3946,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: fms_pw
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -4001,7 +3977,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     visible: is_rainbow
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -4010,14 +3986,14 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("로봇 하드웨어 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_robot_radius
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4029,7 +4005,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("로봇 반지름 반경 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4050,6 +4026,7 @@ Item {
                             TextField{
                                 id: radius
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
@@ -4080,7 +4057,7 @@ Item {
                     id: set_robot_length
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4092,7 +4069,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("로봇 길이 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4114,6 +4091,7 @@ Item {
                                 id: robot_length
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     ischanged = true;
                                     is_reset_slam = true;
@@ -4143,7 +4121,7 @@ Item {
                     id: set_wheelbase
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4155,7 +4133,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("휠 베이스 반경 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4175,6 +4153,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: wheel_base
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -4205,7 +4184,7 @@ Item {
                 Rectangle{
                     id: set_wheelradius
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -4218,7 +4197,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("휠 반지름 반경 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4239,6 +4218,7 @@ Item {
                             TextField{
                                 id: wheel_radius
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
@@ -4268,7 +4248,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -4276,13 +4256,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("네트워크 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_internet
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4294,7 +4274,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("인터넷 연결상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4318,7 +4298,7 @@ Item {
                                 Rectangle{
                                     id: internet_con
                                     width: 500
-                                    height: 50
+                                    height: setting_height
                                     property int connection: 0
                                     color: {
                                         if(internet_con.connection === 1){
@@ -4332,7 +4312,7 @@ Item {
                                     Text{
                                         anchors.centerIn: parent
                                         font.family:font_noto_r.name
-                                        font.pixelSize:20
+                                        font.pixelSize:info_font_size
                                         text:{
                                             if(internet_con.connection === 1){
                                                 qsTr("연결중")
@@ -4356,7 +4336,7 @@ Item {
                 Rectangle{
                     id: set_ethernet
                     width: 840
-                    height: is_admin?450:50
+                    height: is_admin?500:setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4368,7 +4348,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("유선 연결상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4392,7 +4372,7 @@ Item {
                                 Rectangle{
                                     id: ethernet_con
                                     width: 500
-                                    height: 50
+                                    height: setting_height
                                     property int connection: 0
                                     color: {
                                         if(ethernet_con.connection === 1){
@@ -4406,7 +4386,7 @@ Item {
                                     Text{
                                         anchors.centerIn: parent
                                         font.family:font_noto_r.name
-                                        font.pixelSize:20
+                                        font.pixelSize:info_font_size
                                         text:{
                                             if(ethernet_con.connection === 1){
                                                 qsTr("연결중")
@@ -4424,14 +4404,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("IP")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4442,13 +4422,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4456,6 +4436,7 @@ Item {
                                                 id: ethernet_ip_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4490,12 +4471,14 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_ip_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4533,11 +4516,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_ip_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4575,10 +4560,12 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_ip_4
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -4620,14 +4607,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Netmask")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4638,13 +4625,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4652,6 +4639,7 @@ Item {
                                                 id: ethernet_netmask_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4688,12 +4676,14 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_netmask_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4732,12 +4722,14 @@ Item {
                                                 }
                                             }
                                             Text{
+                                                font.pixelSize: info_font_size
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
                                             }
                                             TextField{
                                                 id: ethernet_netmask_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -4780,6 +4772,7 @@ Item {
                                                 }
                                             }
                                             Text{
+                                                font.pixelSize: info_font_size
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
                                             }
@@ -4787,6 +4780,7 @@ Item {
                                                 id: ethernet_netmask_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4830,14 +4824,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Gateway")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4848,13 +4842,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4862,6 +4856,7 @@ Item {
                                                 id: ethernet_gateway_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4895,12 +4890,14 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_gateway_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -4938,10 +4935,12 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_gateway_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -4980,11 +4979,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_gateway_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5028,14 +5029,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 1")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5046,19 +5047,20 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
                                             TextField{
                                                 id: ethernet_dnsmain_1
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -5093,12 +5095,14 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_dnsmain_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5136,10 +5140,12 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsmain_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -5178,11 +5184,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsmain_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5224,14 +5232,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 2")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5242,13 +5250,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -5256,6 +5264,7 @@ Item {
                                                 id: ethernet_dnsserv_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5290,12 +5299,14 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_dnsserv_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5333,10 +5344,12 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsserv_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -5375,11 +5388,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsserv_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5615,7 +5630,7 @@ Item {
                 Rectangle{
                     id: set_wifi
                     width: 840
-                    height: is_admin?500:120
+                    height: is_admin?600:setting_height*2+10
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5627,7 +5642,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("무선 연결상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -5651,7 +5666,7 @@ Item {
                                 Rectangle{
                                     id: wifi_con
                                     width: 500
-                                    height: 50
+                                    height: setting_height
                                     property int connection: 0
                                     color: {
                                         if(wifi_con.connection === 1){
@@ -5665,7 +5680,7 @@ Item {
                                     Text{
                                         anchors.centerIn: parent
                                         font.family:font_noto_r.name
-                                        font.pixelSize:20
+                                        font.pixelSize:info_font_size
                                         text:{
                                             if(wifi_con.connection === 1){
                                                 qsTr("연결중")
@@ -5683,14 +5698,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("WIFI SSID")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5701,14 +5716,15 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             id: wifi_ssid
+                                            font.pixelSize: info_font_size
                                             anchors.centerIn: parent
                                             font.family: font_noto_r.name
                                             text:supervisor.getSetting("setting","NETWORK","wifi_ssid");
@@ -5720,14 +5736,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("IP")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5738,13 +5754,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -5752,6 +5768,7 @@ Item {
                                                 id: ip_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5785,11 +5802,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ip_2
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -5828,11 +5847,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ip_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5870,10 +5891,12 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ip_4
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -5917,14 +5940,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Netmask")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5935,13 +5958,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -5949,6 +5972,7 @@ Item {
                                                 id: netmask_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -5983,12 +6007,14 @@ Item {
                                                 }
                                             }
                                             Text{
+                                                font.pixelSize: info_font_size
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
                                             }
 
                                             TextField{
                                                 id: netmask_2
+                                                font.pixelSize: info_font_size
                                                 width: 60
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
@@ -6031,11 +6057,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: netmask_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6076,11 +6104,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: netmask_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6127,14 +6157,14 @@ Item {
                                     visible: is_admin
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Gateway")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -6145,13 +6175,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -6159,6 +6189,7 @@ Item {
                                                 id: gateway_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6192,11 +6223,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: gateway_2
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -6235,11 +6268,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: gateway_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6277,11 +6312,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: gateway_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6324,14 +6361,14 @@ Item {
                                     visible: is_admin
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 1")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -6342,13 +6379,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -6356,6 +6393,7 @@ Item {
                                                 id: dnsmain_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6389,11 +6427,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: dnsmain_2
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
@@ -6432,11 +6472,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsmain_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6474,11 +6516,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsmain_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6520,14 +6564,14 @@ Item {
                                     visible: is_admin
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 2")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -6538,13 +6582,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -6552,6 +6596,7 @@ Item {
                                                 id: dnsserv_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6585,12 +6630,14 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: dnsserv_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6628,11 +6675,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsserv_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6670,11 +6719,13 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsserv_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
@@ -6941,7 +6992,7 @@ Item {
                 spacing:10
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -6950,7 +7001,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("카메라 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -6962,7 +7013,7 @@ Item {
                 Rectangle{
                     id: set_camera_model
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -6975,7 +7026,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("카메라 모델")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -6994,6 +7045,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_camera_model
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -7013,7 +7065,7 @@ Item {
                 Rectangle{
                     id: set_cam_exposure
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7026,7 +7078,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("노출 시간 [ms]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7046,6 +7098,7 @@ Item {
                             TextField{
                                 id: cam_exposure
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 text:supervisor.getSetting("setting","SENSOR","cam_exposure");
                                 property bool ischanged: false
                                 MouseArea{
@@ -7074,7 +7127,7 @@ Item {
                 Rectangle{
                     id: set_left_camera
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7087,7 +7140,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("왼쪽 카메라 시리얼")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7108,6 +7161,7 @@ Item {
                                 id: left_camera
                                 height: parent.height
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
                                 anchors.right: btn_view_cam.left
                                 text:supervisor.getSetting("static","SENSOR","left_camera_serial");
                                 readOnly: true
@@ -7122,7 +7176,7 @@ Item {
                                 Text{
                                     anchors.centerIn: parent
                                     text:qsTr("viewer")
-                                    font.pixelSize: 15
+                                    font.pixelSize: info_font_size
                                     font.family: font_noto_r.name
                                 }
                                 MouseArea{
@@ -7139,7 +7193,7 @@ Item {
                 Rectangle{
                     id: set_right_camera
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7152,7 +7206,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("오른쪽 카메라 시리얼")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7180,6 +7234,7 @@ Item {
                                 id: right_camera
                                 height: parent.height
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
                                 anchors.right: btn_view_camr.left
                                 text:supervisor.getSetting("static","SENSOR","right_camera_serial");
                                 readOnly: true
@@ -7194,7 +7249,7 @@ Item {
                                 Text{
                                     anchors.centerIn: parent
                                     text:qsTr("viewer")
-                                    font.pixelSize: 15
+                                    font.pixelSize: info_font_size
                                     font.family: font_noto_r.name
                                     MouseArea{
                                         anchors.fill: parent
@@ -7211,7 +7266,7 @@ Item {
                 Rectangle{
                     id: set_lidar_offset_tf
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7224,7 +7279,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("라이다 TF")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7244,6 +7299,8 @@ Item {
                             TextField{
                                 id: lidar_offset_tf
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
+                                height: parent.height
                                 anchors.right: btn_change_lidar_offset.left
 //                                anchors.fill: parent
                                 text:supervisor.getSetting("static","SENSOR","lidar_offset_tf");
@@ -7259,6 +7316,7 @@ Item {
                                     anchors.centerIn: parent
                                     text:qsTr("change")
                                     color: "white"
+                                    font.pixelSize: info_font_size
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -7275,7 +7333,7 @@ Item {
                 Rectangle{
                     id: set_left_camera_tf
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7288,7 +7346,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("왼쪽 카메라 TF")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7309,6 +7367,8 @@ Item {
                             TextField{
                                 id: left_camera_tf
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
+                                height: parent.height
                                 anchors.right: btn_change_left_offset.left
 //                                anchors.fill: parent
                                 text:supervisor.getSetting("static","SENSOR","left_camera_tf");
@@ -7323,6 +7383,7 @@ Item {
                                 Text{
                                     anchors.centerIn: parent
                                     text:qsTr("change")
+                                    font.pixelSize: info_font_size
                                     color: "white"
                                 }
                                 MouseArea{
@@ -7340,7 +7401,7 @@ Item {
                 Rectangle{
                     id: set_right_camera_tf
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7353,7 +7414,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("오른쪽 카메라 TF")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7374,6 +7435,8 @@ Item {
                             TextField{
                                 id: right_camera_tf
                                 anchors.left: parent.left
+                                height: parent.height
+                                font.pixelSize: info_font_size
                                 anchors.right: btn_change_right_offset.left
 //                                anchors.fill: parent
                                 text:supervisor.getSetting("static","SENSOR","right_camera_tf");
@@ -7389,6 +7452,7 @@ Item {
                                     anchors.centerIn: parent
                                     text:qsTr("change")
                                     color: "white"
+                                    font.pixelSize: info_font_size
                                 }
                                 MouseArea{
                                     anchors.fill: parent
@@ -7404,7 +7468,7 @@ Item {
                 Rectangle{
                     id: set_obs_height_min
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7417,7 +7481,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("3D카메라 감지 최소높이 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7439,6 +7503,7 @@ Item {
                                 id: obs_height_min
                                 anchors.fill: parent
                                 objectName: "obs_height_min"
+                                font.pixelSize: info_font_size
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_height_min");
                                 property bool ischanged: false
                                 MouseArea{
@@ -7467,7 +7532,7 @@ Item {
                 Rectangle{
                     id: set_obsheight_max
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7480,7 +7545,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("3D카메라 감지 최대높이 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7504,6 +7569,7 @@ Item {
                                 objectName: "obs_height_max"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_height_max");
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 color:ischanged?color_red:"black"
                                 MouseArea{
                                     anchors.fill:parent
@@ -7530,7 +7596,7 @@ Item {
                 Rectangle{
                     id: set_max_range
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7543,7 +7609,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("라이다데이터 최대 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7566,6 +7632,7 @@ Item {
                                 anchors.fill: parent
                                 text:supervisor.getSetting("setting","SENSOR","max_range");
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
@@ -7593,7 +7660,7 @@ Item {
                 Rectangle{
                     id: set_icp_near
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7606,7 +7673,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("라이다데이터 최소 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7627,6 +7694,7 @@ Item {
                             TextField{
                                 id: icp_near
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -7655,7 +7723,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -7663,7 +7731,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("주행 중 감지")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -7676,7 +7744,7 @@ Item {
                 Rectangle{
                     id: set_use_obs_preview
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7688,7 +7756,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 예측 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7709,6 +7777,7 @@ Item {
                             ComboBox{
                                 id: combo_use_obs_preview
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     is_reset_slam = true;
@@ -7722,7 +7791,7 @@ Item {
                 Rectangle{
                     id: set_obs_preview_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_use_obs_preview.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -7735,7 +7804,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 예측 시간 [초]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7756,6 +7825,7 @@ Item {
                             TextField{
                                 id: obs_preview_time
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -7785,7 +7855,7 @@ Item {
                 //Rectangle{ // 장애물 회피
                 //    id: set_use_avoid
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    Row{
                 //        anchors.fill: parent
                 //        Rectangle{
@@ -7797,7 +7867,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("장애물 회피")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7832,7 +7902,7 @@ Item {
                 //Rectangle{ // 장애물 회피 - 장애물 감지 너비
                 //    id: set_obs_check_range
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: combo_use_avoid.currentIndex === 1
                 //    Row{
                 //        anchors.fill: parent
@@ -7845,7 +7915,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("장애물 감지 너비")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7897,7 +7967,7 @@ Item {
                 //Rectangle{ // 제자리 회전 장애물 감지
                 //    id: set_use_pivot_obs
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    Row{
                 //        anchors.fill: parent
                 //        Rectangle{
@@ -7909,7 +7979,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("제자리회전 장애물감지")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7943,7 +8013,7 @@ Item {
                 //Rectangle{
                 //    id: set_use_obs_near
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    Row{
                 //        anchors.fill: parent
                 //        Rectangle{
@@ -7955,7 +8025,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("근접 장애물 감속")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7989,7 +8059,7 @@ Item {
                 //Rectangle{
                 //    id: set_obs_near
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: combo_use_obs_near.currentIndex === 1
                 //    Row{
                 //        anchors.fill: parent
@@ -8002,7 +8072,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("근접 장애물 거리")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -8053,7 +8123,7 @@ Item {
                 //Rectangle{
                 //    id: set_obs_decel_gain
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: combo_use_obs_near.currentIndex === 1
                 //    Row{
                 //        anchors.fill: parent
@@ -8066,7 +8136,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("장애물 감속 게인")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -8118,7 +8188,7 @@ Item {
                 Rectangle{
                     id: set_use_earlystop_resting
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8130,7 +8200,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("대기위치 근처 장애물 미리 정지")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8149,6 +8219,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             ComboBox{
+                                font.pixelSize: info_font_size
                                 id: combo_use_earlystop_resting
                                 anchors.fill: parent
                                 property bool ischanged: false
@@ -8164,7 +8235,7 @@ Item {
                 Rectangle{
                     id: set_use_earlystop_serving
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8176,7 +8247,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서빙위치 근처 장애물 미리 정지")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8195,6 +8266,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             ComboBox{
+                                font.pixelSize: info_font_size
                                 id: combo_use_earlystop_serving
                                 anchors.fill: parent
                                 property bool ischanged: false
@@ -8210,7 +8282,7 @@ Item {
                 Rectangle{
                     id: set_obs_early_stop_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: set_use_earlystop_resting.currentIndex === 1 || set_use_earlystop_serving.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -8223,7 +8295,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("근처 장애물 정지 거리")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8245,6 +8317,7 @@ Item {
                                 id: obs_early_stop_dist
                                 anchors.fill: parent
                                 objectName: "obs_early_stop_dist"
+                                font.pixelSize: info_font_size
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
                                 property bool ischanged: false
                                 MouseArea{
@@ -8274,7 +8347,7 @@ Item {
                 Rectangle{
                     id: set_use_ignore_safetyzone_return
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8286,7 +8359,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("복귀 시 안전구간 무시")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8307,6 +8380,7 @@ Item {
                             ComboBox{
                                 id: combo_use_ignore_safetyzone_return
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     is_reset_slam = true;
@@ -8322,7 +8396,7 @@ Item {
                 Rectangle{
                     id: set_decmargin
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8334,7 +8408,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("동적 장애물 마진 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8354,6 +8428,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: obs_margin1
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 objectName: "obs_margin1"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_margin1");
@@ -8385,7 +8460,7 @@ Item {
                 Rectangle{
                     id: set_decmargin0
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8397,7 +8472,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("정적 장애물 마진 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8418,6 +8493,7 @@ Item {
                             TextField{
                                 id: obs_margin0
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 objectName: "obs_margin0"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_margin0");
                                 property bool ischanged: false
@@ -8447,7 +8523,7 @@ Item {
                 Rectangle{
                     id: set_obs_area
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8459,7 +8535,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 넓이 [pixel]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8480,6 +8556,7 @@ Item {
                             TextField{
                                 id: obs_detect_area
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 objectName: "obs_detect_area"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
                                 property bool ischanged: false
@@ -8510,7 +8587,7 @@ Item {
                 Rectangle{
                     id: set_obs_sensitivity
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8522,7 +8599,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 최소검출 누적횟수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8542,6 +8619,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: obs_detect_sensitivity
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 objectName: "obs_detect_sensitivity"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
@@ -8573,7 +8651,7 @@ Item {
                 Rectangle{
                     id: set_obs_deadzone
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8585,7 +8663,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("즉시정지 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8607,6 +8685,7 @@ Item {
                                 id: obs_deadzone
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8634,7 +8713,7 @@ Item {
                 Rectangle{
                     id: set_obs_wait_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8646,7 +8725,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("감지 후 대기시간 [sec]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8668,6 +8747,7 @@ Item {
                                 id: obs_wait_time
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8696,7 +8776,7 @@ Item {
                 Rectangle{
                     id: set_lookaheaddist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8709,7 +8789,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로추종 최대거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8745,6 +8825,7 @@ Item {
                                 id: look_ahead_dist
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8772,7 +8853,7 @@ Item {
                 Rectangle{
                     id: set_minlookaheaddist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8785,7 +8866,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로추종 최소거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8805,6 +8886,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: min_look_ahead_dist
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -8835,7 +8917,7 @@ Item {
                 Rectangle{
                     id: set_path_out_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8848,7 +8930,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로이탈 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8870,6 +8952,7 @@ Item {
                                 id: path_out_dist
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8897,7 +8980,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -8905,13 +8988,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("위치 추정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_icp_init_ratio
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8923,7 +9006,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("초기화 성공기준 [0~1]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8944,6 +9027,7 @@ Item {
                             TextField{
                                 id: icp_init_ratio
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -8972,7 +9056,7 @@ Item {
                 Rectangle{
                     id: set_icp_init_error
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8984,7 +9068,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("초기화 에러기준 [0~1]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9004,6 +9088,7 @@ Item {
                             TextField{
                                 id: icp_init_error
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9032,7 +9117,7 @@ Item {
                 Rectangle{
                     id: set_icp_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9045,7 +9130,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("Inlier 판단거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9065,6 +9150,7 @@ Item {
                             TextField{
                                 id: icp_dist
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9093,7 +9179,7 @@ Item {
                 Rectangle{
                     id: set_icp_error
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9106,7 +9192,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("평균오차 최소값 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9126,6 +9212,7 @@ Item {
                             TextField{
                                 id: icp_error
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9154,7 +9241,7 @@ Item {
                 Rectangle{
                     id: set_icp_ratio
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9167,7 +9254,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("Inlier 비율 [%]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9188,6 +9275,7 @@ Item {
                                 id: icp_ratio
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9215,7 +9303,7 @@ Item {
                 Rectangle{
                     id: set_icp_odometry_weight
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9228,7 +9316,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 위치추정 비율 [%]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9249,6 +9337,7 @@ Item {
                                 id: icp_odometry_weight
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9276,7 +9365,7 @@ Item {
                 Rectangle{
                     id: set_icp_repeat_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9289,7 +9378,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("위치추정 최소 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9309,6 +9398,7 @@ Item {
                             TextField{
                                 id: icp_repeat_dist
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9337,7 +9427,7 @@ Item {
                 Rectangle{
                     id: set_icp_repeat_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9350,7 +9440,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("위치추정 최소 시간[sec]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9371,6 +9461,7 @@ Item {
                                 id: icp_repeat_time
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9401,7 +9492,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -9410,13 +9501,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("도착점 판단")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_goal_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9429,7 +9520,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("도착점 허용 오차 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9450,6 +9541,7 @@ Item {
                                 id: goal_dist
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9477,7 +9569,7 @@ Item {
                 Rectangle{
                     id: set_goal_th
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9490,7 +9582,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("도착점 허용 오차 [deg]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9509,6 +9601,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: goal_th
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9539,7 +9632,7 @@ Item {
                 Rectangle{
                     id: set_goal_near_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9552,7 +9645,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("목적지 미리 도달거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9572,6 +9665,7 @@ Item {
                             TextField{
                                 id: goal_near_dist
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9600,7 +9694,7 @@ Item {
                 Rectangle{
                     id: set_goal_near_th
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false//is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9613,7 +9707,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로탐색 최소거리 [deg]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9632,6 +9726,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: goal_near_th
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9661,7 +9756,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -9670,13 +9765,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("지도 작성")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_slam_submap_cnt
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9689,7 +9784,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서브맵 프레임 개수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9710,6 +9805,7 @@ Item {
                                 id: slam_submap_cnt
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9737,7 +9833,7 @@ Item {
                 Rectangle{
                     id: set_slam_lc_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9750,7 +9846,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("루프클로징 시도거리")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9769,6 +9865,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: slam_lc_dist
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9798,7 +9895,7 @@ Item {
                 Rectangle{
                     id: set_slam_lc_icp_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9811,7 +9908,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("루프클로징 매칭범위")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9830,6 +9927,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: slam_lc_icp_dist
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9859,7 +9957,7 @@ Item {
                 Rectangle{
                     id: set_map_size
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9872,7 +9970,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("지도 기본 크기")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9892,6 +9990,7 @@ Item {
                             TextField{
                                 id: map_size
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9920,7 +10019,7 @@ Item {
                 Rectangle{
                     id: set_grid_size
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9933,7 +10032,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("기본 격자 크기")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9953,6 +10052,7 @@ Item {
                             TextField{
                                 id: grid_size
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -10004,7 +10104,7 @@ Item {
                 spacing:10
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -10013,7 +10113,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("주행 중")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -10025,7 +10125,7 @@ Item {
                 Rectangle{
                     id: set_use_current
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10038,7 +10138,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 과전류 시 일시정지")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10057,6 +10157,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_use_motorcurrent
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -10070,7 +10171,7 @@ Item {
                 Rectangle{
                     id: set_motor_current_margin
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -10083,7 +10184,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터전류 제한값 [mA]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10104,6 +10205,7 @@ Item {
                                 id: pause_motor_current
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     ischanged = true;
                                 }
@@ -10130,7 +10232,7 @@ Item {
                 }
                 Rectangle{
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -10143,7 +10245,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터전류 제한시간 [ms]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10163,6 +10265,7 @@ Item {
                             TextField{
                                 id: pause_check_ms
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
@@ -10190,7 +10293,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -10199,7 +10302,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("속도 제한")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -10211,7 +10314,7 @@ Item {
                 Rectangle{
                     id: set_st_v
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10224,7 +10327,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("출발 시 처음속도 [m/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10246,6 +10349,7 @@ Item {
                                 id: st_v
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10273,7 +10377,7 @@ Item {
                 Rectangle{
                     id: set_goal_v
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10286,7 +10390,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("도착지점 속도 [m/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10307,6 +10411,7 @@ Item {
                                 id: goal_v
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10334,7 +10439,7 @@ Item {
 
                 Rectangle{ // 게인 수정
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -10343,7 +10448,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("게인 수정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -10355,7 +10460,7 @@ Item {
                 Rectangle{
                     id: set_k_curve
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -10368,7 +10473,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("k_curve")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10388,6 +10493,7 @@ Item {
                             TextField{
                                 id: k_curve
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -10417,7 +10523,7 @@ Item {
                     id: set_k_v
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10429,7 +10535,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("k_v")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10449,6 +10555,7 @@ Item {
                             TextField{
                                 id: k_v
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -10478,7 +10585,7 @@ Item {
                     id: set_k_w
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10490,7 +10597,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("k_w")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10511,6 +10618,7 @@ Item {
                                 id: k_w
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10539,7 +10647,7 @@ Item {
                     id: set_k_dd
                     visible: is_rainbow
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10551,7 +10659,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("k_dd")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10572,6 +10680,7 @@ Item {
                                 id: k_dd
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10599,7 +10708,7 @@ Item {
                 Rectangle{
                     id: set_path_delta_v_acc_gain
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10612,7 +10721,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로 가속 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10632,6 +10741,7 @@ Item {
                             TextField{
                                 id: path_delta_v_acc_gain
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -10660,7 +10770,7 @@ Item {
                 Rectangle{
                     id: set_path_delta_v_dec_gain
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10673,7 +10783,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로 감속 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10694,6 +10804,7 @@ Item {
                                 id: path_delta_v_dec_gain
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10721,7 +10832,7 @@ Item {
                 Rectangle{
                     id: set_path_ref_v_gain
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10734,7 +10845,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로 속도 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10755,6 +10866,7 @@ Item {
                                 id: path_ref_v_gain
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10782,7 +10894,7 @@ Item {
                 //Rectangle{ //경로 시프팅 게인
                 //    id: set_path_shifting_val
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: is_rainbow
                 //    Row{
                 //        anchors.fill: parent
@@ -10795,7 +10907,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("경로 시프팅 게인")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -10843,7 +10955,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -10852,13 +10964,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("모터 세팅 값")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: name_font_size
                     }
                 }
                 Rectangle{
                     id: set_wheel_dir
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10871,7 +10983,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("바퀴 회전 방향")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10891,6 +11003,7 @@ Item {
                             ComboBox{
                                 id: combo_wheel_dir
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                     is_reset_slam = true;
@@ -10904,7 +11017,7 @@ Item {
                 Rectangle{
                     id: set_left_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10917,7 +11030,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("왼쪽 모터 ID")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10937,6 +11050,7 @@ Item {
                             ComboBox{
                                 id: combo_left_id
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                     is_reset_slam = true;
@@ -10950,7 +11064,7 @@ Item {
                 Rectangle{
                     id: set_right_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10963,7 +11077,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("오른쪽 모터 ID")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10982,6 +11096,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_right_id
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -10996,7 +11111,7 @@ Item {
                 Rectangle{
                     id: set_gear_ratio
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11009,7 +11124,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 기어비")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11030,6 +11145,7 @@ Item {
                                 id: gear_ratio
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -11057,7 +11173,7 @@ Item {
                 Rectangle{
                     id: set_kp
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11070,7 +11186,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 P 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11091,6 +11207,7 @@ Item {
                                 id: k_p
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -11118,7 +11235,7 @@ Item {
                 Rectangle{
                     id: set_ki
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11131,7 +11248,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 I 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11150,6 +11267,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: k_i
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -11179,7 +11297,7 @@ Item {
                 Rectangle{
                     id: set_kd
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11192,7 +11310,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 D 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11212,6 +11330,7 @@ Item {
                             TextField{
                                 id: k_d
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -11241,7 +11360,7 @@ Item {
                     id: set_limit_v
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -11253,7 +11372,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 속도 [m/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11274,6 +11393,7 @@ Item {
                                 id: motor_limit_v
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -11302,7 +11422,7 @@ Item {
                     id: set_limitv_acc
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -11314,7 +11434,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 가속도 [m/s^2]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11333,6 +11453,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: motor_limit_v_acc
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -11362,7 +11483,7 @@ Item {
                 Rectangle{
                     id: set_limit_w
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11375,7 +11496,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 각속도 [deg/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11395,6 +11516,7 @@ Item {
                             TextField{
                                 id: motor_limit_w
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -11423,7 +11545,7 @@ Item {
                 Rectangle{
                     id: set_limit_wacc
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11436,7 +11558,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 각가속도 [deg/s^2]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11457,6 +11579,7 @@ Item {
                             TextField{
                                 id: motor_limit_w_acc
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -12146,7 +12269,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: 50
             anchors.top: parent.top
-            anchors.topMargin: 50
+            anchors.topMargin: 60
             color: "white"
             radius: 30
             property bool is_restart: false

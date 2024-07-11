@@ -199,17 +199,17 @@ void Worker::getSystemVolume(){
     bool match=false;
     for(QByteArray line : lines){
         if(line.contains(temp.toUtf8())){
-            qDebug() << line;
+            // qDebug() << line;
             match=true;
         }else if(match && line.contains("Volume: front-left")){
             int num = line.split('/')[1].split('%')[0].toInt();
-            qDebug() << "num is = "<<num;
+            // qDebug() << "num is = "<<num;
             probot->volume_system = num;
             break;
         }
     }
-    qDebug() << "---------------------------------------------------------------------------";
-    qDebug() << probot->volume_system << getSettings("static","SOUND","default_sink");
+    // qDebug() << "---------------------------------------------------------------------------";
+    // qDebug() << probot->volume_system << getSettings("static","SOUND","default_sink");
 
     process->close();
     emit finished(this);
@@ -221,8 +221,8 @@ void Worker::setSystemVolume(){
 
         QString cmd = "pactl";
         QStringList lists = QStringList() << "set-sink-volume" << getSettings("static","SOUND","default_sink") << volume+"%";
-        qDebug() << "---------------------------------------------------------------------------";
-        qDebug() << cmd << lists << getSettings("static","SOUND","default_sink");
+        // qDebug() << "---------------------------------------------------------------------------";
+        // qDebug() << cmd << lists << getSettings("static","SOUND","default_sink");
         process->start(cmd,lists);
 
         if(!process->waitForFinished()){
@@ -232,7 +232,7 @@ void Worker::setSystemVolume(){
         }
 
         QByteArray result = process->readAllStandardOutput();
-        qDebug() << result;
+        // qDebug() << result;
         plog->write("[WORKER - "+name+"] Set System Volume : Done ("+volume+")");
     }
 
@@ -403,7 +403,7 @@ void Worker::gitReset(){
         return;
     }
     QByteArray result = process->readAllStandardOutput();
-    qDebug() << "Result : " << result;
+    // qDebug() << "Result : " << result;
     gitPull();
     process->close();
 //    emit finished(this);
@@ -846,7 +846,7 @@ void Checker::gitpull_fail(){
     emit sig_gitpull_fail(0);
 }
 void Checker::gitpull_nothing(){
-    qDebug() << "?";
+    // qDebug() << "?";
     emit sig_gitpull_fail(1);
 }
 void Checker::connect_wifi_success(QString ssid){
