@@ -2470,6 +2470,7 @@ Item {
                 Rectangle{
                     id: set_auto_update
                     width: 840
+                    visible: false
                     height: setting_height
                     Row{
                         anchors.fill: parent
@@ -12693,8 +12694,8 @@ Item {
     Popup{
         id: popup_set_goqual
         anchors.centerIn: parent
-        width: 900
-        height: 600
+        width: 1000
+        height: 700
         background: Rectangle{
             anchors.fill: parent
             color: "transparent"
@@ -12714,6 +12715,7 @@ Item {
             repeat: true
             interval: 500
             onTriggered:{
+                supervisor.getGoqualDeviceList();
                 text_goqual_access_key.text = supervisor.getGoqualAccessKey();
                 text_goqual_refresh_key.text = supervisor.getGoqualRefreshKey();
                 text_goqual_expires_in.text = supervisor.getGoqualExpiresIn();
@@ -12727,9 +12729,10 @@ Item {
                         }
                     }
                     if(!match){
-                        model_goqual_deivce.append({"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"dev_state":supervisor.getGoqualDeviceState(i)});
+                        model_goqual_deivce.append({"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"name":supervisor.getGoqualDeviceName(i),"online":supervisor.getGoqualDeviceOnline(i),"dev_state":supervisor.getGoqualDeviceState(i)});
+                    }else{
+                        model_goqual_deivce.set(i,{"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"name":supervisor.getGoqualDeviceName(i),"online":supervisor.getGoqualDeviceOnline(i),"dev_state":supervisor.getGoqualDeviceState(i)})
                     }
-
                 }
             }
         }
@@ -12738,18 +12741,29 @@ Item {
             width: parent.width
             height: parent.height
             Column{
-                anchors.centerIn: parent
+                anchors.fill: parent
                 spacing: 30
                 Rectangle{
-                    width: 700
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    width: parent.width
+                    height: 70
+                    color: color_dark_navy
+                    Text{
+                        anchors.centerIn: parent
+                        text: qsTr("Goqual(헤이홈) 연동")
+                        color: "white"
+                        font.bold: true
+                        font.pixelSize: 30
+                    }
+                }
+                Rectangle{
+                    width: parent.width
                     height: 200
                     color: color_light_gray
-                    Column{
+                    Row{
                         anchors.centerIn: parent
-                        spacing: 30
+                        spacing: 40
                         Grid{
-                            anchors.horizontalCenter: parent.horizontalCenter
+                            anchors.verticalCenter: parent.verticalCenter
                             columns: 3
                             rows: 3
                             horizontalItemAlignment: Grid.AlignHCenter
@@ -12758,38 +12772,47 @@ Item {
                             Text{
                                 text: "access_key"
                                 font.bold: true
+                                font.pixelSize: 20
                             }
                             Text{
                                 text: " : "
+                                font.pixelSize: 20
                             }
                             Text{
                                 id: text_goqual_access_key
+                                font.pixelSize: 20
                             }
                             Text{
                                 text: "refresh_key"
                                 font.bold: true
+                                font.pixelSize: 20
                             }
                             Text{
                                 text: " : "
+                                font.pixelSize: 20
                             }
                             Text{
                                 id: text_goqual_refresh_key
+                                font.pixelSize: 20
                             }
                             Text{
                                 text: "expires_in"
                                 font.bold: true
+                                font.pixelSize: 20
                             }
                             Text{
                                 text: " : "
+                                font.pixelSize: 20
                             }
                             Text{
                                 id: text_goqual_expires_in
+                                font.pixelSize: 20
                             }
                         }
 
-                        Row{
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 30
+                        Column{
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 20
                             Item_buttons{
                                 type: "white_btn"
                                 text: qsTr("get Key")
@@ -12819,117 +12842,165 @@ Item {
                     }
                 }
 
-                Column{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    Row{
+                Rectangle{
+                    width: parent.width
+                    height: 370
+                    Column{
                         anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 4
-                        Rectangle{
-                            width: 196
-                            height: 40
-                            color: color_navy
-                            Text{
-                                anchors.centerIn: parent
-                                text: "Type"
-                                color: "white"
-                            }
-                        }
-                        Rectangle{
-                            width: 196
-                            height: 40
-                            color: color_navy
-                            Text{
-                                anchors.centerIn: parent
-                                text: "ID"
-                                color: "white"
-                            }
-                        }
-                        Rectangle{
-                            width: 96
-                            height: 40
-                            color: color_navy
-                            Text{
-                                anchors.centerIn: parent
-                                text: "State"
-                                color: "white"
-                            }
-                        }
-                        Rectangle{
-                            width: 236
-                            height: 40
-                            color: color_navy
-                            Text{
-                                anchors.centerIn: parent
-                                text: "switch"
-                                color: "white"
-                            }
-                        }
-                    }
-
-                    Repeater{
-                        model: ListModel{id:model_goqual_deivce}
+                        spacing: 20
                         Row{
+                            anchors.left: parent.left
+                            anchors.leftMargin: 50
+                            spacing: 20
+                            Text{
+                                text: qsTr("타입 : ")
+                                font.pixelSize: 20
+                            }
+                            ComboBox{
+                                width: 300
+                                model:["RelayControllerDc2"]
+                            }
+                        }
+
+                        Column{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 4
                             Row{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 4
                                 Rectangle{
-                                    width: 200
-                                    height: 50
+                                    width: 96
+                                    height: 40
+                                    color: color_navy
                                     Text{
                                         anchors.centerIn: parent
-                                        text: type
+                                        text: "State"
+                                        color: "white"
                                     }
                                 }
                                 Rectangle{
-                                    width: 200
-                                    height: 50
+                                    width: 210
+                                    height: 40
+                                    color: color_navy
                                     Text{
                                         anchors.centerIn: parent
-                                        text: id
+                                        text: "Name"
+                                        color: "white"
                                     }
                                 }
                                 Rectangle{
-                                    width: 100
-                                    height: 50
+                                    width: 220
+                                    height: 40
+                                    color: color_navy
                                     Text{
                                         anchors.centerIn: parent
-                                        text: dev_state
+                                        text: "ID"
+                                        color: "white"
                                     }
                                 }
                                 Rectangle{
                                     width: 240
-                                    height: 50
-                                    Row{
+                                    height: 40
+                                    color: color_navy
+                                    Text{
                                         anchors.centerIn: parent
-                                        spacing: 20
-                                        Buttons{
-                                            style: "normal"
-                                            text: qsTr("on")
+                                        text: "switch"
+                                        color: "white"
+                                    }
+                                }
+                            }
+
+                            Repeater{
+                                model: ListModel{id:model_goqual_deivce}
+                                Row{
+                                    Row{
+                                        Rectangle{
                                             width: 100
                                             height: 40
-                                            onClicked:{
-                                                supervisor.playSound('click', slider_volume_button.value);
-                                                supervisor.setGoqualDevice(id,true);
+                                            color: "transparent"
+                                            Rectangle{
+                                                anchors.centerIn: parent
+                                                width: 35
+                                                height: 35
+                                                radius: 35
+                                                border.width: 3
+                                                border.color: color_navy
+                                                color: {
+                                                    if(online){
+                                                        if(dev_state){
+                                                            color_green
+                                                        }else{
+                                                            color_gray
+                                                        }
+                                                    }else{
+                                                        color_red
+                                                    }
+                                                }
                                             }
                                         }
-                                        Buttons{
-                                            style: "normal"
-                                            text: qsTr("off")
-                                            width: 100
+                                        Rectangle{
+                                            width: 214
                                             height: 40
-                                            onClicked:{
-                                                supervisor.playSound('click', slider_volume_button.value);
-                                                supervisor.setGoqualDevice(id,false);
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: name
+                                                Component.onCompleted: {
+                                                    scale = 1;
+                                                    while(width*scale > parent.width*0.8){
+                                                        scale=scale-0.01;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Rectangle{
+                                            width: 224
+                                            height: 40
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: id
+                                                Component.onCompleted: {
+                                                    scale = 1;
+                                                    while(width*scale > parent.width*0.8){
+                                                        scale=scale-0.01;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Rectangle{
+                                            width: 244
+                                            height: 40
+                                            Row{
+                                                anchors.centerIn: parent
+                                                spacing: 20
+                                                Buttons{
+                                                    style: "dark_navy"
+                                                    text: qsTr("on")
+                                                    width: 100
+                                                    height: 40
+                                                    onClicked:{
+                                                        supervisor.playSound('click', slider_volume_button.value);
+                                                        supervisor.setGoqualDevice(id,true);
+                                                    }
+                                                }
+                                                Buttons{
+                                                    style: "dark_navy"
+                                                    text: qsTr("off")
+                                                    width: 100
+                                                    height: 40
+                                                    onClicked:{
+                                                        supervisor.playSound('click', slider_volume_button.value);
+                                                        supervisor.setGoqualDevice(id,false);
+                                                    }
+                                                }
                                             }
                                         }
                                     }
                                 }
-
                             }
                         }
-
                     }
                 }
             }
-
         }
     }
 

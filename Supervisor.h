@@ -883,6 +883,8 @@ public:
     Q_INVOKABLE QString getGoqualDeviceID(int num);
     Q_INVOKABLE QString getGoqualDeviceType(int num);
     Q_INVOKABLE bool getGoqualDeviceState(int num);
+    Q_INVOKABLE bool getGoqualDeviceOnline(int num);
+    Q_INVOKABLE QString getGoqualDeviceName(int num);
 
 
 

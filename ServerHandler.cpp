@@ -168,6 +168,7 @@ void ServerHandler::refreshGoqualKey(){
 void ServerHandler::getGoqualDevices(){
     if(goqual_token.access_key != ""){
         goqualGet(goqual_url+"/openapi/devices/state");
+        goqualGet(goqual_url+"/openapi/devices");
     }
 }
 void ServerHandler::setGoqualRelay(QString id, bool onoff){
@@ -944,17 +945,27 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
 
             }else if(url.contains("/devices/state")){
                 QJsonArray json = QJsonDocument::fromJson(response).array();
-                goqual_relays.clear();
                 for(int i=0; i<json.size(); i++){
                     QJsonObject device = json[i].toObject();
-                    if(device["deviceType"].toString().contains("RelayController")){
-                        ST_GOQUAL_RELAY temp;
-                        temp.id = device["id"].toString();
-                        temp.type = device["deviceType"].toString();
-                        temp.state = device["deviceState"].toObject()["power1"].toBool();
-                        goqual_relays.append(temp);
+                    QString id = device["id"].toString();
+                    QString type = device["deviceType"].toString();
+                    goqual_relays[id].id = id;
+                    goqual_relays[id].type = type;
+                    if(type == "RelayControllerDc2"){
+                        goqual_relays[id].state = device["deviceState"].toObject()["power1"].toBool();
                     }
-
+                }
+            }else if(url.contains("/openapi/devices")){
+                QJsonArray json = QJsonDocument::fromJson(response).array();
+                for(int i=0; i<json.size(); i++){
+                    QJsonObject device = json[i].toObject();
+                    QString id = device["id"].toString();
+                    goqual_relays[id].id = id;
+                    goqual_relays[id].name = device["name"].toString();
+                    goqual_relays[id].type = device["deviceType"].toString();
+                    goqual_relays[id].familyId = device["familyId"].toString();
+                    goqual_relays[id].category = device["category"].toString();
+                    goqual_relays[id].online = device["online"].toBool();
                 }
             }
         }else{

@@ -352,6 +352,7 @@ Item {
         clip: true
         sourceComponent: page_annot_menu
     }
+
     Component{
         id: page_annot_menu
         Item{
@@ -1904,7 +1905,7 @@ Item {
                                     select_location = -1;
                                     popup_notice.init();
                                     popup_notice.main_str = qsTr("퇴식위치를 별도로 사용하십니까?")
-                                    popup_notice.sub_str = qsTr("퇴식전용모드로 전환됩니다\n로봇이 테이블을 다녀온 뒤 퇴식위치로 이동하여 대기합니다 추후 세팅에서 모드를 변경하실 수 있습니다\n퇴식위치의 기본값은 대기위치와 동일합니다 변경을 원하시면 위치 수정을 해주세요")
+                                    popup_notice.sub_str = qsTr("로봇이 테이블을 다녀온 뒤 퇴식위치로 이동하여 대기합니다\n추후 세팅에서 모드를 변경하실 수 있습니다\n퇴식위치의 기본값은 대기위치와 동일합니다 변경을 원하시면 위치 수정을 해주세요")
                                     popup_notice.addButton(qsTr("퇴식모드 미사용"))
                                     popup_notice.addButton(qsTr("퇴식모드 사용"))
                                     popup_notice.open();
