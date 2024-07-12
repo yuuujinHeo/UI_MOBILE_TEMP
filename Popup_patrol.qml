@@ -18,13 +18,14 @@ Popup{
     topPadding: 0
     bottomPadding: 0
     anchors.centerIn: parent
-    width: 500
-    height: 700
+    width: 1280
+    height: 800
     property bool show_menu: false
 
     background: Rectangle{
         anchors.fill: parent
-        color: "transparent"
+        opacity: 0.9
+        color: color_dark_black
     }
 
     onOpened:{
@@ -261,10 +262,9 @@ Popup{
     Rectangle{
         id: rect_back
         width: show_menu?1100:500
-        height : popup_patrol.height
+        height : 700
         radius: 20
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.centerIn: parent
         Behavior on width{
             NumberAnimation{
                 duration: 400
@@ -275,7 +275,7 @@ Popup{
             Rectangle{
                 id: rect_main
                 width: show_menu?300:500
-                height: popup_patrol.height
+                height: rect_back.height
                 color: "transparent"
                 Behavior on width{
                     NumberAnimation{
@@ -476,7 +476,7 @@ Popup{
                 id: rect_menu
                 opacity: rect_back.width === 1100?1:0
                 width: show_menu?800:0
-                height: popup_patrol.height
+                height: rect_back.height
                 color: "transparent"
                 Behavior on width{
                     NumberAnimation{
