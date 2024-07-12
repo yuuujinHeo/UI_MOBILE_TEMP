@@ -297,7 +297,7 @@ Popup{
                     }
                     Rectangle{
                         width: parent.width
-                        height: parent.height - 100
+                        height: parent.height - 200
                         color: "transparent"
                         clip: true
                         Column{
@@ -466,6 +466,31 @@ Popup{
                                             }
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                    Rectangle{
+                        width:parent.width
+                        height: 100
+                        color: "transparent"
+                        Rectangle{
+                            width:  rect_main.width*0.8
+                            height: 80
+                            radius: 20
+                            color: color_blue
+                            anchors.centerIn: parent
+                            Text{
+                                anchors.centerIn: parent
+                                text: qsTr("닫기")
+                                font.family: font_noto_b.name
+                                font.pixelSize: 30
+                                color: "white"
+                            }
+                            MouseArea{
+                                anchors.fill: parent
+                                onClicked:{
+                                    popup_patrol.close();
                                 }
                             }
                         }

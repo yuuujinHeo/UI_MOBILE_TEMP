@@ -1491,6 +1491,8 @@ void Supervisor::checkRobotINI(){
         setSetting("update","MOTOR/wheel_dir","-1");
 
 
+    if(getSetting("setting","UI","box_size") == "")
+        setSetting("setting","UI/box_size","1");
 
     if(getSetting("update","DRIVING","cur_preset") == "")
         setSetting("update","DRIVING/cur_preset","3");
