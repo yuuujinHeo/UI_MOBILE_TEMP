@@ -360,9 +360,9 @@ Item {
         if(obs_wait_time.ischanged){
             supervisor.setSetting("setting","OBSTACLE/obs_wait_time",obs_wait_time.text);
         }
-        //if(obs_check_range.ischanged){ //BJ
-        //    supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
-        //}
+        if(obs_check_range.ischanged){ //BJ
+            supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
+        }
         if(max_range.ischanged){
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
         }
@@ -920,7 +920,7 @@ Item {
 
 
         //OBSTACLE
-        //obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
+        obs_check_range.text = supervisor.getSetting("setting","OBSTACLE","obs_check_range"); //BJ
         obs_preview_time.text = supervisor.getSetting("setting","OBSTACLE","obs_preview_time");
         obs_wait_time.text = supervisor.getSetting("setting","OBSTACLE","obs_wait_time");
         obs_height_max.text = supervisor.getSetting("setting","OBSTACLE","obs_height_max");
@@ -1208,7 +1208,7 @@ Item {
 
         tfield_gitbranch.ischanged = false;
         //OBSTACLE
-        //obs_check_range.ischanged = false; //BJ
+        obs_check_range.ischanged = false; //BJ
         obs_deadzone.ischanged = false;
         obs_preview_time.ischanged = false;
         obs_wait_time.ischanged = false;
@@ -7900,70 +7900,71 @@ Item {
                 //    }
                 //}
 
-                //Rectangle{ // 장애물 회피 - 장애물 감지 너비
-                //    id: set_obs_check_range
-                //    width: 840
-                //    height: setting_height
-                //    visible: combo_use_avoid.currentIndex === 1
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("장애물 감지 너비")
-                //                font.pixelSize: name_font_size
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                    anchors.leftMargin = 30 - width*(1-scale)/2
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: obs_check_range
-                //                anchors.fill: parent
-                //                objectName: "obs_check_range"
-                //                text:supervisor.getSetting("setting","OBSTACLE","obs_check_range");
-                //                property bool ischanged: false
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        supervisor.playSound('click', slider_volume_button.value);
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = obs_check_range;
-                //                            obs_check_range.selectAll();
-                //                        }else{
-                //                            keypad.owner = obs_check_range;
-                //                            obs_check_range.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
+                Rectangle{ // 장애물 회피 - 장애물 감지 너비
+                    id: set_obs_check_range
+                    width: 840
+                    height: setting_height
+                    //visible: combo_use_avoid.currentIndex === 1
+                    visible: combo_use_obs_preview.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("장애물 감지 너비")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: obs_check_range
+                                anchors.fill: parent
+                                objectName: "obs_check_range"
+                                text:supervisor.getSetting("setting","OBSTACLE","obs_check_range");
+                                property bool ischanged: false
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = obs_check_range;
+                                            obs_check_range.selectAll();
+                                        }else{
+                                            keypad.owner = obs_check_range;
+                                            obs_check_range.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
 
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
+                                }
+                            }
+                        }
+                    }
+                }
 
                 //Rectangle{ // 제자리 회전 장애물 감지
                 //    id: set_use_pivot_obs
@@ -12426,7 +12427,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.8") // 설정초기화 숨김,
+                    text:qsTr("Version 1.2.0") // 버그 업데이트
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
