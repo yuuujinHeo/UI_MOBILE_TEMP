@@ -3817,9 +3817,9 @@ void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
         float cur_dist =  sqrt(dx*dx + dy*dy);
 
         if(zoom_init_distance-cur_dist > 0){
-            zoomOut(x1,y1,zoom_init_distance-cur_dist);
-        }else{
             zoomIn(x1,y1,zoom_init_distance-cur_dist);
+        }else{
+            zoomOut(x1,y1,zoom_init_distance-cur_dist);
         }
         zoom_init_distance = cur_dist;
         move(move_init_pose.x - x1, move_init_pose.y - y1);
