@@ -69,7 +69,7 @@ void CallbellHandler::readData(){
     * [1]flags (0x01)
     * [2,3]length (0x0014)
     * Basic data
-    * [4,5]option (0xA505)
+    * [4,5]option (0xA505, C514)
     * -> 0xA501(connect) 0xA505(bell push) | 0xA511(device check) 0xA514(sender call)
     * [6,7]model number (0x00CC)
     * [8,9]firmware version (0xA102)
@@ -87,14 +87,14 @@ void CallbellHandler::readData(){
     * [1]flags (0x01)
     * [2,3]length (0x0008)
     * Basic data
-    * [4,5]option (0xC505)
+    * [4,5]option (0xA501, A514, C501, C505, C511)
     * -> 0xC501(connect response) 0xC505(bell response) | 0xC511(device check) 0xC514(sender call)
     * [6]result (0x00=success)
     * [7]check sum
     *
     */
 
-    while(datas.length() > 4){
+    while(datas.length() > 5){
         if(uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01){
             int size = (short)(uchar(datas[3]) | (uchar(datas[2])<<8));
             if(size < 0 || size > 24){
