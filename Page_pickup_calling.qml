@@ -10,9 +10,6 @@ Item {
     width: 1280
     height: 800
 
-    Component.onCompleted: {
-        init();
-    }
     property int type: 0
 
     function init(){
@@ -54,8 +51,6 @@ Item {
             id: column_pickup
             visible: true
             anchors.bottom: parent.bottom
-//            anchors.verticalCenter: image_robot.verticalCenter
-
             Text{
                 id: target_pos
                 text: {
@@ -138,8 +133,8 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
-                        console.log("UI : CONFIRM");
+                        supervisor.playSound('click');
+                        supervisor.writelog("[USER INPUT] PICKUP(CALL) CONFIRM clicked");
                         supervisor.playVoice("thanks");
                         column_pickup.visible = false;
                         text_mention.visible = false;
@@ -171,12 +166,12 @@ Item {
         z: 99
         property int password: 0
         onClicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             password++;
             if(password > 4){
                 password = 0;
                 supervisor.moveStop();
-                supervisor.writelog("[UI] PagePickupCall : Debug Pass -> PageKitchen");
+                supervisor.writelog("[QML-PickupCall] PagePickupCall : Debug Pass -> PageKitchen");
                 loadPage(pkitchen);
             }
         }
@@ -188,7 +183,7 @@ Item {
         repeat: false
         onTriggered: {
             supervisor.confirmPickup();
-            console.log("UI : MOVE NEXT");
+            supervisor.writelog("[QML-PickupCall] PICKUP PAGE -> Move to Next");
         }
     }
 }

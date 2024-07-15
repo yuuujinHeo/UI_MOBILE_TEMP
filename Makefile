@@ -17,7 +17,7 @@ CXX           = ccache g++
 DEFINES       = -DQT_DEPRECATED_WARNINGS -DQT_DISABLE_DEPRECATED_BEFORE=0x060000 -DQT_QUICKCONTROLS2_LIB -DQT_QUICK_LIB -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_GUI_LIB -DQT_QMLMODELS_LIB -DQT_QML_LIB -DQT_WEBSOCKETS_LIB -DQT_NETWORK_LIB -DQT_SQL_LIB -DQT_SERIALPORT_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -g -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
 CXXFLAGS      = -pipe -g -std=gnu++11 -Wall -Wextra -D_REENTRANT -fPIC $(DEFINES)
-INCPATH       = -I. -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
+INCPATH       = -I. -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I. -I/usr/local/include/opencv4/ -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I. -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++
 QMAKE         = /usr/lib/qt5/bin/qmake
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = MAIN_MOBILE1.0.0
 DISTDIR = /home/rainbow/UI_MOBILE_TEMP/.tmp/MAIN_MOBILE1.0.0
 LINK          = g++
 LFLAGS        = -fuse-ld=gold
-LIBS          = $(SUBLIBS) -lpython3.10 -L/usr/lib/x86_64-linux-gnu/ -L/usr/lib/aarch64-linux-gnu/ -lopencv_core -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_objdetect -lopencv_photo -lopencv_video -lopencv_videoio -lboost_system -lopencv_ximgproc -L/usr/local/lib/ -lz -lusb-1.0 /usr/lib/x86_64-linux-gnu/libQt5QuickControls2.so /usr/lib/x86_64-linux-gnu/libQt5Quick.so /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Multimedia.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5QmlModels.so /usr/lib/x86_64-linux-gnu/libQt5Qml.so /usr/lib/x86_64-linux-gnu/libQt5WebSockets.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Sql.so /usr/lib/x86_64-linux-gnu/libQt5SerialPort.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
+LIBS          = $(SUBLIBS) -lpython3.10 -L/usr/lib/x86_64-linux-gnu/ -L/usr/lib/aarch64-linux-gnu/ -lopencv_highgui -lopencv_imgcodecs -lopencv_imgproc -lopencv_calib3d -lopencv_features2d -lopencv_flann -lopencv_objdetect -lopencv_photo -lopencv_video -lopencv_videoio -lboost_system -lopencv_ximgproc -L/usr/local/lib/ -lz -lusb-1.0 -L/usr/local/lib -lopencv_core /usr/lib/x86_64-linux-gnu/libQt5QuickControls2.so /usr/lib/x86_64-linux-gnu/libQt5Quick.so /usr/lib/x86_64-linux-gnu/libQt5Widgets.so /usr/lib/x86_64-linux-gnu/libQt5Multimedia.so /usr/lib/x86_64-linux-gnu/libQt5Gui.so /usr/lib/x86_64-linux-gnu/libQt5QmlModels.so /usr/lib/x86_64-linux-gnu/libQt5Qml.so /usr/lib/x86_64-linux-gnu/libQt5WebSockets.so /usr/lib/x86_64-linux-gnu/libQt5Network.so /usr/lib/x86_64-linux-gnu/libQt5Sql.so /usr/lib/x86_64-linux-gnu/libQt5SerialPort.so /usr/lib/x86_64-linux-gnu/libQt5Core.so -lGL -lpthread   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -94,6 +94,7 @@ SOURCES       = CallbellHandler.cpp \
 		Page_moving_qml.cpp \
 		Page_charge_qml.cpp \
 		Tool_Keyboard_qml.cpp \
+		Button_menu_qml.cpp \
 		Item_button_qml.cpp \
 		Item_menubar_qml.cpp \
 		Popup_help_qml.cpp \
@@ -105,6 +106,7 @@ SOURCES       = CallbellHandler.cpp \
 		main_qml.cpp \
 		Page_init_qml.cpp \
 		Item_localization_qml.cpp \
+		Button_show_qml.cpp \
 		Item_progressCircle_qml.cpp \
 		Page_kitchen_qml.cpp \
 		Popup_patrol_page_qml.cpp \
@@ -188,6 +190,7 @@ OBJECTS       = CallbellHandler.o \
 		Page_moving_qml.o \
 		Page_charge_qml.o \
 		Tool_Keyboard_qml.o \
+		Button_menu_qml.o \
 		Item_button_qml.o \
 		Item_menubar_qml.o \
 		Popup_help_qml.o \
@@ -199,6 +202,7 @@ OBJECTS       = CallbellHandler.o \
 		main_qml.o \
 		Page_init_qml.o \
 		Item_localization_qml.o \
+		Button_show_qml.o \
 		Item_progressCircle_qml.o \
 		Page_kitchen_qml.o \
 		Popup_patrol_page_qml.o \
@@ -620,7 +624,7 @@ dist: distdir FORCE
 distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
-	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Popup_wifi.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Buttons.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
+	$(COPY_FILE) --parents Popup_notice.qml Item_radioButton.qml Popup_patrol.qml Popup_password.qml Popup_wifi.qml Page_moving.qml Page_charge.qml Tool_Keyboard.qml Button_menu.qml Item_button.qml Item_menubar.qml Popup_help.qml Page_pickup.qml Item_buttons.qml Item_statusbar.qml Page_setting.qml MAP_FULL2.qml main.qml Page_init.qml Item_localization.qml Button_show.qml Item_progressCircle.qml Page_kitchen.qml Popup_patrol_page.qml Page_mapping.qml Buttons.qml Page_menus.qml Tool_KeyPad.qml Page_pickup_calling.qml Popup_map_list.qml Item_ProgressBar.qml Page_log.qml Page_map.qml Item_CircleP.qml Page_moving_custom.qml Item_buttonRectIcon.qml Page_annotation.qml $(DISTDIR)/
 	$(COPY_FILE) --parents qml.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents qml_qmlcache.qrc $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/data/dummy.cpp $(DISTDIR)/
@@ -650,9 +654,9 @@ check: first
 
 benchmark: first
 
-compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Popup_wifi_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Buttons_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+compiler_qmlcache_make_all: Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Popup_wifi_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Button_menu_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Button_show_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Buttons_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 compiler_qmlcache_clean:
-	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Popup_wifi_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Buttons_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
+	-$(DEL_FILE) Popup_notice_qml.cpp Item_radioButton_qml.cpp Popup_patrol_qml.cpp Popup_password_qml.cpp Popup_wifi_qml.cpp Page_moving_qml.cpp Page_charge_qml.cpp Tool_Keyboard_qml.cpp Button_menu_qml.cpp Item_button_qml.cpp Item_menubar_qml.cpp Popup_help_qml.cpp Page_pickup_qml.cpp Item_buttons_qml.cpp Item_statusbar_qml.cpp Page_setting_qml.cpp MAP_FULL2_qml.cpp main_qml.cpp Page_init_qml.cpp Item_localization_qml.cpp Button_show_qml.cpp Item_progressCircle_qml.cpp Page_kitchen_qml.cpp Popup_patrol_page_qml.cpp Page_mapping_qml.cpp Buttons_qml.cpp Page_menus_qml.cpp Tool_KeyPad_qml.cpp Page_pickup_calling_qml.cpp Popup_map_list_qml.cpp Item_ProgressBar_qml.cpp Page_log_qml.cpp Page_map_qml.cpp Item_CircleP_qml.cpp Page_moving_custom_qml.cpp Item_buttonRectIcon_qml.cpp Page_annotation_qml.cpp
 Popup_notice_qml.cpp: Popup_notice.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Popup_notice_qml.cpp Popup_notice.qml
@@ -684,6 +688,10 @@ Page_charge_qml.cpp: Page_charge.qml \
 Tool_Keyboard_qml.cpp: Tool_Keyboard.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Tool_Keyboard_qml.cpp Tool_Keyboard.qml
+
+Button_menu_qml.cpp: Button_menu.qml \
+		/usr/lib/qt5/bin/qmlcachegen
+	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Button_menu_qml.cpp Button_menu.qml
 
 Item_button_qml.cpp: Item_button.qml \
 		/usr/lib/qt5/bin/qmlcachegen
@@ -728,6 +736,10 @@ Page_init_qml.cpp: Page_init.qml \
 Item_localization_qml.cpp: Item_localization.qml \
 		/usr/lib/qt5/bin/qmlcachegen
 	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Item_localization_qml.cpp Item_localization.qml
+
+Button_show_qml.cpp: Button_show.qml \
+		/usr/lib/qt5/bin/qmlcachegen
+	/usr/lib/qt5/bin/qmlcachegen --resource=/home/rainbow/UI_MOBILE_TEMP/qml.qrc -o Button_show_qml.cpp Button_show.qml
 
 Item_progressCircle_qml.cpp: Item_progressCircle.qml \
 		/usr/lib/qt5/bin/qmlcachegen
@@ -813,6 +825,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		Page_moving.qml \
 		Page_charge.qml \
 		Tool_Keyboard.qml \
+		Button_menu.qml \
 		Item_button.qml \
 		Item_menubar.qml \
 		Popup_help.qml \
@@ -824,6 +837,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		main.qml \
 		Page_init.qml \
 		Item_localization.qml \
+		Button_show.qml \
 		Item_progressCircle.qml \
 		Page_kitchen.qml \
 		Popup_patrol_page.qml \
@@ -849,45 +863,52 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		bgm/click_start.wav \
 		bgm/click2.wav \
 		bgm/click_error.wav \
-		image/image_robot_temp.png \
-		image/face_normal.gif \
-		image/image_robot_moving.png \
-		image/robot_head_sleep.png \
-		image/face_cry2.gif \
-		image/warning.png \
-		image/robot_clear.png \
-		image/robot_pickup.png \
-		image/icon_warning.png \
-		image/loading.gif \
-		image/joy_finger.png \
-		image/face_surprise2.gif \
-		image/face_normal2.gif \
 		image/robot_moving.png \
+		image/robot_clear.png \
+		image/face_normal.gif \
+		image/joy_background.png \
+		image/image_location.png \
+		image/robot_pickup.png \
 		image/robot_callme.png \
+		image/battery_3.png \
+		image/face_normal2.gif \
+		image/image_battery_4.png \
 		image/robot_move_wait.png \
+		image/battery_2.png \
+		image/joy_finger.png \
+		image/image_battery_3.png \
+		image/loading_rb.gif \
+		image/image_robot_moving.png \
+		image/battery_1.png \
+		image/image_annot.png \
+		image/rainbow3.png \
+		image/image_battery_2.png \
+		image/image_slam.png \
+		image/battery_full.png \
+		image/robot_manual.gif \
+		image/image_robot_temp.png \
 		image/image_patrol.png \
 		image/image_battery_1.png \
-		image/image_battery_2.png \
-		image/robot_head.png \
-		image/image_battery_3.png \
-		image/image_battery_4.png \
-		image/image_location.png \
-		image/robot_move_charge.png \
-		image/image_annot.png \
+		image/image_localization_reset.png \
 		image/image_lock.png \
-		image/face_cry.gif \
+		image/icon_warning.png \
+		image/face_surprise2.gif \
+		image/warning.png \
+		image/robot_head_sleep.png \
 		image/face_surprise.gif \
 		image/image_localization.png \
-		image/image_slam.png \
-		image/loading_rb.gif \
-		image/robot_manual.gif \
 		image/image_robot_resting.png \
-		image/rainbow3.png \
-		image/joy_background.png \
-		image/image_localization_reset.png \
+		image/robot_head.png \
+		image/robot_bad.png \
+		image/robot_move_charge.png \
+		image/robot_normal.png \
+		image/face_cry2.gif \
+		image/robot_good.png \
+		image/face_cry.gif \
 		icon/icon_draw_rect.png \
 		icon/icon_server_good.png \
 		icon/icon_warn_power.png \
+		icon/image_battery_1.png \
 		icon/icon_reset.png \
 		icon/icon_move.png \
 		icon/icon_draw_line.png \
@@ -909,6 +930,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_emergency.png \
 		icon/icon_motor_locked.png \
 		icon/icon_motor_error.png \
+		icon/data_gray.png \
 		icon/icon_local_error.png \
 		icon/icon_warning.png \
 		icon/icon_list.png \
@@ -919,10 +941,12 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_battery_charging.png \
 		icon/icon_repeat_b.png \
 		icon/icon_draw_free.png \
+		icon/keyboard.png \
 		icon/icon_wifibad_3.png \
 		icon/icon_run.png \
 		icon/btn_home.png \
 		icon/icon_wifi_discon.png \
+		icon/icon_open.png \
 		icon/image_setting.png \
 		icon/icon_random.png \
 		icon/play_r.png \
@@ -937,6 +961,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/stop_r.png \
 		icon/icon_set_init.png \
 		icon/icon_add.png \
+		icon/icon_brain.png \
 		icon/icon_clock.png \
 		icon/icon_point.png \
 		icon/icon_mapping.png \
@@ -951,8 +976,11 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_mute.png \
 		icon/icon_annot_save.png \
 		icon/btn_charge.png \
+		icon/icon_obj_yes.png \
 		icon/icon_server_connect.png \
 		icon/icon_volume_2.png \
+		icon/image_battery_4.png \
+		icon/icon_multi.png \
 		icon/bat_large_full.png \
 		icon/icon_wifi_2.png \
 		icon/icon_stop.png \
@@ -960,36 +988,52 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon-drawing-free\ drawing.png \
 		icon/icon_volume_0.png \
 		icon/icon_researching.png \
+		icon/image_battery_2.png \
+		icon/icon_check.png \
 		icon/btn_no.png \
 		icon/icon_init.png \
 		icon/icon_test_play.png \
 		icon/icon_meta_save.png \
+		icon/icon_drink.png \
 		icon/icon_charge_2.png \
 		icon/icon_wifi_connecting.png \
 		icon/keyboard_down.png \
+		icon/data_green.png \
 		icon/keyboard_up.png \
+		icon/icon_unlock.png \
 		icon/icon-drawing-curve.png \
 		icon/icon-drawing-square.png \
 		icon/icon_keyboard.png \
 		icon/icon_ethernet_discon.png \
 		icon/icon_server_download.png \
+		icon/icon_cone.png \
 		icon/icon_remove.png \
 		icon/icon_cleaning.png \
 		icon/icon_wait.png \
+		icon/icon_ethernet_w.png \
+		icon/icon_power_3.png \
 		icon/image_emergency_push.png \
+		icon/icon_emo.png \
 		icon/icon_lidar.png \
 		icon/icon_forbidden.png \
 		icon/patrol_down.png \
 		icon/icon_testmoving.png \
 		icon/icon_clean.png \
+		icon/cursor.png \
 		icon/image_map.png \
 		icon/icon_auto_init.png \
 		icon/icon_erase.png \
 		icon/icon_local_manual.png \
 		icon/icon_edit.png \
+		icon/icon_wifi_w.png \
+		icon/icon_lock.png \
 		icon/icon_wifibad_4.png \
+		icon/icon_obj_no.png \
+		icon/icon_zoom.png \
+		icon/icon_fire.png \
 		icon/icon_home_1.png \
 		icon/icon_colorwheel.png \
+		icon/icon_wifi_w2.png \
 		icon/icon-drawing-polygon.png \
 		icon/icon_connect_error.png \
 		icon/icon_motor_unlock.png \
@@ -999,6 +1043,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_add_loc.png \
 		icon/icon_info.png \
 		icon/icon_wifibad_2.png \
+		icon/icon_multi_good.png \
 		icon/icon_forbidden_w.png \
 		icon/keyboard_right.png \
 		icon/icon_key.png \
@@ -1010,19 +1055,23 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_manualmove.png \
 		icon/icon_lock_2.png \
 		icon/icon_warning_1.png \
+		icon/icon_no.png \
 		icon/icon_ruler.png \
+		icon/icon_add2.png \
 		icon/icon_usb.png \
 		icon/icon_battery_3.png \
 		icon/icon_undo.png \
 		icon/icon_random_b.png \
 		icon/icon_backspace.png \
 		icon/joy_left.png \
+		icon/icon_tline.png \
 		icon/image_local_error.png \
 		icon/icon_bookmark.png \
 		icon/btn_wait.png \
 		icon/icon_non_mute.png \
 		icon/btn_menu.png \
 		icon/icon_redo.png \
+		icon/icon_plug.png \
 		icon/icon_battery_1.png \
 		icon/icon_volume_3.png \
 		icon/joy_down.png \
@@ -1032,9 +1081,11 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_wifi_3.png \
 		icon/icon_motor_discon.png \
 		icon/icon_forbid.png \
+		icon/btn_reset2.png \
 		icon/icon_callbell.png \
 		icon/icon_volume_1.png \
 		icon/icon_ethernet_no.png \
+		icon/image_battery_3.png \
 		icon/joy_up.png \
 		icon/icon_yes.png \
 		icon/btn_lock.png \
@@ -1044,6 +1095,7 @@ qrc_qml_qmlcache.cpp: qml_qmlcache.qrc \
 		icon/icon_setting2.png \
 		icon/icon_folder.png \
 		icon/icon_cursor.png \
+		icon/icon_point_1.png \
 		icon/icon_wifi_1.png \
 		icon/icon_cancelpath.png \
 		voice/child_move_resting.mp3 \
@@ -1126,7 +1178,7 @@ moc_CallbellHandler.cpp: CallbellHandler.h \
 		cv_to_qt.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include CallbellHandler.h -o moc_CallbellHandler.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include CallbellHandler.h -o moc_CallbellHandler.cpp
 
 moc_CameraView.cpp: CameraView.h \
 		MapHeader.h \
@@ -1135,7 +1187,7 @@ moc_CameraView.cpp: CameraView.h \
 		Logger.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include CameraView.h -o moc_CameraView.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include CameraView.h -o moc_CameraView.cpp
 
 moc_ExtProcess.cpp: ExtProcess.h \
 		GlobalHeader.h \
@@ -1144,7 +1196,7 @@ moc_ExtProcess.cpp: ExtProcess.h \
 		cv_to_qt.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ExtProcess.h -o moc_ExtProcess.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ExtProcess.h -o moc_ExtProcess.cpp
 
 moc_IPCHandler.cpp: IPCHandler.h \
 		GlobalHeader.h \
@@ -1154,7 +1206,7 @@ moc_IPCHandler.cpp: IPCHandler.h \
 		cmd_client.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include IPCHandler.h -o moc_IPCHandler.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include IPCHandler.h -o moc_IPCHandler.cpp
 
 moc_MapHandler.cpp: MapHandler.h \
 		spline.h \
@@ -1164,7 +1216,7 @@ moc_MapHandler.cpp: MapHandler.h \
 		cv_to_qt.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapHandler.h -o moc_MapHandler.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapHandler.h -o moc_MapHandler.cpp
 
 moc_MapViewer.cpp: MapViewer.h \
 		MapHeader.h \
@@ -1174,7 +1226,7 @@ moc_MapViewer.cpp: MapViewer.h \
 		Logger.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapViewer.h -o moc_MapViewer.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapViewer.h -o moc_MapViewer.cpp
 
 moc_ServerHandler.cpp: ServerHandler.h \
 		GlobalHeader.h \
@@ -1198,7 +1250,7 @@ moc_ServerHandler.cpp: ServerHandler.h \
 		websocket/QtHttpHeader.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ServerHandler.h -o moc_ServerHandler.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ServerHandler.h -o moc_ServerHandler.cpp
 
 moc_TTSHandler.cpp: TTSHandler.h \
 		GlobalHeader.h \
@@ -1212,7 +1264,7 @@ moc_TTSHandler.cpp: TTSHandler.h \
 		python_wrapper.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TTSHandler.h -o moc_TTSHandler.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include TTSHandler.h -o moc_TTSHandler.cpp
 
 moc_checker.cpp: checker.h \
 		GlobalHeader.h \
@@ -1221,24 +1273,24 @@ moc_checker.cpp: checker.h \
 		cv_to_qt.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include checker.h -o moc_checker.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include checker.h -o moc_checker.cpp
 
 moc_Keyemitter.cpp: Keyemitter.h \
 		automata.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Keyemitter.h -o moc_Keyemitter.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Keyemitter.h -o moc_Keyemitter.cpp
 
 moc_Logger.cpp: Logger.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Logger.h -o moc_Logger.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Logger.h -o moc_Logger.cpp
 
 moc_MapHeader.cpp: MapHeader.h \
 		cv_to_qt.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapHeader.h -o moc_MapHeader.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapHeader.h -o moc_MapHeader.cpp
 
 moc_ZIPHandler.cpp: ZIPHandler.h \
 		GlobalHeader.h \
@@ -1257,7 +1309,7 @@ moc_ZIPHandler.cpp: ZIPHandler.h \
 		quazip/quazipnewinfo.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ZIPHandler.h -o moc_ZIPHandler.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include ZIPHandler.h -o moc_ZIPHandler.cpp
 
 moc_Supervisor.cpp: Supervisor.h \
 		GlobalHeader.h \
@@ -1292,7 +1344,7 @@ moc_Supervisor.cpp: Supervisor.h \
 		ExtProcess.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Supervisor.h -o moc_Supervisor.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include Supervisor.h -o moc_Supervisor.cpp
 
 moc_cmd_client.cpp: cmd_client.h \
 		GlobalHeader.h \
@@ -1301,19 +1353,19 @@ moc_cmd_client.cpp: cmd_client.h \
 		cv_to_qt.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include cmd_client.h -o moc_cmd_client.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include cmd_client.h -o moc_cmd_client.cpp
 
 moc_quagzipfile.cpp: quazip/quagzipfile.h \
 		quazip/quazip_global.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include quazip/quagzipfile.h -o moc_quagzipfile.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include quazip/quagzipfile.h -o moc_quagzipfile.cpp
 
 moc_quaziodevice.cpp: quazip/quaziodevice.h \
 		quazip/quazip_global.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include quazip/quaziodevice.h -o moc_quaziodevice.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include quazip/quaziodevice.h -o moc_quaziodevice.cpp
 
 moc_quazipfile.cpp: quazip/quazipfile.h \
 		quazip/quazip_global.h \
@@ -1326,27 +1378,27 @@ moc_quazipfile.cpp: quazip/quazipfile.h \
 		quazip/quazipnewinfo.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include quazip/quazipfile.h -o moc_quazipfile.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include quazip/quazipfile.h -o moc_quazipfile.cpp
 
 moc_QtHttpServer.cpp: websocket/QtHttpServer.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpServer.h -o moc_QtHttpServer.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpServer.h -o moc_QtHttpServer.cpp
 
 moc_QtHttpReply.cpp: websocket/QtHttpReply.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpReply.h -o moc_QtHttpReply.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpReply.h -o moc_QtHttpReply.cpp
 
 moc_QtHttpRequest.cpp: websocket/QtHttpRequest.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpRequest.h -o moc_QtHttpRequest.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpRequest.h -o moc_QtHttpRequest.cpp
 
 moc_QtHttpClientWrapper.cpp: websocket/QtHttpClientWrapper.h \
 		moc_predefs.h \
 		/usr/lib/qt5/bin/moc
-	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpClientWrapper.h -o moc_QtHttpClientWrapper.cpp
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/rainbow/UI_MOBILE_TEMP/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/rainbow/UI_MOBILE_TEMP -I/usr/include/python3.10 -I/usr/include/opencv4 -I/usr/local/include -I/usr/local/include/QuaZip-Qt5-1.4 -I/home/rainbow/UI_MOBILE_TEMP -I/usr/local/include/opencv4 -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtGui/5.15.3/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtWebSockets -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtSql -I/usr/include/x86_64-linux-gnu/qt5/QtSerialPort -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3 -I/usr/include/x86_64-linux-gnu/qt5/QtCore/5.15.3/QtCore -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include websocket/QtHttpClientWrapper.h -o moc_QtHttpClientWrapper.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -1697,6 +1749,9 @@ Page_charge_qml.o: Page_charge_qml.cpp
 Tool_Keyboard_qml.o: Tool_Keyboard_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Tool_Keyboard_qml.o Tool_Keyboard_qml.cpp
 
+Button_menu_qml.o: Button_menu_qml.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Button_menu_qml.o Button_menu_qml.cpp
+
 Item_button_qml.o: Item_button_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_button_qml.o Item_button_qml.cpp
 
@@ -1729,6 +1784,9 @@ Page_init_qml.o: Page_init_qml.cpp
 
 Item_localization_qml.o: Item_localization_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_localization_qml.o Item_localization_qml.cpp
+
+Button_show_qml.o: Button_show_qml.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Button_show_qml.o Button_show_qml.cpp
 
 Item_progressCircle_qml.o: Item_progressCircle_qml.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o Item_progressCircle_qml.o Item_progressCircle_qml.cpp

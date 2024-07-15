@@ -12,6 +12,5 @@ void CameraView::setCamera(int num){
 }
 
 void CameraView::paint(QPainter *painter){
-//    qDebug() << width() << height();
     painter->drawPixmap(0,0,width(),height(),m_pixmapContainer.pixmap);
 }

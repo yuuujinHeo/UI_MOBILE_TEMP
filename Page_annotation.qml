@@ -41,9 +41,100 @@ Item {
 
     function setMappingFlag(){
         annotation_after_mapping = true;
-        popup_loading.close();
         annot_pages.sourceComponent = page_annot_start;
     }
+
+    function openNotice(errstr){
+        if(!popup_notice.is_open){
+            popup_notice.init();
+            popup_notice.style = "warning";
+            if(errstr === "no_path"){
+                popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === "no_location"){
+                popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === "localization"){
+                popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+                popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+                popup_notice.addButton(qsTr("위치초기화"));
+                popup_notice.open();
+            }else if(errstr === "emo"){
+                popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+                popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+                popup_notice.open();
+            }else if(errstr === 3){
+                popup_notice.main_str = qsTr("경로가 취소되었습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === "motor_lock"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+                popup_notice.sub_str = "";
+
+                popup_notice.addButton(qsTr("모터초기화"))
+                popup_notice.open();
+            }else if(errstr === 5){
+                popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+                popup_notice.sub_str = "";
+                popup_notice.open();
+            }else if(errstr === 6){
+                popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+                popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+                popup_notice.open();
+            }else if(errstr === "no_location"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+                popup_notice.sub_str = qsTr("");
+                popup_notice.open();
+            }else if(errstr === "no_patrol"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+                popup_notice.sub_str = qsTr("");
+                popup_notice.open();
+            }else if(errstr === "motor_notready"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+                popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+
+                popup_notice.addButton(qsTr("모터초기화"))
+                popup_notice.open();
+            }else if(errstr === "debug"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("디버그 모드입니다")
+                popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+
+                popup_notice.open();
+            }else if(errstr === "charging"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+                popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+
+                popup_notice.open();
+            }else if(errstr === "running"){
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+                popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+
+                popup_notice.open();
+            }else if(errstr === "ipc_discon"){
+                popup_notice.style = "error";
+                popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+                popup_notice.sub_str = "";
+                //
+                popup_notice.open();
+            }else if(errstr === "motor"){
+                popup_notice.style = "error";
+                popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+                popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+                //
+                popup_notice.open();
+            }
+        }
+    }
+
     onSelect_locationChanged: {
         print("select_location : ",select_location)
     }
@@ -71,12 +162,14 @@ Item {
 
     function init(){
         supervisor.stopBGM();
+        if(supervisor.getLocalizationState() === 2){
+            annot_pages.sourceComponent = page_annot_menu;
+        }else{
+            page_after_localization = page_annot_menu;
+            annot_pages.sourceComponent = page_annot_localization;
+        }
     }
-
-
-
     function movestart(){
-        popup_loading.close();
         var location_name = supervisor.getcurLoc();
         if(location_name === "Charging0"){
             location_name = qsTr("충전위치");
@@ -99,17 +192,9 @@ Item {
     }
 
     Component.onCompleted: {
-        if(annotation_after_mapping){
-            annot_pages.sourceComponent = page_annot_start;
-        }else{
-            if(supervisor.getLocalizationState() === 2){
-                annot_pages.sourceComponent = page_annot_menu;
-            }else{
-                page_after_localization = page_annot_menu;
-                annot_pages.sourceComponent = page_annot_localization;
-            }
-        }
+        statusbar.visible = false;
     }
+
     Component.onDestruction: {
         popup_notice.close();
     }
@@ -262,11 +347,12 @@ Item {
     Loader{
         id: annot_pages
         width: 1280
-        height: 800 - statusbar.height
+        height: 800// - statusbar.height
         anchors.bottom: parent.bottom
         clip: true
-        sourceComponent: page_annot_start
+        sourceComponent: page_annot_menu
     }
+
     Component{
         id: page_annot_menu
         Item{
@@ -336,7 +422,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[ANNOTATION] MENU : Clear and New Annotation");
                                         annot_pages.sourceComponent = page_annot_start;
                                         supervisor.deleteEditedMap();
@@ -360,7 +446,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         popup_ask_reset.close();
                                     }
                                 }
@@ -422,7 +508,7 @@ Item {
                 Button_menu{
                     style: "navy"
                     source: "icon/icon_pen.png"
-                    text: qsTr("맵 세부수정")
+                    text: qsTr("맵 수정")
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor2;
@@ -431,8 +517,7 @@ Item {
                 Button_menu{
                     style: "navy"
                     source: "icon/icon_pen.png"
-                    text: qsTr("맵 세부수정\n(디버깅)")
-                    visible: supervisor.isDebugMode()
+                    text: qsTr("맵 수정\n(전문가용)")
                     onClicked: {
                         supervisor.writelog("[ANNOTATION] Enter : Map Editor");
                         annot_pages.sourceComponent = page_annot_map_editor3;
@@ -482,6 +567,7 @@ Item {
         Item{
             width: annot_pages.width
             height: annot_pages.height
+            property bool edited: false
             Rectangle{
                 anchors.fill: parent
                 color: color_dark_navy
@@ -491,6 +577,8 @@ Item {
             }
             Component.onCompleted: {
                 supervisor.writelog("[UI] PageAnnot : page_annot_start (rotate, cut map) ");
+
+                map.init();
                 map.setEnable(true);
                 supervisor.setMotorLock(true);
             }
@@ -523,6 +611,7 @@ Item {
                 repeat: true
                 property bool cw: true
                 onTriggered: {
+                    edited = true;
                     if(cw){
                         map.rotate("cw");
                     }else{
@@ -561,7 +650,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onPressed: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         timer_rotate.cw = false;
                         timer_rotate.start();
                     }
@@ -594,7 +683,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onPressed: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         timer_rotate.cw = true;
                         timer_rotate.start();
                     }
@@ -619,7 +708,6 @@ Item {
                 }
             }
 
-
             Item_buttons{
                 width: 200
                 height: 80
@@ -633,18 +721,29 @@ Item {
                     if(map.getCutFlag() && !annotation_after_mapping){
                         popup_location.mode = "save_rotate";
                         popup_location.open();
-//                        popup_save_rotate.open();
                     }else{
-                        map.save("rotate");
-                        if(annotation_after_mapping){
-                            supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Location");
-                            page_after_localization = page_annot_location;
-                            annot_pages.sourceComponent = page_annot_localization;
+                        if(map.getCutFlag() || edited){
+                            map.save("rotate");
+                            if(annotation_after_mapping){
+                                supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Location");
+                                page_after_localization = page_annot_location;
+                                annot_pages.sourceComponent = page_annot_localization;
+                            }else{
+                                supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Menu");
+                                annot_pages.sourceComponent = page_annot_menu;
+                            }
+                            supervisor.slam_map_reload(supervisor.getMapname());
                         }else{
-                            supervisor.writelog("[UI] PageAnnot : Save Rotate, Cut Map -> Menu");
-                            annot_pages.sourceComponent = page_annot_menu;
+                            if(annotation_after_mapping){
+                                supervisor.writelog("[UI] PageAnnot : no Save Rotate, Cut Map -> Location");
+                                page_after_localization = page_annot_location;
+                                annot_pages.sourceComponent = page_annot_localization;
+                            }else{
+                                supervisor.writelog("[UI] PageAnnot : no Save Rotate, Cut Map -> Menu");
+                                annot_pages.sourceComponent = page_annot_menu;
+                            }
                         }
-                        supervisor.slam_map_reload(supervisor.getMapname());
+
                     }
                 }
             }
@@ -821,6 +920,7 @@ Item {
             Component.onCompleted: {
                 supervisor.writelog("[UI] PageAnnot : page_annot_location) ");
                 supervisor.setMotorLock(false);
+                map_location_view.init();
                 map_location_view.setEnable(true);
                 map_location_view.setTool("move");
                 map_location_view.setViewer("annot_location");
@@ -1015,7 +1115,7 @@ Item {
                     font_color: exist?"white":color_red
                     text: qsTr("충전위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_charge.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Charging";
@@ -1032,7 +1132,7 @@ Item {
                     font_color: exist?"white":color_red
                     text: qsTr("대기위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/btn_wait.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Resting";
@@ -1050,7 +1150,7 @@ Item {
                     font_color: exist?"white":color_red
                     text: qsTr("퇴식위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_clean.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Cleaning";
@@ -1064,7 +1164,7 @@ Item {
                     height: 80
                     text: qsTr("서빙위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_drink.png"
                     onClicked: {
                         popup_add_serving.open();
                     }
@@ -1092,7 +1192,7 @@ Item {
                     }
 
                     text: qsTr("충전위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_charge.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Charging";
@@ -1109,7 +1209,7 @@ Item {
                     property bool exist: false
                     font_color: exist?"white":color_red
                     text: qsTr("대기위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/btn_wait.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Resting";
@@ -1126,7 +1226,7 @@ Item {
                     property bool exist: false
                     font_color: exist?"white":color_red
                     text: qsTr("퇴식위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_clean.png"
                     onClicked: {
                         popup_location.mode = "save";
                         popup_location.loc = "Cleaning";
@@ -1140,7 +1240,7 @@ Item {
                     height: 120
                     im_width: 80
                     text: qsTr("서빙위치로\n저 장")
-                    source: "icon/icon_save.png"
+                    source: "icon/icon_drink.png"
                     onClicked: {
                         popup_add_serving.open();
                     }
@@ -1303,6 +1403,7 @@ Item {
                 readSetting();
                 list_location_detail.currentIndex = select_location;
                 map_location_list.init();
+                map_location_list.initMap();
                 map_location_list.setViewer("serving_list");
                 map_location_list.setEnable(true);
                 map_location_list.setTool("none");
@@ -1392,7 +1493,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(supervisor.getRobotType() === "CLEANING"){
                                         if(select_location>3){
                                             beforeY = list_location_detail.contentY - 55
@@ -1441,7 +1542,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location<details.count-1){
                                         beforeY = list_location_detail.contentY + 55
                                         var refY = beforeY - list_location_detail.originY;
@@ -1494,7 +1595,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location === index){
                                         select_location = -1;
                                     }else{
@@ -1591,7 +1692,7 @@ Item {
                             MouseArea{
                                 anchors.fill:parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location === index){
                                         select_location = -1;
                                     }else{
@@ -1600,7 +1701,7 @@ Item {
                                     map_location_list.setCurrentLocation(select_location);
                                 }
                                 onPressAndHold: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(ltype === "Serving"){
                                         keyboard.owner = tx_name;
                                         tx_name.selectAll();
@@ -1647,7 +1748,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(select_location === index){
                                         select_location = -1;
                                     }else{
@@ -1704,7 +1805,7 @@ Item {
                                                 popup_location.open();
                                             }
                                         }else{
-                                            click_sound_no.play();
+                                            supervisor.playSound('no');
                                         }
                                     }else{
                                         if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
@@ -1725,12 +1826,12 @@ Item {
                                 source: "icon/icon_testmoving.png"
                                 onClicked: {
                                     if(supervisor.isRobotReady()){
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         supervisor.writelog("[ANNOTATION] TEST MOVING : "+details.get(select_location).name);
                                         supervisor.moveToServingTest(details.get(select_location).group, details.get(select_location).name);
-                                        popup_loading.open();
+                                        // popup_loading.open();
                                     }else{
-                                        click_sound_no.play();
+                                        supervisor.playSound('no');
                                         robotnotready();
                                     }
                                 }
@@ -1804,7 +1905,7 @@ Item {
                                     select_location = -1;
                                     popup_notice.init();
                                     popup_notice.main_str = qsTr("퇴식위치를 별도로 사용하십니까?")
-                                    popup_notice.sub_str = qsTr("퇴식전용모드로 전환됩니다\n로봇이 테이블을 다녀온 뒤 퇴식위치로 이동하여 대기합니다 추후 세팅에서 모드를 변경하실 수 있습니다\n퇴식위치의 기본값은 대기위치와 동일합니다 변경을 원하시면 위치 수정을 해주세요")
+                                    popup_notice.sub_str = qsTr("로봇이 테이블을 다녀온 뒤 퇴식위치로 이동하여 대기합니다\n추후 세팅에서 모드를 변경하실 수 있습니다\n퇴식위치의 기본값은 대기위치와 동일합니다 변경을 원하시면 위치 수정을 해주세요")
                                     popup_notice.addButton(qsTr("퇴식모드 미사용"))
                                     popup_notice.addButton(qsTr("퇴식모드 사용"))
                                     popup_notice.open();
@@ -2091,6 +2192,7 @@ Item {
             width: annot_pages.width
             height: annot_pages.height
             property int select_mode: 1
+            property int select_node_tab: 1
             property int select_preset: 0
             property bool is_edited: false
             property bool show_tline: false
@@ -2109,9 +2211,9 @@ Item {
             }
             Component.onCompleted: {
                 select_preset = 0;
-                popup_loading.close();
                 is_edited = false;
                 supervisor.setMotorLock(false);
+                map.init();
                 map.setEnable(true);
                 map.clear("all");
                 map.setTool("move");
@@ -2501,6 +2603,7 @@ Item {
                         }
 
                         Item_buttonRectIcon{
+                            visible: select_mode != 1
                             selected: show_velmap
                             icon: "icon/icon_slowarea.png"
                             name: qsTr("안전속도 구간")
@@ -2514,6 +2617,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
+                            visible: select_mode != 1
                             selected: show_object
                             icon: "icon/icon_wall.png"
                             name: qsTr("가상벽 그리기")
@@ -2527,6 +2631,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
+                            visible: select_mode != 1
                             selected: show_tline
                             icon: "icon/icon_auto_init.png"
                             name: qsTr("이동경로")
@@ -2540,6 +2645,7 @@ Item {
                             }
                         }
                         Item_buttonRectIcon{
+                            visible: select_mode != 1
                             selected: show_avoid
                             icon: "icon/icon_avoid.png"
                             name: qsTr("장애물 회피구역")
@@ -2637,7 +2743,7 @@ Item {
                                                 anchors.fill: parent
                                                 enabled: menu_rect.enabled
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = false;
@@ -2673,7 +2779,7 @@ Item {
                                                 enabled: menu_rect.enabled
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = true;
@@ -2712,7 +2818,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -2735,7 +2841,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -2786,7 +2892,7 @@ Item {
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onPressed: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         parent.pressed();
                                                     }
                                                     onReleased:{
@@ -2880,7 +2986,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set tool to draw");
                                                                 map.clear("spline");
                                                                 map.setTool("draw");
@@ -2931,7 +3037,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 if(select_mode === 2){
                                                                     if(select_preset === 1){
@@ -2979,7 +3085,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 supervisor.writelog("[ANNOTATION] Object : Set tool to straight")
                                                                 map.setTool("straight");
@@ -3044,7 +3150,7 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onClicked:{
-                                                                        click_sound.play();
+                                                                        supervisor.playSound('click');
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase");
                                                                         map.clear("spline");
@@ -3100,7 +3206,7 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onClicked:{
-                                                                        click_sound.play();
+                                                                        supervisor.playSound('click');
                                                                         is_edited = true;
                                                                         supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase2");
                                                                         map.clear("spline");
@@ -3147,7 +3253,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 map.setDrawingColor(255);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3179,7 +3285,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 map.setDrawingColor(127);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3212,7 +3318,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 map.setDrawingColor(0);
                                                                 map.setDrawingWidth(slider_brush.value);
@@ -3268,7 +3374,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 select_preset = 1;
                                                                 is_edited = true;
                                                                 map.setDrawingColor(100);
@@ -3313,7 +3419,7 @@ Item {
                                                         MouseArea{
                                                             anchors.fill: parent
                                                             onClicked:{
-                                                                click_sound.play();
+                                                                supervisor.playSound('click');
                                                                 is_edited = true;
                                                                 select_preset = 2;
                                                                 map.setDrawingColor(200);
@@ -3557,14 +3663,14 @@ Item {
                                                                     MouseArea{
                                                                         anchors.fill: parent
                                                                         onPressed:{
-                                                                            click_sound.play();
+                                                                            supervisor.playSound('click');
                                                                             parent.color = color_light_gray
                                                                         }
                                                                         onReleased: {
                                                                             if(select_tline_issue === index){
                                                                                 parent.color = "white";
                                                                             }else{
-                                                                                click_sound.play();;
+                                                                                supervisor.playSound('click');;
                                                                                 parent.color = color_warning;
                                                                                 select_tline_issue = index;
                                                                             }
@@ -3713,15 +3819,6 @@ Item {
                 supervisor.setShowVelmap(true);
                 supervisor.setShowTline(true);
                 supervisor.setShowObject(true);
-
-                //supervisor.setShowNode(true);
-                //supervisor.setShowName(true);
-                //supervisor.setShowEdge(true);
-                //supervisor.setShowLocation(false);
-                //supervisor.setShowAvoid(false);
-                //supervisor.setShowVelmap(false);
-                //supervisor.setShowTline(false);
-                //supervisor.setShowObject(false);
                 update();
             }
             Component.onDestruction: {
@@ -3738,11 +3835,18 @@ Item {
                     supervisor.setShowName(true);
                     supervisor.setShowLocation(false);
                 }else if(select_mode == "draw"){
+                    supervisor.setShowEdge(false);
+                    if(select_canvas === 1){
+                        supervisor.setShowAvoid(false);
+                        supervisor.setShowVelmap(false);
+                        supervisor.setShowTline(false);
+                        supervisor.setShowObject(false);
+                    }
+
                     supervisor.setShowNode(false);
                     supervisor.setShowEdge(false);
                     supervisor.setShowName(false);
                     supervisor.setShowLocation(true);
-
                 }
             }
 
@@ -3753,6 +3857,10 @@ Item {
                 if(select_canvas === 1){
                     cur_mode_str = qsTr("노이즈 제거")
                     slider_brush.value = 5;
+                    supervisor.setShowAvoid(false);
+                    supervisor.setShowVelmap(false);
+                    supervisor.setShowTline(false);
+                    supervisor.setShowObject(false);
                     supervisor.setMode("annot_drawing");
                     map.setDrawingColor(127);
                 }else if(select_canvas === 2){
@@ -3823,7 +3931,6 @@ Item {
                         return false;
                     }
                 }
-
             }
             function prev_mode(){
                 if(select_canvas === 1){
@@ -3973,73 +4080,174 @@ Item {
                 }
             }
 
-            Row{
-                MAP_FULL2{
-                    id: map
-                    enabled: true
-                    objectName: "annot_mapedit"
-                    width: annot_pages.height
-                    height: annot_pages.height
-                    tool: "move"
-                    show_connection: false
-                    show_ratio: false
-                    Component.onCompleted: {
-                        setEnable(true);
-                        supervisor.setMapSize(objectName,width,height);
-                        map.setDrawingColor(255);
-                        map.setDrawingWidth(10);
-                    }
-                    onClicked:{
-                        item_keyevent.focus = true;
-                    }
-                }
+            Column{
+                anchors.fill: parent
                 Rectangle{
-                    id: rect_menus
-                    width: annot_pages.width - annot_pages.height
-                    height: annot_pages.height
-                    color: color_light_gray
-                    Column{
-                        anchors.fill: parent
-                        Rectangle{
-                            width:parent.width
-                            height: 100
-                            Row{
+                    width:parent.width
+                    height: 100
+                    Rectangle{ // 보기
+                        width: 520
+                        height: 100
+                        anchors.left: parent.left
+                        anchors.leftMargin: 30
+                        Row{
+                            anchors.centerIn: parent
+                            spacing: 30
+                            Text{
+                                text: qsTr("보기")
+                                font.family: font_noto_b.name
+                                font.bold: true
+                                font.pixelSize: 30
                                 anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 30
-                                spacing: 30
-                                Buttons{
-                                    style: "green"
-                                    text: "저 장"
-                                    onClicked:{
-                                        save();
-                                        supervisor.slam_map_reload(supervisor.getMapname());
-                                        page_after_localization = page_annot_menu;
-                                        annot_pages.sourceComponent = page_annot_localization;
+                            }
+                            Grid{
+                                columns: 4
+                                rows: 2
+                                anchors.verticalCenter: parent.verticalCenter
+                                spacing: 5
+                                horizontalItemAlignment: Grid.AlignHCenter
+                                verticalItemAlignment: Grid.AlignVCenter
+                                Button_show{
+                                    id: show_node
+                                    text: qsTr("노드")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowNode(show);
+                                        //Supervisor.setShowNode(on);
                                     }
                                 }
-                                Buttons{
-                                    style: "dark"
-                                    text: "종 료"
-                                    onClicked:{
-                                        supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
-                                        if(is_edited){
-                                            popup_location.mode = "save_exit";
-                                            popup_location.open();
-//                                            popup_save_map.open()
-//                                            popup_save_map.back_page = true;
-                                        }else{
-                                            supervisor.slam_map_reload(supervisor.getMapname());
-                                            page_after_localization = page_annot_menu;
-                                            annot_pages.sourceComponent = page_annot_localization;
-                                        }
+                                Button_show{
+                                    id: show_edge
+                                    text:qsTr("엣지")
+                                    enabled: select_mode != "draw"
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowEdge(show);
+                                        //Supervisor.setShowEdge(on);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_name
+                                    text: qsTr("이름")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowName(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_avoid
+                                    text: qsTr("회피구역")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowAvoid(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_wall
+                                    text: qsTr("가상벽")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowObject(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_tline
+                                    text: qsTr("경로")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowTline(show);
+                                    }
+                                }
+                                Button_show{
+                                    id: show_annot
+                                    text: qsTr("위치")
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowLocation(show);
+                                        //Supervisor.setshow
+                                    }
+                                }
+                                Button_show{
+                                    id: show_velmap
+                                    text: qsTr("안전구역")
+                                    enabled: !(select_mode == "draw" && select_canvas == 1)
+                                    text_color: color_dark_navy
+                                    onShowChanged:{
+                                        supervisor.setShowVelmap(show);
                                     }
                                 }
                             }
                         }
+                    }
+
+                    Row{
+                        anchors.verticalCenter: parent.verticalCenter
+                        anchors.right: parent.right
+                        anchors.rightMargin: 30
+                        spacing: 30
+                        Buttons{
+                            style: "green"
+                            text: "저 장"
+                            onClicked:{
+                                save();
+                                supervisor.slam_map_reload(supervisor.getMapname());
+                                page_after_localization = page_annot_menu;
+                                annot_pages.sourceComponent = page_annot_localization;
+                            }
+                        }
+                        Buttons{
+                            style: "dark"
+                            text: "종 료"
+                            onClicked:{
+                                supervisor.writelog("[MAPPING] Map Editor : Save and Exit");
+                                if(is_edited){
+                                    popup_location.mode = "save_exit";
+                                    popup_location.open();
+//                                            popup_save_map.open()
+//                                            popup_save_map.back_page = true;
+                                }else{
+                                    supervisor.slam_map_reload(supervisor.getMapname());
+                                    page_after_localization = page_annot_menu;
+                                    annot_pages.sourceComponent = page_annot_localization;
+                                }
+                            }
+                        }
+                    }
+                }
+                Row{
+                    MAP_FULL2{
+                        id: map
+                        enabled: true
+                        objectName: "annot_mapedit"
+                        width: annot_pages.height-100
+                        height: annot_pages.height-100
+                        tool: "move"
+                        show_connection: false
+                        show_ratio: false
+                        Component.onCompleted: {
+                            init();
+                            setEnable(true);
+                            supervisor.setMapSize(objectName,width,height);
+                            map.setDrawingColor(255);
+                            map.setDrawingWidth(10);
+                        }
+                        onClicked:{
+                            item_keyevent.focus = true;
+                        }
+                    }
+                    Rectangle{
+                        id: rect_menus
+                        width: annot_pages.width - map.width
+                        height: annot_pages.height-100
+                        color: color_light_gray
                         Flickable{
                             width: parent.width
-                            height: parent.height - 100
+                            anchors.top: parent.top
+                            anchors.topMargin: 10
+                            height: parent.height-10
                             clip: true
                             contentHeight: cols_menus.height
                             Column{
@@ -4047,101 +4255,6 @@ Item {
                                 spacing: 10
                                 width: parent.width
                                 Rectangle{
-                                    width: parent.width
-                                    height: 5
-                                    color: color_light_gray
-                                }
-                                Rectangle{ // 보기
-                                    width: parent.width
-                                    height: 100
-                                    Row{
-                                        anchors.centerIn: parent
-                                        spacing: 30
-                                        Text{
-                                            text: qsTr("보기")
-                                            font.family: font_noto_b.name
-                                            font.bold: true
-                                            font.pixelSize: 30
-                                            anchors.verticalCenter: parent.verticalCenter
-                                        }
-                                        Grid{
-                                            columns: 4
-                                            rows: 2
-                                            anchors.verticalCenter: parent.verticalCenter
-                                            spacing: 5
-                                            horizontalItemAlignment: Grid.AlignHCenter
-                                            verticalItemAlignment: Grid.AlignVCenter
-                                            Button_show{
-                                                id: show_node
-                                                text: qsTr("노드")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowNode(show);
-                                                    //Supervisor.setShowNode(on);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_edge
-                                                text:qsTr("엣지")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowEdge(show);
-                                                    //Supervisor.setShowEdge(on);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_name
-                                                text: qsTr("이름")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowName(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_avoid
-                                                text: qsTr("회피구역")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowAvoid(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_wall
-                                                text: qsTr("가상벽")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowObject(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_tline
-                                                text: qsTr("경로")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowTline(show);
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_annot
-                                                text: qsTr("위치")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowLocation(show);
-                                                    //Supervisor.setshow
-                                                }
-                                            }
-                                            Button_show{
-                                                id: show_velmap
-                                                text: qsTr("안전구역")
-                                                text_color: color_dark_navy
-                                                onShowChanged:{
-                                                    supervisor.setShowVelmap(show);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                Rectangle{ ////////////////////////////////////////////////////////////////////////////////////////////////////////////
                                     width: parent.width
                                     height: 150
                                     Row{
@@ -4153,14 +4266,13 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "move"
+                                            selected: map.tool === "move"
                                             source: "icon/icon_move.png"
                                             overColor: true
-                                            text: qsTr("보기")
+                                            text: qsTr("이동")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to move");
                                                 map.setTool("move");
-                                                select_mode = "move";
                                                 map.clear("spline");
                                             }
                                         }
@@ -4170,7 +4282,7 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "topo"
+                                            selected: map.tool === "topo"
                                             source: "icon/icon_location.png"
                                             overColor: true
                                             text: qsTr("위치")
@@ -4178,7 +4290,7 @@ Item {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to topo");
                                                 map.setTool("topo");
                                                 select_mode = "topo";
-                                                supervisor.setMode("none");
+                                                // supervisor.setMode("none");
                                                 supervisor.setShowNode(true);
                                                 supervisor.setShowName(true);
                                                 supervisor.setShowEdge(true);
@@ -4196,7 +4308,7 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "draw"
+                                            selected: map.tool === "draw" || map.tool === "straight" || map.tool === "dot_spline" || map.tool === "erase2" || map.tool === "erase" || map.tool === "draw_rect"
                                             source: "icon/icon_draw.png"
                                             text: qsTr("그리기")
                                             onClicked: {
@@ -4213,14 +4325,162 @@ Item {
                                             height: 100
                                             use_shadow: true
                                             type: "circle_all"
-                                            selected: select_mode === "ruler"
+                                            selected: map.tool === "ruler"
                                             source: "icon/icon_ruler.png"
                                             overColor: true
                                             text: qsTr("줄자")
                                             onClicked: {
                                                 supervisor.writelog("[ANNOTATION] Map Editor : Set Tool to ruler");
                                                 map.setTool("ruler");
-                                                select_mode = "ruler"
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Rectangle{ // select_mod:topo
+                                    visible: select_mode === "topo"
+                                    width: parent.width
+                                    height: 600
+                                    Column{
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                        anchors.top: parent.top
+                                        anchors.topMargin: 50
+                                        spacing: 30
+                                        Column{
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            spacing: 20
+                                            Text{
+                                                text: qsTr("annotation");
+                                            }
+                                            Row{
+                                                spacing: 20
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("load\nannotation.ini")
+                                                    onClicked: {
+                                                        popup_location.mode = "load_annot";
+                                                        popup_location.open();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("save\nannotation.ini")
+                                                    onClicked: {
+                                                        supervisor.saveTline();
+                                                        supervisor.saveObsAreaPNG();
+                                                        supervisor.saveNode();
+                                                        supervisor.loadFile();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("이동경로 생성")
+                                                    onClicked: {
+                                                        supervisor.autoTline();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Row{
+                                            anchors.horizontalCenter: parent.horizontalCenter
+                                            spacing: 20
+                                            Column{
+                                                spacing: 20
+                                                Text{
+                                                    text: qsTr("add");
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("경로추가\n[B]")
+                                                    onClicked: {
+                                                        supervisor.addNode("","Route");
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("위치추가\n[N]")
+                                                    onClicked: {
+                                                        popup_add_location.open();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("링크\n[L]")
+                                                    onClicked: {
+                                                        supervisor.linkNode();
+                                                    }
+                                                }
+                                            }
+                                            Column{
+                                                spacing: 20
+                                                Text{
+                                                    text: qsTr("edit");
+
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("변경\n[E]")
+                                                    onClicked: {
+                                                        supervisor.editNode();
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("삭제\n[D]")
+                                                    onClicked: {
+                                                        supervisor.deleteNode();
+                                                    }
+                                                }
+                                            }
+                                            Column{
+                                                spacing: 20
+                                                Text{
+                                                    text: qsTr("align");
+
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("가로정렬\n[Z]")
+                                                    onClicked: {
+                                                        supervisor.alignNode("y");
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("세로정렬\n[X]")
+                                                    onClicked: {
+                                                        supervisor.alignNode("x");
+                                                    }
+                                                }
+                                                Item_buttons{
+                                                    width: 130
+                                                    height: 70
+                                                    type: "white_btn"
+                                                    text: qsTr("방향정렬\n[C]")
+                                                    onClicked: {
+                                                        supervisor.alignNode("th");
+                                                    }
+                                                }
                                             }
                                         }
                                     }
@@ -4246,7 +4506,7 @@ Item {
                                                 anchors.fill: parent
 //                                                enabled: menu_rect.enabled
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = false;
@@ -4282,7 +4542,7 @@ Item {
 //                                                enabled: menu_rect.enabled
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(checkEdit()){
                                                         popup_mode_change.open();
                                                         popup_mode_change.mode_next = true;
@@ -4290,120 +4550,6 @@ Item {
                                                         next_mode();
                                                     }
                                                 }
-                                            }
-                                        }
-                                    }
-                                }
-                                Rectangle{ // select_mod:topo
-                                    visible: select_mode === "topo"
-                                    width: parent.width
-                                    height: 400
-                                    Grid{
-                                        columns: 3
-                                        rows: 5
-                                        anchors.centerIn: parent
-                                        spacing: 20
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("경로추가\n[B]")
-                                            onClicked: {
-                                                supervisor.addNode("","Route");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("위치추가\n[N]")
-                                            onClicked: {
-                                                popup_add_location.open();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("가로정렬\n[Z]")
-                                            onClicked: {
-                                                supervisor.alignNode("y");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("변경\n[E]")
-                                            onClicked: {
-                                                supervisor.editNode();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("삭제\n[D]")
-                                            onClicked: {
-                                                supervisor.deleteNode();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("세로정렬\n[X]")
-                                            onClicked: {
-                                                supervisor.alignNode("x");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("링크\n[L]")
-                                            onClicked: {
-                                                supervisor.linkNode();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("이동경로 생성")
-                                            onClicked: {
-                                                supervisor.autoTline();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("방향정렬\n[C]")
-                                            onClicked: {
-                                                supervisor.alignNode("th");
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("load\nannotation.ini")
-                                            onClicked: {
-                                                popup_location.mode = "load_annot";
-                                                popup_location.open();
-                                            }
-                                        }
-                                        Item_buttons{
-                                            width: 130
-                                            height: 70
-                                            type: "white_btn"
-                                            text: qsTr("save\nannotation.ini")
-                                            onClicked: {
-                                                supervisor.saveTline();
-                                                supervisor.saveObsAreaPNG();
-                                                supervisor.saveNode();
-                                                supervisor.loadFile();
                                             }
                                         }
                                     }
@@ -4491,7 +4637,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             supervisor.writelog("[ANNOTATION] Map Editor : Set tool to draw");
                                                             map.clear("spline");
                                                             map.setTool("draw");
@@ -4541,7 +4687,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
 //                                                            if(select_mode === 2){
 //                                                                if(select_preset === 1){
@@ -4595,7 +4741,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             supervisor.writelog("[ANNOTATION] Object : Set tool to straight")
                                                             map.setTool("straight");
@@ -4649,7 +4795,7 @@ Item {
                                                             MouseArea{
                                                                 anchors.fill: parent
                                                                 onClicked:{
-                                                                    click_sound.play();
+                                                                    supervisor.playSound('click');
                                                                     is_edited = true;
                                                                     supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase");
                                                                     map.clear("spline");
@@ -4706,7 +4852,7 @@ Item {
                                                             MouseArea{
                                                                 anchors.fill: parent
                                                                 onClicked:{
-                                                                    click_sound.play();
+                                                                    supervisor.playSound('click');
                                                                     is_edited = true;
                                                                     supervisor.writelog("[ANNOTATION] Map Editor : Set tool to erase2");
                                                                     map.clear("spline");
@@ -4753,7 +4899,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             map.setDrawingColor(255);
                                                             map.setDrawingWidth(slider_brush.value);
@@ -4785,7 +4931,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             map.setDrawingColor(127);
                                                             map.setDrawingWidth(slider_brush.value);
@@ -4817,7 +4963,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             map.setDrawingColor(0);
                                                             map.setDrawingWidth(slider_brush.value);
@@ -4872,7 +5018,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             select_preset = 1;
                                                             is_edited = true;
                                                             map.setDrawingColor(100);
@@ -4917,7 +5063,7 @@ Item {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             is_edited = true;
                                                             select_preset = 2;
                                                             map.setDrawingColor(200);
@@ -5153,14 +5299,14 @@ Item {
                                                                 MouseArea{
                                                                     anchors.fill: parent
                                                                     onPressed:{
-                                                                        click_sound.play();
+                                                                        supervisor.playSound('click');
                                                                         parent.color = color_light_gray
                                                                     }
                                                                     onReleased: {
                                                                         if(select_tline_issue === index){
                                                                             parent.color = "white";
                                                                         }else{
-                                                                            click_sound.play();;
+                                                                            supervisor.playSound('click');;
                                                                             parent.color = color_warning;
                                                                             select_tline_issue = index;
                                                                         }
@@ -5481,7 +5627,7 @@ Item {
                                             enabled: parent.enabled
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 popup_add_location_group.open();
                                             }
                                         }
@@ -5524,7 +5670,7 @@ Item {
                                             enabled: parent.enabled
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 keyboard.owner = tfield_name;
                                                 tfield_name.selectAll();
                                                 keyboard.open();
@@ -5661,7 +5807,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.sendMapServer();
                             popup_ask_mapload.close();
                         }
@@ -5686,7 +5832,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.loadMapServer();
                             popup_ask_mapload.close();
                         }
@@ -5710,7 +5856,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             popup_ask_mapload.close();
                             popup_map_list.open();
                         }
@@ -5852,7 +5998,7 @@ Item {
                 onClicked:{
                     if(robot_paused){
                     }else{
-                        click_sound.play();
+                        supervisor.playSound('click');
                         supervisor.writelog("[USER INPUT] MOVING PAUSE 2")
                         supervisor.movePause();
                     }
@@ -5904,7 +6050,7 @@ Item {
                 Buttons{
                     style: "keyboard"
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click');
                         keyboard.owner = tfield_group;
                         tfield_group.selectAll();
                         keyboard.open();
@@ -5929,9 +6075,9 @@ Item {
                     text: qsTr("확인")
                     onClicked: {
                         if(tfield_group.text == ""){
-                            click_sound_no.play();
+                            supervisor.playSound('no');
                         }else if(!supervisor.checkGroupName(tfield_group.text)){
-                            click_sound_no.play();
+                            supervisor.playSound('no');
                             tfield_group.color = color_red;
                         }else{
                             supervisor.addLocationGroup(tfield_group.text);
@@ -5960,6 +6106,7 @@ Item {
         }
         onOpened:{
             update();
+            map_location.init();
             map_location.setViewer("add_serving");
             map_location.setEnable(true);
             textfield_loc_name.text = "";
@@ -6069,7 +6216,7 @@ Item {
                                             width: 120
                                             text: qsTr("임의생성")
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 textfield_loc_name.text = supervisor.getNewServingName(popup_add_serving.cur_group);
                                             }
                                         }
@@ -6091,7 +6238,7 @@ Item {
                                             style:"keyboard_dark"
                                             anchors.verticalCenter: parent.verticalCenter
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 keyboard.owner = textfield_loc_name;
                                                 textfield_loc_name.selectAll();
                                                 keyboard.open();
@@ -6179,10 +6326,10 @@ Item {
                             text: qsTr("확인")
                             onClicked: {
                                 if(textfield_loc_name.text == ""){
-                                    click_sound_no.play();
+                                    supervisor.playSound('no');
                                     textfield_loc_name.color = color_red;
                                 }else if(!supervisor.checkLocationName(popup_add_serving.cur_group, textfield_loc_name.text)){
-                                    click_sound_no.play();
+                                    supervisor.playSound('no');
                                     textfield_loc_name.color = color_red;
                                     text_loc_check.text = qsTr("이미 중복되는 이름이 있습니다");
                                 }else{
@@ -6719,8 +6866,81 @@ Item {
         }
     }
 
+    Tool_Keyboard{
+        id: keyboard
+    }
 
     Popup_help{
         id: popup_annot_help
     }
+
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName == "page_moving" || loader_page.item.objectName == "page_moving_custom"){
+                    loadPage(pinit);
+                }
+
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName == "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("재시작")){
+                supervisor.writelog("[UI] PopupNotice : Restart");
+                supervisor.programRestart();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("종 료")){
+                supervisor.writelog("[UI] PopupNotice : Terminate");
+                supervisor.programExit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("디버그모드 해제")){
+                supervisor.writelog("[UI] PopupNotice : Debug Mode off");
+                loadPage(pinit);
+                supervisor.resetLocalization();
+                supervisor.stateInit();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("건너뛰기")){
+                supervisor.writelog("[INIT] Debug Mode On");
+                supervisor.passInit();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 사용")){
+                supervisor.saveAnnotation(supervisor.getMapname());
+                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                loader_page.item.setAnnotLocation();
+                popup_notice.close();
+            }else if(cur_btn === qsTr("퇴식모드 미사용")){
+                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+                supervisor.readSetting();
+                loader_page.item.readSetting();
+                popup_notice.close();
+            }
+        }
+    }
+
 }

@@ -58,7 +58,6 @@ public:
     bool enable = false;
     QString tool = "move";
     QString mode = "none";
-    QString object_name = "";
     QString map_name = "";
 
     int res = 1;
@@ -89,9 +88,9 @@ public:
     int canvas_width = 0;
     int canvas_height = 0;
 
+
     //------------file load--------------//
-    Q_INVOKABLE void loadFile(QString name, QString type);
-    void loadFile();
+    Q_INVOKABLE void loadFile(QString name="", QString type="");
     void setMapOrin(QString type);
     //------------draw map--------------//
     Q_INVOKABLE void setMap();
@@ -100,8 +99,8 @@ public:
     Q_INVOKABLE void setFullScreen();
     Q_INVOKABLE void setMapDrawing();
 
+    void setObjPose();
     //------------map variables--------------//
-    Q_INVOKABLE void setName(QString name){object_name = name;}
     Q_INVOKABLE void setTool(QString name){tool = name;setMap();}
     Q_INVOKABLE QString getTool(){return tool;}
     Q_INVOKABLE void setMode(QString name);
@@ -208,6 +207,7 @@ public:
     //------------drawing--------------//
     bool flag_drawing=false;
     cv::Point2f prev_pose;
+    int select_box;
     void drawTline();
     Q_INVOKABLE void startDrawingTline();
     Q_INVOKABLE void stopDrawingTline();
@@ -252,6 +252,8 @@ public:
     void releaseShift(){shift_move = false;}
     void pressShift(){shift_move = true;}
 
+    float zoom_init_distance;
+    cv::Point2f move_init_pose;
 
     bool press_release = false;
     cv::Point2f ruler_init_point;
@@ -267,6 +269,9 @@ public:
     Q_INVOKABLE void setStraightInit(int x, int y);
     Q_INVOKABLE void setStraightEnd(int x, int y);
     Q_INVOKABLE void setStraightPoint(int x, int y);
+    Q_INVOKABLE void saveStraight();
+
+
 
     //------------cut / rotate--------------//
     cv::Point2f cut_box[2];
@@ -424,6 +429,7 @@ public:
     void removeObject(int num);
     void redoObject();
     bool getObjectFlag();
+
 private:
     //직접 불러오는거
     //map_raw.png

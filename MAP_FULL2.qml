@@ -46,16 +46,21 @@ Item {
     property bool is_drawing_redo: false
 
     signal clicked
-    Component.onCompleted: {
+
+    function init(){
         mapview.setName(objectName);
-        supervisor.setName(objectName);
+    }
+
+    function initMap(){
+        clear("all");
+        setTool("move");
     }
 
     function setEnable(en){
         enabled = en;
         mapview.setActive(en);
         supervisor.setEnable(en);
-//        print("set enable ",objectName,en);
+       print("set enable ",objectName,en);
     }
 
 
@@ -198,10 +203,6 @@ Item {
         supervisor.redoLine();
     }
 
-    function init(){
-        clear("all");
-        setTool("move");
-    }
 
     function removelocation(num){
         supervisor.removeLocation(num);
@@ -243,7 +244,6 @@ Item {
         }
     }
     function rotate(dir){
-//        print("rotate map : "+dir)
         if(dir === "cw"){
             supervisor.rotateMapCW();
         }else if(dir === "ccw"){
@@ -261,7 +261,7 @@ Item {
 
         }else if(mode==="edited"){
             supervisor.saveMap();
-            supervisor.setMap(map_name);
+            supervisor.loadMap(map_name);
             supervisor.slam_map_reload(supervisor.getMapname());
         }else if(mode==="location_cur"){
             last_robot_x = supervisor.getlastRobotx();
@@ -301,7 +301,6 @@ Item {
            last_robot_x = supervisor.getlastRobotx();
            last_robot_y = supervisor.getlastRoboty();
            last_robot_th = supervisor.getlastRobotth();
-//           /*print(*/last_robot_x,last_robot_y,last_robot_th);
            supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
            supervisor.saveLocation(type,group, name);
        }else if(mode==="location"){
@@ -321,7 +320,6 @@ Item {
     }
 
     function setAutoInit(x,y,th){
-//        print(objectName+" ?:",x,y,th);
         supervisor.setInitPose(x,y,th);
         supervisor.setInitPos(x,y,th);
     }
@@ -331,8 +329,6 @@ Item {
         id: mapview
         width: parent.width
         height: parent.height
-        Component.onCompleted: {
-        }
         clip: true
 
         Rectangle{
@@ -435,7 +431,6 @@ Item {
             }
         }
 
-
         Row{
             visible: show_ratio
             anchors.top: parent.top
@@ -464,38 +459,8 @@ Item {
                 }
             }
         }
-
-//        Rectangle{
-//            id: rect_ratio
-//            width: parent.width*0.1
-//            visible: show_ratio
-//            height: parent.width*0.02
-//            anchors.top: parent.top
-//            anchors.topMargin: 20
-//            anchors.right: parent.right
-//            anchors.rightMargin: 20
-//            color: color_dark_gray
-//            Rectangle{
-//                id: ratio
-//                property var value:0
-//                property var limit:0
-//                width: parent.width*value
-//                height: parent.height
-//                Behavior on width{
-//                    NumberAnimation{
-//                        duration: 200
-//                    }
-//                }
-//                color:{
-//                    if(value < limit){
-//                        color_red
-//                    }else{
-//                        color_green
-//                    }
-//                }
-//            }
-//        }
     }
+
     MouseArea{
         anchors.fill: parent
         hoverEnabled: true
@@ -532,76 +497,6 @@ Item {
             }else if(point2.pressed){
                 supervisor.pressed(tool, point2.x, point2.y);
             }
-
-            if(point1.pressed && point2.pressed){
-                double_touch = true;
-            }else if(point1.pressed){
-                firstX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                firstY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-            }else if(point2.pressed){
-                firstX = supervisor.getX() + point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                firstY = supervisor.getY() + point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-            }
-
-
-//            print(point1.x, width, supervisor.getX(), firstX);
-            if(tool == "move" || item_keyevent.shift_hold){
-                if(double_touch){
-                    firstX = supervisor.getX() + (point1.x)*supervisor.getScale()*supervisor.getFileWidth()/width;
-                    firstY = supervisor.getY() + (point1.y)*supervisor.getScale()*supervisor.getFileWidth()/width;
-                    var dx = Math.abs(point1.x-point2.x);
-                    var dy = Math.abs(point1.y-point2.y);
-                    firstDist = Math.sqrt(dx*dx + dy*dy);
-                }
-            }else if(tool == "draw"){
-                supervisor.setShowBrush(true);
-                supervisor.startDrawing(firstX, firstY);
-            }else if(tool == "draw_rect"){
-                supervisor.setShowBrush(false);
-                supervisor.startDrawingRect(firstX,firstY);
-            }else if(tool == "straight"){
-                supervisor.setShowBrush(true);
-                supervisor.startDrawingLine(firstX, firstY);
-            }else if(tool == "dot_spline"){
-//                supervisor.startSpline(firstX, firstY);
-                supervisor.addSpline(firstX,firstY);
-            }else if(tool == "add_object"){
-                supervisor.addObject(firstX,firstY);
-            }else if(tool == "edit_object"){
-                supervisor.editObjectStart(firstX,firstY);
-            }else if(tool == "add_point"){
-                supervisor.addObjectPoint(firstX,firstY);
-            }else if(tool == "erase"){
-                supervisor.setShowBrush(true);
-                supervisor.setLineColor(-1);
-                supervisor.startDrawing(firstX, firstY);
-            }else if(tool == "erase2"){
-                supervisor.setShowBrush(true);
-                supervisor.setLineColor(-1);
-                supervisor.startErase2(firstX, firstY);
-            }else if( tool === "add_location"){
-                supervisor.addLocation(firstX, firstY,0);
-            }else if( tool === "edit_location"){
-                supervisor.editLocation(firstX, firstY,0);
-            }else if(tool === "edit_location_new"){
-                supervisor.addLocation(firstX, firstY,0);
-            }else if( tool === "slam_init"){
-                supervisor.setInitFlag(true);
-                supervisor.setInitPose(firstX,firstY,0);
-            }else if(tool === "cut_map"){
-                select_point = supervisor.getPointBox(firstX,firstY);
-//                if(select_point === -1){
-//                    if(double_touch){
-//                        firstX = supervisor.getX() + (point1.x+point2.x)*supervisor.getScale()*supervisor.getFileWidth()/width/2;
-//                        firstY = supervisor.getY() + (point1.y+point2.y)*supervisor.getScale()*supervisor.getFileWidth()/width/2;
-//                        var dx = Math.abs(point1.x-point2.x);
-//                        var dy = Math.abs(point1.y-point2.y);
-//                        firstDist = Math.sqrt(dx*dx + dy*dy);
-//                    }
-//                }
-            }else if(tool === "ruler"){
-//                supervisor.setRulerInit(firstX, firstY);
-            }
         }
         onReleased: {
             supervisor.setShowBrush(false);
@@ -623,40 +518,12 @@ Item {
                             loader_page.item.setobjcur(-1);
                         }
                     }
-                }else if(tool == "draw"){
-                    supervisor.endDrawing(newX, newY);
-                }else if(tool == "draw_rect"){
-                    supervisor.endDrawingRect();
-                }else if(tool == "straight"){
-                    supervisor.stopDrawingLine(newX, newY);
-                }else if(tool == "erase"){
-                    supervisor.endDrawing(newX, newY);
-                }else if(tool == "erase2"){
-                    supervisor.endErase2(newX, newY);
-                }else if( tool === "edit_location"){
-//                    var angle = Math.atan2((newX-firstX),(newY-firstY));
-//                    supervisor.editLocation(firstX, firstY,angle);
-                }else if(tool == "add_object"){
-//                    supervisor
-                }else if(tool == "edit_object"){
-                    supervisor.setObjPose();
-                }else if(tool == "add_point"){
-
-                }else if( tool === "add_location"){
-
                 }else if( tool === "slam_init"){
-                    supervisor.setInitFlag(false);
-                    var angle = Math.atan2((newY-firstY),(newX-firstX));
-//                    print("Released : ",firstX,firstY,angle);
-                    supervisor.setInitPos(firstX, firstY, angle);
                     supervisor.slam_setInit();
-                }else if( tool == "ruler"){
-//                    supervisor.setRulerPoint(newX, newY);
                 }
             }
         }
         onTouchUpdated: {
-//            print(point1.pressed,point2.pressed,tool);
             if(point1.pressed && point2.pressed){
                 supervisor.double_moved(tool, point1.x, point1.y, point2.x, point2.y);
             }else if(point1.pressed){
@@ -664,95 +531,8 @@ Item {
             }else if(point2.pressed){
                 supervisor.moved(tool, point2.x, point2.y);
             }
-
-            if(point1.pressed || point2.pressed){
-                var newX = supervisor.getX() + point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                var newY = supervisor.getY() + point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                if(tool == "move" || item_keyevent.shift_hold){
-                    if(double_touch){
-                        if(point1.pressed && point2.pressed){
-                            newX = (point1.x)*supervisor.getScale();
-                            newY = (point1.y)*supervisor.getScale();
-
-                            var dx = Math.abs(point1.x - point2.x)
-                            var dy = Math.abs(point1.y - point2.y)
-                            var dist = Math.sqrt(dx*dx + dy*dy);
-                            var thres = 10;
-
-                            if(firstDist-dist > 0){
-                                supervisor.zoomOut(newX,newY,firstDist-dist);
-                            }
-                            if(dist-firstDist > 0){
-                                supervisor.zoomIn(newX,newY,dist-firstDist);
-                            }
-//                            for(var i=0; i<(firstDist-dist)/thres; i++){
-////                                supervisor.scaledOut(1,1);
-//                                supervisor.zoomOut(newX,newY);
-//                            }
-//                            for(var i=0; i<(dist-firstDist)/thres; i++){
-////                                supervisor.scaledIn(1,1);
-//                                supervisor.zoomIn(newX,newY);
-//                            }
-                            newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            firstDist = dist;
-                            supervisor.move(firstX-newX, firstY-newY);
-                        }else{
-//                            double_touch = false;
-                        }
-                    }else{
-                        if(point1.pressed){
-                            newX = point1.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            newY = point1.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                        }else if(point2.pressed){
-                            newX = point2.x*supervisor.getScale()*supervisor.getFileWidth()/width;
-                            newY = point2.y*supervisor.getScale()*supervisor.getFileWidth()/width;
-                        }
-//                        supervisor.setRobotFollowing(false);
-                        supervisor.move(firstX-newX, firstY-newY);
-                    }
-                }else if(tool == "draw"){
-                    supervisor.addLinePoint(newX, newY);
-                }else if(tool == "draw_rect"){
-                    supervisor.setDrawingRect(newX, newY);
-                }else if(tool == "cut_map"){
-                    supervisor.setBoxPoint(select_point,newX,newY);
-                }else if(tool == "straight"){
-                    supervisor.setDrawingLine(newX, newY);
-                }else if(tool == "erase"){
-                    supervisor.addLinePoint(newX, newY);
-                }else if(tool == "erase2"){
-                    supervisor.addErase2(newX, newY);
-                }else if(tool == "add_object"){
-                    supervisor.setObject(newX,newY);
-                }else if(tool == "edit_object"){
-                    supervisor.editObject(newX,newY);
-                }else if(tool == "add_point"){
-                    supervisor.setObject(newX,newY);
-                }else if( tool === "edit_location_new"){
-                    var angle = Math.atan2((newY-firstY),(newX-firstX));
-                    supervisor.addLocation(firstX, firstY,angle);
-                }else if( tool === "add_location"){
-                    angle = Math.atan2((newY-firstY),(newX-firstX));
-                    supervisor.addLocation(firstX, firstY,angle);
-                }else if( tool === "edit_location"){
-                    angle = Math.atan2((newY-firstY),(newX-firstX));
-//                    print(angle, newX-firstX, newY-firstY);
-                    supervisor.editLocation(firstX, firstY,angle);
-                }else if( tool === "slam_init"){
-                    angle = Math.atan2((newY-firstY),(newX-firstX));
-                    print("Update : ",firstX,firstY,angle);
-                    supervisor.setInitPose(firstX,firstY,angle);
-                }else if(tool === "ruler"){
-
-                }
-            }else{
-                double_touch = false;
-            }
         }
     }
-
-    //Buttons
 
     Column{
         anchors.top: parent.top
@@ -781,7 +561,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     if(supervisor.getRobotFollowing()){
                         supervisor.setRobotFollowing(false);
                     }else{
@@ -811,7 +591,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     if(parent.active){
                         supervisor.setShowLidar(false);
                     }else{
@@ -840,7 +620,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     if(parent.active){
                         supervisor.setShowLocation(false);
                     }else{

@@ -1,7 +1,4 @@
 #include "CallbellHandler.h"
-#include <iostream>
-
-using namespace std;
 
 CallbellHandler::CallbellHandler()
 {
@@ -20,10 +17,12 @@ CallbellHandler::CallbellHandler()
     m_serialPort->setFlowControl(QSerialPort::SoftwareControl);
 
     if(m_serialPort->open(QIODevice::ReadWrite)){
-        plog->write("[CALLBELL] Port Open Success");
+        plog->write("[CALLBELL] Port ttyCB0 Open Success");
     }else{
         m_serialPort->setPortName("ttyUSB1");
-        plog->write("[CALLBELL] Port Open Failed");
+        if(m_serialPort->open(QIODevice::ReadWrite)){
+            plog->write("[CALLBELL] Port ttyUSB1 Open Success");
+        }
     }
 
     timer = new QTimer();
@@ -59,7 +58,7 @@ void CallbellHandler::readData(){
     for(int i=0; i<data.size(); i++){
         str += QString().asprintf("0x%02X ", uchar(data[i]));
     }
-   // qDebug() << "CALLBELL" << data;
+    plog->write("[CALLBELL] readData: "+data);
 
    /*
     * Syscall protocol v0.4
@@ -135,12 +134,12 @@ void CallbellHandler::readData(){
                             SendDataCheckMessage();
                             // sendCall(bell_str);
                             last_bell_id = bell_str;
-                            plog->write("[CALLBELL] NEW CALLING : " + last_bell_id);
+                            plog->write("[CALLBELL] ReadData (NewCall) : " + last_bell_id);
                             emit new_call();
                         }
+                    }else if(option == 0xA514){
+                        datas.remove(0,size);
                     }
-
-
                 }else{
                     break;
                 }
@@ -153,7 +152,7 @@ void CallbellHandler::readData(){
 
 void CallbellHandler::handleError(QSerialPort::SerialPortError error){
     if(error == QSerialPort::ResourceError){
-        plog->write("[SERIAL] PORT CRITICAL ERROR");
+        plog->write("[CALLBELL] SerialPort Error : "+QString::number(error));
         if(m_serialPort->isOpen())
             m_serialPort->close();
     }
@@ -172,24 +171,27 @@ void CallbellHandler::sendCall(QString id){
     sendData.push_back(uchar(0xA1));
     sendData.push_back(uchar(0x02));
 
-    sendData.push_back(uchar(0x12));
-    sendData.push_back(uchar(0x34));
-    sendData.push_back(uchar(0x56));
-    sendData.push_back(uchar(0x78));
+    QByteArray id_array = QByteArray::fromHex(id.toUtf8());
+    if(id_array.size() == 4){
+        sendData.push_back(uchar(id_array[0]));
+        sendData.push_back(uchar(id_array[1]));
+        sendData.push_back(uchar(id_array[2]));
+        sendData.push_back(uchar(id_array[3]));
 
-    sendData.push_back(uchar(0x0F));
-    sendData.push_back(uchar(0x01));
-    sendData.push_back(uchar(0x00));
-    sendData.push_back(uchar(0x00));
-    sendData.push_back(uchar(0x00));
-    sendData.push_back(CalcCheckSum(sendData, 20));
+        sendData.push_back(uchar(0x0F));
+        sendData.push_back(uchar(0x01));
+        sendData.push_back(uchar(0x00));
+        sendData.push_back(uchar(0x00));
+        sendData.push_back(uchar(0x00));
+        sendData.push_back(CalcCheckSum(sendData, 20));
 
-    QString strSend;
-    for(int i=0; i<sendData.size(); i++){
-        strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
+        QString strSend;
+        for(int i=0; i<sendData.size(); i++){
+            strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
+        }
+        plog->write("[CALLBELL] sendCall : ("+id+") -> "+strSend);
+        m_serialPort->write(sendData);
     }
-    qDebug() << "sendCall : " << id << strSend;
-    m_serialPort->write(sendData);
 }
 
 
@@ -208,7 +210,6 @@ void CallbellHandler::SendConnectionCheckMessage(){
     for(int i=0; i<sendData.size(); i++){
         strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
     }
-//    qDebug() << strSend;
     m_serialPort->write(sendData);
 }
 
@@ -227,7 +228,6 @@ void CallbellHandler::SendDataCheckMessage(){
     for(int i=0; i<sendData.size(); i++){
         strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
     }
-    qDebug() << "SendDataCheckMessage" << strSend;
     m_serialPort->write(sendData);
 }
 

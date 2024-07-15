@@ -13,8 +13,8 @@ import io.qt.Supervisor 1.0
 
 Item {
     id: buttons
-    width: 180
-    height: 60
+    width: 200
+    height: 65
 
     property string style: ""
     property string text: ""
@@ -139,7 +139,7 @@ Item {
                 Text{
                     anchors.centerIn: parent
                     text: buttons.text
-                    font.pixelSize: 20
+                    font.pixelSize: 30
                     Component.onCompleted: {
                         while(width>parent.width*0.95){
                             font.pixelSize -= 1;
@@ -156,9 +156,9 @@ Item {
         onPressed:{
             if(active){
                 setPressed();
-                click_sound.play();
+                supervisor.playSound('click');
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
             }
         }
         onReleased:{

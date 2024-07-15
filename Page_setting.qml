@@ -26,7 +26,16 @@ Item {
     property bool use_multirobot: false
     property bool wifi_update_auto: true
     property int debug_count: 0
-    property bool use_ccma:true // add by, 04.29.24
+    property int select_version: -1
+
+    property int category_font_size: 25
+    property int group_font_size: 30
+    property int name_font_size: 25
+    property int info_font_size: 20
+
+    property int caterogy_height: 45
+    property int group_height: 60
+    property int setting_height: 60
 
     onIs_adminChanged: {
         if(is_admin){
@@ -40,9 +49,10 @@ Item {
         is_rainbow = false;
         is_reset_slam = false;
         supervisor.getAllWifiList();
-        supervisor.getWifiIP();
-        supervisor.requestSystemVolume();
-        init();
+    }
+
+    Component.onDestruction: {
+        supervisor.stopBGM();
     }
 
     function setVoiceModel(){
@@ -107,7 +117,6 @@ Item {
     }
 
     function wifistatein(){
-        popup_loading.close();
         popup_wifi.connection = supervisor.getWifiConnection(popup_wifi.select_ssd);
     }
 
@@ -144,6 +153,14 @@ Item {
             supervisor.setSetting("setting","CALL/call_maximum",combo_max_calling.currentText);
         }
 
+        if(combo_show_time.ischanged){
+            if(combo_show_time.currentIndex == 0){
+                supervisor.setSetting("setting","USE_UI/show_time","false");
+            }else{
+                supervisor.setSetting("setting","USE_UI/show_time","true");
+            }
+        }
+
         supervisor.setPreset(cur_preset);
         if(combo_language.ischanged){
             var str_lan;
@@ -177,6 +194,21 @@ Item {
             }
         }
 
+        if(combo_use_dcrelay.ischanged){
+            if(combo_use_dcrelay.currentIndex == 1){
+                supervisor.setSetting("setting","USE_UI/use_goqual","true");
+            }else{
+                supervisor.setSetting("setting","USE_UI/use_goqual","false");
+            }
+        }
+
+        if(tfield_goqual_id.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_id",tfield_goqual_id.text);
+        }
+        if(tfield_goqual_passwd.ischanged){
+            supervisor.setSetting("setting","GOQUAL/user_passwd",tfield_goqual_passwd.text);
+        }
+
         if(combo_tray_num.ischanged){
             supervisor.setSetting("setting","ROBOT_TYPE/tray_num",combo_tray_num.currentText);
         }
@@ -188,13 +220,13 @@ Item {
                 supervisor.setSetting("setting","CALL/use_lingbell","false");
             }
         }
-        if(combo_use_lingbell_repeat.ischanged){
-            if(combo_use_lingbell_repeat.currentIndex === 1){
-                supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
-            }else{
-                supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
-            }
-        }
+        // if(combo_use_lingbell_repeat.ischanged){
+        //     if(combo_use_lingbell_repeat.currentIndex === 1){
+        //         supervisor.setSetting("setting","CALL/use_lingbell_repeat","true");
+        //     }else{
+        //         supervisor.setSetting("setting","CALL/use_lingbell_repeat","false");
+        //     }
+        // }
         if(combo_lingbell_time.ischanged){
             supervisor.setSetting("setting","CALL/lingbell_time",combo_lingbell_time.currentText);
         }
@@ -211,7 +243,6 @@ Item {
 
         if(slider_volume_button.ischanged){
             supervisor.setSetting("setting","UI/volume_button",slider_volume_button.value);
-            volume_button = slider_volume_button.value.toFixed(0);
         }
 
         if(combo_movingpage.ischanged){
@@ -274,12 +305,12 @@ Item {
         }
 
 
-        //if(wheel_base.ischanged){
-        //    supervisor.setSetting("static","ROBOT_HW/wheel_base",wheel_base.text);
-        //}
-        //if(wheel_radius.ischanged){
-        //    supervisor.setSetting("static","ROBOT_HW/wheel_radius",wheel_radius.text);
-        //}
+        if(wheel_base.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/wheel_base",wheel_base.text);
+        }
+        if(wheel_radius.ischanged){
+            supervisor.setSetting("static","ROBOT_HW/wheel_radius",wheel_radius.text);
+        }
         if(radius.ischanged){
             supervisor.setSetting("static","ROBOT_HW/robot_radius",radius.text);
         }
@@ -332,14 +363,13 @@ Item {
         //if(obs_check_range.ischanged){ //BJ
         //    supervisor.setSetting("setting","OBSTACLE/obs_check_range",obs_check_range.text);
         //}
-
         if(max_range.ischanged){
             supervisor.setSetting("setting","SENSOR/max_range",max_range.text);
         }
 
-        //if(cam_exposure.ischanged){
-        //    supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
-        //}
+        if(cam_exposure.ischanged){
+            supervisor.setSetting("setting","SENSOR/cam_exposure",cam_exposure.text);
+        }
 
         if(combo_auto_update.ischanged){
             if(combo_auto_update.currentIndex === 0){
@@ -372,14 +402,6 @@ Item {
                 supervisor.setSetting("setting","USE_SLAM/use_multirobot","true");
             }
         }
-        if(combo_use_ccma.ischanged){
-            if(combo_use_ccma.currentIndex == 0){
-                supervisor.setSetting("setting","USE_SLAM/use_ccma","false");
-            }else{
-                supervisor.setSetting("setting","USE_SLAM/use_ccma","true");
-            }
-        }
-
         if(combo_use_earlystop_resting.ischanged){
             if(combo_use_earlystop_resting.currentIndex == 0){
                 supervisor.setSetting("setting","USE_SLAM/use_earlystop_resting",false);
@@ -437,25 +459,25 @@ Item {
             supervisor.setSetting("update","MOTOR/right_id",combo_right_id.currentText);
         }
 
-        //if(gear_ratio.ischanged){
-        //    supervisor.setSetting("update","MOTOR/gear_ratio",gear_ratio.text);
-        //}
+        if(gear_ratio.ischanged){
+            supervisor.setSetting("update","MOTOR/gear_ratio",gear_ratio.text);
+        }
 
         if(goal_near_th.ischanged){
             supervisor.setSetting("update","DRIVING/goal_near_th",goal_near_th.text);
         }
-        //if(k_curve.ischanged){
-        //    supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
-        //}
+        if(k_curve.ischanged){
+            supervisor.setSetting("update","DRIVING/k_curve",k_curve.text);
+        }
         if(k_v.ischanged){
             supervisor.setSetting("update","DRIVING/k_v",k_v.text);
         }
         if(k_w.ischanged){
             supervisor.setSetting("update","DRIVING/k_w",k_w.text);
         }
-        //if(k_dd.ischanged){
-        //    supervisor.setSetting("update","DRIVING/k_dd",k_dd.text);
-        //}
+        if(k_dd.ischanged){
+            supervisor.setSetting("update","DRIVING/k_dd",k_dd.text);
+        }
         if(path_delta_v_acc_gain.ischanged){
             supervisor.setSetting("update","DRIVING/path_delta_v_acc_gain",path_delta_v_acc_gain.text);
         }
@@ -522,26 +544,24 @@ Item {
             }
         }
 
+        if(pause_check_ms.ischanged){
+            supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
+        }
+        if(pause_motor_current.ischanged){
+            supervisor.setSetting("update","DRIVING/pause_motor_current",pause_motor_current.text);
+        }
 
+        if(k_p.ischanged){
+            supervisor.setSetting("update","MOTOR/k_p",k_p.text);
+        }
 
-        //if(pause_check_ms.ischanged){
-        //    supervisor.setSetting("update","DRIVING/pause_check_ms",pause_check_ms.text);
-        //}
-        //if(pause_motor_current.ischanged){
-        //    supervisor.setSetting("update","DRIVING/pause_motor_current",pause_motor_current.text);
-        //}
+        if(k_i.ischanged){
+            supervisor.setSetting("update","MOTOR/k_i",k_i.text);
+        }
 
-        //if(k_p.ischanged){
-        //    supervisor.setSetting("update","MOTOR/k_p",k_p.text);
-        //}
-
-        //if(k_i.ischanged){
-        //    supervisor.setSetting("update","MOTOR/k_i",k_i.text);
-        //}
-
-        //if(k_d.ischanged){
-        //    supervisor.setSetting("update","MOTOR/k_d",k_d.text);
-        //}
+        if(k_d.ischanged){
+            supervisor.setSetting("update","MOTOR/k_d",k_d.text);
+        }
 
         if(motor_limit_v.ischanged){
             supervisor.setSetting("update","MOTOR/limit_v",motor_limit_v.text);
@@ -627,7 +647,6 @@ Item {
     }
     function init(){
         supervisor.writelog("[QML] SETTING PAGE init");
-        wifi_check();
 
         cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
         combo_comeback_preset.currentIndex = parseInt(supervisor.getSetting("update","DRIVING","comeback_preset"));
@@ -655,11 +674,30 @@ Item {
         }else{
             combo_use_lingbell.currentIndex = 0;
         }
-        if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
-            combo_use_lingbell_repeat.currentIndex = 1;
+        if(supervisor.getSetting("setting","USE_UI","show_time") === "true"){
+            combo_show_time.currentIndex = 1;
         }else{
-            combo_use_lingbell_repeat.currentIndex = 0;
+            combo_show_time.currentIndex = 0;
         }
+
+
+        // if(supervisor.getSetting("setting","CALL","use_lingbell_repeat") === "true"){
+        //     combo_use_lingbell_repeat.currentIndex = 1;
+        // }else{
+        //     combo_use_lingbell_repeat.currentIndex = 0;
+        // }
+
+
+        if(supervisor.getSetting("setting","USE_UI","use_goqual") === "true"){
+            combo_use_dcrelay.currentIndex = 1;
+        }else{
+            combo_use_dcrelay.currentIndex = 0;
+        }
+
+        tfield_goqual_id.text = supervisor.getSetting("setting","GOQUAL","user_id");
+        tfield_goqual_passwd.text = supervisor.getSetting("setting","GOQUAL","user_passwd");
+
+
 
         if(supervisor.getSetting("setting","CALL","lingbell_time") === "3"){
             combo_lingbell_time.currentIndex = 0;
@@ -706,12 +744,12 @@ Item {
         fms_id.text = supervisor.getSetting("setting","SERVER","fms_id");
         fms_pw.text = supervisor.getSetting("setting","SERVER","fms_pw");
         combo_max_calling.currentIndex = parseInt(supervisor.getSetting("setting","CALL","call_maximum")) - 1;
-        //wheel_base.text = supervisor.getSetting("static","ROBOT_HW","wheel_base");
-        //wheel_radius.text = supervisor.getSetting("static","ROBOT_HW","wheel_radius");
+        wheel_base.text = supervisor.getSetting("static","ROBOT_HW","wheel_base");
+        wheel_radius.text = supervisor.getSetting("static","ROBOT_HW","wheel_radius");
 
         left_camera_tf.text = supervisor.getSetting("static","SENSOR","left_camera_tf");
         right_camera_tf.text = supervisor.getSetting("static","SENSOR","right_camera_tf");
-        //cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
+        cam_exposure.text = supervisor.getSetting("setting","SENSOR","cam_exposure");
 
         icp_dist.text = supervisor.getSetting("update","LOCALIZATION","icp_dist");
         icp_error.text = supervisor.getSetting("update","LOCALIZATION","icp_error");
@@ -732,10 +770,10 @@ Item {
         goal_v.text = supervisor.getSetting("update","DRIVING","goal_v");
         goal_near_dist.text = supervisor.getSetting("update","DRIVING","goal_near_dist");
         goal_near_th.text = supervisor.getSetting("update","DRIVING","goal_near_th");
-        //k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
+        k_curve.text = supervisor.getSetting("update","DRIVING","k_curve");
         k_v.text = supervisor.getSetting("update","DRIVING","k_v");
         k_w.text = supervisor.getSetting("update","DRIVING","k_w");
-        //k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
+        k_dd.text = supervisor.getSetting("update","DRIVING","k_dd");
         path_delta_v_acc_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_acc_gain");
         path_delta_v_dec_gain.text = supervisor.getSetting("update","DRIVING","path_delta_v_dec_gain");
         path_ref_v_gain.text = supervisor.getSetting("update","DRIVING","path_ref_v_gain");
@@ -775,18 +813,18 @@ Item {
         //}else{
         //    combo_use_pivot_obs.currentIndex = 0;
         //} //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
-        //    combo_multirobot.currentIndex = 1;
-        //}else{
-        //    combo_multirobot.currentIndex = 0;
-        //}
+        if(supervisor.getSetting("setting","USE_SLAM","use_multirobot")==="true"){
+            combo_multirobot.currentIndex = 1;
+        }else{
+            combo_multirobot.currentIndex = 0;
+        }
         if(supervisor.getSetting("setting","USE_SLAM","use_ignore_safetyzone_return") === "true"){
             combo_use_ignore_safetyzone_return.currentIndex = 1;
         }else{
             combo_use_ignore_safetyzone_return.currentIndex = 0;
         }
             //BJ
-        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){
+        //if(supervisor.getSetting("setting","USE_SLAM","use_obs_near") === "true"){ // 제자리 회전 감지
         //    combo_use_obs_near.currentIndex = 1;
         //}else{
         //    combo_use_obs_near.currentIndex = 0;
@@ -810,7 +848,6 @@ Item {
         slider_volume_bgm.value = Number(supervisor.getSetting("setting","UI","volume_bgm"));
         slider_volume_voice.value = Number(supervisor.getSetting("setting","UI","volume_voice"));
         slider_volume_button.value = Number(supervisor.getSetting("setting","UI","volume_button"));
-        volume_button = slider_volume_button.value;
 
         text_preset_name_1.text = supervisor.getSetting("setting","PRESET1","name");
         text_preset_name_2.text = supervisor.getSetting("setting","PRESET2","name");
@@ -818,10 +855,10 @@ Item {
         text_preset_name_4.text = supervisor.getSetting("setting","PRESET4","name");
         text_preset_name_5.text = supervisor.getSetting("setting","PRESET5","name");
 
-        //gear_ratio.text = supervisor.getSetting("update","MOTOR","gear_ratio");
-        //k_d.text = supervisor.getSetting("update","MOTOR","k_d");
-        //k_i.text = supervisor.getSetting("update","MOTOR","k_i");
-        //k_p.text = supervisor.getSetting("update","MOTOR","k_p");
+        gear_ratio.text = supervisor.getSetting("update","MOTOR","gear_ratio");
+        k_d.text = supervisor.getSetting("update","MOTOR","k_d");
+        k_i.text = supervisor.getSetting("update","MOTOR","k_i");
+        k_p.text = supervisor.getSetting("update","MOTOR","k_p");
 
         wifi_ssid.text = supervisor.getCurWifiSSID();
 //        wifi_passwd.text = supervisor.getSetting("setting","NETWORK","wifi_passwd");
@@ -835,8 +872,8 @@ Item {
             combo_wheel_dir.currentIndex = 1;
         }
 
-        //pause_motor_current.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
-        //pause_check_ms.text = supervisor.getSetting("update","DRIVING","pause_check_ms");
+        pause_motor_current.text = supervisor.getSetting("update","DRIVING","pause_motor_current");
+        pause_check_ms.text = supervisor.getSetting("update","DRIVING","pause_check_ms");
         if(supervisor.getSetting("setting","USE_UI","use_current_pause") === "false"){
             combo_use_motorcurrent.currentIndex = 0;
         }else{
@@ -978,81 +1015,81 @@ Item {
         dnsserv_3.ischanged = false;
         dnsserv_4.ischanged = false;
 
-        //var eip = supervisor.getethernetIP().split(".");
-        //if(eip.length >3){
-        //    ethernet_ip_1.text = eip[0];
-        //    ethernet_ip_2.text = eip[1];
-        //    ethernet_ip_3.text = eip[2];
-        //    ethernet_ip_4.text = eip[3];
-        //}
-        //var ethernet_netmask = supervisor.getethernetNetmask().split(".");
-        //if(ethernet_netmask.length >3){
-        //    ethernet_netmask_1.text = ethernet_netmask[0];
-        //    ethernet_netmask_2.text = ethernet_netmask[1];
-        //    ethernet_netmask_3.text = ethernet_netmask[2];
-        //    ethernet_netmask_4.text = ethernet_netmask[3];
-        //}else{
-        //    ethernet_netmask_1.text = "";
-        //    ethernet_netmask_2.text = "";
-        //    ethernet_netmask_3.text = "";
-        //    ethernet_netmask_4.text = "";
-        //}
-        //var ethernet_gateway = supervisor.getethernetGateway().split(".");
-        //if(ethernet_gateway.length >3){
-        //    ethernet_gateway_1.text = ethernet_gateway[0];
-        //    ethernet_gateway_2.text = ethernet_gateway[1];
-        //    ethernet_gateway_3.text = ethernet_gateway[2];
-        //    ethernet_gateway_4.text = ethernet_gateway[3];
-        //}else{
-        //    ethernet_gateway_1.text = "";
-        //    ethernet_gateway_2.text = "";
-        //    ethernet_gateway_3.text = "";
-        //    ethernet_gateway_4.text = "";
-        //}
-        //var ethernet_dns1 = supervisor.getethernetDNS().split(".");
-        //if(ethernet_dns1.length >3){
-        //    ethernet_dnsmain_1.text = ethernet_dns1[0];
-        //    ethernet_dnsmain_2.text = ethernet_dns1[1];
-        //    ethernet_dnsmain_3.text = ethernet_dns1[2];
-        //    ethernet_dnsmain_4.text = ethernet_dns1[3];
-        //}else{
-        //    ethernet_dnsmain_1.text = "";
-        //    ethernet_dnsmain_2.text = "";
-        //    ethernet_dnsmain_3.text = "";
-        //    ethernet_dnsmain_4.text = "";
-        //}
-        //var ethernet_dns2 = supervisor.getethernetDNS2().split(".");
-        //if(ethernet_dns2.length >3){
-        //    ethernet_dnsserv_1.text = ethernet_dns2[0];
-        //    ethernet_dnsserv_2.text = ethernet_dns2[1];
-        //    ethernet_dnsserv_3.text = ethernet_dns2[2];
-        //    ethernet_dnsserv_4.text = ethernet_dns2[3];
-        //}else{
-        //    ethernet_dnsserv_1.text = "";
-        //    ethernet_dnsserv_2.text = "";
-        //    ethernet_dnsserv_3.text = "";
-        //    ethernet_dnsserv_4.text = "";
-        //}
-        //ethernet_ip_1.ischanged = false;
-        //ethernet_ip_2.ischanged = false;
-        //ethernet_ip_3.ischanged = false;
-        //ethernet_ip_4.ischanged = false;
-        //ethernet_netmask_1.ischanged = false;
-        //ethernet_netmask_2.ischanged = false;
-        //ethernet_netmask_3.ischanged = false;
-        //ethernet_netmask_4.ischanged = false;
-        //ethernet_gateway_1.ischanged = false;
-        //ethernet_gateway_2.ischanged = false;
-        //ethernet_gateway_3.ischanged = false;
-        //ethernet_gateway_4.ischanged = false;
-        //ethernet_dnsmain_1.ischanged = false;
-        //ethernet_dnsmain_2.ischanged = false;
-        //ethernet_dnsmain_3.ischanged = false;
-        //ethernet_dnsmain_4.ischanged = false;
-        //ethernet_dnsserv_1.ischanged = false;
-        //ethernet_dnsserv_2.ischanged = false;
-        //ethernet_dnsserv_3.ischanged = false;
-        //ethernet_dnsserv_4.ischanged = false;
+        var eip = supervisor.getethernetIP().split(".");
+        if(eip.length >3){
+            ethernet_ip_1.text = eip[0];
+            ethernet_ip_2.text = eip[1];
+            ethernet_ip_3.text = eip[2];
+            ethernet_ip_4.text = eip[3];
+        }
+        var ethernet_netmask = supervisor.getethernetNetmask().split(".");
+        if(ethernet_netmask.length >3){
+            ethernet_netmask_1.text = ethernet_netmask[0];
+            ethernet_netmask_2.text = ethernet_netmask[1];
+            ethernet_netmask_3.text = ethernet_netmask[2];
+            ethernet_netmask_4.text = ethernet_netmask[3];
+        }else{
+            ethernet_netmask_1.text = "";
+            ethernet_netmask_2.text = "";
+            ethernet_netmask_3.text = "";
+            ethernet_netmask_4.text = "";
+        }
+        var ethernet_gateway = supervisor.getethernetGateway().split(".");
+        if(ethernet_gateway.length >3){
+            ethernet_gateway_1.text = ethernet_gateway[0];
+            ethernet_gateway_2.text = ethernet_gateway[1];
+            ethernet_gateway_3.text = ethernet_gateway[2];
+            ethernet_gateway_4.text = ethernet_gateway[3];
+        }else{
+            ethernet_gateway_1.text = "";
+            ethernet_gateway_2.text = "";
+            ethernet_gateway_3.text = "";
+            ethernet_gateway_4.text = "";
+        }
+        var ethernet_dns1 = supervisor.getethernetDNS().split(".");
+        if(ethernet_dns1.length >3){
+            ethernet_dnsmain_1.text = ethernet_dns1[0];
+            ethernet_dnsmain_2.text = ethernet_dns1[1];
+            ethernet_dnsmain_3.text = ethernet_dns1[2];
+            ethernet_dnsmain_4.text = ethernet_dns1[3];
+        }else{
+            ethernet_dnsmain_1.text = "";
+            ethernet_dnsmain_2.text = "";
+            ethernet_dnsmain_3.text = "";
+            ethernet_dnsmain_4.text = "";
+        }
+        var ethernet_dns2 = supervisor.getethernetDNS2().split(".");
+        if(ethernet_dns2.length >3){
+            ethernet_dnsserv_1.text = ethernet_dns2[0];
+            ethernet_dnsserv_2.text = ethernet_dns2[1];
+            ethernet_dnsserv_3.text = ethernet_dns2[2];
+            ethernet_dnsserv_4.text = ethernet_dns2[3];
+        }else{
+            ethernet_dnsserv_1.text = "";
+            ethernet_dnsserv_2.text = "";
+            ethernet_dnsserv_3.text = "";
+            ethernet_dnsserv_4.text = "";
+        }
+        ethernet_ip_1.ischanged = false;
+        ethernet_ip_2.ischanged = false;
+        ethernet_ip_3.ischanged = false;
+        ethernet_ip_4.ischanged = false;
+        ethernet_netmask_1.ischanged = false;
+        ethernet_netmask_2.ischanged = false;
+        ethernet_netmask_3.ischanged = false;
+        ethernet_netmask_4.ischanged = false;
+        ethernet_gateway_1.ischanged = false;
+        ethernet_gateway_2.ischanged = false;
+        ethernet_gateway_3.ischanged = false;
+        ethernet_gateway_4.ischanged = false;
+        ethernet_dnsmain_1.ischanged = false;
+        ethernet_dnsmain_2.ischanged = false;
+        ethernet_dnsmain_3.ischanged = false;
+        ethernet_dnsmain_4.ischanged = false;
+        ethernet_dnsserv_1.ischanged = false;
+        ethernet_dnsserv_2.ischanged = false;
+        ethernet_dnsserv_3.ischanged = false;
+        ethernet_dnsserv_4.ischanged = false;
 
 
         ip = supervisor.getSetting("setting","SERVER","fms_ip").split(".");
@@ -1093,13 +1130,13 @@ Item {
         fms_id.ischanged = false;
         fms_pw.ischanged = false;
 
-        //wheel_base.ischanged = false;
-        //wheel_radius.ischanged = false;
+        wheel_base.ischanged = false;
+        wheel_radius.ischanged = false;
         radius.ischanged = false;
 
 
         max_range.ischanged = false;
-        //cam_exposure.ischanged = false;
+        cam_exposure.ischanged = false;
 
         st_v.ischanged = false;
 
@@ -1115,10 +1152,10 @@ Item {
         combo_wheel_dir.ischanged = false;
         combo_left_id.ischanged = false;
         combo_right_id.ischanged = false;
-        //gear_ratio.ischanged = false;
-        //k_p.ischanged = false;
-        //k_i.ischanged = false;
-        //k_d.ischanged = false;
+        gear_ratio.ischanged = false;
+        k_p.ischanged = false;
+        k_i.ischanged = false;
+        k_d.ischanged = false;
         combo_use_motorcurrent.ischanged = false;
         combo_camera_model.ischanged = false;
         motor_limit_v.ischanged = false;
@@ -1138,16 +1175,16 @@ Item {
         goal_dist.ischanged = false;
         goal_v.ischanged = false;
         goal_th.ischanged = false;
-        //pause_motor_current.ischanged = false;
-        //pause_check_ms.ischanged = false;
+        pause_motor_current.ischanged = false;
+        pause_check_ms.ischanged = false;
         goal_near_dist.ischanged = false;
 
 
         goal_near_th.ischanged = false;
-        //k_curve.ischanged = false;
+        k_curve.ischanged = false;
         k_v.ischanged = false;
         k_w.ischanged = false;
-        //k_dd.ischanged = false;
+        k_dd.ischanged = false;
         path_delta_v_acc_gain.ischanged = false;
         path_delta_v_dec_gain.ischanged = false;
         path_ref_v_gain.ischanged = false;
@@ -1208,8 +1245,8 @@ Item {
         if(ip_3.ischanged) is_changed = true;
         if(ip_4.ischanged) is_changed = true;
         if(combo_use_motorcurrent.ischanged) is_changed = true;
-        //if(pause_motor_current.ischanged) is_changed = true;
-        //if(pause_check_ms.ischanged) is_changed = true;
+        if(pause_motor_current.ischanged) is_changed = true;
+        if(pause_check_ms.ischanged) is_changed = true;
         if(combo_camera_model.ischanged) is_changed = true;
         if(gateway_1.ischanged) is_changed = true;
         if(gateway_2.ischanged) is_changed = true;
@@ -1219,19 +1256,19 @@ Item {
         if(dnsmain_2.ischanged) is_changed = true;
         if(dnsmain_3.ischanged) is_changed = true;
         if(dnsmain_4.ischanged) is_changed = true;
-        //if(wheel_base.ischanged) is_changed = true;
-        //if(wheel_radius.ischanged) is_changed = true;
+        if(wheel_base.ischanged) is_changed = true;
+        if(wheel_radius.ischanged) is_changed = true;
         if(radius.ischanged) is_changed = true;
         if(max_range.ischanged) is_changed = true;
-        //if(cam_exposure.ischanged) is_changed = true;
+        if(cam_exposure.ischanged) is_changed = true;
         if(st_v.ischanged) is_changed = true;
         if(combo_wheel_dir.ischanged) is_changed = true;
         if(combo_left_id.ischanged) is_changed = true;
         if(combo_right_id.ischanged) is_changed = true;
-        //if(gear_ratio.ischanged) is_changed = true;
-        //if(k_p.ischanged) is_changed = true;
-        //if(k_i.ischanged) is_changed = true;
-        //if(k_d.ischanged) is_changed = true;
+        if(gear_ratio.ischanged) is_changed = true;
+        if(k_p.ischanged) is_changed = true;
+        if(k_i.ischanged) is_changed = true;
+        if(k_d.ischanged) is_changed = true;
         if(motor_limit_v.ischanged) is_changed = true;
         if(motor_limit_v_acc.ischanged) is_changed = true;
         if(motor_limit_w.ischanged) is_changed = true;
@@ -1253,10 +1290,10 @@ Item {
         if(goal_th.ischanged) is_changed = true;
         if(goal_near_dist.ischanged) is_changed = true;
         if(goal_near_th.ischanged) is_changed = true;
-        //if(k_curve.ischanged) is_changed = true;
+        if(k_curve.ischanged) is_changed = true;
         if(k_v.ischanged) is_changed = true;
         if(k_w.ischanged) is_changed = true;
-        //if(k_dd.ischanged) is_changed = true;
+        if(k_dd.ischanged) is_changed = true;
         if(path_delta_v_acc_gain.ischanged) is_changed = true;
         if(path_delta_v_dec_gain.ischanged) is_changed = true;
         if(path_ref_v_gain.ischanged) is_changed = true;
@@ -1272,12 +1309,6 @@ Item {
 
         return is_changed;
     }
-    function wifi_check(){
-        supervisor.readWifiState("");
-    }
-
-
-
     Rectangle{ // 카테고리 바 :설정, 현재 상태, 로봇, 주행, 인식
         id: dfdfd
         width: parent.width
@@ -1290,19 +1321,19 @@ Item {
             spacing: 5
             Rectangle{
                 width: 250
-                height: 50
+                height: caterogy_height
                 color: "#323744"
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("설정")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
                     onDoubleClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         popup_password.open();
                     }
                 }
@@ -1310,19 +1341,19 @@ Item {
             Rectangle{
                 id: rect_category_1
                 width: 240
-                height: 50
+                height: caterogy_height
                 color: "#647087"
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("현재상태")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                       click_sound.play();
+                       supervisor.playSound('click', slider_volume_button.value);
                        select_category = "status";
                     }
                 }
@@ -1338,19 +1369,19 @@ Item {
             Rectangle{
                 id: rect_category_2
                 width: 240
-                height: 50
+                height: caterogy_height
                 color: "#647087"
                 Text{
                     anchors.centerIn: parent
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("로봇")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                        select_category = "robot";
                     }
                 }
@@ -1366,7 +1397,7 @@ Item {
             Rectangle{
                 id: rect_category_3
                 width: 264
-                height: 50
+                height: caterogy_height
                 visible: is_rainbow
                 color: "#647087"
                 Text{
@@ -1374,12 +1405,12 @@ Item {
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("주행")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                        select_category = "moving";
                     }
                 }
@@ -1395,7 +1426,7 @@ Item {
             Rectangle{
                 id: rect_category_4
                 width: 240
-                height: 50
+                height: caterogy_height
                 color: "#647087"
                 visible: is_admin || is_rainbow
                 Text{
@@ -1403,12 +1434,12 @@ Item {
                     font.family: font_noto_r.name
                     color: "white"
                     text: qsTr("인식")
-                    font.pixelSize: 25
+                    font.pixelSize: category_font_size
                 }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                        select_category = "slam";
                     }
                 }
@@ -1445,7 +1476,7 @@ Item {
                 spacing:10
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -1453,13 +1484,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("로봇 기본 정보")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_robot_1
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1471,7 +1502,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("플랫폼 이름 (영문)")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1497,10 +1528,11 @@ Item {
                                 onTextChanged: {
                                     ischanged = true;
                                 }
+                                font.pixelSize: info_font_size
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = platform_name;
                                         keyboard.owner_text = "platform_name";
                                         platform_name.selectAll();
@@ -1517,7 +1549,7 @@ Item {
                 Rectangle{
                     id: set_robot_1_serial
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false//use_multirobot
                     Row{
                         anchors.fill: parent
@@ -1530,7 +1562,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("플랫폼 넘버 (중복주의)")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1578,7 +1610,7 @@ Item {
                 Rectangle{
                     id: set_robot_2
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1590,30 +1622,12 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("플랫폼 타입")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
                                         scale=scale-0.01;
                                     }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text:qsTr("?")
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle(qsTr("플랫폼 타입"));
-                                    popup_help_setting.addLine(qsTr("지정하기 전, 지원되는 모델인지 확인하세요"));
-                                    popup_help_setting.addLine(qsTr("서빙용 : 각 테이블에 서빙을 합니다 (기본)"));
-                                    popup_help_setting.addLine(qsTr("호출용 : 호출벨이 울리면 이동합니다 (지원가능여부확인)"));
-                                    popup_help_setting.addLine(qsTr("서빙+호출용 : 서빙기능과 호출기능을 동시에 사용합니다 (서빙 우선)"));
-                                    popup_help_setting.addLine(qsTr("퇴식전용 : 퇴식위치를 별도로 사용합니다 (그 외 서빙+호출용과 동일)"));
                                 }
                             }
                         }
@@ -1632,6 +1646,7 @@ Item {
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
+                                font.pixelSize: info_font_size
                                 model:[qsTr("서빙용"),qsTr("호출용"),qsTr("서빙+호출용"), qsTr("퇴식전용")]
                             }
                         }
@@ -1640,21 +1655,23 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
+                    visible: false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
                         text:qsTr("알림벨 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: use_lingbell
                     width: 840
-                    height: 50
+                    height: setting_height
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1666,7 +1683,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("알림벨 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1694,68 +1711,19 @@ Item {
                                     onCurrentIndexChanged: {
                                         ischanged = true;
                                     }
+                                    font.pixelSize: info_font_size
                                     model:[qsTr("사용안함"), qsTr("사용")]
                                 }
                             }
                         }
                     }
                 }
-                Rectangle{
-                    id: use_lingbell_repeat
-                    width: 840
-                    height: 50
-                    visible: combo_use_lingbell.currentIndex === 1
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("반복 알림")
-                                font.pixelSize: 20
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                    anchors.leftMargin = 30 - width*(1-scale)/2
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            Row{
-                                anchors.fill: parent
-                                ComboBox{
-                                    id: combo_use_lingbell_repeat
-                                    width: parent.width
-                                    height: parent.height
-                                    property bool ischanged: false
-                                    onCurrentIndexChanged: {
-                                        ischanged = true;
-                                    }
-                                    model:[qsTr("사용안함"), qsTr("사용")]
-                                }
-                            }
-                        }
-                    }
-                }
-
                 Rectangle{
                     id: lingbell_time
                     width: 840
-                    height: 50
-                    visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
+                    height: setting_height
+                    visible: false
+                    // visible: combo_use_lingbell.currentIndex === 1 && combo_use_lingbell_repeat.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1767,7 +1735,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("반복 주기 [초]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1788,6 +1756,7 @@ Item {
                             Row{
                                 anchors.fill: parent
                                 ComboBox{
+                                    font.pixelSize: info_font_size
                                     id: combo_lingbell_time
                                     width: parent.width
                                     height: parent.height
@@ -1802,6 +1771,235 @@ Item {
                     }
                 }
 
+                Rectangle{
+                    width: 1100
+                    height: group_height
+                    color: "black"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_b.name
+                        text:qsTr("스마트릴레이 설정")
+                        color: "white"
+                        font.pixelSize: group_font_size
+                    }
+                }
+                Rectangle{
+                    id: use_dcrelay
+                    width: 840
+                    height: setting_height
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("스마트릴레이 사용")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                ComboBox{
+                                    id: combo_use_dcrelay
+                                    width: parent.width
+                                    height: parent.height
+                                    font.pixelSize: info_font_size
+                                    property bool ischanged: false
+                                    onCurrentIndexChanged: {
+                                        ischanged = true;
+                                    }
+                                    model:[qsTr("사용안함"), qsTr("사용")]
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_state
+                    width: 840
+                    height: setting_height
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("연동 상태")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                Rectangle{
+                                    width: parent.width - 150
+                                    height: parent.height
+                                    color: "transparent"
+                                    Text{
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        anchors.left: parent.left
+                                        anchors.leftMargin: 30
+                                        font.pixelSize: info_font_size
+                                        text: qsTr("연동된 디바이스")
+                                    }
+                                }
+
+                                Item_buttons{
+                                    type: "white_btn"
+                                    width: 150
+                                    height: setting_height
+                                    text: qsTr("설정")
+                                    onClicked:{
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        popup_set_goqual.open();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Rectangle{
+                    id: goqual_id
+                    width: 840
+                    height: setting_height
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("ID")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_id
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    font.pixelSize: info_font_size
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: goqual_passwd
+                    width: 840
+                    height: setting_height
+                    visible: combo_use_dcrelay.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("PASSWD")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            Row{
+                                anchors.fill: parent
+                                TextField{
+                                    id: tfield_goqual_passwd
+                                    width: parent.width
+                                    height: parent.height
+                                    property bool ischanged: false
+                                    font.pixelSize: info_font_size
+                                    text:"master"
+                                    onTextChanged: {
+                                        ischanged = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 Rectangle{
                     width: 1100
@@ -1813,13 +2011,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("기능 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_preset
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1831,7 +2029,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("이동 속도")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -1853,7 +2051,7 @@ Item {
                                 spacing: 5
                                 Rectangle{
                                     width:70
-                                    height: 50
+                                    height: setting_height
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     Text{
@@ -1861,13 +2059,13 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 1")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===1?color_green:color_mid_black
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 1;
                                         }
                                     }
@@ -1881,7 +2079,7 @@ Item {
                                 }
                                 Rectangle{
                                     width:70
-                                    height: 50
+                                    height: setting_height
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     Text{
@@ -1889,13 +2087,13 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 2")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===2?color_green:color_mid_black
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 2
                                         }
                                     }
@@ -1917,13 +2115,13 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 3")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===3?color_green:color_mid_black
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 3
                                         }
                                     }
@@ -1945,13 +2143,13 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 4")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===4?color_green:color_mid_black
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 4
 
                                         }
@@ -1966,7 +2164,7 @@ Item {
                                 }
                                 Rectangle{
                                     width:70
-                                    height: 50
+                                    height: setting_height
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     Text{
@@ -1974,13 +2172,13 @@ Item {
                                         anchors.centerIn: parent
                                         text:qsTr("preset 5")
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: 15
                                         color: cur_preset===5?color_green:color_mid_black
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             cur_preset = 5
                                         }
                                     }
@@ -1998,17 +2196,18 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     radius: 5
                                     color: color_dark_navy
+                                    visible: is_admin //Add
                                     Text{
                                         anchors.centerIn: parent
                                         text: qsTr("변경")
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 13
+                                        font.pixelSize: info_font_size
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_preset.select_preset = cur_preset;
                                             popup_preset.open();
                                         }
@@ -2021,7 +2220,7 @@ Item {
                 Rectangle{
                     id: set_comeback_preset
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2033,7 +2232,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("복귀 속도 지정")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2069,11 +2268,12 @@ Item {
                             ComboBox{
                                 id: combo_comeback_preset
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
-                                model:[qsTr("사용 안함"), qsTr("아주느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("아주빠르게")]
+                                model:[qsTr("사용 안함"), qsTr("매우느리게"),qsTr("느리게"), qsTr("보통"), qsTr("빠르게"), qsTr("매우빠르게")] //아주느리게, 아주빠르게
                             }
                         }
                     }
@@ -2081,7 +2281,7 @@ Item {
                 Rectangle{
                     id: set_robot_442
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2093,7 +2293,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 호출 횟수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2131,6 +2331,7 @@ Item {
                                 id: combo_max_calling
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                 }
@@ -2142,7 +2343,7 @@ Item {
                 Rectangle{
                     id: set_call_notice
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2154,7 +2355,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("호출복귀 후 재정비")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2192,6 +2393,7 @@ Item {
                             ComboBox{
                                 id: combo_use_calling_notice
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2205,7 +2407,7 @@ Item {
                 Rectangle{
                     id: set_resting_lock
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false//is_admin
                     Row{
                         anchors.fill: parent
@@ -2218,7 +2420,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("대기장소 모터 락 해제")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2254,6 +2456,7 @@ Item {
                             ComboBox{
                                 id: combo_resting_lock
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2267,7 +2470,8 @@ Item {
                 Rectangle{
                     id: set_auto_update
                     width: 840
-                    height: 50
+                    visible: false
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2279,7 +2483,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("시작시 업데이트 검사")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2300,6 +2504,7 @@ Item {
                             ComboBox{
                                 id: combo_auto_update
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2312,7 +2517,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -2320,14 +2525,60 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("UI 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
+                    }
+                }
+                Rectangle{
+                    id: set_show_time
+                    width: 840
+                    height: setting_height
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("시간 표시")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_show_time
+                                anchors.fill: parent
+                                font.pixelSize: info_font_size
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    ischanged = true;
+                                }
+                                model:[qsTr("표시안함"), qsTr("표시")]
+
+                            }
+                        }
                     }
                 }
                 Rectangle{
                     id: set_use_tray
                     width: 840
-                    height: 50
-                    visible: is_admin
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2339,7 +2590,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("트레이 별 서빙")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2359,6 +2610,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_use_tray
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -2378,8 +2630,8 @@ Item {
                 Rectangle{
                     id: set_tray_num
                     width: 840
-                    height: 50
-                    visible: is_rainbow && use_tray
+                    height: setting_height
+                    visible: use_tray
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2391,7 +2643,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("트레이 개수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2410,6 +2662,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             ComboBox{
+                                font.pixelSize: info_font_size
                                 id: combo_tray_num
                                 anchors.fill: parent
                                 property bool ischanged: false
@@ -2424,7 +2677,7 @@ Item {
                 Rectangle{
                     id: set_language
                     width: 840
-                    height: 50
+                    height: setting_height
 //                    visible: false
                     Row{
                         anchors.fill: parent
@@ -2437,7 +2690,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("표시 언어")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2456,6 +2709,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_language
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -2469,7 +2723,7 @@ Item {
                 Rectangle{
                     id: set_movingpage
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2481,7 +2735,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("이동 중 화면")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2503,7 +2757,8 @@ Item {
                                 ComboBox{
                                     id: combo_movingpage
                                     width: currentIndex===3?409:489
-                                    height: 50
+                                    height: setting_height
+                                    font.pixelSize: info_font_size
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
                                         ischanged = true;
@@ -2512,11 +2767,12 @@ Item {
                                 }
                                 Rectangle{
                                     width: 70
-                                    height: 50
+                                    height: setting_height
                                     visible: combo_movingpage.currentIndex === 3
                                     color: color_dark_navy
                                     Text{
                                         anchors.centerIn: parent
+                                        font.pixelSize: info_font_size
                                         text: qsTr("설정")
                                         color: "white"
                                     }
@@ -2536,7 +2792,7 @@ Item {
                 Rectangle{
                     id: set_patrolpage
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -2549,7 +2805,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("순회 중 화면")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2570,6 +2826,7 @@ Item {
                                 id: combo_patrolpage
                                 width: currentIndex === 2?parent.width - 100 : parent.width
                                 height: parent.height
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -2588,12 +2845,12 @@ Item {
                                     color: "white"
                                     text: qsTr("설정")
                                     font.family: font_noto_r.name
-                                    font.pixelSize: 15
+                                    font.pixelSize: info_font_size
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_set_patrolpage.page = "moving";
                                         popup_set_patrolpage.open();
                                     }
@@ -2605,7 +2862,7 @@ Item {
                 Rectangle{
                     id: set_voice_mode
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2617,7 +2874,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("로봇 음성")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2639,6 +2896,7 @@ Item {
                                 ComboBox{
                                     id: combo_voice_mode
                                     width: parent.width
+                                    font.pixelSize: info_font_size
                                     height: parent.height
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
@@ -2657,7 +2915,7 @@ Item {
                 Rectangle{
                     id: set_voice_language
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_voice_mode.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -2670,7 +2928,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음성 언어")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2692,6 +2950,7 @@ Item {
                                 ComboBox{
                                     id: combo_voice_language
                                     width: parent.width - 100
+                                    font.pixelSize: info_font_size
                                     height: parent.height
                                     property bool ischanged: false
                                     onCurrentIndexChanged: {
@@ -2703,7 +2962,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound_no.play();
+                                            supervisor.playSound('no', slider_volume_button.value);
                                         }
                                     }
                                 }
@@ -2718,12 +2977,12 @@ Item {
                                         text: qsTr("설정")
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 15
+                                        font.pixelSize: info_font_size
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_mention.open();
                                         }
                                     }
@@ -2736,7 +2995,7 @@ Item {
                 Rectangle{
                     id: set_voice_name
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -2749,7 +3008,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음성")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2773,6 +3032,7 @@ Item {
                                     width: combo_voice_mode.currentIndex === 1?parent.width-100 : parent.width
                                     height: parent.height
                                     property bool ischanged: false
+                                    font.pixelSize: info_font_size
                                     onCurrentIndexChanged: {
                                         ischanged = true;
                                     }
@@ -2790,12 +3050,12 @@ Item {
                                         text: qsTr("상세설정")
                                         color: "white"
                                         font.family: font_noto_r.name
-                                        font.pixelSize: 15
+                                        font.pixelSize: info_font_size
                                     }
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_voice.open();
                                         }
                                     }
@@ -2807,8 +3067,8 @@ Item {
                 Rectangle{
                     id: set_system_volume
                     width: 840
+                    height: setting_height
                     visible: false
-                    height: 50
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2820,7 +3080,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("시스템 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2848,7 +3108,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
 
                                             if(slider_volume_system.value == 0){
                                                 slider_volume_system.value  = 50;
@@ -2856,16 +3116,14 @@ Item {
                                                 slider_volume_system.value  = 0;
                                             }
                                             supervisor.setSystemVolume(slider_volume_system.value);
-
                                         }
                                     }
                                 }
                                 Slider{
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_system
-//                                    anchors.centerIn: parent
                                     width: tt.width*0.7 + 10 + ttet2132.width
-                                    height: 50
+                                    height: setting_height
                                     from: 0
                                     to: 100
                                     property bool ischanged: false
@@ -2876,7 +3134,6 @@ Item {
                                     onPressedChanged: {
                                         if(!pressed){
                                             supervisor.setSystemVolume(slider_volume_system.value);
-                                            click_sound.play();
                                         }
                                     }
                                 }
@@ -2887,7 +3144,7 @@ Item {
                 Rectangle{
                     id: set_bgm_volume
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2899,7 +3156,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음악 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -2927,7 +3184,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(slider_volume_bgm.value == 0){
                                                 slider_volume_bgm.value  = Number(supervisor.getSetting("setting","UI","volume_bgm"));
                                             }else{
@@ -2940,9 +3197,8 @@ Item {
                                 Slider{
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_bgm
-//                                    anchors.centerIn: parent
                                     width: tt.width*0.7
-                                    height: 50
+                                    height: setting_height
                                     stepSize: 1
                                     from: 0
                                     to: 100
@@ -2950,14 +3206,13 @@ Item {
                                     onValueChanged: {
                                         ischanged = true;
                                     }
-//                                    onPressedChanged: {
-//                                        if(pressed){
+                                    onPressedChanged: {
+                                        if(pressed){
 
-//                                        }else{
-//                                            supervisor.setvolumeBGM(value);
-//                                        }
-//                                    }
-
+                                        }else{
+                                            supervisor.setvolumeBGM(slider_volume_bgm.value);
+                                        }
+                                    }
                                     value: supervisor.getSetting("setting","UI","volume_bgm")
                                 }
 
@@ -2968,13 +3223,11 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(supervisor.isplayBGM()){
-//                                                bgm_test.stop();
                                                 supervisor.stopBGM();
                                                 ttet2132.source = "icon/icon_test_play.png";
                                             }else{
-//                                                bgm_test.play();e
                                                 supervisor.playBGM(slider_volume_bgm.value);
                                                 ttet2132.source = "icon/icon_test_stop.png";
                                             }
@@ -2988,7 +3241,7 @@ Item {
                 Rectangle{
                     id: set_voice_volume
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3000,7 +3253,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("음성 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3029,7 +3282,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(slider_volume_voice.value == 0){
                                                 slider_volume_voice.value  = Number(supervisor.getSetting("setting","UI","volume_voice"));
                                             }else{
@@ -3042,13 +3295,20 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_voice
                                     width: te.width*0.7
-                                    height: 50
+                                    height: setting_height
                                     from: 0
                                     to: 100
                                     stepSize: 1
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
+                                    }
+                                    onPressedChanged: {
+                                        if(pressed){
+
+                                        }else{
+                                            supervisor.playVoice("move_serving","","","",slider_volume_voice.value);
+                                        }
                                     }
                                     value: supervisor.getSetting("setting","UI","volume_voice")
                                 }
@@ -3059,8 +3319,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
-                                            print("test play")
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             supervisor.playVoice("move_serving","","","",slider_volume_voice.value);
                                         }
                                     }
@@ -3073,7 +3332,7 @@ Item {
                 Rectangle{
                     id: set_voice_button
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3085,7 +3344,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("버튼클릭 볼륨")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3113,8 +3372,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
-//                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(slider_volume_button.value == 0){
                                                 slider_volume_button.value  = Number(supervisor.getSetting("setting","UI","volume_button"));
                                             }else{
@@ -3127,26 +3385,21 @@ Item {
                                     anchors.verticalCenter: parent.verticalCenter
                                     id: slider_volume_button
                                     width: te.width*0.7
-                                    height: 50
+                                    height: setting_height
                                     from: 0
                                     to: 100
                                     stepSize: 1
                                     property bool ischanged: false
                                     onValueChanged: {
                                         ischanged = true;
-                                        click_sound.volume = supervisor.getVolume(value/100);
-                                        volume_button = value;
-                                        print(value);
                                     }
                                     onPressedChanged: {
                                         if(pressed){
 
                                         }else{
-                                            click_sound.volume = supervisor.getVolume(value/100);
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                         }
                                     }
-
                                     value: supervisor.getSetting("setting","UI","volume_button")
                                 }
                                 Image{
@@ -3155,7 +3408,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                         }
                                     }
                                 }
@@ -3166,7 +3419,7 @@ Item {
                 Rectangle{
                     id: set_branch
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -3179,7 +3432,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("깃 브랜치")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3202,6 +3455,7 @@ Item {
                                 TextField{
                                     width: parent.width - 160
                                     height: parent.height
+                                    font.pixelSize: info_font_size
                                     id: tfield_gitbranch
                                     property bool ischanged: false
                                     text:"master"
@@ -3211,7 +3465,7 @@ Item {
                                 }
                                 Rectangle{
                                     width: 50
-                                    height: 50
+                                    height: setting_height
                                     radius:10
                                     color: color_dark_navy
                                     anchors.verticalCenter: parent.verticalCenter
@@ -3232,7 +3486,7 @@ Item {
                                         enabled: parent.enabled
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             keyboard.owner = tfield_gitbranch;
                                             tfield_gitbranch.selectAll();
                                             keyboard.open();
@@ -3245,7 +3499,7 @@ Item {
                                     width: 100
                                     onClicked:{
                                         supervisor.setSetting("setting","UI/program_branch",tfield_gitbranch.text);
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         tfield_gitbranch.ischanged = false;
                                     }
                                     height: parent.height
@@ -3258,7 +3512,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     visible: is_admin
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -3267,14 +3521,14 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("멀티로봇")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_use_multirobot
                     width: 840
                     visible: is_admin
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3286,7 +3540,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("멀티로봇 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3307,6 +3561,7 @@ Item {
                                 id: combo_multirobot
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                     if(currentIndex == 0){
@@ -3325,7 +3580,7 @@ Item {
                     id: set_use_server_call
                     width: 840
                     visible: is_admin && use_multirobot
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3337,7 +3592,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서버 호출 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3357,6 +3612,7 @@ Item {
                             ComboBox{
                                 id: combo_server_calling
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -3370,7 +3626,7 @@ Item {
                     id: set_server_ip
                     width: 840
                     visible: is_admin && use_multirobot
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3382,7 +3638,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서버 IP")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3406,11 +3662,12 @@ Item {
                                 TextField{
                                     id: server_ip_1
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_1;
                                                 server_ip_1.selectAll();
@@ -3444,11 +3701,12 @@ Item {
                                 TextField{
                                     id: server_ip_2
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_2;
                                                 server_ip_2.selectAll();
@@ -3481,15 +3739,17 @@ Item {
                                 Text{
                                     anchors.verticalCenter: parent.verticalCenter
                                     text:"."
+                                    font.pixelSize: info_font_size
                                 }
                                 TextField{
                                     id: server_ip_3
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_3;
                                                 server_ip_3.selectAll();
@@ -3522,15 +3782,17 @@ Item {
                                 Text{
                                     anchors.verticalCenter: parent.verticalCenter
                                     text:"."
+                                    font.pixelSize: info_font_size
                                 }
                                 TextField{
                                     id: server_ip_4
                                     width: 70
-                                    height: 50
+                                    font.pixelSize: info_font_size
+                                    height: setting_height
                                     MouseArea{
                                         anchors.fill:parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             if(keypad.is_opened){
                                                 keypad.owner = server_ip_4;
                                                 server_ip_4.selectAll();
@@ -3566,6 +3828,7 @@ Item {
                                     color: "black"
                                     Text{
                                         anchors.centerIn: parent
+                                        font.pixelSize: info_font_size
                                         color: "white"
                                         font.family: font_noto_r.name
                                         text: qsTr("변경")
@@ -3573,7 +3836,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             server_ip_1.ischanged = false;
                                             server_ip_2.ischanged = false;
                                             server_ip_3.ischanged = false;
@@ -3590,7 +3853,7 @@ Item {
                 Rectangle{
                     id: set_server_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_admin && use_multirobot
                     Row{
                         anchors.fill: parent
@@ -3603,7 +3866,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("FMS 아이디")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3623,6 +3886,7 @@ Item {
                             TextField{
                                 id: fms_id
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
@@ -3631,7 +3895,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keyboard.is_opened){
                                             keyboard.owner = fms_id;
                                             fms_id.selectAll();
@@ -3651,7 +3915,7 @@ Item {
                 Rectangle{
                     id: set_server_pw
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_admin &&  use_multirobot
                     Row{
                         anchors.fill: parent
@@ -3664,7 +3928,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("FMS 비밀번호")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3683,6 +3947,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: fms_pw
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -3692,7 +3957,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keyboard.is_opened){
                                             keyboard.owner = fms_pw;
                                             fms_pw.selectAll();
@@ -3713,7 +3978,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     visible: is_rainbow
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -3722,14 +3987,14 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("로봇 하드웨어 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_robot_radius
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3741,7 +4006,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("로봇 반지름 반경 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3762,6 +4027,7 @@ Item {
                             TextField{
                                 id: radius
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     ischanged = true;
@@ -3770,7 +4036,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = radius;
                                             radius.selectAll();
@@ -3792,7 +4058,7 @@ Item {
                     id: set_robot_length
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3804,7 +4070,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("로봇 길이 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -3826,6 +4092,7 @@ Item {
                                 id: robot_length
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     ischanged = true;
                                     is_reset_slam = true;
@@ -3833,7 +4100,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = robot_length;
                                             robot_length.selectAll();
@@ -3851,136 +4118,138 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_wheelbase
-                //    width: 840
-                //    visible: is_rainbow
-                //    height: 50
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("휠 베이스 반경 [m]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                    anchors.leftMargin = 30 - width*(1-scale)/2
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: wheel_base
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = wheel_base;
-                //                            wheel_base.selectAll();
-                //                        }else{
-                //                            keypad.owner = wheel_base;
-                //                            wheel_base.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color: ischanged?color_red:"black"
-                //                text:supervisor.getSetting("static","ROBOT_HW","wheel_base");
+                Rectangle{
+                    id: set_wheelbase
+                    width: 840
+                    visible: is_rainbow
+                    height: setting_height
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("휠 베이스 반경 [m]")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: wheel_base
+                                font.pixelSize: info_font_size
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = wheel_base;
+                                            wheel_base.selectAll();
+                                        }else{
+                                            keypad.owner = wheel_base;
+                                            wheel_base.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color: ischanged?color_red:"black"
+                                text:supervisor.getSetting("static","ROBOT_HW","wheel_base");
 
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_wheelradius
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("휠 반지름 반경 [m]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                    anchors.leftMargin = 30 - width*(1-scale)/2
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: wheel_radius
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = wheel_radius;
-                //                            wheel_radius.selectAll();
-                //                        }else{
-                //                            keypad.owner = wheel_radius;
-                //                            wheel_radius.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color: ischanged?color_red:"black"
-                //                text:supervisor.getSetting("setting","ROBOT_HW","wheel_radius");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_wheelradius
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("휠 반지름 반경 [m]")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                    anchors.leftMargin = 30 - width*(1-scale)/2
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: wheel_radius
+                                anchors.fill: parent
+                                font.pixelSize: info_font_size
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = wheel_radius;
+                                            wheel_radius.selectAll();
+                                        }else{
+                                            keypad.owner = wheel_radius;
+                                            wheel_radius.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color: ischanged?color_red:"black"
+                                text:supervisor.getSetting("setting","ROBOT_HW","wheel_radius");
 
-                //            }
-                //        }
-                //    }
-                //}
+                            }
+                        }
+                    }
+                }
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -3988,13 +4257,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("네트워크 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_internet
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4006,7 +4275,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("인터넷 연결상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4030,7 +4299,7 @@ Item {
                                 Rectangle{
                                     id: internet_con
                                     width: 500
-                                    height: 50
+                                    height: setting_height
                                     property int connection: 0
                                     color: {
                                         if(internet_con.connection === 1){
@@ -4044,7 +4313,7 @@ Item {
                                     Text{
                                         anchors.centerIn: parent
                                         font.family:font_noto_r.name
-                                        font.pixelSize:20
+                                        font.pixelSize:info_font_size
                                         text:{
                                             if(internet_con.connection === 1){
                                                 qsTr("연결중")
@@ -4065,12 +4334,10 @@ Item {
 
                     }
                 }
-
-                /*
                 Rectangle{
                     id: set_ethernet
                     width: 840
-                    height: is_admin?450:50
+                    height: is_admin?500:setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -4082,7 +4349,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("유선 연결상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -4106,7 +4373,7 @@ Item {
                                 Rectangle{
                                     id: ethernet_con
                                     width: 500
-                                    height: 50
+                                    height: setting_height
                                     property int connection: 0
                                     color: {
                                         if(ethernet_con.connection === 1){
@@ -4120,7 +4387,7 @@ Item {
                                     Text{
                                         anchors.centerIn: parent
                                         font.family:font_noto_r.name
-                                        font.pixelSize:20
+                                        font.pixelSize:info_font_size
                                         text:{
                                             if(ethernet_con.connection === 1){
                                                 qsTr("연결중")
@@ -4138,14 +4405,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("IP")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4156,13 +4423,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4170,11 +4437,12 @@ Item {
                                                 id: ethernet_ip_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_1;
                                                             ethernet_ip_1.selectAll();
@@ -4204,17 +4472,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_ip_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_2;
                                                             ethernet_ip_2.selectAll();
@@ -4247,16 +4517,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_ip_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_3;
                                                             ethernet_ip_3.selectAll();
@@ -4289,16 +4561,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_ip_4
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_ip_4;
                                                             ethernet_ip_4.selectAll();
@@ -4329,19 +4603,19 @@ Item {
                                         }
                                     }
                                 }
-                                Row{ // Netmask
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Netmask")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4352,13 +4626,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4366,11 +4640,12 @@ Item {
                                                 id: ethernet_netmask_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_1;
                                                             ethernet_netmask_1.selectAll();
@@ -4402,17 +4677,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_netmask_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_2;
                                                             ethernet_netmask_2.selectAll();
@@ -4446,18 +4723,20 @@ Item {
                                                 }
                                             }
                                             Text{
+                                                font.pixelSize: info_font_size
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
                                             }
                                             TextField{
                                                 id: ethernet_netmask_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_3;
                                                             ethernet_netmask_3.selectAll();
@@ -4494,6 +4773,7 @@ Item {
                                                 }
                                             }
                                             Text{
+                                                font.pixelSize: info_font_size
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
                                             }
@@ -4501,11 +4781,12 @@ Item {
                                                 id: ethernet_netmask_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_netmask_4;
                                                             ethernet_netmask_4.selectAll();
@@ -4539,19 +4820,19 @@ Item {
                                         }
                                     }
                                 }
-                                Row{ //Gate way
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Gateway")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4562,13 +4843,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4576,11 +4857,12 @@ Item {
                                                 id: ethernet_gateway_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_1;
                                                             ethernet_gateway_1.selectAll();
@@ -4609,17 +4891,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_gateway_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_2;
                                                             ethernet_gateway_2.selectAll();
@@ -4652,16 +4936,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_gateway_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_3;
                                                             ethernet_gateway_3.selectAll();
@@ -4694,16 +4980,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_gateway_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_gateway_4;
                                                             ethernet_gateway_4.selectAll();
@@ -4737,19 +5025,19 @@ Item {
                                 }
 
 
-                                Row{ // DNS 1
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 1")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4760,25 +5048,26 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
                                             TextField{
                                                 id: ethernet_dnsmain_1
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_1;
                                                             ethernet_dnsmain_1.selectAll();
@@ -4807,17 +5096,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_dnsmain_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_2;
                                                             ethernet_dnsmain_2.selectAll();
@@ -4850,16 +5141,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsmain_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_3;
                                                             ethernet_dnsmain_3.selectAll();
@@ -4892,16 +5185,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsmain_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsmain_4;
                                                             ethernet_dnsmain_4.selectAll();
@@ -4933,19 +5228,19 @@ Item {
                                     }
                                 }
 
-                                Row{ //DNS 2
+                                Row{
                                     visible: is_admin
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 2")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -4956,13 +5251,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -4970,11 +5265,12 @@ Item {
                                                 id: ethernet_dnsserv_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_1;
                                                             ethernet_dnsserv_1.selectAll();
@@ -5004,17 +5300,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ethernet_dnsserv_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_2;
                                                             ethernet_dnsserv_2.selectAll();
@@ -5047,16 +5345,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsserv_3
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_3;
                                                             ethernet_dnsserv_3.selectAll();
@@ -5089,16 +5389,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ethernet_dnsserv_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ethernet_dnsserv_4;
                                                             ethernet_dnsserv_4.selectAll();
@@ -5130,7 +5432,7 @@ Item {
                                     }
                                 }
 
-                                Row{ // 변경값적용
+                                Row{
                                     visible: is_admin
                                     anchors.horizontalCenter: parent.horizontalCenter
                                     spacing: 30
@@ -5289,7 +5591,7 @@ Item {
 
 
                                             if(success){
-                                                click_sound.play();
+                                                supervisor.playSound('click', slider_volume_button.value);
                                                 ethernet_ip_1.ischanged = false;
                                                 ethernet_ip_2.ischanged = false;
                                                 ethernet_ip_3.ischanged = false;
@@ -5317,7 +5619,7 @@ Item {
                                                 var dns2_str = ethernet_dnsserv_1.text===""?"":ethernet_dnsserv_1.text + "." + ethernet_dnsserv_2.text + "." + ethernet_dnsserv_3.text + "." + ethernet_dnsserv_4.text;
                                                 supervisor.setEthernet(ip_str, netmask_str, gateway_str,dns1_str,dns2_str);
                                             }else{
-                                                click_sound_no.play();
+                                                supervisor.playSound('no', slider_volume_button.value);
                                             }
                                         }
                                     }
@@ -5326,12 +5628,10 @@ Item {
                         }
                     }
                 }
-                */
-
                 Rectangle{
                     id: set_wifi
                     width: 840
-                    height: is_admin?500:120
+                    height: is_admin?600:setting_height*2+10
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -5343,7 +5643,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("무선 연결상태")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -5367,7 +5667,7 @@ Item {
                                 Rectangle{
                                     id: wifi_con
                                     width: 500
-                                    height: 50
+                                    height: setting_height
                                     property int connection: 0
                                     color: {
                                         if(wifi_con.connection === 1){
@@ -5381,7 +5681,7 @@ Item {
                                     Text{
                                         anchors.centerIn: parent
                                         font.family:font_noto_r.name
-                                        font.pixelSize:20
+                                        font.pixelSize:info_font_size
                                         text:{
                                             if(wifi_con.connection === 1){
                                                 qsTr("연결중")
@@ -5399,14 +5699,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("WIFI SSID")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5417,14 +5717,15 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             id: wifi_ssid
+                                            font.pixelSize: info_font_size
                                             anchors.centerIn: parent
                                             font.family: font_noto_r.name
                                             text:supervisor.getSetting("setting","NETWORK","wifi_ssid");
@@ -5436,14 +5737,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("IP")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5454,13 +5755,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -5468,11 +5769,12 @@ Item {
                                                 id: ip_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_1;
                                                             ip_1.selectAll();
@@ -5501,17 +5803,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: ip_2
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_2;
                                                             ip_2.selectAll();
@@ -5544,16 +5848,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ip_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_3;
                                                             ip_3.selectAll();
@@ -5586,16 +5892,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: ip_4
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip_4;
                                                             ip_4.selectAll();
@@ -5633,14 +5941,14 @@ Item {
                                     spacing: 5
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Netmask")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5651,13 +5959,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -5665,11 +5973,12 @@ Item {
                                                 id: netmask_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_1;
                                                             netmask_1.selectAll();
@@ -5699,19 +6008,21 @@ Item {
                                                 }
                                             }
                                             Text{
+                                                font.pixelSize: info_font_size
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
                                             }
 
                                             TextField{
                                                 id: netmask_2
+                                                font.pixelSize: info_font_size
                                                 width: 60
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_2;
                                                             netmask_2.selectAll();
@@ -5747,16 +6058,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: netmask_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_3;
                                                             netmask_3.selectAll();
@@ -5792,16 +6105,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: netmask_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask_4;
                                                             netmask_4.selectAll();
@@ -5843,14 +6158,14 @@ Item {
                                     visible: is_admin
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("Gateway")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -5861,13 +6176,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -5875,11 +6190,12 @@ Item {
                                                 id: gateway_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_1;
                                                             gateway_1.selectAll();
@@ -5908,17 +6224,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: gateway_2
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_2;
                                                             gateway_2.selectAll();
@@ -5951,16 +6269,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: gateway_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_3;
                                                             gateway_3.selectAll();
@@ -5993,16 +6313,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: gateway_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway_4;
                                                             gateway_4.selectAll();
@@ -6040,14 +6362,14 @@ Item {
                                     visible: is_admin
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 1")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -6058,13 +6380,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -6072,11 +6394,12 @@ Item {
                                                 id: dnsmain_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_1;
                                                             dnsmain_1.selectAll();
@@ -6105,17 +6428,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: dnsmain_2
                                                 width: 60
+                                                font.pixelSize: info_font_size
                                                 height: 40
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_2;
                                                             dnsmain_2.selectAll();
@@ -6148,16 +6473,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsmain_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_3;
                                                             dnsmain_3.selectAll();
@@ -6190,16 +6517,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsmain_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsmain_4;
                                                             dnsmain_4.selectAll();
@@ -6236,14 +6565,14 @@ Item {
                                     visible: is_admin
                                     Rectangle{
                                         width: 150
-                                        height: 50
+                                        height: setting_height
                                         Text{
                                             anchors.verticalCenter: parent.verticalCenter
                                             anchors.left: parent.left
                                             anchors.leftMargin: 30
                                             font.family: font_noto_r.name
                                             text:qsTr("DNS 2")
-                                            font.pixelSize: 20
+                                            font.pixelSize: name_font_size
                                             Component.onCompleted: {
                                                 scale = 1;
                                                 while(width*scale > parent.width*0.8){
@@ -6254,13 +6583,13 @@ Item {
                                     }
                                     Rectangle{
                                         width: 1
-                                        height: 50
+                                        height: setting_height
                                         color: "#d0d0d0"
                                     }
 
                                     Rectangle{
                                         width: 500-161
-                                        height: 50
+                                        height: setting_height
                                         Row{
                                             spacing: 10
                                             anchors.centerIn: parent
@@ -6268,11 +6597,12 @@ Item {
                                                 id: dnsserv_1
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_1;
                                                             dnsserv_1.selectAll();
@@ -6301,17 +6631,19 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
 
                                             TextField{
                                                 id: dnsserv_2
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_2;
                                                             dnsserv_2.selectAll();
@@ -6344,16 +6676,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsserv_3
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_3;
                                                             dnsserv_3.selectAll();
@@ -6386,16 +6720,18 @@ Item {
                                             Text{
                                                 anchors.verticalCenter: parent.verticalCenter
                                                 text:"."
+                                                font.pixelSize: info_font_size
                                             }
                                             TextField{
                                                 id: dnsserv_4
                                                 width: 60
                                                 height: 40
+                                                font.pixelSize: info_font_size
                                                 horizontalAlignment: TextField.AlignHCenter
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click', slider_volume_button.value);
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_4;
                                                             dnsserv_4.selectAll();
@@ -6657,16 +6993,16 @@ Item {
                 spacing:10
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_b.name
-                        text:qsTr("센서 설정")
+                        text:qsTr("카메라 설정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -6678,7 +7014,7 @@ Item {
                 Rectangle{
                     id: set_camera_model
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false
                     Row{
                         anchors.fill: parent
@@ -6691,7 +7027,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("카메라 모델")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -6710,6 +7046,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_camera_model
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -6726,71 +7063,72 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_cam_exposure
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("노출 시간 [ms]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: cam_exposure
-                //                anchors.fill: parent
-                //                text:supervisor.getSetting("setting","SENSOR","cam_exposure");
-                //                property bool ischanged: false
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = cam_exposure;
-                //                            cam_exposure.selectAll();
-                //                        }else{
-                //                            keypad.owner = cam_exposure;
-                //                            cam_exposure.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                    is_reset_slam = true;
-                //                }
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_cam_exposure
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("노출 시간 [ms]")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: cam_exposure
+                                anchors.fill: parent
+                                font.pixelSize: info_font_size
+                                text:supervisor.getSetting("setting","SENSOR","cam_exposure");
+                                property bool ischanged: false
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = cam_exposure;
+                                            cam_exposure.selectAll();
+                                        }else{
+                                            keypad.owner = cam_exposure;
+                                            cam_exposure.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                onTextChanged: {
+                                    ischanged = true;
+                                    is_reset_slam = true;
+                                }
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_left_camera
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -6803,7 +7141,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("왼쪽 카메라 시리얼")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -6824,6 +7162,7 @@ Item {
                                 id: left_camera
                                 height: parent.height
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
                                 anchors.right: btn_view_cam.left
                                 text:supervisor.getSetting("static","SENSOR","left_camera_serial");
                                 readOnly: true
@@ -6838,13 +7177,13 @@ Item {
                                 Text{
                                     anchors.centerIn: parent
                                     text:qsTr("viewer")
-                                    font.pixelSize: 15
+                                    font.pixelSize: info_font_size
                                     font.family: font_noto_r.name
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_camera.open();
                                     }
                                 }
@@ -6855,7 +7194,7 @@ Item {
                 Rectangle{
                     id: set_right_camera
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -6868,7 +7207,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("오른쪽 카메라 시리얼")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -6879,7 +7218,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
 
                                 }
                             }
@@ -6896,6 +7235,7 @@ Item {
                                 id: right_camera
                                 height: parent.height
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
                                 anchors.right: btn_view_camr.left
                                 text:supervisor.getSetting("static","SENSOR","right_camera_serial");
                                 readOnly: true
@@ -6910,12 +7250,12 @@ Item {
                                 Text{
                                     anchors.centerIn: parent
                                     text:qsTr("viewer")
-                                    font.pixelSize: 15
+                                    font.pixelSize: info_font_size
                                     font.family: font_noto_r.name
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked: {
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_camera.open();
                                         }
                                     }
@@ -6927,7 +7267,7 @@ Item {
                 Rectangle{
                     id: set_lidar_offset_tf
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -6940,7 +7280,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("라이다 TF")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -6960,6 +7300,8 @@ Item {
                             TextField{
                                 id: lidar_offset_tf
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
+                                height: parent.height
                                 anchors.right: btn_change_lidar_offset.left
 //                                anchors.fill: parent
                                 text:supervisor.getSetting("static","SENSOR","lidar_offset_tf");
@@ -6975,11 +7317,12 @@ Item {
                                     anchors.centerIn: parent
                                     text:qsTr("change")
                                     color: "white"
+                                    font.pixelSize: info_font_size
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_tf.open();
                                     }
                                 }
@@ -6991,7 +7334,7 @@ Item {
                 Rectangle{
                     id: set_left_camera_tf
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7004,7 +7347,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("왼쪽 카메라 TF")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7025,6 +7368,8 @@ Item {
                             TextField{
                                 id: left_camera_tf
                                 anchors.left: parent.left
+                                font.pixelSize: info_font_size
+                                height: parent.height
                                 anchors.right: btn_change_left_offset.left
 //                                anchors.fill: parent
                                 text:supervisor.getSetting("static","SENSOR","left_camera_tf");
@@ -7039,12 +7384,13 @@ Item {
                                 Text{
                                     anchors.centerIn: parent
                                     text:qsTr("change")
+                                    font.pixelSize: info_font_size
                                     color: "white"
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_tf.open();
                                     }
                                 }
@@ -7056,7 +7402,7 @@ Item {
                 Rectangle{
                     id: set_right_camera_tf
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7069,7 +7415,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("오른쪽 카메라 TF")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7090,6 +7436,8 @@ Item {
                             TextField{
                                 id: right_camera_tf
                                 anchors.left: parent.left
+                                height: parent.height
+                                font.pixelSize: info_font_size
                                 anchors.right: btn_change_right_offset.left
 //                                anchors.fill: parent
                                 text:supervisor.getSetting("static","SENSOR","right_camera_tf");
@@ -7105,11 +7453,12 @@ Item {
                                     anchors.centerIn: parent
                                     text:qsTr("change")
                                     color: "white"
+                                    font.pixelSize: info_font_size
                                 }
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_tf.open();
                                     }
                                 }
@@ -7120,7 +7469,7 @@ Item {
                 Rectangle{
                     id: set_obs_height_min
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7133,7 +7482,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("3D카메라 감지 최소높이 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7155,12 +7504,13 @@ Item {
                                 id: obs_height_min
                                 anchors.fill: parent
                                 objectName: "obs_height_min"
+                                font.pixelSize: info_font_size
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_height_min");
                                 property bool ischanged: false
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_height_min;
                                             obs_height_min.selectAll();
@@ -7183,7 +7533,7 @@ Item {
                 Rectangle{
                     id: set_obsheight_max
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7196,7 +7546,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("3D카메라 감지 최대높이 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7220,11 +7570,12 @@ Item {
                                 objectName: "obs_height_max"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_height_max");
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 color:ischanged?color_red:"black"
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_height_max;
                                             obs_height_max.selectAll();
@@ -7246,7 +7597,7 @@ Item {
                 Rectangle{
                     id: set_max_range
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7259,7 +7610,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("라이다데이터 최대 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7282,10 +7633,11 @@ Item {
                                 anchors.fill: parent
                                 text:supervisor.getSetting("setting","SENSOR","max_range");
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = max_range;
                                             max_range.selectAll();
@@ -7309,7 +7661,7 @@ Item {
                 Rectangle{
                     id: set_icp_near
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -7322,7 +7674,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("라이다데이터 최소 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7343,6 +7695,7 @@ Item {
                             TextField{
                                 id: icp_near
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -7351,7 +7704,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_near;
                                             icp_near.selectAll();
@@ -7371,7 +7724,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -7379,7 +7732,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("주행 중 감지")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -7392,7 +7745,7 @@ Item {
                 Rectangle{
                     id: set_use_obs_preview
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7404,7 +7757,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 예측 사용")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7425,6 +7778,7 @@ Item {
                             ComboBox{
                                 id: combo_use_obs_preview
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     is_reset_slam = true;
@@ -7438,7 +7792,7 @@ Item {
                 Rectangle{
                     id: set_obs_preview_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: combo_use_obs_preview.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -7451,7 +7805,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 예측 시간 [초]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7472,6 +7826,7 @@ Item {
                             TextField{
                                 id: obs_preview_time
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -7480,7 +7835,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_preview_time;
                                             obs_preview_time.selectAll();
@@ -7501,7 +7856,7 @@ Item {
                 //Rectangle{ // 장애물 회피
                 //    id: set_use_avoid
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    Row{
                 //        anchors.fill: parent
                 //        Rectangle{
@@ -7513,7 +7868,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("장애물 회피")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7548,7 +7903,7 @@ Item {
                 //Rectangle{ // 장애물 회피 - 장애물 감지 너비
                 //    id: set_obs_check_range
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: combo_use_avoid.currentIndex === 1
                 //    Row{
                 //        anchors.fill: parent
@@ -7561,7 +7916,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("장애물 감지 너비")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7588,7 +7943,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = obs_check_range;
                 //                            obs_check_range.selectAll();
@@ -7613,7 +7968,7 @@ Item {
                 //Rectangle{ // 제자리 회전 장애물 감지
                 //    id: set_use_pivot_obs
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    Row{
                 //        anchors.fill: parent
                 //        Rectangle{
@@ -7625,7 +7980,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("제자리회전 장애물감지")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7659,7 +8014,7 @@ Item {
                 //Rectangle{
                 //    id: set_use_obs_near
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    Row{
                 //        anchors.fill: parent
                 //        Rectangle{
@@ -7671,7 +8026,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("근접 장애물 감속")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7705,7 +8060,7 @@ Item {
                 //Rectangle{
                 //    id: set_obs_near
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: combo_use_obs_near.currentIndex === 1
                 //    Row{
                 //        anchors.fill: parent
@@ -7718,7 +8073,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("근접 장애물 거리")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7745,7 +8100,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = obs_near;
                 //                            obs_near.selectAll();
@@ -7769,7 +8124,7 @@ Item {
                 //Rectangle{
                 //    id: set_obs_decel_gain
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: combo_use_obs_near.currentIndex === 1
                 //    Row{
                 //        anchors.fill: parent
@@ -7782,7 +8137,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("장애물 감속 게인")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -7809,7 +8164,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = obs_decel_gain;
                 //                            obs_decel_gain.selectAll();
@@ -7834,7 +8189,7 @@ Item {
                 Rectangle{
                     id: set_use_earlystop_resting
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7846,7 +8201,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("대기위치 근처 장애물 미리 정지")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7865,6 +8220,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             ComboBox{
+                                font.pixelSize: info_font_size
                                 id: combo_use_earlystop_resting
                                 anchors.fill: parent
                                 property bool ischanged: false
@@ -7880,7 +8236,7 @@ Item {
                 Rectangle{
                     id: set_use_earlystop_serving
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7892,7 +8248,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서빙위치 근처 장애물 미리 정지")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7911,6 +8267,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             ComboBox{
+                                font.pixelSize: info_font_size
                                 id: combo_use_earlystop_serving
                                 anchors.fill: parent
                                 property bool ischanged: false
@@ -7926,7 +8283,7 @@ Item {
                 Rectangle{
                     id: set_obs_early_stop_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: set_use_earlystop_resting.currentIndex === 1 || set_use_earlystop_serving.currentIndex === 1
                     Row{
                         anchors.fill: parent
@@ -7939,7 +8296,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("근처 장애물 정지 거리")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -7961,12 +8318,13 @@ Item {
                                 id: obs_early_stop_dist
                                 anchors.fill: parent
                                 objectName: "obs_early_stop_dist"
+                                font.pixelSize: info_font_size
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_early_stop_dist");
                                 property bool ischanged: false
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_early_stop_dist;
                                             obs_early_stop_dist.selectAll();
@@ -7990,7 +8348,7 @@ Item {
                 Rectangle{
                     id: set_use_ignore_safetyzone_return
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8002,7 +8360,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("복귀 시 안전구간 무시")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8023,6 +8381,7 @@ Item {
                             ComboBox{
                                 id: combo_use_ignore_safetyzone_return
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     is_reset_slam = true;
@@ -8038,7 +8397,7 @@ Item {
                 Rectangle{
                     id: set_decmargin
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8050,7 +8409,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("동적 장애물 마진 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8070,6 +8429,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: obs_margin1
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 objectName: "obs_margin1"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_margin1");
@@ -8077,7 +8437,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_margin1;
                                             obs_margin1.selectAll();
@@ -8101,7 +8461,7 @@ Item {
                 Rectangle{
                     id: set_decmargin0
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8113,7 +8473,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("정적 장애물 마진 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8134,13 +8494,14 @@ Item {
                             TextField{
                                 id: obs_margin0
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 objectName: "obs_margin0"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_margin0");
                                 property bool ischanged: false
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_margin0;
                                             obs_margin0.selectAll();
@@ -8163,7 +8524,7 @@ Item {
                 Rectangle{
                     id: set_obs_area
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8175,7 +8536,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 넓이 [pixel]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8196,13 +8557,14 @@ Item {
                             TextField{
                                 id: obs_detect_area
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 objectName: "obs_detect_area"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_detect_area");
                                 property bool ischanged: false
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_detect_area;
                                             obs_detect_area.selectAll();
@@ -8226,7 +8588,7 @@ Item {
                 Rectangle{
                     id: set_obs_sensitivity
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8238,7 +8600,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("장애물 최소검출 누적횟수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8258,6 +8620,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: obs_detect_sensitivity
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 objectName: "obs_detect_sensitivity"
                                 text:supervisor.getSetting("setting","OBSTACLE","obs_detect_sensitivity");
@@ -8265,7 +8628,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_detect_sensitivity;
                                             obs_detect_sensitivity.selectAll();
@@ -8289,7 +8652,7 @@ Item {
                 Rectangle{
                     id: set_obs_deadzone
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8301,7 +8664,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("즉시정지 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8323,6 +8686,7 @@ Item {
                                 id: obs_deadzone
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8330,7 +8694,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_deadzone;
                                             obs_deadzone.selectAll();
@@ -8350,7 +8714,7 @@ Item {
                 Rectangle{
                     id: set_obs_wait_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8362,7 +8726,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("감지 후 대기시간 [sec]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8384,6 +8748,7 @@ Item {
                                 id: obs_wait_time
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8391,7 +8756,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = obs_wait_time;
                                             obs_wait_time.selectAll();
@@ -8412,7 +8777,7 @@ Item {
                 Rectangle{
                     id: set_lookaheaddist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8425,7 +8790,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로추종 최대거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8461,6 +8826,7 @@ Item {
                                 id: look_ahead_dist
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8468,7 +8834,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = look_ahead_dist;
                                             look_ahead_dist.selectAll();
@@ -8488,7 +8854,7 @@ Item {
                 Rectangle{
                     id: set_minlookaheaddist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8501,7 +8867,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로추종 최소거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8521,6 +8887,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: min_look_ahead_dist
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -8530,7 +8897,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = min_look_ahead_dist;
                                             min_look_ahead_dist.selectAll();
@@ -8551,7 +8918,7 @@ Item {
                 Rectangle{
                     id: set_path_out_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8564,7 +8931,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로이탈 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8586,6 +8953,7 @@ Item {
                                 id: path_out_dist
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8593,7 +8961,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_out_dist;
                                             path_out_dist.selectAll();
@@ -8613,7 +8981,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
@@ -8621,13 +8989,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("위치 추정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_icp_init_ratio
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8639,7 +9007,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("초기화 성공기준 [0~1]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8660,6 +9028,7 @@ Item {
                             TextField{
                                 id: icp_init_ratio
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -8668,7 +9037,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_init_ratio;
                                             icp_init_ratio.selectAll();
@@ -8688,7 +9057,7 @@ Item {
                 Rectangle{
                     id: set_icp_init_error
                     width: 840
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -8700,7 +9069,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("초기화 에러기준 [0~1]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8720,6 +9089,7 @@ Item {
                             TextField{
                                 id: icp_init_error
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -8728,7 +9098,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_init_error;
                                             icp_init_error.selectAll();
@@ -8748,7 +9118,7 @@ Item {
                 Rectangle{
                     id: set_icp_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8761,7 +9131,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("Inlier 판단거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8781,6 +9151,7 @@ Item {
                             TextField{
                                 id: icp_dist
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -8789,7 +9160,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_dist;
                                             icp_dist.selectAll();
@@ -8809,7 +9180,7 @@ Item {
                 Rectangle{
                     id: set_icp_error
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8822,7 +9193,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("평균오차 최소값 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8842,6 +9213,7 @@ Item {
                             TextField{
                                 id: icp_error
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -8850,7 +9222,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_error;
                                             icp_error.selectAll();
@@ -8870,7 +9242,7 @@ Item {
                 Rectangle{
                     id: set_icp_ratio
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8883,7 +9255,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("Inlier 비율 [%]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8904,6 +9276,7 @@ Item {
                                 id: icp_ratio
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8911,7 +9284,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_ratio;
                                             icp_ratio.selectAll();
@@ -8931,7 +9304,7 @@ Item {
                 Rectangle{
                     id: set_icp_odometry_weight
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -8944,7 +9317,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 위치추정 비율 [%]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -8965,6 +9338,7 @@ Item {
                                 id: icp_odometry_weight
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -8972,7 +9346,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_odometry_weight;
                                             icp_odometry_weight.selectAll();
@@ -8992,7 +9366,7 @@ Item {
                 Rectangle{
                     id: set_icp_repeat_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9005,7 +9379,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("위치추정 최소 거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9025,6 +9399,7 @@ Item {
                             TextField{
                                 id: icp_repeat_dist
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9033,7 +9408,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_repeat_dist;
                                             icp_repeat_dist.selectAll();
@@ -9053,7 +9428,7 @@ Item {
                 Rectangle{
                     id: set_icp_repeat_time
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9066,7 +9441,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("위치추정 최소 시간[sec]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9087,6 +9462,7 @@ Item {
                                 id: icp_repeat_time
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9094,7 +9470,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = icp_repeat_time;
                                             icp_repeat_time.selectAll();
@@ -9117,7 +9493,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -9126,13 +9502,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("도착점 판단")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_goal_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9145,7 +9521,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("도착점 허용 오차 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9166,6 +9542,7 @@ Item {
                                 id: goal_dist
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9173,7 +9550,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_dist;
                                             goal_dist.selectAll();
@@ -9193,7 +9570,7 @@ Item {
                 Rectangle{
                     id: set_goal_th
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9206,7 +9583,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("도착점 허용 오차 [deg]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9225,6 +9602,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: goal_th
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9234,7 +9612,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_th;
                                             goal_th.selectAll();
@@ -9255,7 +9633,7 @@ Item {
                 Rectangle{
                     id: set_goal_near_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9268,7 +9646,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("목적지 미리 도달거리 [m]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9288,6 +9666,7 @@ Item {
                             TextField{
                                 id: goal_near_dist
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9296,7 +9675,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_near_dist;
                                             goal_near_dist.selectAll();
@@ -9316,7 +9695,7 @@ Item {
                 Rectangle{
                     id: set_goal_near_th
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: false//is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9329,7 +9708,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로탐색 최소거리 [deg]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9348,6 +9727,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: goal_near_th
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9357,7 +9737,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_near_th;
                                             goal_near_th.selectAll();
@@ -9377,7 +9757,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -9386,13 +9766,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("지도 작성")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                     }
                 }
                 Rectangle{
                     id: set_slam_submap_cnt
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9405,7 +9785,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("서브맵 프레임 개수")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9426,6 +9806,7 @@ Item {
                                 id: slam_submap_cnt
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -9433,7 +9814,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = slam_submap_cnt;
                                             slam_submap_cnt.selectAll();
@@ -9453,7 +9834,7 @@ Item {
                 Rectangle{
                     id: set_slam_lc_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9466,7 +9847,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("루프클로징 시도거리")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9485,6 +9866,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: slam_lc_dist
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9494,7 +9876,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = slam_lc_dist;
                                             slam_lc_dist.selectAll();
@@ -9514,7 +9896,7 @@ Item {
                 Rectangle{
                     id: set_slam_lc_icp_dist
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9527,7 +9909,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("루프클로징 매칭범위")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9546,6 +9928,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: slam_lc_icp_dist
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -9555,7 +9938,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = slam_lc_icp_dist;
                                             slam_lc_icp_dist.selectAll();
@@ -9575,7 +9958,7 @@ Item {
                 Rectangle{
                     id: set_map_size
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9588,7 +9971,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("지도 기본 크기")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9608,6 +9991,7 @@ Item {
                             TextField{
                                 id: map_size
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9616,7 +10000,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = map_size;
                                             map_size.selectAll();
@@ -9636,7 +10020,7 @@ Item {
                 Rectangle{
                     id: set_grid_size
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9649,7 +10033,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("기본 격자 크기")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9669,6 +10053,7 @@ Item {
                             TextField{
                                 id: grid_size
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -9677,7 +10062,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = grid_size;
                                             grid_size.selectAll();
@@ -9720,7 +10105,7 @@ Item {
                 spacing:10
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -9729,7 +10114,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("주행 중")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -9741,7 +10126,7 @@ Item {
                 Rectangle{
                     id: set_use_current
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9754,7 +10139,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("모터 과전류 시 일시정지")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9773,6 +10158,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_use_motorcurrent
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
@@ -9783,12 +10169,11 @@ Item {
                         }
                     }
                 }
-
                 Rectangle{
-                    id: set_use_ccma
+                    id: set_motor_current_margin
                     width: 840
-                    height: 50
-                    visible: is_admin || is_rainbow
+                    height: setting_height
+                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9799,8 +10184,8 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("부드러운 움직임")
-                                font.pixelSize: 20
+                                text:qsTr("모터전류 제한값 [mA]")
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -9817,151 +10202,99 @@ Item {
                         Rectangle{
                             width: parent.width - 351
                             height: parent.height
-
-
-                            ComboBox{
-                                id: combo_use_ccma
+                            TextField{
+                                id: pause_motor_current
                                 anchors.fill: parent
                                 property bool ischanged: false
-                                onCurrentIndexChanged: {
+                                font.pixelSize: info_font_size
+                                onTextChanged: {
                                     ischanged = true;
-                                    if(currentIndex == 0){
-                                        use_ccma = true;
-                                        print("ccma mode : ",combo_use_ccma.currentIndex)
-                                    }else{
-                                        use_ccma = false;
-                                        print("ccma mode : ",combo_use_ccma.currentIndex)
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = pause_motor_current;
+                                            pause_motor_current.selectAll();
+                                        }else{
+                                            keypad.owner = pause_motor_current;
+                                            pause_motor_current.selectAll();
+                                            keypad.open();
+                                        }
                                     }
                                 }
-                                model:[qsTr("사용"),qsTr("사용안함")]
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","pause_motor_current");
+
                             }
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_motor_current_margin
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터전류 제한값 [mA]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: pause_motor_current
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = pause_motor_current;
-                //                            pause_motor_current.selectAll();
-                //                        }else{
-                //                            keypad.owner = pause_motor_current;
-                //                            pause_motor_current.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","pause_motor_current");
-
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터전류 제한시간 [ms]")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: pause_check_ms
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = pause_check_ms;
-                //                            pause_check_ms.selectAll();
-                //                        }else{
-                //                            keypad.owner = pause_check_ms;
-                //                            pause_check_ms.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","pause_check_ms");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터전류 제한시간 [ms]")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: pause_check_ms
+                                anchors.fill: parent
+                                font.pixelSize: info_font_size
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = pause_check_ms;
+                                            pause_check_ms.selectAll();
+                                        }else{
+                                            keypad.owner = pause_check_ms;
+                                            pause_check_ms.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","pause_check_ms");
+                            }
+                        }
+                    }
+                }
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -9970,7 +10303,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("속도 제한")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -9982,7 +10315,7 @@ Item {
                 Rectangle{
                     id: set_st_v
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -9995,7 +10328,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("출발 시 처음속도 [m/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10017,6 +10350,7 @@ Item {
                                 id: st_v
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10024,7 +10358,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = st_v;
                                             st_v.selectAll();
@@ -10044,7 +10378,7 @@ Item {
                 Rectangle{
                     id: set_goal_v
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10057,7 +10391,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("도착지점 속도 [m/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10078,6 +10412,7 @@ Item {
                                 id: goal_v
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10085,7 +10420,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = goal_v;
                                             goal_v.selectAll();
@@ -10105,7 +10440,7 @@ Item {
 
                 Rectangle{ // 게인 수정
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -10114,7 +10449,7 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("게인 수정")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: group_font_size
                         Component.onCompleted: {
                             scale = 1;
                             while(width*scale > parent.width*0.8){
@@ -10123,72 +10458,73 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_k_curve
-                //    width: 840
-                //    height: 50
-                //    visible: false
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("k_curve")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_curve
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_curve;
-                //                            k_curve.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_curve;
-                //                            k_curve.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","k_curve");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_k_curve
+                    width: 840
+                    height: setting_height
+                    visible: false
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("k_curve")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_curve
+                                anchors.fill: parent
+                                font.pixelSize: info_font_size
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_curve;
+                                            k_curve.selectAll();
+                                        }else{
+                                            keypad.owner = k_curve;
+                                            k_curve.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","k_curve");
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_k_v
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10200,7 +10536,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("k_v")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10220,6 +10556,7 @@ Item {
                             TextField{
                                 id: k_v
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -10228,7 +10565,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_v;
                                             k_v.selectAll();
@@ -10249,7 +10586,7 @@ Item {
                     id: set_k_w
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10261,7 +10598,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("k_w")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10282,6 +10619,7 @@ Item {
                                 id: k_w
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10289,7 +10627,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = k_w;
                                             k_w.selectAll();
@@ -10306,71 +10644,72 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_k_dd
-                //    visible: is_rainbow
-                //    width: 840
-                //    height: 50
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("k_dd")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_dd
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_dd;
-                //                            k_dd.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_dd;
-                //                            k_dd.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","DRIVING","k_dd");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_k_dd
+                    visible: is_rainbow
+                    width: 840
+                    height: setting_height
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("k_dd")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_dd
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                font.pixelSize: info_font_size
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_dd;
+                                            k_dd.selectAll();
+                                        }else{
+                                            keypad.owner = k_dd;
+                                            k_dd.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","DRIVING","k_dd");
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_path_delta_v_acc_gain
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10383,7 +10722,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로 가속 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10403,6 +10742,7 @@ Item {
                             TextField{
                                 id: path_delta_v_acc_gain
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -10411,7 +10751,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_delta_v_acc_gain;
                                             path_delta_v_acc_gain.selectAll();
@@ -10431,7 +10771,7 @@ Item {
                 Rectangle{
                     id: set_path_delta_v_dec_gain
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10444,7 +10784,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로 감속 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10465,6 +10805,7 @@ Item {
                                 id: path_delta_v_dec_gain
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10472,7 +10813,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_delta_v_dec_gain;
                                             path_delta_v_dec_gain.selectAll();
@@ -10492,7 +10833,7 @@ Item {
                 Rectangle{
                     id: set_path_ref_v_gain
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10505,7 +10846,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("경로 속도 게인")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10526,6 +10867,7 @@ Item {
                                 id: path_ref_v_gain
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -10533,7 +10875,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = path_ref_v_gain;
                                             path_ref_v_gain.selectAll();
@@ -10553,7 +10895,7 @@ Item {
                 //Rectangle{ //경로 시프팅 게인
                 //    id: set_path_shifting_val
                 //    width: 840
-                //    height: 50
+                //    height: setting_height
                 //    visible: is_rainbow
                 //    Row{
                 //        anchors.fill: parent
@@ -10566,7 +10908,7 @@ Item {
                 //                anchors.leftMargin: 30
                 //                font.family: font_noto_r.name
                 //                text:qsTr("경로 시프팅 게인")
-                //                font.pixelSize: 20
+                //                font.pixelSize: name_font_size
                 //                Component.onCompleted: {
                 //                    scale = 1;
                 //                    while(width*scale > parent.width*0.8){
@@ -10594,7 +10936,7 @@ Item {
                 //                MouseArea{
                 //                    anchors.fill:parent
                 //                    onClicked: {
-                //                        click_sound.play();
+                //                        supervisor.playSound('click', slider_volume_button.value);
                 //                        if(keypad.is_opened){
                 //                            keypad.owner = path_shifting_val;
                 //                            path_shifting_val.selectAll();
@@ -10614,7 +10956,7 @@ Item {
 
                 Rectangle{
                     width: 1100
-                    height: 40
+                    height: group_height
                     color: "black"
                     visible: is_rainbow
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -10623,13 +10965,13 @@ Item {
                         font.family: font_noto_b.name
                         text:qsTr("모터 세팅 값")
                         color: "white"
-                        font.pixelSize: 20
+                        font.pixelSize: name_font_size
                     }
                 }
                 Rectangle{
                     id: set_wheel_dir
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10642,7 +10984,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("바퀴 회전 방향")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10662,6 +11004,7 @@ Item {
                             ComboBox{
                                 id: combo_wheel_dir
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                     is_reset_slam = true;
@@ -10675,7 +11018,7 @@ Item {
                 Rectangle{
                     id: set_left_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10688,7 +11031,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("왼쪽 모터 ID")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10708,6 +11051,7 @@ Item {
                             ComboBox{
                                 id: combo_left_id
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onCurrentIndexChanged: {
                                     ischanged = true;
                                     is_reset_slam = true;
@@ -10721,7 +11065,7 @@ Item {
                 Rectangle{
                     id: set_right_id
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -10734,7 +11078,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("오른쪽 모터 ID")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -10753,6 +11097,7 @@ Item {
                             height: parent.height
                             ComboBox{
                                 id: combo_right_id
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onCurrentIndexChanged: {
                                     ischanged = true;
@@ -10764,255 +11109,259 @@ Item {
                         }
                     }
                 }
-                //Rectangle{
-                //    id: set_gear_ratio
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 기어비")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: gear_ratio
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = gear_ratio;
-                //                            gear_ratio.selectAll();
-                //                        }else{
-                //                            keypad.owner = gear_ratio;
-                //                            gear_ratio.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","gear_ratio");
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_kp
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 P 게인")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_p
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_p;
-                //                            k_p.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_p;
-                //                            k_p.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","k_p");
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_ki
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 I 게인")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_i
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_i;
-                //                            k_i.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_i;
-                //                            k_i.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","k_i");
-                //            }
-                //        }
-                //    }
-                //}
-                //Rectangle{
-                //    id: set_kd
-                //    width: 840
-                //    height: 50
-                //    visible: is_rainbow
-                //    Row{
-                //        anchors.fill: parent
-                //        Rectangle{
-                //            width: 350
-                //            height: parent.height
-                //            Text{
-                //                anchors.verticalCenter: parent.verticalCenter
-                //                anchors.left: parent.left
-                //                anchors.leftMargin: 30
-                //                font.family: font_noto_r.name
-                //                text:qsTr("모터 D 게인")
-                //                font.pixelSize: 20
-                //                Component.onCompleted: {
-                //                    scale = 1;
-                //                    while(width*scale > parent.width*0.8){
-                //                        scale=scale-0.01;
-                //                    }
-                //                }
-                //            }
-                //        }
-                //        Rectangle{
-                //            width: 1
-                //            height: parent.height
-                //            color: "#d0d0d0"
-                //        }
-                //        Rectangle{
-                //            width: parent.width - 351
-                //            height: parent.height
-                //            TextField{
-                //                id: k_d
-                //                anchors.fill: parent
-                //                property bool ischanged: false
-                //                onTextChanged: {
-                //                    is_reset_slam = true;
-                //                    ischanged = true;
-                //                }
-                //                MouseArea{
-                //                    anchors.fill:parent
-                //                    onClicked: {
-                //                        click_sound.play();
-                //                        if(keypad.is_opened){
-                //                            keypad.owner = k_d;
-                //                            k_d.selectAll();
-                //                        }else{
-                //                            keypad.owner = k_d;
-                //                            k_d.selectAll();
-                //                            keypad.open();
-                //                        }
-                //                    }
-                //                }
-                //                color:ischanged?color_red:"black"
-                //                text:supervisor.getSetting("update","MOTOR","k_d");
-                //            }
-                //        }
-                //    }
-                //}
+                Rectangle{
+                    id: set_gear_ratio
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 기어비")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: gear_ratio
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                font.pixelSize: info_font_size
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = gear_ratio;
+                                            gear_ratio.selectAll();
+                                        }else{
+                                            keypad.owner = gear_ratio;
+                                            gear_ratio.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","gear_ratio");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_kp
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 P 게인")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_p
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                font.pixelSize: info_font_size
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_p;
+                                            k_p.selectAll();
+                                        }else{
+                                            keypad.owner = k_p;
+                                            k_p.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","k_p");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_ki
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 I 게인")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_i
+                                font.pixelSize: info_font_size
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_i;
+                                            k_i.selectAll();
+                                        }else{
+                                            keypad.owner = k_i;
+                                            k_i.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","k_i");
+                            }
+                        }
+                    }
+                }
+                Rectangle{
+                    id: set_kd
+                    width: 840
+                    height: setting_height
+                    visible: is_rainbow
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("모터 D 게인")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            TextField{
+                                id: k_d
+                                anchors.fill: parent
+                                font.pixelSize: info_font_size
+                                property bool ischanged: false
+                                onTextChanged: {
+                                    is_reset_slam = true;
+                                    ischanged = true;
+                                }
+                                MouseArea{
+                                    anchors.fill:parent
+                                    onClicked: {
+                                        supervisor.playSound('click', slider_volume_button.value);
+                                        if(keypad.is_opened){
+                                            keypad.owner = k_d;
+                                            k_d.selectAll();
+                                        }else{
+                                            keypad.owner = k_d;
+                                            k_d.selectAll();
+                                            keypad.open();
+                                        }
+                                    }
+                                }
+                                color:ischanged?color_red:"black"
+                                text:supervisor.getSetting("update","MOTOR","k_d");
+                            }
+                        }
+                    }
+                }
                 Rectangle{
                     id: set_limit_v
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -11024,7 +11373,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 속도 [m/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11045,6 +11394,7 @@ Item {
                                 id: motor_limit_v
                                 anchors.fill: parent
                                 property bool ischanged: false
+                                font.pixelSize: info_font_size
                                 onTextChanged: {
                                     is_reset_slam = true;
                                     ischanged = true;
@@ -11052,7 +11402,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_v;
                                             motor_limit_v.selectAll();
@@ -11073,7 +11423,7 @@ Item {
                     id: set_limitv_acc
                     width: 840
                     visible: is_rainbow
-                    height: 50
+                    height: setting_height
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -11085,7 +11435,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 가속도 [m/s^2]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11104,6 +11454,7 @@ Item {
                             height: parent.height
                             TextField{
                                 id: motor_limit_v_acc
+                                font.pixelSize: info_font_size
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 onTextChanged: {
@@ -11113,7 +11464,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_v_acc;
                                             motor_limit_v_acc.selectAll();
@@ -11133,7 +11484,7 @@ Item {
                 Rectangle{
                     id: set_limit_w
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11146,7 +11497,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 각속도 [deg/s]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11166,6 +11517,7 @@ Item {
                             TextField{
                                 id: motor_limit_w
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -11174,7 +11526,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_w;
                                             motor_limit_w.selectAll();
@@ -11194,7 +11546,7 @@ Item {
                 Rectangle{
                     id: set_limit_wacc
                     width: 840
-                    height: 50
+                    height: setting_height
                     visible: is_rainbow
                     Row{
                         anchors.fill: parent
@@ -11207,7 +11559,7 @@ Item {
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
                                 text:qsTr("최대 각가속도 [deg/s^2]")
-                                font.pixelSize: 20
+                                font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
                                     while(width*scale > parent.width*0.8){
@@ -11228,6 +11580,7 @@ Item {
                             TextField{
                                 id: motor_limit_w_acc
                                 anchors.fill: parent
+                                font.pixelSize: info_font_size
                                 property bool ischanged: false
                                 onTextChanged: {
                                     is_reset_slam = true;
@@ -11236,7 +11589,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = motor_limit_w_acc;
                                             motor_limit_w_acc.selectAll();
@@ -11557,13 +11910,13 @@ Item {
                                             }else if(state === 1){//connected ethernet but slamnav disconnected(ERROR)
                                                 text_network.text = qsTr("프로그램과 연결되지 않았습니다")
                                             }else if(state === 2){//slamnav connected but wifi disconnected(WARNING)
-                                                text_network.text = qsTr("자율주행 프로그램 연결 성공")
+                                                text_network.text = qsTr("프로그램 연결 성공")
                                                 text_network2.text = qsTr("(와이파이는 연결되지 않았습니다)")
                                             }else if(state === 3){//slamnav, wifi connected but not internet(WARNING)
-                                                text_network.text = qsTr("자율주행 프로그램 연결 성공")
+                                                text_network.text = qsTr("프로그램 연결 성공")
                                                 text_network2.text = qsTr("(인터넷은 연결되지 않았습니다)")
                                             }else if(state === 4){//all good
-                                                text_network.text = qsTr("자율주행 프로그램 연결 성공")
+                                                text_network.text = qsTr("프로그램 연결 성공")
                                             }
                                         }
                                         color: "transparent"
@@ -11754,16 +12107,16 @@ Item {
                                             }else if(state === 2){
                                                 text_motor_1.text = qsTr("비상스위치가 눌려있습니다")
                                             }else if(state === 3){
-                                                text_motor_1.text = qsTr("모터1와 연결되지 않았습니다")
+                                                text_motor_1.text = qsTr("모터와 연결되지 않았습니다")
                                             }else if(state === 4){
-                                                text_motor_1.text = qsTr("모터1에 에러가 발생했습니다")
+                                                text_motor_1.text = qsTr("모터에 에러가 발생했습니다")
                                                 text_motor_11.text = supervisor.getMotorStatusStr(0);
                                             }else if(state === 5){
                                                 text_motor_1.text = qsTr("모터락이 해제되었습니다")
                                             }else if(state === 6){
-                                                text_motor_1.text = qsTr("모터1 온도가 기준치 이상입니다")
+                                                text_motor_1.text = qsTr("모터온도가 기준치 이상입니다")
                                             }else if(state === 7){
-                                                text_motor_1.text = qsTr("모터1 상태 정상")
+                                                text_motor_1.text = qsTr("모터상태 정상")
                                             }
                                         }
                                         Row{
@@ -11820,22 +12173,22 @@ Item {
                                         onStateChanged: {
                                             text_motor_22.text = "";
                                             if(state === 0){
-                                                text_motor_2.text = qsTr("자율주행 프로그램과 연결되지 않았습니다")
+                                                text_motor_2.text = qsTr("프로그램과 연결되지 않았습니다")
                                             }else if(state === 1){
                                                 text_motor_2.text = qsTr("전원이 OFF 상태입니다")
                                             }else if(state === 2){
                                                 text_motor_2.text = qsTr("비상스위치가 눌려있습니다")
                                             }else if(state === 3){
-                                                text_motor_2.text = qsTr("모터2와 연결되지 않았습니다")
+                                                text_motor_2.text = qsTr("모터와 연결되지 않았습니다")
                                             }else if(state === 4){
-                                                text_motor_2.text = qsTr("모터2에 에러가 발생했습니다")
+                                                text_motor_2.text = qsTr("모터에 에러가 발생했습니다")
                                                 text_motor_22.text = supervisor.getMotorStatusStr(1);
                                             }else if(state === 5){
                                                 text_motor_2.text = qsTr("모터락이 해제되었습니다")
                                             }else if(state === 6){
-                                                text_motor_2.text = qsTr("모터2 온도가 기준치 이상입니다")
+                                                text_motor_2.text = qsTr("모터온도가 기준치 이상입니다")
                                             }else if(state === 7){
-                                                text_motor_2.text = qsTr("모터2 상태 정상")
+                                                text_motor_2.text = qsTr("모터상태 정상")
                                             }
                                         }
                                         Row{
@@ -11901,7 +12254,7 @@ Item {
                 }
 
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click', slider_volume_button.value);
                     if(debug_count++ > 3){
                         debug_count = 0;
                         popup_robot_details.open();
@@ -11917,7 +12270,7 @@ Item {
             anchors.right: parent.right
             anchors.rightMargin: 50
             anchors.top: parent.top
-            anchors.topMargin: 50
+            anchors.topMargin: 60
             color: "white"
             radius: 30
             property bool is_restart: false
@@ -11929,7 +12282,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();;
+                    supervisor.playSound('click', slider_volume_button.value);;
                     supervisor.writelog("[UI] MAP : move to backPage");
                     if(check_update()){
                         popup_changed.open();
@@ -11966,7 +12319,7 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANAGER MENU");
                         if(is_admin){
                             popup_manager.open();
@@ -11982,6 +12335,7 @@ Item {
                 width: 180
                 height: 60
                 radius: 10
+                visible: is_admin || is_rainbow
                 //color:"transparent"
                 color:color_navy
                 border.width: 1
@@ -11989,7 +12343,7 @@ Item {
                 border.color: color_navy
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("원래대로")
+                    text:qsTr("설정 초기화")
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color : "white"
@@ -11997,12 +12351,46 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.writelog("[USER INPUT] SETTING PAGE -> RESET DEFAULT");
                         init();
                     }
                 }
             }
+            Rectangle{
+                id: btn_manual
+                width: 180
+                height: 60
+                radius: 10
+                //visible: is_admin
+                //color:"transparent"
+                color: color_blue
+                border.width: 1
+                //border.color: "#7e7e7e"
+                border.color: color_blue
+                Text{
+                    anchors.centerIn: parent
+                    text:qsTr("매뉴얼")
+                    font.family: font_noto_r.name
+                    font.pixelSize: 25
+                    color: "white"
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked:{
+                        supervisor.playSound('click', slider_volume_button.value);
+                        supervisor.writelog("[USER INPUT] SETTING PAGE -> SHOW MANUAL MENU");
+                        if(is_admin){
+                            popup_manual_detail.open();
+                        }else{
+                            //popup_password.open_menu = true;
+                            //popup_password.open();
+                            popup_manual.open();
+                        }
+                    }
+                }
+            }
+
             Rectangle{
                 id: btn_confirm
                 width: 180
@@ -12021,11 +12409,13 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked:{
-                        click_sound.play();
+                        console.log("?????????"+slider_volume_button.value);
+                        supervisor.playSound('click', slider_volume_button.value);
                         save();
                     }
                 }
             }
+
 
 
             Rectangle{
@@ -12034,22 +12424,13 @@ Item {
                 height: 60
                 radius: 10
                 color: "transparent"
-                //border.width: 1
-                //border.color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.1.5") //lingbell + Wifi
+                    text:qsTr("Version 1.1.8") // 설정초기화 숨김,
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
                 }
-                //MouseArea{
-                //    anchors.fill: parent
-                //    onClicked:{
-                //        click_sound.play();
-                //        save();
-                //    }
-                //}
             }
         }
     }
@@ -12076,7 +12457,7 @@ Item {
 
             //new(use Checker)
             wifi_con.connection = supervisor.getWifiConnection();
-            //ethernet_con.connection = supervisor.getEthernetConnection();
+            ethernet_con.connection = supervisor.getEthernetConnection();
             internet_con.connection = supervisor.getInternetConnection();
             wifi_ssid.text = supervisor.getCurWifiSSID();
 
@@ -12300,7 +12681,7 @@ Item {
                 }else{
                     state_network.state = 0;
                 }
-                text_robot.text = qsTr("자율주행 프로그램 연결 안됨")
+                text_robot.text = qsTr("프로그램 연결 안됨")
             }
 
         }
@@ -12308,6 +12689,319 @@ Item {
 
     Popup_help{
         id: popup_help_setting
+    }
+
+    Popup{
+        id: popup_set_goqual
+        anchors.centerIn: parent
+        width: 1000
+        height: 700
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        onOpened:{
+            supervisor.getGoqualDeviceList();
+            model_goqual_deivce.clear();
+            goqual_timer.start();
+        }
+        onClosed:{
+            goqual_timer.stop();
+        }
+
+        Timer{
+            id: goqual_timer
+            running: false
+            repeat: true
+            interval: 500
+            onTriggered:{
+                supervisor.getGoqualDeviceList();
+                text_goqual_access_key.text = supervisor.getGoqualAccessKey();
+                text_goqual_refresh_key.text = supervisor.getGoqualRefreshKey();
+                text_goqual_expires_in.text = supervisor.getGoqualExpiresIn();
+
+                for(var i=0; i<supervisor.getGoqualDeviceSize(); i++){
+                    var match = false;
+                    for(var j=0; j<model_goqual_deivce.count; j++){
+                        if(model_goqual_deivce.get(j).id === supervisor.getGoqualDeviceID(i)){
+                            match = true;
+                            break;
+                        }
+                    }
+                    if(!match){
+                        model_goqual_deivce.append({"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"name":supervisor.getGoqualDeviceName(i),"online":supervisor.getGoqualDeviceOnline(i),"dev_state":supervisor.getGoqualDeviceState(i)});
+                    }else{
+                        model_goqual_deivce.set(i,{"id":supervisor.getGoqualDeviceID(i),"type":supervisor.getGoqualDeviceType(i),"name":supervisor.getGoqualDeviceName(i),"online":supervisor.getGoqualDeviceOnline(i),"dev_state":supervisor.getGoqualDeviceState(i)})
+                    }
+                }
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            Column{
+                anchors.fill: parent
+                spacing: 30
+                Rectangle{
+                    width: parent.width
+                    height: 70
+                    color: color_dark_navy
+                    Text{
+                        anchors.centerIn: parent
+                        text: qsTr("Goqual(헤이홈) 연동")
+                        color: "white"
+                        font.bold: true
+                        font.pixelSize: 30
+                    }
+                }
+                Rectangle{
+                    width: parent.width
+                    height: 200
+                    color: color_light_gray
+                    Row{
+                        anchors.centerIn: parent
+                        spacing: 40
+                        Grid{
+                            anchors.verticalCenter: parent.verticalCenter
+                            columns: 3
+                            rows: 3
+                            horizontalItemAlignment: Grid.AlignHCenter
+                            verticalItemAlignment: Grid.AlignVCenter
+                            spacing: 10
+                            Text{
+                                text: "access_key"
+                                font.bold: true
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                text: " : "
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                id: text_goqual_access_key
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                text: "refresh_key"
+                                font.bold: true
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                text: " : "
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                id: text_goqual_refresh_key
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                text: "expires_in"
+                                font.bold: true
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                text: " : "
+                                font.pixelSize: 20
+                            }
+                            Text{
+                                id: text_goqual_expires_in
+                                font.pixelSize: 20
+                            }
+                        }
+
+                        Column{
+                            anchors.verticalCenter: parent.verticalCenter
+                            spacing: 20
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("get Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    supervisor.playSound('click', slider_volume_button.value);
+                                    supervisor.getGoqualKey();
+                                }
+                            }
+                            Item_buttons{
+                                type: "white_btn"
+                                text: qsTr("refresh Key")
+                                width: 160
+                                height: 50
+                                onClicked:{
+                                    supervisor.playSound('click', slider_volume_button.value);
+                                    supervisor.refreshGoqualKey();
+                                }
+                            }
+                        }
+                        Text{
+                            id: text_goqual_error
+                            color: color_red
+                            text: ""
+                        }
+                    }
+                }
+
+                Rectangle{
+                    width: parent.width
+                    height: 370
+                    Column{
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        spacing: 20
+                        Row{
+                            anchors.left: parent.left
+                            anchors.leftMargin: 50
+                            spacing: 20
+                            Text{
+                                text: qsTr("타입 : ")
+                                font.pixelSize: 20
+                            }
+                            ComboBox{
+                                width: 300
+                                model:["RelayControllerDc2"]
+                            }
+                        }
+
+                        Column{
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            spacing: 4
+                            Row{
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                spacing: 4
+                                Rectangle{
+                                    width: 96
+                                    height: 40
+                                    color: color_navy
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: "State"
+                                        color: "white"
+                                    }
+                                }
+                                Rectangle{
+                                    width: 210
+                                    height: 40
+                                    color: color_navy
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: "Name"
+                                        color: "white"
+                                    }
+                                }
+                                Rectangle{
+                                    width: 220
+                                    height: 40
+                                    color: color_navy
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: "ID"
+                                        color: "white"
+                                    }
+                                }
+                                Rectangle{
+                                    width: 240
+                                    height: 40
+                                    color: color_navy
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: "switch"
+                                        color: "white"
+                                    }
+                                }
+                            }
+
+                            Repeater{
+                                model: ListModel{id:model_goqual_deivce}
+                                Row{
+                                    Row{
+                                        Rectangle{
+                                            width: 100
+                                            height: 40
+                                            color: "transparent"
+                                            Rectangle{
+                                                anchors.centerIn: parent
+                                                width: 35
+                                                height: 35
+                                                radius: 35
+                                                border.width: 3
+                                                border.color: color_navy
+                                                color: {
+                                                    if(online){
+                                                        if(dev_state){
+                                                            color_green
+                                                        }else{
+                                                            color_gray
+                                                        }
+                                                    }else{
+                                                        color_red
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Rectangle{
+                                            width: 214
+                                            height: 40
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: name
+                                                Component.onCompleted: {
+                                                    scale = 1;
+                                                    while(width*scale > parent.width*0.8){
+                                                        scale=scale-0.01;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Rectangle{
+                                            width: 224
+                                            height: 40
+                                            Text{
+                                                anchors.centerIn: parent
+                                                text: id
+                                                Component.onCompleted: {
+                                                    scale = 1;
+                                                    while(width*scale > parent.width*0.8){
+                                                        scale=scale-0.01;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        Rectangle{
+                                            width: 244
+                                            height: 40
+                                            Row{
+                                                anchors.centerIn: parent
+                                                spacing: 20
+                                                Buttons{
+                                                    style: "dark_navy"
+                                                    text: qsTr("on")
+                                                    width: 100
+                                                    height: 40
+                                                    onClicked:{
+                                                        supervisor.playSound('click', slider_volume_button.value);
+                                                        supervisor.setGoqualDevice(id,true);
+                                                    }
+                                                }
+                                                Buttons{
+                                                    style: "dark_navy"
+                                                    text: qsTr("off")
+                                                    width: 100
+                                                    height: 40
+                                                    onClicked:{
+                                                        supervisor.playSound('click', slider_volume_button.value);
+                                                        supervisor.setGoqualDevice(id,false);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Popup{
@@ -12953,8 +13647,8 @@ Item {
             anchors.centerIn: parent
             width: parent.width*0.99
             height: parent.height*0.99
+
             Rectangle{
-                //color: color_dark_navy
                 color: color_red
                 radius: 10
                 id: rect_prd_top
@@ -12976,6 +13670,625 @@ Item {
                     text: qsTr("관리자 메뉴")
                 }
             }
+            Flickable{
+                width: parent.width
+                height: parent.height-80
+                anchors.bottom: parent.bottom
+                contentHeight: grid_manager.height
+                clip: false
+                Grid{
+                    id: grid_manager
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: 40
+                    rows: 3
+                    columns: 2
+                    spacing: 30
+                    Rectangle{
+                        id: btn_update
+                        width: 170
+                        height: 150
+                        radius: 20
+                        color:color_green
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_researching.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("프로그램 업데이트")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                                popup_update.open();
+                            }
+                        }
+                    }
+
+                    Rectangle{
+                        id: btn_log
+                        width: 170
+                        height: 150
+                        radius: 20
+                        color:color_navy
+                        //visible: false
+                        visible: false
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_bookmark.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text:qsTr("로그 확인")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
+                                loader_page.source = plog;
+                            }
+                        }
+                    }
+
+
+                    Rectangle{
+                        id: btn_usb_upload
+                        width: 170
+                        height: 150
+                        radius: 20
+                        //visible: false
+                        visible: is_admin
+                        color: enabled?color_navy:color_light_gray
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/save_r.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("USB에 저장하기")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
+                                popup_usb_select.open();
+                            }
+                        }
+                    }
+
+
+                    Rectangle{ // USB에서 받아오기
+                        id: btn_usb_download
+                        width: 170
+                        height: 150
+                        radius: 20
+                        // visible: false
+                        visible: is_admin
+                        //color: enabled?color_navy:color_light_gray
+                        color: color_navy
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/load_r.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("USB에서 받아오기")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
+                                if(is_admin){
+                                    popup_usb_download.open();
+                                }else{
+                                    popup_password.open();
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle{
+                        id: btn_reset_slam
+                        width: 170
+                        height: 150
+                        radius: 20
+                        color: color_navy
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_run.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("자율주행 재시작") //SLAM 재시작
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[UI] SETTING PAGE -> KILL SLAM");
+                                supervisor.restartSLAM();
+                            }
+                        }
+                    }
+                    Rectangle{
+                        id: btn_edit_passwd
+                        width: 170
+                        height: 150
+                        radius: 20
+                        color: color_navy
+                        visible: false
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 1
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/image_setting.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("비밀번호 변경")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
+                                popup_password.open();
+                                popup_password.is_editmode = true;
+                            }
+                        }
+                    }
+
+                    Rectangle{
+                        id: btn_all_init
+                        width: 170
+                        height: 150
+                        radius: 20
+                        visible: is_rainbow
+                        color: color_red
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 2
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_researching.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("공장 초기화")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
+                                popup_clear.open();
+                            }
+                        }
+                    }
+
+                    Rectangle{
+                        id: btn_save_setting
+                        width: 170
+                        height: 150
+                        radius: 20
+                        visible: is_rainbow
+                        color: color_red
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 2
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_save.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("세팅 저장")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] save Setting");
+                                supervisor.saveSetting();
+                                popup_manager.close();
+                            }
+                        }
+                    }
+
+                    Rectangle{
+                        id: btn_load_setting
+                        width: 170
+                        height: 150
+                        radius: 20
+                        visible: is_admin
+                        color: color_red
+                        Rectangle{
+                            anchors.centerIn: parent
+                            width: 160
+                            height: 140
+                            radius: 20
+                            color:"transparent"
+                            border.width: 2
+                            border.color: "white"
+                            Column{
+                                anchors.centerIn: parent
+                                spacing: 15
+                                Image{
+                                    source: "icon/icon_save2.png"
+                                    width: 40
+                                    height: 40
+                                    sourceSize.width: width
+                                    sourceSize.height: height
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    ColorOverlay{
+                                        anchors.fill: parent
+                                        source: parent
+                                        color: "white"
+                                    }
+                                }
+
+                                Text{
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("세팅 불러오기")
+                                    color: "white"
+                                    font.family: font_noto_r.name
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked:{
+                                supervisor.playSound('click', slider_volume_button.value);
+                                popup_load_setting.open();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Popup{
+        id: popup_load_setting
+        width: 1280
+        height: 400
+        leftPadding: 0
+        rightPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        anchors.centerIn: parent
+        background: Rectangle{
+            anchors.fill: parent
+            color: "transparent"
+        }
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
+            Column{
+                anchors.centerIn: parent
+                spacing: 40
+                Text{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    font.family: font_noto_r.name
+                    font.pixelSize: 50
+                    color: "white"
+                    text: qsTr("저장된 초기세팅을 불러오겠습니까?")
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Rectangle{
+                        width: 180
+                        height: 60
+                        radius: 10
+                        color: "#12d27c"
+                        border.width: 1
+                        border.color: "#12d27c"
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("불러오기")
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] load Setting");
+                                supervisor.loadSetting();
+                                popup_load_setting.close();
+                                popup_manager.close();
+                                init();
+                            }
+                        }
+                    }
+                    Rectangle{
+                        width: 180
+                        height: 60
+                        radius: 10
+                        color: "transparent"
+                        border.width: 1
+                        border.color: "white"
+                        Text{
+                            anchors.centerIn: parent
+                            text: qsTr("닫기")
+                            font.family: font_noto_r.name
+                            font.pixelSize: 25
+                            color: "white"
+                        }
+                        MouseArea{
+                            anchors.fill: parent
+                            onClicked: {
+                                supervisor.playSound('click', slider_volume_button.value);
+                                popup_load_setting.close();
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+
+    Popup{
+        id: popup_manual
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top2
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
+                Rectangle{
+                    color: color_dark_navy
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
             Grid{
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
@@ -12984,39 +14297,35 @@ Item {
                 columns: 2
                 spacing: 30
                 Rectangle{
-                    id: btn_update
+                    id: btn_QuickGuide
                     width: 170
                     height: 150
                     radius: 20
-                    color:color_green
+                    color:color_navy
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
                         height: 140
                         radius: 20
                         color:"transparent"
-                        border.width: 3
-                        border.color: color_green
+                        border.width: 1
+                        border.color: "white"
                         Column{
                             anchors.centerIn: parent
                             spacing: 15
                             Image{
-                                source: "icon/icon_researching.png"
-                                width: 40
-                                height: 40
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
                                 sourceSize.width: width
                                 sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
+
                             }
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("프로그램 업데이트")
+                                text: qsTr("퀵 가이드")
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -13026,20 +14335,76 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
                             popup_update.open();
                         }
                     }
                 }
 
+
+
+
+            }
+        }
+    }
+
+    Popup{
+        id: popup_manual_detail
+        width: 500
+        height: 600
+        anchors.centerIn: parent
+        leftPadding: 0
+        topPadding: 0
+        bottomPadding: 0
+        rightPadding: 0
+        background: Rectangle{
+            anchors.fill: parent
+            color : "transparent"
+        }
+
+        Rectangle{
+            radius: 10
+            clip: true
+            anchors.centerIn: parent
+            width: parent.width*0.99
+            height: parent.height*0.99
+            Rectangle{
+                color: color_blue
+                radius: 10
+                id: rect_prd_top3
+                width: parent.width
+                height: 80
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: parent.top
                 Rectangle{
-                    id: btn_log
+                    color: color_blue
+                    width: parent.width
+                    height: parent.radius
+                    anchors.bottom: parent.bottom
+                }
+                Text{
+                    anchors.centerIn: parent
+                    color: "white"
+                    font.family: font_noto_b.name
+                    font.pixelSize: 40
+                    text: qsTr("서빙로봇 매뉴얼")
+                }
+            }
+            Grid{
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.verticalCenterOffset: 40
+                rows: 2
+                columns: 2
+                spacing: 30
+
+                Rectangle{
+                    id: btn_QuickGuide2
                     width: 170
                     height: 150
                     radius: 20
                     color:color_navy
-                    visible: false
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13052,47 +14417,40 @@ Item {
                             anchors.centerIn: parent
                             spacing: 15
                             Image{
-                                source: "icon/icon_bookmark.png"
-                                width: 40
-                                height: 40
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
                                 sourceSize.width: width
                                 sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
+
                             }
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text:qsTr("로그 확인")
+                                text: qsTr("퀵 가이드")
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
                             }
                         }
-
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
-                            loader_page.source = plog;
-                        }
-                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> PROGRAM UPDATE");
+                    //        popup_update.open();
+                    //    }
+                    //}
                 }
 
-
                 Rectangle{
-                    id: btn_usb_upload
+                    id: btn_Guide
                     width: 170
                     height: 150
                     radius: 20
-//                    visible: false
-                    color: enabled?color_navy:color_light_gray
+                    color:color_navy
                     Rectangle{
                         anchors.centerIn: parent
                         width: 160
@@ -13105,22 +14463,23 @@ Item {
                             anchors.centerIn: parent
                             spacing: 15
                             Image{
-                                source: "icon/save_r.png"
-                                width: 40
-                                height: 40
+                                //source: "icon/icon_bookmark.png"
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
                                 sourceSize.width: width
                                 sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
+                                //ColorOverlay{
+                                //    anchors.fill: parent
+                                //    source: parent
+                                //    color: "white"
+                                //}
                             }
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("USB에 저장하기")
+                                text:qsTr("풀 가이드")
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -13128,75 +14487,18 @@ Item {
                         }
 
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
-                            popup_usb_select.open();
-                        }
-                    }
-                }
-
-
-                Rectangle{
-                    id: btn_usb_download
-                    width: 170
-                    height: 150
-                    radius: 20
-                    visible: false
-                    color: enabled?color_navy:color_light_gray
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
-                        radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
-                            anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/load_r.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
-                            }
-
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("USB에서 받아오기")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
-
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> DOWNLOAD FROM USB");
-                            if(is_admin){
-                                popup_usb_download.open();
-                            }else{
-                                popup_password.open();
-                            }
-                        }
-                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> LOG");
+                    //        loader_page.source = plog;
+                    //    }
+                    //}
                 }
 
                 Rectangle{
-                    id: btn_reset_slam
+                    id: btn_maint
                     width: 170
                     height: 150
                     radius: 20
@@ -13213,22 +14515,18 @@ Item {
                             anchors.centerIn: parent
                             spacing: 15
                             Image{
-                                source: "icon/icon_run.png"
-                                width: 40
-                                height: 40
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
                                 sourceSize.width: width
                                 sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
+
                             }
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("SLAM 재시작")
+                                text: qsTr("유지보수 매뉴얼") //
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -13236,17 +14534,18 @@ Item {
                         }
 
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[UI] SETTING PAGE -> KILL SLAM");
-                            supervisor.restartSLAM();
-                        }
-                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[UI] SETTING PAGE -> maint manual kill");
+                    //        supervisor.restartSLAM();
+                    //    }
+                    //}
                 }
+
                 Rectangle{
-                    id: btn_edit_passwd
+                    id: btn_multi
                     width: 170
                     height: 150
                     radius: 20
@@ -13263,22 +14562,18 @@ Item {
                             anchors.centerIn: parent
                             spacing: 15
                             Image{
-                                source: "icon/image_setting.png"
-                                width: 40
-                                height: 40
+                                source: "image/serving_manual_qr.png"
+                                width: 90
+                                height: 90
                                 sourceSize.width: width
                                 sourceSize.height: height
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
+
                             }
 
                             Text{
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("비밀번호 변경")
+                                text: qsTr("멀티환경 구축")
                                 color: "white"
                                 font.family: font_noto_r.name
                                 font.pixelSize: 20
@@ -13286,120 +14581,22 @@ Item {
                         }
 
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] SETTING PAGE -> SAVE TO USB");
-                            popup_password.open();
-                            popup_password.is_editmode = true;
-                        }
-                    }
+                    //MouseArea{
+                    //    anchors.fill: parent
+                    //    onClicked:{
+                    //        supervisor.playSound('click', slider_volume_button.value);
+                    //        supervisor.writelog("[USER INPUT] SETTING PAGE -> Multi Setting");
+                    //        popup_password.open();
+                    //        popup_password.is_editmode = true;
+                    //    }
+                    //}
                 }
 
-                Rectangle{
-                    id: btn_all_init
-                    width: 170
-                    height: 150
-                    radius: 20
-                    visible: is_rainbow
-                    color: color_red
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
-                        radius: 20
-                        color:"transparent"
-                        border.width: 3
-                        border.color: color_red
-                        Column{
-                            anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_researching.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
-                            }
-
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("공장 초기화")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
-
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] RESET ALL -> REMOVE ALL");
-                            popup_clear.open();
-                        }
-                    }
-                }
-                Rectangle{
-                    id: btn_config_init
-                    width: 170
-                    height: 150
-                    radius: 20
-                    visible: is_rainbow
-                    color: color_navy
-                    Rectangle{
-                        anchors.centerIn: parent
-                        width: 160
-                        height: 140
-                        radius: 20
-                        color:"transparent"
-                        border.width: 1
-                        border.color: "white"
-                        Column{
-                            anchors.centerIn: parent
-                            spacing: 15
-                            Image{
-                                source: "icon/icon_researching.png"
-                                width: 40
-                                height: 40
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                ColorOverlay{
-                                    anchors.fill: parent
-                                    source: parent
-                                    color: "white"
-                                }
-                            }
-                            Text{
-                                anchors.horizontalCenter: parent.horizontalCenter
-                                text: qsTr("설정 초기화")
-                                color: "white"
-                                font.family: font_noto_r.name
-                                font.pixelSize: 20
-                            }
-                        }
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] RESET CONFIG -> REMOVE CONFIG");
-                            popup_clear_config.open();
-                        }
-                    }
-                }
             }
         }
     }
+
+    //add manual
     Popup{
         id: popup_clear
         anchors.centerIn: parent
@@ -13447,7 +14644,7 @@ Item {
                     text:qsTr("정말로 공장초기화를 하시겠습니까?")
                     font.family: font_noto_r.name
                     font.pixelSize: 70
-                    color: color_red
+                    color: color_blue
                 }
                 Text{
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -13467,7 +14664,7 @@ Item {
                         fontsize: 30
                         onClicked: {
                             popup_clear.statenum = 1;
-                            supervisor.resetClear();
+                            supervisor.factoryInit();
                         }
                     }
                     Item_buttons{
@@ -13567,175 +14764,6 @@ Item {
         }
     }
 
-
-    Popup{
-        id: popup_clear_config
-        anchors.centerIn: parent
-        width: 1280
-        height: 400
-        leftPadding: 0
-        topPadding: 0
-        bottomPadding: 0
-        rightPadding: 0
-        background: Rectangle{
-            anchors.fill: parent
-            color : "transparent"
-        }
-        property var statenum: 0
-        onOpened:{
-            statenum = 0;
-            model_clear_config.clear();
-        }
-
-        function addClearState(name, prev_state){
-            var tt = name.split(" ");
-            if(model_clear_config.count > 0){
-                listview_clear_config.model.set(model_clear_config.count-1,{"done":prev_state});
-            }
-            if(tt[tt.length-1] === "done"){
-                listview_clear_config.model.append({"name":name,"done":2});
-                btn_clear_done.enabled = true;
-            }else{
-                listview_clear_config.model.append({"name":name,"done":1});
-            }
-            listview_clear_config.currentIndex = model_clear_config.count - 1;
-
-        }
-
-        Rectangle{
-            id: rect_clear_config_notice
-            visible: popup_clear_config.statenum === 0
-            width: parent.width
-            height: parent.height
-            color: color_dark_navy
-            Column{
-                anchors.centerIn: parent
-                spacing: 40
-                Text{
-                    text:qsTr("정말로 설정 초기화 하시겠습니까?")
-                    font.family: font_noto_r.name
-                    font.pixelSize: 70
-                    color: color_blue
-                }
-                Text{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text:qsTr("모든 설정이 기본세팅으로 변경됩니다.")
-                    font.family: font_noto_r.name
-                    font.pixelSize: 30
-                    color: "white"
-                }
-                Row{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 60
-                    Item_buttons{
-                        type: "round_text"
-                        width: 180
-                        height: 80
-                        text: qsTr("설정 초기화 시작")
-                        fontsize: 30
-                        onClicked: { //TEMP
-                            //popup_clear_config.statenum = 1;
-                            //supervisor.resetClearConfig();
-                        }
-                    }
-                    Item_buttons{
-                        type: "round_text"
-                        width: 180
-                        height: 80
-                        text: qsTr("취소")
-                        fontsize: 30
-                        onClicked: {
-                            popup_clear_config.close();
-                        }
-                    }
-                }
-            }
-
-        }
-        Rectangle{
-            id: rect_clear_config_ing
-            visible: popup_clear_config.statenum === 1
-            width: parent.width
-            height: parent.height
-            color: color_dark_navy
-            Component{
-                id: contactDel_config
-                Item{
-                    width: 500
-                    height: 40
-                    Rectangle{
-                        width: 500
-                        height: 40
-                        color: "transparent"
-                        Row{
-                            spacing: 20
-                            Rectangle{
-                                width: 40
-                                height: 40
-                                color: "transparent"
-                                Image{
-                                    anchors.fill: parent
-                                    sourceSize.width: width
-                                    sourceSize.height: height
-                                    source: done===2?"icon/icon_yes.png":done===1?"icon/icon_run.png":"icon/icon_error.png"
-                                }
-                            }
-                            Rectangle{
-                                width: 500 - 40
-                                height: 40
-                                color: "transparent"
-                                Text{
-                                    color: "white"
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    text: name
-                                    font.family: font_noto_r.name
-                                    font.pixelSize: 20
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Column{
-                anchors.centerIn: parent
-                spacing: 40
-                ListView{
-                    id: listview_clear_config
-                    width: 500
-                    height: 200
-                    clip: true
-                    spacing: 10
-                    model:ListModel{
-                        id:model_clear_config
-                        onCountChanged: {
-                            print(count);
-                        }
-                    }
-                    delegate: contactDel_config
-                    anchors.horizontalCenter: parent.horizontalCenter
-                }
-                Row{
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 60
-                    Item_buttons{
-                        id: btn_clear_config_done
-                        type: "round_text"
-                        width: 180
-                        enabled: false
-                        height: 80
-                        text: qsTr("종 료")
-                        fontsize: 30
-                        onClicked: {
-                            supervisor.programRestart();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     Popup{
         id: popup_usb_notice
         anchors.centerIn: parent
@@ -13767,6 +14795,17 @@ Item {
         property string name: "Desktop"
         property string mode: "compress";
         property bool is_new: true
+
+        Timer{
+                id: timer_close_popup
+                interval: 1500 // 1.5초
+                running: false
+                repeat: false
+                onTriggered: {
+                    popup_usb_notice.close();
+                }
+            }
+
         Timer{
             id: timer_usb_check
             running: false
@@ -13794,17 +14833,24 @@ Item {
                 }else if(supervisor.getzipstate() === 2){
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 성공하였습니다");
+                        //popup_usb_notice.close()
+                        timer_close_popup.start(); // 1.5초 후에 창 닫기 타이머 시작
+
                     }else{
                         btn_usb_confirm.visible = true;
-                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        //text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 누르시면 업데이트를 진행합니다");
+                        text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다\n확인을 눌러주세요");
+                        //btn_usb_confirm.close()
+
                     }
 
                 }else if(supervisor.getzipstate() === 3){
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 성공하였지만 일부 과정에서 에러가 발생했습니다");
+                        //btn_usb_confirm.close()
                     }else{
                         text_usb_state.text = qsTr("파일을 성공적으로 가져왔습니다만 일부 과정에서 에러가 발생했습니다\n확인을 누르시면 업데이트를 진행합니다");
-                        btn_usb_confirm.visible = true;
+                        //btn_usb_confirm.close()
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -13814,8 +14860,11 @@ Item {
                     text_usb_state.color = color_red;
                     if(popup_usb_notice.mode== "compress"){
                         text_usb_state.text = qsTr("저장에 실패했습니다");
+                        //btn_usb_confirm.close()
                     }else{
                         text_usb_state.text = qsTr("파일을 가져오지 못했습니다");
+                        //btn_usb_confirm.visible = true; // "확 인" 버튼 보이게 하기
+                        //btn_usb_confirm.close()
                     }
                     model_usb_error.clear();
                     for(var i=0; i<supervisor.getusberrorsize(); i++){
@@ -13827,6 +14876,8 @@ Item {
                 }
             }
         }
+
+
         onOpened:{
             timer_usb_check.start();
             model_usb_error.clear();
@@ -13872,9 +14923,12 @@ Item {
 
                 }
 
+
+
                 Rectangle{
                     id: btn_usb_confirm
-                    visible: false
+                    //visible: false
+                    visible: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     width: 100
                     height: 50
@@ -13883,15 +14937,28 @@ Item {
                     Text{
                         anchors.centerIn: parent
                         font.family:font_noto_r.name
+                        color: color_dark_navy
+                        font.pixelSize: 15
+                        horizontalAlignment: Text.AlignHCenter
+                        text:qsTr("확 인")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             if(popup_usb_notice.mode== "compress"){
-
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }else{
-                                supervisor.updateUSB();
+                                //supervisor.updateUSB();
+                                //창 닫기
+                                //popup_usb_notice.visible = false;
+                                //popup_usb_download.visible = false;
+                                popup_usb_notice.close();
+                                popup_usb_download.close();
                             }
                         }
                     }
@@ -13899,8 +14966,9 @@ Item {
             }
         }
     }
-    Popup{
-        id: popup_usb_download
+
+     Popup{
+         id: popup_usb_download
         anchors.centerIn: parent
         width: 400
         height: 500
@@ -13927,6 +14995,7 @@ Item {
             }
 
             text_recent_file.text = supervisor.getusbrecentfile();
+            //text_recent_file.text = supervisor.readusbrecentfile();
             if(text_recent_file.text == ""){
                 notice_recent.visible = false;
                 btn_recent_confirm.visible = false;
@@ -13942,7 +15011,7 @@ Item {
         Rectangle{
             anchors.fill: parent
             Rectangle{
-//                id: rect_1
+                  id: rect_1
                 width: parent.width
                 height: 50
                 color: color_dark_navy
@@ -14010,14 +15079,15 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.writelog("[USER INPUT] GET RECENT USB FILE : "+supervisor.getusbrecentfile());
                             popup_usb_notice.mode = "extract_recent";
                             popup_usb_notice.open();
-//                            supervisor.readusbrecentfile();
+                              supervisor.readusbrecentfile();
                         }
                     }
                 }
+
 
                 Rectangle{
                     width: 200
@@ -14048,9 +15118,9 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
-//                                popup_usb_download.index = 1;
-//                                popup_usb_download.set_name = name;
+                                supervisor.playSound('click', slider_volume_button.value);
+                                  popup_usb_download.index = 1;
+                                  popup_usb_download.set_name = name;
                             }
                         }
                     }
@@ -14064,6 +15134,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_ui?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -14074,7 +15145,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_ui = !popup_usb_download.is_ui;
                         }
                     }
@@ -14083,6 +15154,7 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: false
                     color: popup_usb_download.is_slam?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
@@ -14093,7 +15165,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_slam = !popup_usb_download.is_slam;
                         }
                     }
@@ -14102,17 +15174,18 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_config?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("robot_config")
+                        text:qsTr("로봇 설정값")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_config = !popup_usb_download.is_config;
                         }
                     }
@@ -14126,12 +15199,12 @@ Item {
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("maps")
+                        text:qsTr("맵")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_map = !popup_usb_download.is_map;
                         }
                     }
@@ -14140,48 +15213,128 @@ Item {
                     width: 280
                     radius: 10
                     height: 50
+                    visible: is_rainbow
                     color: popup_usb_download.is_log?color_green:color_light_gray
                     Text{
                         anchors.centerIn: parent
                         font.family: font_noto_r.name
                         font.pixelSize: 15
-                        text:qsTr("Log")
+                        text:qsTr("로그")
                     }
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_usb_download.is_log = !popup_usb_download.is_log;
                         }
                     }
                 }
             }
-            Rectangle{
-                width: 250
-                radius: 10
-                height: 50
-                color: "black"
-                anchors.bottom: parent.bottom
+
+            Column{
                 anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.bottom
+                spacing: 10
                 anchors.bottomMargin: 30
+                //bottomMargin: 30
                 visible: popup_usb_download.index === 1
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    font.pixelSize: 15
-                    color:"white"
-                    text:qsTr("확인")
+
+                Rectangle{
+                    width: 250
+                    radius: 10
+                    height: 50
+                    color: "black"
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                        color:"white"
+                        text: qsTr("확인")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            supervisor.playSound('click', slider_volume_button.value);
+                            popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                            popup_usb_download.close();
+                            popup_usb_notice.open();
+                        }
+                    }
                 }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
-                        popup_usb_download.close();
-                        popup_usb_notice.open();
+
+                Rectangle{
+                    width: 250
+                    radius: 10
+                    height: 50
+                    color: "black"
+                    Text{
+                        anchors.centerIn: parent
+                        font.family: font_noto_r.name
+                        font.pixelSize: 15
+                        color:"white"
+                        text: qsTr("취소")
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            supervisor.playSound('click', slider_volume_button.value);
+                            popup_usb_download.close();
+                        }
                     }
                 }
             }
+            //Rectangle{
+            //    width: 250
+            //    radius: 10
+            //    height: 50
+            //    color: "black"
+            //    anchors.bottom: parent.bottom
+            //    anchors.horizontalCenter: parent.horizontalCenter
+            //    anchors.bottomMargin: 30
+            //    visible: popup_usb_download.index === 1
+            //    Text{
+            //        anchors.centerIn: parent
+            //        font.family: font_noto_r.name
+            //        font.pixelSize: 15
+            //        color:"white"
+            //        text:qsTr("확인")
+            //    }
+            //    MouseArea{
+            //        anchors.fill: parent
+            //        onClicked: {
+            //            supervisor.playSound('click', slider_volume_button.value);
+            //            popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+            //            popup_usb_download.close();
+            //            popup_usb_notice.open();
+            //        }
+            //    }
+            //}
+
+            //Rectangle{
+            //    width: 250
+            //    radius: 10
+            //    height: 50
+            //    color: "black"
+            //    anchors.bottom: parent.bottom
+            //    anchors.horizontalCenter: parent.horizontalCenter
+            //    anchors.bottomMargin: 30
+            //    visible: popup_usb_download.index === 1
+            //    Text{
+            //        anchors.centerIn: parent
+            //        font.family: font_noto_r.name
+            //        font.pixelSize: 15
+            //        color:"white"
+            //        text:qsTr("취소")
+            //    }
+            //    MouseArea{
+            //        anchors.fill: parent
+            //        onClicked: {
+            //            supervisor.playSound('click', slider_volume_button.value);
+            //            popup_usb_download.close();
+            //        }
+            //    }
+            //}
+
 
         }
         Timer{
@@ -14196,6 +15349,7 @@ Item {
             }
         }
     }
+
     Popup{
         id: popup_usb_select
         anchors.centerIn: parent
@@ -14226,11 +15380,11 @@ Item {
 
             timer_check_usb_new.start();
             index = 0;
-            is_ui = true;
-            is_slam = true;
-            is_map = false;
+            //is_ui = true;
+            //is_slam = true;
+            is_map = true;
             is_log = false;
-            is_config = true;
+            is_config = false;
             model_usb_list.clear();
             for(var i=0; i<supervisor.getusbsize(); i++){
                 print(i, supervisor.getusbname(i));
@@ -14312,11 +15466,12 @@ Item {
                     font.pixelSize: 20
                     horizontalAlignment: Text.AlignHCenter
                     color: color_red
-                    text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 제거후, 다시 연결하면 인식될 수 있습니다")
+                    text:qsTr("** USB를 인식할 수 없습니다 **\nUSB를 뺏다 꼽아주시면 인식될 수 있습니다")
                 }
                 Column{
                     anchors.centerIn: parent
-                    spacing: 30
+                    spacing: 10
+                    anchors.bottomMargin: 30
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
                         visible: popup_usb_select.index === 0
@@ -14352,7 +15507,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         text_no_usb.visible = false;
                                         popup_usb_select.index = 1;
                                         popup_usb_select.set_name = name;
@@ -14363,12 +15518,14 @@ Item {
                     }
                     Column{
                         anchors.horizontalCenter: parent.horizontalCenter
+                        //anchors.centerIn: parent.anchors
                         spacing: 10
                         visible: popup_usb_select.index === 1
                         Rectangle{
                             width: 280
                             radius: 10
                             height: 50
+                            visible: false
                             color: popup_usb_select.is_ui?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14379,7 +15536,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_ui = !popup_usb_select.is_ui;
                                 }
                             }
@@ -14388,6 +15545,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible: false
                             color: popup_usb_select.is_slam?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14398,7 +15556,7 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_slam = !popup_usb_select.is_slam;
                                 }
                             }
@@ -14407,17 +15565,18 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:is_rainbow
                             color: popup_usb_select.is_config?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text:qsTr("설정파일")
+                                text:qsTr("로봇 설정값") //설정파일
                             }
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_config = !popup_usb_select.is_config;
                                 }
                             }
@@ -14426,17 +15585,18 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:true
                             color: popup_usb_select.is_map?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
                                 font.family: font_noto_r.name
                                 font.pixelSize: 15
-                                text:qsTr("맵 폴더")
+                                text:qsTr("맵")
                             }
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_map = !popup_usb_select.is_map;
                                 }
                             }
@@ -14445,6 +15605,7 @@ Item {
                             width: 280
                             radius: 10
                             height: 50
+                            visible:is_rainbow
                             color: popup_usb_select.is_log?color_green:color_light_gray
                             Text{
                                 anchors.centerIn: parent
@@ -14455,12 +15616,65 @@ Item {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click', slider_volume_button.value);
                                     popup_usb_select.is_log = !popup_usb_select.is_log;
                                 }
                             }
                         }
                     }
+
+                    //Column{
+                    //    anchors.horizontalCenter: parent.horizontalCenter
+                    //    anchors.bottom: parent.bottom
+                    //    spacing: 10
+                    //    anchors.bottomMargin: 30
+                    //    //bottomMargin: 30
+                    //    visible: popup_usb_download.index === 1
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("확인")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                supervisor.playSound('click', slider_volume_button.value);
+                    //                popup_usb_notice.setProperty("compress",popup_usb_download.set_name,popup_usb_download.is_ui,popup_usb_download.is_slam,popup_usb_download.is_config,popup_usb_download.is_map,popup_usb_download.is_log);
+                    //                popup_usb_download.close();
+                    //                popup_usb_notice.open();
+                    //            }
+                    //        }
+                    //    }
+
+                    //    Rectangle{
+                    //        width: 250
+                    //        radius: 10
+                    //        height: 50
+                    //        color: "black"
+                    //        Text{
+                    //            anchors.centerIn: parent
+                    //            font.family: font_noto_r.name
+                    //            font.pixelSize: 15
+                    //            color:"white"
+                    //            text: qsTr("취소0")
+                    //        }
+                    //        MouseArea{
+                    //            anchors.fill: parent
+                    //            onClicked: {
+                    //                supervisor.playSound('click', slider_volume_button.value);
+                    //                popup_usb_download.close();
+                    //            }
+                    //        }
+                    //    }
+                    //}
                     Rectangle{
                         width: 250
                         radius: 10
@@ -14478,17 +15692,40 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_usb_notice.setProperty("compress",popup_usb_select.set_name,popup_usb_select.is_ui,popup_usb_select.is_slam,popup_usb_select.is_config,popup_usb_select.is_map,popup_usb_select.is_log);
                                 popup_usb_select.close();
                                 popup_usb_notice.open();
                             }
                         }
                     }
+                    //Rectangle{
+                    //    width: 250
+                    //    radius: 10
+                    //    height: 50
+                    //    color: "black"
+                    //    anchors.horizontalCenter: parent.horizontalCenter
+                    //    visible: popup_usb_select.index === 1
+                    //    Text{
+                    //        anchors.centerIn: parent
+                    //        font.family: font_noto_r.name
+                    //        font.pixelSize: 15
+                    //        color:"white"
+                    //        text:qsTr("취소")
+                    //    }
+                    //    MouseArea{
+                    //        anchors.fill: parent
+                    //        onClicked: {
+                    //            supervisor.playSound('click', slider_volume_button.value);
+                    //            popup_usb_select.close();
+                    //        }
+                    //    }
+                    //}
                 }
             }
         }
     }
+
     Popup{
         id: popup_change_call
         width: 400
@@ -14517,48 +15754,286 @@ Item {
             }
         }
     }
+    // Popup{
+    //     id: popup_update_new
+    //     width: 1280
+    //     height: 400
+    //     leftPadding: 0
+    //     rightPadding: 0
+    //     topPadding: 0
+    //     bottomPadding: 0
+    //     anchors.centerIn: parent
+    //     background: Rectangle{
+    //         anchors.fill: parent
+    //         color: "transparent"
+    //     }
+
+    //     function newest(){
+    //         text_main_update.text = qsTr("프로그램이 이미 최신입니다");
+    //         text_serv_update.text = qsTr("");
+    //     }
+
+    //     function failed(){
+    //         text_main_update.text = qsTr("업데이트에 실패했습니다");
+    //         text_serv_update.text = qsTr("");
+    //     }
+
+    //     onOpened: {
+    //         supervisor.refreshVersion();
+    //         timer_update_popup.start();
+    //     }
+    //     onClosed:{
+    //         timer_update_popup.stop();
+    //     }
+
+    //     Timer{
+    //         id: timer_update_popup
+    //         running: false
+    //         repeat: true
+    //         interval: 1000
+    //         onTriggered:{
+    //             current_version.text = supervisor.getCurVersion();
+    //             new_version.text = supervisor.getNewVersion();
+    //             last_date.text = supervisor.getCurVersionDate();
+    //         }
+    //     }
+
+    //     Rectangle{
+    //         width: parent.width
+    //         height: parent.height
+    //         color: color_navy
+    //         Column{
+    //             anchors.centerIn: parent
+    //             spacing: 40
+    //             Column{
+    //                 spacing: 10
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //                 Row{
+    //                     anchors.horizontalCenter: parent.horizontalCenter
+    //                     Text{
+    //                         width: 200
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         text:qsTr("현재 버전 : ")
+    //                     }
+    //                     Text{
+    //                         id: current_version
+    //                         width: 500
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text: supervisor.getCurVersion()
+    //                     }
+    //                 }
+    //                 Row{
+    //                     anchors.horizontalCenter: parent.horizontalCenter
+    //                     Text{
+    //                         width: 200
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         text:qsTr("최신 버전 : ")
+    //                     }
+    //                     Text{
+    //                         id: new_version
+    //                         width: 500
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text: supervisor.getNewVersion()
+    //                     }
+    //                 }
+    //                 Row{
+    //                     anchors.horizontalCenter: parent.horizontalCenter
+    //                     Text{
+    //                         width: 200
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         text:qsTr("마지막 업데이트 날짜 : ")
+    //                     }
+    //                     Text{
+    //                         id: last_date
+    //                         width: 500
+    //                         font.family: font_noto_r.name
+    //                         font.pixelSize: 25
+    //                         color: "white"
+    //                         horizontalAlignment: Text.AlignHCenter
+    //                         text: supervisor.getCurVersionDate()
+    //                     }
+    //                 }
+    //             }
+    //             Row{
+    //                 anchors.horizontalCenter: parent.horizontalCenter
+    //                 spacing: 20
+    //                 Buttons{
+    //                     id: btn_update_new
+    //                     text:qsTr("업데이트")
+    //                     style: "green"
+    //                     onClicked: {
+    //                         supervisor.playSound('click', slider_volume_button.value);
+    //                         supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+    //                         supervisor.updateProgram(supervisor.getNewVersion());
+    //                         // popup_update_new.close();
+    //                     }
+    //                 }
+    //                 Buttons{
+    //                     id: btn_rollback_new
+    //                     text:qsTr("롤백")
+    //                     style: "green"
+    //                     onClicked: {
+    //                         supervisor.playSound('click', slider_volume_button.value);
+    //                         popup_rollback.open();
+    //                         // popup_update_new.close();
+    //                     }
+    //                 }
+    //                 Buttons{
+    //                     id: btn_cancel_new
+    //                     text:qsTr("닫기")
+    //                     style: "normal"
+    //                     onClicked: {
+    //                         supervisor.playSound('click', slider_volume_button.value);
+    //                         popup_update_new.close();
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
+
     Popup{
-        id: popup_reset
-        width: 400
-        height: 300
-        anchors.centerIn: parent
+        id: popup_rollback
+        width: 1280
+        height: 400
         leftPadding: 0
+        rightPadding: 0
         topPadding: 0
         bottomPadding: 0
-        rightPadding: 0
-        Rectangle{
+        anchors.centerIn: parent
+        background: Rectangle{
             anchors.fill: parent
+            color: "transparent"
+        }
+
+        onOpened:{
+            model_versions.clear();
+            for(var i=0; i<supervisor.getNewVersionsSize(); i++){
+                model_versions.append({version:supervisor.getNewVersion(i),
+                                      date:supervisor.getNewVersionDate(i),
+                                      message:supervisor.getNewVersionMessage(i)});
+            }
+        }
+
+        Rectangle{
+            width: parent.width
+            height: parent.height
+            color: color_navy
             Column{
                 anchors.centerIn: parent
-                spacing: 20
-                Text{
-                    text:qsTr("정말 덮어씌우시겠습니까?")
-                    font.family: font_noto_b.name
-                    font.pixelSize: 20
-                }
-                Rectangle{
-                    width: 100
-                    height: 50
-                    border.width: 1
-                    radius: 5
-                    Text{
+                spacing: 40
+                Flickable{
+                    width: popup_rollback.width
+                    height: 200
+                    contentHeight: cols_version.height
+                    clip: true
+                    Column{
+                        id: cols_version
                         anchors.centerIn: parent
-                        text:qsTr("확인")
-                        font.family: font_noto_r.name
+                        spacing: 10
+                        Repeater{
+                            model: ListModel{id: model_versions}
+                            Rectangle{
+                                width: 800
+                                height: 80
+                                color: select_version===index?color_green:color_light_gray
+                                Rectangle{
+                                    width: 120
+                                    height: 50
+                                    radius: 30
+                                    color: color_light_gray
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 100
+                                    Text{
+                                        anchors.centerIn: parent
+                                        text: version
+                                        font.bold: true
+                                        font.pixelSize: 20
+                                    }
+                                }
+                                Column{
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.left: parent.left
+                                    anchors.leftMargin: 400
+                                    spacing: 10
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("message : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: message
+                                        }
+                                    }
+                                    Row{
+                                        Text{
+                                            horizontalAlignment: Text.AlignHCenter
+                                            text: qsTr("date : ")
+                                            width: 150
+                                        }
+                                        Text{
+                                            text: date
+                                        }
+                                    }
+                                }
+                                MouseArea{
+                                    anchors.fill: parent
+                                    onClicked:{
+                                        select_version = index;
+                                    }
+                                }
+                            }
+                        }
                     }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked:{
-                            click_sound.play();
-                            supervisor.writelog("[USER INPUT] RESET HOME FOLDERS")
-                            supervisor.resetHomeFolders();
-                            popup_reset.close();
+                }
+                Row{
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    spacing: 20
+                    Buttons{
+                        text:qsTr("롤백")
+                        style: "green"
+                        onClicked: {
+                            if(select_version > -1 && select_version < model_versions.count){
+                                supervisor.playSound('click', slider_volume_button.value);
+                                supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
+                                supervisor.updateProgram(model_versions.get(select_version).version);
+                                popup_rollback.close();
+                            }else{
+                                supervisor.playSound('no', slider_volume_button.value);
+                            }
+
+                        }
+                    }
+                    Buttons{
+                        text:qsTr("닫기")
+                        style: "normal"
+                        onClicked: {
+                            supervisor.playSound('click', slider_volume_button.value);
+                            popup_rollback.close();
                         }
                     }
                 }
             }
         }
     }
+
     Popup{
         id: popup_update
         width: 1280
@@ -14715,7 +16190,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update Start");
                                 supervisor.updateProgram();
                                 popup_update.close();
@@ -14740,7 +16215,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_update.close();
                             }
                         }
@@ -14763,7 +16238,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_loading.open();
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update(Git Pull) Start");
                                 supervisor.updateProgramGitPull();
@@ -14790,7 +16265,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_loading.open();
                                 supervisor.writelog("[USER INPUT] SETTING : Program Update(Git Reset) Start");
                                 supervisor.gitReset();
@@ -14806,7 +16281,7 @@ Item {
                 anchors.right: parent.right
                 property var count: 0
                 onClicked:{
-                    click_sound.play();
+                    supervisor.playSound('click', slider_volume_button.value);
                     if(++count > 4){
                         count = 0;
                         supervisor.writelog("[USER INPUT] SETTING : Show Git Pull Button");
@@ -15014,7 +16489,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(popup_camera.is_switched){
                                     is_reset_slam = true;
                                     supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA SWITCH LEFT("+text_camera_1.text+") RIGHT("+text_camera_2.text+")");
@@ -15047,7 +16522,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.writelog("[USER INPUT] SETTING PAGE : CAMERA Position Switch")
                                 popup_camera.is_switched = true;
                                 var temp_id = popup_camera.left_id;
@@ -15073,7 +16548,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_camera.close();
                             }
                         }
@@ -15174,7 +16649,7 @@ Item {
                     height: 55
                     text: qsTr("이전음성 초기화")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.clearTTSVoice(combo_voice_language.currentIndex, combo_voice_name_2.currentIndex);
                     }
                 }
@@ -15184,7 +16659,7 @@ Item {
                     height: 55
                     text: qsTr("한꺼번에 만들기")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.setTTSMode("tts");
                         supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
                         supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
@@ -15197,7 +16672,7 @@ Item {
                     height: 55
                     text: qsTr("취 소")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         popup_voice.close();
                     }
                 }
@@ -15207,7 +16682,7 @@ Item {
                     height: 55
                     text: qsTr("저 장")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         supervisor.setTTSMode("tts");
                         supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
                         supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
@@ -15250,7 +16725,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.setTTSMode("tts");
                                 supervisor.setTTSVoice(combo_voice_language.currentIndex,combo_voice_name_2.currentIndex);
                                 supervisor.setTTSVoiceDetail(slider_speed.value, slider_pitch.value, slider_alpha.value, slider_emotion.value, slider_emotion_strength.value);
@@ -15459,7 +16934,7 @@ Item {
                     height: 55
                     text: qsTr("닫 기")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         combo_voice_language.currentIndex = supervisor.getTTSLanguageNum();
                         popup_mention.close();
                     }
@@ -15470,7 +16945,7 @@ Item {
                     height: 55
                     text: qsTr("저 장")
                     onClicked:{
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         if(combo_voice_language.currentIndex != combo_voice_lan_2.currentIndex){
                             popup_change_voice_language.open();
                         }else{
@@ -15524,7 +16999,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_change_voice_language.open();
                             }
                         }
@@ -15593,7 +17068,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_1;
                                         tfield_text_1.selectAll();
                                         keyboard.open();
@@ -15639,7 +17114,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_2;
                                         tfield_text_2.selectAll();
                                         keyboard.open();
@@ -15700,7 +17175,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_3;
                                         tfield_text_3.selectAll();
                                         keyboard.open();
@@ -15747,7 +17222,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_4;
                                         tfield_text_4.selectAll();
                                         keyboard.open();
@@ -15809,7 +17284,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_5;
                                         tfield_text_5.selectAll();
                                         keyboard.open();
@@ -15855,7 +17330,7 @@ Item {
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         keyboard.owner = tfield_text_6;
                                         tfield_text_6.selectAll();
                                         keyboard.open();
@@ -15922,7 +17397,7 @@ Item {
                         font.family: font_noto_r.name
                         font.pixelSize: 30
                         font.bold: true
-                        text:qsTr("로봇 프리셋 설정")
+                        text:qsTr("로봇 속도 설정")
                     }
                     Rectangle{
                         anchors.bottom: parent.bottom
@@ -15969,7 +17444,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_preset.update();
                                         }
                                     }
@@ -15987,7 +17462,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click', slider_volume_button.value);
                                             popup_preset_name.open();
                                         }
                                     }
@@ -15997,7 +17472,6 @@ Item {
                                 anchors.horizontalCenter: parent.horizontalCenter
                                 width: rect_preset_l.width*0.8
                                 height: 70
-                                //visible: is_admin // add . 05.22
                                 radius: 5
                                 border.width: popup_preset.select_preset===1?3:1
                                 border.color: popup_preset.select_preset===1?color_green:"black"
@@ -16018,7 +17492,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 1;
                                         popup_preset.update();
                                     }
@@ -16048,7 +17522,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 2;
                                         popup_preset.update();
                                     }
@@ -16078,7 +17552,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 3;
                                         popup_preset.update();
                                     }
@@ -16108,7 +17582,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 4;
                                         popup_preset.update();
                                     }
@@ -16138,7 +17612,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.select_preset = 5;
                                         popup_preset.update();
                                     }
@@ -16178,7 +17652,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         popup_preset.close();
                                     }
                                 }
@@ -16198,7 +17672,7 @@ Item {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(popup_preset.select_preset === 1){
                                             supervisor.setSetting("setting","PRESET1/name",text_preset_1.text);
                                         }else if(popup_preset.select_preset === 2){
@@ -16230,7 +17704,6 @@ Item {
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.verticalCenterOffset: -50
                             rows: 6
-                            visible: is_admin // add. 05.22
                             columns: 3
                             horizontalItemAlignment: Grid.AlignHCenter
                             verticalItemAlignment: Grid.AlignVCenter
@@ -16256,7 +17729,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_pivot;
                                             preset_limit_pivot.selectAll();
@@ -16294,7 +17767,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_pivot_acc;
                                             preset_limit_pivot_acc.selectAll();
@@ -16329,7 +17802,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_v;
                                             preset_limit_v.selectAll();
@@ -16365,7 +17838,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_vacc;
                                             preset_limit_vacc.selectAll();
@@ -16401,7 +17874,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_w;
                                             preset_limit_w.selectAll();
@@ -16438,7 +17911,7 @@ Item {
                                 MouseArea{
                                     anchors.fill:parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click', slider_volume_button.value);
                                         if(keypad.is_opened){
                                             keypad.owner = preset_limit_wacc;
                                             preset_limit_wacc.selectAll();
@@ -16478,7 +17951,7 @@ Item {
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click', slider_volume_button.value);
                         if(keyboard.is_opened){
                             keyboard.owner = preset_name;
                             preset_name.selectAll();
@@ -16505,7 +17978,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             popup_preset_name.close();
                         }
                     }
@@ -16522,7 +17995,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click', slider_volume_button.value);
                             supervisor.setSetting("setting","PRESET"+Number(popup_preset.select_preset)+"/name",preset_name.text);
                             popup_preset.update();
                             popup_preset_name.close();
@@ -16603,7 +18076,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_preset_set.close();
                             }
                         }
@@ -16621,7 +18094,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.setSetting("update","DRIVING/cur_preset",Number(popup_preset_set.preset_num));
                                 is_reset_slam = true;
                                 popup_preset_set.close();
@@ -16808,7 +18281,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_x;
                                     tf_lidar_x.selectAll();
@@ -16830,7 +18303,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_y;
                                     tf_lidar_y.selectAll();
@@ -16852,7 +18325,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_z;
                                     tf_lidar_z.selectAll();
@@ -16875,7 +18348,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_rx;
                                     tf_lidar_rx.selectAll();
@@ -16898,7 +18371,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_ry;
                                     tf_lidar_ry.selectAll();
@@ -16921,7 +18394,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_lidar_rz;
                                     tf_lidar_rz.selectAll();
@@ -16951,7 +18424,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_x;
                                     tf_left_x.selectAll();
@@ -16973,7 +18446,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_y;
                                     tf_left_y.selectAll();
@@ -16995,7 +18468,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_z;
                                     tf_left_z.selectAll();
@@ -17017,7 +18490,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_rx;
                                     tf_left_rx.selectAll();
@@ -17039,7 +18512,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_ry;
                                     tf_left_ry.selectAll();
@@ -17061,7 +18534,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_left_rz;
                                     tf_left_rz.selectAll();
@@ -17093,7 +18566,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_x;
                                     tf_right_x.selectAll();
@@ -17115,7 +18588,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_y;
                                     tf_right_y.selectAll();
@@ -17137,7 +18610,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_z;
                                     tf_right_z.selectAll();
@@ -17159,7 +18632,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_rx;
                                     tf_right_rx.selectAll();
@@ -17181,7 +18654,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_ry;
                                     tf_right_ry.selectAll();
@@ -17203,7 +18676,7 @@ Item {
                         MouseArea{
                             anchors.fill:parent
                             onClicked: {
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 if(keypad.is_opened){
                                     keypad.owner = tf_right_rz;
                                     tf_right_rz.selectAll();
@@ -17236,7 +18709,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 popup_tf.close();
                             }
                         }
@@ -17257,7 +18730,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 supervisor.writelog("[USER INPUT] SETTING CAMERA TF CHANGED");
 
                                 var lidar_str = tf_lidar_x.text + "," + tf_lidar_y.text + "," + tf_lidar_z.text;
@@ -17281,10 +18754,13 @@ Item {
         id: popup_wifi
         onDone: {
             popup_wifi.close();
-            update();
         }
         onCancel: {
             popup_wifi.close();
+        }
+        onClosed: {
+            console.log("init neeeeeeeeeeeeeeeeeeeeeeed")
+            page_setting.init();
         }
     }
 
@@ -17345,7 +18821,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 backPage();
                             }
                         }
@@ -17363,7 +18839,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click', slider_volume_button.value);
                                 save();
                                 backPage();
                             }
@@ -17381,8 +18857,15 @@ Item {
     Popup_map_list{
         id: popup_maplist
     }
-//    SoundEffect{
-//        id: click
-//        source: "bgm/click.wav"
-//    }
+    Popup_loading{
+        id: popup_loading
+    }
+
+    Tool_Keyboard{
+        id: keyboard
+    }
+    Tool_KeyPad{
+        id: keypad
+    }
+
 }

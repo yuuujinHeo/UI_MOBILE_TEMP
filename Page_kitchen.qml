@@ -11,12 +11,6 @@ Item {
     width: 1280
     height: 800
 
-    Component.onCompleted: {
-    }
-    Component.onDestruction: {
-        popup_notice.close();
-    }
-
     function init(){
         print("kitchen init");
         statusbar.visible = true;
@@ -26,6 +20,7 @@ Item {
         cur_page = 0;
         cur_preset = parseInt(supervisor.getSetting("update","DRIVING","cur_preset"));
 
+        box_size = parseInt(supervisor.getSetting("setting","UI","box_size"));
         group_num = supervisor.getLocationGroupNum();
         robot_type = supervisor.getSetting("setting","ROBOT_TYPE","type");
         table_num = 0;
@@ -37,28 +32,17 @@ Item {
         }else{
             show_serving = true;
         }
-        table_view = "table_name";
         if(supervisor.getSetting("setting","USE_UI","use_tray")==="true"){
             use_tray=true;
         }else{
             use_tray=false;
         }
 
-        if(use_tray){
-            col_num = 1;
-            row_num = 5;
-        }else{
-            col_num = parseInt(supervisor.getSetting("setting","UI","group_col_num"));
-            row_num = parseInt(supervisor.getSetting("setting","UI","group_row_num"));
-        }
+        col_num = parseInt(supervisor.getSetting("setting","UI","group_col_num"));
+        row_num = parseInt(supervisor.getSetting("setting","UI","group_row_num"));
 
-        if(table_view === "table_name"){
-            max_col = 5
-            max_row = 4
-        }else{
-            max_col = 8
-            max_row = 4
-        }
+        max_col = 5
+        max_row = 4
 
         traymodel.clear();
         for(var i=0; i<tray_num; i++){
@@ -66,35 +50,117 @@ Item {
         }
 
         update_group();
-
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             if(supervisor.isCallingMode() || supervisor.getCallQueueSize() > 0){
                 popup_clean_calling.cleaninglocation = false;
                 popup_clean_calling.open();
             }
         }
-//        supervisor.moveStop();
         supervisor.setMotorLock(true);
-
-//        if(supervisor.getSetting("setting","USE_UI","use_restinglock")==="true"){
-//            supervisor.setMotorLock(false);
-//        }else{
-//            supervisor.setMotorLock(true);
-//        }
     }
 
+
+    function openNotice(errstr){
+        popup_notice.init();
+        popup_notice.style = "warning";
+        if(errstr === "no_path"){
+            popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "localization"){
+            popup_notice.main_str = qsTr("로봇의 위치를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("로봇초기화를 다시 해주세요");
+            popup_notice.addButton(qsTr("위치초기화"));
+            popup_notice.open();
+        }else if(errstr === "emo"){
+            popup_notice.main_str = qsTr("비상스위치가 눌려있습니다");
+            popup_notice.sub_str = qsTr("비상스위치를 풀어주세요");
+            popup_notice.open();
+        }else if(errstr === 3){
+            popup_notice.main_str = qsTr("경로가 취소되었습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === "motor_lock"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 수동모드입니다");
+            popup_notice.sub_str = "";
+
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === 5){
+            popup_notice.main_str = qsTr("모터와 연결되지 않았습니다");
+            popup_notice.sub_str = "";
+            popup_notice.open();
+        }else if(errstr === 6){
+            popup_notice.main_str = qsTr("출발할 수 없는 상태입니다");
+            popup_notice.sub_str = qsTr("로봇을 다시 초기화해주세요");
+            popup_notice.open();
+        }else if(errstr === "no_location"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "no_patrol"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
+        }else if(errstr === "motor_notready"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("모터초기화가 필요합니다");
+            popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
+
+            popup_notice.addButton(qsTr("모터초기화"))
+            popup_notice.open();
+        }else if(errstr === "debug"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("디버그 모드입니다")
+            popup_notice.sub_str = qsTr("디버그모드에서는 주행할 수 없습니다")
+
+            popup_notice.open();
+        }else if(errstr === "charging"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
+            popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
+
+            popup_notice.open();
+        }else if(errstr === "running"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("로봇이 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getStateMovingStr();
+
+            popup_notice.open();
+        }else if(errstr === "ipc_discon"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("SLAMNAV와 연결할 수 없습니다")
+            popup_notice.sub_str = "";
+
+            popup_notice.open();
+        }else if(errstr === "motor"){
+            popup_notice.style = "error";
+            popup_notice.main_str = qsTr("모터가 현재 대기상태가 아닙니다")
+            popup_notice.sub_str = qsTr("현재 상태 : ")+supervisor.getMotorStatusStr(0)+","+supervisor.getMotorStatusStr(1);
+
+            popup_notice.open();
+        }
+    }
 
     function cleaning(){
             popup_clean_calling.cleaninglocation = true;
             popup_clean_calling.open();
     }
 
-    property string table_view: "table_name"
     property int tray_num: 2
     property int table_num: 5
     property int group_num: 1
     property int row_num: 5
     property int col_num: 1
+    property int box_size: 1
+    property int max_box_size: 3
 
     property int max_row: 5
     property int max_col: 5
@@ -103,8 +169,10 @@ Item {
 
     property bool use_tray: false
 
-    property int tray_width: 400
-    property int tray_height: 80
+    property int table_width: 153
+    property int table_height: 82
+    property int tray_width: 250
+    property int tray_height: 100
     property int spacing_tray : 10
     property int rect_size: 70
     property int traybox_margin: 150
@@ -112,6 +180,7 @@ Item {
     property int cur_table: -1
     property int cur_group: 0
     property int cur_page: 0
+    property int cur_tray: -1
 
     property string move_loc: "None"
 
@@ -157,7 +226,6 @@ Item {
                 rect_go.color = color_red;
                 text_go.color = color_dark_gray;
                 text_go.text = qsTr("디버그 모드")
-                text_go.font.pixelSize = 25
             }else if(supervisor.getIPCConnection()){
                 if(supervisor.getPowerStatus()){
                     if(supervisor.getEmoStatus()){
@@ -169,7 +237,6 @@ Item {
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("비상스위치가 눌려있음")
-                        text_go.font.pixelSize = 25
                     }else if(supervisor.getMotorState() === 0){
                         btn_go.active = false;
                         menubar.menu2_en = false;
@@ -179,17 +246,28 @@ Item {
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("모터락해제됨")
-                        text_go.font.pixelSize = 25
                     }else if(supervisor.getLocalizationState() === 2){
-                        btn_go.active = true;
-                        menubar.menu2_en = true;
-                        menubar.menu3_en = true;
-                        menubar.menu4_en = true;
-                        rect_go.color = color_blue;
-                        btn_patrol.active = true;
-                        text_go.color = "white";
-                        text_go.text = qsTr("서빙 시작")
-                        text_go.font.pixelSize = 35
+                        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                            btn_go.active = true;
+                            menubar.menu2_en = true;
+                            menubar.menu3_en = true;
+                            menubar.menu4_en = true;
+                            rect_go.color = color_green;
+                            btn_patrol.active = true;
+                            text_go.color = "white";
+                            text_go.text = qsTr("퇴식 테이블로")
+                        }
+
+                        else{
+                            btn_go.active = true;
+                            menubar.menu2_en = true;
+                            menubar.menu3_en = true;
+                            menubar.menu4_en = true;
+                            rect_go.color = color_blue;
+                            btn_patrol.active = true;
+                            text_go.color = "white";
+                            text_go.text = qsTr("서빙 시작")
+                        }
                     }else{
                         btn_go.active = false;
                         menubar.menu2_en = false;
@@ -199,7 +277,6 @@ Item {
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("위치 초기화필요")
-                        text_go.font.pixelSize = 30
                     }
                 }else{
                     btn_go.active = false;
@@ -210,7 +287,6 @@ Item {
                     rect_go.color = color_gray;
                     text_go.color = color_dark_gray;
                     text_go.text = qsTr("모터 전원 안켜짐")
-                    text_go.font.pixelSize = 35
                 }
             }else{
                 btn_go.active = false;
@@ -221,7 +297,6 @@ Item {
                 rect_go.color = color_gray;
                 text_go.color = color_dark_gray;
                 text_go.text = qsTr("로봇 연결 안됨")
-                text_go.font.pixelSize = 35
             }
         }
     }
@@ -268,10 +343,27 @@ Item {
     }
     function update_table(){
         model_group_table.clear();
-        for(var i=col_num*row_num*cur_page; i<col_num*row_num*(cur_page+1); i++){
-            if(i>=table_num)
-                break;
+        for(var i=0; i<table_num; i++){
             model_group_table.append({"num":i,"available":true,"name":supervisor.getServingName(model_group.get(cur_group).num, i)});
+        }
+        setTable();
+    }
+    function setTable(){
+        grid_power.columns = 5;
+        while(table_width*((box_size-1)*0.1+1)*grid_power.columns + 25*(grid_power.columns-1) > flick_table.width){
+            grid_power.columns--;
+        }
+        console.log("???",grid_power.columns);
+    }
+
+    function setTray(group,table){
+        for(var i=0; i<traymodel.count; i++){
+            if(!traymodel.get(i).setting){
+                traymodel.get(i).setting = true;
+                traymodel.get(i).table = table;
+                traymodel.get(i).group = group;
+                break;
+            }
         }
     }
 
@@ -293,399 +385,80 @@ Item {
     //=======================Serving Mode , Use Tray=============================//
     Rectangle{
         id: rect_tray_box
-        visible: (show_serving && use_tray)?true:false
-        width: 500
-        height: tray_num*tray_height + (tray_num - 1)*spacing_tray + 50
-        color: "#e8e8e8"
-        radius: 30
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.left: rect_table_box.right
-        anchors.leftMargin: (menubar.x-rect_table_box.width - width)/2
-
-        Rectangle{
-            width: 60
-            height: 110
-            radius: 30
-            color: parent.color
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: -50
-            Image{
-                anchors.horizontalCenter: parent.horizontalCenter
-                width: 40
-                height: 40
-                source: "qrc:/icon/icon_trash_w.png"
-                sourceSize.width: width
-                sourceSize.height: height
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.verticalCenterOffset: -30
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked:{
-                        for(var i=0; i<traymodel.count; i++){
-                            traymodel.get(i).setting = false;
-                        }
-                    }
-                }
-            }
-
-        }
-        Column{
-            id: column_tray
-            anchors.centerIn: parent
-            spacing: 20
-            Repeater{
-                id: repeat_tray
-                model: traymodel
-                Rectangle{
-                    id: rect_tray
-                    width: tray_width
-                    height: tray_height
-                    color: "transparent"
-                    radius:50
-                    border.color: "#d0d0d0"
-                    border.width: 1
-                    onYChanged: {
-                        model.y = y;
-                    }
-
-                    SequentialAnimation{
-                        id: ani_tray
-                        running: false
-                        ParallelAnimation{
-                            NumberAnimation{target:rect_tray_fill; property:"scale"; from:1;to:1.2;duration:300;}
-                            NumberAnimation{target:rect_tray_fill; property:"scale"; from:1.2;to:1;duration:300;}
-                        }
-                    }
-                    Rectangle{
-                        id: rect_tray_fill
-                        width: tray_width
-                        height: tray_height
-                        radius:50
-                        color: model.setting?color_green:"white"
-                        border.color: model.setting?color_green:"white"
-                        border.width: 1
-                        onColorChanged: {
-                            if(color != "#0000ff"){
-                                ani_tray.start()
-                            }
-                        }
-                    }
-                    Text{
-                        id: text_cancel
-                        font.family: font_noto_r.name
-                        font.pixelSize: 20
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.right: parent.right
-                        anchors.rightMargin: 20
-                        color: "#525252"
-                        visible: false
-                        text:"cancel"
-                    }
-                    MouseArea{
-                        id: tray_mousearea
-                        anchors.fill: parent
-                        property var firstX;
-                        property int width_dis: 0
-                        onPressed: {
-                            click_sound.play();
-                            firstX = mouseX;
-                            width_dis = 0;
-                        }
-                        onReleased: {
-                            if(width_dis > 50){
-                                model.setting = false;
-                                cur_table = -1;
-                            }else{
-                                if(cur_table != -1){
-                                    model.setting = true;
-                                    model.group = cur_group;
-                                    model.table = cur_table;
-                                }
-
-                            }
-                            rect_tray_fill.width = rect_tray.width;
-                            text_cancel.visible = false;
-                            width_dis = 0;
-                        }
-                        onPositionChanged: {
-                            width_dis = firstX-mouseX;
-
-                            if(width_dis < 0)
-                                width_dis = 0;
-
-                            if(model.setting){
-                                if(width_dis > 50){
-                                    text_cancel.visible = true;
-                                }else{
-                                    text_cancel.visible = false;
-                                }
-                                rect_tray_fill.width = rect_tray.width - width_dis
-                            }
-
-                        }
-                    }
-                    Text{
-                        id: textTray
-                        anchors.centerIn: parent
-                        font.family: font_noto_r.name
-                        font.pixelSize: (!model.setting)?25:30
-                        font.bold: (!model.setting)?false:true
-                        color: (!model.setting)?"#d0d0d0":"white"
-                        text: (!model.setting)?"Tray "+Number(model.tray_num):supervisor.getServingName(model.group, model.table)
-                    }
-                }
-            }
-        }
-
-    }
-
-    Rectangle{
-        id: rect_table_box
-        visible: (show_serving && use_tray)?true:false
-        width: 350
-        height: parent.height - statusbar.height
-        anchors.left: parent.left
+        visible: show_serving && use_tray
+        width: 280
+        height: 580
+        color: color_light_gray
         anchors.top: parent.top
-        anchors.topMargin: statusbar.height
-        color: "#282828"
-        Flickable{
-            id: flick_group
-            width: parent.width
-            height: 100
-            clip: true
-            contentWidth: row_group.width
-            Row{
-                id: row_group
-                anchors.centerIn: parent
-                spacing: 20
+        anchors.topMargin: statusbar.height;
+        anchors.left: parent.left
+        Image{
+            id: image_tray
+            source: "image/robot_pickup.png"
+            width: 221
+            height: 452
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 30
+            sourceSize.width: width
+            sourceSize.height: height
+            ColorOverlay{
+                anchors.fill: parent
+                source: parent
+                color: color_navy
+            }
+            Column{
+                id: column_tray
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.top: image_tray.top
+                anchors.topMargin: 162
+                spacing: 28
                 Repeater{
-                    id: column_table
-                    model: model_group
+                    id: repeat_tray
+                    model: traymodel
                     Rectangle{
-                        width: 160
-                        height: 70
-                        visible: show
-                        color: "transparent"
-                        DropShadow{
-                            anchors.fill: textt3
-                            source: textt3
-                            visible: cur_group===num
-                            radius: 3
-                            color: color_more_gray
+                        id: rect_tray
+                        width: 187
+                        height: 65
+                        color: model.setting?color_green:color_gray
+                        border.color: color_blue
+                        border.width: cur_tray===index?3:0
+                        MouseArea{
+                            id: tray_mousearea
+                            anchors.fill: parent
+                            onPressed: {
+                                supervisor.playSound('click');
+                            }
+                            onReleased: {
+                                model.setting = false;
+                            }
                         }
                         Text{
-                            id: textt3
+                            id: textTray
                             anchors.centerIn: parent
-                            font.family: font_noto_b.name
-                            font.pixelSize: 30
-                            text: name
-                            color: cur_group===num?color_green:color_dark_gray
-                        }
-                        Rectangle{
-                            anchors.bottom: parent.bottom
-                            width: parent.width*0.9
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            radius: 2
-                            height: 3
-                            color: cur_group===num?color_green:"transparent"
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onClicked:{
-                                click_sound.play();
-                                print("cur group change : ",num)
-                                cur_group = num;
-                            }
+                            font.family: font_noto_r.name
+                            font.pixelSize: (!model.setting)?25:30
+                            font.bold: (!model.setting)?false:true
+                            color: "white"
+                            text: (!model.setting)?"트레이 "+Number(model.tray_num):supervisor.getServingName(model.group, model.table)
                         }
                     }
                 }
             }
         }
-
-        SwipeView{
-            id: swipeview_tables
-            width: parent.width
-            currentIndex: 0
-            clip: true
-            anchors.top: flick_group.bottom
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 100
-            onCurrentIndexChanged: {
-                if(currentIndex > -1)
-                    cur_page = currentIndex;
-                update_table();
-            }
-
-            Repeater{
-                id: page_table
-                model: Math.ceil((table_num/(col_num*row_num)))
-
-                Item{
-                    property int cur_page: index
-                    Column{
-                        spacing: 20
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.verticalCenter: parent.verticalCenter
-                        Repeater{
-                            id: column_table_group2
-                            delegate: {
-                                if(table_view === "table_name"){
-                                    tableNameCompo
-                                }else{
-                                    tableNumCompo
-                                }
-                            }
-                            model: model_group_table
-                        }
-                    }
-                }
-            }
-        }
-        PageIndicator{
-            id: indicator_tables1
-            count: swipeview_tables.count
-            currentIndex: swipeview_tables.currentIndex
-            anchors.bottom: swipeview_tables.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            delegate: Rectangle{
-                implicitWidth: 15
-                implicitHeight: 15
-                radius: width
-                color: index===swipeview_tables.currentIndex?"#12d27c":"#525252"
-                Behavior on color{
-                    ColorAnimation {
-                        duration: 200
-                    }
-                }
-            }
-        }
-        Rectangle{
-            id: btn_lock
-            color: "transparent"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.horizontalCenter: parent.horizontalCenter
-            width: 50
-            radius: 50
-            height: 50
-            visible: table_num>row_num?true:false
-            Image{
-                anchors.fill: parent
-                sourceSize.width: width
-                sourceSize.height: height
-                source: "icon/btn_lock.png"
-            }
-            MouseArea{
-                anchors.fill: parent
-                onPressAndHold: {
-                    click_sound.play();
-                    btn_lock.visible = false;
-                    btns_table.visible = true;
-                }
-            }
-        }
-        Row{
-            id: btns_table
-            visible: false
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.horizontalCenter: parent.horizontalCenter
-            spacing: 10
-            Rectangle{
-                id: btn_minus
-                color: "#282828"
-                width: 40
-                height: 40
-                radius: 40
-                enabled: table_num>row_num?true:false
-                border.color: "#e8e8e8"
-                border.width: 1
-                Text{
-                    anchors.centerIn: parent
-                    text:"-"
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    font.family: font_noto_b.name
-                    font.pixelSize: 40
-                    color: "#e8e8e8"
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        if(col_num > 1)
-                            supervisor.setTableColNum(--col_num);
-                    }
-                }
-            }
-            Rectangle{
-                id: btn_plus
-                color: "#282828"
-                width: 40
-                height: 40
-                radius: 40
-                enabled: table_num>col_num*row_num?true:false
-                border.color: "#e8e8e8"
-                border.width: 1
-                Text{
-                    anchors.centerIn: parent
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    text:"+"
-                    font.family: font_noto_b.name
-                    font.pixelSize: 40
-                    color: "#e8e8e8"
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        if(col_num < max_col)
-                            supervisor.setTableColNum(++col_num);
-                    }
-                }
-            }
-            Rectangle{
-                id: btn_confirm_tables
-                color: "#282828"
-                width: 40
-                height: 40
-                radius: 40
-                border.color: "#e8e8e8"
-                border.width: 1
-                Image{
-                    anchors.fill: parent
-                    sourceSize.width: width
-                    sourceSize.height: height
-                    source: "icon/icon_yes.png"
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        click_sound.play();
-                        btn_lock.visible = true;
-                        btns_table.visible = false;
-                    }
-                }
-            }
-
-        }
-
     }
-
 
 
     //=======================Serving Mode , Not use Tray=============================//
     Rectangle{
         id: rect_table_group
-        width: 1280
+        width: use_tray?1000:1280
         height: 580
         anchors.top: parent.top
         anchors.topMargin: statusbar.height;
-        anchors.left: parent.left
+        anchors.right: parent.right
         color: color_dark_navy
-        visible: show_serving && !use_tray
+        visible: show_serving
         ListModel{
             id: model_group
         }
@@ -693,51 +466,17 @@ Item {
             id: model_group_table
         }
         Component{
-            id: tableNumCompo
-            Rectangle{
-                id: rect_table_groups
-                width:80
-                height:80
-                radius:80
-                color: (num === cur_table)?"#12d27c":"#d0d0d0"
-                Rectangle{
-                    width:68
-                    height:68
-                    radius:68
-                    color: "#f4f4f4"
-                    anchors.centerIn: parent
-                    Text{
-                        anchors.centerIn: parent
-                        text: num
-                        color: "#525252"
-                        font.family: font_noto_r.name
-                        font.pixelSize: 25
-                    }
-                }
-                MouseArea{
-                    anchors.fill:parent
-                    onClicked: {
-                        click_sound.play();
-                        if(cur_table === num)
-                            cur_table = -1;
-                        else
-                            cur_table = num;
-                    }
-                }
-            }
-        }
-        Component{
             id: tableNameCompo
             Rectangle{
                 id: rect_table_groups
-                width:153
-                height:82
+                width:table_width*((box_size-1)*0.1+1)
+                height:table_height*((box_size-1)*0.1+1)
                 radius:15
                 color: (num === cur_table)?"white":color_navy
                 enabled: available
                 Rectangle{
-                    width:153
-                    height:75
+                    width:table_width*((box_size-1)*0.1+1)
+                    height:table_height*((box_size-1)*0.1+1)
                     radius:10
                     color: (num === cur_table)?color_blue:color_light_gray
                     Text{
@@ -748,18 +487,28 @@ Item {
                         font.bold: num===cur_table
                         Component.onCompleted: {
                             scale = 1;
-                            while(width*scale > 115){
+                            while(width*scale > table_width*0.8){
                                 scale=scale-0.01;
                             }
                         }
-                        font.pixelSize: 25
+                        font.pixelSize: 28+(box_size-1)*2
                     }
                 }
                 MouseArea{
                     anchors.fill:parent
                     onClicked: {
-                        click_sound.play();
-                        cur_table = num;
+                        supervisor.playSound('click');
+                        if(use_tray){
+                            if(cur_tray > -1){
+                                traymodel.get(cur_tray).setting = true;
+                                traymodel.get(cur_tray).table = num;
+                                traymodel.get(cur_tray).group = cur_group;
+                            }else{
+                                setTray(cur_group,num);
+                            }
+                        }else{
+                            cur_table = num;
+                        }
                     }
                 }
             }
@@ -767,7 +516,7 @@ Item {
 
         Rectangle{
             id: rect_group
-            width: 1280 - 150 - menubar.width
+            width: rect_table_group.width - 150 - menubar.width
             height: parent.height
             anchors.left: parent.left
             anchors.leftMargin: 50
@@ -806,13 +555,13 @@ Item {
                                         id: textt
                                         anchors.centerIn: parent
                                         font.family: font_noto_b.name
-                                        font.pixelSize: 30
+                                        font.pixelSize: 35
                                         text: name
                                         horizontalAlignment: Text.AlignHCenter
                                         color: cur_group===num?color_green:color_dark_gray
                                         Component.onCompleted: {
                                             scale = 1;
-                                            while(scale*width > 180){
+                                            while(scale*width > parent.width*0.9){
                                                 scale -=0.05;
                                             }
                                         }
@@ -828,8 +577,7 @@ Item {
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
-                                            print("cur group change2 : ",num)
+                                            supervisor.playSound('click');
                                             cur_group = num;
                                         }
                                     }
@@ -847,8 +595,8 @@ Item {
                         Text{
                             anchors.centerIn: parent
                             font.family: font_noto_b.name
-                            font.pixelSize: 30
-                            text: "순회"
+                            font.pixelSize: 35
+                            text: qsTr("순회") //Patrol
                             color: color_blue
                         }
                         Rectangle{
@@ -870,11 +618,10 @@ Item {
                 }
                 Rectangle{
                     width: rect_group.width
-                    radius: 10
                     clip: true
                     anchors.horizontalCenter: parent.horizontalCenter
                     height: rect_group.height - rect_group_category.height
-                    color: color_dark_navy
+                    color: "transparent"
                     Row{
                         anchors.left: parent.left
                         anchors.leftMargin: 5
@@ -890,267 +637,26 @@ Item {
                             }
                         }
                     }
-                    SwipeView{
-                        id: swipeview_group
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        anchors.top: parent.top
-                        width: parent.width*0.9
-                        height: parent.height*0.96
-                        currentIndex: 0
+                    Flickable{
+                        id: flick_table
+                        width: parent.width
+                        height: parent.height-60
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 30
                         clip: true
-                        onCurrentIndexChanged: {
-                            if(currentIndex > -1)
-                                cur_page = currentIndex;
-                            update_table();
-                        }
-                        Repeater{
-                            id: page_group
-                            model: Math.ceil((table_num/(col_num*row_num)))
-                            Item{
-                                Grid{
-                                    rows: row_num
-                                    columns: col_num//table_num-(col_num*row_num*(cur_page+1))>0?col_num:((table_num-(col_num*row_num*cur_page))/row_num + 1).toFixed(0)
-                                    spacing: 20
-                                    anchors.horizontalCenter: parent.horizontalCenter
-                                    anchors.verticalCenter: parent.verticalCenter
-                                    Repeater{
-                                        id: column_table_group
-                                        delegate: {
-                                            if(table_view === "table_name"){
-                                                tableNameCompo
-                                            }else{
-                                                tableNumCompo
-                                            }
-                                        }
-                                        model: model_group_table
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-                    PageIndicator{
-                        id: indicator_tables_group
-                        count: swipeview_group.count
-                        currentIndex: swipeview_group.currentIndex
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 20
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        delegate: Rectangle{
-                            implicitWidth: 15
-                            implicitHeight: 15
-                            radius: width
-                            color: index===swipeview_group.currentIndex?"#12d27c":"#525252"
-                            Behavior on color{
-                                ColorAnimation {
-                                    duration: 200
-                                }
-                            }
-                        }
-                    }
-                    Rectangle{
-                        id: btn_lock_group
-                        color: "transparent"
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 20
-                        anchors.right: parent.right
-                        width: 50
-                        radius: 50
-                        height: 50
-                        visible: true;//group_num>row_num?true:false
-                        Image{
-                            anchors.fill: parent
-                            sourceSize.width: width
-                            sourceSize.height: height
-                            source: "icon/btn_lock.png"
-                        }
-                        MouseArea{
-                            anchors.fill: parent
-                            onPressAndHold: {
-                                click_sound.play();
-                                btn_lock_group.visible = false;
-                                btns_table_group.visible = true;
-                            }
-                        }
-                    }
-                    Row{
-                        id: btns_table_group
-                        visible: false
-                        anchors.bottom: parent.bottom
-                        anchors.bottomMargin: 10
-                        anchors.right: parent.right
-                        spacing: 10
+                        contentHeight: grid_power.height
                         Grid{
-                            rows: 2
-                            columns: 4
+                            id: grid_power
+                            anchors.centerIn: parent
+                            rows: table_num/col_num + 2
+                            columns: 5
                             horizontalItemAlignment: Grid.AlignHCenter
                             verticalItemAlignment: Grid.AlignVCenter
-                            spacing: 5
-                            Text{
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                color: "white"
-                                text: qsTr("가로줄개수")
-                            }
-                            Text{
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                color: "white"
-                                text: ":"
-                            }
-                            Rectangle{
-                                width: 30
-                                height: 30
-                                radius: 30
-                                enabled: row_num > 1
-                                color: enabled?color_dark_black:color_dark_gray
-                                border.color: "#e8e8e8"
-                                border.width: 1
-
-                                Rectangle{
-                                    width: 14
-                                    radius: 2
-                                    height: 2
-                                    anchors.centerIn: parent
-                                    color: color_mid_gray
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        supervisor.setSetting("setting","UI/group_row_num",row_num-1);
-                                        row_num--;
-                                        update_table();
-                                    }
-                                }
-                            }
-                            Rectangle{
-                                width: 30
-                                height: 30
-                                radius: 30
-                                enabled: row_num < max_row
-                                color: enabled?color_dark_black:color_dark_gray
-                                border.color: "#e8e8e8"
-                                border.width: 1
-                                Rectangle{
-                                    width: 2
-                                    radius: 2
-                                    height: 14
-                                    anchors.centerIn: parent
-                                    color: color_mid_gray
-                                }
-                                Rectangle{
-                                    width: 14
-                                    radius: 2
-                                    height: 2
-                                    anchors.centerIn: parent
-                                    color: color_mid_gray
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        supervisor.setSetting("setting","UI/group_row_num",row_num+1);
-                                        row_num++;
-                                        update_table();
-                                    }
-                                }
-                            }
-
-                            Text{
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                color: "white"
-                                text: qsTr("세로열개수")
-                            }
-                            Text{
-                                font.family: font_noto_r.name
-                                font.pixelSize: 15
-                                color: "white"
-                                text: ":"
-                            }
-                            Rectangle{
-                                width: 30
-                                height: 30
-                                radius: 30
-                                enabled: col_num > 1
-                                color: enabled?color_dark_black:color_dark_gray
-                                border.color: "#e8e8e8"
-                                border.width: 1
-
-                                Rectangle{
-                                    width: 14
-                                    radius: 2
-                                    height: 2
-                                    anchors.centerIn: parent
-                                    color: color_mid_gray
-                                }
-
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        supervisor.setSetting("setting","UI/group_col_num",col_num-1);
-                                        col_num--;
-                                        update_table();
-                                    }
-                                }
-                            }
-                            Rectangle{
-                                width: 30
-                                height: 30
-                                radius: 30
-                                enabled: col_num < max_col
-                                color: enabled?color_dark_black:color_dark_gray
-                                border.color: "#e8e8e8"
-                                border.width: 1
-                                Rectangle{
-                                    width: 2
-                                    radius: 2
-                                    height: 14
-                                    anchors.centerIn: parent
-                                    color: color_mid_gray
-                                }
-                                Rectangle{
-                                    width: 14
-                                    radius: 2
-                                    height: 2
-                                    anchors.centerIn: parent
-                                    color: color_mid_gray
-                                }
-                                MouseArea{
-                                    anchors.fill: parent
-                                    onClicked: {
-                                        click_sound.play();
-                                        supervisor.setSetting("setting","UI/group_col_num",col_num+1);
-                                        col_num++;
-                                        update_table();
-                                    }
-                                }
-                            }
-                        }
-                        Rectangle{
-                            id: btn_confirm_tables_group
-                            color: "#282828"
-                            width: 40
-                            height: 40
-                            radius: 40
-                            anchors.verticalCenter: parent.verticalCenter
-                            border.color: "#e8e8e8"
-                            border.width: 1
-                            Image{
-                                anchors.fill: parent
-                                sourceSize.width: width
-                                sourceSize.height: height
-                                source: "icon/icon_yes.png"
-                            }
-                            MouseArea{
-                                anchors.fill: parent
-                                onClicked: {
-                                    click_sound.play();
-                                    btn_lock_group.visible = true;
-                                    btns_table_group.visible = false;
-                                }
+                            spacing: 25
+                            Repeater{
+                                id: column_table_group
+                                delegate: tableNameCompo
+                                model: model_group_table
                             }
                         }
                     }
@@ -1160,31 +666,150 @@ Item {
     }
 
     Rectangle{
+        id: btn_lock_group
+        color: "transparent"
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 30
+        anchors.right: parent.right
+        anchors.rightMargin: 30
+        width: 50
+        radius: 50
+        height: 50
+        Image{
+            anchors.fill: parent
+            sourceSize.width: width
+            sourceSize.height: height
+            source: "icon/btn_lock.png"
+        }
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                supervisor.playSound('click');
+                btn_lock_group.visible = false;
+                btns_table_group.visible = true;
+            }
+        }
+    }
+    Column{
+        id: btns_table_group
+        visible: false
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 30
+        anchors.right: parent.right
+        anchors.rightMargin: 30
+        spacing: 10
+        Grid{
+            rows: 2
+            columns: 4
+            anchors.horizontalCenter: parent.horizontalCenter
+            horizontalItemAlignment: Grid.AlignHCenter
+            verticalItemAlignment: Grid.AlignVCenter
+            spacing: 5
+            Text{
+                font.family: font_noto_r.name
+                font.pixelSize: 20
+                text: qsTr("박스 크기")
+            }
+            Text{
+                font.family: font_noto_r.name
+                font.pixelSize: 20
+                text: ":"
+            }
+            Rectangle{
+                width: 30
+                height: 30
+                radius: 30
+                enabled: box_size > 1
+                color: enabled?color_dark_black:color_dark_gray
+                border.color: "#e8e8e8"
+                border.width: 1
+                Rectangle{
+                    width: 14
+                    radius: 2
+                    height: 2
+                    anchors.centerIn: parent
+                    color: color_mid_gray
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        supervisor.playSound('click');
+                        supervisor.setSetting("setting","UI/box_size",box_size-1);
+                        box_size--;
+                        setTable();
+                    }
+                }
+            }
+
+            Rectangle{
+                width: 30
+                height: 30
+                radius: 30
+                enabled: box_size < max_box_size
+                color: enabled?color_dark_black:color_dark_gray
+                border.color: "#e8e8e8"
+                border.width: 1
+                Rectangle{
+                    width: 2
+                    radius: 2
+                    height: 14
+                    anchors.centerIn: parent
+                    color: color_mid_gray
+                }
+                Rectangle{
+                    width: 14
+                    radius: 2
+                    height: 2
+                    anchors.centerIn: parent
+                    color: color_mid_gray
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        supervisor.playSound('click');
+                        supervisor.setSetting("setting","UI/box_size",box_size+1);
+                        box_size++;
+                        setTable();
+                    }
+                }
+            }
+        }
+        Rectangle{
+            id: btn_confirm_tables_group
+            color: "#282828"
+            width: 40
+            height: 40
+            radius: 40
+            anchors.horizontalCenter: parent.horizontalCenter
+            border.color: "#e8e8e8"
+            border.width: 1
+            Image{
+                anchors.fill: parent
+                sourceSize.width: width
+                sourceSize.height: height
+                source: "icon/icon_yes.png"
+            }
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    supervisor.playSound('click');
+                    btn_lock_group.visible = true;
+                    btns_table_group.visible = false;
+                }
+            }
+        }
+    }
+
+
+    Rectangle{
         id: rect_go
-        width: 300
+        width: 330
         visible: show_serving?true:false
         height: 120
         radius: 100
-        anchors.horizontalCenter: {
-            if(use_tray){
-                rect_tray_box.horizontalCenter
-            }else{
-                rect_table_group.horizontalCenter
-            }
-        }
-        anchors.top: {
-            if(use_tray){
-                rect_tray_box.bottom
-            }else{
-                rect_table_group.bottom
-            }
-        }
-        anchors.topMargin: {
-            if(use_tray)
-                40
-            else
-                20
-        }
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.top: rect_table_group.bottom
+        anchors.topMargin: 20
         color: "#24a9f7"
         Text{
             id: text_go
@@ -1194,6 +819,7 @@ Item {
             font.pixelSize: 35
             font.bold: true
             color: "white"
+
         }
         MouseArea{
             id: btn_go
@@ -1204,12 +830,12 @@ Item {
                 if(active){
                     hold = false;
                     if(cur_table==-1){
-                        click_sound_no.play();
+                        supervisor.playSound('no');
                     }else{
-                        click_sound.play();
+                        supervisor.playSound('click');
                     }
                 }else{
-                    click_sound_no.play();
+                    supervisor.playSound('no');
                     cur_table = -1;
                 }
             }
@@ -1223,24 +849,24 @@ Item {
             onReleased:{
                 if(active){
                     if(!hold){
-                        if(cur_table>-1){
-                            supervisor.setMotorLock(true);
-                            if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
-                                for(var i=0; i<tray_num; i++){
-//                                    print(i, traymodel.get(i).setting, traymodel.get(i).group, traymodel.get(i).table);
-                                    if(traymodel.get(i).setting){
-                                        supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
-                                    }
+                        if(supervisor.getSetting("setting","USE_UI","use_tray") === "true"){
+                            for(var i=0; i<tray_num; i++){
+                                print(i, traymodel.get(i).setting, traymodel.get(i).group, traymodel.get(i).table);
+                                if(traymodel.get(i).setting){
+                                    supervisor.setTray(i,traymodel.get(i).group,traymodel.get(i).table);
                                 }
-                                supervisor.writelog("[UI] PageKitchen : start Serving (use tray)");
-                                supervisor.startServing();
-                            }else{
+                            }
+                            supervisor.writelog("[UI] PageKitchen : start Serving (use tray)");
+                            supervisor.startServing();
+                        }else{
+                            if(cur_table>-1){
+                                supervisor.setMotorLock(true);
                                 supervisor.writelog("[UI] PageKitchen : start Serving");
                                 supervisor.startServing(model_group.get(cur_group).num,cur_table);
+                                cur_table = -1;
+                            }else{
+                                supervisor.writelog("[UI] PageKitchen : start Serving but cur_table -1");
                             }
-                            cur_table = -1;
-                        }else{
-                            supervisor.writelog("[UI] PageKitchen : start Serving but cur_table -1");
                         }
                     }
                 }else{
@@ -1252,7 +878,7 @@ Item {
 
         Popup{
             id: popup_preset_menu
-            width: 600
+            width: 640
             height: 120
             leftPadding: 0
             rightPadding: 0
@@ -1312,7 +938,7 @@ Item {
                     Text{
                         anchors.verticalCenter: parent.verticalCenter
                         font.family: font_noto_r.name
-                        font.pixelSize: 25
+                        font.pixelSize: 35
                         color: "white"
                         text: qsTr("속도설정")
                     }
@@ -1336,7 +962,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 1;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1362,7 +988,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 2;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1388,7 +1014,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 3;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1414,7 +1040,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 4;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1440,7 +1066,7 @@ Item {
                         MouseArea{
                             anchors.fill: parent
                             onClicked:{
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 cur_preset = 5;
                                 supervisor.setPreset(cur_preset);
                             }
@@ -1476,13 +1102,13 @@ Item {
 
     Rectangle{
         id: rect_go_patrol
-        width: 300
+        width: 330
         visible: !show_serving?true:false
         height: 100
         radius: 100
         anchors.horizontalCenter: rect_calling_box.horizontalCenter
         anchors.top: rect_calling_box.bottom
-        anchors.topMargin: 40
+        anchors.topMargin: 60
         color: "#24a9f7"
         Text{
             id: text_go2
@@ -1497,7 +1123,7 @@ Item {
             id: btn_go2
             anchors.fill: parent
             onClicked: {
-                click_sound.play();
+                supervisor.playSound('click');
                 popup_patrol.open();
             }
         }
@@ -1522,40 +1148,40 @@ Item {
             }
         }
         onMenu1_clicked: {
-            click_sound.play();
+            supervisor.playSound('click');
             cur_table = -1;
             loadPage(pmenu);
         }
         onMenu2_clicked: {
             cur_table = -1;
             if(menu2_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Charging";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
         onMenu3_clicked: {
             cur_table = -1;
             if(menu3_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Resting";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
         onMenu4_clicked: {
             cur_table = -1;
             if(menu4_en){
-                click_sound.play();
+                supervisor.playSound('click');
                 move_loc = "Cleaning";
                 popup_question.open();
             }else{
-                click_sound_no.play();
+                supervisor.playSound('no');
                 robotnotready();
             }
         }
@@ -1569,7 +1195,7 @@ Item {
         background:Rectangle{
             anchors.fill: parent
             color: "#282828"
-            opacity: 0.8
+            opacity: 0.9
         }
         Image{
             id: image_location
@@ -1588,7 +1214,7 @@ Item {
             anchors.top:image_location.bottom
             anchors.topMargin: 30
             font.family: font_noto_b.name
-            font.pixelSize: 40
+            font.pixelSize: 65
             color: "#12d27c"
             text: {
                 if(move_loc === "Resting"){
@@ -1627,7 +1253,7 @@ Item {
                 id:text_nono
                 text:qsTr("아니오")
                 font.family: font_noto_b.name
-                font.pixelSize: 30
+                font.pixelSize: 40
                 color:"#282828"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: image_no.right
@@ -1636,7 +1262,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     move_loc = "None";
                     popup_question.close();
                 }
@@ -1673,7 +1299,7 @@ Item {
             Text{
                 text:qsTr("네")
                 font.family: font_noto_b.name
-                font.pixelSize: 30
+                font.pixelSize: 40
                 color:"#282828"
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: image_yes.right
@@ -1682,7 +1308,7 @@ Item {
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.setMotorLock(true);
                     if(move_loc === "Resting"){
                         supervisor.moveToWait();
@@ -1859,7 +1485,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.clearCallQueue();
                         }
                     }
@@ -1887,7 +1513,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.cleanTray();
                         }
                     }
@@ -1915,7 +1541,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.moveToWait();
                         }
                     }
@@ -1944,7 +1570,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.stateInit();
                             popup_clean_calling.close();
                         }
@@ -1986,7 +1612,7 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.cleanTray();
                             popup_clean_calling.close();
                         }
@@ -1997,4 +1623,42 @@ Item {
         }
     ListModel{id:model_group_table_temp}
     }
+
+    Popup_notice{
+        id: popup_notice
+        z:99
+        onClicked:{
+            if(cur_btn === qsTr("수동이동")){
+                supervisor.writelog("[UI] PopupNotice : Lock Off");
+                supervisor.setMotorLock(false);
+            }else if(cur_btn === qsTr("취 소")||cur_btn === qsTr("확 인")){
+                popup_notice.close();
+            }else if(cur_btn === qsTr("모터초기화")){
+                supervisor.writelog("[UI] PopupNotice : Motor Init");
+                supervisor.setMotorLock(true);
+                supervisor.stateInit();
+                if(loader_page.item.objectName === "page_moving" || loader_page.item.objectName === "page_moving_custom"){
+                    loadPage(pinit);
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("위치초기화")){
+                supervisor.writelog("[UI] PopupNotice : Local Init");
+                if(loader_page.item.objectName === "page_annotation"){
+                    loader_page.item.setAnnotLocation();
+                }else{
+                    loadPage(pinit);
+                    supervisor.resetLocalization();
+                    supervisor.stateInit();
+                }
+                popup_notice.close();
+            }else if(cur_btn === qsTr("원래대로")){
+                supervisor.writelog("[UI] PopupNotice : Lock On");
+                supervisor.setMotorLock(true);
+                supervisor.moveStopFlag();
+                loadPage(pkitchen);
+                popup_notice.close();
+            }
+        }
+    }
+
 }

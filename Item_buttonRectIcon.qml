@@ -18,14 +18,14 @@ Item {
     property string font_color: color_dark_navy
     property bool selected: false
     signal clicked
-    width: 130
-    height: 130
+    width: 150
+    height: 150
 
     Rectangle{
         id: btn
         width: parent.width
         height: parent.height
-        radius: 20
+        radius: 25
         border.color: color_green
         border.width: selected?5:0
         color: parent.enabled?parent.color:parent.disable_color
@@ -54,7 +54,7 @@ Item {
                 color: item_ButtonRect.enabled?font_color:"white"
                 horizontalAlignment: Text.AlignHCenter
                 font.family: font_noto_r.name
-                font.pixelSize: 20
+                font.pixelSize: 30
                 Component.onCompleted: {
                     scale = 1;
                     while(width*scale > btn.width*0.9){
@@ -67,7 +67,7 @@ Item {
         MouseArea{
             anchors.fill: parent
             onPressed:{
-//                click_sound.play();
+//                supervisor.playSound('click');
                 btn.color = push_color;
             }
             onReleased: {
@@ -76,9 +76,4 @@ Item {
             }
         }
     }
-
-//    SoundEffect{
-//        id: click_sound
-//        source: "bgm/click.wav"
-//    }
 }

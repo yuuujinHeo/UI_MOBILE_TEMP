@@ -18,13 +18,14 @@ Popup{
     topPadding: 0
     bottomPadding: 0
     anchors.centerIn: parent
-    width: 500
-    height: 700
+    width: 1280
+    height: 800
     property bool show_menu: false
 
     background: Rectangle{
         anchors.fill: parent
-        color: "transparent"
+        opacity: 0.9
+        color: color_dark_black
     }
 
     onOpened:{
@@ -37,7 +38,6 @@ Popup{
     }
 
     function update(){
-        print("Patrol update "+supervisor.getPatrolSize());
         supervisor.readPatrol();
 
         model_preset.clear();
@@ -80,7 +80,6 @@ Popup{
         combo_voice_name.currentIndex = 0;
         combo_voice_lan.currentIndex = 0;
     }
-
 
     function select(){
         for(var i=0; i<model_patrols.count; i++){
@@ -263,10 +262,9 @@ Popup{
     Rectangle{
         id: rect_back
         width: show_menu?1100:500
-        height : popup_patrol.height
+        height : 700
         radius: 20
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.centerIn: parent
         Behavior on width{
             NumberAnimation{
                 duration: 400
@@ -277,7 +275,7 @@ Popup{
             Rectangle{
                 id: rect_main
                 width: show_menu?300:500
-                height: popup_patrol.height
+                height: rect_back.height
                 color: "transparent"
                 Behavior on width{
                     NumberAnimation{
@@ -299,7 +297,7 @@ Popup{
                     }
                     Rectangle{
                         width: parent.width
-                        height: parent.height - 100
+                        height: parent.height - 200
                         color: "transparent"
                         clip: true
                         Column{
@@ -433,7 +431,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     if(show_menu){
                                                         popup_change.open();
                                                         popup_change.index = index;
@@ -462,12 +460,37 @@ Popup{
                                             anchors.fill: parent
                                             onClicked:{
                                                 select_preset = -1;
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 supervisor.initCurrentPatrol();
                                                 show_menu = true;
                                             }
                                         }
                                     }
+                                }
+                            }
+                        }
+                    }
+                    Rectangle{
+                        width:parent.width
+                        height: 100
+                        color: "transparent"
+                        Rectangle{
+                            width:  rect_main.width*0.8
+                            height: 80
+                            radius: 20
+                            color: color_blue
+                            anchors.centerIn: parent
+                            Text{
+                                anchors.centerIn: parent
+                                text: qsTr("닫기")
+                                font.family: font_noto_b.name
+                                font.pixelSize: 30
+                                color: "white"
+                            }
+                            MouseArea{
+                                anchors.fill: parent
+                                onClicked:{
+                                    popup_patrol.close();
                                 }
                             }
                         }
@@ -478,7 +501,7 @@ Popup{
                 id: rect_menu
                 opacity: rect_back.width === 1100?1:0
                 width: show_menu?800:0
-                height: popup_patrol.height
+                height: rect_back.height
                 color: "transparent"
                 Behavior on width{
                     NumberAnimation{
@@ -520,7 +543,7 @@ Popup{
                                         }
 
                                         if(select_num > 1){
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             if(popup_patrol.select_preset === -1){
                                                 popup_save.newsave = true;
                                             }else{
@@ -528,7 +551,7 @@ Popup{
                                             }
                                             popup_save.open();
                                         }else{
-                                            click_sound_no.play();
+                                            supervisor.playSound('no');
                                             popup_save_notice.open();
                                             popup_save_notice.textstr = qsTr("순회 위치는 2곳 이상 지정하셔야 합니다")
                                         }
@@ -606,7 +629,7 @@ Popup{
                                         MouseArea{
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 popup_patrol.select_pos_mode = 0;
                                             }
                                         }
@@ -633,7 +656,7 @@ Popup{
                                         MouseArea{
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 popup_patrol.select_pos_mode = 1;
                                             }
                                         }
@@ -660,7 +683,7 @@ Popup{
                                         MouseArea{
                                             anchors.fill: parent
                                             onClicked:{
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 popup_patrol.select_pos_mode = 2;
                                             }
                                         }
@@ -705,7 +728,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onClicked:{
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(select)
                                                             select = false;
                                                         else
@@ -767,7 +790,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     popup_patrol.mode = "sequence";
                                                 }
                                             }
@@ -791,7 +814,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     popup_patrol.mode = "random";
                                                 }
                                             }
@@ -895,7 +918,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked:{
-                                                    click_sound_no.play();
+                                                    supervisor.playSound('no');
                                                 }
                                             }
                                         }
@@ -926,7 +949,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onClicked:{
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         popup_patrol.passtime++;
                                                     }
                                                 }
@@ -947,7 +970,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onClicked:{
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         popup_patrol.passtime--;
                                                         if(popup_patrol.passtime < 0)
                                                             popup_patrol.passtime = 0;
@@ -973,7 +996,7 @@ Popup{
                                             MouseArea{
                                                 anchors.fill:parent
                                                 onClicked:{
-                                                    click_sound_no.play();
+                                                    supervisor.playSound('no');
                                                 }
                                             }
                                         }
@@ -1004,7 +1027,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onClicked:{
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         popup_patrol.waittime++;
                                                     }
                                                 }
@@ -1023,7 +1046,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill: parent
                                                     onClicked:{
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         popup_patrol.waittime--;
                                                         if(popup_patrol.waittime < 0)
                                                             popup_patrol.waittime = 0;
@@ -1177,7 +1200,7 @@ Popup{
                                                 enabled: parent.enabled
                                                 anchors.fill: parent
                                                 onClicked:{
-                                                    click_sound.play();
+                                                    supervisor.playSound('click');
                                                     keyboard.owner = tfield_tts_text;
                                                     tfield_tts_text.selectAll();
                                                     keyboard.open();
@@ -1439,7 +1462,7 @@ Popup{
                     MouseArea{
                         anchors.fill:parent
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             keyboard.owner = tfield_name;
                             keyboard.owner_text = "tfield_name";
                             tfield_name.selectAll();
@@ -1459,7 +1482,7 @@ Popup{
                         height: 70
                         onClicked:{
                             if(tfield_name.text !== ""){
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 if(popup_save.newsave){
                                     save("save",tfield_name.text);
                                 }else{
@@ -1468,7 +1491,7 @@ Popup{
                                 popup_patrol.select_preset = -1;
                                 popup_save.close();
                             }else{
-                                click_sound_no.play();
+                                supervisor.playSound('no');
                                 tfield_name.color = color_red;
                             }
                         }
@@ -1703,7 +1726,7 @@ Popup{
                         width: 160
                         height: 70
                         onClicked:{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.startPatrol(popup_patrol.select_preset);
                             popup_start.close();
                         }
@@ -1763,6 +1786,12 @@ Popup{
             }
         }
 
+    }
+    Tool_Keyboard{
+        id: keyboard
+    }
+    Tool_KeyPad{
+        id: keypad
     }
 }
 

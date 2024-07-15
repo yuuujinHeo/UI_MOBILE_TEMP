@@ -553,7 +553,7 @@ Popup {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked: {
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             if(slider_audio.value == 0){
                                                                 if(page == "moving"){
                                                                     slider_audio.value  = supervisor.getMovingPageAudio();
@@ -708,10 +708,10 @@ Popup {
                                                 anchors.fill: parent
                                                 onClicked:{
                                                     if(loader_movepage.item.select_obj>-1){
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         popup_edit.open();
                                                     }else{
-                                                        click_sound_no.play();
+                                                        supervisor.playSound('no');
                                                     }
                                                 }
                                             }
@@ -730,10 +730,10 @@ Popup {
                                                 anchors.fill: parent
                                                 onClicked:{
                                                     if(loader_movepage.item.select_obj>-1){
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         popup_delete.open();
                                                     }else{
-                                                        click_sound_no.play();
+                                                        supervisor.playSound('no');
                                                     }
                                                 }
                                             }
@@ -796,7 +796,7 @@ Popup {
                                                     MouseArea{
                                                         anchors.fill: parent
                                                         onClicked:{
-                                                            click_sound.play();
+                                                            supervisor.playSound('click');
                                                             loader_movepage.item.select_obj = index;
                                                         }
                                                     }
@@ -823,7 +823,7 @@ Popup {
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         if(page == "serving"){
                                             loader_movepage.item.saveServingPage();
                                             supervisor.saveServingPage();
@@ -884,7 +884,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(page == "moving"){
                                         supervisor.addPatrolObject(popup_setting_patrolpage.page,"image")
                                     }else if(page == "serving"){
@@ -911,7 +911,7 @@ Popup {
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked:{
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(page == "moving"){
                                         supervisor.addPatrolObject(popup_setting_patrolpage.page,"text")
                                     }else if(page == "serving"){
@@ -992,7 +992,7 @@ Popup {
                             MouseArea{
                                 anchors.fill:parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     loader_movepage.item.pauseGif();
                                     image_edit_dialog.open();
                                 }
@@ -1085,7 +1085,7 @@ Popup {
                             MouseArea{
                                 anchors.fill:parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(keyboard.is_opened){
                                         keyboard.owner = tfield_text;
                                         tfield_text.selectAll();
@@ -1264,5 +1264,11 @@ Popup {
 
             }
         }
+    }
+    Tool_Keyboard{
+        id: keyboard
+    }
+    Tool_KeyPad{
+        id: keypad
     }
 }

@@ -1,14 +1,12 @@
 import QtQuick 2.15
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-//import QtQuick.Dialogs 1.2
-import Qt.labs.platform 1.0 as Platform
-import QtQuick.Shapes 1.15
-//import QtQuick.Shapes 1.12
 import QtGraphicalEffects 1.0
-import QtMultimedia 5.12
 import "."
 import io.qt.Supervisor 1.0
+// import Qt.labs.platform 1.0 as Platform
+// import QtQuick.Shapes 1.15
+// import QtMultimedia 5.12
 
 Item{
     id: item_localization
@@ -26,20 +24,18 @@ Item{
     property bool mapping_mode: false
     property bool auto_init: false
 
-
     signal passed;
     signal confirmed;
     signal backed;
 
     Component.onCompleted: {
-        popup_loading.close();
         supervisor.resetLocalizationConfirm();
+        // supervisor.resetLocalization();
         if(auto_init){
             supervisor.writelog("[INIT] Localization : Auto Init")
             timer_check_localization.start();
             supervisor.slam_autoInit();
         }
-
         supervisor.writelog("[INIT] Localization : Motor Lock off")
         supervisor.setMotorLock(false);
 
@@ -67,25 +63,6 @@ Item{
         }
     }
 
-//    Timer{
-//        running: auto_init
-//        interval: 500
-//        onTriggered:{
-//            supervisor.writelog("[INIT] Localization : Auto Init")
-//            timer_check_localization.start();
-//            supervisor.slam_autoInit();
-//        }
-//    }
-
-//    Timer{
-//        running: true
-//        interval: 1000
-//        onTriggered:{
-//            supervisor.writelog("[INIT] Localization : Motor Lock off")
-//            supervisor.setMotorLock(false);
-//        }
-//    }
-
     Timer{
         id: timer_check_localization
         property int timeout_cnt: 0
@@ -95,38 +72,34 @@ Item{
         onTriggered: {
             local_find_state = supervisor.getLocalizationState();
             if(local_find_state===0){//not ready
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다..")
+                text_finding.text = qsTr("로봇이 위치를 찾고 있습니다..") //로봇의 위치를 찾고 있습니다
                 timeout_cnt = 0;
                 show_success = false;
                 show_failed = false;
                 show_timeout = false;
-//                btn_do_autoinit.running = false;
                 show_restart = false;
             }else if(local_find_state === 1){
                 if(timeout_cnt++ > 20){
                     show_timeout = true;
                 }
-//                btn_do_autoinit.running = true;
-                text_finding.text = qsTr("로봇의 위치를 찾고 있습니다...")
+                text_finding.text = qsTr("로봇이 위치를 찾고 있습니다...") //로봇의 위치를 찾고 있습니다
                 show_success = false;
                 show_failed = false;
             }else if(local_find_state === 2){//success
                 timeout_cnt = 0;
                 show_timeout = false;
-                text_finding.text = qsTr("로봇의 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요")
+                text_finding.text = qsTr("로봇이 위치를 찾았습니다.\n로봇을 회전시켜도 값이 정상이라면 확인버튼을 눌러주세요") //로봇의 위치를 찾고 있습니다
                 show_success = true;
                 show_failed = true;
-//                btn_do_autoinit.running = false;
             }else if(local_find_state === 3){//failed
                 timeout_cnt = 0;
                 show_timeout = false;
-                text_finding.text = qsTr("로봇의 위치를 찾지 못했습니다")
+                text_finding.text = qsTr("로봇이 위치를 찾지 못했습니다") //로봇의 위치를 찾지 못했습니다
                 show_success = false;
                 show_failed = true;
-//                btn_do_autoinit.running = false;
             }else{
                 show_timeout = false;
-                text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
+                text_finding.text = qsTr("주행 준비가 되지 않았습니다") //로봇과 연결이 되지 않았습니다
             }
 
             if(!supervisor.getIPCConnection()){
@@ -134,7 +107,7 @@ Item{
                 show_restart = true;
                 show_success = false;
                 show_failed = false;
-                text_finding.text = qsTr("로봇과 연결이 되지 않았습니다")
+                text_finding.text = qsTr("주행 준비가 되지 않았습니다") //로봇과 연결이 되지 않았습니다
             }
         }
     }
@@ -161,14 +134,14 @@ Item{
                 color: color_dark_gray
                 font.family: font_noto_b.name
                 text: qsTr("이동하신 후 시작 버튼을 눌러주세요")
-                font.pixelSize: 53
+                font.pixelSize: 60
             }
         }
 
         Rectangle{
             id: btn_slam_do_init
-            width: 310
-            height: 130
+            width: 340
+            height: 150
             radius: 70
             opacity: 0
             color: color_green
@@ -181,12 +154,12 @@ Item{
                 text: qsTr("시    작")
                 color: "white"
                 font.family: font_noto_r.name
-                font.pixelSize: 47
+                font.pixelSize: 55
             }
             MouseArea{
                 anchors.fill: parent
                 onPressed:{
-                    click_sound.play();
+                    supervisor.playSound('click');
                     parent.color = color_mid_green;
                 }
                 onReleased: {
@@ -209,7 +182,7 @@ Item{
         Rectangle{
             id: btn_slam_manual_init
             width: 188
-            height: 100
+            height: 110
             radius: 60
             color: "transparent"
             border.width: 3
@@ -238,13 +211,13 @@ Item{
                     id: text_slam_pass
                     text: qsTr("맵 새로만들기")
                     font.family: font_noto_r.name
-                    font.pixelSize: 15
+                    font.pixelSize: 20
                 }
             }
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.writelog("[INIT] Localization : Make new map")
                     loadPage(pmapping);
                 }
@@ -253,7 +226,7 @@ Item{
         Rectangle{
             id: btn_slam_pass
             width: 188
-            height: 100
+            height: 110
             radius: 60
             color: "transparent"
             border.width: 3
@@ -283,13 +256,13 @@ Item{
                 Text{
                     text: qsTr("넘어가기")
                     font.family: font_noto_r.name
-                    font.pixelSize: 15
+                    font.pixelSize: 20
                 }
             }
             MouseArea{
                 anchors.fill: parent
                 onClicked: {
-                    click_sound.play();
+                    supervisor.playSound('click');
                     supervisor.writelog("[INIT] Debug Mode On");
                     supervisor.passInit();
                     passed();
@@ -307,7 +280,7 @@ Item{
         color: color_light_gray
         Text{
             id: text_finding
-            text: qsTr("로봇의 위치를 찾고 있습니다")
+            text: qsTr("로봇이 위치를 찾고 있습니다") //로봇의 위치를 찾고 있습니다
             color: color_dark_navy
             Behavior on opacity {
                 NumberAnimation{
@@ -315,7 +288,7 @@ Item{
                 }
             }
             horizontalAlignment:Text.AlignHCenter
-            font.pixelSize: 40
+            font.pixelSize: 50
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 50
@@ -402,6 +375,7 @@ Item{
         }
     }
 
+
     MouseArea{
         width: 50
         height: 50
@@ -409,7 +383,7 @@ Item{
         anchors.right: parent.right
         property int count: 0
         onClicked:{
-            click_sound.play();
+            supervisor.playSound('click');
             if(count++ > 4){
                 count = 0;
                 show_debug = true;
@@ -426,6 +400,7 @@ Item{
         leftPadding: 0
         rightPadding: 0
         onOpened: {
+            map.init();
             map.setViewer("localization");
             map.setEnable(true);
 

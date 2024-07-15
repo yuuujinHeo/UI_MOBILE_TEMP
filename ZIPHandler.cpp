@@ -168,16 +168,26 @@ void ZIPHandler::getZip(QString path){
     bool is_clear = true;
     errorlist.clear();
 
-    //Remove orin tempBackup Folder
-    QDir dirfolder(QDir::homePath() + "/tempBackup");
+    // Remove orin tempBackup Folder
+    QDir dirfolder(QDir::homePath() + "/RB_MOBILE/maps");
     dirfolder.removeRecursively();
 
-    //Copy File
+    // Create tempBackup Folder
+    if (!dirfolder.exists()) {
+        if (!dirfolder.mkpath(".")) {
+            process = 4;
+            plog->write("[ZIP] GET ZIP ERROR : TEMPBACKUP FOLDER CREATION FAILED");
+            errorlist.append("임시 백업 폴더 생성 실패");
+            is_clear = false;
+        }
+    }
+
+    // Copy File
     std::string user = getenv("USER");
     std::string paths = "/media/" + user;
     QString file = paths.c_str();
     file = file + "/" + path;
-    QString file_dst = QDir::homePath()+"/tempBackup.zip";
+    QString file_dst = QDir::homePath()+"/RB_MOBILE/tempBackup.zip";
     QFile file_src(file);
     if(!file_src.exists()){
         process = 4;
@@ -185,7 +195,7 @@ void ZIPHandler::getZip(QString path){
         errorlist.append("복사 실패 : 파일을 찾을 수 없음");
         is_clear = false;
     }else{
-        if(file_src.copy(file_dst)){//QFile::copy(file, file_dst)){
+        if(file_src.copy(file_dst)){
 
         }else if(QFile::exists(file_dst)){
             errorlist.append("복사 실패 : 파일이 이미 존재함");
@@ -196,18 +206,18 @@ void ZIPHandler::getZip(QString path){
         }
     }
 
-    //Unzip
+    // Unzip
     if(is_clear){
-        QStringList files = zipper.extractDir(file_dst, file_dst.split(".")[0]);
+        QStringList files = zipper.extractDir(file_dst, QDir::homePath() + "/RB_MOBILE");
         if(files.size() > 0){
-            //Unzip middlepath
-            foreach(QString ex_file,files){
+            // Unzip middlepath
+            foreach(QString ex_file, files){
                 qDebug() << ex_file;
-                zipper.extractDir(ex_file,ex_file.split(".")[0]);
+                zipper.extractDir(ex_file, ex_file.split(".")[0]);
             }
         }else{
             is_clear = false;
-            plog->write("[ZIP] GET ZIP ERROR : EXTRACT FAILED "+files.size());
+            plog->write("[ZIP] GET ZIP ERROR : EXTRACT FAILED "+QString::number(files.size()));
             errorlist.append("파일 압축해제 실패");
         }
     }
@@ -221,6 +231,7 @@ void ZIPHandler::getZip(QString path){
     }
     qDebug() << errorlist;
 }
+
 void ZIPHandler::unZipandRead(QString path){
 //    zipper.
 }

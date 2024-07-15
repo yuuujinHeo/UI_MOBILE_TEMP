@@ -6,8 +6,8 @@ import "."
 Popup{
     id: popup_password
     anchors.centerIn: parent
-    width: 360
-    height: 550
+    width: 450
+    height: 620
     background: Rectangle{
         anchors.fill: parent
         color: "transparent"
@@ -75,23 +75,23 @@ Popup{
                 color: "white"
                 Column{
                     anchors.centerIn: parent
-                    spacing: 20
+                    spacing: 25
                     Text{
                         text: qsTr("비밀번호를 입력해주세요")
-                        font.pixelSize: 20
+                        font.pixelSize: 30
                         font.family: font_noto_r.name
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
 
                     Row{
                         anchors.horizontalCenter: parent.horizontalCenter
-                        spacing: 20
+                        spacing: 23
                         Repeater{
                             model: ListModel{id: model_passwd}
                             Rectangle{
-                                width: 50
-                                height: 50
-                                radius: 50
+                                width: 60
+                                height: 60
+                                radius: 60
                                 color: show?failed?color_red:color_green:color_gray
                             }
                         }
@@ -110,14 +110,14 @@ Popup{
                     Repeater{
                         model: ListModel{id: model_pad}
                         Rectangle{
-                            width: 100
-                            height: 60
+                            width: 120
+                            height: 80
                             color: "transparent"
                             Text{
                                 text: name
                                 visible:name!=="clear"&&name!=="<-"
                                 font.family: font_noto_r.name
-                                font.pixelSize: 25
+                                font.pixelSize: 30
                                 anchors.centerIn: parent
                                 color: "white"
                             }
@@ -151,7 +151,7 @@ Popup{
                             MouseArea{
                                 anchors.fill: parent
                                 onClicked: {
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                     if(name==="clear"){
                                         popup_password.setfailclear();
                                         popup_password.input_len = 0;
@@ -217,7 +217,6 @@ Popup{
                     }
                 }
             }
-
         }
     }
 }

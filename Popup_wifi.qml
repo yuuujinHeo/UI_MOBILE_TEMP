@@ -156,16 +156,20 @@ Popup{
     function con_success(){
         connection = 2;
         ip_update();
+        popup_loading.close();
     }
     function con_fail(){
         connection = 0;
         popup_fail_con.open();
+        popup_loading.close();
     }
     function set_success(){
         ip_update();
+        popup_loading.close();
     }
     function set_fail(){
         ip_update();
+        popup_loading.close();
     }
 
     Timer{
@@ -364,7 +368,7 @@ Popup{
                                     MouseArea{
                                         anchors.fill: parent
                                         onClicked:{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             select_wifi = index;
                                         }
                                     }
@@ -662,7 +666,7 @@ Popup{
                                     enabled: parent.enabled
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         keyboard.owner = passwd_wifi;
                                         passwd_wifi.selectAll();
                                         keyboard.open();
@@ -687,7 +691,7 @@ Popup{
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked:{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         if(popup_wifi.show_passwd){
                                             popup_wifi.show_passwd = false;
                                         }else{
@@ -716,16 +720,16 @@ Popup{
                                 onClicked: {
                                     if(select_security){
                                         if(passwd_wifi.text == ""){
-                                            click_sound_no.play();
+                                            supervisor.playSound('no');
                                         }else{
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             print("check connect", select_ssid, passwd_wifi.text);
                                             supervisor.connectWifi(select_ssid, passwd_wifi.text);
                                             popup_wifi.connection = 1;
                                             popup_loading.open();
                                         }
                                     }else{
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         print("check connect", select_ssid, passwd_wifi.text);
                                         supervisor.connectWifi(select_ssid, "");
                                         popup_wifi.connection = 1;
@@ -850,7 +854,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip__1;
                                                             ip__1.selectAll();
@@ -888,7 +892,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip__2;
                                                             ip__2.selectAll();
@@ -929,7 +933,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip__3;
                                                             ip__3.selectAll();
@@ -971,7 +975,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = ip__4;
                                                             ip__4.selectAll();
@@ -1037,7 +1041,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask__1;
                                                             netmask__1.selectAll();
@@ -1075,7 +1079,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask__2;
                                                             netmask__2.selectAll();
@@ -1116,7 +1120,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask__3;
                                                             netmask__3.selectAll();
@@ -1157,7 +1161,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = netmask__4;
                                                             netmask__4.selectAll();
@@ -1223,7 +1227,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway__1;
                                                             gateway__1.selectAll();
@@ -1261,7 +1265,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway__2;
                                                             gateway__2.selectAll();
@@ -1302,7 +1306,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway__3;
                                                             gateway__3.selectAll();
@@ -1343,7 +1347,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = gateway__4;
                                                             gateway__4.selectAll();
@@ -1410,7 +1414,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dns_1;
                                                             dns_1.selectAll();
@@ -1448,7 +1452,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dns_2;
                                                             dns_2.selectAll();
@@ -1489,7 +1493,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dns_3;
                                                             dns_3.selectAll();
@@ -1530,7 +1534,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dns_4;
                                                             dns_4.selectAll();
@@ -1596,7 +1600,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_1;
                                                             dnsserv_1.selectAll();
@@ -1634,7 +1638,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_2;
                                                             dnsserv_2.selectAll();
@@ -1675,7 +1679,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_3;
                                                             dnsserv_3.selectAll();
@@ -1716,7 +1720,7 @@ Popup{
                                                 MouseArea{
                                                     anchors.fill:parent
                                                     onClicked: {
-                                                        click_sound.play();
+                                                        supervisor.playSound('click');
                                                         if(keypad.is_opened){
                                                             keypad.owner = dnsserv_4;
                                                             dnsserv_4.selectAll();
@@ -1769,7 +1773,7 @@ Popup{
                                 MouseArea{
                                     anchors.fill: parent
                                     onClicked: {
-                                        click_sound.play();
+                                        supervisor.playSound('click');
                                         if(supervisor.getcurIP() === "")
                                             ip_update();
 
@@ -1809,7 +1813,7 @@ Popup{
                                         var success = true;
                                         //check value
                                         if(rb_dhcp.checked){
-                                            click_sound.play();
+                                            supervisor.playSound('click');
                                             popup_loading.open();
                                             supervisor.setWifiDHCP();
                                         }else{
@@ -1946,7 +1950,7 @@ Popup{
                                             keypad.close();
 
                                             if(success){
-                                                click_sound.play();
+                                                supervisor.playSound('click');
                                                 popup_loading.open();
                                                 ip__1.ischanged = false;
                                                 ip__2.ischanged = false;
@@ -1975,7 +1979,7 @@ Popup{
                                                 var dns2_str = dnsserv_1.text===""?"":dnsserv_1.text + "." + dnsserv_2.text + "." + dnsserv_3.text + "." + dnsserv_4.text;
                                                 supervisor.setWifi("", ip_str, netmask_str, gateway_str,dns1_str,dns2_str);
                                             }else{
-                                                click_sound_no.play();
+                                                supervisor.playSound('no');
                                             }
                                         }
                                     }
@@ -2007,7 +2011,7 @@ Popup{
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        click_sound.play();
+                        supervisor.playSound('click');
                         if(popup_wifi.setting_step === 0){
                             cancel();
                         }else{
@@ -2047,7 +2051,7 @@ Popup{
                 MouseArea{
                     anchors.fill: parent
                     onPressed:{
-                        click_sound.play();
+                        supervisor.playSound('click');
                         parent.color = color_mid_green;
                     }
                     onReleased: {
@@ -2056,7 +2060,7 @@ Popup{
                     onClicked: {
                         if(popup_wifi.setting_step == 0){
                             if(select_wifi>-1 && select_wifi < model_wifis.count){
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 select_ssid = model_wifis.get(select_wifi).ssid;
                                 select_inuse = model_wifis.get(select_wifi).inuse;
                                 select_security = model_wifis.get(select_wifi).security;
@@ -2070,21 +2074,21 @@ Popup{
                                 }
 
                             }else{
-                                click_sound_no.play();
+                                supervisor.playSound('no');
                             }
 
 
                         }else if(popup_wifi.setting_step == 1){
                             if(popup_wifi.connection === 2){
-                                click_sound.play();
+                                supervisor.playSound('click');
                                 supervisor.writelog("[SETTING] PopupWifi : 2. Ip Setting");
                                 ip_update();
                                 popup_wifi.setting_step++;
                             }else{
-                                click_sound_no.play();
+                                supervisor.playSound('no');
                             }
                         }else{
-                            click_sound.play();
+                            supervisor.playSound('click');
                             supervisor.writelog("[SETTING] PopupWifi : Setting Done");
                             done();
                         }
@@ -2124,5 +2128,15 @@ Popup{
             }
         }
 
+    }
+
+    Popup_loading{
+        id: popup_loading
+    }
+    Tool_Keyboard{
+        id: keyboard
+    }
+    Tool_KeyPad{
+        id: keypad
     }
 }

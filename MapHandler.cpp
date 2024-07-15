@@ -53,10 +53,11 @@ bool MapHandler::getCutBoxFlag(){
     return true;
 }
 
-void MapHandler::loadFile(){
-    loadFile(map_name,"");
-}
 void MapHandler::loadFile(QString name, QString type){
+    if(name == ""){
+        name = map_name;
+    }
+
     QString file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_raw.png";
     QString log_str;
     if(QFile::exists(file_path)){
@@ -97,6 +98,7 @@ void MapHandler::loadFile(QString name, QString type){
     }else{
         file_path = QDir::homePath() + "/RB_MOBILE/maps/"+name + "/map_travel_line.png";
     }
+    qDebug() << file_width;
 
     if(QFile::exists(file_path)){
         cv::Mat temp = cv::imread(file_path.toStdString(), cv::IMREAD_UNCHANGED);
@@ -128,6 +130,8 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_travelline = temp;
+        }else if(temp.channels() == 1){
+            cv::cvtColor(temp,file_travelline,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_travelline,file_travelline,0);
         cv::rotate(file_travelline,file_travelline,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -181,6 +185,8 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_travelline_ui = temp;
+        }else if(temp.channels() == 1){
+            cv::cvtColor(temp,file_travelline_ui,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_travelline_ui,file_travelline_ui,0);
         cv::rotate(file_travelline_ui,file_travelline_ui,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -223,6 +229,8 @@ void MapHandler::loadFile(QString name, QString type){
 
         }else if(temp.channels() == 4){
             file_velocity = temp;
+        }else if(temp.channels() == 1){
+            cv::cvtColor(temp,file_velocity,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_velocity,file_velocity,0);
         cv::rotate(file_velocity,file_velocity,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -268,6 +276,9 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_object = temp;
+        }else if(temp.channels() == 1){
+//            file_object = temp;
+            cv::cvtColor(temp,file_object,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_object,file_object,0);
         cv::rotate(file_object,file_object,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -305,6 +316,9 @@ void MapHandler::loadFile(QString name, QString type){
             }
         }else if(temp.channels() == 4){
             file_avoid = temp;
+        }else if(temp.channels() == 1){
+//            file_object = temp;
+            cv::cvtColor(temp,file_avoid,cv::COLOR_GRAY2BGRA);
         }
         cv::flip(file_avoid,file_avoid,0);
         cv::rotate(file_avoid,file_avoid,cv::ROTATE_90_COUNTERCLOCKWISE);
@@ -335,7 +349,7 @@ void MapHandler::loadFile(QString name, QString type){
     initLocation();
     initRotate();
     setMap();
-    plog->write("[MAP] Load File : " + name + " (type = "+type+", width = "+draw_width+") => "+log_str);
+    plog->write("[MAP] Load File : " + name + " (type = "+type+", width = "+QString::number(draw_width)+") => "+log_str);
 }
 
 void MapHandler::setMapOrin(QString type){
@@ -411,7 +425,6 @@ void MapHandler::setMode(QString name){
     show_travelline = false;
     show_avoid = false;
 
-
     show_object = false;
     show_location = false;
     show_location_icon = false;
@@ -481,9 +494,6 @@ void MapHandler::setMode(QString name){
     }else{
         setFullScreen();
     }
-
-
-
     setMap();
 }
 
@@ -519,6 +529,7 @@ void MapHandler::initLocation(){
 }
 
 void MapHandler::setFullScreen(){
+    qDebug() << "setfullscreen";
     draw_x = 0;
     draw_y = 0;
     draw_width = file_width;
@@ -1451,71 +1462,60 @@ void MapHandler::setMap(){
         cv::Mat temp_obj, temp_avoid;
         cv::Mat temp_layer = cv::Mat(file_width,file_width,CV_8UC4,cv::Scalar::all(0));
         cv::cvtColor(map_orin,temp_orin,cv::COLOR_GRAY2BGRA);
-//        cv::cvtColor(file_velocity,temp_velmap,cv::COLOR_BGR2BGRA);
-//        cv::cvtColor(file_travelline,temp_travel,cv::COLOR_BGR2BGRA);
-//        cv::cvtColor(file_travelline_ui,temp_travel_ui,cv::COLOR_BGR2BGRA);
-//        cv::cvtColor(file_object,temp_obj,cv::COLOR_BGR2BGRA);
-//        cv::cvtColor(file_avoid,temp_avoid,cv::COLOR_BGR2BGRA);
         file_velocity.copyTo(temp_velmap);
         file_travelline.copyTo(temp_travel);
         file_travelline_ui.copyTo(temp_travel_ui);
         file_object.copyTo(temp_obj);
         file_avoid.copyTo(temp_avoid);
-        // cv::imshow("vel0",file_velocity);
 
-//        qDebug() << show_velocitymap << show_avoid << show_robot << show_object << show_travelline;
-
-        if(show_velocitymap){
-            if(mode == "annot_velmap"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
-                //cv::add(temp_velmap,map_drawing,temp_velmap);
-                cv::add(temp_velmap,map_drawing,temp_velmap);
-            }
-            cv::add(temp_layer,temp_velmap,temp_layer);
-            // cv::imshow("vel",temp_layer);
-        }
-
-        if(show_avoid){
-            if(mode == "annot_obs_area"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
-                cv::add(temp_avoid,map_drawing,temp_avoid);
-            }
-            cv::add(temp_layer,temp_avoid,temp_layer);
-//            cv::imshow("obs",temp_layer);
-        }
-        if(show_object){
-            if(mode == "annot_object_png"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
-                cv::add(temp_obj,map_drawing,temp_obj);
-            }
-            cv::multiply(cv::Scalar::all(1.0)-temp_obj,temp_layer,temp_layer);
-            cv::add(temp_layer,temp_obj,temp_layer);
-//            cv::imshow("obj",temp_layer);
-        }
-
-        if(show_velocitymap || show_object || show_avoid){
-            cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
-        }
-
-        if(show_travelline){
-            if(flag_drawing){
-                cv::add(temp_orin,map_drawing_tline,temp_orin);
-            }
-            if(mode == "annot_tline" || mode == "annot_location"){
-                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel_ui,temp_travel_ui);
-                cv::add(temp_travel_ui,map_drawing,temp_travel_ui);
-                cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
-                cv::add(temp_orin,temp_travel_ui,temp_orin);
-            }else{
-                cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
-                cv::addWeighted(temp_orin,1,temp_travel_ui,1,0,temp_orin);
-
-//                std::cout<<"wwwwwwwwwww"<<std::endl;
+        if(mode != "annot_drawing"){
+            if(show_velocitymap){
+                if(mode == "annot_velmap"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_velmap,temp_velmap);
+                    cv::add(temp_velmap,map_drawing,temp_velmap);
+                }
+                cv::add(temp_layer,temp_velmap,temp_layer);
             }
 
-        }
+            if(show_avoid){
+                if(mode == "annot_obs_area"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_avoid,temp_avoid);
+                    cv::add(temp_avoid,map_drawing,temp_avoid);
+                }
+                cv::add(temp_layer,temp_avoid,temp_layer);
+            }
+            if(show_object){
+                if(mode == "annot_object_png"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_obj,temp_obj);
+                    cv::add(temp_obj,map_drawing,temp_obj);
+                }
+                cv::multiply(cv::Scalar::all(1.0)-temp_obj,temp_layer,temp_layer);
+                cv::add(temp_layer,temp_obj,temp_layer);
+            }
 
-        if(!show_object && !show_velocitymap && !show_travelline && !show_avoid){
+            if(show_velocitymap || show_object || show_avoid){
+                cv::addWeighted(temp_orin,1,temp_layer,0.5,0,temp_orin);
+            }
+
+            if(show_travelline){
+                if(flag_drawing){
+                    cv::add(temp_orin,map_drawing_tline,temp_orin);
+                }
+                if(mode == "annot_tline" || mode == "annot_location"){
+                    cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_travel_ui,temp_travel_ui);
+                    cv::add(temp_travel_ui,map_drawing,temp_travel_ui);
+                    cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
+                    cv::add(temp_orin,temp_travel_ui,temp_orin);
+                }else{
+                    cv::addWeighted(temp_orin,1,temp_travel,0.5,0,temp_orin);
+                    cv::addWeighted(temp_orin,1,temp_travel_ui,1,0,temp_orin);
+                }
+            }
+            if(!show_object && !show_velocitymap && !show_travelline && !show_avoid){
+                cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
+                cv::add(temp_orin,map_drawing,temp_orin);
+            }
+        }else{
             cv::multiply(cv::Scalar::all(1.0)-map_drawing_mask,temp_orin,temp_orin);
             cv::add(temp_orin,map_drawing,temp_orin);
         }
@@ -2048,13 +2048,13 @@ bool MapHandler::getDrawingUndoFlag(){
 }
 
 void MapHandler::startDrawingLine(int x, int y){
-//    new_straight_flag = true;
-//    spline_dot.clear();
-//    straight[0].x = x;
-//    straight[0].y = y;
-//    straight[1].x = x;
-//    straight[1].y = y;
-//    setMap();
+   // new_straight_flag = true;
+   // spline_dot.clear();
+   // straight[0].x = x;
+   // straight[0].y = y;
+   // straight[1].x = x;
+   // straight[1].y = y;
+   // setMap();
 }
 
 void MapHandler::startSpline(int x, int y){
@@ -2835,6 +2835,16 @@ void MapHandler::setDrawingLine(int x, int y){
 //    setMapDrawing();
 //    setMap();
 }
+void MapHandler::saveStraight(){
+    new_straight_flag = false;
+    LINE temp_line;
+    temp_line.color = cur_line_color;
+    temp_line.width = cur_line_width;
+    temp_line.points = straight_point;
+    lines.push_back(temp_line);
+    setMapDrawing();
+    setMap();
+}
 void MapHandler::stopDrawingLine(int x, int y){
 //    //qDebug() << "stopDrawingLine";
 //    line.clear();
@@ -2960,6 +2970,7 @@ void MapHandler::endDrawing(int x, int y){
         d_list.push_back(sum_d);
         x_list.push_back(line[0].x);
         y_list.push_back(line[0].y);
+
         for(size_t p = 1; p<line.size(); p++){
             double x0 = line[p-1].x;
             double y0 = line[p-1].y;
@@ -2995,12 +3006,14 @@ void MapHandler::endDrawing(int x, int y){
         temp_line.points = line;
     }
 
+    qDebug() << "enddrawing " << lines.size();
     lines.push_back(temp_line);
     line.clear();
     initDrawing();
     setMapDrawing();
     setMap();
 }
+
 void MapHandler::endErase2(int x, int y){
     line.clear();
 //    initDrawing();
@@ -3027,16 +3040,16 @@ void MapHandler::clearDrawing(){
 }
 
 void MapHandler::undoLine(){
+    qDebug() << "undo" << lines.size();
+
     line.clear();
-    if(straight_point.size() > 0){
-        straight_point.clear();
-        setMapDrawing();
-        setMap();
-    }else if(spline_dot.size() > 0){
+    if(spline_dot.size() > 0){
+        qDebug() << "spline";
         dot_trash.push_back(spline_dot[spline_dot.size()-1]);
         spline_dot.pop_back();
         drawSpline();
     }else if(lines.size() > 0 || line.size() > 0){
+        qDebug() << "lines";
         lines_trash.push_back(lines[lines.size()-1]);
         lines.pop_back();
         setMapDrawing();
@@ -3640,61 +3653,216 @@ void MapHandler::setStraightPoint(int x, int y){//released
     setMap();
 }
 
-
-
-void MapHandler::pressed(QString tool, int _x, int _y){
-    float x = draw_x + _x*scale*file_width/canvas_width;
-    float y = draw_y + _y*scale*file_width/canvas_height;
-    qDebug() << "pressed " << tool;
-//    qDebug() << "pressed " << _x << _y << x << y << scale << canvas_width;
-    press_release = true;
-    if(tool == "ruler"){
-        setRulerInit(x,y);
-    }else if(tool == "straight"){
-        setStraightInit(x,y);
-    }else if(tool == "topo"){
-        tempNodeInit(x,y);
+void MapHandler::setObjPose(){
+    pmap->list_obj_dR.clear();
+    pmap->list_obj_uL.clear();
+    for(int i=0; i<pmap->objects.size(); i++){
+        cv::Point2f temp_uL;
+        cv::Point2f temp_dR;
+        //Find Square Pos
+        temp_uL.x = pmap->objects[i].points[0].x;
+        temp_uL.y = pmap->objects[i].points[0].y;
+        temp_dR.x = pmap->objects[i].points[0].x;
+        temp_dR.y = pmap->objects[i].points[0].y;
+        for(int j=1; j<pmap->objects[i].points.size(); j++){
+            if(temp_uL.x > pmap->objects[i].points[j].x){
+                temp_uL.x = pmap->objects[i].points[j].x;
+            }
+            if(temp_uL.y > pmap->objects[i].points[j].y){
+                temp_uL.y = pmap->objects[i].points[j].y;
+            }
+            if(temp_dR.x < pmap->objects[i].points[j].x){
+                temp_dR.x = pmap->objects[i].points[j].x;
+            }
+            if(temp_dR.y < pmap->objects[i].points[j].y){
+                temp_dR.y = pmap->objects[i].points[j].y;
+            }
+        }
+        pmap->list_obj_dR.push_back(temp_uL);
+        pmap->list_obj_uL.push_back(temp_dR);
     }
 }
-void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2){
 
+void MapHandler::pressed(QString tool, int _x, int _y){
+    float x = _x*scale*file_width/canvas_width;
+    float y = _y*scale*file_width/canvas_height;
+    float X = draw_x + x;
+    float Y = draw_y + y;
+    move_init_pose.x = X;
+    move_init_pose.y = Y;
+    if(tool == "move" || shift_move){
+    }else if(tool == "draw"){
+        setShowBrush(true);
+        startDrawing(X,Y);
+    }else if(tool == "draw_rect"){
+        setShowBrush(false);
+        startDrawingRect(X,Y);
+    }else if(tool == "straight"){
+        setStraightInit(X,Y);
+    }else if(tool == "dot_spline"){
+        addSpline(X,Y);
+    }else if(tool == "add_object"){
+        addObject(X,Y);
+    }else if(tool == "edit_object"){
+        editObjectStart(X,Y);
+    }else if(tool == "add_point"){
+        addObjectPoint(X,Y);
+    }else if(tool == "erase"){
+        setShowBrush(true);
+        setLineColor(-1);
+        startDrawing(X,Y);
+    }else if(tool == "erase2"){
+        setShowBrush(true);
+        setLineColor(-1);
+        startErase2(X,Y);
+    }else if(tool == "add_location"){
+        addLocation(X,Y,0);
+    }else if(tool == "edit_location"){
+        editLocation(X,Y,0);
+    }else if(tool == "edit_location_new"){
+        addLocation(X,Y,0);
+    }else if(tool == "slam_init"){
+        setInitFlag(true);
+        setInitPose(X,Y,0);
+    }else if(tool == "cut_map"){
+        select_box = getPointBox(X,Y);
+    }else if(tool == "ruler"){
+        setRulerInit(X,Y);
+    }else if(tool == "straight"){
+        setStraightInit(X,Y);
+    }else if(tool == "topo"){
+        tempNodeInit(X,Y);
+    }
+}
+
+void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2){
+    float x1 = draw_x + _x1*scale*file_width/canvas_width;
+    float y1 = draw_y + _y1*scale*file_width/canvas_height;
+    float x2 = draw_x + _x2*scale*file_width/canvas_width;
+    float y2 = draw_y + _y2*scale*file_width/canvas_height;
+    if(tool == "move"|| shift_move){
+        float dx = x1-x2;
+        float dy = y1-y2;
+        zoom_init_distance = sqrt(dx*dx + dy*dy);
+        move_init_pose.x = x1;
+        move_init_pose.y = y1;
+    }
 }
 
 void MapHandler::moved(QString tool, int _x, int _y){
-    float x = draw_x + _x*scale*file_width/canvas_width;
-    float y = draw_y + _y*scale*file_width/canvas_height;
-    if(tool == "ruler"){
-        if(calculateDistance(cv::Point2f(x,y),ruler_init_point) > 10){
+    float x = _x*scale*file_width/canvas_width;
+    float y = _y*scale*file_width/canvas_height;
+    float X = draw_x + x;
+    float Y = draw_y + y;
+    if(tool == "move"|| shift_move){
+        move(move_init_pose.x - x, move_init_pose.y - y);
+        qDebug() << move_init_pose.x << x;
+    }else if(tool == "draw"){
+        addLinePoint(X,Y);
+    }else if(tool == "draw_rect"){
+        setDrawingRect(X,Y);
+    }else if(tool == "cut_map"){
+        setBoxPoint(select_box,X,Y);
+    }else if(tool == "straight"){
+        if(calculateDistance(cv::Point2f(X,Y),straight_init_point) > 10){
             press_release = false;
-            setRulerEnd(x,y);
+            setStraightEnd(X,Y);
+        }
+    }else if(tool == "erase"){
+        addLinePoint(X,Y);
+    }else if(tool == "erase2"){
+        addErase2(X,Y);
+    }else if(tool == "add_object"){
+        setObject(X,Y);
+    }else if(tool == "edit_object"){
+        editObject(X,Y);
+    }else if(tool == "add_point"){
+        setObject(X,Y);
+    }else if(tool == "edit_location_new"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        addLocation(X,Y,angle);
+    }else if(tool == "add_location"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        addLocation(X,Y,angle);
+    }else if(tool == "edit_location"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        editLocation(X,Y,angle);
+    }else if(tool == "slam_init"){
+        float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
+        setInitPose(X,Y,angle);
+    }else if(tool == "ruler"){
+        if(calculateDistance(cv::Point2f(X,Y),ruler_init_point) > 10){
+            press_release = false;
+            setRulerEnd(X,Y);
         }
     }else if(tool == "straight"){
-        if(calculateDistance(cv::Point2f(x,y),straight_init_point) > 10){
+        if(calculateDistance(cv::Point2f(X,Y),straight_init_point) > 10){
             press_release = false;
-            setStraightEnd(x,y);
+            setStraightEnd(X,Y);
         }
     }else if(tool == "topo"){
-        tempNodeSet(x,y);
+        tempNodeSet(X,Y);
     }
     setMapLayer();
 
 }
 void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
+    float x1 = _x1*scale*file_width/canvas_width;
+    float y1 = _y1*scale*file_width/canvas_height;
+    float x2 = _x2*scale*file_width/canvas_width;
+    float y2 = _y2*scale*file_width/canvas_height;
+    if(tool == "move"){
+        float dx = x1-x2;
+        float dy = y1-y2;
+        float cur_dist =  sqrt(dx*dx + dy*dy);
 
+        if(zoom_init_distance-cur_dist > 0){
+            zoomOut(x1,y1,zoom_init_distance-cur_dist);
+        }else{
+            zoomIn(x1,y1,zoom_init_distance-cur_dist);
+        }
+        zoom_init_distance = cur_dist;
+        move(move_init_pose.x - x1, move_init_pose.y - y1);
+    }
 }
-void MapHandler::released(QString tool, int x, int y){
 
+void MapHandler::released(QString tool, int _x, int _y){
+    float x = _x*scale*file_width/canvas_width;
+    float y = _y*scale*file_width/canvas_height;
+    float X = draw_x + x;
+    float Y = draw_y + y;
 }
+
 void MapHandler::double_released(QString tool, int x1, int y1, int x2, int y2){
     float x = draw_x + x1*scale*file_width/canvas_width;
     float y = draw_y + y1*scale*file_width/canvas_height;
     qDebug() << "released " << tool << press_release;
-    if(tool == "ruler"){
+    if(tool == "move"|| shift_move){
+
+    }else if(tool == "draw"){
+        endDrawing(x,y);
+    }else if(tool == "draw_rect"){
+        endDrawingRect();
+    }else if(tool == "straight"){
+        if(press_release){
+            setStraightPoint(x,y);
+        }else{
+            saveStraight();
+        }
+    }else if(tool == "erase"){
+        endDrawing(x,y);
+    }else if(tool == "erase2"){
+        endErase2(x,y);
+    }else if(tool == "edit_object"){
+        setObjPose();
+    }else if(tool == "slam_init"){
+        setInitFlag(false);
+        float angle = atan2((y-move_init_pose.y),(x-move_init_pose.x));
+        setInitPose(move_init_pose.x, move_init_pose.y, angle);
+    }else if(tool == "ruler"){
         if(press_release){
             setRulerPoint(x,y);
         }
-    }else if(tool == "straight"){
-        setStraightPoint(x,y);
     }
     press_release = false;
 }

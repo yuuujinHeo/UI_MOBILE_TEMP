@@ -37,7 +37,7 @@ Item {
     }
     function released(){
         btn_color = "white";
-//        click_sound.play();;
+//        supervisor.playSound('click');;
     }
 
     Rectangle{

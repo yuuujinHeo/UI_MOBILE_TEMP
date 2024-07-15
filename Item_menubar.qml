@@ -108,7 +108,7 @@ Item {
                             text: name
                             anchors.horizontalCenter: parent.horizontalCenter
                             font.family: font_noto_r.name
-                            font.pixelSize: 15
+                            font.pixelSize: 20
                             color: en?color_dark_black:color_red
                         }
                     }

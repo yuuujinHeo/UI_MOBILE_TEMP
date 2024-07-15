@@ -9,7 +9,7 @@ Popup{
     property string main_str: ""
     property string sub_str: ""
     property string style: "warning"
-    property bool closemode: true
+    property bool is_open: false
     leftPadding: 0
     rightPadding: 0
     topPadding: 0
@@ -24,7 +24,7 @@ Popup{
     signal clicked
 
     function init(){
-        closemode = true;
+        console.log("popup notice init");
         model_btn.clear();
         style = "warning";
         main_str = "";
@@ -42,9 +42,9 @@ Popup{
     ListModel{
         id: model_btn
     }
-
-
     onOpened:{
+        is_open = true;
+        console.log("poupup notice open");
         if(style == "notice"){
             image_warn.source = "icon/icon_bookmark.png"
             text_main.color = "white";
@@ -83,6 +83,9 @@ Popup{
             addButton(qsTr("확 인"));
         }
     }
+    onClosed:{
+        is_open = false;
+    }
 
     Rectangle{
         id: back
@@ -115,7 +118,7 @@ Popup{
                         color: "white"
                         anchors.verticalCenter: parent.verticalCenter
                         font.family: font_noto_r.name
-                        font.pixelSize: 40
+                        font.pixelSize: 50
                         text: popup_notice.main_str
                         Component.onCompleted: {
                             while(width > back.width*0.7){
@@ -127,7 +130,7 @@ Popup{
             }
             Rectangle{
                 width: parent.width
-                height: 160
+                height: 140
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
@@ -135,10 +138,10 @@ Popup{
                     color: color_light_gray
                     horizontalAlignment: Text.AlignHCenter
                     font.family: font_noto_r.name
-                    font.pixelSize: 28
+                    font.pixelSize: 33
                     text: popup_notice.sub_str
                     Component.onCompleted: {
-                        while(width > back.width*0.9){
+                        while(width > back.width*0.8){
                             font.pixelSize-=1
                         }
                     }
@@ -161,7 +164,7 @@ Popup{
                                 anchors.centerIn: parent
                                 color: mode===0?"white":color_dark_navy
                                 font.family: font_noto_r.name
-                                font.pixelSize: 20
+                                font.pixelSize: 30
                                 text: name
                                 Component.onCompleted: {
                                     while(width > 160*0.9){
@@ -173,7 +176,7 @@ Popup{
                                 anchors.fill: parent
                                 onPressed:{
                                     parent.color = mode===0?color_more_gray:color_dark_green
-                                    click_sound.play();
+                                    supervisor.playSound('click');
                                 }
                                 onReleased:{
                                     parent.color = mode===0?color_dark_gray:color_green
@@ -186,6 +189,5 @@ Popup{
                 }
             }
         }
-
     }
 }
