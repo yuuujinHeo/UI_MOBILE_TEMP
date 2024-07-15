@@ -183,7 +183,6 @@ contains(QT_ARCH, arm64) {
 
     LIBS += -L/usr/lib/aarch64-linux-gnu/
 
-
     # USB
     LIBS += -lusb-1.0
     LIBS += -lssl -lcrypto

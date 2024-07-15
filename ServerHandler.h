@@ -103,7 +103,7 @@ public:
     QString goqual_url = "https://goqual.io";
     ST_GOQUAL_LOGIN goqual_login;
     ST_GOQUAL_TOKEN goqual_token;
-    QList<ST_GOQUAL_RELAY> goqual_relays;
+    QMap<QString,ST_GOQUAL_RELAY> goqual_relays;
 
     QByteArray encrypt(const QByteArray &text);
 

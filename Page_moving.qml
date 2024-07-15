@@ -17,11 +17,6 @@ Item {
     property int obs_in_path : 0
     property int show_face: 0
 
-    function movedone(){
-        loadPage(pkitchen);
-        popup_notice.close();
-    }
-
     Component.onCompleted: {
         statusbar.visible = false;
     }
@@ -38,6 +33,11 @@ Item {
 
     Component.onDestruction:  {
         supervisor.stopBGM();
+    }
+
+    function movedone(){
+        loadPage(pkitchen);
+        popup_notice.close();
     }
 
     function openNotice(errstr){
@@ -238,7 +238,6 @@ Item {
             color: "white"
         }
     }
-
 
     Item{
         id: popup_waiting
@@ -480,7 +479,6 @@ Item {
                 motor_lock = false;
 
                 popup_notice.init();
-
                 popup_notice.style = "warning";
                 popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
                 popup_notice.sub_str = ""
@@ -572,30 +570,6 @@ Item {
         }
     }
 
-    MouseArea{
-        id: btn_password_1
-        width: 100
-        height: 100
-        anchors.bottom: parent.bottom
-        anchors.right: parent.right
-        z: 99
-        onClicked: {
-            supervisor.playSound('click');
-            password++;
-            if(password > 4){
-                password = 0;
-                supervisor.moveStop();
-                supervisor.writelog("[UI] PageMoving : debug pass -> PageKitchen");
-                loadPage(pkitchen);
-            }
-        }
-        onPressAndHold: {
-            supervisor.playSound('click');
-            password = 0;
-            mainwindow.showMinimized();
-        }
-    }
-
     Popup_notice{
         id: popup_notice
         z:99
@@ -633,4 +607,28 @@ Item {
         }
     }
 
+
+    MouseArea{
+        id: btn_password_1
+        width: 100
+        height: 100
+        anchors.bottom: parent.bottom
+        anchors.right: parent.right
+        z: 99
+        onClicked: {
+            supervisor.playSound('click');
+            password++;
+            if(password > 4){
+                password = 0;
+                supervisor.moveStop();
+                supervisor.writelog("[UI] PageMoving : debug pass -> PageKitchen");
+                loadPage(pkitchen);
+            }
+        }
+        onPressAndHold: {
+            supervisor.playSound('click');
+            password = 0;
+            mainwindow.showMinimized();
+        }
+    }
 }

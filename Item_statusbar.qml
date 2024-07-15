@@ -660,6 +660,12 @@ Item {
                 image_ethernet.source = "qrc:/icon/icon_ethernet_discon.png";
             }
 
+            if(supervisor.getSetting("setting","USE_UI","show_time")==="true"){
+                textTime.visible = true;
+            }else{
+                textTime.visible = false;
+            }
+
             if(supervisor.getLockStatus() === 1){
                 image_motorlock.source = "qrc:/icon/icon_motor_locked.png"
             }else{

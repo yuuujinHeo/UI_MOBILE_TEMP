@@ -158,7 +158,11 @@ typedef struct{
 typedef struct{
     QString id;
     QString type;
+    QString name;
+    QString familyId;
+    QString category;
     bool state;
+    bool online;
 }ST_GOQUAL_RELAY;
 
 typedef struct{

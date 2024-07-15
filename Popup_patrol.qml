@@ -18,13 +18,14 @@ Popup{
     topPadding: 0
     bottomPadding: 0
     anchors.centerIn: parent
-    width: 500
-    height: 700
+    width: 1280
+    height: 800
     property bool show_menu: false
 
     background: Rectangle{
         anchors.fill: parent
-        color: "transparent"
+        opacity: 0.9
+        color: color_dark_black
     }
 
     onOpened:{
@@ -261,10 +262,9 @@ Popup{
     Rectangle{
         id: rect_back
         width: show_menu?1100:500
-        height : popup_patrol.height
+        height : 700
         radius: 20
-        anchors.top: parent.top
-        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.centerIn: parent
         Behavior on width{
             NumberAnimation{
                 duration: 400
@@ -275,7 +275,7 @@ Popup{
             Rectangle{
                 id: rect_main
                 width: show_menu?300:500
-                height: popup_patrol.height
+                height: rect_back.height
                 color: "transparent"
                 Behavior on width{
                     NumberAnimation{
@@ -297,7 +297,7 @@ Popup{
                     }
                     Rectangle{
                         width: parent.width
-                        height: parent.height - 100
+                        height: parent.height - 200
                         color: "transparent"
                         clip: true
                         Column{
@@ -470,13 +470,38 @@ Popup{
                             }
                         }
                     }
+                    Rectangle{
+                        width:parent.width
+                        height: 100
+                        color: "transparent"
+                        Rectangle{
+                            width:  rect_main.width*0.8
+                            height: 80
+                            radius: 20
+                            color: color_blue
+                            anchors.centerIn: parent
+                            Text{
+                                anchors.centerIn: parent
+                                text: qsTr("닫기")
+                                font.family: font_noto_b.name
+                                font.pixelSize: 30
+                                color: "white"
+                            }
+                            MouseArea{
+                                anchors.fill: parent
+                                onClicked:{
+                                    popup_patrol.close();
+                                }
+                            }
+                        }
+                    }
                 }
             }
             Rectangle{
                 id: rect_menu
                 opacity: rect_back.width === 1100?1:0
                 width: show_menu?800:0
-                height: popup_patrol.height
+                height: rect_back.height
                 color: "transparent"
                 Behavior on width{
                     NumberAnimation{

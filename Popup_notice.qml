@@ -141,7 +141,7 @@ Popup{
                     font.pixelSize: 33
                     text: popup_notice.sub_str
                     Component.onCompleted: {
-                        while(width > back.width*0.9){
+                        while(width > back.width*0.8){
                             font.pixelSize-=1
                         }
                     }

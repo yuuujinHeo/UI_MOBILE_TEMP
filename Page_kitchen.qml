@@ -663,144 +663,143 @@ Item {
                 }
             }
         }
-        Rectangle{
-            id: btn_lock_group
-            color: "transparent"
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.left: rect_group.right
-            anchors.leftMargin: 20
-            width: 50
-            radius: 50
-            height: 50
-            Image{
-                anchors.fill: parent
-                sourceSize.width: width
-                sourceSize.height: height
-                source: "icon/btn_lock.png"
-            }
-            MouseArea{
-                anchors.fill: parent
-                onClicked: {
-                    supervisor.playSound('click');
-                    btn_lock_group.visible = false;
-                    btns_table_group.visible = true;
-                }
+    }
+
+    Rectangle{
+        id: btn_lock_group
+        color: "transparent"
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 30
+        anchors.right: parent.right
+        anchors.rightMargin: 30
+        width: 50
+        radius: 50
+        height: 50
+        Image{
+            anchors.fill: parent
+            sourceSize.width: width
+            sourceSize.height: height
+            source: "icon/btn_lock.png"
+        }
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                supervisor.playSound('click');
+                btn_lock_group.visible = false;
+                btns_table_group.visible = true;
             }
         }
-        Column{
-            id: btns_table_group
-            visible: false
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 30
-            anchors.left: rect_group.right
-            anchors.leftMargin: 20
-            spacing: 10
-            Grid{
-                rows: 2
-                columns: 4
-                anchors.horizontalCenter: parent.horizontalCenter
-                horizontalItemAlignment: Grid.AlignHCenter
-                verticalItemAlignment: Grid.AlignVCenter
-                spacing: 5
-                Text{
-                    font.family: font_noto_r.name
-                    font.pixelSize: 20
-                    color: "white"
-                    text: qsTr("박스 크기")
-                }
-                Text{
-                    font.family: font_noto_r.name
-                    font.pixelSize: 20
-                    color: "white"
-                    text: ":"
-                }
-                Rectangle{
-                    width: 30
-                    height: 30
-                    radius: 30
-                    enabled: box_size > 1
-                    color: enabled?color_dark_black:color_dark_gray
-                    border.color: "#e8e8e8"
-                    border.width: 1
-                    Rectangle{
-                        width: 14
-                        radius: 2
-                        height: 2
-                        anchors.centerIn: parent
-                        color: color_mid_gray
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            supervisor.playSound('click');
-                            supervisor.setSetting("setting","UI/box_size",box_size-1);
-                            box_size--;
-                            setTable();
-                        }
-                    }
-                }
-
-                Rectangle{
-                    width: 30
-                    height: 30
-                    radius: 30
-                    enabled: box_size < max_box_size
-                    color: enabled?color_dark_black:color_dark_gray
-                    border.color: "#e8e8e8"
-                    border.width: 1
-                    Rectangle{
-                        width: 2
-                        radius: 2
-                        height: 14
-                        anchors.centerIn: parent
-                        color: color_mid_gray
-                    }
-                    Rectangle{
-                        width: 14
-                        radius: 2
-                        height: 2
-                        anchors.centerIn: parent
-                        color: color_mid_gray
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            supervisor.playSound('click');
-                            supervisor.setSetting("setting","UI/box_size",box_size+1);
-                            box_size++;
-                            setTable();
-                        }
-                    }
-                }
+    }
+    Column{
+        id: btns_table_group
+        visible: false
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 30
+        anchors.right: parent.right
+        anchors.rightMargin: 30
+        spacing: 10
+        Grid{
+            rows: 2
+            columns: 4
+            anchors.horizontalCenter: parent.horizontalCenter
+            horizontalItemAlignment: Grid.AlignHCenter
+            verticalItemAlignment: Grid.AlignVCenter
+            spacing: 5
+            Text{
+                font.family: font_noto_r.name
+                font.pixelSize: 20
+                text: qsTr("박스 크기")
+            }
+            Text{
+                font.family: font_noto_r.name
+                font.pixelSize: 20
+                text: ":"
             }
             Rectangle{
-                id: btn_confirm_tables_group
-                color: "#282828"
-                width: 40
-                height: 40
-                radius: 40
-                anchors.horizontalCenter: parent.horizontalCenter
+                width: 30
+                height: 30
+                radius: 30
+                enabled: box_size > 1
+                color: enabled?color_dark_black:color_dark_gray
                 border.color: "#e8e8e8"
                 border.width: 1
-                Image{
-                    anchors.fill: parent
-                    sourceSize.width: width
-                    sourceSize.height: height
-                    source: "icon/icon_yes.png"
+                Rectangle{
+                    width: 14
+                    radius: 2
+                    height: 2
+                    anchors.centerIn: parent
+                    color: color_mid_gray
                 }
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
                         supervisor.playSound('click');
-                        btn_lock_group.visible = true;
-                        btns_table_group.visible = false;
+                        supervisor.setSetting("setting","UI/box_size",box_size-1);
+                        box_size--;
+                        setTable();
+                    }
+                }
+            }
+
+            Rectangle{
+                width: 30
+                height: 30
+                radius: 30
+                enabled: box_size < max_box_size
+                color: enabled?color_dark_black:color_dark_gray
+                border.color: "#e8e8e8"
+                border.width: 1
+                Rectangle{
+                    width: 2
+                    radius: 2
+                    height: 14
+                    anchors.centerIn: parent
+                    color: color_mid_gray
+                }
+                Rectangle{
+                    width: 14
+                    radius: 2
+                    height: 2
+                    anchors.centerIn: parent
+                    color: color_mid_gray
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        supervisor.playSound('click');
+                        supervisor.setSetting("setting","UI/box_size",box_size+1);
+                        box_size++;
+                        setTable();
                     }
                 }
             }
         }
-
+        Rectangle{
+            id: btn_confirm_tables_group
+            color: "#282828"
+            width: 40
+            height: 40
+            radius: 40
+            anchors.horizontalCenter: parent.horizontalCenter
+            border.color: "#e8e8e8"
+            border.width: 1
+            Image{
+                anchors.fill: parent
+                sourceSize.width: width
+                sourceSize.height: height
+                source: "icon/icon_yes.png"
+            }
+            MouseArea{
+                anchors.fill: parent
+                onClicked: {
+                    supervisor.playSound('click');
+                    btn_lock_group.visible = true;
+                    btns_table_group.visible = false;
+                }
+            }
+        }
     }
+
 
     Rectangle{
         id: rect_go

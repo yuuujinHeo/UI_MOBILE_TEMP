@@ -36,7 +36,11 @@ Item {
 
         statusbar.visible = false;
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
-        if(tray_num === 2){
+        if(tray_num === 1){
+            rect_tray_1.visible = true;
+            rect_tray_2.visible = false;
+            rect_tray_3.visible = false;
+        }else if(tray_num === 2){
             rect_tray_1.visible = true;
             rect_tray_2.visible = true;
             rect_tray_3.visible = false;

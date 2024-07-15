@@ -617,18 +617,33 @@ int Supervisor::getGoqualDeviceSize(){
 
 QString Supervisor::getGoqualDeviceID(int num){
     if(num>-1 && num < server->goqual_relays.size()){
-        return server->goqual_relays[num].id;
+        QStringList key = server->goqual_relays.keys();
+        return server->goqual_relays[key[num]].id;
+    }
+}
+QString Supervisor::getGoqualDeviceName(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        QStringList key = server->goqual_relays.keys();
+        return server->goqual_relays[key[num]].name;
     }
 }
 
 QString Supervisor::getGoqualDeviceType(int num){
     if(num>-1 && num < server->goqual_relays.size()){
-        return server->goqual_relays[num].type;
+        QStringList key = server->goqual_relays.keys();
+        return server->goqual_relays[key[num]].type;
     }
 }
 bool Supervisor::getGoqualDeviceState(int num){
     if(num>-1 && num < server->goqual_relays.size()){
-        return server->goqual_relays[num].state;
+        QStringList key = server->goqual_relays.keys();
+        return server->goqual_relays[key[num]].state;
+    }
+}
+bool Supervisor::getGoqualDeviceOnline(int num){
+    if(num>-1 && num < server->goqual_relays.size()){
+        QStringList key = server->goqual_relays.keys();
+        return server->goqual_relays[key[num]].online;
     }
 }
 
@@ -1476,6 +1491,8 @@ void Supervisor::checkRobotINI(){
         setSetting("update","MOTOR/wheel_dir","-1");
 
 
+    if(getSetting("setting","UI","box_size") == "")
+        setSetting("setting","UI/box_size","1");
 
     if(getSetting("update","DRIVING","cur_preset") == "")
         setSetting("update","DRIVING/cur_preset","3");
