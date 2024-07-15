@@ -3744,8 +3744,8 @@ void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2
         float dx = x1-x2;
         float dy = y1-y2;
         zoom_init_distance = sqrt(dx*dx + dy*dy);
-        move_init_pose.x = x1;
-        move_init_pose.y = y1;
+        // move_init_pose.x = x1;
+        // move_init_pose.y = y1;
     }
 }
 
@@ -3806,6 +3806,7 @@ void MapHandler::moved(QString tool, int _x, int _y){
     setMapLayer();
 
 }
+
 void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
     float x1 = _x1*scale*file_width/canvas_width;
     float y1 = _y1*scale*file_width/canvas_height;

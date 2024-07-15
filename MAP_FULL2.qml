@@ -529,7 +529,7 @@ Item {
             }else if(point1.pressed){
                 supervisor.moved(tool, point1.x, point1.y);
             }else if(point2.pressed){
-                supervisor.moved(tool, point2.x, point2.y);
+                // supervisor.moved(tool, point2.x, point2.y);
             }
         }
     }
