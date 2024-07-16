@@ -393,9 +393,11 @@ signals:
     void cameraupdate();
     void mapreset();
     void emo_changed();
+    void get_message(QString msg);
 
 private slots:
     void onTimer();
+    void read_message(QString msg);
 
 private:
     QTimer *timer;

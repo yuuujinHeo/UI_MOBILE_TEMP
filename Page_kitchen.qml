@@ -27,11 +27,11 @@ Item {
 
         tray_num = parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"));
 
-        if(robot_type === "CALLING"){
-            show_serving = false;
-        }else{
-            show_serving = true;
-        }
+        // if(robot_type === "CALLING"){
+        //     show_serving = false;
+        // }else{
+        //     show_serving = true;
+        // }
         if(supervisor.getSetting("setting","USE_UI","use_tray")==="true"){
             use_tray=true;
         }else{
@@ -247,18 +247,18 @@ Item {
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("모터락해제됨")
                     }else if(supervisor.getLocalizationState() === 2){
-                        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                            btn_go.active = true;
-                            menubar.menu2_en = true;
-                            menubar.menu3_en = true;
-                            menubar.menu4_en = true;
-                            rect_go.color = color_green;
-                            btn_patrol.active = true;
-                            text_go.color = "white";
-                            text_go.text = qsTr("퇴식 테이블로")
-                        }
+                        // if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                        //     btn_go.active = true;
+                        //     menubar.menu2_en = true;
+                        //     menubar.menu3_en = true;
+                        //     menubar.menu4_en = true;
+                        //     rect_go.color = color_green;
+                        //     btn_patrol.active = true;
+                        //     text_go.color = "white";
+                        //     text_go.text = qsTr("퇴식 테이블로")
+                        // }
 
-                        else{
+                        // else{
                             btn_go.active = true;
                             menubar.menu2_en = true;
                             menubar.menu3_en = true;
@@ -266,8 +266,8 @@ Item {
                             rect_go.color = color_blue;
                             btn_patrol.active = true;
                             text_go.color = "white";
-                            text_go.text = qsTr("서빙 시작")
-                        }
+                            text_go.text = qsTr("주행 시작")
+                        // }
                     }else{
                         btn_go.active = false;
                         menubar.menu2_en = false;
@@ -342,6 +342,7 @@ Item {
         update_table();
     }
     function update_table(){
+        table_num = supervisor.getLocationGroupSize(model_group.get(cur_group).num);
         model_group_table.clear();
         for(var i=0; i<table_num; i++){
             model_group_table.append({"num":i,"available":true,"name":supervisor.getServingName(model_group.get(cur_group).num, i)});
@@ -1143,9 +1144,10 @@ Item {
             addMenu("","icon/btn_menu.png");
             addMenu(qsTr("충전위치로"),"icon/icon_charge.png");
             addMenu(qsTr("대기위치로"),"icon/icon_wait.png");
-            if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+            // if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+            if(supervisor.getLocationNum("Cleaning") > 0)
                 addMenu(qsTr("퇴식위치로"),"icon/icon_clean.png")
-            }
+            // }
         }
         onMenu1_clicked: {
             supervisor.playSound('click');

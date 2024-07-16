@@ -342,45 +342,38 @@ public:
 
     ////*********************************************  ANNOTATION 관련   ***************************************************////
     //Location
-    Q_INVOKABLE int getLocationNum(QString group, QString name);
+    // Q_INVOKABLE int getLocationNum(QString group, QString name);
     Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);
     Q_INVOKABLE void clearLocation(){maph->clearLocation();}
     Q_INVOKABLE void addLocation(int x, int y,float th){
         maph->addLocation(x,y,th);
     }
     // Q_INVOKABLE void addLocationCur(int x, int y,float th){maph->addLocationCur(x,y,th);}
-    Q_INVOKABLE void setLocation(int x, int y, float th){maph->setLocation(x,y,th);}
-    Q_INVOKABLE void editLocation(int num);
-    Q_INVOKABLE int getLocationNum(int x, int y){return maph->getLocationNum(x,y);}
-    Q_INVOKABLE void removeLocation(int num);
+    // Q_INVOKABLE void setLocation(int x, int y, float th){maph->setLocation(x,y,th);}
+    Q_INVOKABLE void editLocation(QString type, int num);
+    // Q_INVOKABLE int getLocationNum(int x, int y){return maph->getLocationNum(x,y);}
+    Q_INVOKABLE void removeLocation(QString type, int num);
     Q_INVOKABLE void setTableNumberAuto(){maph->setTableNumberAuto();}
-    Q_INVOKABLE int getLocGroupNum(int num){return maph->getLocGroupNum(num);}
+    // Q_INVOKABLE int getLocGroupNum(int num){return maph->getLocGroupNum(num);}
     Q_INVOKABLE QString getServingName(int group, int num);
-    Q_INVOKABLE int getLocationNum(QString type="");
-    Q_INVOKABLE QString getLocationName(int num, QString type="");
-    Q_INVOKABLE QString getLocationNameGroup(int num, QString type="");
-    Q_INVOKABLE QString getLocationType(int num);
-    Q_INVOKABLE int getLocationNumber(int group, int num);
-    Q_INVOKABLE void setLocationNumber(QString name, int num);
-    Q_INVOKABLE int getLocationSize(QString type);
+    Q_INVOKABLE int getLocationNum(QString type);
+    Q_INVOKABLE QString getLocationName(int num, QString type);
+    Q_INVOKABLE QString getLocationNameGroup(int num);
+    // Q_INVOKABLE int getLocationNumber(int group, int num);
     Q_INVOKABLE QString getLocationGroup(int num);
-    Q_INVOKABLE int getLocationID(int group, int num);
     Q_INVOKABLE int getLocationGroupNum();
     Q_INVOKABLE int getLocationGroupSize(int num);
     Q_INVOKABLE int getLocationGroupNum(int num);
-    Q_INVOKABLE QString getLocationCallID(int num);
-    Q_INVOKABLE QString getLocationLingID(int num);
+    Q_INVOKABLE QString getLocationCallID(QString type, int num);
+    Q_INVOKABLE QString getLocationLingID(QString type, int num);
     Q_INVOKABLE void setLocationGroup(int num, int group);
     Q_INVOKABLE void removeLocationGroup(int num);
     Q_INVOKABLE void addLocationGroup(QString name);
     Q_INVOKABLE QString getLocGroupname(int num);
     Q_INVOKABLE void setLocation(int num, QString name, int group, int tablenum);
-    Q_INVOKABLE float getLocationX(int num, QString type="");
-    Q_INVOKABLE float getLocationY(int num, QString type="");
-    Q_INVOKABLE float getLocationTH(int num, QString type="");
-    Q_INVOKABLE bool isExistLocation(int group, int num);
-    Q_INVOKABLE int getLocNum(QString name);
-    Q_INVOKABLE int getLocNum(int x, int y);
+    Q_INVOKABLE float getLocationX(int num, QString type);
+    Q_INVOKABLE float getLocationY(int num, QString type);
+    Q_INVOKABLE float getLocationTH(int num, QString type);
     Q_INVOKABLE void saveLocations();
 
     //object
@@ -421,14 +414,18 @@ public:
     Q_INVOKABLE void confirmPickup();
     Q_INVOKABLE QList<int> getPickuptrays();
 
-    Q_INVOKABLE void selectLocation(int num);
-    Q_INVOKABLE void setLocationUp(int num);
-    Q_INVOKABLE void setLocationDown(int num);
+    Q_INVOKABLE void selectLocation(QString type, int num);
+    Q_INVOKABLE bool setLocationUp(int num);
+    Q_INVOKABLE bool setLocationDown(int num);
     Q_INVOKABLE bool checkGroupName(QString name);
     Q_INVOKABLE bool checkLocationName(int group, QString name);
-    Q_INVOKABLE LOCATION getLocation(int group, QString name);
-    Q_INVOKABLE LOCATION getLocation(QString group, QString name);
-    Q_INVOKABLE LOCATION getLocation(QString name);
+    Q_INVOKABLE LOCATION getServingLocation(int group, QString name);
+    Q_INVOKABLE LOCATION getServingLocation(QString group, QString name);
+    Q_INVOKABLE LOCATION getServingLocation(QString name);
+    Q_INVOKABLE LOCATION getChargingLocation(int num);
+    Q_INVOKABLE LOCATION getCleaningLocation(int num);
+    Q_INVOKABLE LOCATION getInitLocation(int num);
+    Q_INVOKABLE LOCATION getRestingLocation(int num);
     Q_INVOKABLE QString getcurLoc();
     Q_INVOKABLE QString getNewServingName(int group);
     Q_INVOKABLE bool isDuplicateName(int group, QString name);
@@ -436,17 +433,10 @@ public:
 
     ////*********************************************  Calling  *********************************************////
     int setting_call_num = -1;
-
+    QString setting_call_type = "";
     //move
     Q_INVOKABLE int getCallQueueSize();
-    Q_INVOKABLE int getCallSize(){
-        int num = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].call_id != "")
-                num++;
-        }
-        return num;
-    }
+
     Q_INVOKABLE QString getCallName(int id){
         return pmap->call_queue[id];
     }
@@ -464,8 +454,6 @@ public:
     Q_INVOKABLE void callCallbell(QString id);
     Q_INVOKABLE QString makeLingbell();
     Q_INVOKABLE void resetLingbell(int id);
-    Q_INVOKABLE QString getLingbell(int id);//{return pmap->locations[id].ling_id;}
-
 
     ////*********************************************  Patrol - Make   *********************************************////
     ST_PATROL current_patrol;
@@ -475,7 +463,7 @@ public:
     Q_INVOKABLE void savePatrol(QString name, QString type, int wait_time, int pass_time);
     Q_INVOKABLE void deletePatrol(int num);
     Q_INVOKABLE void clearPatrolLocation(QString mode);
-    Q_INVOKABLE void addPatrolLocation(QString group, QString name);
+    Q_INVOKABLE void addPatrolLocation(QString type, QString group, QString name);
     Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void savePatrolVoiceBasic(QString voice, QString text);
@@ -912,6 +900,7 @@ public slots:
     void connect_wifi_success(QString ssid);
     void set_wifi_success(QString ssid);
     void set_wifi_fail(int reason,QString ssid);
+    void got_message(QString msg);
 
 private:
     QTimer *timer;

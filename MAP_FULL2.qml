@@ -184,10 +184,6 @@ Item {
         supervisor.setFullScreen();
     }
 
-    function setCurrentLocation(num){
-        supervisor.selectLocation(num);
-    }
-
     function setTool(name){
         tool = name;
         supervisor.setTool(name);
@@ -203,10 +199,6 @@ Item {
         supervisor.redoLine();
     }
 
-
-    function removelocation(num){
-        supervisor.removeLocation(num);
-    }
     function setTableNumberAuto(){
         supervisor.setTableNumberAuto();
     }
@@ -214,35 +206,27 @@ Item {
         return supervisor.getCutBoxFlag();
     }
 
-    function selectLocation(num){
-        map.selectLocation(num);
-    }
-
     function clear(mode){
-        if(mode==="obj"){
-
-        }else if(mode === "location"){
-            supervisor.clearLocation();
-        }else if(mode === "rotate_cut"){
+        if(mode === "rotate_cut"){//
             supervisor.initRotate();
             supervisor.setMapOrin("RAW");
-        }else if(mode==="all"){
+        }else if(mode==="all"){//
             supervisor.endSpline(false);
             supervisor.clearDrawing();
             supervisor.clearLocation();
             supervisor.clearObjectAll();
             supervisor.clearInitPose();
-        }else if(mode==="tline"){
+        }else if(mode==="tline"){//
             supervisor.clearDrawing();
-
-        }else if(mode==="spline"){
+        }else if(mode==="spline"){//
             supervisor.endSpline(false);
-        }else if(mode ==="rotate"){
+        }else if(mode ==="rotate"){//
             supervisor.initRotate();
-        }else if(mode === "object"){
-            supervisor.clearObject();
+        }else if(mode === "object_png"){////
+            supervisor.clearObjectAll();
         }
     }
+
     function rotate(dir){
         if(dir === "cw"){
             supervisor.rotateMapCW();
@@ -255,59 +239,20 @@ Item {
         }
     }
     function save(mode, type, name){
-        if(mode==="obj"){
-            supervisor.saveObject();
-        }else if(mode==="raw"){
-
-        }else if(mode==="edited"){
-            supervisor.saveMap();
-            supervisor.loadMap(map_name);
-            supervisor.slam_map_reload(supervisor.getMapname());
-        }else if(mode==="location_cur"){
-            last_robot_x = supervisor.getlastRobotx();
-            last_robot_y = supervisor.getlastRoboty();
-            last_robot_th = supervisor.getlastRobotth();
-//            /*print(*/last_robot_x,last_robot_y,last_robot_th);
-            supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
-            supervisor.saveLocation(type,0,name);
-        }else if(mode==="edit_location"){
-            last_robot_x = supervisor.getlastRobotx();
-            last_robot_y = supervisor.getlastRoboty();
-            last_robot_th = supervisor.getlastRobotth();
-            supervisor.editLocation(last_robot_x,last_robot_y,last_robot_th);
-        }else if(mode==="location"){
-            supervisor.saveLocation(type,0,name);
-        }else if(mode==="map_editor"){
+        if(mode==="map_editor"){//
             supervisor.saveEditedMap();
-        }else if(mode==="tline"){
+        }else if(mode==="tline"){//
             supervisor.saveTline();
             supervisor.loadFile();
-        }else if(mode==="tline_temp"){
-            supervisor.saveTlineTemp();
-        }else if(mode==="spline"){
+        }else if(mode==="spline"){//
             supervisor.endSpline(true);
-        }else if(mode==="velmap"){
+        }else if(mode==="velmap"){//
             supervisor.saveVelmap();
-        }else if(mode==="rotate"){
+        }else if(mode==="rotate"){//
             supervisor.saveRotateMap();
             supervisor.slam_map_reload(supervisor.getMapname());
-        }else if(mode==="location_all"){
-            supervisor.saveAnnotation(map_name);
         }
     }
-
-    function savelocation(mode, type, group, name){
-        if(mode==="location_cur"){
-           last_robot_x = supervisor.getlastRobotx();
-           last_robot_y = supervisor.getlastRoboty();
-           last_robot_th = supervisor.getlastRobotth();
-           supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
-           supervisor.saveLocation(type,group, name);
-       }else if(mode==="location"){
-           supervisor.saveLocation(type,group, name);
-       }
-    }
-
 
     function setDrawingColor(color){
         supervisor.setLineColor(color);
@@ -318,12 +263,6 @@ Item {
         supervisor.setLineWidth(width);
         cur_width = width*map_full2.width/supervisor.getFileWidth()/supervisor.getScale() + 2;
     }
-
-    function setAutoInit(x,y,th){
-        supervisor.setInitPose(x,y,th);
-        supervisor.setInitPos(x,y,th);
-    }
-
 
     MapViewer{
         id: mapview

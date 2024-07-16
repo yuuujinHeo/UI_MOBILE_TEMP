@@ -85,6 +85,12 @@ Window {
         loader_page.item.setClear(name,state);
     }
 
+    function new_message(msg){
+        popup_notice_main.init();
+        popup_notice_main.main_str = msg;
+        popup_notice_main.open();
+    }
+
     function git_pull_fail(){
         loader_page.item.git_failed();
     }
@@ -220,7 +226,7 @@ Window {
         }else{
             if(supervisor.isPatrolPage()){
             }else{
-                if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                if(supervisor.isCallingMode()){
                     supervisor.playVoice("move_calling");
                 }else{
                     supervisor.playVoice("move_serving");
@@ -333,7 +339,7 @@ Window {
                 //세팅정의된 표시모드에 따라 페이지 전환
                 //로봇이 퇴식전용이거나 호출모드로 움직인 경우 -> calling 페이지
                 //그 외 -> pickup 페이지
-                if(supervisor.isCallingMode() || supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
+                if(supervisor.isCallingMode()){
                     supervisor.writelog("[UI] Show Pickup : Calling mode -> "+ loader_page.item.pos_name);
                     loadPage(ppickupCall);
                 }else{
@@ -396,6 +402,7 @@ Window {
         //로봇이 서빙중입니다
         supervisor.playVoice("moving");
     }
+
     function movewait(){
         //죄송합니다 잠시만 지나가겠습니다
         supervisor.playVoice("excuseme");
@@ -411,23 +418,21 @@ Window {
         if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
             loader_page.item.wifi_con_success();
     }
+
     function wifi_set_success(){
         if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
             loader_page.item.wifi_set_success();
     }
+
     function wifi_con_fail(){
         if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
             loader_page.item.wifi_con_failed();
     }
+
     function wifi_set_fail(){
         if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
             loader_page.item.wifi_set_failed();
     }
-
-
-
-
-
 
     function wififailed(){
         if(loader_page.item.objectName == "page_setting" || loader_page.item.objectName == "page_init")
@@ -552,6 +557,7 @@ Window {
         id: statusbar
         visible: true
     }
+
 
     // Tool_KeyPad{
     //     id: keypad

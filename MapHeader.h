@@ -31,7 +31,7 @@
 
 typedef struct{
     cv::Point2f point;
-    float angle;
+    float angle=0.;
     bool isnew = false;
 }POSE;
 
@@ -54,7 +54,7 @@ typedef struct{
     QString type;
     QString name;
     cv::Point2f point;
-    float angle;
+    float angle = 0.;
     QString call_id;
     QString ling_id;
     bool available;

@@ -323,8 +323,8 @@ void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *repl
             jout["table"] = table;
             //check locations
             int num = -1;
-            for(int i=0; i<pmap->locations.size(); i++){
-                if(pmap->locations[i].name == table){
+            for(int i=0; i<pmap->serving_locations.size(); i++){
+                if(pmap->serving_locations[i].name == table){
                     num = i;
                     break;
                 }
@@ -410,8 +410,8 @@ void ServerHandler::onCallRequestReply2(QtHttpRequest *request, QtHttpReply *rep
     if(msgType == "calling"){
         //check locations
         int num = -1;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].name == table){
+        for(int i=0; i<pmap->serving_locations.size(); i++){
+            if(pmap->serving_locations[i].name == table){
                 num = i;
                 break;
             }

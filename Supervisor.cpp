@@ -108,6 +108,7 @@ Supervisor::Supervisor(QObject *parent)
     connect(tts, SIGNAL(ready_play(ST_VOICE)),this,SLOT(play_voice(ST_VOICE)));
     connect(server, SIGNAL(updatesuccess()),this,SLOT(update_success()));
     connect(ipc, SIGNAL(emo_changed()),this,SLOT(emo_state_changed()));
+    connect(ipc, SIGNAL(get_message(QString)),this,SLOT(got_message(QString)));
 
     checkRobotINI();
     readSetting();
@@ -172,6 +173,11 @@ QObject *Supervisor::getObject()
     return mObject;
 }
 
+void Supervisor::got_message(QString msg){
+    qDebug() << "got message" << msg;
+    QMetaObject::invokeMethod(mMain, "new_message",Qt::DirectConnection,
+      Q_ARG(QVariant,QVariant().fromValue(msg)));
+}
 ////***********************96980101451808****************************////
 void Supervisor::update_fail(){
     QMetaObject::invokeMethod(mMain, "update_fail");
@@ -249,9 +255,9 @@ bool Supervisor::checkGroupName(QString name){
 }
 
 bool Supervisor::checkLocationName(int group, QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].group == group){
-            if(pmap->locations[i].name == name){
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].group == group){
+            if(pmap->serving_locations[i].name == name){
                 return false;
             }
         }
@@ -262,17 +268,38 @@ bool Supervisor::checkLocationName(int group, QString name){
 ////*********************************************  CALLING 관련   ***************************************************////
 void Supervisor::clear_call(){
     if(setting_call_num > -1){
-        plog->write("[COMMAND] clear_call "+QString::number(setting_call_num)+" : "+pmap->locations[setting_call_num].type + ", "  + pmap->locations[setting_call_num].name);
-        pmap->locations[setting_call_num].call_id = "";
+        if(setting_call_type == "Charging"){
+            plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
+                        +pmap->charging_locations[setting_call_num].type + ", "  + pmap->charging_locations[setting_call_num].name);
+            pmap->charging_locations[setting_call_num].call_id = "";
+        }else if(setting_call_type == "Resting"){
+            plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
+                        +pmap->resting_locations[setting_call_num].type + ", "  + pmap->resting_locations[setting_call_num].name);
+            pmap->resting_locations[setting_call_num].call_id = "";
+        }else if(setting_call_type == "Cleaning"){
+            plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
+                        +pmap->cleaning_locations[setting_call_num].type + ", "  + pmap->cleaning_locations[setting_call_num].name);
+            pmap->cleaning_locations[setting_call_num].call_id = "";
+        }else if(setting_call_type == "Init"){
+            plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
+                        +pmap->init_locations[setting_call_num].type + ", "  + pmap->init_locations[setting_call_num].name);
+            pmap->init_locations[setting_call_num].call_id = "";
+        }else{
+            plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
+                        +pmap->serving_locations[setting_call_num].type + ", "  + pmap->serving_locations[setting_call_num].name);
+            pmap->serving_locations[setting_call_num].call_id = "";
+        }
+
         setting_call_num = -1;
+        setting_call_type = "";
         QMetaObject::invokeMethod(mMain, "call_setting");
     }
 }
 
 void Supervisor::new_call_order(QString table){
     bool match_call = false;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == table){
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].name == table){
             match_call = true;
             break;
         }
@@ -287,20 +314,83 @@ void Supervisor::new_call_order(QString table){
 
 void Supervisor::new_call(){
     if(setting_call_num > -1){
-        plog->write("[CALL] newCall : SET CallBell "+pmap->locations[setting_call_num].name+" -> "+call->getBellID());
-        pmap->locations[setting_call_num].call_id = call->getBellID();
+        if(setting_call_type == "Charging"){
+            if(setting_call_num<pmap->charging_locations.size()){
+                plog->write("[CALL] newCall : SET CallBell "+pmap->charging_locations[setting_call_num].name+" -> "+call->getBellID());
+                pmap->charging_locations[setting_call_num].call_id = call->getBellID();
+            }
+        }else if(setting_call_type == "Resting"){
+            if(setting_call_num<pmap->resting_locations.size()){
+                plog->write("[CALL] newCall : SET CallBell "+pmap->resting_locations[setting_call_num].name+" -> "+call->getBellID());
+                pmap->resting_locations[setting_call_num].call_id = call->getBellID();
+            }
+        }else if(setting_call_type == "Cleaning"){
+            if(setting_call_num<pmap->cleaning_locations.size()){
+                plog->write("[CALL] newCall : SET CallBell "+pmap->cleaning_locations[setting_call_num].name+" -> "+call->getBellID());
+                pmap->cleaning_locations[setting_call_num].call_id = call->getBellID();
+            }
+        }else if(setting_call_type == "Init"){
+            if(setting_call_num<pmap->init_locations.size()){
+                plog->write("[CALL] newCall : SET CallBell "+pmap->init_locations[setting_call_num].name+" -> "+call->getBellID());
+                pmap->init_locations[setting_call_num].call_id = call->getBellID();
+            }
+        }else{
+            if(setting_call_num<pmap->serving_locations.size()){
+                plog->write("[CALL] newCall : SET CallBell "+pmap->serving_locations[setting_call_num].name+" -> "+call->getBellID());
+                pmap->serving_locations[setting_call_num].call_id = call->getBellID();
+            }
+        }
         setting_call_num = -1;
+        setting_call_type = "";
         QMetaObject::invokeMethod(mMain, "call_setting");
     }else{
         bool already_in = false;
 
         qDebug() <<"ui state = " << ui_state;
 
+        bool match = false;
         QString name = "";
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].call_id == call->getBellID()){
-                name = pmap->locations[i].name;
+        for(int i=0; i<pmap->charging_locations.size(); i++){
+            if(pmap->charging_locations[i].call_id == call->getBellID()){
+                name = pmap->charging_locations[i].name;
+                match = true;
                 break;
+            }
+        }
+        if(!match){
+            for(int i=0; i<pmap->resting_locations.size(); i++){
+                if(pmap->resting_locations[i].call_id == call->getBellID()){
+                    name = pmap->resting_locations[i].name;
+                    match = true;
+                    break;
+                }
+            }
+        }
+        if(!match){
+            for(int i=0; i<pmap->cleaning_locations.size(); i++){
+                if(pmap->cleaning_locations[i].call_id == call->getBellID()){
+                    name = pmap->cleaning_locations[i].name;
+                    match = true;
+                    break;
+                }
+            }
+        }
+        if(!match){
+            for(int i=0; i<pmap->init_locations.size(); i++){
+                if(pmap->init_locations[i].call_id == call->getBellID()){
+                    name = pmap->init_locations[i].name;
+                    match = true;
+                    break;
+                }
+            }
+        }
+        if(!match){
+            for(int i=0; i<pmap->serving_locations.size(); i++){
+                if(pmap->serving_locations[i].call_id == call->getBellID()){
+                    name = pmap->serving_locations[i].name;
+                    match = true;
+                    break;
+                }
             }
         }
 
@@ -340,38 +430,8 @@ void Supervisor::setCallbellForce(QString type, bool onoff){
 }
 
 void Supervisor::setCallbell(QString type, int id){
+    setting_call_type = type;
     setting_call_num = id;
-    //충전, 대기 위치가 1개보다 넘을 때를 대비해서 setting_Call_num 값을 세팅하는 용도
-    //각 타입과 타입 내 번호를 받아서 매핑.
-//    int serving_num = -1;
-//    setting_call_num = -1;
-//    int resting_start_num = -1;
-//    int num = 0;
-//    for(int i=0; i<pmap->locations.size(); i++){
-//        if(pmap->locations[i].type == type){
-//            if(type == "Serving"){
-//                qDebug() << i << num << id-2;
-//                if(num == id-2){
-//                    serving_num = i;
-//                    break;
-//                }else{
-//                    num++;
-//                }
-//            }else if(type == "Resting"){
-//                resting_start_num = i;
-//                break;
-//            }
-//        }
-//    }
-//    if(type == "Charging"){
-//        setting_call_num = 0;
-//    }else if(type == "Serving"){
-//        setting_call_num = serving_num;
-//    }else if(type == "Resting"){
-//        setting_call_num = resting_start_num;
-//    }else if(type == "Cleaning"){
-//        setting_call_num = 2;
-//    }
     plog->write("[COMMAND] setCallbell : "+type+" , "+QString::number(setting_call_num));
 }
 
@@ -399,7 +459,7 @@ void Supervisor::playSound(QString name, int volume){
         volume = getSetting("setting","UI","volume_button").toInt();
     }
 
-    qDebug() << "playSound : " << name << volume;
+    // qDebug() << "playSound : " << name << volume;
 
     if(name == "click"){
         click_effect->setSource(QUrl("qrc:/bgm/click.wav"));
@@ -490,19 +550,19 @@ QString Supervisor::getLastUpdateDate(QString name){
     return server->version_list[name].date;
 }
 void Supervisor::checkCleaningLocation(){
-    if(getLocationNum("Cleaning") == 0){
-        plog->write("[ANNOTATION] Cleaning Mode : no found Location. make new");
-        LOCATION temp;
-        temp.point = getLocation(0,"Resting0").point;
-        temp.angle = getLocation(0,"Resting0").angle;
-        temp.type = "Cleaning";
-        temp.group = 0;
-        temp.group_name = "Cleaning";
-        temp.name = "Cleaning0";
-        temp.call_id = "";
-        pmap->locations.push_back(temp);
-        saveAnnotation("");
-    }
+    // if(getLocationNum("Cleaning") == 0){
+    //     plog->write("[ANNOTATION] Cleaning Mode : no found Location. make new");
+    //     LOCATION temp;
+    //     temp.point = getLocation(0,"Resting0").point;
+    //     temp.angle = getLocation(0,"Resting0").angle;
+    //     temp.type = "Cleaning";
+    //     temp.group = 0;
+    //     temp.group_name = "Cleaning";
+    //     temp.name = "Cleaning0";
+    //     temp.call_id = "";
+    //     pmap->locations.push_back(temp);
+    //     saveAnnotation("");
+    // }
 }
 int Supervisor::getNewVersionsSize(){
     return server->ui_new_versions.size();
@@ -781,7 +841,7 @@ void Supervisor::readSetting(QString map_name){
     probot->model = setting_config.value("model").toString();
     probot->serial_num = setting_config.value("serial_num").toInt();
     probot->name = probot->model;// + QString::number(probot->serial_num);
-    probot->type = setting_config.value("type").toString();
+    // probot->type = setting_config.value("type").toString();
     setting_config.endGroup();
 
     setting.tray_num = getSetting("setting","ROBOT_TYPE","tray_num").toInt();
@@ -881,69 +941,26 @@ void Supervisor::readSetting(QString map_name){
     QDateTime lastModified = annot_info.lastModified();
     pmap->annot_modified_date = lastModified.toString("yyyy-MM-dd hh:mm:ss");
 
-    pmap->locations.clear();
+    pmap->charging_locations.clear();
+    pmap->resting_locations.clear();
+    pmap->cleaning_locations.clear();
+    pmap->init_locations.clear();
+    pmap->serving_locations.clear();
     LOCATION temp_loc;
 
+
     setting_anot.beginGroup("charging_locations");
-    QString loc_str = setting_anot.value("loc0").toString();
-    QStringList strlist = loc_str.split(",");
-    if(strlist.size()>1){
-        temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
-        temp_loc.angle = strlist[3].toFloat();
-        temp_loc.group = 0;
-        temp_loc.group_name = "Charging";
-        temp_loc.type = "Charging";
-        temp_loc.name = strlist[0];
-        if(strlist.size() > 4){
-            temp_loc.call_id = strlist[4].split(":")[0];
-            if(strlist[4].split(":").size()>1)
-                temp_loc.ling_id = strlist[4].split(":")[1];
-            else
-                temp_loc.ling_id = "";
-        }else{
-            temp_loc.call_id = "";
-            temp_loc.ling_id = "";
-        }
-        pmap->locations.push_back(temp_loc);
-    }
-    setting_anot.endGroup();
-
-
-    setting_anot.beginGroup("resting_locations");
-    loc_str = setting_anot.value("loc0").toString();
-    strlist = loc_str.split(",");
-    QStringList strlist_rest = strlist;
-    if(strlist.size()>1){
-        temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
-        temp_loc.angle = strlist[3].toFloat();
-        temp_loc.type = "Resting";
-        temp_loc.group = 0;
-        temp_loc.group_name = "Resting";
-        temp_loc.name = strlist[0];
-        if(strlist.size() > 4){
-            temp_loc.call_id = strlist[4].split(":")[0];
-            if(strlist[4].split(":").size()>1)
-                temp_loc.ling_id = strlist[4].split(":")[1];
-            else
-                temp_loc.ling_id = "";
-        }else{
-            temp_loc.call_id = "";
-            temp_loc.ling_id = "";
-        }
-        pmap->locations.push_back(temp_loc);
-    }
-    setting_anot.endGroup();
-
-    if(probot->type == "CLEANING"){
-        setting_anot.beginGroup("cleaning_locations");
-        loc_str = setting_anot.value("loc0").toString();
-        strlist = loc_str.split(",");
+    int num = setting_anot.value("num").toInt();
+    QString loc_str;
+    for(int i=0; i<num; i++){
+        loc_str = setting_anot.value("loc"+QString::number(i)).toString();
+        QStringList strlist = loc_str.split(",");
         if(strlist.size()>1){
             temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
             temp_loc.angle = strlist[3].toFloat();
-            temp_loc.type = "Cleaning";
             temp_loc.group = 0;
-            temp_loc.group_name = "Cleaning";
+            temp_loc.group_name = "Charging";
+            temp_loc.type = "Charging";
             temp_loc.name = strlist[0];
             if(strlist.size() > 4){
                 temp_loc.call_id = strlist[4].split(":")[0];
@@ -955,20 +972,94 @@ void Supervisor::readSetting(QString map_name){
                 temp_loc.call_id = "";
                 temp_loc.ling_id = "";
             }
-            pmap->locations.push_back(temp_loc);
-        }else if(strlist_rest.size() > 1){
-            temp_loc.point = cv::Point2f(strlist_rest[1].toFloat(),strlist_rest[2].toFloat());
-            temp_loc.angle = strlist_rest[3].toFloat();
+            pmap->charging_locations.push_back(temp_loc);
+        }
+    }
+    setting_anot.endGroup();
+
+
+    setting_anot.beginGroup("resting_locations");
+    num = setting_anot.value("num").toInt();
+    for(int i=0; i<num; i++){
+        loc_str = setting_anot.value("loc"+QString::number(i)).toString();
+        QStringList strlist = loc_str.split(",");
+        if(strlist.size()>1){
+            temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
+            temp_loc.angle = strlist[3].toFloat();
+            temp_loc.group = 0;
+            temp_loc.group_name = "Resting";
+            temp_loc.type = "Resting";
+            temp_loc.name = strlist[0];
+            if(strlist.size() > 4){
+                temp_loc.call_id = strlist[4].split(":")[0];
+                if(strlist[4].split(":").size()>1)
+                    temp_loc.ling_id = strlist[4].split(":")[1];
+                else
+                    temp_loc.ling_id = "";
+            }else{
+                temp_loc.call_id = "";
+                temp_loc.ling_id = "";
+            }
+            pmap->resting_locations.push_back(temp_loc);
+        }
+    }
+    setting_anot.endGroup();
+
+
+    setting_anot.beginGroup("cleaning_locations");
+    num = setting_anot.value("num").toInt();
+    for(int i=0; i<num; i++){
+        loc_str = setting_anot.value("loc"+QString::number(i)).toString();
+        QStringList strlist = loc_str.split(",");
+        if(strlist.size()>1){
+            temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
+            temp_loc.angle = strlist[3].toFloat();
             temp_loc.group = 0;
             temp_loc.group_name = "Cleaning";
             temp_loc.type = "Cleaning";
-            temp_loc.name = "CleaningTemp";
-            temp_loc.call_id = "";
-            temp_loc.ling_id = "";
-            pmap->locations.push_back(temp_loc);
+            temp_loc.name = strlist[0];
+            if(strlist.size() > 4){
+                temp_loc.call_id = strlist[4].split(":")[0];
+                if(strlist[4].split(":").size()>1)
+                    temp_loc.ling_id = strlist[4].split(":")[1];
+                else
+                    temp_loc.ling_id = "";
+            }else{
+                temp_loc.call_id = "";
+                temp_loc.ling_id = "";
+            }
+            pmap->cleaning_locations.push_back(temp_loc);
         }
-        setting_anot.endGroup();
     }
+    setting_anot.endGroup();
+
+    setting_anot.beginGroup("init_locations");
+    num = setting_anot.value("num").toInt();
+    for(int i=0; i<num; i++){
+        loc_str = setting_anot.value("loc"+QString::number(i)).toString();
+        QStringList strlist = loc_str.split(",");
+        if(strlist.size()>1){
+            temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
+            temp_loc.angle = strlist[3].toFloat();
+            temp_loc.group = 0;
+            temp_loc.group_name = "Init";
+            temp_loc.type = "Init";
+            temp_loc.name = strlist[0];
+            if(strlist.size() > 4){
+                temp_loc.call_id = strlist[4].split(":")[0];
+                if(strlist[4].split(":").size()>1)
+                    temp_loc.ling_id = strlist[4].split(":")[1];
+                else
+                    temp_loc.ling_id = "";
+            }else{
+                temp_loc.call_id = "";
+                temp_loc.ling_id = "";
+            }
+            pmap->init_locations.push_back(temp_loc);
+        }
+    }
+    setting_anot.endGroup();
+
 
     setting_anot.beginGroup("serving_locations");
     int total_serv_num = 0;
@@ -978,13 +1069,10 @@ void Supervisor::readSetting(QString map_name){
     int temp_id = 2;
     for(int i=0; i<group_num; i++){
         setting_anot.beginGroup("serving_"+QString::number(i));
-
         int serv_num = setting_anot.value("num").toInt();
         total_serv_num +=serv_num;
         QString group_name = setting_anot.value("name").toString();
-        qDebug() << group_name;
         pmap->location_groups.append(group_name);
-
         for(int j=0; j<serv_num; j++){
             QString loc_str = setting_anot.value("loc"+QString::number(j)).toString();
             QStringList strlist = loc_str.split(",");
@@ -1005,10 +1093,12 @@ void Supervisor::readSetting(QString map_name){
             }
 
             temp_loc.group = i;
-            pmap->locations.push_back(temp_loc);
+            pmap->serving_locations.push_back(temp_loc);
         }
         setting_anot.endGroup();
     }
+
+
 
     tts->readVoiceSetting();
     plog->write("[SUPERVISOR] READ SETTING : annot done");
@@ -1025,38 +1115,68 @@ void Supervisor::readSetting(QString map_name){
 
 QString Supervisor::makeLingbell(){
     int maxnum = 1;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].ling_id.right(7).toInt() >= maxnum){
-            maxnum = pmap->locations[i].ling_id.right(7).toInt();
+    for(int i=0; i<pmap->charging_locations.size(); i++){
+        if(pmap->charging_locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->charging_locations[i].ling_id.right(7).toInt();
+        }
+    }
+    for(int i=0; i<pmap->resting_locations.size(); i++){
+        if(pmap->resting_locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->resting_locations[i].ling_id.right(7).toInt();
+        }
+    }
+    for(int i=0; i<pmap->cleaning_locations.size(); i++){
+        if(pmap->cleaning_locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->cleaning_locations[i].ling_id.right(7).toInt();
+        }
+    }
+    for(int i=0; i<pmap->init_locations.size(); i++){
+        if(pmap->init_locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->init_locations[i].ling_id.right(7).toInt();
+        }
+    }
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].ling_id.right(7).toInt() >= maxnum){
+            maxnum = pmap->serving_locations[i].ling_id.right(7).toInt();
         }
     }
 
     return "F"+QString::asprintf("%07d",maxnum+1);
 }
 void Supervisor::resetLingbell(int id){
-    if(id>-1 && id<pmap->locations.size()){
-        pmap->locations[id].ling_id = "";
+    if(id>-1 && id<pmap->serving_locations.size()){
+        pmap->serving_locations[id].ling_id = "";
     }
 }
 
-QString Supervisor::getLingbell(int id){
-    if(pmap->locations[id].ling_id == ""){
-        pmap->locations[id].ling_id = makeLingbell();
+void Supervisor::editLocation(QString type, int num){
+    LOCATION temp;
+    if(maph->select_charging>-1){
+        temp = pmap->charging_locations[maph->select_charging];
+        pmap->charging_locations[maph->select_charging].point = probot->lastPose.point;
+        pmap->charging_locations[maph->select_charging].angle = probot->lastPose.angle;
+    }else if(maph->select_resting>-1){
+        temp = pmap->resting_locations[maph->select_resting];
+        pmap->resting_locations[maph->select_resting].point = probot->lastPose.point;
+        pmap->resting_locations[maph->select_resting].angle = probot->lastPose.angle;
+    }else if(maph->select_cleaning>-1){
+        temp = pmap->cleaning_locations[maph->select_cleaning];
+        pmap->cleaning_locations[maph->select_cleaning].point = probot->lastPose.point;
+        pmap->cleaning_locations[maph->select_cleaning].angle = probot->lastPose.angle;
+    }else if(maph->select_init>-1){
+        temp = pmap->init_locations[maph->select_init];
+        pmap->init_locations[maph->select_init].point = probot->lastPose.point;
+        pmap->init_locations[maph->select_init].angle = probot->lastPose.angle;
+    }else if(maph->select_serving>-1){
+        temp = pmap->serving_locations[maph->select_serving];
+        pmap->serving_locations[maph->select_serving].point = probot->lastPose.point;
+        pmap->serving_locations[maph->select_serving].angle = probot->lastPose.angle;
+
     }
 
-    return pmap->locations[id].ling_id;
-}
-void Supervisor::editLocation(int num){
-    if(getSetting("setting","ROBOT_TYPE","type") == "CLEANING"){
-        if(pmap->locations[num].name == "CleaningTemp"){
-            pmap->locations[num].name = "Cleaning0";
-        }
-    }
     plog->write("[ANNOTATION] Edit Location "+QString::number(num)+" : "+QString().asprintf("(%f,%f,%f) -> (%f,%f,%f)",
-                                                                                           pmap->locations[num].point.x,pmap->locations[num].point.y,pmap->locations[num].angle,
+                                                                                           temp.point.x,temp.point.y,temp.angle,
                                                                                                 probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
-    pmap->locations[num].point = probot->lastPose.point;
-    pmap->locations[num].angle = probot->lastPose.angle;
 }
 
 void Supervisor::map_reset(){
@@ -1069,16 +1189,16 @@ void Supervisor::setSystemVolume(int volume){
     checker->setSystemVolume(volume);
 }
 
-int Supervisor::getLocationNum(QString group, QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].group == group){
-            if(pmap->locations[i].name == name){
-                return i;
-            }
-        }
-    }
-    return -1;
-}
+// int Supervisor::getLocationNum(QString group, QString name){
+//     for(int i=0; i<pmap->locations.size(); i++){
+//         if(pmap->locations[i].group == group){
+//             if(pmap->locations[i].name == name){
+//                 return i;
+//             }
+//         }
+//     }
+//     return -1;
+// }
 
 void Supervisor::saveLocation(QString type, int groupnum, QString name){
     LOCATION temp;
@@ -1096,45 +1216,48 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
         temp.group_name = pmap->location_groups[groupnum];
     }
 
-    bool overwrite = false;
-    int overwrite_num = -1;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == name){
-            overwrite = true;
-            overwrite_num = i;
-        }else if(name == "Cleaning0" && pmap->locations[i].name == "CleaningTemp"){
-            overwrite = true;
-            overwrite_num = i;
-        }
-    }
+    // bool overwrite = false;
+    // int overwrite_num = -1;
+    // for(int i=0; i<pmap->locations.size(); i++){
+    //     if(pmap->locations[i].name == name){
+    //         overwrite = true;
+    //         overwrite_num = i;
+    //     }else if(name == "Cleaning0" && pmap->locations[i].name == "CleaningTemp"){
+    //         overwrite = true;
+    //         overwrite_num = i;
+    //     }
+    // }
 
     if(type == "Serving"){
         plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-        pmap->locations.push_back(temp);
+        pmap->serving_locations.push_back(temp);
     }else if(type == "Charging"){
-        if(overwrite){
+        if(pmap->charging_locations.size() > 0){
             plog->write("[COMMAND] saveLocation (Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations[overwrite_num] = temp;
+            pmap->charging_locations[0] = temp;
         }else{
             plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations.push_back(temp);
+            pmap->charging_locations.push_back(temp);
         }
     }else if(type == "Cleaning"){
-        if(overwrite){
+        if(pmap->cleaning_locations.size() > 0){
             plog->write("[COMMAND] saveLocation (Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations[overwrite_num] = temp;
+            pmap->cleaning_locations[0] = temp;
         }else{
             plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations.push_back(temp);
+            pmap->cleaning_locations.push_back(temp);
         }
     }else if(type == "Resting"){
-        if(overwrite){
+        if(pmap->resting_locations.size() > 0){
             plog->write("[COMMAND] saveLocation (Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations[overwrite_num] = temp;
+            pmap->resting_locations[0] = temp;
         }else{
             plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
-            pmap->locations.push_back(temp);
+            pmap->resting_locations.push_back(temp);
         }
+    }else if(type == "Init"){
+        plog->write("[COMMAND] saveLocation (init) : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
+        pmap->init_locations.push_back(temp);
     }
 
     pmap->annot_edit_location = true;
@@ -1295,7 +1418,11 @@ void Supervisor::deleteEditedMap(){
 void Supervisor::deleteAnnotation(){
     plog->write("[USER INPUT] Remove Annotation Data");
 
-    pmap->locations.clear();
+    pmap->charging_locations.clear();
+    pmap->resting_locations.clear();
+    pmap->cleaning_locations.clear();
+    pmap->init_locations.clear();
+    pmap->serving_locations.clear();
     QFile *file = new QFile(QDir::homePath()+"/RB_MOBILE/maps/"+pmap->map_name+"/map_travel_line.png");
     file->remove();
     QFile *file2 = new QFile(QDir::homePath()+"/RB_MOBILE/maps/"+pmap->map_name+"/map_velocity.png");
@@ -2478,10 +2605,10 @@ void Supervisor::makeUSBShell(){
 QString Supervisor::getNewServingName(int group){
     int count = 0;
     QString groupname = "";
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving"){
-            if(pmap->locations[i].group == group){
-                groupname = pmap->locations[i].group_name;
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].type == "Serving"){
+            if(pmap->serving_locations[i].group == group){
+                groupname = pmap->serving_locations[i].group_name;
                 break;
             }
         }
@@ -2498,14 +2625,13 @@ QString Supervisor::getNewServingName(int group){
 }
 
 bool Supervisor::isDuplicateName(int group, QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving"){
-            if(pmap->locations[i].group == group){
-                if(pmap->locations[i].name == name){
-                    return true;
-                }
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].group == group){
+            if(pmap->serving_locations[i].name == name){
+                return true;
             }
         }
+
     }
     return false;
 
@@ -2513,88 +2639,85 @@ bool Supervisor::isDuplicateName(int group, QString name){
 QString Supervisor::getServingName(int group, int num){
     int count = 0;
     QString name = "";
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving"){
-            if(pmap->locations[i].group == group){
-                if(count == num)
-                    name = pmap->locations[i].name;
-//                    return pmap->locations[i].name;
-                count++;
-            }
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].group == group){
+            if(count == num)
+                name = pmap->serving_locations[i].name;
+            count++;
         }
     }
-    qDebug() << "getServingName " << group << num << name << pmap->locations.size();
+    qDebug() << "getServingName " << group << num << name << pmap->serving_locations.size();
     if(name == ""){
         name = tr("설정 안됨");
     }
     return name;
 }
 int Supervisor::getLocationNum(QString type){
-    if(type==""){
-        return pmap->locations.size();
+    if(type == "Charging"){
+        return pmap->charging_locations.size();
+    }else if(type == "Resting"){
+        return pmap->resting_locations.size();
+    }else if(type == "Cleaning"){
+        return pmap->cleaning_locations.size();
+    }else if(type == "Init"){
+        return pmap->init_locations.size();
     }else{
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == type){
-                if(pmap->locations[i].name != "CleaningTemp"){
-                    count++;
-                }
-            }
-        }
-        return count;
+        return pmap->serving_locations.size();
     }
 }
 
 int Supervisor::getLocationGroupNum(int num){
-    int count = 0;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving"){
-            if(count == num){
-                if(pmap->location_groups.size() > pmap->locations[i].group)
-                    return pmap->locations[i].group;
-                else
-                    return 0;
-            }
-            count++;
-        }
+    if(pmap->serving_locations.size()>num && num > -1){
+        if(pmap->location_groups.size() > pmap->serving_locations[num].group)
+            return pmap->serving_locations[num].group;
+        else
+            return 0;
     }
-    return 0;
 }
 
-QString Supervisor::getLocationCallID(int num){
-    if(num>-1 && num < pmap->locations.size()){
-        return pmap->locations[num].call_id;
+QString Supervisor::getLocationCallID(QString type, int num){
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
+        return pmap->charging_locations[num].call_id;
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        return pmap->resting_locations[num].call_id;
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        return pmap->cleaning_locations[num].call_id;
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        return pmap->init_locations[num].call_id;
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        return pmap->serving_locations[num].call_id;
     }
     return "";
 }
 
-QString Supervisor::getLocationLingID(int num){
-    if(num>-1 && num < pmap->locations.size()){
-        return pmap->locations[num].ling_id;
+QString Supervisor::getLocationLingID(QString type, int num){
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
+        return pmap->charging_locations[num].ling_id;
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        return pmap->resting_locations[num].ling_id;
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        return pmap->cleaning_locations[num].ling_id;
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        return pmap->init_locations[num].ling_id;
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        return pmap->serving_locations[num].ling_id;
     }
     return "";
 }
+
 void Supervisor::setLocationGroup(int num, int group){
-    if(num > -1 && num < pmap->locations.size()){
-        pmap->locations[num].group = group;
+    if(num > -1 && num < pmap->serving_locations.size()){
+        pmap->serving_locations[num].group = group;
         plog->write("[ANNOTATION] SET Location Group "+QString().asprintf("%d : %d",num,group));
     }
 }
 
 QString Supervisor::getLocationGroup(int num){
-    int count = 0;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving"){
-            if(count == num){
-                if(pmap->location_groups.size() > pmap->locations[i].group)
-                    return pmap->location_groups[pmap->locations[i].group];
-                else
-                    return "(-)";
-            }
-            count++;
-        }
+    if(num>-1 && num<pmap->serving_locations.size()){
+        if(pmap->location_groups.size() > pmap->serving_locations[num].group)
+            return pmap->location_groups[pmap->serving_locations[num].group];
     }
-    return "(  )";
+    return "(-)";
 }
 
 void Supervisor::addLocationGroup(QString name){
@@ -2609,162 +2732,101 @@ void Supervisor::removeLocationGroup(int num){
 int Supervisor::getLocationGroupNum(){
     return pmap->location_groups.size();
 }
-void Supervisor::selectLocation(int num){
-    maph->setSelectLocation(num);
-}
-void Supervisor::setLocationUp(int num){
-    if(num>2 && num < pmap->locations.size()){
-        plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->locations[num].name+") Up");
-        pmap->locations.move(num,num-1);
+void Supervisor::selectLocation(QString type, int num){
+    qDebug() << "selectLocation " << type << num;
+    if(type == "Charging"){
+        maph->setSelectCharging(num);
+    }else if(type == "Resting"){
+        maph->setSelectResting(num);
+    }else if(type == "Cleaning"){
+        maph->setSelectCleaning(num);
+    }else if(type == "Init"){
+        maph->setSelectInit(num);
+    }else{
+        maph->setSelectServing(num);
     }
 }
-void Supervisor::setLocationDown(int num){
-    if(num>1 && num<pmap->locations.size()-1){
-        plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->locations[num].name+") Down");
-        pmap->locations.move(num,num+1);
+bool Supervisor::setLocationUp(int num){
+    if(num>0 && num < pmap->serving_locations.size()){
+        plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->serving_locations[num].name+") Up");
+        pmap->serving_locations.move(num,num-1);
+        return true;
     }
-
+    return false;
+}
+bool Supervisor::setLocationDown(int num){
+    qDebug() << num << pmap->serving_locations.size();
+    if(num>-1 && num < pmap->serving_locations.size()-1){
+        plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->serving_locations[num].name+") Down");
+        pmap->serving_locations.move(num,num+1);
+        return true;
+    }
+    return false;
 }
 int Supervisor::getLocationGroupSize(int num){
     int size = 0;
     if(num > -1 && num < pmap->location_groups.size()){
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == "Serving")
-                if(pmap->locations[i].group == num)
-                    size++;
+        for(int i=0; i<pmap->serving_locations.size(); i++){
+            if(pmap->serving_locations[i].group == num)
+                size++;
         }
     }
 //    qDebug() << "location group size " << num << size << pmap->locations.size();
     return size;
 }
 QString Supervisor::getLocationName(int num, QString type){
-    if(type == ""){
-        if(num > -1 && num < pmap->locations.size()){
-            return pmap->locations[num].name;
-        }
-        return "";
-    }else{
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == type){
-                if(count == num)
-                    return pmap->locations[i].name;
-                count++;
-            }
-        }
-        return tr("설정 안됨");
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
+        return pmap->charging_locations[num].name;
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        return pmap->resting_locations[num].name;
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        return pmap->cleaning_locations[num].name;
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        return pmap->init_locations[num].name;
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        return pmap->serving_locations[num].name;
     }
+    return "-";
 }
 
-QString Supervisor::getLocationNameGroup(int num, QString type){
-    if(type == ""){
-        if(num > -1 && num < pmap->locations.size()){
-            return pmap->locations[num].group_name;
-        }
-        return "";
-    }else{
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == type){
-                if(count == num)
-                    return pmap->locations[i].group_name;
-                count++;
-            }
-        }
-        return tr("-");
+QString Supervisor::getLocationNameGroup(int num){
+    if(num>-1 && num<pmap->serving_locations.size()){
+        return pmap->serving_locations[num].group_name;
     }
+    return "-";
 }
 
-QString Supervisor::getLocationType(int num){
-    if(num > -1 && num < pmap->locations.size()){
-        return pmap->locations[num].type;
-    }
-    return "";
-}
 float Supervisor::getLocationX(int num, QString type){
-    if(type == ""){
-        if(num > -1 && num < pmap->locations.size()){
-            return setAxis(pmap->locations[num].point).x;
-        }
-        return 0.;
-    }else{
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == type){
-                if(count == num){
-                    return setAxis(pmap->locations[i].point).x;
-                }
-                count++;
-            }
-        }
-        return 0.;
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
+        return setAxis(pmap->charging_locations[num].point).x;
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        return setAxis(pmap->resting_locations[num].point).x;
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        return setAxis(pmap->cleaning_locations[num].point).x;
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        return setAxis(pmap->init_locations[num].point).x;
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        return setAxis(pmap->serving_locations[num].point).x;
     }
+    return 0;
 }
 
-int Supervisor::getLocationID(int group, int num){
-
-//    if(num > -1 && num < pmap->locations.size()){
-//        int count = 0;
-//        for(int i=0; i<pmap->locations.size(); i++){
-//            if(pmap->locations[i].type == "Serving"){
-//                if(group == -1){
-//                    if(count == num){
-////                        qDebug() << num << i << " get number is " << pmap->locations[i].number;
-//                        return pmap->locations[i].loc_id;
-//                    }
-//                    count++;
-//                }else if(pmap->locations[i].group == group){
-//                    if(count == num){
-////                        qDebug() << num << i << " get number is " << pmap->locations[i].number;
-//                        return pmap->locations[i].loc_id;
-//                    }
-//                    count++;
-//                }
-//            }
-//        }
-//    }
-    return -1;
-}
-
-int Supervisor::getLocationNumber(int group, int num){
-//    if(num > -1 && num < pmap->locations.size()){
-//        int count = 0;
-//        for(int i=0; i<pmap->locations.size(); i++){
-//            if(pmap->locations[i].type == "Serving"){
-//                if(group == -1){
-//                    if(count == num){
-////                        qDebug() << num << i << " get number is " << pmap->locations[i].number;
-//                        return pmap->locations[i].number;
-//                    }
-//                    count++;
-//                }else if(pmap->locations[i].group == group){
-//                    if(count == num){
-////                        qDebug() << num << i << " get number is " << pmap->locations[i].number;
-//                        return pmap->locations[i].number;
-//                    }
-//                    count++;
-//                }
-//            }
-//        }
-//    }
-    return -1;
-}
 void Supervisor::setLocation(int num, QString name, int group, int tablenum){
-    if(num > -1 && num < pmap->locations.size()){
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == "Serving"){
-                if(num==count){
-                    pmap->locations[i].name = name;
-                    pmap->locations[i].group = group;
-//                    pmap->locations[i].number = tablenum;
-                    pmap->annot_edit_location = true;
-                    plog->write("[SUPERVISOR] SET LOCATION : "+QString().asprintf("(%d) group : %d, number : %d, name : ",num,group,tablenum)+name);
-                }
-                count++;
-            }
-        }
-    }
+//     if(num > -1 && num < pmap->locations.size()){
+//         int count = 0;
+//         for(int i=0; i<pmap->locations.size(); i++){
+//             if(pmap->locations[i].type == "Serving"){
+//                 if(num==count){
+//                     pmap->locations[i].name = name;
+//                     pmap->locations[i].group = group;
+// //                    pmap->locations[i].number = tablenum;
+//                     pmap->annot_edit_location = true;
+//                     plog->write("[SUPERVISOR] SET LOCATION : "+QString().asprintf("(%d) group : %d, number : %d, name : ",num,group,tablenum)+name);
+//                 }
+//                 count++;
+//             }
+//         }
+//     }
 }
 QString Supervisor::getLocGroupname(int num){
     if(num > -1 && num <pmap->location_groups.size()){
@@ -2772,85 +2834,35 @@ QString Supervisor::getLocGroupname(int num){
     }
     return " - ";
 }
-void Supervisor::setLocationNumber(QString name, int num){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == name){
-            plog->write("[SUPERVISOR] SET LOCATION NUMBER "+name+" TO "+QString::number(num));
-//            pmap->locations[i].number = num;
-        }
-    }
-}
 float Supervisor::getLocationY(int num, QString type){
-    if(type == ""){
-        if(num > -1 && num < pmap->locations.size()){
-            return setAxis(pmap->locations[num].point).y;
-        }
-        return 0.;
-    }else{
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == type){
-                if(count == num){
-                    return setAxis(pmap->locations[i].point).y;
-                }
-                count++;
-            }
-        }
-        return 0.;
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
+        return setAxis(pmap->charging_locations[num].point).y;
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        return setAxis(pmap->resting_locations[num].point).y;
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        return setAxis(pmap->cleaning_locations[num].point).y;
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        return setAxis(pmap->init_locations[num].point).y;
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        return setAxis(pmap->serving_locations[num].point).y;
     }
+    return 0;
 }
 float Supervisor::getLocationTH(int num, QString type){
-    if(type == ""){
-        if(num > -1 && num < pmap->locations.size()){
-            return setAxis(pmap->locations[num].angle);
-        }
-        return 0.;
-    }else{
-        int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == type){
-                if(count == num){
-                    return setAxis(pmap->locations[i].angle);
-                }
-                count++;
-            }
-        }
-        return 0.;
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
+        return setAxis(pmap->charging_locations[num].angle);
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        return setAxis(pmap->resting_locations[num].angle);
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        return setAxis(pmap->cleaning_locations[num].angle);
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        return setAxis(pmap->init_locations[num].angle);
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        return setAxis(pmap->serving_locations[num].angle);
     }
-}
-int Supervisor::getLocationSize(QString type){
-    int count = 0;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == type){
-            QStringList namelist = pmap->locations[i].name.split("_");
-            if(namelist[0] == type && namelist.size() >1){
-                if(namelist[1].toInt() > count){
-                    count = namelist[1].toInt();
-                }
-            }
-        }
-    }
-    return count + 1;
+    return 0;
 }
 
-bool Supervisor::isExistLocation(int group, int num){
-    int count = 0;
-    if(pmap->locations.size() == 0){
-        return false;
-    }else{
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == "Serving"){
-                if(group == pmap->locations[i].group || group == -1){
-                    if(count == num){
-                        return true;
-                    }
-                    count++;
-                }
-            }
-        }
-        return false;
-    }
-}
 
 float setAxis(float _angle){
     return -_angle - M_PI/2;
@@ -2999,31 +3011,25 @@ int Supervisor::getObjPointNum(int obj_num, int x, int y){
     return -1;
 }
 
-int Supervisor::getLocNum(QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == name){
-            return i;
-        }
-    }
-    return -1;
-}
-int Supervisor::getLocNum(int x, int y){
-    for(int i=0; i<pmap->locations.size(); i++){
-        cv::Point2f pos = setAxisBack(cv::Point2f(x,y));
-        if(fabs(pmap->locations[i].point.x - pos.x) < probot->radius){
-            if(fabs(pmap->locations[i].point.y - pos.y) < probot->radius){
-                return i;
-            }
-        }
-    }
-    return -1;
-}
-
-void Supervisor::removeLocation(int num){
-    if(num>1 && num<pmap->locations.size()){
-        plog->write("[UI-MAP] REMOVE LOCATION "+ num);
-        pmap->locations.removeAt(num);
+void Supervisor::removeLocation(QString type, int num){
+    plog->write("[UI-MAP] REMOVE LOCATION "+ type + QString::number(num));
+    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
         pmap->annotation_edited = true;
+        pmap->charging_locations.removeAt(num);
+    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
+        pmap->annotation_edited = true;
+        pmap->resting_locations.removeAt(num);
+    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
+        pmap->annotation_edited = true;
+        pmap->cleaning_locations.removeAt(num);
+    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
+        pmap->annotation_edited = true;
+        pmap->init_locations.removeAt(num);
+    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
+        pmap->annotation_edited = true;
+        pmap->serving_locations.removeAt(num);
+    }else{
+        plog->write("[UI-MAP] REMOVE LOCATION Failed "+ type + QString::number(num));
     }
 }
 
@@ -3089,6 +3095,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     int resting_num = 0;
     int charging_num = 0;
     int cleaning_num = 0;
+    int init_num = 0;
     int group_num[pmap->location_groups.size()];
 
     for(int i=0; i<pmap->location_groups.size(); i++)
@@ -3099,31 +3106,44 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     settings.clear();
 
     //name,x,y,th,num,locnum,callid
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Charging"){
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
-            settings.setValue("charging_locations/loc"+QString::number(charging_num),str_name);
-            charging_num++;
-        }else if(pmap->locations[i].type == "Resting"){
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
-            settings.setValue("resting_locations/loc"+QString::number(resting_num),str_name);
-            resting_num++;
-        }else if(pmap->locations[i].type == "Cleaning"){
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
-            settings.setValue("cleaning_locations/loc"+QString::number(cleaning_num),str_name);
-            cleaning_num++;
-        }else if(pmap->locations[i].type == "Serving"){
-            QString groupname = "serving_" + QString::number(pmap->locations[i].group);
-            str_name = pmap->locations[i].name + QString().asprintf(",%f,%f,%f",pmap->locations[i].point.x,pmap->locations[i].point.y,pmap->locations[i].angle)+","+pmap->locations[i].call_id+":"+pmap->locations[i].ling_id;
-            settings.setValue(groupname+"/loc"+QString::number(group_num[pmap->locations[i].group]),str_name);
-            group_num[pmap->locations[i].group]++;
-        }
+    for(int i=0; i<pmap->charging_locations.size(); i++){
+        str_name = pmap->charging_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->charging_locations[i].point.x,pmap->charging_locations[i].point.y,pmap->charging_locations[i].angle)
+                +","+pmap->charging_locations[i].call_id+":"+pmap->charging_locations[i].ling_id;
+        settings.setValue("charging_locations/loc"+QString::number(charging_num),str_name);
+        charging_num++;
+    }
+    for(int i=0; i<pmap->resting_locations.size(); i++){
+        str_name = pmap->resting_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->resting_locations[i].point.x,pmap->resting_locations[i].point.y,pmap->resting_locations[i].angle)
+                +","+pmap->resting_locations[i].call_id+":"+pmap->resting_locations[i].ling_id;
+        settings.setValue("resting_locations/loc"+QString::number(resting_num),str_name);
+        resting_num++;
+    }
+    for(int i=0; i<pmap->cleaning_locations.size(); i++){
+        str_name = pmap->cleaning_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->cleaning_locations[i].point.x,pmap->cleaning_locations[i].point.y,pmap->cleaning_locations[i].angle)
+                +","+pmap->cleaning_locations[i].call_id+":"+pmap->cleaning_locations[i].ling_id;
+        settings.setValue("cleaning_locations/loc"+QString::number(cleaning_num),str_name);
+        cleaning_num++;
+    }
+    for(int i=0; i<pmap->init_locations.size(); i++){
+        str_name = pmap->init_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->init_locations[i].point.x,pmap->init_locations[i].point.y,pmap->init_locations[i].angle)
+                +","+pmap->init_locations[i].call_id+":"+pmap->init_locations[i].ling_id;
+        settings.setValue("init_locations/loc"+QString::number(init_num),str_name);
+        init_num++;
+    }
+
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        QString groupname = "serving_" + QString::number(pmap->serving_locations[i].group);
+        str_name = pmap->serving_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->serving_locations[i].point.x,pmap->serving_locations[i].point.y,pmap->serving_locations[i].angle)
+                +","+pmap->serving_locations[i].call_id+":"+pmap->serving_locations[i].ling_id;
+        settings.setValue(groupname+"/loc"+QString::number(group_num[pmap->serving_locations[i].group]),str_name);
+        group_num[pmap->serving_locations[i].group]++;
     }
 
     settings.setValue("cleaning_locations/num",cleaning_num);
     settings.setValue("resting_locations/num",resting_num);
     settings.setValue("serving_locations/group",pmap->location_groups.size());
     settings.setValue("other_locations/num",other_num);
+    settings.setValue("init_locations/num",init_num);
     settings.setValue("charging_locations/num",charging_num);
 
     for(int i=0; i<pmap->location_groups.size(); i++){
@@ -3206,7 +3226,7 @@ void Supervisor::setTTSVoiceDetail(int speed, int pitch, int alpha, int emotion,
 void Supervisor::setTray(int tray_num, int group, int table){
     if(tray_num > -1 && tray_num < probot->trays.size()){
         probot->trays[tray_num].empty = false;
-        probot->trays[tray_num].location = getLocation(group,getServingName(group,table));
+        probot->trays[tray_num].location = getServingLocation(group,getServingName(group,table));
         plog->write("[COMMAND] setTray : "+QString::number(tray_num)+" , "+getServingName(group,table));
     }
 }
@@ -3233,18 +3253,17 @@ void Supervisor::startServing(int group, int table){
         patrol_mode = PATROL_NONE;
         int target_num = -1;
         int count = 0;
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == "Serving"){
-                if(pmap->locations[i].group == group){
-                    if(count == table){
-                        target = pmap->locations[i];
-                        target_num = count;
-                        break;
-                    }else{
-                        count++;
-                    }
+        for(int i=0; i<pmap->serving_locations.size(); i++){
+            if(pmap->serving_locations[i].group == group){
+                if(count == table){
+                    target = pmap->serving_locations[i];
+                    target_num = count;
+                    break;
+                }else{
+                    count++;
                 }
             }
+
         }
         if(target_num > -1){
             plog->write("[COMMAND] startServing : "+target.name+QString().asprintf(" (group : %d, table : %d)", group, table));
@@ -3324,7 +3343,7 @@ void Supervisor::moveToCharge(){
     if(isRobotReady()){
         plog->write("[COMMAND] moveToCharge");
         stateMoving();
-        probot->current_target = getLocation(0, "Charging0");
+        probot->current_target = getChargingLocation(0);
     }else{
         QMetaObject::invokeMethod(mMain,"robotnotready");
         plog->write("[COMMAND] moveToCharge : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
@@ -3334,7 +3353,7 @@ void Supervisor::moveToWait(){
     if(isRobotReady()){
         plog->write("[COMMAND] moveToWait");
         stateMoving();
-        probot->current_target = getLocation(0, "Resting0");
+        probot->current_target = getRestingLocation(0);
     }else{
         QMetaObject::invokeMethod(mMain,"robotnotready");
         plog->write("[COMMAND] moveToWait : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
@@ -3344,7 +3363,7 @@ void Supervisor::moveToCleaning(){
     if(isRobotReady()){
         plog->write("[COMMAND] moveToCleaning");
         stateMoving();
-        probot->current_target = getLocation(0, "Cleaning0");
+        probot->current_target = getCleaningLocation(0);
     }else{
         is_test_moving = false;
         QMetaObject::invokeMethod(mMain,"robotnotready");
@@ -3546,17 +3565,17 @@ void Supervisor::moveToServingTest(int group, QString name){
         if(name.left(8) == "Charging" || name == tr("충전위치")){
             plog->write("[COMMAND] moveToServingTest : "+name);
             stateMoving();
-            probot->current_target = getLocation(0, name);
+            probot->current_target = getChargingLocation(0);
         }else if(name.left(7) == "Resting"|| name == tr("대기위치")){
             plog->write("[COMMAND] moveToServingTest : "+name);
             stateMoving();
-            probot->current_target = getLocation(0, "Resting0");
+            probot->current_target = getRestingLocation(0);
         }else if(name.left(8) == "Cleaning"|| name == tr("퇴식위치")){
             plog->write("[COMMAND] moveToServingTest : "+name);
             stateMoving();
-            probot->current_target = getLocation(0, "Cleaning0");
+            probot->current_target = getCleaningLocation(0);
         }else{
-            LOCATION temp_loc = getLocation(group, name);
+            LOCATION temp_loc = getServingLocation(group, name);
             if(temp_loc.name == ""){
                 plog->write("[COMMAND] moveToServingTest (Not found) : "+name);
                 QMetaObject::invokeMethod(mMain,"notfoundlocation");
@@ -4173,7 +4192,17 @@ void Supervisor::onTimer(){
                             }else{
                                 //2. 들어온 콜 위치가 있는지 체크
                                 for(QString call:pmap->call_queue){
-                                    LOCATION temp_loc = getLocation(call);
+                                    LOCATION temp_loc;
+
+                                    if(call == "Charging0"){
+                                        temp_loc = getChargingLocation(0);
+                                    }else if(call == "Resting0"){
+                                        temp_loc = getRestingLocation(0);
+                                    }else if(call == "Cleaning0"){
+                                        temp_loc = getCleaningLocation(0);
+                                    }else{
+                                        temp_loc = getServingLocation(call);
+                                    }
                                     if(temp_loc.name != ""){
                                         cur_target = temp_loc;
                                         plog->write("[STATE] Moving : New Target (Calling) -> "+temp_loc.name+" ( call id : "+temp_loc.call_id+" )");
@@ -4223,35 +4252,44 @@ void Supervisor::onTimer(){
 
                         count_moveto = 0;
                         if(cur_target.name == ""){
-                            if(probot->type == "CLEANING"){
-                                //세팅 되지 않음 -> 고 홈
-                                plog->write("[STATE] Moving : No Target -> Back to Cleaning0");
-                                probot->call_moving_count = 0;
-                                cur_target = getLocation(0,"Cleaning0");
-                                if(cur_target.name == ""){
-                                    LOCATION temp_cleaning = getLocation(0,"Resting0");
-                                    temp_cleaning.name = "Cleaning0";
-                                    temp_cleaning.type = "Cleaning";
-                                    temp_cleaning.group_name = "Cleaning";
-                                    cur_target = temp_cleaning;
-                                }
-                            }else{
+                            // if(probot->is_cleaning){
+                            //     //세팅 되지 않음 -> 고 홈
+                            //     plog->write("[STATE] Moving : No Target -> Back to Cleaning0");
+                            //     probot->call_moving_count = 0;
+                            //     cur_target = getLocation(0,"Cleaning0");
+                            //     if(cur_target.name == ""){
+                            //         LOCATION temp_cleaning = getLocation(0,"Resting0");
+                            //         temp_cleaning.name = "Cleaning0";
+                            //         temp_cleaning.type = "Cleaning";
+                            //         temp_cleaning.group_name = "Cleaning";
+                            //         cur_target = temp_cleaning;
+                            //     }
+                            // }else{
                                 //세팅 되지 않음 -> 고 홈
                                 plog->write("[STATE] Moving : No Target -> Back to Resting0");
                                 probot->call_moving_count = 0;
-                                cur_target = getLocation(0,"Resting0");
-                            }
+                                cur_target = getRestingLocation(0);
+                            // }
                         }
 
                         bool match = false;
                         //지정된 위치 실재하는 지 확인
-                        for(int i=0; i<pmap->locations.size(); i++){
-                            if(pmap->locations[i].name == cur_target.name){
-                                if(pmap->locations[i].group == cur_target.group){
+                        for(int i=0; i<pmap->serving_locations.size(); i++){
+                            if(pmap->serving_locations[i].group == cur_target.group){
+                                if(pmap->serving_locations[i].name == cur_target.name){
                                     match = true;
                                     break;
                                 }
                             }
+                        }
+                        if(cur_target.name == "Charging0" && pmap->charging_locations.size() > 0){
+                            match = true;
+                        }
+                        if(cur_target.name == "Resting0" && pmap->resting_locations.size() > 0){
+                            match = true;
+                        }
+                        if(cur_target.name == "Cleaning0" && pmap->cleaning_locations.size() > 0){
+                            match = true;
                         }
 
                         if(match){
@@ -4591,33 +4629,59 @@ void Supervisor::readLog(QDateTime date){
 }
 
 
-LOCATION Supervisor::getLocation(int group, QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].group == group)
-            if(pmap->locations[i].name == name){
-                return pmap->locations[i];
+LOCATION Supervisor::getServingLocation(int group, QString name){
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].group == group)
+            if(pmap->serving_locations[i].name == name){
+                return pmap->serving_locations[i];
             }
     }
     return LOCATION();
 }
-LOCATION Supervisor::getLocation(QString group, QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].group_name == group){
-            if(pmap->locations[i].name == name){
-                return pmap->locations[i];
+LOCATION Supervisor::getServingLocation(QString group, QString name){
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].group_name == group){
+            if(pmap->serving_locations[i].name == name){
+                return pmap->serving_locations[i];
             }
         }
     }
     return LOCATION();
 }
-LOCATION Supervisor::getLocation(QString name){
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].name == name){
-            return pmap->locations[i];
+LOCATION Supervisor::getServingLocation(QString name){
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        if(pmap->serving_locations[i].name == name){
+            return pmap->serving_locations[i];
         }
     }
     return LOCATION();
 }
+LOCATION Supervisor::getChargingLocation(int num){
+    if(num > -1 && num < pmap->charging_locations.size()){
+        return pmap->charging_locations[num];
+    }
+    return LOCATION();
+}
+LOCATION Supervisor::getRestingLocation(int num){
+    if(num > -1 && num < pmap->resting_locations.size()){
+        return pmap->resting_locations[num];
+    }
+    return LOCATION();
+}
+LOCATION Supervisor::getInitLocation(int num){
+    if(num > -1 && num < pmap->init_locations.size()){
+        return pmap->init_locations[num];
+    }
+    return LOCATION();
+}
+LOCATION Supervisor::getCleaningLocation(int num){
+    if(num > -1 && num < pmap->cleaning_locations.size()){
+        return pmap->cleaning_locations[num];
+    }
+    return LOCATION();
+}
+
+
 
 int Supervisor::getzipstate(){
     return zip->process;
@@ -5019,7 +5083,7 @@ void Supervisor::stateInit(){
 }
 void Supervisor::killSLAM(){
     plog->write("[COMMAND] killSLAM");
-    ipc->set_cmd(ROBOT_CMD_RESTART,"Kill Slam");
+    // ipc->set_cmd(ROBOT_CMD_RESTART,"Kill Slam");
     clearStatusAll();
     stateInit();
 }
@@ -5223,7 +5287,16 @@ void Supervisor::readPatrol(){
                         patrol.endGroup();
                         patrol.beginGroup("LOCATION");
                         for(int i=0; i<loc_num; i++){
-                            LOCATION temp_loc = getLocation(patrol.value("group"+QString::number(i)).toString(),patrol.value("loc"+QString::number(i)).toString());
+                            LOCATION temp_loc;
+                            if(patrol.value("type"+QString::number(i)).toString() == "Charging"){
+                                temp_loc = getChargingLocation(0);
+                            }else if(patrol.value("type"+QString::number(i)).toString() == "Resting"){
+                                temp_loc = getRestingLocation(0);
+                            }else if(patrol.value("type"+QString::number(i)).toString() == "Cleaning"){
+                                temp_loc = getCleaningLocation(0);
+                            }else if(patrol.value("type"+QString::number(i)).toString() == "Serving"){
+                                temp_loc = getServingLocation(patrol.value("group"+QString::number(i)).toString(),patrol.value("loc"+QString::number(i)).toString());
+                            }
                             if(temp_loc.name != ""){
                                 temp.location.append(temp_loc);
                             }
@@ -5512,9 +5585,23 @@ void Supervisor::clearPatrolLocation(QString mode){
     current_patrol.location_mode = mode;
 }
 
-void Supervisor::addPatrolLocation(QString group, QString name){
-    if(getLocation(name).name != ""){
-        current_patrol.location.append(getLocation(group,name));
+void Supervisor::addPatrolLocation(QString type, QString group, QString name){
+    if(type == "Charging"){
+        if(getChargingLocation(0).name != ""){
+            current_patrol.location.append(getChargingLocation(0));
+        }
+    }else if(type == "Resting"){
+        if(getRestingLocation(0).name != ""){
+            current_patrol.location.append(getRestingLocation(0));
+        }
+    }else if(type == "Cleaning"){
+        if(getCleaningLocation(0).name != ""){
+            current_patrol.location.append(getCleaningLocation(0));
+        }
+    }else if(type == "Serving"){
+        if(getServingLocation(name).name != ""){
+            current_patrol.location.append(getServingLocation(group,name));
+        }
     }
 }
 void Supervisor::setPatrolMovingPage(QString mode, QString param1, QString param2, QString param3){
@@ -5715,6 +5802,7 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
     file.setValue("SETTING/location_num",current_patrol.location.size());
 
     for(int i=0; i<current_patrol.location.size(); i++){
+        file.setValue("LOCATION/type"+QString::number(i),current_patrol.location[i].type);
         file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
         file.setValue("LOCATION/group"+QString::number(i),current_patrol.location[i].group_name);
     }

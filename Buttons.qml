@@ -145,6 +145,12 @@ Item {
                             font.pixelSize -= 1;
                         }
                     }
+                    onTextChanged: {
+                        while(width>parent.width*0.95){
+                            font.pixelSize -= 1;
+                        }
+                    }
+
                     color: buttons.font_color
                     font.family: font_noto_r.name
                 }

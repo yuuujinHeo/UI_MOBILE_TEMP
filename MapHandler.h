@@ -352,16 +352,28 @@ public:
     }
 
     //    //---------------------------------------------------Location
-    QList<LOCATION> locations;
+    QList<LOCATION> charging_locations;
+    QList<LOCATION> resting_locations;
+    QList<LOCATION> cleaning_locations;
+    QList<LOCATION> init_locations;
+    QList<LOCATION> serving_locations;
     LOCATION new_location;
-    int select_location = -1;
+    int select_serving = -1;
+    int select_resting = -1;
+    int select_cleaning = -1;
+    int select_charging = -1;
+    int select_init = -1;
 //    QString select_location_type = "";
     bool new_location_flag;
     bool edit_location_flag;
     LOCATION orin_location;
 
     Q_INVOKABLE void setTravellineIssue(int count, int num);
-    Q_INVOKABLE void setSelectLocation(int num);
+    Q_INVOKABLE void setSelectServing(int num);
+    Q_INVOKABLE void setSelectCharging(int num);
+    Q_INVOKABLE void setSelectResting(int num);
+    Q_INVOKABLE void setSelectCleaning(int num);
+    Q_INVOKABLE void setSelectInit(int num);
 //    Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);
     Q_INVOKABLE void clearLocation();
 //    Q_INVOKABLE void selectLocation(int num, QString type="");
@@ -371,7 +383,7 @@ public:
     Q_INVOKABLE void editLocation(int x, int y, float th);
     Q_INVOKABLE int getLocationNum(int x, int y);
 
-    Q_INVOKABLE void removeLocation(int num);
+    Q_INVOKABLE void removeLocation(QString type, int num);
     Q_INVOKABLE void setTableNumberAuto();
     Q_INVOKABLE int getLocationNum(QString type);
     Q_INVOKABLE int getLocGroupNum(int num);

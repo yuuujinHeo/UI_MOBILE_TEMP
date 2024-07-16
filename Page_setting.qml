@@ -1610,6 +1610,7 @@ Item {
                 Rectangle{
                     id: set_robot_2
                     width: 840
+                    visible: false
                     height: setting_height
                     Row{
                         anchors.fill: parent
