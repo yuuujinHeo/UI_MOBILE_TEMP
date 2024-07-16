@@ -15,6 +15,7 @@ CMD_CLIENT::CMD_CLIENT(QObject *parent)
     connect(&client, &QWebSocket::disconnected, this, &CMD_CLIENT::disconnected);
     connect(&client, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
             this, &CMD_CLIENT::onError);
+
     connect(&client, &QWebSocket::textMessageReceived, this, &CMD_CLIENT::onTextMessageReceived);
 
     connect(&reconnect_timer, SIGNAL(timeout()), this, SLOT(reconnect_loop()));
@@ -87,22 +88,26 @@ void CMD_CLIENT::onError(QAbstractSocket::SocketError error){
 }
 
 void CMD_CLIENT::onTextMessageReceived(QString message) {
-    std::cout << "Received from server: " << message.toStdString() << std::endl;
 
-    // JSON 형식으로 역직렬화
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
-    QJsonArray jsonArray = jsonDoc.array();
-    QVector<int> vectorData;
-    for (const QJsonValue &value : jsonArray) {
-        vectorData.append(value.toInt());
-    }
+    plog->write("[IPC] SLAMNAV send Message : "+message);
 
-    // 받은 데이터 처리 (예제에서는 출력)
-    std::cout << "Processed data: ";
-    for (int value : vectorData) {
-        std::cout << value << " ";
-    }
-    std::cout << std::endl;
+    probot->notice_message = message;
+    emit getMessage(message);
+
+    // // JSON 형식으로 역직렬화
+    // QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
+    // QJsonArray jsonArray = jsonDoc.array();
+    // QVector<int> vectorData;
+    // for (const QJsonValue &value : jsonArray) {
+    //     vectorData.append(value.toInt());
+    // }
+
+    // // 받은 데이터 처리 (예제에서는 출력)
+    // std::cout << "Processed data: ";
+    // for (int value : vectorData) {
+    //     std::cout << value << " ";
+    // }
+    // std::cout << std::endl;
 }
 
 void CMD_CLIENT::init()

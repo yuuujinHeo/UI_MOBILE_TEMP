@@ -96,7 +96,11 @@ typedef struct{
     float mapping_gridwidth = 0.3;
 
     QStringList location_groups;
-    QList<LOCATION> locations;
+    QList<LOCATION> charging_locations;
+    QList<LOCATION> resting_locations;
+    QList<LOCATION> cleaning_locations;
+    QList<LOCATION> init_locations;
+    QList<LOCATION> serving_locations;
     QList<QList<cv::Point2f>> tlines;
     QList<OBJECT> objects;
 
@@ -254,12 +258,13 @@ typedef struct{
     QString model = "";
     int serial_num;
     QString name_debug = "";
-    QString type = "SERVING";
+    // QString type = "SERVING";
     float velocity = 1.0;
 
     QList<ST_TRAY> trays;
-    bool is_calling=false;
+    bool is_calling = false;
     bool is_patrol = false;
+    bool is_cleaning = false;
     LOCATION curLocation;
     int cur_preset=3;
     int comeback_preset=3;
@@ -275,6 +280,8 @@ typedef struct{
     int server_call_location=-1;
 
     LOCATION current_target;
+
+    QString notice_message = "";
 
     int volume_system = 50;
     QString program_version;

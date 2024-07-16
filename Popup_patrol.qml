@@ -57,8 +57,18 @@ Popup{
 
 
         model_patrols.clear();
-        for(var i=0; i<supervisor.getLocationNum(""); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,""),"group":supervisor.getLocationNameGroup(i,""),"type":supervisor.getLocationType(i),"select":false});
+
+        for(var i=0; i<supervisor.getLocationNum("Charging"); i++){
+            model_patrols.append({"name":supervisor.getLocationName(i,"Charging"),"group":"","type":"Charging","select":false});
+        }
+        for(var i=0; i<supervisor.getLocationNum("Resting"); i++){
+            model_patrols.append({"name":supervisor.getLocationName(i,"Resting"),"group":"","type":"Resting","select":false});
+        }
+        for(var i=0; i<supervisor.getLocationNum("Cleaning"); i++){
+            model_patrols.append({"name":supervisor.getLocationName(i,"Cleaning"),"group":"","type":"Cleaning","select":false});
+        }
+        for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
+            model_patrols.append({"name":supervisor.getLocationName(i,"Serving"),"group":supervisor.getLocationNameGroup(i),"type":"Serving","select":false});
         }
         select();
 
@@ -217,7 +227,7 @@ Popup{
 
         for(var i=0; i<model_patrols.count; i++){
             if(model_patrols.get(i).select){
-                supervisor.addPatrolLocation(model_patrols.get(i).group, model_patrols.get(i).name);
+                supervisor.addPatrolLocation(model_patrols.get(i).type, model_patrols.get(i).group, model_patrols.get(i).name);
             }
         }
 

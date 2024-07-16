@@ -30,6 +30,7 @@ Item {
     property var page_after_localization
 
     property int select_location: -1
+    property string select_location_type: ""
     property int select_preset: 1
     property int select_object: -1
     property bool is_object: false
@@ -50,10 +51,6 @@ Item {
             popup_notice.style = "warning";
             if(errstr === "no_path"){
                 popup_notice.main_str = qsTr("경로를 찾지 못했습니다");
-                popup_notice.sub_str = "";
-                popup_notice.open();
-            }else if(errstr === "no_location"){
-                popup_notice.main_str = qsTr("목적지가 지정되지 않았습니다");
                 popup_notice.sub_str = "";
                 popup_notice.open();
             }else if(errstr === "localization"){
@@ -133,10 +130,6 @@ Item {
                 popup_notice.open();
             }
         }
-    }
-
-    onSelect_locationChanged: {
-        print("select_location : ",select_location)
     }
 
     onSelect_objectChanged: {
@@ -220,29 +213,27 @@ Item {
             use_callbell = false;
         }
 
+        //only serving locations
         locations.clear();
-        if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && supervisor.getLocationNum("Cleaning") > 0){
-            for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
-                locations.append({"name": supervisor.getLocationName(i,"Serving"),
-                               "group":supervisor.getLocationGroupNum(i),
-                                "call_id" : supervisor.getLocationCallID(3+i),
-                                "ling_id" : supervisor.getLocationLingID(3+i),
-                                 "callerror":false,
-                                 "nameerror":false,
-                               "error":false});
-            }
-        }else{
-            for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
-                locations.append({"name": supervisor.getLocationName(i,"Serving"),
-                               "group":supervisor.getLocationGroupNum(i),
-                                "call_id" : supervisor.getLocationCallID(2+i),
-                                "ling_id" : supervisor.getLocationLingID(2+i),
-                                     "callerror":false,
-                                     "nameerror":false,
-                               "error":false});
-            }
+        for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
+            locations.append({"name": supervisor.getLocationName(i,"Serving"),
+                           "group":supervisor.getLocationGroupNum(i),
+                            "call_id" : supervisor.getLocationCallID("Serving",i),
+                            "ling_id" : supervisor.getLocationLingID("Serving",i),
+                            "callerror":false,
+                            "nameerror":false,
+                            "error":false});
         }
         update();
+    }
+
+    function getIndex(type){
+        for(var i=0; i<details.count; i++){
+            if(details.get(i).ltype === type){
+                return i;
+            }
+        }
+        return 0;
     }
 
     function update(){
@@ -252,43 +243,45 @@ Item {
 
         details.clear();
         print("READ SETTING!!!!!!!!!!!!!!!!!!!!!!");
-        details.append({"ltype":"Charging",
-                           "name":qsTr("충전위치"),
-                           "group":0,
-                           "callerror":false,
-                           "nameerror":false,
-                           "call_id":supervisor.getLocationCallID(0),
-                            "ling_id":supervisor.getLocationLingID(0)});
-        details.append({"ltype":"Resting",
-                           "name":qsTr("대기위치"),
-                           "group":0,
-                           "callerror":false,
-                           "nameerror":false,
-                           "call_id":supervisor.getLocationCallID(1),
-                           "ling_id":supervisor.getLocationLingID(1)});
-        if(supervisor.getRobotType()==="CLEANING"){
-            if(supervisor.getLocationNum("Cleaning") > 0){
-                details.append({"ltype":"Cleaning",
-                                   "name":qsTr("퇴식위치"),
-                                   "group":0,
-                                   "callerror":false,
-                                   "nameerror":false,
-                                   "call_id":supervisor.getLocationCallID(2),
-                                   "ling_id":supervisor.getLocationLingID(2)});
-            }else{
-                details.append({"ltype":"Cleaning",
-                                   "name":qsTr("퇴식위치"),
-                                   "group":0,
-                                   "callerror":false,
-                                   "nameerror":false,
-                                   "call_id":"",
-                                   "ling_id":""});
-            }
 
+        if(supervisor.getLocationNum("Charging")>0){
+            details.append({"ltype":"Charging",
+                               "name":qsTr("충전위치"),
+                               "group":0,
+                               "callerror":false,
+                               "nameerror":false,
+                               "call_id":supervisor.getLocationCallID("Charging",0),
+                                "ling_id":supervisor.getLocationLingID("Charging",0)});
         }
-        print("locations count = ",locations.count);
+        if(supervisor.getLocationNum("Resting")>0){
+            details.append({"ltype":"Resting",
+                               "name":qsTr("대기위치"),
+                               "group":0,
+                               "callerror":false,
+                               "nameerror":false,
+                               "call_id":supervisor.getLocationCallID("Resting",0),
+                                "ling_id":supervisor.getLocationLingID("Resting",0)});
+        }
+        if(supervisor.getLocationNum("Cleaning")>0){
+            details.append({"ltype":"Cleaning",
+                               "name":qsTr("퇴식위치"),
+                               "group":0,
+                               "callerror":false,
+                               "nameerror":false,
+                               "call_id":supervisor.getLocationCallID("Cleaning",0),
+                                "ling_id":supervisor.getLocationLingID("Cleaning",0)});
+        }
+        for(var i=0; i<supervisor.getLocationNum("Init"); i++){
+            details.append({"ltype":"Init",
+                               "name":qsTr("초기화위치"),
+                               "group":0,
+                               "callerror":false,
+                               "nameerror":false,
+                               "call_id":"",
+                                "ling_id":""});
+        }
+
         for(var i=0; i<locations.count; i++){
-            print("locations append = ",i,locations.count);
             details.append({"ltype":"Serving",
                             "name":locations.get(i).name,
                            "group":locations.get(i).group,
@@ -296,13 +289,10 @@ Item {
                             "ling_id":locations.get(i).ling_id,
                            "callerror":locations.get(i).callerror,
                                "nameerror":locations.get(i).nameerror});
-//                        print("detail append : ",i, locations.get(i).group, locations.get(i).number, getgroupsize(locations.get(i).group))
         }
-//                print("=================================");
+
         checkLocationNumber();
         checkLocationName();
-//                print("=================================");
-
     }
 
     function checkLocationNumber(){
@@ -326,13 +316,20 @@ Item {
     function checkLocationName(){
         for(var i=0; i<details.count; i++){
             for(var j=i+1; j<details.count; j++){
-                if(details.get(i).group === details.get(j).group)
+                if(details.get(i).group === details.get(j).group){
                     if(details.get(i).name === details.get(j).name){
-                        details.get(i).nameerror = true;
-                        details.get(j).nameerror = true;
+                        if(details.get(i).name !== qsTr("초기화위치")){
+                            details.get(i).nameerror = true;
+                            details.get(j).nameerror = true;
+                        }
                     }
+                }
             }
         }
+    }
+
+    function getLocName(type, num){
+        return details.get(num).name;
     }
 
     function isError(){
@@ -916,7 +913,7 @@ Item {
         Item{
             width: annot_pages.width
             height: annot_pages.height
-            property bool show_map: false
+            property bool show_map: true
             Component.onCompleted: {
                 supervisor.writelog("[UI] PageAnnot : page_annot_location) ");
                 supervisor.setMotorLock(false);
@@ -931,9 +928,6 @@ Item {
             }
             Component.onDestruction: {
                 map_location_view.setEnable(false);
-//                if(!annotation_after_mapping){
-//                    map_location_view.save("tline");//saveTline, loadfile
-//                }
             }
 
             function checkError(){
@@ -941,34 +935,16 @@ Item {
             }
 
             function checkLocation(){
-                print("checkLocation ",supervisor.getLocationNum("Charging"),supervisor.getLocationNum("Resting"));
                 if(supervisor.getLocationNum("Charging") === 0){
                     btn_save_charging.exist = false;
-                    btn_save_charging2.exist = false;
                 }else{
                     btn_save_charging.exist = true;
-                    btn_save_charging2.exist = true;
                 }
+
                 if(supervisor.getLocationNum("Resting") === 0){
                     btn_save_resting.exist = false;
-                    btn_save_resting2.exist = false;
                 }else{
                     btn_save_resting.exist = true;
-                    btn_save_resting2.exist = true;
-                }
-                if(supervisor.getLocationNum("Cleaning") === 0){
-                    btn_save_cleaning.exist = false;
-                    btn_save_cleaning2.exist = false;
-                }else{
-                    btn_save_cleaning.exist = true;
-                    btn_save_cleaning2.exist = true;
-                }
-                if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                    btn_save_cleaning2.visible = true;
-                    btn_save_cleaning.visible = true;
-                }else{
-                    btn_save_cleaning2.visible = false;
-                    btn_save_cleaning.visible = false;
                 }
             }
 
@@ -980,6 +956,7 @@ Item {
                     supervisor.drawingRunawayStart();
                 }
             }
+
             Timer{
                 running: true
                 repeat: true
@@ -997,6 +974,7 @@ Item {
                 anchors.fill: parent
                 color: color_dark_navy
             }
+
             AnimatedImage{
                 id: image_robotmoving
                 visible: !show_map
@@ -1069,6 +1047,7 @@ Item {
                 spacing: 30
                 Buttons{
                     style: "dark"
+                    visible: false
                     active: true
                     width: 200
                     height: 80
@@ -1104,21 +1083,22 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 50
-                spacing: 30
+                spacing: 40
                 Buttons{
                     style: "dark"
                     active: true
                     width: 230
-                    height: 80
+                    height: 90
                     id: btn_save_charging
                     property bool exist: false
+                    image_color: "white"
                     font_color: exist?"white":color_red
                     text: qsTr("충전위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
                     source: "icon/icon_charge.png"
                     onClicked: {
+                        select_location_type = "Charging";
                         popup_location.mode = "save";
-                        popup_location.loc = "Charging";
                         popup_location.open();
                     }
                 }
@@ -1126,16 +1106,17 @@ Item {
                     style: "dark"
                     active: true
                     width: 230
-                    height: 80
+                    height:90
                     id: btn_save_resting
+                    image_color: "white"
                     property bool exist: false
                     font_color: exist?"white":color_red
                     text: qsTr("대기위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
                     source: "icon/btn_wait.png"
                     onClicked: {
+                        select_location_type = "Resting";
                         popup_location.mode = "save";
-                        popup_location.loc = "Resting";
                         popup_location.open();
                     }
                 }
@@ -1143,17 +1124,35 @@ Item {
                     style: "dark"
                     active: true
                     width: 230
-                    height: 80
+                    height: 90
+                    id: btn_save_init
+                    image_color: "white"
+                    property bool exist: true
+                    font_color: exist?"white":color_red
+                    text: qsTr("초기화위치로 저장")
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    source: "icon/btn_wait.png"
+                    onClicked: {
+                        select_location_type = "Init";
+                        popup_location.mode = "save";
+                        popup_location.open();
+                    }
+                }
+                Buttons{
+                    style: "dark"
+                    active: true
+                    width: 230
+                    height: 90
                     id: btn_save_cleaning
-                    visible: false
-                    property bool exist: false
+                    property bool exist: true
+                    image_color: "white"
                     font_color: exist?"white":color_red
                     text: qsTr("퇴식위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
                     source: "icon/icon_clean.png"
                     onClicked: {
+                        select_location_type = "Cleaning";
                         popup_location.mode = "save";
-                        popup_location.loc = "Cleaning";
                         popup_location.open();
                     }
                 }
@@ -1161,7 +1160,7 @@ Item {
                     style: "dark"
                     active: true
                     width: 230
-                    height: 80
+                    height: 90
                     text: qsTr("서빙위치로 저장")
                     anchors.horizontalCenter: parent.horizontalCenter
                     source: "icon/icon_drink.png"
@@ -1171,81 +1170,6 @@ Item {
                 }
             }
 
-            Row{
-                visible: !show_map
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 50
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.horizontalCenterOffset: -150
-                spacing: 30
-                Buttons{
-                    style: "dark"
-                    active: true
-                    width: 200
-                    height: 120
-                    im_width: 80
-                    id: btn_save_charging2
-                    property bool exist: false
-                    font_color: exist?"white":color_red
-                    onFont_colorChanged: {
-                        print("충전위치 color : ",font_color)
-                    }
-
-                    text: qsTr("충전위치로\n저 장")
-                    source: "icon/icon_charge.png"
-                    onClicked: {
-                        popup_location.mode = "save";
-                        popup_location.loc = "Charging";
-                        popup_location.open();
-                    }
-                }
-                Buttons{
-                    style: "dark"
-                    active: true
-                    width: 200
-                    height: 120
-                    im_width: 80
-                    id: btn_save_resting2
-                    property bool exist: false
-                    font_color: exist?"white":color_red
-                    text: qsTr("대기위치로\n저 장")
-                    source: "icon/btn_wait.png"
-                    onClicked: {
-                        popup_location.mode = "save";
-                        popup_location.loc = "Resting";
-                        popup_location.open();
-                    }
-                }
-                Buttons{
-                    style: "dark"
-                    active: true
-                    width: 200
-                    height: 120
-                    im_width: 80
-                    id: btn_save_cleaning2
-                    property bool exist: false
-                    font_color: exist?"white":color_red
-                    text: qsTr("퇴식위치로\n저 장")
-                    source: "icon/icon_clean.png"
-                    onClicked: {
-                        popup_location.mode = "save";
-                        popup_location.loc = "Cleaning";
-                        popup_location.open();
-                    }
-                }
-                Buttons{
-                    style: "dark"
-                    active: true
-                    width: 200
-                    height: 120
-                    im_width: 80
-                    text: qsTr("서빙위치로\n저 장")
-                    source: "icon/icon_drink.png"
-                    onClicked: {
-                        popup_add_serving.open();
-                    }
-                }
-            }
             Buttons{
                 style: "green"
                 anchors.bottom: parent.bottom
@@ -1265,12 +1189,6 @@ Item {
                         popup_notice.init();
                         popup_notice.sub_str = qsTr("대기위치로 이동하신 후 저장해주세요")
                         popup_notice.main_str = qsTr("대기위치가 지정되지 않았습니다");
-                        popup_notice.open();
-                    }else if(supervisor.getLocationNum("Cleaning") === 0 && supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                        supervisor.writelog("[UI] PageAnnot : Location Add Done but Cleaning Location nothing");
-                        popup_notice.init();
-                        popup_notice.sub_str = qsTr("퇴식위치로 이동하신 후 저장해주세요")
-                        popup_notice.main_str = qsTr("퇴식위치가 지정되지 않았습니다");
                         popup_notice.open();
                     }else{
                         supervisor.writelog("[UI] PageAnnot : Location Add Done -> LocationDone");
@@ -1410,7 +1328,7 @@ Item {
             }
             Component.onDestruction: {
                 map_location_list.setEnable(false);
-                map_location_list.setCurrentLocation(-1);
+                supervisor.selectLocation("",-1);
             }
 
             Timer{
@@ -1426,11 +1344,6 @@ Item {
                 repeat: true
                 running: true
                 onTriggered:{
-                    if(supervisor.getLocationNum("Resting") > 0){
-                        btn_cleaning.active = true;
-                    }else{
-                        btn_cleaning.active = false;
-                    }
                     checkError();
                 }
             }
@@ -1451,25 +1364,15 @@ Item {
             function groupchange(number, group){
                 print(" group change ",number,group,details.count);
 
-                if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
-                    if(number > 2 && number < details.count){
-                        supervisor.setLocationGroup(number,group);
-                        locations.get(number-3).group = group;
-                        locations.get(number-3).number = 0;
-                    }
-                }else{
-                    if(number > 1 && number < details.count){
-                        supervisor.setLocationGroup(number,group);
-                        locations.get(number-2).group = group;
-                        locations.get(number-2).number = 0;
-                    }
-                }
+                supervisor.setLocationGroup(number,group);
+                locations.get(number).group = group;
+                locations.get(number).number = 0;
                 page_annotation.update();
             }
 
             function setLocInit(){
                 map_location_list.init();
-                map_location_list.setCurrentLocation(select_location);
+                supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
             }
 
             Component{
@@ -1494,41 +1397,19 @@ Item {
                                 anchors.fill: parent
                                 onClicked:{
                                     supervisor.playSound('click');
-                                    if(supervisor.getRobotType() === "CLEANING"){
-                                        if(select_location>3){
-                                            beforeY = list_location_detail.contentY - 55
-                                            var refY = beforeY - list_location_detail.originY;
-                                            var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
 
-                                            supervisor.setLocationUp(select_location);
-                                            select_location--;
-                                            readSetting();
-
-                                            list_location_detail.setting = true;
-                                            list_location_detail.setContentY(realY);
-
-                                            combo_group.focus = false;
-                                            tx_name.focus = false;
-                                        }
-                                    }else{
-                                        if(select_location>2){
-                                            beforeY = list_location_detail.contentY - 55
-                                            var refY = beforeY - list_location_detail.originY;
-                                            var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
-
-                                            print(select_location)
-                                            supervisor.setLocationUp(select_location);
-                                            select_location--;
-                                            readSetting();
-                                            print("up" ,select_location)
-
-                                            list_location_detail.setting = true;
-                                            list_location_detail.setContentY(realY);
-
-                                            combo_group.focus = false;
-                                            tx_name.focus = false;
-                                }
+                                    if(supervisor.setLocationUp(select_location-getIndex("Serving"))){
+                                        beforeY = list_location_detail.contentY - 55
+                                        var refY = beforeY - list_location_detail.originY;
+                                        var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
+                                        select_location--;
+                                        readSetting();
+                                        list_location_detail.setting = true;
+                                        list_location_detail.setContentY(realY);
+                                        combo_group.focus = false;
+                                        tx_name.focus = false;
                                     }
+
                                 }
                             }
                         }
@@ -1543,19 +1424,16 @@ Item {
                                 anchors.fill: parent
                                 onClicked:{
                                     supervisor.playSound('click');
-                                    if(select_location<details.count-1){
+                                    if(supervisor.setLocationDown(select_location-getIndex("Serving"))){
                                         beforeY = list_location_detail.contentY + 55
                                         var refY = beforeY - list_location_detail.originY;
                                         var realY = Math.max(0, Math.min(refY, list_location_detail.contentHeight-list_location_detail.height))//+originY
 
-                                        supervisor.setLocationDown(select_location);
                                         select_location++;
                                         readSetting();
 
-
                                         list_location_detail.setting = true;
                                         list_location_detail.setContentY(realY);
-
 
                                         combo_group.focus = false;
                                         tx_name.focus = false;
@@ -1564,6 +1442,7 @@ Item {
                             }
                         }
                     }
+
                     Row{
                         id: rowsss
                         anchors.horizontalCenter: parent.horizontalCenter
@@ -1574,22 +1453,8 @@ Item {
                             color:select_location === index?color_green:"white"
                             Text{
                                 anchors.centerIn: parent
-                                text: {
-                                    if(supervisor.getRobotType() === "CLEANING"){
-                                        if(index > 2){
-                                            index-2
-                                        }else{
-                                            ""
-                                        }
-                                    }else{
-                                        if(index >1 ){
-                                            index-1
-                                        }else{
-                                            ""
-                                        }
-                                    }
-                                }
-
+                                visible: ltype ==="Serving"
+                                text: index-getIndex("Serving")
                                 font.family: font_noto_r.name
                             }
                             MouseArea{
@@ -1601,7 +1466,8 @@ Item {
                                     }else{
                                         select_location = index;
                                     }
-                                    map_location_list.setCurrentLocation(select_location);
+                                    select_location_type = ltype;
+                                    supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                 }
                             }
                         }
@@ -1618,11 +1484,9 @@ Item {
                             onFocusChanged: {
                                 if(focus){
                                     select_location = index;
-                                    print("combo focus on select_location ",index);
+                                    select_location_type = ltype;
                                 }
                             }
-
-//                            style
                             currentIndex: group
                             onCurrentIndexChanged: {
                                 if(focus){
@@ -1630,13 +1494,13 @@ Item {
                                         select_location = -1;
                                     }else{
                                         select_location = index;
-                                        print("group focus select_location",index);
                                     }
-                                    map_location_list.setCurrentLocation(select_location);
-                                    if(currentIndex > -1){
-                                        groupchange(index,currentIndex);
-                                    }
+                                    select_location_type = ltype;
+                                    supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
 
+                                    if(currentIndex > -1){
+                                        groupchange(select_location-getIndex(select_location_type),currentIndex);
+                                    }
                                 }
                             }
                         }
@@ -1673,6 +1537,7 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             onTextChanged: {
                                 name = text;
+
                                 if(locations.count > index){
                                     if(supervisor.getRobotType() === "CLEANING"){
                                         if(index > 2){
@@ -1698,7 +1563,8 @@ Item {
                                     }else{
                                         select_location = index;
                                     }
-                                    map_location_list.setCurrentLocation(select_location);
+                                    select_location_type = ltype;
+                                    supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                 }
                                 onPressAndHold: {
                                     supervisor.playSound('click');
@@ -1711,7 +1577,8 @@ Item {
 //                                            print("name focus select_location",index);
                                         select_location = index;
 //                                        }
-                                        map_location_list.setCurrentLocation(select_location);
+                                        select_location_type = ltype;
+                                        supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                         keyboard.open();
                                     }
                                 }
@@ -1754,7 +1621,8 @@ Item {
                                     }else{
                                         select_location = index;
                                     }
-                                    map_location_list.setCurrentLocation(select_location);
+                                    select_location_type = ltype;
+                                    supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                 }
                             }
                         }
@@ -1770,7 +1638,7 @@ Item {
                 horizontalAlignment: Text.AlignHCenter
                 font.family: font_noto_b.name
                 anchors.top: parent.top
-                anchors.topMargin: 30
+                anchors.topMargin: 20
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
@@ -1791,37 +1659,21 @@ Item {
                             spacing: 20
                             Buttons{
                                 style: "dark"
-                                active: select_location>-1
+                                active: select_location_type != "Init"
                                 text: qsTr("벨 설정")
                                 source: "icon/icon_callbell.png"
                                 onClicked: {
-                                    if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING" && select_location === 2){
-                                        if(supervisor.getLocationNum("Cleaning") > 0){
-                                            if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
-                                                popup_lingbell.open();
-                                            }else{
-                                                popup_location.mode = "callbell"
-                                                popup_location.loc = details.get(select_location).ltype;
-                                                popup_location.open();
-                                            }
-                                        }else{
-                                            supervisor.playSound('no');
-                                        }
+                                    if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
+                                        popup_lingbell.open();
                                     }else{
-                                        if(supervisor.getSetting("setting","CALL","use_lingbell") === "true"){
-                                            popup_lingbell.open();
-                                        }else{
-                                            popup_location.mode = "callbell"
-                                            popup_location.loc = details.get(select_location).ltype;
-                                            popup_location.open();
-                                        }
+                                        popup_location.mode = "callbell"
+                                        popup_location.open();
                                     }
-
                                 }
                             }
                             Buttons{
                                 style: "dark"
-                                active: select_location>-1
+                                active: select_location_type != "Init"
                                 text: qsTr("테스트 주행")
                                 source: "icon/icon_testmoving.png"
                                 onClicked: {
@@ -1838,7 +1690,7 @@ Item {
                             }
                             Buttons{
                                 style: "dark"
-                                active: supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"?select_location>2:select_location>1
+                                active: select_location_type != "Charging" && select_location_type != "Resting"
                                 text: qsTr("삭제")
                                 source: "icon/icon_trash_w.png"
                                 onClicked: {
@@ -1848,7 +1700,7 @@ Item {
                             }
                             Buttons{
                                 style: "dark"
-                                active: select_location>-1
+                                active: select_location_type != "Init"
                                 text: qsTr("위치 수정")
                                 source: "icon/icon_location.png"
                                 onClicked: {
@@ -1861,10 +1713,10 @@ Item {
 
                         MAP_FULL2{
                             id: map_location_list
-                            width: 300
+                            width: 400
                             show_ratio: false
                             anchors.horizontalCenter: parent.horizontalCenter
-                            height: 300
+                            height: 400
                             Component.onCompleted: {
                                 supervisor.setMapSize(objectName,width,height);
                             }
@@ -1874,10 +1726,9 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             spacing: 10
                             Buttons{
-                                width: 130
                                 style: "dark"
                                 active: true
-                                text: qsTr("위치추가")
+                                text: qsTr("위치 추가")
                                 source: "icon/icon_add_loc.png"
                                 onClicked: {
                                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Back to SaveLocation");
@@ -1885,10 +1736,9 @@ Item {
                                 }
                             }
                             Buttons{
-                                width: 130
                                 style: "dark"
                                 active: true
-                                text: qsTr("그룹추가")
+                                text: qsTr("그룹 추가")
                                 source: "icon/icon_add_group.png"
                                 onClicked: {
                                     popup_add_location_group.open();
@@ -1898,6 +1748,7 @@ Item {
                                 id: btn_cleaning
                                 width: 130
                                 style: "dark"
+                                visible: false
                                 active: supervisor.getLocationNum("Resting") > 0
                                 text: qsTr("퇴식모드")
                                 source: "icon/icon_cleaning.png"
@@ -6467,7 +6318,6 @@ Item {
                             onClicked:{
                                 popup_lingbell.close();
                                 popup_location.mode = "callbell"
-                                popup_location.loc = details.get(select_location).ltype;
                                 popup_location.open();
                             }
                         }
@@ -6477,8 +6327,8 @@ Item {
                             text: qsTr("알림벨")
                             onClicked:{
                                 popup_lingbell.ask_mode = false;
-                                text_sub2.text = qsTr("위치 : ")+supervisor.getLocationName(select_location)
-                                field_lingbell_callnum.text = supervisor.getLingbell(select_location);
+                                text_sub2.text = qsTr("위치 : ")+details.get(select_location).name
+                                field_lingbell_callnum.text = details.get(select_location).ling_id
                             }
                         }
                         Buttons{
@@ -6506,7 +6356,7 @@ Item {
                             text: qsTr("초기화")
                             onClicked:{
                                 field_lingbell_callnum.text = "";
-                                supervisor.resetLingbell(select_location);
+                                supervisor.resetLingbell(select_location-getIndex("Serving"));
                                 popup_lingbell.close();
                             }
                         }
@@ -6539,14 +6389,15 @@ Item {
             opacity: 0.9
         }
         property string mode: "save"
-        property string loc: "Charging"
         onOpened:{
             btn_cancel.text = qsTr("취소")
             btn_confirm.text = qsTr("확인")
             btn_cancel2.visible = false;
+            print("opennnnnnnnnnnnn",mode, select_location_type);
+
             if(mode == "save"){
                 row_call_force.visible = false;
-                if(loc === "Charging"){
+                if(select_location_type === "Charging"){
                     text_loc.text = qsTr("충전위치");
                     image_location.source = "icon/icon_charge.png"
                     if(supervisor.getLocationNum("Charging") === 0){
@@ -6554,7 +6405,7 @@ Item {
                     }else{
                         text_sub.text = qsTr("현재위치를 충전위치로 덮어쓰시겠습니까?");
                     }
-                }else if(loc === "Resting"){
+                }else if(select_location_type === "Resting"){
                     text_loc.text = qsTr("대기위치");
                     image_location.source = "icon/icon_wait.png"
                     if(supervisor.getLocationNum("Resting") === 0){
@@ -6562,7 +6413,11 @@ Item {
                     }else{
                         text_sub.text = qsTr("현재위치를 대기위치로 덮어쓰시겠습니까?");
                     }
-                }else if(loc === "Cleaning"){
+                }else if(select_location_type === "Init"){
+                    text_loc.text = qsTr("초기화 위치");
+                    image_location.source = "icon/icon_wait.png"
+                    text_sub.text = qsTr("현재위치를 초기화위치로 추가하시겠습니까?");
+                }else if(select_location_type === "Cleaning"){
                     text_loc.text = qsTr("퇴식위치");
                     image_location.source = "icon/icon_cleaning.png"
                     if(supervisor.getLocationNum("Cleaning") === 0){
@@ -6579,50 +6434,48 @@ Item {
                 row_call_force.visible = false;
                 text_loc.text = qsTr("선택하신 위치를 삭제하시겠습니까?");
                 image_location.source = "icon/icon_trash_w.png"
-                text_sub.text = qsTr("위치 : ")+supervisor.getLocationName(select_location);
+                text_sub.text = qsTr("위치 : ")+details.get(select_location).name//.getLocationName(select_location,select_location_type);
             }else if(mode == "edit"){
                 btn_confirm.text = qsTr("이동완료했습니다")
                 row_call_force.visible = false;
                 supervisor.setMotorLock(false);
-                if(select_location == 0){
+                if(select_location_type === "Charging"){
                     image_location.source = "icon/icon_charge.png"
                     text_loc.text = qsTr("수정하실 충전위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
-                }else if(select_location == 1){
+                }else if(select_location_type === "Resting"){
                     image_location.source = "icon/icon_wait.png"
                     text_loc.text = qsTr("수정하실 대기위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+                }else if(select_location_type === "Cleaning"){
+                    image_location.source = "icon/icon_cleaning.png"
+                    text_loc.text = qsTr("수정하실 퇴식위치로 로봇을 이동시켜 주세요")
+                    text_sub.text = ""
                 }else{
-                    if(supervisor.getRobotType()==="CLEANING"){
-                        if(select_location == 2){
-                            image_location.source = "icon/icon_cleaning.png"
-                            text_loc.text = qsTr("수정하실 퇴식위치로 로봇을 이동시켜 주세요")
-                            text_sub.text = ""
-                        }else{
-                            image_location.source = "icon/icon_add_loc.png"
-                            text_loc.text = qsTr("수정하실 서빙위치로 로봇을 이동시켜 주세요")
-                            text_sub.text = qsTr("위치이름 : ")+supervisor.getLocationName(select_location)
-                        }
-                    }else{
-                        image_location.source = "icon/icon_add_loc.png"
-                        text_loc.text = qsTr("수정하실 서빙위치로 로봇을 이동시켜 주세요")
-                        text_sub.text = qsTr("위치이름 : ")+supervisor.getLocationName(select_location)
-                    }
+                    image_location.source = "icon/icon_add_loc.png"
+                    text_loc.text = qsTr("수정하실 서빙위치로 로봇을 이동시켜 주세요")
+                    text_sub.text = qsTr("위치이름 : ")+details.get(select_location).name
                 }
             }else if(mode == "callbell"){
                 btn_confirm.text = qsTr("초기화")
                 image_location.source = "icon/icon_callbell.png"
-                supervisor.setCallbell(loc, select_location);
-                text_sub.text = qsTr("위치 : ")+supervisor.getLocationName(select_location)
+
+                if(select_location_type === "Serving"){
+                    supervisor.setCallbell(select_location_type, select_location-getIndex("Serving"));
+                }else{
+                    supervisor.setCallbell(select_location_type, 0);
+                }
+
+                text_sub.text = qsTr("위치 : ")+details.get(select_location).name
                 text_loc.text = qsTr("변경하실 호출벨을 눌러주세요")
-                if(loc === "Resting"){
+                if(select_location_type === "Resting"){
                     row_call_force.visible = true;
                     if(supervisor.getSetting("setting","CALL","force_resting") === "true"){
                         cb_callbell_force.checked = true;
                     }else{
                         cb_callbell_force.checked = false;
                     }
-                }else if(loc === "Cleaning"){
+                }else if(select_location_type === "Cleaning"){
                     row_call_force.visible = true;
                     if(supervisor.getSetting("setting","CALL","force_cleaning") === "true"){
                         cb_callbell_force.checked = true;
@@ -6667,7 +6520,7 @@ Item {
                 supervisor.setMotorLock(true);
             }else if(mode == "callbell"){
                 supervisor.setCallbell("", -1);
-                supervisor.setCallbellForce(loc,cb_callbell_force.checked);
+                supervisor.setCallbellForce(select_location_type,cb_callbell_force.checked);
             }
         }
 
@@ -6800,38 +6653,45 @@ Item {
                             text: qsTr("확인")
                             onClicked:{
                                 if(popup_location.mode == "save"){
-                                    if(popup_location.loc === "Charging"){
+                                    if(select_location_type === "Charging"){
                                         supervisor.writelog("[UI] PageAnnot : Location Save Charging "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                                         last_robot_x = supervisor.getlastRobotx();
                                         last_robot_y = supervisor.getlastRoboty();
                                         last_robot_th = supervisor.getlastRobotth();
                                         supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
                                         supervisor.saveLocation("Charging", 0, "Charging0");
-                                    }else if(popup_location.loc === "Resting"){
+                                    }else if(select_location_type === "Resting"){
                                         supervisor.writelog("[UI] PageAnnot : Location Save Resting "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                                         last_robot_x = supervisor.getlastRobotx();
                                         last_robot_y = supervisor.getlastRoboty();
                                         last_robot_th = supervisor.getlastRobotth();
                                         supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
                                         supervisor.saveLocation("Resting", 0, "Resting0");
-                                    }else if(popup_location.loc === "Cleaning"){
+                                    }else if(select_location_type === "Cleaning"){
                                         supervisor.writelog("[UI] PageAnnot : Location Save Cleaning "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
                                         last_robot_x = supervisor.getlastRobotx();
                                         last_robot_y = supervisor.getlastRoboty();
                                         last_robot_th = supervisor.getlastRobotth();
                                         supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
                                         supervisor.saveLocation("Cleaning", 0, "Cleaning0");
+                                    }else if(select_location_type === "Init"){
+                                        supervisor.writelog("[UI] PageAnnot : Location Save Init "+Number(supervisor.getlastRobotx())+", "+Number(supervisor.getlastRoboty())+", "+Number(supervisor.getlastRobotth()));
+                                        last_robot_x = supervisor.getlastRobotx();
+                                        last_robot_y = supervisor.getlastRoboty();
+                                        last_robot_th = supervisor.getlastRobotth();
+                                        supervisor.addLocation(last_robot_x,last_robot_y,last_robot_th);
+                                        supervisor.saveLocation("Init", 0, "Init");
                                     }
                                     annot_pages.item.checkLocation();
                                     readSetting();
                                     popup_location.close();
                                 }else if(popup_location.mode == "remove"){
-                                    supervisor.removeLocation(select_location);
+                                    supervisor.removeLocation(select_location_type, select_location-getIndex(select_location_type));
                                     select_location = -1;
                                     readSetting();
                                     popup_location.close();
                                 }else if(popup_location.mode == "edit"){
-                                    supervisor.editLocation(select_location);
+                                    supervisor.editLocation(select_location_type, select_location-getIndex(select_location_type));
                                     annot_pages.item.setLocInit();
                                     popup_location.close();
                                 }else if(popup_location.mode == "callbell"){
@@ -6928,17 +6788,17 @@ Item {
                 loadPage(pkitchen);
                 popup_notice.close();
             }else if(cur_btn === qsTr("퇴식모드 사용")){
-                supervisor.saveAnnotation(supervisor.getMapname());
-                supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
-                supervisor.readSetting();
-                loader_page.item.readSetting();
-                loader_page.item.setAnnotLocation();
-                popup_notice.close();
+                // supervisor.saveAnnotation(supervisor.getMapname());
+                // supervisor.setSetting("setting","ROBOT_TYPE/type","CLEANING");
+                // supervisor.readSetting();
+                // loader_page.item.readSetting();
+                // loader_page.item.setAnnotLocation();
+                // popup_notice.close();
             }else if(cur_btn === qsTr("퇴식모드 미사용")){
-                supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
-                supervisor.readSetting();
-                loader_page.item.readSetting();
-                popup_notice.close();
+                // supervisor.setSetting("setting","ROBOT_TYPE/type","BOTH");
+                // supervisor.readSetting();
+                // loader_page.item.readSetting();
+                // popup_notice.close();
             }
         }
     }

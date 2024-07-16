@@ -271,7 +271,6 @@ Item {
                 anchors.fill:parent
                 onClicked: {
                     supervisor.playSound('click');;
-                    map.select_location_show = supervisor.getLocNum(name);
                     list_location2.currentIndex = index;
                     map.update_canvas();
                 }

@@ -429,6 +429,8 @@ void MapHandler::setMode(QString name){
     show_location = false;
     show_location_icon = false;
 
+    tempnode.isnew = false;
+
     if(mode == "mapping"){//o
         show_robot = true;
         show_lidar = true;
@@ -509,22 +511,68 @@ void MapHandler::stopDrawingTline(){
 }
 
 void MapHandler::initLocation(){
-    //Read annotation.ini
-    locations.clear();
     pmap->annot_edit_location = false;
-    for(int i=0; i<pmap->locations.size(); i++){
+
+    //Read annotation.ini
+    charging_locations.clear();
+    for(int i=0; i<pmap->charging_locations.size(); i++){
         LOCATION temp;
-        temp.group = pmap->locations[i].group;
-        temp.call_id = pmap->locations[i].call_id;
-        temp.group_name = pmap->locations[i].group_name;
-        temp.type = pmap->locations[i].type;
-        temp.name = pmap->locations[i].name;
-
-        temp.point = setAxis(pmap->locations[i].point);
-        temp.angle = setAxis(pmap->locations[i].angle);
-
-//        qDebug() <<"locations push " << temp.type << temp.name;
-        locations.push_back(temp);
+        temp.group = pmap->charging_locations[i].group;
+        temp.call_id = pmap->charging_locations[i].call_id;
+        temp.group_name = pmap->charging_locations[i].group_name;
+        temp.type = pmap->charging_locations[i].type;
+        temp.name = pmap->charging_locations[i].name;
+        temp.point = setAxis(pmap->charging_locations[i].point);
+        temp.angle = setAxis(pmap->charging_locations[i].angle);
+        charging_locations.push_back(temp);
+    }
+    resting_locations.clear();
+    for(int i=0; i<pmap->resting_locations.size(); i++){
+        LOCATION temp;
+        temp.group = pmap->resting_locations[i].group;
+        temp.call_id = pmap->resting_locations[i].call_id;
+        temp.group_name = pmap->resting_locations[i].group_name;
+        temp.type = pmap->resting_locations[i].type;
+        temp.name = pmap->resting_locations[i].name;
+        temp.point = setAxis(pmap->resting_locations[i].point);
+        temp.angle = setAxis(pmap->resting_locations[i].angle);
+        resting_locations.push_back(temp);
+    }
+    cleaning_locations.clear();
+    for(int i=0; i<pmap->cleaning_locations.size(); i++){
+        LOCATION temp;
+        temp.group = pmap->cleaning_locations[i].group;
+        temp.call_id = pmap->cleaning_locations[i].call_id;
+        temp.group_name = pmap->cleaning_locations[i].group_name;
+        temp.type = pmap->cleaning_locations[i].type;
+        temp.name = pmap->cleaning_locations[i].name;
+        temp.point = setAxis(pmap->cleaning_locations[i].point);
+        temp.angle = setAxis(pmap->cleaning_locations[i].angle);
+        cleaning_locations.push_back(temp);
+    }
+    init_locations.clear();
+    for(int i=0; i<pmap->init_locations.size(); i++){
+        LOCATION temp;
+        temp.group = pmap->init_locations[i].group;
+        temp.call_id = pmap->init_locations[i].call_id;
+        temp.group_name = pmap->init_locations[i].group_name;
+        temp.type = pmap->init_locations[i].type;
+        temp.name = pmap->init_locations[i].name;
+        temp.point = setAxis(pmap->init_locations[i].point);
+        temp.angle = setAxis(pmap->init_locations[i].angle);
+        init_locations.push_back(temp);
+    }
+    serving_locations.clear();
+    for(int i=0; i<pmap->serving_locations.size(); i++){
+        LOCATION temp;
+        temp.group = pmap->serving_locations[i].group;
+        temp.call_id = pmap->serving_locations[i].call_id;
+        temp.group_name = pmap->serving_locations[i].group_name;
+        temp.type = pmap->serving_locations[i].type;
+        temp.name = pmap->serving_locations[i].name;
+        temp.point = setAxis(pmap->serving_locations[i].point);
+        temp.angle = setAxis(pmap->serving_locations[i].angle);
+        serving_locations.push_back(temp);
     }
 }
 
@@ -563,27 +611,27 @@ void MapHandler::setMapLayer(){
 
     //위치
     if(show_location){
-        for(int i=0; i<locations.size(); i++){
-            float loc_x = (locations[i].point.x - draw_x)*news;
-            float loc_y = (locations[i].point.y - draw_y)*news;
+        for(int i=0; i<serving_locations.size(); i++){
+            float loc_x = (serving_locations[i].point.x - draw_x)*news;
+            float loc_y = (serving_locations[i].point.y - draw_y)*news;
             float distance = (pmap->robot_radius/grid_width)*2*news;
             float distance2 = distance*0.8;
             float th_dist = (M_PI/8);
             float rad = (pmap->robot_radius/grid_width)*news;
 
-            float x =   (loc_x + distance    * qCos(locations[i].angle));
-            float y =   (loc_y + distance    * qSin(locations[i].angle));
-            float x1 =  (loc_x + distance2   * qCos(locations[i].angle-th_dist));
-            float y1 =  (loc_y + distance2   * qSin(locations[i].angle-th_dist));
-            float x2 =  (loc_x + distance2   * qCos(locations[i].angle+th_dist));
-            float y2 =  (loc_y + distance2   * qSin(locations[i].angle+th_dist));
+            float x =   (loc_x + distance    * qCos(serving_locations[i].angle));
+            float y =   (loc_y + distance    * qSin(serving_locations[i].angle));
+            float x1 =  (loc_x + distance2   * qCos(serving_locations[i].angle-th_dist));
+            float y1 =  (loc_y + distance2   * qSin(serving_locations[i].angle-th_dist));
+            float x2 =  (loc_x + distance2   * qCos(serving_locations[i].angle+th_dist));
+            float y2 =  (loc_y + distance2   * qSin(serving_locations[i].angle+th_dist));
 
             QPainterPath path;
             if(mode == "annot_tline" || mode == "annot_tline2"){
                 bool match = false;
                 for(int k=0; k<pmap->tline_issue; k++){
-                    if(pmap->tline_issues[k].group == locations[i].group_name){
-                        if(pmap->tline_issues[k].name == locations[i].name){
+                    if(pmap->tline_issues[k].group == serving_locations[i].group_name){
+                        if(pmap->tline_issues[k].name == serving_locations[i].name){
                             match = true;
                             break;
                         }
@@ -591,56 +639,39 @@ void MapHandler::setMapLayer(){
                 }
 
                 if(match){
-                    if(locations[i].type == "Serving"){
-                        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                        painter_layer.setPen(QPen(Qt::red,3*news));
-                        painter_layer.drawPath(path);
-                        painter_layer.drawLine(x1,y1,x,y);
-                        painter_layer.drawLine(x,y,x2,y2);
-                    }else if(locations[i].type == "Resting"){
-                    }else if(locations[i].type == "Charging"){
-                    }
+                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+                    painter_layer.setPen(QPen(Qt::red,3*news));
+                    painter_layer.drawPath(path);
+                    painter_layer.drawLine(x1,y1,x,y);
+                    painter_layer.drawLine(x,y,x2,y2);
                 }else{
-                    if(locations[i].type == "Serving"){
-                        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                        painter_layer.setPen(QPen(Qt::white,1*news));
-
-                        painter_layer.drawPath(path);
-                        painter_layer.setPen(QPen(Qt::white,1.5*news));
-                        painter_layer.drawLine(QLine(x1,y1,x,y));
-                        painter_layer.drawLine(QLine(x2,y2,x,y));
-                    }else if(locations[i].type == "Resting"){
-                    }else if(locations[i].type == "Charging"){
-                    }
-                }
-            }else{
-                if(locations[i].type == "Serving"){
                     path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
                     painter_layer.setPen(QPen(Qt::white,1*news));
-
-                    if(mode == "annot_tline" || mode == "annot_tline2"){
-
-                    }else{
-                        painter_layer.fillPath(path,QBrush(QColor(hex_color_pink)));
-                    }
 
                     painter_layer.drawPath(path);
                     painter_layer.setPen(QPen(Qt::white,1.5*news));
                     painter_layer.drawLine(QLine(x1,y1,x,y));
                     painter_layer.drawLine(QLine(x2,y2,x,y));
-                }else if(locations[i].type == "Resting"){
-                }else if(locations[i].type == "Charging"){
                 }
+            }else{
+                path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+                painter_layer.setPen(QPen(Qt::white,1*news));
+
+                if(mode == "annot_tline" || mode == "annot_tline2"){
+
+                }else{
+                    painter_layer.fillPath(path,QBrush(QColor(hex_color_pink)));
+                }
+
+                painter_layer.drawPath(path);
+                painter_layer.setPen(QPen(Qt::white,1.5*news));
+                painter_layer.drawLine(QLine(x1,y1,x,y));
+                painter_layer.drawLine(QLine(x2,y2,x,y));
             }
 
 
             if(show_number){
-                int num;
-                if(probot->type == "CLEANING"){
-                    num = i-2;
-                }else{
-                    num = i-1;
-                }
+                int num = i;
                 if(num>9){
                     painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/1.5));
                 }else if(num>99){
@@ -650,10 +681,9 @@ void MapHandler::setMapLayer(){
                 }
                 if(num>0)
                     painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
-
             }
-
         }
+
         if(new_location_flag){
             float loc_x = (new_location.point.x - draw_x)*news;
             float loc_y = (new_location.point.y - draw_y)*news;
@@ -681,141 +711,272 @@ void MapHandler::setMapLayer(){
     }
 
     if(show_location_icon){
-        for(int i=0; i<locations.size(); i++){
-            float loc_x = (locations[i].point.x - draw_x)*news;
-            float loc_y = (locations[i].point.y - draw_y)*news;
+        //charging
+        for(int i=0; i<charging_locations.size(); i++){
+            float loc_x = (charging_locations[i].point.x - draw_x)*news;
+            float loc_y = (charging_locations[i].point.y - draw_y)*news;
             float distance = (pmap->robot_radius/grid_width)*2*news;
             float distance2 = distance*0.8;
             float th_dist = (M_PI/8);
             float rad = (pmap->robot_radius/grid_width)*news;
 
-            float x =   (loc_x + distance    * qCos(locations[i].angle));
-            float y =   (loc_y + distance    * qSin(locations[i].angle));
-            float x1 =  (loc_x + distance2   * qCos(locations[i].angle-th_dist));
-            float y1 =  (loc_y + distance2   * qSin(locations[i].angle-th_dist));
-            float x2 =  (loc_x + distance2   * qCos(locations[i].angle+th_dist));
-            float y2 =  (loc_y + distance2   * qSin(locations[i].angle+th_dist));
+            float x =   (loc_x + distance    * qCos(charging_locations[i].angle));
+            float y =   (loc_y + distance    * qSin(charging_locations[i].angle));
+            float x1 =  (loc_x + distance2   * qCos(charging_locations[i].angle-th_dist));
+            float y1 =  (loc_y + distance2   * qSin(charging_locations[i].angle-th_dist));
+            float x2 =  (loc_x + distance2   * qCos(charging_locations[i].angle+th_dist));
+            float y2 =  (loc_y + distance2   * qSin(charging_locations[i].angle+th_dist));
 //            qDebug() << locations[i].type << locations[i].point.x << locations[i].point.y << draw_x << draw_y << loc_x << loc_y << rad;
 
             QPainterPath path;
-            if(locations[i].type == "Resting"){
-
-                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                    painter_layer.setPen(QPen(Qt::white,1*news));
-
-                    painter_layer.drawPath(path);
-                    painter_layer.drawLine(x1,y1,x,y);
-                    painter_layer.drawLine(x,y,x2,y2);
-                    painter_layer.drawPath(path);
-                    QImage image(":/icon/icon_home_2.png");
-                    painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-
-            }else if(locations[i].type == "Charging"){
-
-                    path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-                    painter_layer.setPen(QPen(Qt::white,1*news));
-                    painter_layer.drawPath(path);
-                    painter_layer.drawLine(x1,y1,x,y);
-                    painter_layer.drawLine(x,y,x2,y2);
-                    painter_layer.drawPath(path);
-                    QImage image(":/icon/icon_charge_2.png");
-                    painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-
-            }else if(locations[i].type == "Cleaning"){
-
-                path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-
-                painter_layer.setPen(QPen(Qt::white,1*news));
-
-                painter_layer.drawPath(path);
-                painter_layer.drawLine(x1,y1,x,y);
-                painter_layer.drawLine(x,y,x2,y2);
-                painter_layer.drawPath(path);
-                QImage image(":/icon/icon_home_2.png");
-                painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+            painter_layer.setPen(QPen(Qt::white,1*news));
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            painter_layer.drawPath(path);
+            QImage image(":/icon/icon_charge_2.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
         }
+
+        //resting
+        for(int i=0; i<resting_locations.size(); i++){
+            float loc_x = (resting_locations[i].point.x - draw_x)*news;
+            float loc_y = (resting_locations[i].point.y - draw_y)*news;
+            float distance = (pmap->robot_radius/grid_width)*2*news;
+            float distance2 = distance*0.8;
+            float th_dist = (M_PI/8);
+            float rad = (pmap->robot_radius/grid_width)*news;
+
+            float x =   (loc_x + distance    * qCos(resting_locations[i].angle));
+            float y =   (loc_y + distance    * qSin(resting_locations[i].angle));
+            float x1 =  (loc_x + distance2   * qCos(resting_locations[i].angle-th_dist));
+            float y1 =  (loc_y + distance2   * qSin(resting_locations[i].angle-th_dist));
+            float x2 =  (loc_x + distance2   * qCos(resting_locations[i].angle+th_dist));
+            float y2 =  (loc_y + distance2   * qSin(resting_locations[i].angle+th_dist));
+            //            qDebug() << locations[i].type << locations[i].point.x << locations[i].point.y << draw_x << draw_y << loc_x << loc_y << rad;
+
+            QPainterPath path;
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+            painter_layer.setPen(QPen(Qt::white,1*news));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            painter_layer.drawPath(path);
+            QImage image(":/icon/icon_home_2.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }
+
+        //cleaning
+        for(int i=0; i<cleaning_locations.size(); i++){
+            float loc_x = (cleaning_locations[i].point.x - draw_x)*news;
+            float loc_y = (cleaning_locations[i].point.y - draw_y)*news;
+            float distance = (pmap->robot_radius/grid_width)*2*news;
+            float distance2 = distance*0.8;
+            float th_dist = (M_PI/8);
+            float rad = (pmap->robot_radius/grid_width)*news;
+
+            float x =   (loc_x + distance    * qCos(cleaning_locations[i].angle));
+            float y =   (loc_y + distance    * qSin(cleaning_locations[i].angle));
+            float x1 =  (loc_x + distance2   * qCos(cleaning_locations[i].angle-th_dist));
+            float y1 =  (loc_y + distance2   * qSin(cleaning_locations[i].angle-th_dist));
+            float x2 =  (loc_x + distance2   * qCos(cleaning_locations[i].angle+th_dist));
+            float y2 =  (loc_y + distance2   * qSin(cleaning_locations[i].angle+th_dist));
+            //            qDebug() << locations[i].type << locations[i].point.x << locations[i].point.y << draw_x << draw_y << loc_x << loc_y << rad;
+
+            QPainterPath path;
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+
+            painter_layer.setPen(QPen(Qt::white,1*news));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            painter_layer.drawPath(path);
+            QImage image(":/icon/icon_home_2.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }
+
+        //init
+        for(int i=0; i<init_locations.size(); i++){
+            float loc_x = (init_locations[i].point.x - draw_x)*news;
+            float loc_y = (init_locations[i].point.y - draw_y)*news;
+            float distance = (pmap->robot_radius/grid_width)*2*news;
+            float distance2 = distance*0.8;
+            float th_dist = (M_PI/8);
+            float rad = (pmap->robot_radius/grid_width)*news;
+
+            float x =   (loc_x + distance    * qCos(init_locations[i].angle));
+            float y =   (loc_y + distance    * qSin(init_locations[i].angle));
+            float x1 =  (loc_x + distance2   * qCos(init_locations[i].angle-th_dist));
+            float y1 =  (loc_y + distance2   * qSin(init_locations[i].angle-th_dist));
+            float x2 =  (loc_x + distance2   * qCos(init_locations[i].angle+th_dist));
+            float y2 =  (loc_y + distance2   * qSin(init_locations[i].angle+th_dist));
+            //            qDebug() << locations[i].type << locations[i].point.x << locations[i].point.y << draw_x << draw_y << loc_x << loc_y << rad;
+
+            QPainterPath path;
+            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+
+            painter_layer.setPen(QPen(Qt::white,1*news));
+
+            painter_layer.drawPath(path);
+            painter_layer.drawLine(x1,y1,x,y);
+            painter_layer.drawLine(x,y,x2,y2);
+            painter_layer.drawPath(path);
+            QImage image(":/icon/icon_home_2.png");
+            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
         }
     }
 
-    if(select_location > -1 && select_location < locations.size()){
-        float loc_x = (locations[select_location].point.x - draw_x)*news;
-        float loc_y = (locations[select_location].point.y - draw_y)*news;
+    if(select_charging > -1 && select_charging < charging_locations.size()){
+        float loc_x = (charging_locations[select_charging].point.x - draw_x)*news;
+        float loc_y = (charging_locations[select_charging].point.y - draw_y)*news;
         float distance = (pmap->robot_radius/grid_width)*2*news;
         float distance2 = distance*0.8;
         float th_dist = (M_PI/8);
         float rad = (pmap->robot_radius/grid_width)*news;
 
-        float x =   (loc_x + distance    * qCos(locations[select_location].angle));
-        float y =   (loc_y + distance    * qSin(locations[select_location].angle));
-        float x1 =  (loc_x + distance2   * qCos(locations[select_location].angle-th_dist));
-        float y1 =  (loc_y + distance2   * qSin(locations[select_location].angle-th_dist));
-        float x2 =  (loc_x + distance2   * qCos(locations[select_location].angle+th_dist));
-        float y2 =  (loc_y + distance2   * qSin(locations[select_location].angle+th_dist));
+        float x =   (loc_x + distance    * qCos(charging_locations[select_charging].angle));
+        float y =   (loc_y + distance    * qSin(charging_locations[select_charging].angle));
+        float x1 =  (loc_x + distance2   * qCos(charging_locations[select_charging].angle-th_dist));
+        float y1 =  (loc_y + distance2   * qSin(charging_locations[select_charging].angle-th_dist));
+        float x2 =  (loc_x + distance2   * qCos(charging_locations[select_charging].angle+th_dist));
+        float y2 =  (loc_y + distance2   * qSin(charging_locations[select_charging].angle+th_dist));
 
         QPainterPath path;
-        if(locations[select_location].type == "Serving"){
-            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-            painter_layer.setPen(QPen(Qt::white,2*news));
+        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
 
-            painter_layer.fillPath(path,QBrush(QColor(hex_color_green)));
+        painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+        painter_layer.fillPath(path,QBrush("black"));
 
-            painter_layer.drawPath(path);
-            painter_layer.drawLine(x1,y1,x,y);
-            painter_layer.drawLine(x,y,x2,y2);
-            if(show_number){
-                int num;
-                if(probot->type == "CLEANING"){
-                    num = select_location-2;
-                }else{
-                    num = select_location-1;
-                }
-                if(num>9){
-                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/1.5));
-                }else if(num>99){
-                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/2));
-                }else{
-                    painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
-                }
-                painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
-
-            }
-
-        }else if(locations[select_location].type == "Resting"){
-            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-            painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
-            painter_layer.fillPath(path,QBrush("black"));
-
-            painter_layer.drawPath(path);
-            painter_layer.drawLine(x1,y1,x,y);
-            painter_layer.drawLine(x,y,x2,y2);
-            QImage image(":/icon/icon_home_1.png");
-            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-        }else if(locations[select_location].type == "Charging"){
-            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-
-            painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
-            painter_layer.fillPath(path,QBrush("black"));
-
-            painter_layer.drawPath(path);
-            painter_layer.drawLine(x1,y1,x,y);
-            painter_layer.drawLine(x,y,x2,y2);
-            QImage image(":/icon/icon_charge_1.png");
-            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-        }else if(locations[select_location].type == "Cleaning"){
-            path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
-
-            painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
-            painter_layer.fillPath(path,QBrush("black"));
-
-            painter_layer.drawPath(path);
-            painter_layer.drawLine(x1,y1,x,y);
-            painter_layer.drawLine(x,y,x2,y2);
-            QImage image(":/icon/icon_home_1.png");
-            painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
-        }
-
+        painter_layer.drawPath(path);
+        painter_layer.drawLine(x1,y1,x,y);
+        painter_layer.drawLine(x,y,x2,y2);
+        QImage image(":/icon/icon_charge_1.png");
+        painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
     }
+
+    if(select_resting > -1 && select_resting < resting_locations.size()){
+        float loc_x = (resting_locations[select_resting].point.x - draw_x)*news;
+        float loc_y = (resting_locations[select_resting].point.y - draw_y)*news;
+        float distance = (pmap->robot_radius/grid_width)*2*news;
+        float distance2 = distance*0.8;
+        float th_dist = (M_PI/8);
+        float rad = (pmap->robot_radius/grid_width)*news;
+
+        float x =   (loc_x + distance    * qCos(resting_locations[select_resting].angle));
+        float y =   (loc_y + distance    * qSin(resting_locations[select_resting].angle));
+        float x1 =  (loc_x + distance2   * qCos(resting_locations[select_resting].angle-th_dist));
+        float y1 =  (loc_y + distance2   * qSin(resting_locations[select_resting].angle-th_dist));
+        float x2 =  (loc_x + distance2   * qCos(resting_locations[select_resting].angle+th_dist));
+        float y2 =  (loc_y + distance2   * qSin(resting_locations[select_resting].angle+th_dist));
+
+        QPainterPath path;
+        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+        painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+        painter_layer.fillPath(path,QBrush("black"));
+
+        painter_layer.drawPath(path);
+        painter_layer.drawLine(x1,y1,x,y);
+        painter_layer.drawLine(x,y,x2,y2);
+        QImage image(":/icon/icon_home_1.png");
+        painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+    }
+
+    if(select_cleaning > -1 && select_cleaning < cleaning_locations.size()){
+        float loc_x = (cleaning_locations[select_cleaning].point.x - draw_x)*news;
+        float loc_y = (cleaning_locations[select_cleaning].point.y - draw_y)*news;
+        float distance = (pmap->robot_radius/grid_width)*2*news;
+        float distance2 = distance*0.8;
+        float th_dist = (M_PI/8);
+        float rad = (pmap->robot_radius/grid_width)*news;
+
+        float x =   (loc_x + distance    * qCos(cleaning_locations[select_cleaning].angle));
+        float y =   (loc_y + distance    * qSin(cleaning_locations[select_cleaning].angle));
+        float x1 =  (loc_x + distance2   * qCos(cleaning_locations[select_cleaning].angle-th_dist));
+        float y1 =  (loc_y + distance2   * qSin(cleaning_locations[select_cleaning].angle-th_dist));
+        float x2 =  (loc_x + distance2   * qCos(cleaning_locations[select_cleaning].angle+th_dist));
+        float y2 =  (loc_y + distance2   * qSin(cleaning_locations[select_cleaning].angle+th_dist));
+
+        QPainterPath path;
+        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+
+        painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+        painter_layer.fillPath(path,QBrush("black"));
+
+        painter_layer.drawPath(path);
+        painter_layer.drawLine(x1,y1,x,y);
+        painter_layer.drawLine(x,y,x2,y2);
+        QImage image(":/icon/icon_home_1.png");
+        painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+    }
+
+    if(select_init > -1 && select_init < init_locations.size()){
+        float loc_x = (init_locations[select_init].point.x - draw_x)*news;
+        float loc_y = (init_locations[select_init].point.y - draw_y)*news;
+        float distance = (pmap->robot_radius/grid_width)*2*news;
+        float distance2 = distance*0.8;
+        float th_dist = (M_PI/8);
+        float rad = (pmap->robot_radius/grid_width)*news;
+
+        float x =   (loc_x + distance    * qCos(init_locations[select_init].angle));
+        float y =   (loc_y + distance    * qSin(init_locations[select_init].angle));
+        float x1 =  (loc_x + distance2   * qCos(init_locations[select_init].angle-th_dist));
+        float y1 =  (loc_y + distance2   * qSin(init_locations[select_init].angle-th_dist));
+        float x2 =  (loc_x + distance2   * qCos(init_locations[select_init].angle+th_dist));
+        float y2 =  (loc_y + distance2   * qSin(init_locations[select_init].angle+th_dist));
+
+        QPainterPath path;
+        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+        painter_layer.setPen(QPen(QColor(hex_color_green),2*news));
+        painter_layer.fillPath(path,QBrush("black"));
+
+        painter_layer.drawPath(path);
+        painter_layer.drawLine(x1,y1,x,y);
+        painter_layer.drawLine(x,y,x2,y2);
+        QImage image(":/icon/icon_home_1.png");
+        painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+    }
+
+    if(select_serving > -1 && select_serving < serving_locations.size()){
+        float loc_x = (serving_locations[select_serving].point.x - draw_x)*news;
+        float loc_y = (serving_locations[select_serving].point.y - draw_y)*news;
+        float distance = (pmap->robot_radius/grid_width)*2*news;
+        float distance2 = distance*0.8;
+        float th_dist = (M_PI/8);
+        float rad = (pmap->robot_radius/grid_width)*news;
+
+        float x =   (loc_x + distance    * qCos(serving_locations[select_serving].angle));
+        float y =   (loc_y + distance    * qSin(serving_locations[select_serving].angle));
+        float x1 =  (loc_x + distance2   * qCos(serving_locations[select_serving].angle-th_dist));
+        float y1 =  (loc_y + distance2   * qSin(serving_locations[select_serving].angle-th_dist));
+        float x2 =  (loc_x + distance2   * qCos(serving_locations[select_serving].angle+th_dist));
+        float y2 =  (loc_y + distance2   * qSin(serving_locations[select_serving].angle+th_dist));
+
+        QPainterPath path;
+        path.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
+        painter_layer.setPen(QPen(Qt::white,2*news));
+
+        painter_layer.fillPath(path,QBrush(QColor(hex_color_green)));
+
+        painter_layer.drawPath(path);
+        painter_layer.drawLine(x1,y1,x,y);
+        painter_layer.drawLine(x,y,x2,y2);
+        if(show_number){
+            int num = select_serving;
+            if(num>9){
+                painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/1.5));
+            }else if(num>99){
+                painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad/2));
+            }else{
+                painter_layer.setFont(QFont("font/NotoSansKR-Medium",rad));
+            }
+            painter_layer.drawText(QRect((loc_x-rad),(loc_y-rad),rad*2,rad*2),Qt::AlignVCenter | Qt::AlignHCenter,QString().asprintf("%d",num));
+        }
+    }
+
+
     //로봇 경로 표시
     if(show_global_path){
         painter_layer.setPen(QPen(QColor(hex_color_pink),2*news));
@@ -902,7 +1063,6 @@ void MapHandler::setMapLayer(){
 
     }
     //로봇 현재 위치 표시(매핑 중이거나 위치 초기화 성공했을 때만)
-//    qDebug() << "show robot " << show_robot << ", " << set_init_flag;
     if(show_robot){
         if(probot->localization_state == LOCAL_READY || mode == "mapping"){
             float loc_x = robot_pose.x;
@@ -1160,7 +1320,6 @@ void MapHandler::setMapLayer(){
         {
             float loc_x = (it_pre->second->pose[0] - draw_x)*news;
             float loc_y = (it_pre->second->pose[1] - draw_y)*news;
-//                qDebug() << "it_pre " << it_pre->second->id <<  loc_x << loc_y;
             float rad = ((pmap->robot_radius/grid_width)+2)*news;
             path2.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
             painter_layer.setPen(QPen(QColor(hex_color_pink),1*news));
@@ -1173,7 +1332,6 @@ void MapHandler::setMapLayer(){
         {
             float loc_x = (it_cur->second->pose[0] - draw_x)*news;
             float loc_y = (it_cur->second->pose[1] - draw_y)*news;
-//                qDebug() << "it_cur " << it_cur->second->id <<  loc_x << loc_y;
             float rad = ((pmap->robot_radius/grid_width)+2)*news;
             path3.addRoundedRect((loc_x-rad),(loc_y-rad),rad*2,rad*2,rad,rad);
             painter_layer.setPen(QPen(QColor(hex_color_blue),1*news));
@@ -1230,8 +1388,6 @@ void MapHandler::setMapLayer(){
             }
         }
     }
-
-
 
     if(tempnode.isnew){
         float loc_x = (tempnode.point.x - draw_x)*news;
@@ -1313,6 +1469,7 @@ void MapHandler::setMapLayer(){
             }
         }
     }
+
     update();
 }
 
@@ -1851,19 +2008,19 @@ void MapHandler::initRotate(){
     setMap();
 }
 
-void MapHandler::removeLocation(int num){
-    int count = 0;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving"){
-            if(count == num){
-                plog->write("[MapHandler] Remove Location : "+pmap->locations[i].name+" ("+QString::number(i)+" )");
-                pmap->locations.removeAt(i);
-            }
-            count++;
-        }
-    }
-    initLocation();
-    setMapLayer();
+void MapHandler::removeLocation(QString type, int num){
+    // int count = 0;
+    // for(int i=0; i<pmap->locations.size(); i++){
+    //     if(pmap->locations[i].type == "Serving"){
+    //         if(count == num){
+    //             plog->write("[MapHandler] Remove Location : "+pmap->locations[i].name+" ("+QString::number(i)+" )");
+    //             pmap->locations.removeAt(i);
+    //         }
+    //         count++;
+    //     }
+    // }
+    // initLocation();
+    // setMapLayer();
 }
 
 void MapHandler::setTableNumberAuto(){
@@ -2574,8 +2731,11 @@ void MapHandler::linkNode(){
 
 void MapHandler::saveAnnotation(){
     // clear annotations
-    QList<LOCATION> temp_location;
-//    pmap->locations.clear();
+    QList<LOCATION> temp_charging_location;
+    QList<LOCATION> temp_resting_location;
+    QList<LOCATION> temp_cleaning_location;
+    QList<LOCATION> temp_init_location;
+    QList<LOCATION> temp_serving_location;
 
     // topo nodes to annotations
     for(auto& it: nodes)
@@ -2597,194 +2757,209 @@ void MapHandler::saveAnnotation(){
             int group_id = name_split[0].toInt();
             QString group_name = name_split[1];
 
-//            int loc_id = name_split[2].toInt();
             QString loc_name = name_split[3];
 
             QString attrib = it.second->attrib;
             cv::Vec3d pose = it.second->pose;
 
+            bool match = false;
             LOCATION anot;
-            for(int i=0; i<pmap->locations.size(); i++){
-                if(pmap->locations[i].group == group_id && pmap->locations[i].name == loc_name){
-                    anot = pmap->locations[i];
+            for(int i=0; i<pmap->charging_locations.size(); i++){
+                if(pmap->charging_locations[i].group == group_id && pmap->charging_locations[i].name == loc_name){
+                    anot = pmap->charging_locations[i];
+                    anot.group = group_id;
+                    anot.group_name = group_name;
+                    anot.name = loc_name;
+                    anot.type = attrib;
+
+                    anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
+                    anot.angle = setAxisBack(pose[2]);
+                    temp_charging_location.push_back(anot);
+                    match = true;
                     break;
                 }
             }
-            anot.group = group_id;
-            anot.group_name = group_name;
-            anot.name = loc_name;
-            anot.type = attrib;
+            if(!match){
+                for(int i=0; i<pmap->resting_locations.size(); i++){
+                    if(pmap->resting_locations[i].group == group_id && pmap->resting_locations[i].name == loc_name){
+                        anot = pmap->resting_locations[i];
+                        anot.group = group_id;
+                        anot.group_name = group_name;
+                        anot.name = loc_name;
+                        anot.type = attrib;
 
-            anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
-            anot.angle = setAxisBack(pose[2]);
-            temp_location.push_back(anot);
+                        anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
+                        anot.angle = setAxisBack(pose[2]);
+                        temp_resting_location.push_back(anot);
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if(!match){
+                for(int i=0; i<pmap->cleaning_locations.size(); i++){
+                    if(pmap->cleaning_locations[i].group == group_id && pmap->cleaning_locations[i].name == loc_name){
+                        anot = pmap->cleaning_locations[i];
+                        anot.group = group_id;
+                        anot.group_name = group_name;
+                        anot.name = loc_name;
+                        anot.type = attrib;
+
+                        anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
+                        anot.angle = setAxisBack(pose[2]);
+                        temp_cleaning_location.push_back(anot);
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if(!match){
+                for(int i=0; i<pmap->init_locations.size(); i++){
+                    if(pmap->init_locations[i].group == group_id && pmap->init_locations[i].name == loc_name){
+                        anot = pmap->init_locations[i];
+                        anot.group = group_id;
+                        anot.group_name = group_name;
+                        anot.name = loc_name;
+                        anot.type = attrib;
+
+                        anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
+                        anot.angle = setAxisBack(pose[2]);
+                        temp_init_location.push_back(anot);
+                        match = true;
+                        break;
+                    }
+                }
+            }
+            if(!match){
+                for(int i=0; i<pmap->serving_locations.size(); i++){
+                    if(pmap->serving_locations[i].group == group_id && pmap->serving_locations[i].name == loc_name){
+                        anot = pmap->serving_locations[i];
+                        anot.group = group_id;
+                        anot.group_name = group_name;
+                        anot.name = loc_name;
+                        anot.type = attrib;
+
+                        anot.point = setAxisBack(cv::Point2f(pose[0],pose[1]));
+                        anot.angle = setAxisBack(pose[2]);
+                        temp_serving_location.push_back(anot);
+                        match = true;
+                        break;
+                    }
+                }
+            }
+
         }
     }
 
-    pmap->locations.clear();
-    pmap->locations = temp_location;
-    // save annotations to ini file
-//    QString annotated_loc_path = map_dir + "/annotation.ini";
-//    QFile::remove(annotated_loc_path);
+    pmap->charging_locations.clear();
+    pmap->charging_locations = temp_charging_location;
+    pmap->resting_locations.clear();
+    pmap->resting_locations = temp_resting_location;
+    pmap->cleaning_locations.clear();
+    pmap->cleaning_locations = temp_cleaning_location;
+    pmap->init_locations.clear();
+    pmap->init_locations = temp_init_location;
+    pmap->serving_locations.clear();
+    pmap->serving_locations = temp_serving_location;
 
-//    QSettings settings(annotated_loc_path, QSettings::IniFormat);
-//    settings.clear();
-
-    // parsing group num
-//    int group_num = 1;
-//    for(size_t p = 0; p < annotations.size(); p++)
-//    {
-//        if(annotations[p].attrib == "Serving")
-//        {
-//            int group = annotations[p].group_id+1;
-//            if(group > group_num)
-//            {
-//                group_num = group;
-//            }
-//        }
-//    }
-//    settings.setValue("serving_locations/group", group_num);
-
-//    if(group_num == 1)
-//    {
-//        settings.setValue("serving_0/name", "Default");
-//    }
-
-//    // each locations num
-//    std::vector<int> serving_num(group_num, 0);
-//    int charging_num = 0;
-//    int cleaning_num = 0;
-//    int resting_num = 0;
-
-//    for(size_t p = 0; p < annotations.size(); p++)
-//    {
-//        if(annotations[p].attrib == "Serving")
-//        {
-//            // set group name
-//            {
-//                QString sec;
-//                sec.sprintf("serving_%d/name", annotations[p].group_id);
-//                settings.setValue(sec, annotations[p].group_name);
-//            }
-
-//            // set loc
-//            {
-//                QString sec;
-//                sec.sprintf("serving_%d/loc%d", annotations[p].group_id, annotations[p].loc_id);
-
-//                QString value;
-//                value.sprintf("%s,%f,%f,%f,%s", annotations[p].loc_name.toLocal8Bit().data(),
-//                                                annotations[p].pose[0],
-//                                                annotations[p].pose[1],
-//                                                annotations[p].pose[2],
-//                                                annotations[p].tmp.toLocal8Bit().data());
-//                settings.setValue(sec, value);
-//            }
-
-//            // count up
-//            serving_num[annotations[p].group_id]++;
-//        }
-//        else if(annotations[p].attrib == "Charging")
-//        {
-//            // set loc
-//            {
-//                QString sec;
-//                sec.sprintf("charging_locations/loc%d", annotations[p].loc_id);
-
-//                QString value;
-//                value.sprintf("%s,%f,%f,%f,%s", annotations[p].loc_name.toLocal8Bit().data(),
-//                                                annotations[p].pose[0],
-//                                                annotations[p].pose[1],
-//                                                annotations[p].pose[2],
-//                                                annotations[p].tmp.toLocal8Bit().data());
-//                settings.setValue(sec, value);
-//            }
-
-//            // count up
-//            charging_num++;
-//        }
-//        else if(annotations[p].attrib == "Cleaning")
-//        {
-//            // set loc
-//            {
-//                QString sec;
-//                sec.sprintf("cleaning_locations/loc%d", annotations[p].loc_id);
-
-//                QString value;
-//                value.sprintf("%s,%f,%f,%f,%s", annotations[p].loc_name.toLocal8Bit().data(),
-//                                                annotations[p].pose[0],
-//                                                annotations[p].pose[1],
-//                                                annotations[p].pose[2],
-//                                                annotations[p].tmp.toLocal8Bit().data());
-//                settings.setValue(sec, value);
-//            }
-
-//            // count up
-//            cleaning_num++;
-//        }
-//        else if(annotations[p].attrib == "Resting")
-//        {
-//            // set loc
-//            {
-//                QString sec;
-//                sec.sprintf("resting_locations/loc%d", annotations[p].loc_id);
-
-//                QString value;
-//                value.sprintf("%s,%f,%f,%f,%s", annotations[p].loc_name.toLocal8Bit().data(),
-//                                                annotations[p].pose[0],
-//                                                annotations[p].pose[1],
-//                                                annotations[p].pose[2],
-//                                                annotations[p].tmp.toLocal8Bit().data());
-//                settings.setValue(sec, value);
-//            }
-
-//            // count up
-//            resting_num++;
-//        }
-//    }
-
-//    for(size_t p = 0; p < serving_num.size(); p++)
-//    {
-//        QString sec;
-//        sec.sprintf("serving_%d/num", (int)p);
-//        settings.setValue(sec, serving_num[p]);
-//    }
-
-//    settings.setValue("charging_locations/num", charging_num);
-//    settings.setValue("cleaning_locations/num", cleaning_num);
-//    settings.setValue("resting_locations/num", resting_num);
-
-//    settings.setValue("objects/num", 0);
-//    settings.setValue("other_locations/num", 0);
 }
 void MapHandler::loadAnnotation(){
-    if(pmap->locations.size() == 0)
-    {
-        qDebug() << "[TOPOMAP] no annotations";
-        return;
-    }
+    // if(pmap->charging_locations.size() == 0)
+    // {
+    //     qDebug() << "[TOPOMAP] no annotations";
+    //     return;
+    // }
 
     // clear topo nodes
     nodes.clear();
 
     // set annotations to nodes
-    for(size_t p = 0; p < pmap->locations.size(); p++)
+    for(size_t p = 0; p < pmap->charging_locations.size(); p++)
     {
-        QString name = QString::asprintf("%d:%s:%d:%s", pmap->locations[p].group,
-                                    pmap->locations[p].group_name.toLocal8Bit().data(),
+        QString name = QString::asprintf("%d:%s:%d:%s", pmap->charging_locations[p].group,
+                                    pmap->charging_locations[p].group_name.toLocal8Bit().data(),
                                     p,
-                                    pmap->locations[p].name.toLocal8Bit().data());
+                                    pmap->charging_locations[p].name.toLocal8Bit().data());
         NODE *node = new NODE();
-        node->attrib = pmap->locations[p].type;
+        node->attrib = pmap->charging_locations[p].type;
         node->id = name;
-        cv::Point2f pos = setAxis(pmap->locations[p].point);
-        float ang = setAxis(pmap->locations[p].angle);
+        cv::Point2f pos = setAxis(pmap->charging_locations[p].point);
+        float ang = setAxis(pmap->charging_locations[p].angle);
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
         nodes[name] = node;
-        qDebug() <<"[TOPOMAP] load annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        qDebug() <<"[TOPOMAP] load charging_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
     }
+    for(size_t p = 0; p < pmap->resting_locations.size(); p++)
+    {
+        QString name = QString::asprintf("%d:%s:%d:%s", pmap->resting_locations[p].group,
+                                         pmap->resting_locations[p].group_name.toLocal8Bit().data(),
+                                         p,
+                                         pmap->resting_locations[p].name.toLocal8Bit().data());
+        NODE *node = new NODE();
+        node->attrib = pmap->resting_locations[p].type;
+        node->id = name;
+        cv::Point2f pos = setAxis(pmap->resting_locations[p].point);
+        float ang = setAxis(pmap->resting_locations[p].angle);
+        node->pose[0] = pos.x;
+        node->pose[1] = pos.y;
+        node->pose[2] = ang;
+        nodes[name] = node;
+        qDebug() <<"[TOPOMAP] load resting_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+    }
+    for(size_t p = 0; p < pmap->cleaning_locations.size(); p++)
+    {
+        QString name = QString::asprintf("%d:%s:%d:%s", pmap->cleaning_locations[p].group,
+                                         pmap->cleaning_locations[p].group_name.toLocal8Bit().data(),
+                                         p,
+                                         pmap->cleaning_locations[p].name.toLocal8Bit().data());
+        NODE *node = new NODE();
+        node->attrib = pmap->cleaning_locations[p].type;
+        node->id = name;
+        cv::Point2f pos = setAxis(pmap->cleaning_locations[p].point);
+        float ang = setAxis(pmap->cleaning_locations[p].angle);
+        node->pose[0] = pos.x;
+        node->pose[1] = pos.y;
+        node->pose[2] = ang;
+        nodes[name] = node;
+        qDebug() <<"[TOPOMAP] load cleaning_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+    }
+    for(size_t p = 0; p < pmap->init_locations.size(); p++)
+    {
+        QString name = QString::asprintf("%d:%s:%d:%s", pmap->init_locations[p].group,
+                                         pmap->init_locations[p].group_name.toLocal8Bit().data(),
+                                         p,
+                                         pmap->init_locations[p].name.toLocal8Bit().data());
+        NODE *node = new NODE();
+        node->attrib = pmap->init_locations[p].type;
+        node->id = name;
+        cv::Point2f pos = setAxis(pmap->init_locations[p].point);
+        float ang = setAxis(pmap->init_locations[p].angle);
+        node->pose[0] = pos.x;
+        node->pose[1] = pos.y;
+        node->pose[2] = ang;
+        nodes[name] = node;
+        qDebug() <<"[TOPOMAP] load init_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+    }
+    for(size_t p = 0; p < pmap->serving_locations.size(); p++)
+    {
+        QString name = QString::asprintf("%d:%s:%d:%s", pmap->serving_locations[p].group,
+                                         pmap->serving_locations[p].group_name.toLocal8Bit().data(),
+                                         p,
+                                         pmap->serving_locations[p].name.toLocal8Bit().data());
+        NODE *node = new NODE();
+        node->attrib = pmap->serving_locations[p].type;
+        node->id = name;
+        cv::Point2f pos = setAxis(pmap->serving_locations[p].point);
+        float ang = setAxis(pmap->serving_locations[p].angle);
+        node->pose[0] = pos.x;
+        node->pose[1] = pos.y;
+        node->pose[2] = ang;
+        nodes[name] = node;
+        qDebug() <<"[TOPOMAP] load serving_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+    }
+
     setMapLayer();
 }
 QString MapHandler::auto_node_name(QString attrib)
@@ -3435,13 +3610,13 @@ void MapHandler::endDrawingRect(){
 
 int MapHandler::getLocationGroupSize(int num){
     int size = 0;
-    if(num > -1 && num < pmap->location_groups.size()){
-        for(int i=0; i<pmap->locations.size(); i++){
-            if(pmap->locations[i].type == "Serving")
-                if(pmap->locations[i].group == num)
-                    size++;
-        }
-    }
+    // if(num > -1 && num < pmap->location_groups.size()){
+    //     for(int i=0; i<pmap->locations.size(); i++){
+    //         if(pmap->locations[i].type == "Serving")
+    //             if(pmap->locations[i].group == num)
+    //                 size++;
+    //     }
+    // }
 //    qDebug() << "location group size " << num << size << pmap->locations.size();
     return size;
 }
@@ -3451,7 +3626,11 @@ void MapHandler::clearLocation(){
     edit_location_flag = false;
     pmap->annot_edit_location = false;
     new_location.type = "";
-    select_location = -1;
+    select_charging = -1;
+    select_resting = -1;
+    select_cleaning = -1;
+    select_init = -1;
+    select_serving = -1;
     initLocation();
     setMap();
 }
@@ -3477,83 +3656,173 @@ void MapHandler::setTravellineIssue(int count, int num){
     travelline_issue[count]=num;
     setMap();
 }
-void MapHandler::setSelectLocation(int num){
-    select_location = num;
+
+void MapHandler::setSelectServing(int num){
+    select_serving = num;
+    select_charging = -1;
+    select_resting = -1;
+    select_cleaning = -1;
+    select_init = -1;
+    setMap();
+}
+void MapHandler::setSelectCharging(int num){
+    select_serving = -1;
+    select_charging = num;
+    select_resting = -1;
+    select_cleaning = -1;
+    select_init = -1;
+    setMap();
+}
+void MapHandler::setSelectResting(int num){
+    select_serving = -1;
+    select_charging = -1;
+    select_resting = num;
+    select_cleaning = -1;
+    select_init = -1;
+    setMap();
+}
+void MapHandler::setSelectCleaning(int num){
+    select_serving = -1;
+    select_charging = -1;
+    select_resting = -1;
+    select_cleaning = num;
+    select_init = -1;
+    setMap();
+}
+void MapHandler::setSelectInit(int num){
+    select_serving = -1;
+    select_charging = -1;
+    select_resting = -1;
+    select_cleaning = -1;
+    select_init = num;
     setMap();
 }
 void MapHandler::setLocation(int x, int y, float th){
-    int num = select_location;
-    new_location_flag = false;
-    if(pmap->locations.size() > num && num > -1){
-        plog->write("[MapHandler] Edit Location "+QString().asprintf("%d : %f,%f,%f -> %f,%f,%f",num,pmap->locations[num].point.x, pmap->locations[num].point.y, pmap->locations[num].angle,setAxisBack(cv::Point2f(x,y)).x,setAxisBack(cv::Point2f(x,y)).y,setAxisBack(th)));
-        pmap->locations[num].point = setAxisBack(cv::Point2f(x,y));
-        pmap->locations[num].angle = setAxisBack(th);
-//        //qDebug() << pmap->locations[num].angle;
-        pmap->annot_edit_location = true;
-    }
-    initLocation();
-    setMap();
+//     int num = select_location;
+//     new_location_flag = false;
+//     if(pmap->locations.size() > num && num > -1){
+//         plog->write("[MapHandler] Edit Location "+QString().asprintf("%d : %f,%f,%f -> %f,%f,%f",num,pmap->locations[num].point.x, pmap->locations[num].point.y, pmap->locations[num].angle,setAxisBack(cv::Point2f(x,y)).x,setAxisBack(cv::Point2f(x,y)).y,setAxisBack(th)));
+//         pmap->locations[num].point = setAxisBack(cv::Point2f(x,y));
+//         pmap->locations[num].angle = setAxisBack(th);
+// //        //qDebug() << pmap->locations[num].angle;
+//         pmap->annot_edit_location = true;
+//     }
+//     initLocation();
+//     setMap();
 }
 
 int MapHandler::getLocationNum(int x, int y){
-    int loc_id = -1;
-    for(int i=0; i<pmap->locations.size(); i++){
-        cv::Point2f pos = setAxisBack(cv::Point2f(x,y));
-        if(fabs(pmap->locations[i].point.x - pos.x) < probot->radius*1.2){
-            if(fabs(pmap->locations[i].point.y - pos.y) < probot->radius*1.2){
-                loc_id = i;
-                break;
-            }
-        }
-    }
+    // int loc_id = -1;
+    // for(int i=0; i<pmap->locations.size(); i++){
+    //     cv::Point2f pos = setAxisBack(cv::Point2f(x,y));
+    //     if(fabs(pmap->locations[i].point.x - pos.x) < probot->radius*1.2){
+    //         if(fabs(pmap->locations[i].point.y - pos.y) < probot->radius*1.2){
+    //             loc_id = i;
+    //             break;
+    //         }
+    //     }
+    // }
 
-    if(loc_id > -1){
-        if(pmap->locations[loc_id].type == "Resting"){
-            if(getLocationNum("Charging") == 0)
-                loc_id++;
+    // if(loc_id > -1){
+    //     if(pmap->locations[loc_id].type == "Resting"){
+    //         if(getLocationNum("Charging") == 0)
+    //             loc_id++;
 
-            return loc_id;
-        }else if(pmap->locations[loc_id].type == "Serving"){
-            if(getLocationNum("Resting") == 0)
-                loc_id++;
-            if(getLocationNum("Charging") == 0)
-                loc_id++;
+    //         return loc_id;
+    //     }else if(pmap->locations[loc_id].type == "Serving"){
+    //         if(getLocationNum("Resting") == 0)
+    //             loc_id++;
+    //         if(getLocationNum("Charging") == 0)
+    //             loc_id++;
 
-            return loc_id;
-        }
-        return loc_id;
-    }
+    //         return loc_id;
+    //     }
+    //     return loc_id;
+    // }
     return -1;
 }
 
 int MapHandler::getLocationNum(QString type){
-    int count = 0;
-    for(int i=0; i<locations.size(); i++){
-        if(locations[i].type == type)
-            count++;
+    if(type == "Charging"){
+        return charging_locations.size();
+    }else if(type == "Resting"){
+        return resting_locations.size();
+    }else if(type == "Cleaning"){
+        return cleaning_locations.size();
+    }else if(type == "Init"){
+        return init_locations.size();
+    }else{
+        return serving_locations.size();
     }
-    return count;
 }
+
 int MapHandler::getLocGroupNum(int num){
     int count = 0;
-    for(int i=0; i<pmap->locations.size(); i++){
-        if(pmap->locations[i].type == "Serving" && pmap->locations[i].group == num){
-            count++;
-        }
-    }
+
+    // for(int i=0; i<pmap->locations.size(); i++){
+    //     if(pmap->locations[i].type == "Serving" && pmap->locations[i].group == num){
+    //         count++;
+    //     }
+    // }
     return count;
 }
 
 void MapHandler::editLocation(int x, int y, float th){
-    int num = select_location;
-    if(pmap->locations.size() > num && num > -1){
-        if(!edit_location_flag){
-            edit_location_flag = true;
-            orin_location = pmap->locations[num];
+    if(select_charging > -1){
+        int num = select_charging;
+        if(pmap->charging_locations.size() > num && num > -1){
+            if(!edit_location_flag){
+                edit_location_flag = true;
+                orin_location = pmap->charging_locations[num];
+            }
+            pmap->charging_locations[num].point = setAxisBack(cv::Point2f(x,y));
+            pmap->charging_locations[num].angle = setAxisBack(th);
+            pmap->annot_edit_location = true;
         }
-        pmap->locations[num].point = setAxisBack(cv::Point2f(x,y));
-        pmap->locations[num].angle = setAxisBack(th);
-        pmap->annot_edit_location = true;
+    }else if(select_resting > -1){
+        int num = select_resting;
+        if(pmap->resting_locations.size() > num && num > -1){
+            if(!edit_location_flag){
+                edit_location_flag = true;
+                orin_location = pmap->resting_locations[num];
+            }
+            pmap->resting_locations[num].point = setAxisBack(cv::Point2f(x,y));
+            pmap->resting_locations[num].angle = setAxisBack(th);
+            pmap->annot_edit_location = true;
+        }
+    }else if(select_cleaning > -1){
+        int num = select_cleaning;
+        if(pmap->cleaning_locations.size() > num && num > -1){
+            if(!edit_location_flag){
+                edit_location_flag = true;
+                orin_location = pmap->cleaning_locations[num];
+            }
+            pmap->cleaning_locations[num].point = setAxisBack(cv::Point2f(x,y));
+            pmap->cleaning_locations[num].angle = setAxisBack(th);
+            pmap->annot_edit_location = true;
+        }
+    }else if(select_init > -1){
+        int num = select_init;
+        if(pmap->init_locations.size() > num && num > -1){
+            if(!edit_location_flag){
+                edit_location_flag = true;
+                orin_location = pmap->init_locations[num];
+            }
+            pmap->init_locations[num].point = setAxisBack(cv::Point2f(x,y));
+            pmap->init_locations[num].angle = setAxisBack(th);
+            pmap->annot_edit_location = true;
+        }
+    }else if(select_serving > -1){
+        int num = select_serving;
+        if(pmap->serving_locations.size() > num && num > -1){
+            if(!edit_location_flag){
+                edit_location_flag = true;
+                orin_location = pmap->serving_locations[num];
+            }
+            pmap->serving_locations[num].point = setAxisBack(cv::Point2f(x,y));
+            pmap->serving_locations[num].angle = setAxisBack(th);
+            pmap->annot_edit_location = true;
+        }
     }
     initLocation();
     setMap();

@@ -21,10 +21,10 @@ public:
     std::atomic<int> fms_tick = {0};
 
     void init();
-
     void test();
 
 signals:
+    void getMessage(QString msg);
 
 private slots:
     void connected();
