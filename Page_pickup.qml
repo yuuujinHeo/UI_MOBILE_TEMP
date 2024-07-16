@@ -219,59 +219,93 @@ Item {
                 width: parent.width
                 height: 50
             }
-            Rectangle{
-                id: btn_confirm
-                width: 320
-                height: 120
-                radius: 60
-                border.color: color_gray
-                border.width: 2
+            Row{
                 anchors.horizontalCenter: parent.horizontalCenter
-                Row{
-                    anchors.fill: parent
-                    Rectangle{
-                        width: 120
-                        height: 120
-                        color: "transparent"
-                        Image{
-                            anchors.centerIn: parent
-                            source:"icon/icon_yes.png"
-                            width: 80
-                            height: 80
-                            sourceSize.width: width
-                            sourceSize.height: height
+                spacing: 20
+                Rectangle{
+                    id: btn_confirm
+                    width: 320
+                    height: 120
+                    radius: 60
+                    border.color: color_gray
+                    border.width: 2
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 120
+                            height: 120
+                            color: "transparent"
+                            Image{
+                                anchors.centerIn: parent
+                                source:"icon/icon_yes.png"
+                                width: 80
+                                height: 80
+                                sourceSize.width: width
+                                sourceSize.height: height
+                            }
+                        }
+                        Rectangle{
+                            width: 200
+                            height: 120
+                            color: "transparent"
+                            Text{
+                                anchors.centerIn: parent
+                                text: qsTr("확인")
+                                font.family: font_noto_b.name
+                                font.pixelSize: 45
+                                color: color_green
+                            }
                         }
                     }
-                    Rectangle{
-                        width: 200
-                        height: 120
-                        color: "transparent"
-                        Text{
-                            anchors.centerIn: parent
-                            text: qsTr("확인")
-                            font.family: font_noto_b.name
-                            font.pixelSize: 45
-                            color: color_green
+
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM clicked");
+                            supervisor.playVoice("thanks");
+                            column_pickup.visible = false;
+                            text_mention.visible = false;
+                            text_mention3.visible = false;
+                            target_pos.visible = false;
+                            btn_confirm.visible = false;
+                            text_hello.visible = true;
+                            timer_hello.start();
+                        }
+                    }
+                }
+                Rectangle{
+                    id: btn_confirm2
+                    width: 250
+                    height: 120
+                    radius: 60
+                    visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
+                    border.color: color_gray
+                    border.width: 2
+                    Text{
+                        anchors.centerIn: parent
+                        text: qsTr("퇴식위치로")
+                        font.family: font_noto_b.name
+                        font.pixelSize: 45
+                        color: color_green
+                    }
+                    MouseArea{
+                        anchors.fill: parent
+                        onClicked: {
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
+                            supervisor.playVoice("thanks");
+                            column_pickup.visible = false;
+                            text_mention.visible = false;
+                            text_mention3.visible = false;
+                            target_pos.visible = false;
+                            btn_confirm.visible = false;
+                            text_hello.visible = true;
+                            timer_hello2.start();
                         }
                     }
                 }
 
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        //click_start.play();
-                        supervisor.playSound('click');
-                        supervisor.writelog("[USER INPUT] PICKUP CONFIRM clicked");
-                        supervisor.playVoice("thanks");
-                        column_pickup.visible = false;
-                        text_mention.visible = false;
-                        text_mention3.visible = false;
-                        target_pos.visible = false;
-                        btn_confirm.visible = false;
-                        text_hello.visible = true;
-                        timer_hello.start();
-                    }
-                }
             }
         }
         Text{
@@ -311,8 +345,18 @@ Item {
         running: false
         repeat: false
         onTriggered: {
-            supervisor.confirmPickup();
+            supervisor.confirmPickup("");
             supervisor.writelog("[QML-Pickup] PICKUP PAGE -> Move to Next");
+        }
+    }
+    Timer{
+        id: timer_hello2
+        interval: 3000
+        running: false
+        repeat: false
+        onTriggered: {
+            supervisor.confirmPickup("Cleaning");
+            supervisor.writelog("[QML-Pickup] PICKUP PAGE2222222 -> Move to Next");
         }
     }
 }

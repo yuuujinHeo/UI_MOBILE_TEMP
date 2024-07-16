@@ -411,7 +411,7 @@ public:
     Q_INVOKABLE void setTray(int tray_num, int group, int table);
     Q_INVOKABLE void setPreset(int preset);
     Q_INVOKABLE void cleanTray();
-    Q_INVOKABLE void confirmPickup();
+    Q_INVOKABLE void confirmPickup(QString mode);
     Q_INVOKABLE QList<int> getPickuptrays();
 
     Q_INVOKABLE void selectLocation(QString type, int num);
@@ -620,6 +620,7 @@ public:
     Q_INVOKABLE void moveToCharge();
     Q_INVOKABLE void moveToWait();
     Q_INVOKABLE void moveToCleaning();
+    Q_INVOKABLE bool isFinalLocation();
 
     //annotation
     Q_INVOKABLE void checkTravelline();
@@ -873,7 +874,6 @@ public:
     Q_INVOKABLE bool getGoqualDeviceState(int num);
     Q_INVOKABLE bool getGoqualDeviceOnline(int num);
     Q_INVOKABLE QString getGoqualDeviceName(int num);
-
 
 
 public slots:

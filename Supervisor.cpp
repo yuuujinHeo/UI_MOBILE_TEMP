@@ -3286,16 +3286,18 @@ void Supervisor::setPreset(int preset){
     setSetting("update","DRIVING/cur_preset",QString::number(preset));
 }
 
-void Supervisor::confirmPickup(){
+void Supervisor::confirmPickup(QString mode){
     if(ui_state == UI_STATE_PICKUP){
         if(pmap->call_queue.size() > 0 && probot->is_calling){
             plog->write("[COMMAND] confirmPickup : Call queue pop front "+pmap->call_queue[0]);
             pmap->call_queue.pop_front();
         }
-
         if(isRobotReady()){
             plog->write("[COMMAND] confirmPickup -> Moving");
             stateMoving();
+            if(mode == "Cleaning"){
+                probot->current_target = getCleaningLocation(0);
+            }
         }else{
             plog->write("[COMMAND] confirmPickup : Robot Not Ready");
             QMetaObject::invokeMethod(mMain,"robotnotready");
@@ -3358,6 +3360,25 @@ void Supervisor::moveToWait(){
         QMetaObject::invokeMethod(mMain,"robotnotready");
         plog->write("[COMMAND] moveToWait : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
     }
+}
+bool Supervisor::isFinalLocation(){
+    if(probot->is_patrol){
+        return false;
+    }
+    bool tray_occupied = false;
+    for(int i=0; i<setting.tray_num; i++){
+        //트레이 점유됨
+        if(!probot->trays[i].empty){
+            tray_occupied = true;
+        }
+    }
+
+    if(tray_occupied){
+        return false;
+    }else{
+        return true;
+    }
+
 }
 void Supervisor::moveToCleaning(){
     if(isRobotReady()){
