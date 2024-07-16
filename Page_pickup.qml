@@ -341,7 +341,7 @@ Item {
 
     Timer{
         id: timer_hello
-        interval: 3000
+        interval: 1500
         running: false
         repeat: false
         onTriggered: {
@@ -351,7 +351,7 @@ Item {
     }
     Timer{
         id: timer_hello2
-        interval: 3000
+        interval: 1500
         running: false
         repeat: false
         onTriggered: {
