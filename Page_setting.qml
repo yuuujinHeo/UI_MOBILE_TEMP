@@ -13677,13 +13677,13 @@ Item {
                 height: parent.height-80
                 anchors.bottom: parent.bottom
                 contentHeight: grid_manager.height
-                clip: false
+                clip: true
                 Grid{
                     id: grid_manager
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: 40
-                    rows: 3
+                    rows: 5
                     columns: 2
                     spacing: 30
                     Rectangle{
