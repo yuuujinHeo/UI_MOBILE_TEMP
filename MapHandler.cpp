@@ -1569,6 +1569,8 @@ void MapHandler::loadNode(){
         qDebug() << "[TOPOMAP] "+topo_path+" loaded, num:" << (int)nodes.size();
     }
 
+    file.deleteLater();
+
 }
 void MapHandler::saveNode(){
     QString topo_path = QDir::homePath()+"/RB_MOBILE/maps/"+map_name+"/topo.json";

@@ -600,8 +600,6 @@ void Worker::checkPing(){
     process = new QProcess();
     process->start("ping",QStringList()<< "-c" << "1" << hostname);
 
-    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
-
     if(!process->waitForFinished(1000)){
         probot->con_internet = false;
         process->close();
@@ -682,9 +680,9 @@ void Worker::network_output(){
 
 Checker::Checker(QObject *parent)
 {
-    thread_1 = new QThread();
-    thread_2 = new QThread();
-    thread_3 = new QThread();
+    thread_1 = new QThread(this);
+    thread_2 = new QThread(this);
+    thread_3 = new QThread(this);
 
     worker_3 = new Worker("PROCESS_3",thread_3);
     worker_3->moveToThread(thread_3);
@@ -697,7 +695,6 @@ Checker::Checker(QObject *parent)
     timer->start(100);
 
     getPing("www.google.com");
-//    getCurrentInterface();
 }
 
 void Checker::change_network(QString line){
@@ -705,9 +702,18 @@ void Checker::change_network(QString line){
 }
 
 Checker::~Checker(){
+    thread_1->quit();
+    thread_1->wait();
     delete thread_1;
+
+    thread_2->quit();
+    thread_2->wait();
     delete thread_2;
+
+    thread_3->quit();
+    thread_3->wait();
     delete thread_3;
+
     delete worker_1;
     delete worker_2;
     delete worker_3;
@@ -718,27 +724,34 @@ void Checker::onTimer(){
         if(thread_1->isRunning()){
             if(thread_2->isRunning()){
             }else{
-                worker_2 = new Worker("PROCESS_2",thread_2);
-                worker_2->moveToThread(thread_2);
-                worker_2->setWork(cmd_list[0].cmd,cmd_list[0].arg);
+                if(!worker_2){
+                    worker_2 = new Worker("PROCESS_2",thread_2);
+                    worker_2->moveToThread(thread_2);
+                    QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
+                    QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
+                }
+                qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
+                worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
                 worker_2->setProperties(cmd_list[0].print);
 
                 setWork(cmd_list[0], thread_2, worker_2);
-                cmd_list.pop_front();
+                // cmd_list.pop_front();
                 thread_2->start();
-                QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
-                QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
             }
         }else{
-            worker_1 = new Worker("PROCESS_1",thread_1);
-            worker_1->moveToThread(thread_1);
+            if(!worker_1){
+                worker_1 = new Worker("PROCESS_1",thread_1);
+                worker_1->moveToThread(thread_1);
+                QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
+                QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
+            }
+            qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
             worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
             worker_1->setProperties(cmd_list[0].print);
             setWork(cmd_list[0], thread_1, worker_1);
-            cmd_list.pop_front();
+
+            // cmd_list.pop_front();
             thread_1->start();
-            QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
-            QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
         }
     }
 }
@@ -797,6 +810,25 @@ void Checker::disWork(Worker *worker){
     }else{
 
     }
+
+    //cmd_list pop
+    for(int i=0; i<cmd_list.size(); i++){
+        if(cmd_list[i].cmd == worker->program){
+            cmd_list.removeAt(i);
+            break;
+        }
+    }
+
+    if(worker == worker_1){
+        qDebug() << "disWork 1";
+        delete worker_1;
+        worker_1 = nullptr;
+    }else if(worker == worker_2){
+        qDebug() << "disWork 2";
+        delete worker_2;
+        worker_2 = nullptr;
+    }
+    qDebug() << "disWork done";
 }
 void Checker::setWork(ST_PROC cmd, QThread *thread, Worker *worker){
     if(cmd.cmd == "getWifiList"){

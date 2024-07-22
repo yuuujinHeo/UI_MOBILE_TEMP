@@ -113,12 +113,12 @@ public:
     QString name;
     bool is_error = false;
     bool is_print;
+    QString program;
+    QStringList argument;
     void setWork(const QString &_program, const QStringList &arg){
         program = _program;
         argument = arg;
     }
-    QString program;
-    QStringList argument;
 };
 
 
@@ -175,9 +175,9 @@ private:
     QThread *thread_1;
     QThread *thread_2;
     QThread *thread_3;
-    Worker *worker_1;
-    Worker *worker_2;
-    Worker *worker_3;
+    Worker *worker_1 = nullptr;
+    Worker *worker_2 = nullptr;
+    Worker *worker_3 = nullptr;
     QTimer *timer;
 };
 

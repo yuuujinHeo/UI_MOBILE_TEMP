@@ -3867,7 +3867,7 @@ void Supervisor::onTimer(){
     }
 
     //
-    if(timer_cnt++ > 10){
+    if(timer_cnt++ > 30){
         timer_cnt = 0;
         checker->getCurrentInterface();
     }
