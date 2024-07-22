@@ -106,7 +106,7 @@ signals:
 public:
     Worker(QString _name, QThread *th):name(_name),parent_thread(th){}
     ~Worker(){
-        disconnect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_connect_wifi()));
+        // disconnect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_connect_wifi()));
     }
     QThread *parent_thread;
     QProcess *process;

@@ -14,6 +14,7 @@ class Logger : QObject
 
 public:
     Logger();
+    ~Logger();
     void reset();
 
     void write(const QString str, bool print=true);

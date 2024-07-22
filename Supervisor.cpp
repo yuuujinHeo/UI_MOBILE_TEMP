@@ -52,10 +52,15 @@ Supervisor::Supervisor(QObject *parent)
 
     //기존 SLAM/NAV 모두 종료하고 다시 시작
     QList<QString> path_home_str = QDir::homePath().split("/");
-    QProcess *process = new QProcess(this);
+    QProcess process;
     QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    process->start(file,QStringList(),QProcess::ReadWrite);
-    process->waitForReadyRead(3000);
+    process.start(file,QStringList(),QProcess::ReadWrite);
+    if(!process.waitForFinished()){
+        plog->write("[SUPERVISOR] Kill All Failed");
+    }else{
+        plog->write("[SUPERVISOR] Kill All");
+    }
+    // process->waitForReadyRead(3000);
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
@@ -129,11 +134,40 @@ Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
     ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
-    delete ipc;
-    delete slam_process;
-    delete zip;
-    delete maph;
-    delete call;
+
+    timer->disconnect();
+    timer->deleteLater();
+
+    voice_player->disconnect();
+    bgm_player->disconnect();
+    click_effect->disconnect();
+    list_bgm->disconnect();
+
+    voice_player->deleteLater();
+    bgm_player->deleteLater();
+    click_effect->deleteLater();
+    list_bgm->deleteLater();
+
+    translator->deleteLater();
+    server->disconnect();
+    tts->disconnect();
+    checker->disconnect();
+
+    server->deleteLater();
+    tts->deleteLater();
+    checker->deleteLater();
+
+    ipc->disconnect();
+    slam_process->disconnect();
+    zip->disconnect();
+    maph->disconnect();
+    call->disconnect();
+
+    ipc->deleteLater();
+    slam_process->deleteLater();
+    zip->deleteLater();
+    maph->deleteLater();
+    call->deleteLater();
     plog->write("[BUILDER] KILLED SLAMNAV");
 }
 
