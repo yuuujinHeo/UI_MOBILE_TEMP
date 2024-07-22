@@ -724,12 +724,10 @@ void Checker::onTimer(){
         if(thread_1->isRunning()){
             if(thread_2->isRunning()){
             }else{
-                if(!worker_2){
-                    worker_2 = new Worker("PROCESS_2",thread_2);
-                    worker_2->moveToThread(thread_2);
-                    QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
-                    QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
-                }
+                worker_2 = new Worker("PROCESS_2",thread_2);
+                worker_2->moveToThread(thread_2);
+                QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
+                QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
                 qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
                 worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
                 worker_2->setProperties(cmd_list[0].print);
@@ -739,12 +737,10 @@ void Checker::onTimer(){
                 thread_2->start();
             }
         }else{
-            if(!worker_1){
-                worker_1 = new Worker("PROCESS_1",thread_1);
-                worker_1->moveToThread(thread_1);
-                QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
-                QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
-            }
+            worker_1 = new Worker("PROCESS_1",thread_1);
+            worker_1->moveToThread(thread_1);
+            QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
+            QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
             qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
             worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
             worker_1->setProperties(cmd_list[0].print);
@@ -821,12 +817,12 @@ void Checker::disWork(Worker *worker){
 
     if(worker == worker_1){
         qDebug() << "disWork 1";
-        delete worker_1;
-        worker_1 = nullptr;
+        worker_1->disconnect();
+        worker_1->deleteLater();
     }else if(worker == worker_2){
         qDebug() << "disWork 2";
-        delete worker_2;
-        worker_2 = nullptr;
+        worker_2->disconnect();
+        worker_2->deleteLater();
     }
     qDebug() << "disWork done";
 }

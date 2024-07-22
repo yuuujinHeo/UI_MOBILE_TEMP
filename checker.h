@@ -175,9 +175,9 @@ private:
     QThread *thread_1;
     QThread *thread_2;
     QThread *thread_3;
-    Worker *worker_1 = nullptr;
-    Worker *worker_2 = nullptr;
-    Worker *worker_3 = nullptr;
+    Worker *worker_1;
+    Worker *worker_2;
+    Worker *worker_3;
     QTimer *timer;
 };
 

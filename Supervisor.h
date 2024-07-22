@@ -17,7 +17,6 @@
 #include <QMediaPlayer>
 #include "TTSHandler.h"
 #include "MapHandler.h"
-#include "ExtProcess.h"
 #include <libusb-1.0/libusb.h>
 
 
@@ -52,7 +51,6 @@ public:
     ServerHandler *server;
     ZIPHandler *zip;
     MapHandler *maph;
-    ExtProcess *extproc;
     Checker *checker;
     CallbellHandler *call;
     IPCHandler *ipc;

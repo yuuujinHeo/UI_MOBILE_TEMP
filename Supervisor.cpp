@@ -82,7 +82,6 @@ Supervisor::Supervisor(QObject *parent)
     tts = new TTSHandler();
     checker = new Checker();
 
-#ifdef EXTPROC_TEST
     connect(checker, SIGNAL(sig_con_wifi_success(QString)), this, SLOT(connect_wifi_success(QString)));
     connect(checker, SIGNAL(sig_con_wifi_fail(int,QString)), this, SLOT(connect_wifi_fail(int,QString)));
     connect(checker, SIGNAL(sig_set_wifi_success(QString)), this, SLOT(set_wifi_success(QString)));
@@ -90,13 +89,6 @@ Supervisor::Supervisor(QObject *parent)
     connect(checker, SIGNAL(sig_gitpull_success()), this, SLOT(git_pull_success()));
     connect(checker, SIGNAL(sig_gitpull_fail(int)), this, SLOT(git_pull_fail(int)));
 
-#else
-    extproc = new ExtProcess();
-    connect(extproc, SIGNAL(timeout(int)),this,SLOT(process_timeout(int)));
-    connect(extproc, SIGNAL(got_done(int)),this,SLOT(process_done(int)));
-    connect(extproc, SIGNAL(got_accept(int)),this,SLOT(process_accept(int)));
-    connect(extproc, SIGNAL(got_error(int,int)),this,SLOT(process_error(int,int)));
-#endif
 
     connect(call, SIGNAL(new_call()),this,SLOT(new_call()));
     connect(ipc, SIGNAL(pathchanged()),this,SLOT(path_changed()));
@@ -137,10 +129,6 @@ Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
     ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
-#ifdef EXTPROC_TEST
-#else
-    delete extproc;
-#endif
     delete ipc;
     delete slam_process;
     delete zip;
@@ -589,12 +577,7 @@ void Supervisor::updateProgram(){
     server->doUpdate();
 }
 void Supervisor::updateProgramGitPull(){
-#ifdef EXTPROC_TEST
     checker->gitPull();
-#else
-    //    server->getGitCommits();
-    extproc->git_pull();
-#endif
 }
 void Supervisor::gitReset(){
     probot->program_branch = getSetting("setting","UI","program_branch");
@@ -622,7 +605,6 @@ void Supervisor::startUpdate(){
 //#else
 //    extproc->update_unzip();
 //#endif
-    extproc->update_unzip();
 }
 
 void Supervisor::checkVersionAgain(){

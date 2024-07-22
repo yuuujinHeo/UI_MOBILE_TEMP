@@ -10,6 +10,7 @@
 #include <fstream>
 #include <QJsonObject>
 #include <QJsonArray>
+
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1538,8 +1539,6 @@ std::vector<QString> array_to_linked(QJsonArray arr)
     }
     return res;
 }
-
-
 void MapHandler::loadNode(){
     // load topology
     nodes.clear();
@@ -1553,7 +1552,7 @@ void MapHandler::loadNode(){
         QJsonArray arr = doc.array();
         foreach(const QJsonValue &val, arr)
         {
-            NODE *node = new NODE();
+            std::unique_ptr<NODE> node(new NODE());
 
             QJsonObject obj = val.toObject();
             node->id = obj["id"].toString();
@@ -1561,16 +1560,12 @@ void MapHandler::loadNode(){
             node->pose = array_to_pose(obj["pose"].toArray());
             node->linked = array_to_linked(obj["linked"].toArray());
 
-            nodes[node->id] = node;
+            nodes[node->id] = std::move(node);
         }
 
         file.close();
-
         qDebug() << "[TOPOMAP] "+topo_path+" loaded, num:" << (int)nodes.size();
     }
-
-    file.deleteLater();
-
 }
 void MapHandler::saveNode(){
     QString topo_path = QDir::homePath()+"/RB_MOBILE/maps/"+map_name+"/topo.json";
@@ -2574,13 +2569,13 @@ void MapHandler::addNode(QString id, QString attrib){
         id = auto_node_name(attrib);
     }
 
-    NODE *node = new NODE();
+    std::unique_ptr<NODE> node(new NODE());
     node->id = id;
     node->attrib = attrib;
     node->pose[0] = tempnode.point.x;
     node->pose[1] = tempnode.point.y;
     node->pose[2] = tempnode.angle;
-    nodes[node->id] = node;
+    nodes[node->id] = std::move(node);
     plog->write("[TOPOMAP] add node, id: " + id + QString::asprintf("(%f, %f, %f)",node->pose[0],node->pose[1],node->pose[2]));
 
     setMapLayer();
@@ -2882,7 +2877,8 @@ void MapHandler::loadAnnotation(){
                                     pmap->charging_locations[p].group_name.toLocal8Bit().data(),
                                     p,
                                     pmap->charging_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->charging_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->charging_locations[p].point);
@@ -2890,7 +2886,7 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
+        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load charging_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
     }
     for(size_t p = 0; p < pmap->resting_locations.size(); p++)
@@ -2899,7 +2895,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->resting_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->resting_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->resting_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->resting_locations[p].point);
@@ -2907,7 +2904,7 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
+        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load resting_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
     }
     for(size_t p = 0; p < pmap->cleaning_locations.size(); p++)
@@ -2916,7 +2913,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->cleaning_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->cleaning_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->cleaning_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->cleaning_locations[p].point);
@@ -2924,7 +2922,7 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
+        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load cleaning_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
     }
     for(size_t p = 0; p < pmap->init_locations.size(); p++)
@@ -2933,7 +2931,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->init_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->init_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->init_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->init_locations[p].point);
@@ -2941,7 +2940,7 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
+        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load init_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
     }
     for(size_t p = 0; p < pmap->serving_locations.size(); p++)
@@ -2950,7 +2949,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->serving_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->serving_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->serving_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->serving_locations[p].point);
@@ -2958,7 +2958,7 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
+        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load serving_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
     }
 

@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include <QNetworkInterface>
 #include <opencv2/opencv.hpp>
+#include <memory>
 #include <QDir>
 #include <QPixmap>
 #include <QSettings>

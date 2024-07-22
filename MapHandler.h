@@ -217,7 +217,7 @@ public:
 
 
     //-------------topo-------------------//
-    std::map<QString, NODE*> nodes;
+    std::map<QString, std::unique_ptr<NODE>> nodes;
     QString first_group_name = "Default";
     POSE tempnode;
     cv::Point2f init_tempnode;
