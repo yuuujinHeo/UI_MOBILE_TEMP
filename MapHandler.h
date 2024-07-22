@@ -114,8 +114,16 @@ public:
     Q_INVOKABLE void setShowLocation(bool onoff){
         show_location = onoff;
         show_location_icon = onoff;
+        show_location_detail=onoff;
         initLocation();
         setMap();
+    }
+    Q_INVOKABLE void setShowLocationDetail(bool onoff){
+        show_location = onoff;
+        show_location_detail = onoff;
+        //show_location_icon = onoff;
+        //initLocation();
+        //setMap();
     }
     Q_INVOKABLE void setRobotFollowing(bool onoff){
         robot_following = onoff;
@@ -168,6 +176,7 @@ public:
     void autoTline();
 
     Q_INVOKABLE bool getshowLocation(){return show_location;}
+    Q_INVOKABLE bool getshowLocationDetail(){return show_location_detail;}
     Q_INVOKABLE bool getRobotFollowing(){return robot_following;}
     Q_INVOKABLE bool getShowLidar(){return show_lidar;}
     Q_INVOKABLE bool getShowNode(){return show_node;}
@@ -191,6 +200,7 @@ public:
     bool show_avoid = false;
     bool show_location = false;
     bool show_location_icon = false;
+    bool show_location_detail = false;
     bool show_object = false;
     bool robot_following = false;
 

@@ -12435,7 +12435,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.2") // smart
+                    text:qsTr("Version 1.3.3") // Location_detail
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"

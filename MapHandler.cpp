@@ -364,6 +364,7 @@ void MapHandler::setMapOrin(QString type){
         file_travelline_ui = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         file_object = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         show_location = false;
+        show_location_detail = false;
         show_avoid = false;
         show_object = false;
         show_travelline = false;
@@ -429,6 +430,7 @@ void MapHandler::setMode(QString name){
     show_object = false;
     show_location = false;
     show_location_icon = false;
+    show_location_detail = false;
 
     tempnode.isnew = false;
 
@@ -443,16 +445,21 @@ void MapHandler::setMode(QString name){
         show_local_path = true;
         show_lidar = true;
         show_location = true;
+        show_location_detail = true;
         show_location_icon = true;
         robot_following = true;
         setFullScreen();
     }else if(mode == "annot_view"){//o
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         setFullScreen();
     }else if(mode == "annot_velmap"){//o
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_velocitymap = true;
         show_travelline = true;
         setFullScreen();
@@ -461,11 +468,15 @@ void MapHandler::setMode(QString name){
         show_lidar = true;
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         robot_following = true;
         show_travelline = true;
     }else if(mode == "annot_tline"){//o
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_travelline = true;
         setFullScreen();
     }else if(mode == "localization"){//o
@@ -473,6 +484,8 @@ void MapHandler::setMode(QString name){
         show_lidar = true;
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         pmap->annotation_edited = false;
         pmap->annot_edit_drawing = false;
         pmap->annot_edit_location = false;
@@ -483,6 +496,8 @@ void MapHandler::setMode(QString name){
         show_object = true;
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_travelline = true;
         initObject();
         setFullScreen();
@@ -491,6 +506,8 @@ void MapHandler::setMode(QString name){
         show_location = true;
         show_avoid = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_travelline = true;
         initObject();
         setFullScreen();
@@ -827,6 +844,36 @@ void MapHandler::setMapLayer(){
             painter_layer.drawPath(path);
             QImage image(":/icon/icon_home_2.png");
             painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }
+    }
+
+    if(show_location_detail){
+        for(int i=0; i<serving_locations.size(); i++){
+            float loc_x = (serving_locations[i].point.x - draw_x)*news;
+            float loc_y = (serving_locations[i].point.y - draw_y)*news;
+            //float distance = (pmap->robot_radius/grid_width)*2*news;
+            //float distance2 = distance*0.8;
+            //float th_dist = (M_PI/8);
+            float rad = (pmap->robot_radius/grid_width)*news;
+
+            //float x =   (loc_x + distance    * qCos(locations[i].angle));
+            //float y =   (loc_y + distance    * qSin(locations[i].angle));
+            //float x1 =  (loc_x + distance2   * qCos(locations[i].angle-th_dist));
+            //float y1 =  (loc_y + distance2   * qSin(locations[i].angle-th_dist));
+            //float x2 =  (loc_x + distance2   * qCos(locations[i].angle+th_dist));
+            //float y2 =  (loc_y + distance2   * qSin(locations[i].angle+th_dist));
+//            qDebug() << locations[i].type << locations[i].point.x << locations[i].point.y << draw_x << draw_y << loc_x << loc_y << rad;
+
+            QPainterPath path;
+            path.addRoundedRect((loc_x),(loc_y),5,5,rad,rad); //
+            painter_layer.setPen(QPen(Qt::red,3*news));
+
+            painter_layer.drawPath(path);
+            //painter_layer.drawLine(x1,y1,x,y);
+            //painter_layer.drawLine(x,y,x2,y2);
+            //painter_layer.drawPath(path);
+            //painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+
         }
     }
 
