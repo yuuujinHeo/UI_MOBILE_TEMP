@@ -1640,6 +1640,7 @@ Item {
                         Rectangle{
                             width: parent.width - 351
                             height: parent.height
+                            visible: false
                             ComboBox{
                                 id: combo_platform_type
                                 anchors.fill: parent
@@ -1776,6 +1777,7 @@ Item {
                     width: 1100
                     height: group_height
                     color: "black"
+                    visible:  false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -1789,6 +1791,7 @@ Item {
                     id: use_dcrelay
                     width: 840
                     height: setting_height
+                    visible:  false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -2015,6 +2018,7 @@ Item {
                         font.pixelSize: group_font_size
                     }
                 }
+
                 Rectangle{
                     id: set_preset
                     width: 840
@@ -12428,7 +12432,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.2.0") // 버그 업데이트
+                    text:qsTr("Version 1.3.0") // 버그 업데이트2
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
@@ -16293,6 +16297,7 @@ Item {
                 }
             }
         }
+
     }
     Popup{
         id: popup_camera

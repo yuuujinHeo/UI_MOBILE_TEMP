@@ -221,7 +221,7 @@ Item {
             }
             Row{
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 20
+                spacing: 120
                 Rectangle{
                     id: btn_confirm
                     width: 320
@@ -276,18 +276,18 @@ Item {
                 }
                 Rectangle{
                     id: btn_confirm2
-                    width: 250
+                    width: 120
                     height: 120
-                    radius: 60
+                    radius: 100
                     visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
                     border.color: color_gray
                     border.width: 2
                     Text{
                         anchors.centerIn: parent
-                        text: qsTr("퇴식위치로")
+                        text: qsTr("퇴식")
                         font.family: font_noto_b.name
                         font.pixelSize: 45
-                        color: color_green
+                        color: color_blue
                     }
                     MouseArea{
                         anchors.fill: parent

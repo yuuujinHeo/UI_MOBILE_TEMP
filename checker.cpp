@@ -785,7 +785,7 @@ void Checker::onTimer(){
                 worker_2->moveToThread(thread_2);
                 QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
                 QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
-                qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
+                //qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
                 worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
                 worker_2->setProperties(cmd_list[0].print);
 
@@ -798,7 +798,7 @@ void Checker::onTimer(){
             worker_1->moveToThread(thread_1);
             QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
             QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
-            qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
+            //qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
             worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
             worker_1->setProperties(cmd_list[0].print);
             setWork(cmd_list[0], thread_1, worker_1);
@@ -828,7 +828,7 @@ void Checker::getCurrentInterface(){
     getNetworkState();
 }
 void Checker::disWork(Worker *worker){
-    qDebug() << "diswork";
+    //qDebug() << "diswork";
     if(worker->program == "getWifiList"){
         QObject::disconnect(worker->parent_thread, &QThread::started, worker, &Worker::getWifiInterface);
     }else if(worker->program == "getSystemVolume"){
@@ -874,17 +874,17 @@ void Checker::disWork(Worker *worker){
     }
 
     if(worker == worker_1){
-        qDebug() << "disWork 1";
+        //qDebug() << "disWork 1";
         worker_1->disconnect();
         worker_1->deleteLater();
         worker_1 = nullptr;
     }else if(worker == worker_2){
-        qDebug() << "disWork 2";
+        //qDebug() << "disWork 2";
         worker_2->disconnect();
         worker_2->deleteLater();
         worker_2 = nullptr;
     }
-    qDebug() << "disWork done";
+    //qDebug() << "disWork done";
 }
 void Checker::setWork(ST_PROC cmd, QThread *thread, Worker *worker){
     if(cmd.cmd == "getWifiList"){

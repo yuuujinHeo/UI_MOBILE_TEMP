@@ -1345,7 +1345,7 @@ Item {
             update();
             timer_upd.start();
             if(cleaninglocation){
-                cleaning_text.text = qsTr("확인버튼을 누르시면 대기위치로 이동합니다\n바로 이동명령을 내리시려면 닫기를 눌러주세요")
+                cleaning_text.text = qsTr("<font color=\"#12d27c\">확인버튼</font>을 누르시면 <font color=\"#12d27c\">대기위치</font>로 이동합니다 <br>바로 이동명령을 내리시려면 닫기를 눌러주세요")
             }else{
                 cleaning_text.text = qsTr("다음 이동 가능한 상태가 되면 확인 버튼을 눌러주세요")
             }
@@ -1382,6 +1382,7 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.topMargin: 80
+                spacing: 30
                 Text{
                     color: "white"
                     anchors.horizontalCenter: parent.horizontalCenter
@@ -1531,7 +1532,8 @@ Item {
                         height: 80
                         anchors.centerIn: parent
                         radius: 19
-                        color: "white"
+                        //color: "white"
+                        color: color_green
                         Text{
                             text:qsTr("확인")
                             font.family: font_noto_b.name
