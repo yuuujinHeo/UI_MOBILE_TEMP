@@ -1842,7 +1842,8 @@ Item {
                     id: goqual_state
                     width: 840
                     height: setting_height
-                    visible: combo_use_dcrelay.currentIndex === 1
+                    //visible: combo_use_dcrelay.currentIndex === 1
+                    visible:  false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1906,7 +1907,8 @@ Item {
                     id: goqual_id
                     width: 840
                     height: setting_height
-                    visible: combo_use_dcrelay.currentIndex === 1
+                    //visible: combo_use_dcrelay.currentIndex === 1
+                    visible:  false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -1957,7 +1959,8 @@ Item {
                     id: goqual_passwd
                     width: 840
                     height: setting_height
-                    visible: combo_use_dcrelay.currentIndex === 1
+                    //visible: combo_use_dcrelay.currentIndex === 1
+                    visible:  false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -12432,7 +12435,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.1") // 버그 업데이트2
+                    text:qsTr("Version 1.3.2") // smart
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
