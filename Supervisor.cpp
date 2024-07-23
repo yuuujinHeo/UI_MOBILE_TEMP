@@ -2621,14 +2621,18 @@ void Supervisor::makeUSBShell(){
 QString Supervisor::getNewServingName(int group){
     int count = 0;
     QString groupname = "";
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].type == "Serving"){
-            if(pmap->serving_locations[i].group == group){
-                groupname = pmap->serving_locations[i].group_name;
-                break;
-            }
-        }
+    if(group > -1 && group < pmap->location_groups.size()){
+        groupname = pmap->location_groups[group];
     }
+    // for(int i=0; i<pmap->location_groups.size(); i+)
+    // for(int i=0; i<pmap->serving_locations.size(); i++){
+    //     if(pmap->serving_locations[i].type == "Serving"){
+    //         if(pmap->serving_locations[i].group == group){
+    //             groupname = pmap->serving_locations[i].group_name;
+    //             break;
+    //         }
+    //     }
+    // }
 
     if(groupname == "" || groupname == "Default"){
         groupname = "서빙";
