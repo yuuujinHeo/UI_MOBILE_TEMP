@@ -1396,35 +1396,6 @@ Item {
             }
             Rectangle{
                 id: rect_category_3
-                width: 264
-                height: caterogy_height
-                visible: is_rainbow
-                color: "#647087"
-                Text{
-                    anchors.centerIn: parent
-                    font.family: font_noto_r.name
-                    color: "white"
-                    text: qsTr("주행")
-                    font.pixelSize: category_font_size
-                }
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        supervisor.playSound('click', slider_volume_button.value);
-                       select_category = "moving";
-                    }
-                }
-                Rectangle{
-                    width: parent.width
-                    height: 7
-                    visible: select_category === "moving" ? true : false
-                    color: "#12d27c"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    anchors.top: parent.bottom
-                }
-            }
-            Rectangle{
-                id: rect_category_4
                 width: 240
                 height: caterogy_height
                 color: "#647087"
@@ -1452,6 +1423,36 @@ Item {
                     anchors.top: parent.bottom
                 }
             }
+            Rectangle{
+                id: rect_category_4
+                width: 264
+                height: caterogy_height
+                visible: is_rainbow
+                color: "#647087"
+                Text{
+                    anchors.centerIn: parent
+                    font.family: font_noto_r.name
+                    color: "white"
+                    text: qsTr("주행")
+                    font.pixelSize: category_font_size
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        supervisor.playSound('click', slider_volume_button.value);
+                       select_category = "moving";
+                    }
+                }
+                Rectangle{
+                    width: parent.width
+                    height: 7
+                    visible: select_category === "moving" ? true : false
+                    color: "#12d27c"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.bottom
+                }
+            }
+
         }
 
         Flickable{
@@ -4129,7 +4130,9 @@ Item {
                 Rectangle{
                     id: set_wheelbase
                     width: 840
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
+
                     height: setting_height
                     Row{
                         anchors.fill: parent
@@ -4194,7 +4197,8 @@ Item {
                     id: set_wheelradius
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7075,7 +7079,8 @@ Item {
                     id: set_cam_exposure
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7276,7 +7281,8 @@ Item {
                     id: set_lidar_offset_tf
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7343,7 +7349,8 @@ Item {
                     id: set_left_camera_tf
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7411,7 +7418,8 @@ Item {
                     id: set_right_camera_tf
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9314,7 +9322,8 @@ Item {
                     id: set_icp_odometry_weight
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: is_admin
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9504,7 +9513,8 @@ Item {
                     width: 1100
                     height: group_height
                     color: "black"
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : is_admin
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -9518,7 +9528,8 @@ Item {
                     id: set_goal_dist
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: is_admin
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9580,7 +9591,8 @@ Item {
                     id: set_goal_th
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: is_admin
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9644,6 +9656,7 @@ Item {
                     width: 840
                     height: setting_height
                     visible: is_rainbow
+                    //visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10116,7 +10129,8 @@ Item {
                     width: 1100
                     height: group_height
                     color: "black"
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     anchors.horizontalCenter: parent.horizontalCenter
                     Text{
                         anchors.centerIn: parent
@@ -10136,7 +10150,8 @@ Item {
                     id: set_use_current
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10182,7 +10197,8 @@ Item {
                     id: set_motor_current_margin
                     width: 840
                     height: setting_height
-                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
+                    //visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
+                    visible :false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10243,7 +10259,8 @@ Item {
                 Rectangle{
                     width: 840
                     height: setting_height
-                    visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
+                    //visible: is_rainbow && combo_use_motorcurrent.currentIndex === 1
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10981,7 +10998,8 @@ Item {
                     id: set_wheel_dir
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -12435,7 +12453,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.3") // Location_detail
+                    text:qsTr("Version 1.3.4") // option & refresh
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
