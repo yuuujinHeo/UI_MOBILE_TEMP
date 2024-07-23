@@ -214,6 +214,7 @@ Item {
         }
 
         //only serving locations
+        print("READ SETTING?????????????");
         locations.clear();
         for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
             locations.append({"name": supervisor.getLocationName(i,"Serving"),
@@ -271,6 +272,7 @@ Item {
                                "call_id":supervisor.getLocationCallID("Cleaning",0),
                                 "ling_id":supervisor.getLocationLingID("Cleaning",0)});
         }
+
         for(var i=0; i<supervisor.getLocationNum("Init"); i++){
             details.append({"ltype":"Init",
                                "name":qsTr("초기화위치"),
@@ -1461,11 +1463,7 @@ Item {
                                 anchors.fill: parent
                                 onClicked:{
                                     supervisor.playSound('click');
-                                    if(select_location === index){
-                                        select_location = -1;
-                                    }else{
-                                        select_location = index;
-                                    }
+                                    select_location = index;
                                     select_location_type = ltype;
                                     supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                 }
@@ -1490,11 +1488,9 @@ Item {
                             currentIndex: group
                             onCurrentIndexChanged: {
                                 if(focus){
-                                    if(select_location === index){
-                                        select_location = -1;
-                                    }else{
-                                        select_location = index;
-                                    }
+                                    console.log(select_location, index);
+                                    select_location = index;
+
                                     select_location_type = ltype;
                                     supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
 
@@ -1537,18 +1533,8 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             onTextChanged: {
                                 name = text;
-
-                                if(locations.count > index){
-                                    if(supervisor.getRobotType() === "CLEANING"){
-                                        if(index > 2){
-                                            locations.get(index-3).name = name;
-                                        }
-
-                                    }else{
-                                        if(index > 1){
-                                            locations.get(index-2).name = name;
-                                        }
-                                    }
+                                if(text != '' && select_location === index){
+                                    locations.get(index-getIndex(select_location_type)).name = name;
                                 }
                                 clearLocationName();
                                 checkLocationName();
@@ -1558,11 +1544,7 @@ Item {
                                 anchors.fill:parent
                                 onClicked: {
                                     supervisor.playSound('click');
-                                    if(select_location === index){
-                                        select_location = -1;
-                                    }else{
-                                        select_location = index;
-                                    }
+                                    select_location = index;
                                     select_location_type = ltype;
                                     supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                 }
@@ -1571,12 +1553,7 @@ Item {
                                     if(ltype === "Serving"){
                                         keyboard.owner = tx_name;
                                         tx_name.selectAll();
-//                                        if(select_location == index){
-//                                            select_location = -1;
-//                                        }else{
-//                                            print("name focus select_location",index);
                                         select_location = index;
-//                                        }
                                         select_location_type = ltype;
                                         supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                         keyboard.open();
@@ -1616,11 +1593,7 @@ Item {
                                 anchors.fill: parent
                                 onClicked:{
                                     supervisor.playSound('click');
-                                    if(select_location === index){
-                                        select_location = -1;
-                                    }else{
-                                        select_location = index;
-                                    }
+                                    select_location = index;
                                     select_location_type = ltype;
                                     supervisor.selectLocation(select_location_type,select_location-getIndex(select_location_type));
                                 }
