@@ -3634,7 +3634,8 @@ Item {
                 Rectangle{
                     id: set_server_ip
                     width: 840
-                    visible: is_admin && use_multirobot
+                    //visible: is_admin && use_multirobot
+                    visible : false
                     height: setting_height
                     Row{
                         anchors.fill: parent
@@ -3863,7 +3864,8 @@ Item {
                     id: set_server_id
                     width: 840
                     height: setting_height
-                    visible: is_admin && use_multirobot
+                    //visible: is_admin && use_multirobot
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -3925,7 +3927,8 @@ Item {
                     id: set_server_pw
                     width: 840
                     height: setting_height
-                    visible: is_admin &&  use_multirobot
+                    //visible: is_admin &&  use_multirobot
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -12453,7 +12456,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.4") // option & refresh
+                    text:qsTr("Version 1.3.5") // multi option
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
