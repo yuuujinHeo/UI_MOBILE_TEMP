@@ -12456,7 +12456,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.5") // multi option
+                    text:qsTr("Version 1.3.5") // multi option & charging option
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
