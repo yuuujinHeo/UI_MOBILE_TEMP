@@ -734,9 +734,12 @@ Item {
                 image_motor_power.source = "icon/icon_motor_discon.png"
             }
 
-            if(supervisor.getChargeConnectStatus()===1){
-                image_battery.source = "icon/icon_battery_charging.png"
-            }else if(robot_battery > 90){
+            //07.25 - BJ
+            //if(supervisor.getChargeConnectStatus()===1){
+            //    image_battery.source = "icon/icon_battery_charging.png"
+            //}
+            //else
+            if(robot_battery > 90){
                 image_battery.source = "icon/icon_battery_4.png"
             }else if(robot_battery > 60){
                 image_battery.source = "icon/icon_battery_3.png"
