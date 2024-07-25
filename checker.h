@@ -111,6 +111,12 @@ signals:
 public:
     Worker(QString _name, QThread *th):name(_name),parent_thread(th){}
     ~Worker(){
+
+        //0725-BJ
+        if(process) {
+            process->disconnect();
+            process->deleteLater();
+        }
         // disconnect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_connect_wifi()));
     }
     QThread *parent_thread;
