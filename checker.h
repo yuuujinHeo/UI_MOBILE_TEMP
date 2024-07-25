@@ -92,6 +92,11 @@ public slots:
             return;
         }
     }
+
+    //0725-BJ
+    void outputAvailable();
+    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
+
 signals:
     void finished(Worker *w);
     void change_network(QString line);
@@ -158,6 +163,14 @@ signals:
     void sig_gitpull_success();
     void sig_gitpull_fail(int reason);
 
+    // 0725-BJ
+    void wifi_connect_success();
+    void wifi_connect_failed();
+    void ethernet_config_success();
+    void ethernet_config_failed();
+    void ip_config_success();
+    void ip_config_failed();
+
 private slots:
     void onTimer();
     void connect_wifi_success(QString ssid);
@@ -179,6 +192,7 @@ private:
     Worker *worker_2;
     Worker *worker_3;
     QTimer *timer;
+    QProcess *process; // 07.25-BJ
 };
 
 

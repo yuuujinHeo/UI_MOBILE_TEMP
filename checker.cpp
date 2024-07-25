@@ -614,33 +614,66 @@ void Worker::getNetworkState(){
         emit finished(this);
     }
 }
-void Worker::gitPull(){
+//void Worker::gitPull(){
+//    process = new QProcess(this);
+//
+//    process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
+//    plog->write("[UPDATE] Git Pull : Start");
+//    process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
+//
+//    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+//
+//    if(!process->waitForFinished()){
+//    }else{
+//        QByteArray result = process->readAllStandardOutput();
+//
+//        if(result == "" && !is_error){
+//            plog->write("[UPDATE] Git Pull : Already");
+//            emit git_pull_nothing();
+//        }else if(result.contains("error:") || is_error){
+//            plog->write("[UPDATE] Git Pull : Failed");
+//            emit git_pull_failed();
+//        }else{
+//            plog->write("[UPDATE] Git Pull : Success");
+//            emit git_pull_success();
+//        }
+//    }
+//
+//    process->close();
+//    process->disconnect();
+//    process->deleteLater();
+//    process = nullptr;
+//
+//    emit finished(this);
+//}
+
+//0725-BJ
+void Worker::gitPull() {
     process = new QProcess(this);
-
-    process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
+    process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE");
     plog->write("[UPDATE] Git Pull : Start");
-    process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
 
-    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+    connect(process, &QProcess::readyReadStandardError, this, &Worker::error_git_pull);
 
-    if(!process->waitForFinished()){
-    }else{
+    process->start("git", QStringList() << "submodule" << "update" << "--remote");
+
+    if (!process->waitForFinished()) {
+        plog->write("[UPDATE] Git Pull : Timeout or Error");
+    } else {
         QByteArray result = process->readAllStandardOutput();
-
-        if(result == "" && !is_error){
-            plog->write("[UPDATE] Git Pull : Already");
+        if (result.isEmpty() && !is_error) {
+            plog->write("[UPDATE] Git Pull : Already up-to-date");
             emit git_pull_nothing();
-        }else if(result.contains("error:") || is_error){
+        } else if (result.contains("error:") || is_error) {
             plog->write("[UPDATE] Git Pull : Failed");
             emit git_pull_failed();
-        }else{
+        } else {
             plog->write("[UPDATE] Git Pull : Success");
             emit git_pull_success();
         }
     }
 
     process->close();
-    process->disconnect();
     process->deleteLater();
     process = nullptr;
 
@@ -673,12 +706,43 @@ void Worker::checkPing(){
     emit finished(this);
 }
 
-void Worker::startMonitorNetwork(){
-    process = new QProcess();
-    plog->write("[CHECKER] Start Monitor Network");
-    process->start("nmcli",QStringList()<<"m");
-    connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(network_output()));
+//0725-BJ
+void Worker::outputAvailable() {
+    QByteArray result = process->readAllStandardOutput();
+    QString output(result);
+    // 네트워크 상태를 처리하는 로직 추가
+    plog->write("[CHECKER] Network Output: " + output);
+    // 필요한 추가 작업 수행
 }
+//0725-BJ
+void Worker::processFinished(int exitCode, QProcess::ExitStatus exitStatus) {
+    if (exitCode == 0) {
+        plog->write("[CHECKER] Network Monitor Finished Successfully");
+    } else {
+        plog->write("[CHECKER] Network Monitor Finished with Errors");
+    }
+    process->deleteLater();
+    emit finished(this);
+}
+
+//void Worker::startMonitorNetwork(){
+//    process = new QProcess();
+//    plog->write("[CHECKER] Start Monitor Network");
+//    process->start("nmcli",QStringList()<<"m");
+//    connect(process,SIGNAL(readyReadStandardOutput()),this,SLOT(network_output()));
+//}
+
+//0725-BJ
+void Worker::startMonitorNetwork() {
+    process = new QProcess(this);
+    plog->write("[CHECKER] Start Monitor Network");
+
+    connect(process, &QProcess::readyReadStandardOutput, this, &Worker::outputAvailable);
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, &Worker::processFinished);
+
+    process->start("nmcli", QStringList() << "m");
+}
+
 
 void Worker::network_output(){
     QByteArray output = process->readAllStandardOutput();
@@ -1081,6 +1145,28 @@ void Checker::connectWifi(QString ssid, QString passwd){
     proc.arg = QStringList() << ssid << passwd;
     proc.print = false;
     cmd_list.append(proc);
+
+    //0725-BJ
+    process = new QProcess(this);
+    QStringList arguments;
+    arguments << "dev" << "wifi" << "connect" << ssid << "password" << passwd;
+
+    connect(process, &QProcess::readyReadStandardOutput, this, [this, ssid]() {
+        QByteArray result = process->readAllStandardOutput();
+        if (result.contains("successfully activated")) {
+            plog->write("[WiFi] Connection successful to " + ssid);
+            emit wifi_connect_success();
+        } else {
+            plog->write("[WiFi] Connection failed to " + ssid);
+            emit wifi_connect_failed();
+        }
+    });
+
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this]() {
+        process->deleteLater();
+    });
+
+    process->start("nmcli", arguments);
 }
 
 void Checker::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
@@ -1095,6 +1181,33 @@ void Checker::setEthernet(QString ip, QString subnet, QString gateway, QString d
     proc.arg = QStringList() << ip << subnet << gateway << dns1 << dns2;
     proc.print = false;
     cmd_list.append(proc);
+
+    // 0725-BJ
+    process = new QProcess(this);
+    QStringList arguments;
+    arguments << "connection" << "modify" << "ethernet"
+              << "ipv4.addresses" << ip + "/" + subnet
+              << "ipv4.gateway" << gateway
+              << "ipv4.dns" << dns1
+              << "ipv4.dns" << dns2
+              << "ipv4.method" << "manual";
+
+    connect(process, &QProcess::readyReadStandardOutput, this, [this]() {
+        QByteArray result = process->readAllStandardOutput();
+        if (result.contains("successfully")) {
+            plog->write("[Ethernet] Configuration successful");
+            emit ethernet_config_success();
+        } else {
+            plog->write("[Ethernet] Configuration failed");
+            emit ethernet_config_failed();
+        }
+    });
+
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this]() {
+        process->deleteLater();
+    });
+
+    process->start("nmcli", arguments);
 }
 void Checker::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
     for(ST_PROC p : cmd_list){
@@ -1112,6 +1225,37 @@ void Checker::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QS
     }
     proc.print = false;
     cmd_list.append(proc);
+
+    // 0725-BJ
+    process = new QProcess(this);
+    QStringList arguments;
+    if (is_manual) {
+        arguments << "connection" << "modify" << ssid
+                  << "ipv4.addresses" << ip + "/" + subnet
+                  << "ipv4.gateway" << gateway
+                  << "ipv4.dns" << dns1
+                  << "ipv4.dns" << dns2
+                  << "ipv4.method" << "manual";
+    } else {
+        arguments << "connection" << "modify" << ssid << "ipv4.method" << "auto";
+    }
+
+    connect(process, &QProcess::readyReadStandardOutput, this, [this]() {
+        QByteArray result = process->readAllStandardOutput();
+        if (result.contains("successfully")) {
+            plog->write("[IP] Configuration successful");
+            emit ip_config_success();
+        } else {
+            plog->write("[IP] Configuration failed");
+            emit ip_config_failed();
+        }
+    });
+
+    connect(process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this]() {
+        process->deleteLater();
+    });
+
+    process->start("nmcli", arguments);
 }
 
 void Checker::gitPull(){
