@@ -12456,7 +12456,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.6") // Network, checker
+                    text:qsTr("Version 1.3.6.3") // Network, checker + Recover
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
