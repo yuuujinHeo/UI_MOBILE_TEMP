@@ -7823,7 +7823,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("장애물 예측 시간 [초]")
+                                text:qsTr("장애물 예측 시간 [초][2~4]")
                                 font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9337,7 +9337,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("모터 위치추정 비율 [%]")
+                                text:qsTr("모터 위치추정 비율 [%][0~1]")
                                 font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9356,7 +9356,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             TextField{
-                                id: icp_odometry_weight
+                                id: icp_odometry_weightF
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 font.pixelSize: info_font_size
@@ -9543,7 +9543,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("도착점 허용 오차 [m]")
+                                text:qsTr("도착점 허용 오차 [m](0.05)")
                                 font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
@@ -12456,7 +12456,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.6") // Network, checker
+                    text:qsTr("Version 1.3.6.1") // Network, checker + LoopClosing, Callbel
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
