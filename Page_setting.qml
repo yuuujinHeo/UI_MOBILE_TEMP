@@ -7765,6 +7765,7 @@ Item {
                     id: set_use_obs_preview
                     width: 840
                     height: setting_height
+                    visible : false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7812,7 +7813,8 @@ Item {
                     id: set_obs_preview_time
                     width: 840
                     height: setting_height
-                    visible: combo_use_obs_preview.currentIndex === 1
+                    //visible: combo_use_obs_preview.currentIndex === 1
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7823,7 +7825,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("장애물 예측 시간 [초][2~4]")
+                                text:qsTr("장애물 예측 시간 [초]")
                                 font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
@@ -7924,7 +7926,8 @@ Item {
                     width: 840
                     height: setting_height
                     //visible: combo_use_avoid.currentIndex === 1
-                    visible: combo_use_obs_preview.currentIndex === 1
+                    //visible: combo_use_obs_preview.currentIndex === 1
+                    visible:false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9337,7 +9340,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("모터 위치추정 비율 [%][0~1]")
+                                text:qsTr("모터 위치추정 비율 [%]")
                                 font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9356,7 +9359,7 @@ Item {
                             width: parent.width - 351
                             height: parent.height
                             TextField{
-                                id: icp_odometry_weightF
+                                id: icp_odometry_weight
                                 anchors.fill: parent
                                 property bool ischanged: false
                                 font.pixelSize: info_font_size
@@ -9543,7 +9546,7 @@ Item {
                                 anchors.left: parent.left
                                 anchors.leftMargin: 30
                                 font.family: font_noto_r.name
-                                text:qsTr("도착점 허용 오차 [m](0.05)")
+                                text:qsTr("도착점 허용 오차 [m]")
                                 font.pixelSize: name_font_size
                                 Component.onCompleted: {
                                     scale = 1;
@@ -9984,7 +9987,8 @@ Item {
                     id: set_map_size
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10046,7 +10050,8 @@ Item {
                     id: set_grid_size
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -12456,7 +12461,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.6.1") // Network, checker + LoopClosing, Callbel
+                    text:qsTr("Version 1.3.6.2") // Network, checker + callbel, 확인버튼 에러
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
