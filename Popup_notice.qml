@@ -1,7 +1,7 @@
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 
-Popup {
+Popup{
     id: popup_notice
     anchors.centerIn: parent
     width: 1280
@@ -14,7 +14,7 @@ Popup {
     rightPadding: 0
     topPadding: 0
     bottomPadding: 0
-    background: Rectangle {
+    background:Rectangle{
         anchors.fill: parent
         color: color_dark_black
         opacity: 0.9
@@ -23,7 +23,7 @@ Popup {
     property string cur_btn: ""
     signal clicked
 
-    function init() {
+    function init(){
         console.log("popup notice init");
         model_btn.clear();
         style = "warning";
@@ -31,173 +31,155 @@ Popup {
         sub_str = "";
     }
 
-    function addButton(text) {
-        if (text === qsTr("취 소")) {
-            model_btn.append({"name": text, "mode": 0});
-        } else {
-            model_btn.append({"name": text, "mode": 1});
+    function addButton(text){
+        if(text === qsTr("취 소")){
+            model_btn.append({"name":text,"mode":0});
+        }else{
+            model_btn.append({"name":text,"mode":1});
         }
     }
 
-    ListModel {
+    ListModel{
         id: model_btn
     }
-
-    onOpened: {
+    onOpened:{
         is_open = true;
-        console.log("popup notice open");
-
-        switch(style) {
-            case "notice":
-                image_warn.source = "icon/icon_bookmark.png";
-                text_main.color = "white";
-                text_sub.color = "white";
-                break;
-            case "error":
-                image_warn.source = "image/icon_warning.png";
-                text_main.color = color_red;
-                text_sub.color = "white";
-                break;
-            case "warning":
-                image_warn.source = "image/warning.png";
-                text_main.color = "white";
-                text_sub.color = "white";
-                break;
-            case "check":
-                image_warn.source = "image/robot_callme.png";
-                text_main.color = "white";
-                text_sub.color = "white";
-                break;
-            case "info":
-                image_warn.source = "icon/icon_info.png";
-                text_main.color = "white";
-                text_sub.color = "white";
-                break;
-            default:
-                image_warn.source = "";
-                text_main.color = "white";
-                text_sub.color = "white";
+        console.log("poupup notice open");
+        if(style == "notice"){
+            image_warn.source = "icon/icon_bookmark.png"
+            text_main.color = "white";
+            text_sub.color = "white";
+        }else if(style == "error"){
+            image_warn.source = "image/icon_warning.png"
+            text_main.color = color_red;
+            text_sub.color = "white";
+        }else if(style == "warning"){
+            image_warn.source = "image/warning.png"
+            text_main.color = "white";
+            text_sub.color = "white";
+        }else if(style == "check"){
+            image_warn.source = "image/robot_callme.png"
+            text_main.color = "white";
+            text_sub.color = "white";
+        }else if(style == "info"){
+            image_warn.source = "icon/icon_info.png";
+            text_main.color = "white";
+            text_sub.color = "white";
         }
 
-        print("popup notice open : ", main_str);
-
-        // 항상 기본적으로 '확인' 버튼을 추가
-        model_btn.clear();
-        addButton(qsTr("확인"));
-
-        if (model_btn.count > 0) {
+        print("popup notice open : ",main_str);
+        if(model_btn.count > 0){
             var already = false;
-            for (var i = 0; i < model_btn.count; i++) {
-                if (model_btn.get(i).name === qsTr("취 소")) {
+            for(var i=0;i<model_btn.count;i++){
+                if(model_btn.get(i).name === qsTr("취 소")){
                     already = true;
                     break;
                 }
             }
-            if (!already) {
-                model_btn.insert(0, {"name": qsTr("취 소"), "mode": 0});
+            if(!already){
+                model_btn.insert(0,{"name":qsTr("취 소"),"mode":0})
             }
-        } else {
+        }else{
             addButton(qsTr("확 인"));
         }
     }
-
-    onClosed: {
+    onClosed:{
         is_open = false;
     }
 
-    Rectangle {
+    Rectangle{
         id: back
         width: parent.width
         height: 360
         anchors.centerIn: parent
         color: color_dark_navy
 
-        Column {
+        Column{
             anchors.fill: parent
-            Rectangle {
+            Rectangle{
                 width: parent.width
                 height: 100
                 color: "transparent"
-                Row {
+                Row{
                     anchors.centerIn: parent
                     spacing: 10
-                    Image {
+                    Image{
                         anchors.verticalCenter: parent.verticalCenter
                         id: image_warn
-                        width: 60
-                        height: 60
+                        width:60
+                        height:60
                         sourceSize.width: 60
                         sourceSize.height: 60
                         antialiasing: true
                         source: "image/warning.png"
                     }
-                    Text {
-                        id: text_main
+                    Text{
+                        id:text_main
                         color: "white"
                         anchors.verticalCenter: parent.verticalCenter
                         font.family: font_noto_r.name
                         font.pixelSize: 50
                         text: popup_notice.main_str
                         Component.onCompleted: {
-                            while (width > back.width * 0.7) {
-                                font.pixelSize -= 1
+                            while(width > back.width*0.7){
+                                font.pixelSize-=1
                             }
                         }
                     }
                 }
             }
-            Rectangle {
+            Rectangle{
                 width: parent.width
                 height: 140
                 color: "transparent"
-                Text {
+                Text{
                     anchors.centerIn: parent
-                    id: text_sub
+                    id:text_sub
                     color: color_light_gray
                     horizontalAlignment: Text.AlignHCenter
                     font.family: font_noto_r.name
                     font.pixelSize: 33
                     text: popup_notice.sub_str
                     Component.onCompleted: {
-                        while (width > back.width * 0.8) {
-                            font.pixelSize -= 1
+                        while(width > back.width*0.8){
+                            font.pixelSize-=1
                         }
                     }
                 }
             }
-            Rectangle {
+            Rectangle{
                 width: parent.width
                 height: 100
                 color: "transparent"
-                Row {
+                Row{
                     anchors.centerIn: parent
                     spacing: 15
-                    Repeater {
-                        model: model_btn
-                        Rectangle {
-                            width: 180
+                    Repeater{
+                        model : model_btn
+                        Rectangle{
+                            width:  180
                             height: 60
-                            color: mode === 0 ? color_dark_gray : color_green
-                            Text {
+                            color: mode===0?color_dark_gray:color_green
+                            Text{
                                 anchors.centerIn: parent
-                                color: mode === 0 ? "white" : color_dark_navy
+                                color: mode===0?"white":color_dark_navy
                                 font.family: font_noto_r.name
                                 font.pixelSize: 30
                                 text: name
                                 Component.onCompleted: {
-                                    while (width > 160 * 0.9) {
-                                        font.pixelSize -= 1
+                                    while(width > 160*0.9){
+                                        font.pixelSize-=1
                                     }
                                 }
                             }
-                            MouseArea {
+                            MouseArea{
                                 anchors.fill: parent
-                                onPressed: {
-                                    parent.color = mode === 0 ? color_more_gray : color_dark_green
+                                onPressed:{
+                                    parent.color = mode===0?color_more_gray:color_dark_green
                                     supervisor.playSound('click');
                                 }
-                                onReleased: {
-                                    parent.color = mode === 0 ? color_dark_gray : color_green
+                                onReleased:{
+                                    parent.color = mode===0?color_dark_gray:color_green
                                     cur_btn = name;
                                     popup_notice.clicked();
                                 }

@@ -96,64 +96,68 @@ void CallbellHandler::readData(){
     *
     */
 
-    plog->write("[CALLBELL] readData: " + QString::number(datas.length()) + "," + QString::number(datas.size()));
-    plog->write("[CALLBELL] readData: " + data + " -> " + datas);
+    plog->write("[CALLBELL] readData: "+QString::number(datas.length())+","+QString::number(datas.size()));
+    plog->write("[CALLBELL] readData: "+data+ " -> "+datas);
 
-    while (datas.length() > 5) {
-        plog->write("[CALLBELL] readData while : " + datas + " -> " + QString::number(datas.length()) + "," + QString::number(datas.size()));
-        if (uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01) {
-            int size = (short)(uchar(datas[3]) | (uchar(datas[2]) << 8));
-            if (size <= 0 || size > 24) {
+    while(datas.length() > 5){
+        plog->write("[CALLBELL] readData while : "+datas+" -> "+QString::number(datas.length())+","+QString::number(datas.size()));
+        if(uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01){
+            int size = (short)(uchar(datas[3]) | (uchar(datas[2])<<8));
+            if(size < 0 || size > 24){
                 datas.remove(0, 1);
-            } else {
-                if (size <= datas.length()) {
-                    uint option = (ushort)(uchar(datas[5]) | (uchar(datas[4]) << 8));
+            }else{
+                if(size <= datas.length()){
+                    uint option = (ushort)(uchar(datas[5]) | (uchar(datas[4])<<8));
 
-                    if (option == 0xA501 && size == 12) {
-                        // connection check
+                    if(option == 0xA501 && size == 12){
+                        //connection check
                         uchar checksum = uchar(datas[11]);
                         uchar temp_cs = CalcCheckSum(datas, size);
-                        if (checksum == temp_cs) {
+                        datas.remove(0, size);
+                        if(checksum == temp_cs){
                             SendConnectionCheckMessage();
                         }
-                        datas.remove(0, size);
-                    } else if (option == 0xA505 && size == 20) {
+                    }else if(option == 0xA505 && size == 20){
                         // data check
-                        uint model_num = (ushort)(uchar(datas[7]) | (uchar(datas[6]) << 8));
-                        uint firmware_ver = (ushort)(uchar(datas[9]) | (uchar(datas[8]) << 8));
-                        uint bell_id = (unsigned int)(uchar(datas[13]) | (uchar(datas[12]) << 8) | (uchar(datas[11]) << 16) | (uchar(datas[10]) << 24));
-                        uint button_info = uchar(datas[14]);
-                        uint bell_info = uchar(datas[15]);
+                        uint model_num = (ushort)(uchar(datas[7]) | (uchar(datas[6])<<8));
+                        uint firmware_ver = (ushort)(uchar(datas[9]) | (uchar(datas[8])<<8));
+                        uint bell_id;
+                        uint button_info;
+                        uint bell_info;
+                        bell_id = (unsigned int)(uchar(datas[13]) | (uchar(datas[12])<<8) | (uchar(datas[11])<<16) | (uchar(datas[10])<<24));
+                        button_info = uchar(datas[14]);
+                        bell_info = uchar(datas[15]);
 
                         QString bell_str = QString().asprintf("%08X", bell_id);
                         QString button_info_str = QString().asprintf("%02X", button_info);
                         QString bell_info_str = QString().asprintf("%02X", bell_info);
 
+                        // qDebug() << bell_str << button_info_str << bell_info_str;
                         uchar checksum = uchar(datas[19]);
                         uchar temp_cs = CalcCheckSum(datas, size);
-                        if (checksum == temp_cs) {
+                        datas.remove(0, size);
+                        if(checksum == temp_cs){
                             SendDataCheckMessage();
+                            // sendCall(bell_str);
                             last_bell_id = bell_str;
                             plog->write("[CALLBELL] ReadData (NewCall) : " + last_bell_id);
                             emit new_call();
                         }
-                        datas.remove(0, size);
-                    } else if (option == 0xA514) {
-                        datas.remove(0, size);
-                    } else {
-                        datas.remove(0, size); // 처리되지 않은 옵션의 경우 데이터 제거
+                    }else if(option == 0xA514){
+                        datas.remove(0,size);
+                    }else{
+                        // datas.remove(0,size);
                     }
-                } else {
+                }else{
                     break;
                 }
             }
-        } else {
+        }else{
             datas.remove(0, 1);
         }
     }
 
     plog->write("[CALLBELL] readData : done");
-
 }
 
 void CallbellHandler::handleError(QSerialPort::SerialPortError error){

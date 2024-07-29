@@ -85,7 +85,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Text{
-                    text: qsTr("주변환경을 정돈하신 후 가급적 테이블의 이동을 삼가 해주시기 바랍니다 \n 초기 시작위치를 임시로 표기해주시길 바랍니다 \n 맵 생성을 시작시, 로봇을 매장 가운에서 시작해주시길 바랍니다")
+                    text: qsTr("매장환경을 정돈하신 후 가급적 테이블의 이동을 삼가 해주시기 바랍니다\n지금부터 로봇을 밀며 이동할 수 있습니다")
                     color: "white"
                     font.pixelSize: 30
                     horizontalAlignment: Text.AlignHCenter
@@ -146,8 +146,7 @@ Item {
                 radius: 15
                 border.width: 2
                 border.color: "white"
-                //color: "transparent"
-                color : color_green
+                color: "transparent"
                 Text{
                     Component.onCompleted: {
                         scale = 1;
@@ -487,7 +486,7 @@ Item {
                 spacing: 5
                 Text{
                     font.pixelSize: 15
-                    anchors.horizontalCenter: parent.horizontalCenterㅎ
+                    anchors.horizontalCenter: parent.horizontalCenter
                     font.family: font_noto_r.name
                     color: color_blue
                     text:qsTr("맵 생성 가능한 매장 크기(최대)")
@@ -515,8 +514,7 @@ Item {
                 border.width: 2
                 border.color: "white"
                 enabled: false
-                //color: enabled?"transparent":color_dark_gray
-                color : color_green
+                color: enabled?"transparent":color_dark_gray
                 Text{
                     Component.onCompleted: {
                         scale = 1;
@@ -681,7 +679,7 @@ Item {
                     font.family: font_noto_r.name
                     font.pixelSize: 30
                     color: "white"
-                    text: qsTr("맵 생성 완료")
+                    text: qsTr("루프클로징")
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -709,8 +707,7 @@ Item {
                 border.width: 2
                 border.color: "white"
                 enabled: false||test
-                //color: enabled?"transparent":color_dark_gray
-                color : color_green
+                color: enabled?"transparent":color_dark_gray
                 Text{
                     Component.onCompleted: {
                         scale = 1;
@@ -739,7 +736,6 @@ Item {
                     }
                 }
             }
-
             Timer{
                 id: timer_save_mapping
                 running: false
@@ -795,18 +791,6 @@ Item {
                         parent.color = "transparent";
                     }
                 }
-                // 새로운 Text 요소 추가
-
-            }
-            Text {
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottomMargin: 20
-                text: qsTr("끝내려면 맵 생성 초기 위치로 이동하고, 완료 버튼을 누르고 저장을 눌러주시길 바랍니다")
-                color: "white"
-                font.pixelSize: 20
-                horizontalAlignment: Text.AlignHCenter
-                font.family: font_noto_r.name
             }
         }
     }
