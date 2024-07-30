@@ -864,7 +864,7 @@ void ServerHandler::parsingServer(QString url, QNetworkReply *reply){
 
     }else{
         QString err = reply->errorString();
-        qDebug() << "ERROR==========================" << err;
+        qDebug() << "ERROR==========================Server" << err;
         if(reply->error()>0 && reply->error()<100){
             mobile_connection = false;
         }
@@ -933,7 +933,7 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
 
             if(url.contains("/token")){
                 QJsonObject json = QJsonDocument::fromJson(response).object();
-                qDebug() << "REPLY===============================";
+                qDebug() << "REPLY===============================Reply";
                 qDebug() << "goqual response : " << json;
                 goqual_token.access_key = json["access_token"].toString();
                 goqual_token.refresh_key = json["refresh_token"].toString();

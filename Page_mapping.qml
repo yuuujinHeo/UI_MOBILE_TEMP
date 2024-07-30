@@ -85,7 +85,7 @@ Item {
                     anchors.horizontalCenter: parent.horizontalCenter
                 }
                 Text{
-                    text: qsTr("매장환경을 정돈하신 후 가급적 테이블의 이동을 삼가 해주시기 바랍니다\n지금부터 로봇을 밀며 이동할 수 있습니다")
+                    text: qsTr("주변환경을 정돈하신 후 가급적 테이블의 이동을 삼가 해주시기 바랍니다\n맵 생성을 시작시, 로봇을 매장 가운에서 시작해주시길 바랍니다\n초기 시작 위치를 임시로 표기해주실 바랍니다")
                     color: "white"
                     font.pixelSize: 30
                     horizontalAlignment: Text.AlignHCenter
@@ -679,7 +679,8 @@ Item {
                     font.family: font_noto_r.name
                     font.pixelSize: 30
                     color: "white"
-                    text: qsTr("루프클로징")
+                    //text: qsTr("루프클로징")
+                    text: qsTr("맵생성 완료")
                 }
                 MouseArea{
                     anchors.fill: parent
@@ -791,6 +792,18 @@ Item {
                         parent.color = "transparent";
                     }
                 }
+            }
+
+            // 새로운 Text 요소 추가
+            Text {
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottomMargin: 20
+                text: qsTr("맵 생성 초기 위치로 이동하고, 완료 버튼을 누르고 저장을 눌러주시길 바랍니다")
+                color: "white"
+                font.pixelSize: 22
+                horizontalAlignment: Text.AlignHCenter
+                font.family: font_noto_r.name
             }
         }
     }
