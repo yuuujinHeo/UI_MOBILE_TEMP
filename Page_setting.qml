@@ -12460,7 +12460,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.6.3") // Network, checker + Recover
+                    text:qsTr("Version 1.4.1") // branch
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
