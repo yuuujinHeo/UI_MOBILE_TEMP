@@ -734,9 +734,11 @@ Item {
                             supervisor.slam_map_reload(supervisor.getMapname());
                         }else{
                             if(annotation_after_mapping){
+                                map.save("rotate");
                                 supervisor.writelog("[UI] PageAnnot : no Save Rotate, Cut Map -> Location");
                                 page_after_localization = page_annot_location;
                                 annot_pages.sourceComponent = page_annot_localization;
+                                supervisor.slam_map_reload(supervisor.getMapname());
                             }else{
                                 supervisor.writelog("[UI] PageAnnot : no Save Rotate, Cut Map -> Menu");
                                 annot_pages.sourceComponent = page_annot_menu;

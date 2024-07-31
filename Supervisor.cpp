@@ -2124,30 +2124,15 @@ void Supervisor::setSLAMMode(int mode){
 
 }
 void Supervisor::setInitCurPos(){
-    pmap->init_pose = probot->curPose;
-    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
+    maph->set_init_pose = probot->curPose;
+    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",maph->set_init_pose.point.x, maph->set_init_pose.point.y, maph->set_init_pose.angle));
 }
 
-void Supervisor::setInitPos(int x, int y, float th){
-    qDebug() << "INIT" << x << y << setAxisBack(cv::Point2f(x,y)).x << setAxisBack(cv::Point2f(x,y)).y;
-    pmap->init_pose.point = setAxisBack(cv::Point2f(x,y));
-    pmap->init_pose.angle = setAxisBack(th);
-    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
-}
-float Supervisor::getInitPoseX(){
-    cv::Point2f temp = setAxis(pmap->init_pose.point);
-    return temp.x;
-}
-float Supervisor::getInitPoseY(){
-    cv::Point2f temp = setAxis(pmap->init_pose.point);
-    return temp.y;
-}
-float Supervisor::getInitPoseTH(){
-    return setAxis(pmap->init_pose.angle);
-}
 void Supervisor::slam_setInit(){
-    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x,pmap->init_pose.point.y,pmap->init_pose.angle));
-    ipc->setInitPose(pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle);
+    POSE temp = setAxisBack(maph->set_init_pose.point,maph->set_init_pose.angle);
+    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",temp.point.x,temp.point.y,temp.angle));
+
+    ipc->setInitPose(temp.point.x, temp.point.y, temp.angle);
 }
 void Supervisor::slam_run(){
     ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
@@ -4537,7 +4522,8 @@ void Supervisor::onTimer(){
             }else if(probot->motor[1].status != 1 && prev_motor_2_state != probot->motor[1].status){
                 QMetaObject::invokeMethod(mMain, "movefail");
             }else if(probot->status_charge_connect == 1 && prev_charge_state != probot->status_charge_connect){
-                QMetaObject::invokeMethod(mMain, "movefail");
+                plog->write("[STATE] Initializing : Charging Connected -> Charging");
+                ui_state = UI_STATE_CHARGING;
             }
         }
         patrol_mode = PATROL_NONE;
@@ -4553,7 +4539,7 @@ void Supervisor::onTimer(){
         if(ui_state != UI_STATE_NONE){
             plog->write("[STATE] "+curUiState()+" : SLAMNAV Disconnected -> None");
             QMetaObject::invokeMethod(mMain, "disconnected");
-            // debug_mode = false;
+//            debug_mode = false;
             stateInit();
         }
     }
@@ -5329,13 +5315,13 @@ void Supervisor::readPatrol(){
                         patrol.beginGroup("LOCATION");
                         for(int i=0; i<loc_num; i++){
                             LOCATION temp_loc;
-                            if(patrol.value("type"+QString::number(i)).toString() == "Charging"){
+                            if(patrol.value("group"+QString::number(i)).toString() == "Charging"){
                                 temp_loc = getChargingLocation(0);
-                            }else if(patrol.value("type"+QString::number(i)).toString() == "Resting"){
+                            }else if(patrol.value("group"+QString::number(i)).toString() == "Resting"){
                                 temp_loc = getRestingLocation(0);
-                            }else if(patrol.value("type"+QString::number(i)).toString() == "Cleaning"){
+                            }else if(patrol.value("group"+QString::number(i)).toString() == "Cleaning"){
                                 temp_loc = getCleaningLocation(0);
-                            }else if(patrol.value("type"+QString::number(i)).toString() == "Serving"){
+                            }else{
                                 temp_loc = getServingLocation(patrol.value("group"+QString::number(i)).toString(),patrol.value("loc"+QString::number(i)).toString());
                             }
                             if(temp_loc.name != ""){

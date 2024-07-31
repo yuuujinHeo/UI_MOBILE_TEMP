@@ -41,6 +41,8 @@ Item {
     }
 
     function openNotice(errstr){
+        popup_notice.close();
+        console.log("openNotice moving ->",errstr);
         popup_notice.init();
         popup_notice.style = "warning";
         if(errstr === "no_path"){
@@ -106,7 +108,6 @@ Item {
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("충전 케이블이 연결되어 있습니다")
             popup_notice.sub_str = qsTr("충전케이블이 연결된 상태로 주행할 수 없습니다")
-
             popup_notice.open();
         }else if(errstr === "running"){
             popup_notice.style = "warning";
