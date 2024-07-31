@@ -26,6 +26,7 @@ Item {
     property bool show_button_lidar: false
     property bool show_button_following: false
     property bool show_button_location: false
+    property bool show_button_location_detail: false
     property bool show_brush: false
     property bool show_grid: false
 
@@ -72,6 +73,7 @@ Item {
         show_button_following = true;
         show_button_lidar = true;
         show_button_location = true;
+        show_button_location_detail = true;
         show_grid = false;
         if(mode === "annot_drawing"){
             show_connection = false;
@@ -80,6 +82,7 @@ Item {
             show_button_following = false;
             show_button_lidar = false;
             show_button_location = false;
+            show_button_location_detail = false;
         }else if(mode === "serving_list"){
             show_connection = false;
         }else if(mode === "annot_object_png"){
@@ -570,6 +573,38 @@ Item {
         }
     }
     Rectangle{
+        id: btn_show_location_detail
+        width: 40
+        height: 40
+        radius: 40
+        //visible: show_button_location
+        visible: false
+        property bool active: false
+        color:  active?"#12d27c":"#e8e8e8"
+        Image{
+            anchors.centerIn: parent
+            width: 30
+            height: 30
+            sourceSize.width: 30
+            sourceSize.height: 30
+            antialiasing: true
+            source: "icon/icon_location.png"
+        }
+        MouseArea{
+            anchors.fill: parent
+            onClicked: {
+                supervisor.playSound('click');
+                if(parent.active){
+                    supervisor.setShowLocationDetail(false);
+                }else{
+                    supervisor.setShowLocationDetail(true);
+                }
+            }
+        }
+    }
+
+
+    Rectangle{
         id: brushview
         visible: show_brush
         width: cur_width
@@ -615,6 +650,7 @@ Item {
             ratio.value = supervisor.getICPRatio();
             ratio.limit = parseFloat(supervisor.getSetting("setting","INITIALIZATION","icp_init_ratio"))
             btn_show_location.active = supervisor.getshowLocation();
+            //btn_show_location_detail.active = supervisor.getShowLocationDetail();
             btn_robot_following.active = supervisor.getRobotFollowing();
             btn_show_lidar.active = supervisor.getShowLidar();
             if(supervisor.getIPCConnection()){

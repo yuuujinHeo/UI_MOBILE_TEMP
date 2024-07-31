@@ -67,7 +67,7 @@ Popup{
             text_sub.color = "white";
         }
 
-        print("popup notice open : ",main_str);
+        print("popup notice open : ",main_str,model_btn.count);
         if(model_btn.count > 0){
             var already = false;
             for(var i=0;i<model_btn.count;i++){

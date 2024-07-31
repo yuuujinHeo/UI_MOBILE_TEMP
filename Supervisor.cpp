@@ -52,10 +52,15 @@ Supervisor::Supervisor(QObject *parent)
 
     //기존 SLAM/NAV 모두 종료하고 다시 시작
     QList<QString> path_home_str = QDir::homePath().split("/");
-    QProcess *process = new QProcess(this);
+    QProcess process;
     QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    process->start(file,QStringList(),QProcess::ReadWrite);
-    process->waitForReadyRead(3000);
+    process.start(file,QStringList(),QProcess::ReadWrite);
+    if(!process.waitForFinished()){
+        plog->write("[SUPERVISOR] Kill All Failed");
+    }else{
+        plog->write("[SUPERVISOR] Kill All");
+    }
+    // process->waitForReadyRead(3000);
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
@@ -82,7 +87,6 @@ Supervisor::Supervisor(QObject *parent)
     tts = new TTSHandler();
     checker = new Checker();
 
-#ifdef EXTPROC_TEST
     connect(checker, SIGNAL(sig_con_wifi_success(QString)), this, SLOT(connect_wifi_success(QString)));
     connect(checker, SIGNAL(sig_con_wifi_fail(int,QString)), this, SLOT(connect_wifi_fail(int,QString)));
     connect(checker, SIGNAL(sig_set_wifi_success(QString)), this, SLOT(set_wifi_success(QString)));
@@ -90,13 +94,6 @@ Supervisor::Supervisor(QObject *parent)
     connect(checker, SIGNAL(sig_gitpull_success()), this, SLOT(git_pull_success()));
     connect(checker, SIGNAL(sig_gitpull_fail(int)), this, SLOT(git_pull_fail(int)));
 
-#else
-    extproc = new ExtProcess();
-    connect(extproc, SIGNAL(timeout(int)),this,SLOT(process_timeout(int)));
-    connect(extproc, SIGNAL(got_done(int)),this,SLOT(process_done(int)));
-    connect(extproc, SIGNAL(got_accept(int)),this,SLOT(process_accept(int)));
-    connect(extproc, SIGNAL(got_error(int,int)),this,SLOT(process_error(int,int)));
-#endif
 
     connect(call, SIGNAL(new_call()),this,SLOT(new_call()));
     connect(ipc, SIGNAL(pathchanged()),this,SLOT(path_changed()));
@@ -137,15 +134,40 @@ Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
     ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
-#ifdef EXTPROC_TEST
-#else
-    delete extproc;
-#endif
-    delete ipc;
-    delete slam_process;
-    delete zip;
-    delete maph;
-    delete call;
+
+    timer->disconnect();
+    timer->deleteLater();
+
+    voice_player->disconnect();
+    bgm_player->disconnect();
+    click_effect->disconnect();
+    list_bgm->disconnect();
+
+    voice_player->deleteLater();
+    bgm_player->deleteLater();
+    click_effect->deleteLater();
+    list_bgm->deleteLater();
+
+    translator->deleteLater();
+    server->disconnect();
+    tts->disconnect();
+    checker->disconnect();
+
+    server->deleteLater();
+    tts->deleteLater();
+    checker->deleteLater();
+
+    ipc->disconnect();
+    slam_process->disconnect();
+    zip->disconnect();
+    maph->disconnect();
+    call->disconnect();
+
+    ipc->deleteLater();
+    slam_process->deleteLater();
+    zip->deleteLater();
+    maph->deleteLater();
+    call->deleteLater();
     plog->write("[BUILDER] KILLED SLAMNAV");
 }
 
@@ -589,12 +611,7 @@ void Supervisor::updateProgram(){
     server->doUpdate();
 }
 void Supervisor::updateProgramGitPull(){
-#ifdef EXTPROC_TEST
     checker->gitPull();
-#else
-    //    server->getGitCommits();
-    extproc->git_pull();
-#endif
 }
 void Supervisor::gitReset(){
     probot->program_branch = getSetting("setting","UI","program_branch");
@@ -622,7 +639,6 @@ void Supervisor::startUpdate(){
 //#else
 //    extproc->update_unzip();
 //#endif
-    extproc->update_unzip();
 }
 
 void Supervisor::checkVersionAgain(){
@@ -2108,30 +2124,15 @@ void Supervisor::setSLAMMode(int mode){
 
 }
 void Supervisor::setInitCurPos(){
-    pmap->init_pose = probot->curPose;
-    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
+    maph->set_init_pose = probot->curPose;
+    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",maph->set_init_pose.point.x, maph->set_init_pose.point.y, maph->set_init_pose.angle));
 }
 
-void Supervisor::setInitPos(int x, int y, float th){
-    qDebug() << "INIT" << x << y << setAxisBack(cv::Point2f(x,y)).x << setAxisBack(cv::Point2f(x,y)).y;
-    pmap->init_pose.point = setAxisBack(cv::Point2f(x,y));
-    pmap->init_pose.angle = setAxisBack(th);
-    plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle));
-}
-float Supervisor::getInitPoseX(){
-    cv::Point2f temp = setAxis(pmap->init_pose.point);
-    return temp.x;
-}
-float Supervisor::getInitPoseY(){
-    cv::Point2f temp = setAxis(pmap->init_pose.point);
-    return temp.y;
-}
-float Supervisor::getInitPoseTH(){
-    return setAxis(pmap->init_pose.angle);
-}
 void Supervisor::slam_setInit(){
-    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",pmap->init_pose.point.x,pmap->init_pose.point.y,pmap->init_pose.angle));
-    ipc->setInitPose(pmap->init_pose.point.x, pmap->init_pose.point.y, pmap->init_pose.angle);
+    POSE temp = setAxisBack(maph->set_init_pose.point,maph->set_init_pose.angle);
+    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",temp.point.x,temp.point.y,temp.angle));
+
+    ipc->setInitPose(temp.point.x, temp.point.y, temp.angle);
 }
 void Supervisor::slam_run(){
     ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
@@ -2605,14 +2606,18 @@ void Supervisor::makeUSBShell(){
 QString Supervisor::getNewServingName(int group){
     int count = 0;
     QString groupname = "";
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].type == "Serving"){
-            if(pmap->serving_locations[i].group == group){
-                groupname = pmap->serving_locations[i].group_name;
-                break;
-            }
-        }
+    if(group > -1 && group < pmap->location_groups.size()){
+        groupname = pmap->location_groups[group];
     }
+    // for(int i=0; i<pmap->location_groups.size(); i+)
+    // for(int i=0; i<pmap->serving_locations.size(); i++){
+    //     if(pmap->serving_locations[i].type == "Serving"){
+    //         if(pmap->serving_locations[i].group == group){
+    //             groupname = pmap->serving_locations[i].group_name;
+    //             break;
+    //         }
+    //     }
+    // }
 
     if(groupname == "" || groupname == "Default"){
         groupname = "서빙";
@@ -3867,7 +3872,7 @@ void Supervisor::onTimer(){
     }
 
     //
-    if(timer_cnt++ > 10){
+    if(timer_cnt++ > 30){
         timer_cnt = 0;
         checker->getCurrentInterface();
     }
@@ -4517,7 +4522,8 @@ void Supervisor::onTimer(){
             }else if(probot->motor[1].status != 1 && prev_motor_2_state != probot->motor[1].status){
                 QMetaObject::invokeMethod(mMain, "movefail");
             }else if(probot->status_charge_connect == 1 && prev_charge_state != probot->status_charge_connect){
-                QMetaObject::invokeMethod(mMain, "movefail");
+                plog->write("[STATE] Initializing : Charging Connected -> Charging");
+                ui_state = UI_STATE_CHARGING;
             }
         }
         patrol_mode = PATROL_NONE;
@@ -5309,13 +5315,13 @@ void Supervisor::readPatrol(){
                         patrol.beginGroup("LOCATION");
                         for(int i=0; i<loc_num; i++){
                             LOCATION temp_loc;
-                            if(patrol.value("type"+QString::number(i)).toString() == "Charging"){
+                            if(patrol.value("group"+QString::number(i)).toString() == "Charging"){
                                 temp_loc = getChargingLocation(0);
-                            }else if(patrol.value("type"+QString::number(i)).toString() == "Resting"){
+                            }else if(patrol.value("group"+QString::number(i)).toString() == "Resting"){
                                 temp_loc = getRestingLocation(0);
-                            }else if(patrol.value("type"+QString::number(i)).toString() == "Cleaning"){
+                            }else if(patrol.value("group"+QString::number(i)).toString() == "Cleaning"){
                                 temp_loc = getCleaningLocation(0);
-                            }else if(patrol.value("type"+QString::number(i)).toString() == "Serving"){
+                            }else{
                                 temp_loc = getServingLocation(patrol.value("group"+QString::number(i)).toString(),patrol.value("loc"+QString::number(i)).toString());
                             }
                             if(temp_loc.name != ""){

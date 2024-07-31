@@ -59,13 +59,13 @@ Popup{
         model_patrols.clear();
 
         for(var i=0; i<supervisor.getLocationNum("Charging"); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,"Charging"),"group":"","type":"Charging","select":false});
+            model_patrols.append({"name":supervisor.getLocationName(i,"Charging"),"group":"Charging","type":"Charging","select":false});
         }
         for(var i=0; i<supervisor.getLocationNum("Resting"); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,"Resting"),"group":"","type":"Resting","select":false});
+            model_patrols.append({"name":supervisor.getLocationName(i,"Resting"),"group":"Resting","type":"Resting","select":false});
         }
         for(var i=0; i<supervisor.getLocationNum("Cleaning"); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,"Cleaning"),"group":"","type":"Cleaning","select":false});
+            model_patrols.append({"name":supervisor.getLocationName(i,"Cleaning"),"group":"Cleaning","type":"Cleaning","select":false});
         }
         for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
             model_patrols.append({"name":supervisor.getLocationName(i,"Serving"),"group":supervisor.getLocationNameGroup(i),"type":"Serving","select":false});
@@ -110,6 +110,7 @@ Popup{
     }
 
     function selectpreset(num){
+        console.log("select patrol",num);
         popup_patrol.mode = supervisor.getPatrolType(num);
 
         if(supervisor.getPatrolMovingPage(num) === "location"){
@@ -202,9 +203,11 @@ Popup{
             popup_patrol.select_pos_mode = 2;
         }
 
+        console.log(model_patrols.count,supervisor.getPatrolLocationSize(num))
         for(var i=0; i<model_patrols.count; i++){
             model_patrols.get(i).select = false;
             for(var j=0; j<supervisor.getPatrolLocationSize(num); j++){
+                console.log(supervisor.getPatrolLocation(num,j),model_patrols.get(i).name,supervisor.getPatrolLocationGroup(num,j),model_patrols.get(i).group);
                 if(supervisor.getPatrolLocation(num,j) === model_patrols.get(i).name){
                     if(supervisor.getPatrolLocationGroup(num,j) === model_patrols.get(i).group){
                         model_patrols.get(i).select = true;

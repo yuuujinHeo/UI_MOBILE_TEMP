@@ -4,6 +4,7 @@
 #include "Logger.h"
 #include <QNetworkInterface>
 #include <opencv2/opencv.hpp>
+#include <memory>
 #include <QDir>
 #include <QPixmap>
 #include <QSettings>
@@ -113,7 +114,7 @@ typedef struct{
     bool use_uicmd;
     bool map_loaded;
 
-    POSE init_pose;
+    // POSE init_pose;
 
     bool annotation_edited;
     bool annot_edit_object;

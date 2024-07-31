@@ -20,6 +20,9 @@ Logger::Logger()
     }
     prev_str = "";
 }
+Logger::~Logger(){
+    file->deleteLater();
+}
 
 void Logger::reset(){
     QString path = QDir::homePath()+"/RB_MOBILE/log/ui_log";
@@ -28,8 +31,11 @@ void Logger::reset(){
         directory.mkpath(".");
         qDebug() << "[LOGGER] ui_log directory not found. make new";
     }
+
     filename = getFileName();
     file->deleteLater();
+
+    file = nullptr;
     file = new QFile;
     file->setFileName(filename);
     if(file->open(QIODevice::Append | QIODevice::Text)){
@@ -48,10 +54,11 @@ void Logger::write(const QString str, bool print){
         // date changed
         if(file->isOpen()){
             file->close();
-            delete file;
+            file->deleteLater();
         }
         filename = tempname;
-        file->deleteLater();
+
+        file = nullptr;
         file = new QFile;
         file->setFileName(filename);
         file->open(QIODevice::Append | QIODevice::Text);

@@ -28,6 +28,8 @@ CallbellHandler::CallbellHandler()
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
     timer->start(200);
+
+    readData();
 }
 
 void CallbellHandler::onTimer(){
@@ -58,8 +60,8 @@ void CallbellHandler::readData(){
     for(int i=0; i<data.size(); i++){
         str += QString().asprintf("0x%02X ", uchar(data[i]));
     }
-    plog->write("[CALLBELL] readData: "+data);
 
+    plog->write("[CALLBELL] readData: "+data+ " -> "+QString::number(datas.size()));
    /*
     * Syscall protocol v0.4
     *
@@ -94,7 +96,11 @@ void CallbellHandler::readData(){
     *
     */
 
+    plog->write("[CALLBELL] readData: "+QString::number(datas.length())+","+QString::number(datas.size()));
+    plog->write("[CALLBELL] readData: "+data+ " -> "+datas);
+
     while(datas.length() > 5){
+        plog->write("[CALLBELL] readData while : "+datas+" -> "+QString::number(datas.length())+","+QString::number(datas.size()));
         if(uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01){
             int size = (short)(uchar(datas[3]) | (uchar(datas[2])<<8));
             if(size < 0 || size > 24){
@@ -139,6 +145,8 @@ void CallbellHandler::readData(){
                         }
                     }else if(option == 0xA514){
                         datas.remove(0,size);
+                    }else{
+                        // datas.remove(0,size);
                     }
                 }else{
                     break;
@@ -148,6 +156,8 @@ void CallbellHandler::readData(){
             datas.remove(0, 1);
         }
     }
+
+    plog->write("[CALLBELL] readData : done");
 }
 
 void CallbellHandler::handleError(QSerialPort::SerialPortError error){

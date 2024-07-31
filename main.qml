@@ -176,6 +176,9 @@ Window {
             supervisor.playVoice("sorry");
             supervisor.writelog("[UI] IPC Disconnected");
             setNotice("ipc_discon");
+        }else if(supervisor.getChargeConnectStatus()){
+            supervisor.writelog("[UI] Charge Cable Connected");
+            setNotice("charging");
         }else if(supervisor.getEmoStatus()){
             supervisor.playVoice("error_emo");
             supervisor.writelog("[UI] Emergency Switch");

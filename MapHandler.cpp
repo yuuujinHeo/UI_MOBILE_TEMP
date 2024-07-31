@@ -10,6 +10,7 @@
 #include <fstream>
 #include <QJsonObject>
 #include <QJsonArray>
+
 #include <iostream>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -363,6 +364,7 @@ void MapHandler::setMapOrin(QString type){
         file_travelline_ui = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         file_object = cv::Mat(file_width, file_width, CV_8UC4, cv::Scalar::all(0));
         show_location = false;
+        show_location_detail = false;
         show_avoid = false;
         show_object = false;
         show_travelline = false;
@@ -428,6 +430,7 @@ void MapHandler::setMode(QString name){
     show_object = false;
     show_location = false;
     show_location_icon = false;
+    show_location_detail = false;
 
     tempnode.isnew = false;
 
@@ -442,16 +445,21 @@ void MapHandler::setMode(QString name){
         show_local_path = true;
         show_lidar = true;
         show_location = true;
+        show_location_detail = true;
         show_location_icon = true;
         robot_following = true;
         setFullScreen();
     }else if(mode == "annot_view"){//o
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         setFullScreen();
     }else if(mode == "annot_velmap"){//o
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_velocitymap = true;
         show_travelline = true;
         setFullScreen();
@@ -460,11 +468,15 @@ void MapHandler::setMode(QString name){
         show_lidar = true;
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         robot_following = true;
         show_travelline = true;
     }else if(mode == "annot_tline"){//o
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_travelline = true;
         setFullScreen();
     }else if(mode == "localization"){//o
@@ -472,6 +484,8 @@ void MapHandler::setMode(QString name){
         show_lidar = true;
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         pmap->annotation_edited = false;
         pmap->annot_edit_drawing = false;
         pmap->annot_edit_location = false;
@@ -482,6 +496,8 @@ void MapHandler::setMode(QString name){
         show_object = true;
         show_location = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_travelline = true;
         initObject();
         setFullScreen();
@@ -490,6 +506,8 @@ void MapHandler::setMode(QString name){
         show_location = true;
         show_avoid = true;
         show_location_icon = true;
+        show_location_detail = true;
+
         show_travelline = true;
         initObject();
         setFullScreen();
@@ -826,6 +844,36 @@ void MapHandler::setMapLayer(){
             painter_layer.drawPath(path);
             QImage image(":/icon/icon_home_2.png");
             painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+        }
+    }
+
+    if(show_location_detail){
+        for(int i=0; i<serving_locations.size(); i++){
+            float loc_x = (serving_locations[i].point.x - draw_x)*news;
+            float loc_y = (serving_locations[i].point.y - draw_y)*news;
+            //float distance = (pmap->robot_radius/grid_width)*2*news;
+            //float distance2 = distance*0.8;
+            //float th_dist = (M_PI/8);
+            float rad = (pmap->robot_radius/grid_width)*news;
+
+            //float x =   (loc_x + distance    * qCos(locations[i].angle));
+            //float y =   (loc_y + distance    * qSin(locations[i].angle));
+            //float x1 =  (loc_x + distance2   * qCos(locations[i].angle-th_dist));
+            //float y1 =  (loc_y + distance2   * qSin(locations[i].angle-th_dist));
+            //float x2 =  (loc_x + distance2   * qCos(locations[i].angle+th_dist));
+            //float y2 =  (loc_y + distance2   * qSin(locations[i].angle+th_dist));
+//            qDebug() << locations[i].type << locations[i].point.x << locations[i].point.y << draw_x << draw_y << loc_x << loc_y << rad;
+
+            QPainterPath path;
+            path.addRoundedRect((loc_x),(loc_y),5,5,rad,rad); //
+            painter_layer.setPen(QPen(Qt::red,3*news));
+
+            painter_layer.drawPath(path);
+            //painter_layer.drawLine(x1,y1,x,y);
+            //painter_layer.drawLine(x,y,x2,y2);
+            //painter_layer.drawPath(path);
+            //painter_layer.drawImage(QRectF((loc_x-rad),(loc_y-rad),rad*2,rad*2),image,QRectF(0,0,image.width(),image.height()));
+
         }
     }
 
@@ -1538,8 +1586,6 @@ std::vector<QString> array_to_linked(QJsonArray arr)
     }
     return res;
 }
-
-
 void MapHandler::loadNode(){
     // load topology
     nodes.clear();
@@ -1553,7 +1599,7 @@ void MapHandler::loadNode(){
         QJsonArray arr = doc.array();
         foreach(const QJsonValue &val, arr)
         {
-            NODE *node = new NODE();
+            std::unique_ptr<NODE> node(new NODE());
 
             QJsonObject obj = val.toObject();
             node->id = obj["id"].toString();
@@ -1561,14 +1607,12 @@ void MapHandler::loadNode(){
             node->pose = array_to_pose(obj["pose"].toArray());
             node->linked = array_to_linked(obj["linked"].toArray());
 
-            nodes[node->id] = node;
+            nodes[node->id] = std::move(node);
         }
 
         file.close();
-
         qDebug() << "[TOPOMAP] "+topo_path+" loaded, num:" << (int)nodes.size();
     }
-
 }
 void MapHandler::saveNode(){
     QString topo_path = QDir::homePath()+"/RB_MOBILE/maps/"+map_name+"/topo.json";
@@ -2047,7 +2091,7 @@ void MapHandler::setSize(int x, int y, float s){
 }
 void MapHandler::zoomIn(int x, int y, float dist){
     float scale_prev = scale;
-    scale -= dist*0.001;
+    scale -= dist*0.003;
     if(scale < 0.1){
         scale = 0.1;
     }
@@ -2072,7 +2116,7 @@ void MapHandler::zoomIn(int x, int y, float dist){
 }
 void MapHandler::zoomOut(int x, int y, float dist){
     float scale_prev = scale;
-    scale += dist*0.001;
+    scale += dist*0.003;
     if(scale > 1)
         scale =1;
     float realx = draw_x + (float)x * draw_width/canvas_width;//file_width*(scale - prev_scale)*((float)x/canvas_width);
@@ -2572,15 +2616,14 @@ void MapHandler::addNode(QString id, QString attrib){
         id = auto_node_name(attrib);
     }
 
-    NODE *node = new NODE();
+    std::unique_ptr<NODE> node(new NODE());
     node->id = id;
     node->attrib = attrib;
     node->pose[0] = tempnode.point.x;
     node->pose[1] = tempnode.point.y;
     node->pose[2] = tempnode.angle;
-    nodes[node->id] = node;
     plog->write("[TOPOMAP] add node, id: " + id + QString::asprintf("(%f, %f, %f)",node->pose[0],node->pose[1],node->pose[2]));
-
+    nodes[node->id] = std::move(node);
     setMapLayer();
 }
 
@@ -2880,7 +2923,8 @@ void MapHandler::loadAnnotation(){
                                     pmap->charging_locations[p].group_name.toLocal8Bit().data(),
                                     p,
                                     pmap->charging_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->charging_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->charging_locations[p].point);
@@ -2888,8 +2932,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
         qDebug() <<"[TOPOMAP] load charging_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->resting_locations.size(); p++)
     {
@@ -2897,7 +2941,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->resting_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->resting_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->resting_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->resting_locations[p].point);
@@ -2905,8 +2950,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
         qDebug() <<"[TOPOMAP] load resting_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->cleaning_locations.size(); p++)
     {
@@ -2914,7 +2959,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->cleaning_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->cleaning_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->cleaning_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->cleaning_locations[p].point);
@@ -2922,8 +2968,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
         qDebug() <<"[TOPOMAP] load cleaning_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->init_locations.size(); p++)
     {
@@ -2931,7 +2977,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->init_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->init_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->init_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->init_locations[p].point);
@@ -2939,8 +2986,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
         qDebug() <<"[TOPOMAP] load init_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->serving_locations.size(); p++)
     {
@@ -2948,7 +2995,8 @@ void MapHandler::loadAnnotation(){
                                          pmap->serving_locations[p].group_name.toLocal8Bit().data(),
                                          p,
                                          pmap->serving_locations[p].name.toLocal8Bit().data());
-        NODE *node = new NODE();
+
+        std::unique_ptr<NODE> node(new NODE());
         node->attrib = pmap->serving_locations[p].type;
         node->id = name;
         cv::Point2f pos = setAxis(pmap->serving_locations[p].point);
@@ -2956,8 +3004,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = node;
         qDebug() <<"[TOPOMAP] load serving_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
 
     setMapLayer();
@@ -4005,10 +4053,10 @@ void MapHandler::pressed(QString tool, int _x, int _y){
 }
 
 void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2){
-    float x1 = draw_x + _x1*scale*file_width/canvas_width;
-    float y1 = draw_y + _y1*scale*file_width/canvas_height;
-    float x2 = draw_x + _x2*scale*file_width/canvas_width;
-    float y2 = draw_y + _y2*scale*file_width/canvas_height;
+    float x1 = _x1*scale*file_width/canvas_width;
+    float y1 = _y1*scale*file_width/canvas_height;
+    float x2 = _x2*scale*file_width/canvas_width;
+    float y2 = _y2*scale*file_width/canvas_height;
     if(tool == "move"|| shift_move){
         float dx = x1-x2;
         float dy = y1-y2;
@@ -4058,7 +4106,8 @@ void MapHandler::moved(QString tool, int _x, int _y){
         editLocation(X,Y,angle);
     }else if(tool == "slam_init"){
         float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
-        setInitPose(X,Y,angle);
+        setInitPose(move_init_pose.x, move_init_pose.y, angle);
+        // setInitPose(X,Y,angle);
     }else if(tool == "ruler"){
         if(calculateDistance(cv::Point2f(X,Y),ruler_init_point) > 10){
             press_release = false;
@@ -4086,8 +4135,8 @@ void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
         float dy = y1-y2;
         float cur_dist =  sqrt(dx*dx + dy*dy);
 
-        if(zoom_init_distance-cur_dist > 0){
-            zoomIn(x1,y1,zoom_init_distance-cur_dist);
+        if(zoom_init_distance-cur_dist < 0){
+            zoomIn(x1,y1,cur_dist-zoom_init_distance);
         }else{
             zoomOut(x1,y1,zoom_init_distance-cur_dist);
         }
