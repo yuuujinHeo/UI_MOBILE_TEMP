@@ -592,10 +592,6 @@ public:
 
     //initialize
     Q_INVOKABLE void setInitCurPos();
-    Q_INVOKABLE void setInitPos(int x, int y, float th);
-    Q_INVOKABLE float getInitPoseX();
-    Q_INVOKABLE float getInitPoseY();
-    Q_INVOKABLE float getInitPoseTH();
     Q_INVOKABLE bool getLocalizationConfirm(){return probot->localization_confirm;}
     Q_INVOKABLE void confirmLocalization();
     Q_INVOKABLE void confirmLocalizationAnnot();

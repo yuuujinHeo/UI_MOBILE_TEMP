@@ -2622,9 +2622,8 @@ void MapHandler::addNode(QString id, QString attrib){
     node->pose[0] = tempnode.point.x;
     node->pose[1] = tempnode.point.y;
     node->pose[2] = tempnode.angle;
-    nodes[node->id] = std::move(node);
     plog->write("[TOPOMAP] add node, id: " + id + QString::asprintf("(%f, %f, %f)",node->pose[0],node->pose[1],node->pose[2]));
-
+    nodes[node->id] = std::move(node);
     setMapLayer();
 }
 
@@ -2933,8 +2932,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load charging_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->resting_locations.size(); p++)
     {
@@ -2951,8 +2950,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load resting_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->cleaning_locations.size(); p++)
     {
@@ -2969,8 +2968,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load cleaning_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->init_locations.size(); p++)
     {
@@ -2987,8 +2986,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load init_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
     for(size_t p = 0; p < pmap->serving_locations.size(); p++)
     {
@@ -3005,8 +3004,8 @@ void MapHandler::loadAnnotation(){
         node->pose[0] = pos.x;
         node->pose[1] = pos.y;
         node->pose[2] = ang;
-        nodes[name] = std::move(node);
         qDebug() <<"[TOPOMAP] load serving_locations annotation, " << name.toLocal8Bit().data() << node->attrib << node->pose[0] << node->pose[1];
+        nodes[name] = std::move(node);
     }
 
     setMapLayer();
@@ -4054,10 +4053,10 @@ void MapHandler::pressed(QString tool, int _x, int _y){
 }
 
 void MapHandler::double_pressed(QString tool, int _x1, int _y1, int _x2, int _y2){
-    float x1 = draw_x + _x1*scale*file_width/canvas_width;
-    float y1 = draw_y + _y1*scale*file_width/canvas_height;
-    float x2 = draw_x + _x2*scale*file_width/canvas_width;
-    float y2 = draw_y + _y2*scale*file_width/canvas_height;
+    float x1 = _x1*scale*file_width/canvas_width;
+    float y1 = _y1*scale*file_width/canvas_height;
+    float x2 = _x2*scale*file_width/canvas_width;
+    float y2 = _y2*scale*file_width/canvas_height;
     if(tool == "move"|| shift_move){
         float dx = x1-x2;
         float dy = y1-y2;
@@ -4107,7 +4106,8 @@ void MapHandler::moved(QString tool, int _x, int _y){
         editLocation(X,Y,angle);
     }else if(tool == "slam_init"){
         float angle = atan2((Y-move_init_pose.y),(X-move_init_pose.x));
-        setInitPose(X,Y,angle);
+        setInitPose(move_init_pose.x, move_init_pose.y, angle);
+        // setInitPose(X,Y,angle);
     }else if(tool == "ruler"){
         if(calculateDistance(cv::Point2f(X,Y),ruler_init_point) > 10){
             press_release = false;
