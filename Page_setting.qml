@@ -7765,6 +7765,7 @@ Item {
                     id: set_use_obs_preview
                     width: 840
                     height: setting_height
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -7812,7 +7813,8 @@ Item {
                     id: set_obs_preview_time
                     width: 840
                     height: setting_height
-                    visible: combo_use_obs_preview.currentIndex === 1
+                    //visible: combo_use_obs_preview.currentIndex === 1
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -9984,7 +9986,8 @@ Item {
                     id: set_map_size
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -10046,7 +10049,8 @@ Item {
                     id: set_grid_size
                     width: 840
                     height: setting_height
-                    visible: is_rainbow
+                    //visible: is_rainbow
+                    visible: false
                     Row{
                         anchors.fill: parent
                         Rectangle{
@@ -12456,7 +12460,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.3.6") // Network, checker
+                    text:qsTr("Version 1.3.6.3") // Network, checker + Recover
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
