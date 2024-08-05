@@ -2091,7 +2091,7 @@ void MapHandler::setSize(int x, int y, float s){
 }
 void MapHandler::zoomIn(int x, int y, float dist){
     float scale_prev = scale;
-    scale -= dist*0.001;
+    scale -= dist*0.003;
     if(scale < 0.1){
         scale = 0.1;
     }
@@ -2116,7 +2116,7 @@ void MapHandler::zoomIn(int x, int y, float dist){
 }
 void MapHandler::zoomOut(int x, int y, float dist){
     float scale_prev = scale;
-    scale += dist*0.001;
+    scale += dist*0.003;
     if(scale > 1)
         scale =1;
     float realx = draw_x + (float)x * draw_width/canvas_width;//file_width*(scale - prev_scale)*((float)x/canvas_width);
@@ -4135,8 +4135,8 @@ void MapHandler::double_moved(QString tool, int _x1, int _y1, int _x2, int _y2){
         float dy = y1-y2;
         float cur_dist =  sqrt(dx*dx + dy*dy);
 
-        if(zoom_init_distance-cur_dist > 0){
-            zoomIn(x1,y1,zoom_init_distance-cur_dist);
+        if(zoom_init_distance-cur_dist < 0){
+            zoomIn(x1,y1,cur_dist-zoom_init_distance);
         }else{
             zoomOut(x1,y1,zoom_init_distance-cur_dist);
         }

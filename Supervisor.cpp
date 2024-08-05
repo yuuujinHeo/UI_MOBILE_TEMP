@@ -2129,8 +2129,10 @@ void Supervisor::setInitCurPos(){
 }
 
 void Supervisor::slam_setInit(){
-    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",maph->set_init_pose.point.x,maph->set_init_pose.point.y,maph->set_init_pose.angle));
-    ipc->setInitPose(maph->set_init_pose.point.x, maph->set_init_pose.point.y, maph->set_init_pose.angle);
+    POSE temp = setAxisBack(maph->set_init_pose.point,maph->set_init_pose.angle);
+    plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",temp.point.x,temp.point.y,temp.angle));
+
+    ipc->setInitPose(temp.point.x, temp.point.y, temp.angle);
 }
 void Supervisor::slam_run(){
     ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
@@ -4520,7 +4522,8 @@ void Supervisor::onTimer(){
             }else if(probot->motor[1].status != 1 && prev_motor_2_state != probot->motor[1].status){
                 QMetaObject::invokeMethod(mMain, "movefail");
             }else if(probot->status_charge_connect == 1 && prev_charge_state != probot->status_charge_connect){
-                QMetaObject::invokeMethod(mMain, "movefail");
+                plog->write("[STATE] Initializing : Charging Connected -> Charging");
+                ui_state = UI_STATE_CHARGING;
             }
         }
         patrol_mode = PATROL_NONE;
@@ -4536,7 +4539,7 @@ void Supervisor::onTimer(){
         if(ui_state != UI_STATE_NONE){
             plog->write("[STATE] "+curUiState()+" : SLAMNAV Disconnected -> None");
             QMetaObject::invokeMethod(mMain, "disconnected");
-            // debug_mode = false;
+//            debug_mode = false;
             stateInit();
         }
     }
