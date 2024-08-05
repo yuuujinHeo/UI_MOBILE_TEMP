@@ -53,8 +53,6 @@ bool sortWifi2(const ST_WIFI &w1, const ST_WIFI &w2){
 }
 
 void Worker::getWifiInterface(){
-
-
     process = new QProcess();
 
     if(argument[0] == "readall"){

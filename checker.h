@@ -108,12 +108,9 @@ signals:
     void git_pull_nothing();
     void git_pull_success();
 
-
 public:
-    //Worker(QString _name, QThread *th):name(_name),parent_thread(th){}
-    Worker(QString _name, QThread *th) : name(_name), parent_thread(th), process(nullptr) {}
+    Worker(QString _name, QThread *th):name(_name),parent_thread(th){}
     ~Worker(){
-
         // disconnect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_connect_wifi()));
     }
     QThread *parent_thread;
