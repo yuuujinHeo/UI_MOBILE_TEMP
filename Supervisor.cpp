@@ -3164,7 +3164,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     pmap->annotation_edited = false;
 
 
-    slam_map_reload(name);// BJ
+    //slam_map_reload(name);// BJ
 
     return true;
 }
