@@ -15,7 +15,7 @@ QApplication *app;//(argc, argv);
 
 int main(int argc, char *argv[])
 {
-    bool test_mode = false;
+    bool test_mode = true;
 
     plog = new Logger;
 

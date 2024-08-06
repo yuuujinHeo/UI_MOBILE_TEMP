@@ -1279,6 +1279,7 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
     pmap->annot_edit_location = true;
 
     saveAnnotation(maph->map_name, false);
+    //함수 안에서 map reload 추가하기
 
 }
 ////*********************************************  OBJECTING 관련   ***************************************************////
@@ -3161,6 +3162,10 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
         maph->initLocation();
     }
     pmap->annotation_edited = false;
+
+
+    slam_map_reload(name);// BJ
+
     return true;
 }
 
@@ -3400,7 +3405,8 @@ QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
 int Supervisor::getMultiState(){
-    return 0;
+    //return 0;
+    return probot->fms_connection_state; // BJ
 }
 
 
