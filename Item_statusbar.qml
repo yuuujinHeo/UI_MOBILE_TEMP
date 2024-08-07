@@ -722,13 +722,19 @@ Item {
             }
 
             if(supervisor.getSetting("setting","USE_SLAM","use_multirobot") === "true"){
-                image_multi.visible = true;
+
                 //BJ
                 if (supervisor.getMultiState() >0) {
                                image_multi_good.visible = true;
+                               image_multi.visible = false;
                            }
+                else{
+                    image_multi.visible=true;
+                    image_multi_good.visible=false;
+                }
             }else{
                 image_multi.visible = false;
+                image_multi_good.visible = false;
             }
 
             if(supervisor.getPowerStatus() === 1){

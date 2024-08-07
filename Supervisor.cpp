@@ -3405,8 +3405,9 @@ QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
 int Supervisor::getMultiState(){
-    //return 0;
-    return probot->fms_connection_state; // BJ
+    int state = probot->fms_connection_state;
+    plog->write("[FMS Connection State] : " + QString::number(state));
+    return state;
 }
 
 
