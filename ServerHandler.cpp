@@ -187,14 +187,14 @@ void ServerHandler::onTimer(){
     // getGoqualDevices();
 
     //Mobile Server
-    if(mobile_connection){
-        sendStatus();
-    }else{
-        static int count=0;
-        if(++count%10 == 0){
-            sendStatus();
-        }
-    }
+    // if(mobile_connection){
+    //     sendStatus();
+    // }else{
+    //     static int count=0;
+    //     if(++count%10 == 0){
+    //         sendStatus();
+    //     }
+    // }
 
 
     if(connection){

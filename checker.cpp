@@ -814,7 +814,7 @@ Checker::Checker(QObject *parent)
     connect(timer, &QTimer::timeout, this, &Checker::onTimer);
     timer->start(100);
 
-    getPing("www.google.com");
+    getPing("www.goog3le.com");
 }
 
 void Checker::change_network(QString line){
