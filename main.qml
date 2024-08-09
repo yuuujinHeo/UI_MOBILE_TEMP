@@ -27,7 +27,9 @@ Window {
                 supervisor.writelog("[UI] Window : fullscreen");
             }else{
                 supervisor.writelog("[UI] Window : "+Number(mainwindow.visibility)+" -> fullscreen");
-                // mainwindow.visibility = Window.FullScreen;
+                if(mainwindow.visibility == Window.Windowed){
+                    mainwindow.visibility = Window.FullScreen;
+                }
             }
         }
     }
