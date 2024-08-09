@@ -12460,7 +12460,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.1") // branch
+                    text:qsTr("Version 1.4.2") // yujintest
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
