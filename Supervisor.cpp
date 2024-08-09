@@ -212,8 +212,10 @@ void Supervisor::programRestart(){
     plog->write("[COMMAND] programRestart");
     ipc->clearSharedMemory(ipc->shm_cmd);
     slam_process->kill();
-    QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
-    QApplication::exit(12);
+    QCoreApplication::quit();
+    //240809 yujin - pm2 start -> restart twice
+    // QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
+    // QApplication::exit(12);
 }
 
 void Supervisor::programExit(){
