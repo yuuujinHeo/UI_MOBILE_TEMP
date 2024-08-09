@@ -3156,6 +3156,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
         settings.setValue("serving_"+QString::number(i)+"/num",getLocationGroupSize(i));
     }
 
+    slam_map_reload(filename, 1);
     if(reload){
         readSetting(filename);
         maph->initLocation();
