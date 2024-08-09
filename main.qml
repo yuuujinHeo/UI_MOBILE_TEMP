@@ -15,6 +15,7 @@ Window {
     width: 1280
     height: 800
 
+    // flags: !testMode?Qt.Window | Qt.FramelessWindowHint |Qt.WindowStaysOnTopHint  :Qt.Window
     flags: !testMode?Qt.Window | Qt.FramelessWindowHint | Qt.WindowMinimizeButtonHint |Qt.WindowStaysOnTopHint |Qt.WindowOverridesSystemGestures |Qt.MaximizeUsingFullscreenGeometryHint:Qt.Window
     visibility: !testMode?Window.FullScreen:Window.Windowed
 
@@ -26,7 +27,7 @@ Window {
                 supervisor.writelog("[UI] Window : fullscreen");
             }else{
                 supervisor.writelog("[UI] Window : "+Number(mainwindow.visibility)+" -> fullscreen");
-                mainwindow.visibility = Window.FullScreen;
+                // mainwindow.visibility = Window.FullScreen;
             }
         }
     }
