@@ -89,6 +89,8 @@ public:
         float ui_mapping_inlier_ratio = 0;
         float ui_mapping_inlier_error = 0;
 
+        int8_t     ui_fms_connection_state = 0; //BJ
+
         STATUS()
         {
         }
@@ -129,6 +131,8 @@ public:
             ui_loc_inlier_error = p.ui_loc_inlier_error;
             ui_mapping_inlier_ratio = p.ui_mapping_inlier_ratio;
             ui_mapping_inlier_error = p.ui_mapping_inlier_error;
+
+            ui_fms_connection_state = p.ui_fms_connection_state; //BJ
         }
     };
 

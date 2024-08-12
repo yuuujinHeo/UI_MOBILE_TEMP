@@ -115,6 +115,15 @@ Item {
                 source: "icon/icon_multi.png"
             }
             Image{
+                id: image_multi_good
+                visible: false
+                width: 46
+                height: 46
+                sourceSize.width: width
+                sourceSize.height: height
+                source: "icon/icon_multi_good.png"
+            }
+            Image{
                 id: image_server
                 visible: is_con_server
                 width: 46
@@ -713,10 +722,18 @@ Item {
             }
 
             if(supervisor.getSetting("setting","USE_SLAM","use_multirobot") === "true"){
-                image_multi.visible = true;
-//                if(supervisor.get)
+                //BJ
+                if (supervisor.getMultiState() >0) {
+                               image_multi_good.visible = true;
+                               image_multi.visible = false;
+                           }
+                else{
+                    image_multi.visible=true;
+                    image_multi_good.visible=false;
+                }
             }else{
                 image_multi.visible = false;
+                image_multi_good.visible = false;
             }
 
             if(supervisor.getPowerStatus() === 1){

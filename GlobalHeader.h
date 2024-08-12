@@ -242,6 +242,8 @@ typedef struct{
     float mapping_inlier_ratio = 0;
     float mapping_inlier_error = 0;
 
+    int fms_connection_state = 0; //BJ
+
     int err_code = 0;
 
     POSE curPose;

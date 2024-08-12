@@ -3164,6 +3164,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
         maph->initLocation();
     }
     pmap->annotation_edited = false;
+
     return true;
 }
 
@@ -3403,7 +3404,10 @@ QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
 int Supervisor::getMultiState(){
-    return 0;
+    //return 0;
+    int state = probot->fms_connection_state;
+    plog->write("[FMS Connection State] : " + QString::number(state));
+    return state;
 }
 
 

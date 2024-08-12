@@ -6,8 +6,7 @@ CallbellHandler::CallbellHandler()
     last_bell_id = "";
     m_serialPort = new QSerialPort();
 
-    connect(m_serialPort, SIGNAL(readyRead()), this, SLOT(readData()));
-    connect(m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
+
 
     m_serialPort->setPortName("ttyCB0");
     m_serialPort->setBaudRate(QSerialPort::Baud115200);
@@ -18,11 +17,17 @@ CallbellHandler::CallbellHandler()
 
     if(m_serialPort->open(QIODevice::ReadWrite)){
         plog->write("[CALLBELL] Port ttyCB0 Open Success");
+
+        //BJ&JY
+        connect(m_serialPort, SIGNAL(readyRead()), this, SLOT(readData()));
+        connect(m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
     }else{
-        m_serialPort->setPortName("ttyUSB1");
-        if(m_serialPort->open(QIODevice::ReadWrite)){
-            plog->write("[CALLBELL] Port ttyUSB1 Open Success");
-        }
+        //m_serialPort->setPortName("ttyUSB1");
+        //if(m_serialPort->open(QIODevice::ReadWrite)){
+        //    plog->write("[CALLBELL] Port ttyUSB1 Open Success");
+        //}
+        plog->write("[CALLBELL] Port ttyCB0 Open Faile");
+        return;
     }
 
     timer = new QTimer();

@@ -240,6 +240,8 @@ void IPCHandler::onTimer(){
         probot->inlier_error = temp1.ui_loc_inlier_error;
         probot->mapping_inlier_ratio = temp1.ui_mapping_inlier_ratio;
         probot->mapping_inlier_error = temp1.ui_mapping_inlier_error;
+
+        probot->fms_connection_state = temp1.ui_fms_connection_state; //BJ
 //        qDebug() << probot->curPose.point.x << probot->curPose.point.y << probot->curPose.angle << probot->lidar_data[0];
         prev_tick_status = temp1.tick;
     }
