@@ -3404,9 +3404,14 @@ QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
 int Supervisor::getMultiState(){
-    //return 0;
+    static int previousState = -1;  // 이전 상태를 저장하는 정적 변수
     int state = probot->fms_connection_state;
-    plog->write("[FMS Connection State] : " + QString::number(state));
+
+    if (state != previousState) {  // 현재 상태와 이전 상태를 비교
+        plog->write("[FMS Connection State] : " + QString::number(state));
+        previousState = state;  // 이전 상태를 현재 상태로 업데이트
+    }
+
     return state;
 }
 

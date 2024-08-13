@@ -12460,7 +12460,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.2.1.4") // yujintest
+                    text:qsTr("Version 1.4.2.1.5") // FMS state log
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
