@@ -15,6 +15,7 @@ QString subnetToNetmask(QString subnetSize) {
            .arg(netmaskInt & 0xFF);
 }
 
+//BJ - edit
 QString netmaskToSubnet(const QString &netmask) {
     // Convert netmask from string to integer
     QStringList parts = netmask.split('.');
@@ -24,8 +25,10 @@ QString netmaskToSubnet(const QString &netmask) {
     }
     uint netmaskInt = 0;
     for (int i = 0; i < 4; ++i) {
-        int octet = parts[i].toInt();
-        if (octet < 0 || octet > 255) {
+        bool ok; //BJ
+        int octet = parts[i].toInt(&ok);
+        //if (!ok || octet < 0 || octet > 255) {
+        if (!ok || octet > 255) {
             qWarning() << "Invalid octet in netmask";
             return "0";
         }
@@ -34,8 +37,21 @@ QString netmaskToSubnet(const QString &netmask) {
 
     // Calculate subnet size from netmask
     int subnetSize = 0;
-    while (netmaskInt & 0x80000000) {
-        subnetSize++;
+    bool zeroSeen = false; // BJ
+    //while (netmaskInt & 0x80000000) {
+    //    subnetSize++;
+    //    netmaskInt <<= 1;
+    //}
+    for (int i = 0; i < 32; ++i) {
+        if (netmaskInt & 0x80000000) {
+            if (zeroSeen) {
+                qWarning() << "Invalid netmask: non-contiguous bits";
+                return "0";
+            }
+            subnetSize++;
+        } else {
+            zeroSeen = true;
+        }
         netmaskInt <<= 1;
     }
     return QString::number(subnetSize);
@@ -458,7 +474,136 @@ void Worker::gitReset(){
     gitPull();
 }
 
+void Worker::getNetworkState() {
 
+    QMutexLocker locker(&mutex);  // 공유 자원 접근 시 동기화
+    QScopedPointer<QProcess> process(new QProcess());  // QScopedPointer로 메모리 자동 관리
+    QString ssid = "";
+    QString name = "";
+    bool all_search = false;
+
+    if (argument.size() > 0) {
+        ssid = argument[0];
+        if (ssid.isEmpty()) {
+            all_search = true;
+        }
+    } else {
+        all_search = true;
+        ssid = "";
+    }
+
+    if (all_search) {
+        process->start("nmcli", QStringList() << "device" << "show");
+    } else {
+        process->start("nmcli", QStringList() << "con" << "show" << ssid);
+    }
+
+    if (!process->waitForFinished()) {
+        qWarning() << "Process did not finish correctly";
+        emit finished(this);
+        return;
+    }
+
+    QByteArray result = process->readAllStandardOutput();
+    QList<QByteArray> lines = result.split('\n');
+
+    QString type;
+    for (QByteArray line : lines) {
+        if (all_search) {
+            if (line.contains("GENERAL.DEVICE")) {
+                name = line.split(':')[1].trimmed();
+            } else if (line.contains("GENERAL.TYPE")) {
+                type = line.split(':')[1].trimmed();
+            } else if (line.contains("GENERAL.STATE")) {
+                if (line.contains("disconnected")) {
+                    continue;
+                } else if (line.contains("connected")) {
+                    // 연결된 상태일 때 필요한 추가 작업이 있다면 여기에 추가
+                } else {
+                    continue;
+                }
+            } else if (line.contains("GENERAL.CONNECTION")) {
+                if (type == "wifi") {
+                    probot->wifi_interface.name = name;
+                    probot->wifi_interface.ssid = line.split(':')[1].trimmed();
+                } else if (type == "ethernet") {
+                    probot->ethernet_interface.name = name;
+                    probot->ethernet_interface.ssid = line.split(':')[1].trimmed();
+                }
+            } else if (line.contains("IP4.ADDRESS")) {
+                if (name == probot->ethernet_interface.name) {
+                    probot->ethernet_interface.ipv4 = line.split(':')[1].trimmed().split('/')[0];
+                    probot->ethernet_interface.subnet = line.split(':')[1].trimmed().split('/')[1];
+                    probot->ethernet_interface.netmask = subnetToNetmask(probot->ethernet_interface.subnet);
+                } else if (name == probot->wifi_interface.name) {
+                    probot->wifi_interface.ipv4 = line.split(':')[1].trimmed().split('/')[0];
+                    probot->wifi_interface.subnet = line.split(':')[1].trimmed().split('/')[1];
+                    probot->wifi_interface.netmask = subnetToNetmask(probot->wifi_interface.subnet);
+                }
+            } else if (line.contains("IP4.GATEWAY")) {
+                if (name == probot->ethernet_interface.name) {
+                    probot->ethernet_interface.gateway = line.split(':')[1].trimmed();
+                } else if (name == probot->wifi_interface.name) {
+                    probot->wifi_interface.gateway = line.split(':')[1].trimmed();
+                }
+            } else if (line.contains("IP4.DNS[1]")) {
+                if (name == probot->ethernet_interface.name) {
+                    probot->ethernet_interface.dns1 = line.split(':')[1].trimmed();
+                    probot->ethernet_interface.dns2 = "";
+                } else if (name == probot->wifi_interface.name) {
+                    probot->wifi_interface.dns1 = line.split(':')[1].trimmed();
+                    probot->wifi_interface.dns2 = "";
+                }
+            } else if (line.contains("IP4.DNS[2]")) {
+                if (name == probot->ethernet_interface.name) {
+                    probot->ethernet_interface.dns2 = line.split(':')[1].trimmed();
+                } else if (name == probot->wifi_interface.name) {
+                    probot->wifi_interface.dns2 = line.split(':')[1].trimmed();
+                }
+            }
+        } else {
+            if (line.contains("IP4.ADDRESS[1]")) {
+                if (ssid == probot->ethernet_interface.ssid) {
+                    probot->ethernet_interface.ipv4 = line.split(':')[1].trimmed().split('/')[0];
+                    probot->ethernet_interface.subnet = line.split(':')[1].trimmed().split('/')[1];
+                    probot->ethernet_interface.netmask = subnetToNetmask(probot->ethernet_interface.subnet);
+                } else if (ssid == probot->wifi_interface.ssid) {
+                    probot->wifi_interface.ipv4 = line.split(':')[1].trimmed().split('/')[0];
+                    probot->wifi_interface.subnet = line.split(':')[1].trimmed().split('/')[1];
+                    probot->wifi_interface.netmask = subnetToNetmask(probot->wifi_interface.subnet);
+                }
+            } else if (line.contains("ipv4.method")) {
+                probot->wifi_interface.method = line.split(':')[1].trimmed();
+            } else if (line.contains("IP4.GATEWAY")) {
+                if (ssid == probot->ethernet_interface.ssid) {
+                    probot->ethernet_interface.gateway = line.split(':')[1].trimmed();
+                } else if (ssid == probot->wifi_interface.ssid) {
+                    probot->wifi_interface.gateway = line.split(':')[1].trimmed();
+                }
+            } else if (line.contains("IP4.DNS[1]")) {
+                if (ssid == probot->ethernet_interface.ssid) {
+                    probot->ethernet_interface.dns1 = line.split(':')[1].trimmed();
+                    probot->ethernet_interface.dns2 = "";
+                } else if (ssid == probot->wifi_interface.ssid) {
+                    probot->wifi_interface.dns1 = line.split(':')[1].trimmed();
+                    probot->wifi_interface.dns2 = "";
+                }
+            } else if (line.contains("IP4.DNS[2]")) {
+                if (ssid == probot->ethernet_interface.ssid) {
+                    probot->ethernet_interface.dns2 = line.split(':')[1].trimmed();
+                } else if (ssid == probot->wifi_interface.ssid) {
+                    probot->wifi_interface.dns2 = line.split(':')[1].trimmed();
+                }
+            }
+        }
+    }
+
+    // QScopedPointer가 자동으로 process를 삭제하므로 명시적인 삭제는 필요 없음
+    emit finished(this);
+}
+
+
+/*
 void Worker::getNetworkState(){
     process = new QProcess();
     QString ssid = "";
@@ -614,6 +759,7 @@ void Worker::getNetworkState(){
         emit finished(this);
     }
 }
+*/
 //void Worker::gitPull(){
 //    process = new QProcess(this);
 //
@@ -840,38 +986,98 @@ Checker::~Checker(){
     delete worker_3;
 }
 
-void Checker::onTimer(){
-    if(cmd_list.size() > 0){
-        if(thread_1->isRunning()){
-            if(thread_2->isRunning()){
-            }else{
-                worker_2 = new Worker("PROCESS_2",thread_2);
+//void Checker::onTimer(){
+//    if(cmd_list.size() > 0){
+//        if(thread_1->isRunning()){
+//            if(thread_2->isRunning()){
+//            }else{
+//                worker_2 = new Worker("PROCESS_2",thread_2);
+//                worker_2->moveToThread(thread_2);
+//                QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
+//                QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
+//                //qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
+//                worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
+//                worker_2->setProperties(cmd_list[0].print);
+//
+//                setWork(cmd_list[0], thread_2, worker_2);
+//                // cmd_list.pop_front();
+//                thread_2->start();
+//            }
+//        }else{
+//            worker_1 = new Worker("PROCESS_1",thread_1);
+//            worker_1->moveToThread(thread_1);
+//            QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
+//            QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
+//            //qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
+//            worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
+//            worker_1->setProperties(cmd_list[0].print);
+//            setWork(cmd_list[0], thread_1, worker_1);
+//
+//            // cmd_list.pop_front();
+//            thread_1->start();
+//        }
+//    }
+//}
+
+void Checker::onTimer() {
+    // 스레드가 실행 중인지 확인하는 부분에 동기화 적용
+    QMutexLocker locker(&mutex); // 스레드 간 동기화를 위한 뮤텍스 사용
+
+    if (cmd_list.isEmpty()) {
+        return; // cmd_list가 비어 있으면 작업을 수행하지 않고 종료
+    }
+
+    // QScopedPointer를 사용하여 Worker 객체를 안전하게 관리
+    QScopedPointer<Worker> worker_1;
+    QScopedPointer<Worker> worker_2;
+
+    // 스레드 1이 실행 중인지 확인
+    if (thread_1->isRunning()) {
+        // 스레드 2가 실행 중이지 않은 경우
+        if (!thread_2->isRunning()) {
+            try {
+                worker_2.reset(new Worker("PROCESS_2", thread_2));
                 worker_2->moveToThread(thread_2);
-                QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
-                QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
-                //qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
-                worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
+                QObject::connect(worker_2.data(), &Worker::finished, thread_2, &QThread::quit);
+                QObject::connect(worker_2.data(), &Worker::finished, this, &Checker::disWork);
+
+                worker_2->setWork(cmd_list[0].cmd, cmd_list[0].arg);
                 worker_2->setProperties(cmd_list[0].print);
+                setWork(cmd_list[0], thread_2, worker_2.data());
 
-                setWork(cmd_list[0], thread_2, worker_2);
-                // cmd_list.pop_front();
                 thread_2->start();
+                cmd_list.pop_front();
+            } catch (std::bad_alloc& e) {
+                qWarning() << "Memory allocation failed for worker_2: " << e.what();
+                return; // 메모리 할당 실패 시 안전하게 종료
+            } catch (...) {
+                qWarning() << "An unexpected error occurred while creating worker_2";
+                return; // 다른 예외 발생 시도 안전하게 종료
             }
-        }else{
-            worker_1 = new Worker("PROCESS_1",thread_1);
+        }
+    } else { // 스레드 1이 실행 중이지 않은 경우
+        try {
+            worker_1.reset(new Worker("PROCESS_1", thread_1));
             worker_1->moveToThread(thread_1);
-            QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
-            QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
-            //qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
-            worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
-            worker_1->setProperties(cmd_list[0].print);
-            setWork(cmd_list[0], thread_1, worker_1);
+            QObject::connect(worker_1.data(), &Worker::finished, thread_1, &QThread::quit);
+            QObject::connect(worker_1.data(), &Worker::finished, this, &Checker::disWork);
 
-            // cmd_list.pop_front();
+            worker_1->setWork(cmd_list[0].cmd, cmd_list[0].arg);
+            worker_1->setProperties(cmd_list[0].print);
+            setWork(cmd_list[0], thread_1, worker_1.data());
+
             thread_1->start();
+            cmd_list.pop_front();
+        } catch (std::bad_alloc& e) {
+            qWarning() << "Memory allocation failed for worker_1: " << e.what();
+            return; // 메모리 할당 실패 시 안전하게 종료
+        } catch (...) {
+            qWarning() << "An unexpected error occurred while creating worker_1";
+            return; // 다른 예외 발생 시도 안전하게 종료
         }
     }
 }
+
 
 void Checker::getPing(QString host){
     for(ST_PROC p : cmd_list){

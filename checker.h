@@ -12,6 +12,10 @@
 #include <QObject>
 #include <QThread>
 #include "GlobalHeader.h"
+//BJ
+#include <QTimer>
+#include <QScopedPointer>   //QScopedPointe를 사용하기 위한 헤더 추가
+#include <QMutex>           //QMutex를 사용하기 위한 헤더 추가
 
 enum{
     PROCESS_CMD_NONE = 0,
@@ -192,7 +196,8 @@ private:
     Worker *worker_2;
     Worker *worker_3;
     QTimer *timer;
-    QProcess *process; // 07.25-BJ
+    QProcess *process;  // 07.25-BJ
+    QMutex mutex;       // 동기화를 위한 QMutex 추가
 };
 
 
