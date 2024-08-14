@@ -15,7 +15,6 @@ QString subnetToNetmask(QString subnetSize) {
            .arg(netmaskInt & 0xFF);
 }
 
-//BJ - edit
 QString netmaskToSubnet(const QString &netmask) {
     // Convert netmask from string to integer
     QStringList parts = netmask.split('.');
@@ -25,10 +24,8 @@ QString netmaskToSubnet(const QString &netmask) {
     }
     uint netmaskInt = 0;
     for (int i = 0; i < 4; ++i) {
-        bool ok; //BJ
-        int octet = parts[i].toInt(&ok);
-        //if (!ok || octet < 0 || octet > 255) {
-        if (!ok || octet > 255) {
+        int octet = parts[i].toInt();
+        if (octet < 0 || octet > 255) {
             qWarning() << "Invalid octet in netmask";
             return "0";
         }
@@ -37,25 +34,54 @@ QString netmaskToSubnet(const QString &netmask) {
 
     // Calculate subnet size from netmask
     int subnetSize = 0;
-    bool zeroSeen = false; // BJ
-    //while (netmaskInt & 0x80000000) {
-    //    subnetSize++;
-    //    netmaskInt <<= 1;
-    //}
-    for (int i = 0; i < 32; ++i) {
-        if (netmaskInt & 0x80000000) {
-            if (zeroSeen) {
-                qWarning() << "Invalid netmask: non-contiguous bits";
-                return "0";
-            }
-            subnetSize++;
-        } else {
-            zeroSeen = true;
-        }
+    while (netmaskInt & 0x80000000) {
+        subnetSize++;
         netmaskInt <<= 1;
     }
     return QString::number(subnetSize);
 }
+
+//BJ - edit
+//QString netmaskToSubnet(const QString &netmask) {
+//    // Convert netmask from string to integer
+//    QStringList parts = netmask.split('.');
+//    if (parts.size() != 4) {
+//        qWarning() << "Invalid netmask format";
+//        return "0";
+//    }
+//    uint netmaskInt = 0;
+//    for (int i = 0; i < 4; ++i) {
+//        bool ok; //BJ
+//        int octet = parts[i].toInt(&ok);
+//        //if (!ok || octet < 0 || octet > 255) {
+//        if (!ok || octet > 255) {
+//            qWarning() << "Invalid octet in netmask";
+//            return "0";
+//        }
+//        netmaskInt = (netmaskInt << 8) | octet;
+//    }
+//
+//    // Calculate subnet size from netmask
+//    int subnetSize = 0;
+//    bool zeroSeen = false; // BJ
+//    //while (netmaskInt & 0x80000000) {
+//    //    subnetSize++;
+//    //    netmaskInt <<= 1;
+//    //}
+//    for (int i = 0; i < 32; ++i) {
+//        if (netmaskInt & 0x80000000) {
+//            if (zeroSeen) {
+//                qWarning() << "Invalid netmask: non-contiguous bits";
+//                return "0";
+//            }
+//            subnetSize++;
+//        } else {
+//            zeroSeen = true;
+//        }
+//        netmaskInt <<= 1;
+//    }
+//    return QString::number(subnetSize);
+//}
 
 
 bool sortWifi2(const ST_WIFI &w1, const ST_WIFI &w2){
@@ -475,7 +501,6 @@ void Worker::gitReset(){
 }
 
 void Worker::getNetworkState() {
-
     //QMutexLocker locker(&mutex);  // 공유 자원 접근 시 동기화
     QScopedPointer<QProcess> process(new QProcess());  // QScopedPointer로 메모리 자동 관리
     QString ssid = "";
@@ -760,7 +785,6 @@ void Worker::getNetworkState(){
     }
 }
 */
-
 //void Worker::gitPull(){
 //    process = new QProcess(this);
 //
@@ -1001,7 +1025,8 @@ Checker::Checker(QObject *parent)
     connect(timer, &QTimer::timeout, this, &Checker::onTimer);
     timer->start(100);
 
-    getPing("www.goog3le.com");
+    //getPing("www.goog3le.com");
+    getPing("www.google.com");
 }
 
 void Checker::change_network(QString line){
