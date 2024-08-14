@@ -213,12 +213,12 @@ void Supervisor::programRestart(){
     ipc->clearSharedMemory(ipc->shm_cmd);
 
     //BJ_TRY
-    //slam_process->kill();
-    //QCoreApplication::quit();
+    slam_process->kill();
+    QCoreApplication::quit();
 
     //240809 yujin - pm2 start -> restart twice
-    QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
-    QApplication::exit(12);
+    //QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
+    //QApplication::exit(12);
 }
 
 void Supervisor::programExit(){
@@ -3161,7 +3161,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
         settings.setValue("serving_"+QString::number(i)+"/num",getLocationGroupSize(i));
     }
 
-    slam_map_reload(filename, 1);
+    //slam_map_reload(filename, 1); //08.14
     if(reload){
         readSetting(filename);
         maph->initLocation();
