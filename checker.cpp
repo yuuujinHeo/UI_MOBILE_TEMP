@@ -476,7 +476,7 @@ void Worker::gitReset(){
 
 void Worker::getNetworkState() {
 
-    QMutexLocker locker(&mutex);  // 공유 자원 접근 시 동기화
+    //QMutexLocker locker(&mutex);  // 공유 자원 접근 시 동기화
     QScopedPointer<QProcess> process(new QProcess());  // QScopedPointer로 메모리 자동 관리
     QString ssid = "";
     QString name = "";
@@ -760,6 +760,7 @@ void Worker::getNetworkState(){
     }
 }
 */
+
 //void Worker::gitPull(){
 //    process = new QProcess(this);
 //
@@ -826,6 +827,7 @@ void Worker::gitPull() {
     emit finished(this);
 }
 
+/*
 void Worker::checkPing(){
     QString hostname = "www.google.com";
     if(argument.size() > 0){
@@ -849,6 +851,45 @@ void Worker::checkPing(){
     process->close();
     process->deleteLater();
     // process = nullptr;
+    emit finished(this);
+}
+*/
+
+void Worker::checkPing() {
+    QString hostname = "www.google.com";
+    plog ->write("[CHECKER]checkping");
+    if (argument.size() > 0) {
+        hostname = argument[0];
+    }
+
+    // QScopedPointer를 사용하여 QProcess 객체를 관리
+    QScopedPointer<QProcess> process(new QProcess(this));
+    process->start("ping", QStringList() << "-c" << "1" << hostname);
+
+    try {
+        if (!process->waitForFinished(1000)) {
+            probot->con_internet = false;
+            plog->write("[CHECKER]checkping : con_internet-wait false");
+        } else {
+            QByteArray result = process->readAllStandardOutput();
+            // qDebug() << "PING : " << result;
+            if (result.contains("1 received")) {
+                probot->con_internet = true;
+                plog->write("[CHECKER]checkping : con_internet-true");
+            } else {
+                probot->con_internet = false;
+                plog->write("[CHECKER]checkping : con_internet-false");
+            }
+        }
+    } catch (const std::exception &e) {
+        qWarning() << "An error occurred during checkPing: " << e.what();
+        probot->con_internet = false;  // 에러 발생 시 인터넷 연결을 false로 설정
+    } catch (...) {
+        qWarning() << "An unexpected error occurred during checkPing";
+        probot->con_internet = false;  // 에러 발생 시 인터넷 연결을 false로 설정
+    }
+
+    // QScopedPointer가 자동으로 process를 삭제하므로 명시적인 삭제는 필요 없음
     emit finished(this);
 }
 
@@ -986,38 +1027,40 @@ Checker::~Checker(){
     delete worker_3;
 }
 
-//void Checker::onTimer(){
-//    if(cmd_list.size() > 0){
-//        if(thread_1->isRunning()){
-//            if(thread_2->isRunning()){
-//            }else{
-//                worker_2 = new Worker("PROCESS_2",thread_2);
-//                worker_2->moveToThread(thread_2);
-//                QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
-//                QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
-//                //qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
-//                worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
-//                worker_2->setProperties(cmd_list[0].print);
-//
-//                setWork(cmd_list[0], thread_2, worker_2);
-//                // cmd_list.pop_front();
-//                thread_2->start();
-//            }
-//        }else{
-//            worker_1 = new Worker("PROCESS_1",thread_1);
-//            worker_1->moveToThread(thread_1);
-//            QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
-//            QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
-//            //qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
-//            worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
-//            worker_1->setProperties(cmd_list[0].print);
-//            setWork(cmd_list[0], thread_1, worker_1);
-//
-//            // cmd_list.pop_front();
-//            thread_1->start();
-//        }
-//    }
-//}
+/*
+void Checker::onTimer(){
+    if(cmd_list.size() > 0){
+        if(thread_1->isRunning()){
+            if(thread_2->isRunning()){
+            }else{
+                worker_2 = new Worker("PROCESS_2",thread_2);
+                worker_2->moveToThread(thread_2);
+                QObject::connect(worker_2, &Worker::finished, thread_2, &QThread::quit);
+                QObject::connect(worker_2, &Worker::finished, this, &Checker::disWork);
+                //qDebug() << "setWork 2" << cmd_list[0].cmd << cmd_list[0].arg;
+                worker_2->setWork( cmd_list[0].cmd, cmd_list[0].arg);
+                worker_2->setProperties(cmd_list[0].print);
+
+                setWork(cmd_list[0], thread_2, worker_2);
+                // cmd_list.pop_front();
+                thread_2->start();
+            }
+        }else{
+            worker_1 = new Worker("PROCESS_1",thread_1);
+            worker_1->moveToThread(thread_1);
+            QObject::connect(worker_1, &Worker::finished, thread_1, &QThread::quit);
+            QObject::connect(worker_1, &Worker::finished, this, &Checker::disWork);
+            //qDebug() << "setWork 1" << cmd_list[0].cmd << cmd_list[0].arg;
+            worker_1->setWork(cmd_list[0].cmd,cmd_list[0].arg);
+            worker_1->setProperties(cmd_list[0].print);
+            setWork(cmd_list[0], thread_1, worker_1);
+
+            // cmd_list.pop_front();
+            thread_1->start();
+        }
+    }
+}
+*/
 
 void Checker::onTimer() {
     // 스레드가 실행 중인지 확인하는 부분에 동기화 적용
@@ -1038,6 +1081,7 @@ void Checker::onTimer() {
             try {
                 worker_2.reset(new Worker("PROCESS_2", thread_2));
                 worker_2->moveToThread(thread_2);
+
                 QObject::connect(worker_2.data(), &Worker::finished, thread_2, &QThread::quit);
                 QObject::connect(worker_2.data(), &Worker::finished, this, &Checker::disWork);
 
@@ -1046,6 +1090,10 @@ void Checker::onTimer() {
                 setWork(cmd_list[0], thread_2, worker_2.data());
 
                 thread_2->start();
+                //QObject::connect(thread_2, &QThread::started, worker_2.data(), &Worker::checkPing);  // 스레드 시작 후 checkPing 호출
+
+
+
                 cmd_list.pop_front();
             } catch (std::bad_alloc& e) {
                 qWarning() << "Memory allocation failed for worker_2: " << e.what();
@@ -1067,6 +1115,10 @@ void Checker::onTimer() {
             setWork(cmd_list[0], thread_1, worker_1.data());
 
             thread_1->start();
+            //QObject::connect(thread_1, &QThread::started, worker_1.data(), &Worker::checkPing);  // 스레드 시작 후 checkPing 호출
+
+
+
             cmd_list.pop_front();
         } catch (std::bad_alloc& e) {
             qWarning() << "Memory allocation failed for worker_1: " << e.what();

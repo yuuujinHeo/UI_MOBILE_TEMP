@@ -197,7 +197,7 @@ typedef struct{
     QString ipv4;
     QString method;
     QString netmask;
-    QString subnet;;
+    QString subnet;
     QString gateway;
     QString dns1;
     QString dns2;
