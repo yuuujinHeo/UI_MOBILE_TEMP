@@ -3995,8 +3995,9 @@ void Supervisor::onTimer(){
 
         if(probot->status_charge_connect == 0){
             plog->write("[STATE] Charging : Charge Connect = 0 -> None");
-            stateInit();
-            QMetaObject::invokeMethod(mMain, "need_init");
+            //stateInit();
+            //QMetaObject::invokeMethod(mMain, "need_init");
+            QMetaObject::invokeMethod(mMain, "charging");
             break;
         }else if(curPage != "page_charge" && !debug_mode){
             plog->write("[STATE] Charging -> UI Charging");
