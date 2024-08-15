@@ -7,39 +7,46 @@
 #include <QDebug>
 #include "GlobalHeader.h"
 
+enum bell_info
+{
+    BELL_CONNECT=0xA501,
+    BELL_PUSH=0xA505,
+    BELL_CHECK=0xA511,
+    SENDER_CALL=0xA514
+};
 
 class CallbellHandler : public QObject
 {
     Q_OBJECT
 public:
-    CallbellHandler();
+    explicit CallbellHandler(QObject *parent = nullptr);
+    ~CallbellHandler();
 
-    QString getBellID(){return last_bell_id;}
-    bool isOpenPort(){return m_serialPort->isOpen();}
+    std::mutex mtx;
 
-    int connection_count;
-    void sendCall(QString id);
-    void sendCallTest();
+    QString get_bell_ID();
+    bool is_open_port();
+
+    void send_call(QString id);
 
 public slots:
-    void onTimer();
-    void readData();
-    void handleError(QSerialPort::SerialPortError error);
+    void reconnection_loop();
+    void read_data();
+    void handle_error(QSerialPort::SerialPortError error);
 
 signals:
     void new_call();
 
 private:
     QSerialPort *m_serialPort = nullptr;
-    QTimer *timer;
+    QTimer *reconnection_timer;
     QByteArray datas;
     QString last_bell_id;
 
+    void send_connection_check_message();
+    void send_data_check_message();
 
-    void SendConnectionCheckMessage();
-    void SendDataCheckMessage();
-
-    uchar CalcCheckSum(QByteArray ba, int size);
+    uchar calc_checksum(QByteArray ba, int size);
 };
 
 #endif // CALLBELLHANDLER_H

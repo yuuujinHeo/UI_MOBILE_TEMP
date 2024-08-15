@@ -1,6 +1,8 @@
 #ifndef CHECKER_H
 #define CHECKER_H
 
+#include <memory>
+
 #include <QCoreApplication>
 #include <QNetworkConfigurationManager>
 #include <QProcess>
@@ -13,7 +15,8 @@
 #include <QThread>
 #include "GlobalHeader.h"
 
-enum{
+enum
+{
     PROCESS_CMD_NONE = 0,
     PROCESS_CMD_SET_SYSTEM_VOLUME,
     PROCESS_CMD_GET_SYSTEM_VOLUME,
@@ -29,105 +32,30 @@ enum{
     PROCESS_CMD_UNZIP
 };
 
-class Worker : public QObject
+enum WIFI_CONNECT_ERR_LIST
 {
-    Q_OBJECT
-public slots:
-    void getSystemVolume();
-    void setSystemVolume();
-    void getWifiInterface();
-    void startMonitorNetwork();
-    void connectWifi();
-    void checkPing();
-    void setIP();
-    void setEthernet();
-    void gitPull();
-    void gitReset();
-    void setProperties(bool isprint){
-        is_print = isprint;
-    }
-    void getNetworkState();
-    void network_output();
-
-    void error_git_pull(){
-        QByteArray error = process->readAllStandardError();
-        if(error.contains("error:")){
-            is_error = true;
-        }
-        plog->write("[checker] GitPull Error : "+error);
-    }
-
-    void error_git_reset(){
-        QByteArray error = process->readAllStandardError();
-        plog->write("[checker] GitReset Error : "+error);
-    }
-    void error_set_wifi(){
-        QByteArray error = process->readAllStandardError();
-        plog->write("[checker] setWifi Error : "+error);
-        emit connect_wifi_fail(1, argument[0]);
-        emit finished(this);
-    }
-    void error_connect_wifi(){
-        QByteArray error = process->readAllStandardError();
-        plog->write("[checker] connectWifi Error : "+error);
-        if(error.contains("[sudo]")){
-
-            if(QDir::homePath().split("/")[2]=="odroid"){
-                process->write("odroid\n");
-            }else{
-                process->write("rainbow\n");
-            }
-            if(!process->waitForFinished()){
-                emit connect_wifi_fail(3, argument[0]);
-                emit finished(this);
-                return;
-            }
-        }else if(error.contains("No network")){
-            emit connect_wifi_fail(4, argument[0]);
-            emit finished(this);
-            return;
-        }else{
-            emit connect_wifi_fail(0, argument[0]);
-            emit finished(this);
-            return;
-        }
-    }
-
-    //0725-BJ
-    void outputAvailable();
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
-
-signals:
-    void finished(Worker *w);
-    void change_network(QString line);
-    void connect_wifi_success(QString ssid);
-    void connect_wifi_fail(int reason, QString ssid);
-    void set_wifi_success(QString ssid);
-    void set_wifi_fail(int reason, QString ssid);
-    void git_pull_failed();
-    void git_pull_nothing();
-    void git_pull_success();
-
-public:
-    Worker(QString _name, QThread *th):name(_name),parent_thread(th){}
-    ~Worker(){
-        // disconnect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_connect_wifi()));
-    }
-    QThread *parent_thread;
-    QProcess *process;
-    QString name;
-    bool is_error = false;
-    bool is_print;
-    QString program;
-    QStringList argument;
-    void setWork(const QString &_program, const QStringList &arg){
-        program = _program;
-        argument = arg;
-    }
+    WIFI_PW_FAILED=1,
+    WIFI_CONNECTION_FAILED=2,
+    WIFI_CMD_IGNORED=3,
+    WIFI_NOT_FOUND_SSID=4,
 };
 
+enum WIFI_SET_ERR_LIST
+{
+    WIFI_SET_FAILED_ERROR=1,
+};
 
-typedef struct{
+enum WIFI_SIGNAL_LEVEL
+{
+    VERY_LOW=0,
+    LOW=1,
+    MIDDLE=2,
+    HIGH=3,
+    VERY_HIGH=4
+};
+
+typedef struct
+{
     QString cmd;
     QStringList arg;
     QString name;
@@ -155,6 +83,9 @@ public:
     void setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
     void connectWifi(QString ssid, QString passwd);
 
+    std::atomic<bool> is_print = {false};
+    std::atomic<bool> is_error = {false};
+
 signals:
     void sig_con_wifi_success(QString ssid);
     void sig_con_wifi_fail(int reason, QString ssid);
@@ -163,36 +94,93 @@ signals:
     void sig_gitpull_success();
     void sig_gitpull_fail(int reason);
 
-    // 0725-BJ
-    void wifi_connect_success();
-    void wifi_connect_failed();
-    void ethernet_config_success();
-    void ethernet_config_failed();
-    void ip_config_success();
-    void ip_config_failed();
+public slots:
+    //functions
+    void start_set_system_volume(int volume);
+    void start_get_system_volume();
+    void start_get_network_state(QString name);
+    void start_check_ping(QString host);
+    void start_get_wifi_interface(QString method);
+    void start_git_pull();
+    void start_git_reset();
+    void start_set_ip(QString method, QString ssid, QString ip="", QString subnet="", QString gateway="", QString dns1="", QString dns2="");
+    void start_set_ehternet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
+    void start_connect_wifi(QString ssid, QString passwd);
 
-private slots:
     void onTimer();
     void connect_wifi_success(QString ssid);
     void connect_wifi_fail(int reason, QString ssid);
     void set_wifi_success(QString ssid);
     void set_wifi_fail(int reason, QString ssid);
-    void change_network(QString line);
-    void gitpull_success();
-    void gitpull_fail();
-    void gitpull_nothing();
+
+    void error_git_pull(QProcess* _process)
+    {
+        QByteArray error = _process->readAllStandardError();
+        if(error.contains("error:"))
+        {
+            is_error = true;
+        }
+        plog->write("[checker][git_pull] Error : "+error);
+    }
+
+    void error_git_reset()
+    {
+        plog->write("[checker][git_reset] Error");
+    }
+    void error_set_wifi()
+    {
+        emit connect_wifi_fail(WIFI_PW_FAILED, "");
+        plog->write("[checker] setWifi Error");
+    }
+    void error_connect_wifi(QProcess* _process)
+    {
+        QByteArray error = _process->readAllStandardError();
+        plog->write("[checker] connectWifi Error : " + error);
+        if(error.contains("[sudo]"))
+        {
+            QStringList path = QDir::homePath().split("/");
+            if(path.size() < 2)
+            {
+                plog->write("[checker] invalid homepath. user name is odroid or rainbow");
+                return;
+            }
+
+            if(path[2]=="odroid")
+            {
+                _process->write("odroid\n");
+            }
+            else if(path[2]=="rainbow")
+            {
+                _process->write("rainbow\n");
+            }
+            else
+            {
+                plog->write("[checker] invalid homepath. user name is odroid or rainbow");
+                return;
+            }
+
+            if(!_process->waitForFinished())
+            {
+                emit connect_wifi_fail(WIFI_CMD_IGNORED, "");
+                return;
+            }
+        }
+        else if(error.contains("No network"))
+        {
+            emit connect_wifi_fail(WIFI_NOT_FOUND_SSID, "");
+            return;
+        }
+        else
+        {
+            emit connect_wifi_fail(-1, "");
+            return;
+        }
+    }
+
 private:
-    void disWork(Worker *worker);
-    void setWork(ST_PROC cmd, QThread *thread, Worker *worker);
+    void set_work(ST_PROC cmd);
     QList<ST_PROC> cmd_list;
-    QThread *thread_1;
-    QThread *thread_2;
-    QThread *thread_3;
-    Worker *worker_1;
-    Worker *worker_2;
-    Worker *worker_3;
     QTimer *timer;
-    QProcess *process; // 07.25-BJ
 };
 
 

@@ -123,7 +123,7 @@ Supervisor::Supervisor(QObject *parent)
     translator = new QTranslator();
     setlanguage(getSetting("setting","UI","language"));
 
-    checker->getNetworkState("");
+    checker->getNetworkState();
 
     initServingPage();
 //    checker->setIP("mobile_robot_mesh","10.108.1.132","24","10.108.1.1","10.108.1.1","8.8.8.8");
@@ -340,28 +340,28 @@ void Supervisor::new_call(){
     if(setting_call_num > -1){
         if(setting_call_type == "Charging"){
             if(setting_call_num<pmap->charging_locations.size()){
-                plog->write("[CALL] newCall : SET CallBell "+pmap->charging_locations[setting_call_num].name+" -> "+call->getBellID());
-                pmap->charging_locations[setting_call_num].call_id = call->getBellID();
+                plog->write("[CALL] newCall : SET CallBell "+pmap->charging_locations[setting_call_num].name+" -> "+call->get_bell_ID());
+                pmap->charging_locations[setting_call_num].call_id = call->get_bell_ID();
             }
         }else if(setting_call_type == "Resting"){
             if(setting_call_num<pmap->resting_locations.size()){
-                plog->write("[CALL] newCall : SET CallBell "+pmap->resting_locations[setting_call_num].name+" -> "+call->getBellID());
-                pmap->resting_locations[setting_call_num].call_id = call->getBellID();
+                plog->write("[CALL] newCall : SET CallBell "+pmap->resting_locations[setting_call_num].name+" -> "+call->get_bell_ID());
+                pmap->resting_locations[setting_call_num].call_id = call->get_bell_ID();
             }
         }else if(setting_call_type == "Cleaning"){
             if(setting_call_num<pmap->cleaning_locations.size()){
-                plog->write("[CALL] newCall : SET CallBell "+pmap->cleaning_locations[setting_call_num].name+" -> "+call->getBellID());
-                pmap->cleaning_locations[setting_call_num].call_id = call->getBellID();
+                plog->write("[CALL] newCall : SET CallBell "+pmap->cleaning_locations[setting_call_num].name+" -> "+call->get_bell_ID());
+                pmap->cleaning_locations[setting_call_num].call_id = call->get_bell_ID();
             }
         }else if(setting_call_type == "Init"){
             if(setting_call_num<pmap->init_locations.size()){
-                plog->write("[CALL] newCall : SET CallBell "+pmap->init_locations[setting_call_num].name+" -> "+call->getBellID());
-                pmap->init_locations[setting_call_num].call_id = call->getBellID();
+                plog->write("[CALL] newCall : SET CallBell "+pmap->init_locations[setting_call_num].name+" -> "+call->get_bell_ID());
+                pmap->init_locations[setting_call_num].call_id = call->get_bell_ID();
             }
         }else{
             if(setting_call_num<pmap->serving_locations.size()){
-                plog->write("[CALL] newCall : SET CallBell "+pmap->serving_locations[setting_call_num].name+" -> "+call->getBellID());
-                pmap->serving_locations[setting_call_num].call_id = call->getBellID();
+                plog->write("[CALL] newCall : SET CallBell "+pmap->serving_locations[setting_call_num].name+" -> "+call->get_bell_ID());
+                pmap->serving_locations[setting_call_num].call_id = call->get_bell_ID();
             }
         }
         setting_call_num = -1;
@@ -375,7 +375,7 @@ void Supervisor::new_call(){
         bool match = false;
         QString name = "";
         for(int i=0; i<pmap->charging_locations.size(); i++){
-            if(pmap->charging_locations[i].call_id == call->getBellID()){
+            if(pmap->charging_locations[i].call_id == call->get_bell_ID()){
                 name = pmap->charging_locations[i].name;
                 match = true;
                 break;
@@ -383,7 +383,7 @@ void Supervisor::new_call(){
         }
         if(!match){
             for(int i=0; i<pmap->resting_locations.size(); i++){
-                if(pmap->resting_locations[i].call_id == call->getBellID()){
+                if(pmap->resting_locations[i].call_id == call->get_bell_ID()){
                     name = pmap->resting_locations[i].name;
                     match = true;
                     break;
@@ -392,7 +392,7 @@ void Supervisor::new_call(){
         }
         if(!match){
             for(int i=0; i<pmap->cleaning_locations.size(); i++){
-                if(pmap->cleaning_locations[i].call_id == call->getBellID()){
+                if(pmap->cleaning_locations[i].call_id == call->get_bell_ID()){
                     name = pmap->cleaning_locations[i].name;
                     match = true;
                     break;
@@ -401,7 +401,7 @@ void Supervisor::new_call(){
         }
         if(!match){
             for(int i=0; i<pmap->init_locations.size(); i++){
-                if(pmap->init_locations[i].call_id == call->getBellID()){
+                if(pmap->init_locations[i].call_id == call->get_bell_ID()){
                     name = pmap->init_locations[i].name;
                     match = true;
                     break;
@@ -410,7 +410,7 @@ void Supervisor::new_call(){
         }
         if(!match){
             for(int i=0; i<pmap->serving_locations.size(); i++){
-                if(pmap->serving_locations[i].call_id == call->getBellID()){
+                if(pmap->serving_locations[i].call_id == call->get_bell_ID()){
                     name = pmap->serving_locations[i].name;
                     match = true;
                     break;
@@ -421,16 +421,16 @@ void Supervisor::new_call(){
         for(int i=0; i<pmap->call_queue.size(); i++){
             if(pmap->call_queue[i] == name){
                 already_in = true;
-                plog->write("[CALL] newCall : "+name+" ("+call->getBellID()+") -> already queue in");
+                plog->write("[CALL] newCall : "+name+" ("+call->get_bell_ID()+") -> already queue in");
                 break;
             }
         }
         if(!already_in){
             if(name != ""){
                 pmap->call_queue.push_back(name);
-                plog->write("[CALL] newCall : "+name+" ("+call->getBellID()+")");
+                plog->write("[CALL] newCall : "+name+" ("+call->get_bell_ID()+")");
             }else{
-                plog->write("[CALL] newCall : no found callbell ("+call->getBellID()+")");
+                plog->write("[CALL] newCall : no found callbell ("+call->get_bell_ID()+")");
             }
         }
     }
@@ -461,7 +461,8 @@ void Supervisor::setCallbell(QString type, int id){
 
 
 ////*********************************************  SETTING 관련   ***************************************************////
-void Supervisor::git_pull_success(){
+void Supervisor::git_pull_success()
+{
     plog->write("[UPDATE] Git Pull : Success -> Program Restart");
     programRestart();
 }
@@ -2482,7 +2483,7 @@ void Supervisor::readusbrecentfile(){
 }
 
 void Supervisor::callCallbell(QString id){
-    call->sendCall(id);
+    call->send_call(id);
 }
 
 void Supervisor::updateUSB(){
@@ -3875,7 +3876,7 @@ void Supervisor::onTimer(){
     }
 
     //
-    if(timer_cnt++ > 30){
+    if(timer_cnt++ > 300){
         timer_cnt = 0;
         checker->getCurrentInterface();
     }
@@ -4057,7 +4058,7 @@ void Supervisor::onTimer(){
                             //Ling bell
                             if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
                                 plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->sendCall(probot->current_target.ling_id);
+                                call->send_call(probot->current_target.ling_id);
                             }
                             ui_state = UI_STATE_CHARGING;
                         }else{
@@ -4065,7 +4066,7 @@ void Supervisor::onTimer(){
                             //Ling bell
                             if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
                                 plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->sendCall(probot->current_target.ling_id);
+                                call->send_call(probot->current_target.ling_id);
                             }
                             ui_state = UI_STATE_CHARGING;
                         }
@@ -4096,7 +4097,7 @@ void Supervisor::onTimer(){
                             //Ling bell
                             if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
                                 plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->sendCall(probot->current_target.ling_id);
+                                call->send_call(probot->current_target.ling_id);
                             }
                             QMetaObject::invokeMethod(mMain, "waitkitchen");
                             ui_state = UI_STATE_CLEANING;
@@ -4105,7 +4106,7 @@ void Supervisor::onTimer(){
                             //Ling bell
                             if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
                                 plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->sendCall(probot->current_target.ling_id);
+                                call->send_call(probot->current_target.ling_id);
                             }
                             QMetaObject::invokeMethod(mMain, "waitkitchen");
                             ui_state = UI_STATE_INITAILIZING;
@@ -4137,7 +4138,7 @@ void Supervisor::onTimer(){
                             //Ling bell
                             if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
                                 plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->sendCall(probot->current_target.ling_id);
+                                call->send_call(probot->current_target.ling_id);
                             }
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
                             ui_state = UI_STATE_CLEANING;
@@ -4145,7 +4146,7 @@ void Supervisor::onTimer(){
                             //Ling bell
                             if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
                                 plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->sendCall(probot->current_target.ling_id);
+                                call->send_call(probot->current_target.ling_id);
                             }
                             plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
                             QMetaObject::invokeMethod(mMain, "clearkitchen");
@@ -4454,13 +4455,13 @@ void Supervisor::onTimer(){
             if(getSetting("setting","CALL","use_lingbell") == "true"){
                 if(lingbell_count == 0){
                     plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                    call->sendCall(probot->current_target.ling_id);
+                    call->send_call(probot->current_target.ling_id);
                     lingbell_count = 1;
                 }
                 if(getSetting("setting","CALL","use_lingbell_repeat") == "true"){
                     if(lingbell_count++ > getSetting("setting","CALL","lingbell_time").toInt()*1000/MAIN_THREAD){
                         plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                        call->sendCall(probot->current_target.ling_id);
+                        call->send_call(probot->current_target.ling_id);
                         lingbell_count = 1;
                     }
                 }else{
