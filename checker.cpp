@@ -788,9 +788,16 @@ void Worker::getNetworkState(){
 void Worker::gitPull(){
     process = new QProcess(this);
 
-    process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
+    //process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
+    process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/release");
     plog->write("[Checker]worker:[UPDATE] Git Pull : Start");
-    process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
+    //process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
+    process->start("git", QStringList() << "stash");
+    if (!process->waitForFinished()) {
+        emit finished(this);
+        return;
+    }
+    process->start("git", QStringList() << "pull");
 
     connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
 
@@ -806,7 +813,7 @@ void Worker::gitPull(){
 
         if(result == "" && !is_error){
             plog->write("[Checker]worker:[UPDATE] Git Pull : Already");
-            emit git_pull_success(); //BJ- Test
+            emit git_pull_success();
 
             //emit git_pull_nothing();
         }else if(result.contains("error:") || is_error){
