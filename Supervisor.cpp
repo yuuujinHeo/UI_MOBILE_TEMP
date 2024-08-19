@@ -214,11 +214,11 @@ void Supervisor::programRestart(){
 
     //BJ_TRY
     slam_process->kill();
-    QCoreApplication::quit();
+    //QCoreApplication::quit();
 
     //240809 yujin - pm2 start -> restart twice
-    //QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
-    //QApplication::exit(12);
+    QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
+    QApplication::exit(12);
 }
 
 void Supervisor::programExit(){
@@ -465,16 +465,16 @@ void Supervisor::setCallbell(QString type, int id){
 
 ////*********************************************  SETTING 관련   ***************************************************////
 void Supervisor::git_pull_success(){
-    plog->write("[UPDATE] Git Pull : Success -> Program Restart");
+    plog->write("[supervisor]git_pull_success:[UPDATE] Git Pull : Success -> Program Restart");
     programRestart();
 }
 
 void Supervisor::git_pull_fail(int reason){
     if(reason == 0){
-        plog->write("[UPDATE] Git Pull : Failed -> Maybe need Reset");
+        plog->write("[supervisor]git_pull_fail:[UPDATE] Git Pull : Failed -> Maybe need Reset");
         QMetaObject::invokeMethod(mMain, "git_pull_fail");
     }else{//nothing
-        plog->write("[UPDATE] Git Pull : Failed -> Program Already Newest");
+        plog->write("[supervisor]git_pull_fail:[UPDATE] Git Pull : Failed -> Program Already Newest");
         QMetaObject::invokeMethod(mMain, "git_pull_already");
     }
 }

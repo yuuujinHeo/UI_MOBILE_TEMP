@@ -789,7 +789,7 @@ void Worker::gitPull(){
     process = new QProcess(this);
 
     process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
-    plog->write("[UPDATE][Checker]worker:: Git Pull : Start");
+    plog->write("[Checker]worker:[UPDATE] Git Pull : Start");
     process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
 
     connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
@@ -798,22 +798,25 @@ void Worker::gitPull(){
         emit finished(this); //BJ
         return; //BJ
     }
-    //QByteArray result = process->readAllStandardOutput();
 
-   // else{
+   else{
         QByteArray result = process->readAllStandardOutput();
+        plog->write("gitpull result");
+        plog->write(result);
 
         if(result == "" && !is_error){
-            plog->write("[UPDATE] Git Pull : Already");
-            emit git_pull_nothing();
+            plog->write("[Checker]worker:[UPDATE] Git Pull : Already");
+            emit git_pull_success(); //BJ- Test
+
+            //emit git_pull_nothing();
         }else if(result.contains("error:") || is_error){
-            plog->write("[UPDATE] Git Pull : Failed");
+            plog->write("[Checker]worker:[UPDATE] Git Pull : Failed");
             emit git_pull_failed();
         }else{
-            plog->write("[UPDATE] Git Pull : Success");
+            plog->write("[Checker]worker:[UPDATE] Git Pull : Success");
             emit git_pull_success();
         }
-    //}
+    }
 
     process->close();
     process->disconnect();
