@@ -785,71 +785,76 @@ void Worker::getNetworkState(){
     }
 }
 */
-//void Worker::gitPull(){
+void Worker::gitPull(){
+    process = new QProcess(this);
+
+    process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
+    plog->write("[UPDATE][Checker]worker:: Git Pull : Start");
+    process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
+
+    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+
+    if(!process->waitForFinished()){
+        emit finished(this); //BJ
+        return; //BJ
+    }
+    //QByteArray result = process->readAllStandardOutput();
+
+   // else{
+        QByteArray result = process->readAllStandardOutput();
+
+        if(result == "" && !is_error){
+            plog->write("[UPDATE] Git Pull : Already");
+            emit git_pull_nothing();
+        }else if(result.contains("error:") || is_error){
+            plog->write("[UPDATE] Git Pull : Failed");
+            emit git_pull_failed();
+        }else{
+            plog->write("[UPDATE] Git Pull : Success");
+            emit git_pull_success();
+        }
+    //}
+
+    process->close();
+    process->disconnect();
+    process->deleteLater();
+    process = nullptr;
+
+    emit finished(this);
+}
+
+//0725-BJ
+//void Worker::gitPull() {
 //    process = new QProcess(this);
-//
-//    process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE");
+//    process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE");
 //    plog->write("[UPDATE] Git Pull : Start");
-//    process->start("git",QStringList()<<"submodule" << "update" <<"--remote");
 //
-//    connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+//    connect(process, &QProcess::readyReadStandardError, this, &Worker::error_git_pull);
 //
-//    if(!process->waitForFinished()){
-//    }else{
+//    process->start("git", QStringList() << "submodule" << "update" << "--remote");
+//
+//    if (!process->waitForFinished()) {
+//        plog->write("[UPDATE] Git Pull : Timeout or Error");
+//    } else {
 //        QByteArray result = process->readAllStandardOutput();
-//
-//        if(result == "" && !is_error){
-//            plog->write("[UPDATE] Git Pull : Already");
+//        if (result.isEmpty() && !is_error) {
+//            plog->write("[UPDATE] Git Pull : Already up-to-date");
 //            emit git_pull_nothing();
-//        }else if(result.contains("error:") || is_error){
+//        } else if (result.contains("error:") || is_error) {
 //            plog->write("[UPDATE] Git Pull : Failed");
 //            emit git_pull_failed();
-//        }else{
+//        } else {
 //            plog->write("[UPDATE] Git Pull : Success");
 //            emit git_pull_success();
 //        }
 //    }
 //
 //    process->close();
-//    process->disconnect();
 //    process->deleteLater();
 //    process = nullptr;
 //
 //    emit finished(this);
 //}
-
-//0725-BJ
-void Worker::gitPull() {
-    process = new QProcess(this);
-    process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE");
-    plog->write("[UPDATE] Git Pull : Start");
-
-    connect(process, &QProcess::readyReadStandardError, this, &Worker::error_git_pull);
-
-    process->start("git", QStringList() << "submodule" << "update" << "--remote");
-
-    if (!process->waitForFinished()) {
-        plog->write("[UPDATE] Git Pull : Timeout or Error");
-    } else {
-        QByteArray result = process->readAllStandardOutput();
-        if (result.isEmpty() && !is_error) {
-            plog->write("[UPDATE] Git Pull : Already up-to-date");
-            emit git_pull_nothing();
-        } else if (result.contains("error:") || is_error) {
-            plog->write("[UPDATE] Git Pull : Failed");
-            emit git_pull_failed();
-        } else {
-            plog->write("[UPDATE] Git Pull : Success");
-            emit git_pull_success();
-        }
-    }
-
-    process->close();
-    process->deleteLater();
-    process = nullptr;
-
-    emit finished(this);
-}
 
 /*
 void Worker::checkPing(){
@@ -1052,7 +1057,7 @@ Checker::~Checker(){
     delete worker_3;
 }
 
-/*
+
 void Checker::onTimer(){
     if(cmd_list.size() > 0){
         if(thread_1->isRunning()){
@@ -1085,8 +1090,9 @@ void Checker::onTimer(){
         }
     }
 }
-*/
 
+
+/*
 void Checker::onTimer() {
     // 스레드가 실행 중인지 확인하는 부분에 동기화 적용
     QMutexLocker locker(&mutex); // 스레드 간 동기화를 위한 뮤텍스 사용
@@ -1155,7 +1161,7 @@ void Checker::onTimer() {
     }
 }
 
-
+*/
 void Checker::getPing(QString host){
     for(ST_PROC p : cmd_list){
         if(p.name == "checkPing"){
@@ -1542,6 +1548,7 @@ void Checker::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QS
 }
 
 void Checker::gitPull(){
+    plog->write("[UPDATE][Checker]checker:: gitPull");
     for(ST_PROC p : cmd_list){
         if(p.name == "gitPull"){
             return;
@@ -1554,6 +1561,7 @@ void Checker::gitPull(){
     cmd_list.append(proc);
 
 }
+
 void Checker::gitReset(){
     for(ST_PROC p : cmd_list){
         if(p.name == "gitReset"){

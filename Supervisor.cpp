@@ -617,10 +617,11 @@ void Supervisor::updateProgram(){
 }
 void Supervisor::updateProgramGitPull(){
     checker->gitPull();
+    plog->write("[UPDATE][Checker]supervisor: update program git pull");
 }
 void Supervisor::gitReset(){
-    probot->program_branch = getSetting("setting","UI","program_branch");
     checker->gitReset();
+    probot->program_branch = getSetting("setting","UI","program_branch");
 }
 
 void Supervisor::restartUpdate(){
