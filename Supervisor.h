@@ -11,7 +11,7 @@
 #include "ZIPHandler.h"
 #include "python_wrapper.h"
 #include "IPCHandler.h"
-#include "checker.h"
+#include "Cmd_checker.h"
 #include <QMediaPlaylist>
 #include "ServerHandler.h"
 #include <QMediaPlayer>
@@ -51,7 +51,7 @@ public:
     ServerHandler *server;
     ZIPHandler *zip;
     MapHandler *maph;
-    Checker *checker;
+    CMD_CHECKER *checker;
     CallbellHandler *call;
     IPCHandler *ipc;
     TTSHandler *tts;
@@ -61,7 +61,6 @@ public:
     ////*********************************************  State  *********************************************////
     bool need_init = true;
     bool debug_mode = false;
-    bool start_clear = false;
 
     //state
     QString curUiState();
@@ -372,7 +371,6 @@ public:
     Q_INVOKABLE float getLocationX(int num, QString type);
     Q_INVOKABLE float getLocationY(int num, QString type);
     Q_INVOKABLE float getLocationTH(int num, QString type);
-    Q_INVOKABLE void saveLocations();
 
     //object
     // Q_INVOKABLE void setObjPose();
@@ -752,8 +750,6 @@ public:
     void makeKillSlam();
     void makeStartShell();
     void makeAllKillShell();
-    void makeUSBShell();
-    void makeExtProcessShell();
 
     Q_INVOKABLE void killSLAM();
     Q_INVOKABLE void makeRobotINI();
@@ -808,7 +804,6 @@ public:
     QStringList usb_file_full_list;
     QStringList usb_file_list;
 
-    Q_INVOKABLE void updateUSB();
     Q_INVOKABLE int getusbsize();
     Q_INVOKABLE void readusbrecentfile();
     Q_INVOKABLE int getusbfilesize();
@@ -869,6 +864,8 @@ public:
     Q_INVOKABLE bool getGoqualDeviceOnline(int num);
     Q_INVOKABLE QString getGoqualDeviceName(int num);
 
+    Q_INVOKABLE void log_advanced(const QString& str);
+    Q_INVOKABLE void start_folder_clear();
 
 public slots:
     void onTimer();
@@ -885,7 +882,6 @@ public slots:
     void process_timeout(int cmd);
     void update_success();
     void update_fail();
-    void clear_all();
     void map_reset();
     void new_call_order(QString name);
     void play_voice(ST_VOICE voice);
@@ -898,7 +894,7 @@ public slots:
 
 private:
     QTimer *timer;
-    QTimer *timer2;
+    QTimer *folder_clear_timer;
     QTimer *wifiTimer;
     QQuickWindow *mMain;
     QObject *mObject = nullptr;

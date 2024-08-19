@@ -1,5 +1,5 @@
-#ifndef CHECKER_H
-#define CHECKER_H
+#ifndef CMD_CHECKER_H
+#define CMD_CHECKER_H
 
 #include <memory>
 
@@ -12,7 +12,6 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QObject>
-#include <QThread>
 #include "GlobalHeader.h"
 
 enum
@@ -62,12 +61,12 @@ typedef struct
     bool print;
 }ST_PROC;
 
-class Checker : public QObject
+class CMD_CHECKER : public QObject
 {
     Q_OBJECT
 public:
-    Checker(QObject *parent=0);
-    ~Checker();
+    CMD_CHECKER(QObject *parent=0);
+    ~CMD_CHECKER();
 
     //functions
     void setSystemVolume(int volume);
@@ -107,7 +106,7 @@ public slots:
     void start_set_ehternet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2);
     void start_connect_wifi(QString ssid, QString passwd);
 
-    void onTimer();
+    void cmd_loop();
     void connect_wifi_success(QString ssid);
     void connect_wifi_fail(int reason, QString ssid);
     void set_wifi_success(QString ssid);
@@ -116,7 +115,7 @@ public slots:
     void error_git_pull(QProcess* _process)
     {
         QByteArray error = _process->readAllStandardError();
-        if(error.contains("error:"))
+        if(error.contains("error:") || error.contains("Error:") || error.contains("fatal:") || error.contains("Fatal:"))
         {
             is_error = true;
         }
@@ -180,8 +179,10 @@ public slots:
 private:
     void set_work(ST_PROC cmd);
     QList<ST_PROC> cmd_list;
-    QTimer *timer;
+    QTimer *cmd_timer;
+
+    std::atomic<bool> is_busy = {false};
 };
 
 
-#endif // CHECKER_H
+#endif // CMD_CHECKER_H

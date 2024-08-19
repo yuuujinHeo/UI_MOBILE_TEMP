@@ -4,7 +4,8 @@ import "."
 import io.qt.Supervisor 1.0
 import QtGraphicalEffects 1.0
 
-Item {
+Item
+{
     id: item_statusbar
     width: parent.width
     height: 60
@@ -25,14 +26,16 @@ Item {
     property bool robot_tx: false
     property bool robot_rx: false
 
-    Rectangle{
+    Rectangle
+    {
         id: status_bar
         width: parent.width
         height: 60
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         color: debug_mode?color_red:"white"
-        Text{
+        Text
+        {
             id: textName
             width: 300
             color: color_mid_black
@@ -41,19 +44,23 @@ Item {
             font.family: font_noto_r.name
             font.pixelSize: 30
             text: robot_name
-            MouseArea{
+            MouseArea
+            {
                 anchors.fill: parent
-                onPressAndHold: {
+                onPressAndHold:
+                {
                     supervisor.playSound('click');
                     supervisor.writelog("[QML-STATUSBAR] Screen Minimized");
                     mainwindow.showMinimized()
                 }
-                onDoubleClicked: {
+                onDoubleClicked:
+                {
                     supervisor.playSound('click');
                 }
             }
         }
-        Text{
+        Text
+        {
             anchors.right: image_clock.left
             anchors.rightMargin: 100
             horizontalAlignment: Text.AlignHCenter
@@ -64,9 +71,11 @@ Item {
             color: "white"
             visible: debug_mode
             font.bold: true
-            MouseArea{
+            MouseArea
+            {
                 anchors.fill: parent
-                onDoubleClicked: {
+                onDoubleClicked:
+                {
                     supervisor.playSound('click');
                     popup_notice_main.init();
                     popup_notice_main.main_str = qsTr("디버그 모드를 해제하시겠습니까?")
@@ -76,7 +85,8 @@ Item {
                 }
             }
         }
-        Text{
+        Text
+        {
             id: textTime
             visible: supervisor.getSetting("setting","USE_UI","show_time")==="true"
             anchors.horizontalCenter: parent.horizontalCenter
@@ -86,7 +96,8 @@ Item {
             font.family: font_noto_b.name
             font.pixelSize: 30
         }
-        Image{
+        Image
+        {
             id: image_clock
             visible: supervisor.getSetting("setting","USE_UI","show_time")==="true"
             source:"icon/icon_clock.png"
@@ -99,13 +110,15 @@ Item {
             anchors.verticalCenter: textTime.verticalCenter
         }
 
-        Row{
+        Row
+        {
             id: rows_icon
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 15
             spacing: 5
-            Image{
+            Image
+            {
                 id: image_multi
                 visible: false
                 width: 46
@@ -114,7 +127,8 @@ Item {
                 sourceSize.height: height
                 source: "icon/icon_multi.png"
             }
-            Image{
+            Image
+            {
                 id: image_server
                 visible: is_con_server
                 width: 46
@@ -123,7 +137,8 @@ Item {
                 sourceSize.height: height
                 source: "icon/icon_server_good.png"
             }
-            Image{
+            Image
+            {
                 id: image_motor_power
                 sourceSize.width: 46
                 sourceSize.height: 46
@@ -131,7 +146,8 @@ Item {
                 height: 46
                 source: "icon/icon_motor_discon.png"
             }
-            Image{
+            Image
+            {
                 id: image_emergency
                 visible: false
                 sourceSize.width: 46
@@ -140,7 +156,8 @@ Item {
                 height: 46
                 source: "icon/icon_emergency.png"
             }
-            Image{
+            Image
+            {
                 id: image_motor_unlock
                 visible: false
                 sourceSize.width: 46
@@ -149,7 +166,8 @@ Item {
                 height: 46
                 source: "icon/icon_motor_unlock.png"
             }
-            Image{
+            Image
+            {
                 id: image_local_error
                 visible: false
                 sourceSize.width: 46
@@ -158,7 +176,8 @@ Item {
                 height: 46
                 source: "icon/icon_local_error.png"
             }
-            Image{
+            Image
+            {
                 id: image_wifi
                 width: 46
                 height: 46
@@ -167,7 +186,8 @@ Item {
                 sourceSize.height: 46
                 source: "icon/icon_wifi_discon.png"
             }
-            Image{
+            Image
+            {
                 id: image_ethernet
                 width: 46
                 height: 46
@@ -183,8 +203,8 @@ Item {
                 sourceSize.height: 46
                 source: "icon/icon_volume_3.png"
             }
-
-            Image{
+            Image
+            {
                 id: image_battery
                 source: "icon/icon_battery_1.png"
                 width: 46
@@ -194,9 +214,11 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
             }
         }
-        MouseArea{
+        MouseArea
+        {
             anchors.fill: rows_icon
-            onPressAndHold: {
+            onPressAndHold:
+            {
                 supervisor.playSound('click');
                 update_init();
                 update_detail();
@@ -205,81 +227,114 @@ Item {
         }
     }
 
-    ListModel{
+    ListModel
+    {
         id: model_details
     }
 
-    function update_init(){
+    function update_init()
+    {
         rect_back.sound = supervisor.getSystemVolume();
         console.log("init : " , rect_back.sound);
     }
 
-    function update_detail(){
+    function update_detail()
+    {
         model_details.clear();
 
-        if(supervisor.isConnectServer()){
+        if(supervisor.isConnectServer())
+        {
             model_details.append({"detail":qsTr("서버에 연결되었습니다"),"detail2":"","icon":"icon/icon_server_good.png","error":false});
         }
 
-        if(supervisor.getEthernetConnection()===2){
-            if(supervisor.getIPCConnection()){
+        if(supervisor.getEthernetConnection()===2)
+        {
+            if(supervisor.getIPCConnection())
+            {
                 model_details.append({"detail":qsTr("주행 준비가 되었습니다"),"detail2":supervisor.getethernetIP(),"icon":"icon/icon_ethernet_good.png","error":false}); //로봇과 연결되었습니다
-            }else{
+            }
+            else
+            {
                 model_details.append({"detail":qsTr("주행할 수 없습니다"),"detail2":qsTr("프로그램이 실행되지 않았습니다"),"icon":"icon/icon_ethernet_no.png","error":true});
             }
-        }else{
+        }
+        else
+        {
             model_details.append({"detail":qsTr("주행할 수 없습니다"),"detail2":qsTr("이더넷연결을 확인하세요"),"icon":"icon/icon_ethernet_discon.png","error":true});
         }
 
-        if(supervisor.getWifiConnection()===2){
-            if(supervisor.getInternetConnection()===2){
+        if(supervisor.getWifiConnection()===2)
+        {
+            if(supervisor.getInternetConnection()===2)
+            {
                 model_details.append({"detail":"SSID : "+supervisor.getCurWifiSSID(),"detail2":"IP : "+supervisor.getcurIP(),"icon":image_wifi.source.toString(),"error":false});
-            }else{
+            }
+            else
+            {
                 model_details.append({"detail":"SSID : "+supervisor.getCurWifiSSID(),"detail2":"IP (인터넷X) : "+supervisor.getcurIP(),"icon":image_wifi.source.toString(),"error":false});
             }
-        }else{
+        }
+        else
+        {
             model_details.append({"detail":"무선인터넷이 연결되지 않았습니다","detail2":"","icon":image_wifi.source.toString(),"error":true});
         }
 
 
-        if(supervisor.getPowerStatus() === 1){
-            if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1){
-                if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
+        if(supervisor.getPowerStatus() === 1)
+        {
+            if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1)
+            {
+                if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature())
+                {
                     model_details.append({"detail":qsTr("모터전원이 정상입니다"),"detail2":"모터가 뜨겁습니다","icon":"icon/icon_motor_hot.png","error":false});
-                }else{
+                }
+                else
+                {
                     model_details.append({"detail":qsTr("모터전원이 정상입니다"),"detail2":"","icon":"icon/icon_motor_good.png","error":false});
                 }
-            }else{
-                if(supervisor.getLockStatus() === 0){
+            }
+            else
+            {
+                if(supervisor.getLockStatus() === 0)
+                {
                     model_details.append({"detail":qsTr("모터락이 풀려있습니다"),"detail2":"","icon":"icon/icon_motor_unlock.png","error":true});
-                }else{
+                }
+                else
+                {
                     model_details.append({"detail":qsTr("모터에러 발생"),"detail2":supervisor.getMotorStatusStr(0)+"|"+supervisor.getMotorStatusStr(1),"icon":"icon/icon_motor_unlock.png","error":true});
                 }
             }
-        }else{
+        }
+        else
+        {
             model_details.append({"detail":qsTr("모터전원을 꺼져있습니다"),"detail2":"","icon":"icon/icon_motor_discon.png","error":true});
         }
 
 
-        if(supervisor.getLocalizationState() !== 2){
+        if(supervisor.getLocalizationState() !== 2)
+        {
             model_details.append({"detail":qsTr("위치초기화가 필요합니다"),"detail2":"","icon":"icon/icon_local_error.png","error":true});
         }
 
-        if(supervisor.getEmoStatus()===1){
+        if(supervisor.getEmoStatus()===1)
+        {
             model_details.append({"detail":qsTr("비상스위치가 눌렸습니다"),"detail2":"","icon":"icon/icon_emergency.png","error":true});
         }
 
-        if(supervisor.getChargeConnectStatus() === 1){
+        if(supervisor.getChargeConnectStatus() === 1)
+        {
             model_details.append({"detail":qsTr("충전케이블이 연결되었습니다"),"detail2":"","icon":"icon/icon_charge.png","error":false});
         }
 
-        if(robot_battery < 30 && supervisor.getIPCConnection()){
+        if(robot_battery < 30 && supervisor.getIPCConnection())
+        {
             model_details.append({"detail":qsTr("배터리가 부족합니다"),"detail2":Number(supervisor.getBattery())+" V","icon":"icon/icon_battery_1.png","error":true});
         }
 
     }
 
-    Popup{
+    Popup
+    {
         id: popup_status_detail
         width: 350
         height: 450
@@ -289,18 +344,22 @@ Item {
         topPadding: 0
         leftPadding: 0
         rightPadding: 0
-        background: Rectangle{
+        background: Rectangle
+        {
             anchors.fill: parent
             color: "transparent"
         }
 
-        onOpened: {
-            if(model_details.count == 0){
+        onOpened:
+        {
+            if(model_details.count == 0)
+            {
                 popup_status_detail.close();
             }
         }
 
-        Rectangle{
+        Rectangle
+        {
             id: rre
             width: parent.width
             height: parent.height
@@ -309,28 +368,33 @@ Item {
             opacity: 0.9
         }
 
-        Column{
+        Column
+        {
             id: col_details
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.top: parent.top
             anchors.topMargin: 20
             spacing: 20
-            Row{
+            Row
+            {
                 visible: false
                 anchors.right: parent.right
                 anchors.rightMargin: 10
                 spacing: 20
-                Image{
+                Image
+                {
                     width: 30
                     height: 30
                     sourceSize.width: 30
                     sourceSize.height: 30
                     source: "icon/icon_power.png"
                     antialiasing: true
-                    MouseArea{
+                    MouseArea
+                    {
                         anchors.fill: parent
-                        onClicked:{
+                        onClicked:
+                        {
                             supervisor.playSound('click');
                             popup_notice_main.init();
                             popup_notice_main.main_str = qsTr("프로그램을 종료<font color=\"white\">하시겠습니까?</font>")
@@ -340,37 +404,46 @@ Item {
                         }
                     }
                 }
-                Image{
+                Image
+                {
                     width: 30
                     height: 30
                     sourceSize.width: 30
                     sourceSize.height: 30
                     source: "icon/icon_setting.png"
                     antialiasing: true
-                    MouseArea{
+                    MouseArea
+                    {
                         anchors.fill: parent
-                        onClicked:{
-                            if(loader_page.item.objectName != "page_init" || loader_page.item.objectName != "page_setting"){
+                        onClicked:
+                        {
+                            if(loader_page.item.objectName != "page_init" || loader_page.item.objectName != "page_setting")
+                            {
                                 supervisor.playSound('click');
                                 loadPage(psetting);
                                 popup_status_detail.close();
-                            }else{
+                            }
+                            else
+                            {
                                 supervisor.playSound('no');
                             }
                         }
                     }
                 }
             }
-            Row{
+            Row
+            {
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 20
-                Rectangle{
+                Rectangle
+                {
                     id: btn_motorlock
                     width: 60
                     height: 60
                     radius: 40
                     color: color_light_gray
-                    Image{
+                    Image
+                    {
                         id: image_motorlock
                         anchors.centerIn: parent
                         source: "icon/icon_motor_unlock.png"
@@ -380,26 +453,33 @@ Item {
                         sourceSize.height: 38
                         antialiasing: true
                     }
-                    MouseArea{
+                    MouseArea
+                    {
                         anchors.fill: parent
-                        onClicked:{
+                        onClicked:
+                        {
                             supervisor.playSound('click');
-                            if(supervisor.getLockStatus() === 1){
+                            if(supervisor.getLockStatus() === 1)
+                            {
                                 supervisor.setMotorLock(false);
-                            }else{
+                            }
+                            else
+                            {
                                 supervisor.setMotorLock(true);
                             }
                         }
                     }
                 }
-                Rectangle{
+                Rectangle
+                {
                     id: btn_cursor
                     width: 60
                     height: 60
                     radius: 40
                     property bool view: false
                     color: view?color_green:color_light_gray
-                    Image{
+                    Image
+                    {
                         anchors.centerIn: parent
                         source: "icon/icon_cursor.png"
                         width: 38
@@ -407,34 +487,42 @@ Item {
                         sourceSize.width: 38
                         sourceSize.height: 38
                         antialiasing: true
-                        ColorOverlay{
+                        ColorOverlay
+                        {
                             anchors.fill: parent
                             color: "white"
                             source: parent
                             visible: btn_cursor.view
                         }
                     }
-                    MouseArea{
+                    MouseArea
+                    {
                         anchors.fill: parent
-                        onClicked:{
+                        onClicked:
+                        {
                             supervisor.playSound('click');
-                            if(btn_cursor.view){
+                            if(btn_cursor.view)
+                            {
                                 supervisor.setCursorView(false);
                                 btn_cursor.view = false;
-                            }else{
+                            }
+                            else
+                            {
                                 supervisor.setCursorView(true);
                                 btn_cursor.view = true;
                             }
                         }
                     }
                 }
-                Rectangle{
+                Rectangle
+                {
                     id: btn_localization
                     width: 60
                     height: 60
                     radius: 40
                     color: color_light_gray
-                    Image{
+                    Image
+                    {
                         anchors.centerIn: parent
                         source: "icon/icon_init.png"
                         width: 38
@@ -443,9 +531,11 @@ Item {
                         sourceSize.height: 38
                         antialiasing: true
                     }
-                    MouseArea{
+                    MouseArea
+                    {
                         anchors.fill: parent
-                        onClicked:{
+                        onClicked:
+                        {
                             supervisor.playSound('click');
                             popup_notice_main.init();
                             popup_notice_main.style = "info";
@@ -457,12 +547,14 @@ Item {
                         }
                     }
                 }
-                Rectangle{
+                Rectangle
+                {
                     width: 60
                     height: 60
                     radius: 40
                     color: color_light_gray
-                    Image{
+                    Image
+                    {
                         anchors.centerIn: parent
                         source: "icon/icon_minimize.png"
                         width: 38
@@ -471,9 +563,11 @@ Item {
                         sourceSize.height: 38
                         antialiasing: true
                     }
-                    MouseArea{
+                    MouseArea
+                    {
                         anchors.fill: parent
-                        onClicked:{
+                        onClicked:
+                        {
                             supervisor.playSound('click');
                             supervisor.writelog("[USER INPUT] Screen Minimized.");
                             popup_password_minimize.open();
@@ -483,7 +577,8 @@ Item {
             }
 
 
-            Rectangle{
+            Rectangle
+            {
                 id: rect_back
                 width: parent.width*0.85
                 height: 35
@@ -497,15 +592,18 @@ Item {
                     id: rect_sound
                     width: rect_back.width*rect_back.sound/100
                     height: 35
-                    Behavior on width {
-                        NumberAnimation{
+                    Behavior on width
+                    {
+                        NumberAnimation
+                        {
                             duration: 50
                         }
                     }
                     color: color_green
                     radius: 20
                 }
-                Image{
+                Image
+                {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.left: parent.left
                     anchors.leftMargin: 15
@@ -633,135 +731,209 @@ Item {
                 }
             }
         }
-
     }
 
 
 
-    Timer{
+    Timer
+    {
         id: timer_status_update
         interval: 100
         repeat: true
         running: true
-        onTriggered: {
+        onTriggered:
+        {
             debug_mode = supervisor.isDebugMode();
             robot_battery = supervisor.getBattery();
             curTime = Qt.formatTime(new Date(), "hh:mm");
 
-            if(supervisor.getEthernetConnection()===1){
+            if(supervisor.getEthernetConnection()===1)
+            {
                 image_ethernet.source = "qrc:/icon/icon_ethernet_connecting.png";
-            }else if(supervisor.getEthernetConnection()===2){
-                if(supervisor.getIPCConnection()){
+            }
+            else if(supervisor.getEthernetConnection()===2)
+            {
+                if(supervisor.getIPCConnection())
+                {
                     image_ethernet.source = "qrc:/icon/icon_ethernet_good.png";
-                }else{
+                }
+                else
+                {
                     image_ethernet.source = "qrc:/icon/icon_ethernet_no.png";
                 }
-            }else{
+            }
+            else
+            {
                 image_ethernet.source = "qrc:/icon/icon_ethernet_discon.png";
             }
 
-            if(supervisor.getSetting("setting","USE_UI","show_time")==="true"){
+            if(supervisor.getSetting("setting","USE_UI","show_time")==="true")
+            {
                 textTime.visible = true;
-            }else{
+            }
+            else
+            {
                 textTime.visible = false;
             }
 
-            if(supervisor.getLockStatus() === 1){
+            if(supervisor.getLockStatus() === 1)
+            {
                 image_motorlock.source = "qrc:/icon/icon_motor_locked.png"
-            }else{
+            }
+            else
+            {
                 image_motorlock.source = "qrc:/icon/icon_motor_unlock.png"
             }
 
-            if(supervisor.getWifiConnection()===1){
+            if(supervisor.getWifiConnection()===1)
+            {
                 image_wifi.visible = true;
                 image_wifi.source = "qrc:/icon/icon_wifi_connecting.png";
-            }else if(supervisor.getWifiConnection()===2){
+            }
+            else if(supervisor.getWifiConnection()===2)
+            {
                 image_wifi.visible = true;
-                if(supervisor.getInternetConnection()===2){
-                    if(supervisor.getWifiLevel() === 4){
+                if(supervisor.getInternetConnection()===2)
+                {
+                    if(supervisor.getWifiLevel() === 4)
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifi_4.png";
-                    }else if(supervisor.getWifiLevel() === 3){
+                    }
+                    else if(supervisor.getWifiLevel() === 3)
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifi_3.png";
-                    }else if(supervisor.getWifiLevel() === 2){
+                    }
+                    else if(supervisor.getWifiLevel() === 2)
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifi_2.png";
-                    }else{
+                    }
+                    else
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifi_1.png";
                     }
-                }else{
-                    if(supervisor.getWifiLevel() === 4){
+                }
+                else
+                {
+                    if(supervisor.getWifiLevel() === 4)
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifibad_4.png";
-                    }else if(supervisor.getWifiLevel() === 3){
+                    }
+                    else if(supervisor.getWifiLevel() === 3)
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifibad_3.png";
-                    }else if(supervisor.getWifiLevel() === 2){
+                    }
+                    else if(supervisor.getWifiLevel() === 2)
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifibad_2.png";
-                    }else{
+                    }
+                    else
+                    {
                         image_wifi.source = "qrc:/icon/icon_wifibad_1.png";
                     }
                 }
-            }else{
+            }
+            else
+            {
                 image_wifi.visible = false;
             }
 
-            if(supervisor.getSystemVolume()>80){
+            if(supervisor.getSystemVolume()>80)
+            {
                 image_volume.source = "qrc:/icon/icon_volume_3.png";
-            }else if(supervisor.getSystemVolume()>40){
+            }
+            else if(supervisor.getSystemVolume()>40)
+            {
                 image_volume.source = "qrc:/icon/icon_volume_2.png";
-            }else if(supervisor.getSystemVolume()>0){
+            }
+            else if(supervisor.getSystemVolume()>0)
+            {
                 image_volume.source = "qrc:/icon/icon_volume_1.png";
-            }else if(supervisor.getSystemVolume() === 0){
+            }
+            else if(supervisor.getSystemVolume() === 0)
+            {
                 image_volume.source = "qrc:/icon/icon_volume_0.png";
             }
 
-            if(supervisor.getSetting("setting","USE_SLAM","use_multirobot") === "true"){
+            if(supervisor.getSetting("setting","USE_SLAM","use_multirobot") === "true")
+            {
                 image_multi.visible = true;
 //                if(supervisor.get)
-            }else{
+            }
+            else
+            {
                 image_multi.visible = false;
             }
 
-            if(supervisor.getPowerStatus() === 1){
-                if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1){
-                    if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature()){
+            if(supervisor.getPowerStatus() === 1)
+            {
+                if(supervisor.getMotorStatus(0) === 1 && supervisor.getMotorStatus(1) === 1)
+                {
+                    if(supervisor.getMotorTemperature(0) > supervisor.getMotorWarningTemperature() || supervisor.getMotorTemperature(1) > supervisor.getMotorWarningTemperature())
+                    {
                         image_motor_power.source = "icon/icon_motor_hot.png"
-                    }else{
+                    }
+                    else
+                    {
                         image_motor_power.source = "icon/icon_motor_good.png"
                     }
-                }else{
+                }
+                else
+                {
                     //error
                     image_motor_power.source = "icon/icon_motor_error.png"
                 }
-            }else{
+            }
+            else
+            {
                 image_motor_power.source = "icon/icon_motor_discon.png"
             }
 
             // 07.25 - BJ
-            if(supervisor.getChargeConnectStatus()===1 && debug_mode){
+            if(supervisor.getChargeConnectStatus()===1 && debug_mode)
+            {
                 image_battery.source = "icon/icon_battery_charging.png"
-            }else if(robot_battery > 90){
+            }
+            else if(robot_battery > 90)
+            {
                 image_battery.source = "icon/icon_battery_4.png"
-            }else if(robot_battery > 60){
+            }
+            else if(robot_battery > 60)
+            {
                 image_battery.source = "icon/icon_battery_3.png"
-            }else if(robot_battery > 30){
+            }
+            else if(robot_battery > 30)
+            {
                 image_battery.source = "icon/icon_battery_2.png"
-            }else{
+            }
+            else
+            {
                 image_battery.source = "icon/icon_battery_1.png"
             }
 
-            if(supervisor.getLockStatus() === 1){
+            if(supervisor.getLockStatus() === 1)
+            {
                 image_motor_unlock.visible = false;
-            }else{
+            }
+            else
+            {
                 image_motor_unlock.visible = true;
             }
 
-            if(supervisor.getEmoStatus() === 1){
+            if(supervisor.getEmoStatus() === 1)
+            {
                 image_emergency.visible = true;
-            }else{
+            }
+            else
+            {
                 image_emergency.visible = false;
             }
 
-            if(supervisor.getLocalizationState() === 2){
+            if(supervisor.getLocalizationState() === 2)
+            {
                 image_local_error.visible = false;
-            }else{
+            }
+            else
+            {
                 image_local_error.visible = true;
             }
 

@@ -89,6 +89,7 @@ public:
     void parsingReply(QString type, QString url, QNetworkReply *reply);
     void parsingServer(QString url, QNetworkReply *reply);
     QString getSetting(QString file, QString group, QString name);
+
     QJsonObject json_in;
     QJsonObject json_out;
     QProcess *process;
@@ -134,10 +135,8 @@ public:
     QString message;
 
     int TIMER_MS = 1000;
-//    QString serverURL = "http://rbyujin.com:8080";
     QString serverURL = "http://127.0.0.1:11334";
     QString fileserverURL = "http://10.108.1.10:11335";
-//    QString serverURL = "http://49.50.173.53:11334";
     QString myID = "YUJIN_NUC";
 
     QTime startTime;

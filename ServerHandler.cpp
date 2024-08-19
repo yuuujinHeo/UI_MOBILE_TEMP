@@ -20,18 +20,9 @@ ServerHandler::ServerHandler()
     myID = getSetting("robot","SERVER","my_id");
     checkUpdate();
     startTime = QTime::currentTime();
-//    sendRobotConfig();
+
     sendMaps();
-//    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/MAIN_MOBILE","hello..4");
-//    uploadRelease(QDir::homePath()+"/RB_MOBILE/release/ExtProcess","hello..4");
-//    uploadRelease(QDir::homePath()+"/RB_MOBILE/sh/autostart.sh","hello..4");
-//    getGitCommits();
 
-
-
-    // goqual_login.client_id = getSetting("setting","GOQUAL","client_id");
-    // goqual_login.client_secret = getSetting("setting","GOQUAL","client_secret");
-    // goqual_login.app_key = getSetting("setting","GOQUAL","app_key");
     goqual_login.id = getSetting("setting","GOQUAL","user_id");
     goqual_login.passwd = getSetting("setting","GOQUAL","user_passwd");
 
@@ -42,12 +33,14 @@ ServerHandler::ServerHandler()
 }
 
 // 오류를 출력하는 함수
-void handleErrors(void) {
+void handleErrors(void)
+{
     ERR_print_errors_fp(stderr);
     abort();
 }
 
-QByteArray ServerHandler::encrypt(const QByteArray &text) {
+QByteArray ServerHandler::encrypt(const QByteArray &text)
+{
     EVP_CIPHER_CTX *ctx;
     int len;
     int ciphertext_len;
@@ -84,13 +77,15 @@ QByteArray ServerHandler::encrypt(const QByteArray &text) {
 }
 
 // Base64url 인코딩 함수
-QString base64UrlEncode(const QByteArray &data) {
+QString base64UrlEncode(const QByteArray &data)
+{
     QString base64 = data.toBase64();
     base64 = base64.replace("+", "-").replace("/", "_").replace("=", "");
     return base64;
 }
 
-void ServerHandler::goqualPost(QByteArray body, QString url){
+void ServerHandler::goqualPost(QByteArray body, QString url)
+{
     QByteArray postDataSize = QByteArray::number(body.size());
     QUrl serviceURL(url);
     QNetworkRequest request(serviceURL);
@@ -219,7 +214,8 @@ void ServerHandler::onTimer(){
     elapsedTime = QTime(0,0).addSecs(startTime.secsTo(currentTime));
 }
 
-void ServerHandler::sendStatus(){
+void ServerHandler::sendStatus()
+{
     QJsonObject jout;
 
     jout["battery"] = probot->battery;
@@ -230,7 +226,8 @@ void ServerHandler::sendStatus(){
     serverPost("/status",ba);
 }
 
-void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply){
+void ServerHandler::onCallRequestReply(QtHttpRequest *request, QtHttpReply *reply)
+{
     QByteArray rcvData = request->getRawData();
     QJsonObject jin = QJsonDocument::fromJson(rcvData).object();
     QJsonObject jout;
@@ -559,7 +556,7 @@ void ServerHandler::postStatus(){
     json_out["exec_time"] = elapsedTime.toString("hh:mm:ss");
     json_out["map_name"] = pmap->map_name;
 
-    json_out["state_ui"] = ui_state;
+    json_out["state_ui"] = (int)ui_state;
     json_out["state_charge"] = probot->status_charge;
     json_out["state_emo"] = probot->status_emo;
     json_out["state_running"] = probot->running_state;
@@ -849,12 +846,15 @@ void ServerHandler::generalPost(QByteArray post_data, QString url){
    });
 }
 
-void ServerHandler::parsingServer(QString url, QNetworkReply *reply){
-    if(reply->error() == QNetworkReply::NoError){
+void ServerHandler::parsingServer(QString url, QNetworkReply *reply)
+{
+    if(reply->error() == QNetworkReply::NoError)
+    {
         QByteArray response = reply->readAll();
         mobile_connection = true;
 
-        if(url.contains("/versions/MAIN_MOBILE")){
+        if(url.contains("/versions/MAIN_MOBILE"))
+        {
             QJsonObject temp = QJsonDocument::fromJson(response).object();
             ui_version.version = temp["data"].toObject()["version"].toString();
             ui_version.prev_version = temp["data"].toObject()["prev_version"].toString();
@@ -862,25 +862,31 @@ void ServerHandler::parsingServer(QString url, QNetworkReply *reply){
             qDebug() << "version get " << ui_version.version << ui_version.date;
         }
 
-    }else{
+    }
+    else
+    {
         QString err = reply->errorString();
         qDebug() << "ERROR==========================Server" << err;
-        if(reply->error()>0 && reply->error()<100){
+        if(reply->error()>0 && reply->error()<100)
+        {
             mobile_connection = false;
         }
     }
 }
 
-void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply){
-
-    if(reply->error() == QNetworkReply::NoError){
-        if(url.left(22) == "https://api.github.com"){
+void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply)
+{
+    if(reply->error() == QNetworkReply::NoError)
+    {
+        if(url.left(22) == "https://api.github.com")
+        {
             QByteArray response = reply->readAll();
             ClearJson(json_in);
             QJsonArray git_array = QJsonDocument::fromJson(response).array();
             probot->gitList.clear();
 
-            for(int i=0; i<git_array.size(); i++){
+            for(int i=0; i<git_array.size(); i++)
+            {
                 ST_GIT temp_git;
                 QString temdate = git_array[i].toObject()["commit"].toObject()["author"].toObject()["date"].toString();
                 temp_git.date = QDateTime::fromString(temdate,"yyyy-MM-ddThh:mm:ssZ").addSecs(3600*9).toString("yyyy-MM-dd hh:mm");
@@ -890,37 +896,53 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                 probot->gitList.push_back(temp_git);
             }
 
-            for(int i=0; i<probot->gitList.size(); i++){
-                if(i==0){
+            for(int i=0; i<probot->gitList.size(); i++)
+            {
+                if(i==0)
+                {
                     plog->write("[SERVER] GET GIT RECENT COMMIT : "+probot->gitList[i].commit+", "+probot->gitList[i].date+", "+probot->gitList[i].message);
-                }else{
+                }
+                else
+                {
                     qDebug() << probot->gitList[i].commit << probot->gitList[i].date << probot->gitList[i].message;
                 }
             }
 
-            if(probot->gitList.size() > 0){
-                if(probot->gitList[0].date == probot->program_date){
+            if(probot->gitList.size() > 0)
+            {
+                if(probot->gitList[0].date == probot->program_date)
+                {
                     new_update_local = false;
                     plog->write("[SERVER] PROGRAM ALREADY UPDATED "+probot->gitList[0].date);
-                }else{
+                }
+                else
+                {
                     new_update_local = true;
                     plog->write("[SERVER] PROGRAM NEED UPDATE "+probot->program_date);
                 }
             }
-        }else if(url.contains(":11334")){
-        }else if(url.contains(":11335")){
+        }
+        else if(url.contains(":11334"))
+        {
+        }
+        else if(url.contains(":11335"))
+        {
             QByteArray response = reply->readAll();
 
-            if(url.contains("/versions/MAIN_MOBILE")){
+            if(url.contains("/versions/MAIN_MOBILE"))
+            {
                 QJsonObject temp = QJsonDocument::fromJson(response).object();
                 ui_version_new.version = temp["version"].toString();
                 ui_version_new.date = temp["date"].toString();
                 ui_version_new.message = temp["message"].toString();
                 qDebug() << "version (new) get " << ui_version.version << ui_version.date;
-            }else if(url.contains("/versions/all/MAIN_MOBILE")){
+            }
+            else if(url.contains("/versions/all/MAIN_MOBILE"))
+            {
                 QJsonArray temp = QJsonDocument::fromJson(response).array();
                 ui_new_versions.clear();
-                for(int i=0; i<temp.size(); i++){
+                for(int i=0; i<temp.size(); i++)
+                {
                     ST_VERSION temp_version;
                     temp_version.version = temp[i].toObject()["version"].toString();
                     temp_version.date = temp[i].toObject()["date"].toString();
@@ -928,10 +950,13 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                     ui_new_versions.append(temp_version);
                 }
             }
-        }else if(type == "GOQUAL"){
+        }
+        else if(type == "GOQUAL")
+        {
             QByteArray response = reply->readAll();
 
-            if(url.contains("/token")){
+            if(url.contains("/token"))
+            {
                 QJsonObject json = QJsonDocument::fromJson(response).object();
                 qDebug() << "REPLY===============================Reply";
                 qDebug() << "goqual response : " << json;
@@ -943,21 +968,28 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                 setSetting("setting","GOQUAL/refresh_key",goqual_token.refresh_key);
                 setSetting("setting","GOQUAL/expires_in",QString::number(goqual_token.expires_in));
 
-            }else if(url.contains("/devices/state")){
+            }
+            else if(url.contains("/devices/state"))
+            {
                 QJsonArray json = QJsonDocument::fromJson(response).array();
-                for(int i=0; i<json.size(); i++){
+                for(int i=0; i<json.size(); i++)
+                {
                     QJsonObject device = json[i].toObject();
                     QString id = device["id"].toString();
                     QString type = device["deviceType"].toString();
                     goqual_relays[id].id = id;
                     goqual_relays[id].type = type;
-                    if(type == "RelayControllerDc2"){
+                    if(type == "RelayControllerDc2")
+                    {
                         goqual_relays[id].state = device["deviceState"].toObject()["power1"].toBool();
                     }
                 }
-            }else if(url.contains("/openapi/devices")){
+            }
+            else if(url.contains("/openapi/devices"))
+            {
                 QJsonArray json = QJsonDocument::fromJson(response).array();
-                for(int i=0; i<json.size(); i++){
+                for(int i=0; i<json.size(); i++)
+                {
                     QJsonObject device = json[i].toObject();
                     QString id = device["id"].toString();
                     goqual_relays[id].id = id;
@@ -968,67 +1000,92 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                     goqual_relays[id].online = device["online"].toBool();
                 }
             }
-        }else{
+        }
+        else
+        {
             first_response = true;
             QString cmd = url.remove(0,23);
             QByteArray response = reply->readAll();
             if(type == "POST"){
-                if(cmd == "/setting/getname"){
-                    if(response.contains("status")){
+                if(cmd == "/setting/getname")
+                {
+                    if(response.contains("status"))
+                    {
 
-                    }else{
+                    }
+                    else
+                    {
                         ClearJson(json_in);
                         json_in = QJsonDocument::fromJson(response).object();
                         myID = json_in["id"].toString();
-                        if(myID != "" || getSetting("robot","SERVER","my_id") != ""){
+                        if(myID != "" || getSetting("robot","SERVER","my_id") != "")
+                        {
                             plog->write("[SERVER] Get New Name : "+myID);
                             setSetting("robot","SERVER/my_id",myID);
                         }
                     }
-                }else if(cmd == "/setstatus"){
-                    if(response == ""){
-                        if(connection){
+                }
+                else if(cmd == "/setstatus")
+                {
+                    if(response == "")
+                    {
+                        if(connection)
+                        {
                             plog->write("[SERVER] Post Status : Failed");
                             connection = false;
                         }
                     }
                     ClearJson(json_in);
                     json_in = QJsonDocument::fromJson(response).object();
-                    if(json_in["id"].toString() == myID){
+                    if(json_in["id"].toString() == myID)
+                    {
                         TIMER_MS = json_in["activate_level"].toString().toInt();
 
-                        if(json_in["server_group"].toString() != ""){
-                            if(getSetting("robot","SERVER","group") != json_in["server_group"].toString()){
+                        if(json_in["server_group"].toString() != "")
+                        {
+                            if(getSetting("robot","SERVER","group") != json_in["server_group"].toString())
+                            {
                                 setSetting("robot","SERVER/group",json_in["server_group"].toString());
                             }
                         }
 
-                        if(json_in["server_name"].toString() != ""){
-                            if(getSetting("robot","SERVER","name") != json_in["server_name"].toString()){
+                        if(json_in["server_name"].toString() != "")
+                        {
+                            if(getSetting("robot","SERVER","name") != json_in["server_name"].toString())
+                            {
                                 setSetting("robot","SERVER/name",json_in["server_name"].toString());
                             }
                         }
-                //        qDebug() << "timer ms = " << TIMER_MS << json_in["activate_level"].toString() << json_in["activate_level"].toString().toInt();
                         timer->start(TIMER_MS);
                     }
-
-                }else if(cmd == "/upload/config/"+myID){
+                }
+                else if(cmd == "/upload/config/"+myID)
+                {
                     plog->write("[SERVER] Upload Config : Done");
-                }else if(cmd == "/upload/map/"+myID){
+                }
+                else if(cmd == "/upload/map/"+myID)
+                {
                     plog->write("[SERVER] Upload Map : Done");
                 }
-            }else if(type == "GET"){
-                if(cmd == "/update/mylist/"+myID){
+            }
+            else if(type == "GET")
+            {
+                if(cmd == "/update/mylist/"+myID)
+                {
                     //checkUpdate()
                     update_list.clear();
                     QJsonObject temp = QJsonDocument::fromJson(response).object();
-                    if(temp.size() > 0){
-                        if(temp["id"].toString() == myID){
-                            if(temp["update"].toString() == "true"){
+                    if(temp.size() > 0)
+                    {
+                        if(temp["id"].toString() == myID)
+                        {
+                            if(temp["update"].toString() == "true")
+                            {
                                 QString keys = temp["keys"].toString();
                                 QStringList keyss = keys.split(",");
                                 last_update_date = temp["date"].toString();
-                                for(QString key : keyss){
+                                for(QString key : keyss)
+                                {
                                     ST_UPDATE t;
                                     t.commit = temp[key+"_commit"].toString();
                                     t.message = temp[key+"_message"].toString();
@@ -1036,32 +1093,44 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                                     update_list[key] = t;
                                     plog->write("[SERVER] Update Check : Need Update "+key+" ("+t.message+")");
                                 }
-                            }else{
+                            }
+                            else
+                            {
                                 plog->write("[SERVER] Update Check : No Update");
                             }
 
-                        }else{
+                        }
+                        else
+                        {
                             new_update  = false;
                         }
-                    }else{
+                    }
+                    else
+                    {
                         new_update  = false;
                     }
-
-
-                }else if(cmd == "/update/"+myID){
+                }
+                else if(cmd == "/update/"+myID)
+                {
                     plog->write("[SERVER] Update : Get File ...");
-                    if(response.contains("Internal Server Error")){
+                    if(response.contains("Internal Server Error"))
+                    {
                         plog->write("[SERVER] Update : internal server error");
                         emit updatefail();
-                    }else if(response.contains("Not Found")){
+                    }
+                    else if(response.contains("Not Found"))
+                    {
                         plog->write("[SERVER] Update : 404 Not Found error");
                         emit updatefail();
-                    }else if(response.size() > 0){
+                    }
+                    else if(response.size() > 0)
+                    {
                         QString path(QDir::homePath() + "/RB_MOBILE/temp");
                         QDir dir;
                         if(!dir.exists(path))
+                        {
                             dir.mkpath(path);
-
+                        }
                         QDir dir_folder(path+"/update");
                         dir_folder.removeRecursively();
 
@@ -1071,18 +1140,24 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
                         newFile.close();
                         plog->write("[SERVER] Update : Download Done " + QString::number(response.size()));
                         emit updatesuccess();
-                    }else{
+                    }
+                    else
+                    {
                         plog->write("[SERVER] Update : Download Done but size 0");
                         emit updatefail();
                     }
                 }
             }
         }
-    }else{
+    }
+    else
+    {
         QString err = reply->errorString();
         qDebug() << "ERROR==========================" << err;
-        if(err == "Socket operation timed out"){
-            if(connection){
+        if(err == "Socket operation timed out")
+        {
+            if(connection)
+            {
                 plog->write("[Server] Time out : disconnected");
                 connection = false;
             }
@@ -1091,38 +1166,51 @@ void ServerHandler::parsingReply(QString type, QString url, QNetworkReply *reply
     delete reply;
 }
 
-void ServerHandler::rename_all(){
+void ServerHandler::rename_all()
+{
     QStringList keys = update_list.keys();
     QString dir = QDir::homePath()+"/RB_MOBILE/temp/update/";
-    for(QString key : keys){
-        if(update_list[key].file_exist){
-            if(QFile::rename(dir+update_list[key].commit+update_list[key].extension, dir+key+update_list[key].extension)){
+    for(QString key : keys)
+    {
+        if(update_list[key].file_exist)
+        {
+            if(QFile::rename(dir+update_list[key].commit+update_list[key].extension, dir+key+update_list[key].extension))
+            {
                 plog->write("[UPDATE] Temp file rename : "+update_list[key].commit+update_list[key].extension+" -> "+key+update_list[key].extension);
-            }else{
+            }
+            else
+            {
                 plog->write("[UPDATE] Temp file rename Fail : "+update_list[key].commit+update_list[key].extension+" -> "+key+update_list[key].extension);
             }
-        }else{
-            if(QFile::remove(dir+update_list[key].commit+update_list[key].extension)){
+        }
+        else
+        {
+            if(QFile::remove(dir+update_list[key].commit+update_list[key].extension))
+            {
                 plog->write("[UPDATE] Temp file remove : " +update_list[key].commit+update_list[key].extension);
             }
         }
     }
-    if(QFile::remove(dir+"update.json")){
+    if(QFile::remove(dir+"update.json"))
+    {
         plog->write("[UPDATE] Update.json remove");
     }
 }
 
-void ServerHandler::generalGet(QString url){
+void ServerHandler::generalGet(QString url)
+{
    QUrl serviceURL(url);
    QNetworkRequest request(serviceURL);
    request.setRawHeader("Content-Type","application./json");
 
    QNetworkReply *reply = manager->get(request);
-   connect(reply, &QNetworkReply::finished, [=](){
+   connect(reply, &QNetworkReply::finished, [=]()
+   {
        parsingReply("GET",url,reply);
    });
 }
-void ServerHandler::generalPut(QString url, QByteArray put_data){
+void ServerHandler::generalPut(QString url, QByteArray put_data)
+{
 //    QUrl serviceURL(url);
 //    QNetworkRequest request(serviceURL);
 
@@ -1132,7 +1220,8 @@ void ServerHandler::generalPut(QString url, QByteArray put_data){
 //    });
 }
 
-void ServerHandler::generalDelete(QString url){
+void ServerHandler::generalDelete(QString url)
+{
 //    QUrl serviceURL(url);
 //    QNetworkRequest request(serviceURL);
 
@@ -1142,9 +1231,11 @@ void ServerHandler::generalDelete(QString url){
 //    });
 }
 
-void ServerHandler::ClearJson(QJsonObject &json){
+void ServerHandler::ClearJson(QJsonObject &json)
+{
     QStringList keys = json.keys();
-    for(int i=0; i<keys.size(); i++){
+    for(int i=0; i<keys.size(); i++)
+    {
         json.remove(keys[i]);
     }
 }

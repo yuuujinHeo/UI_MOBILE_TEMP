@@ -14987,7 +14987,6 @@ Item {
                                 popup_usb_notice.close();
                                 popup_usb_download.close();
                             }else{
-                                //supervisor.updateUSB();
                                 //창 닫기
                                 //popup_usb_notice.visible = false;
                                 //popup_usb_download.visible = false;

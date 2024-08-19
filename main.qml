@@ -362,12 +362,19 @@ Window {
     //Initalizing상태에서 localization confirm이 false일 때
     //Charging상태에서 charging 케이블 연결해제됬을 때
     //위 상태에서 init페이지면 실행 안함, annotation페이지면 1회만 실행 -> movefail
-    function need_init(){
-        if(!supervisor.isDebugMode()){
-            if(loader_page.item.objectName != "page_annotation" && loader_page.item.objectName != "page_mapping"&& loader_page.item.objectName != "page_init"){
+    function need_init()
+    {
+        if(!supervisor.isDebugMode())
+        {
+            if(loader_page.item.objectName != "page_annotation" &&
+               loader_page.item.objectName != "page_mapping"&&
+               loader_page.item.objectName != "page_init")
+            {
                 supervisor.writelog("[UI] Force Page Change : Need Init");
                 loadPage(pinit);
-            }else if(loader_page.item.objectName == "page_annotation"){
+            }
+            else if(loader_page.item.objectName == "page_annotation")
+            {
                 movefail();
             }
         }

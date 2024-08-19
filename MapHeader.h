@@ -29,26 +29,30 @@
 #define hex_color_pink      "#FFD9FF"
 #define hex_color_yellow    "#ffc850"
 
-typedef struct{
+typedef struct
+{
     cv::Point2f point;
     float angle=0.;
     bool isnew = false;
 }POSE;
 
-typedef struct{
+typedef struct
+{
     QList<cv::Point2f> points;
     int color;
     int width;
     int type=0;
 }LINE;
 
-typedef struct{
+typedef struct
+{
     QString type;
     bool is_rect;
     QList<cv::Point2f> points;
 }OBJECT;
 
-typedef struct{
+typedef struct
+{
     int group;
     QString group_name;
     QString type;

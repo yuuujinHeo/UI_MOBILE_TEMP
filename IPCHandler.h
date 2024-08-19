@@ -326,12 +326,15 @@ public:
     CHECK_TRAVEL get_check_travel();
 
 
-    bool getConnection(){
-        if(read_count > 5){
+    bool getConnection()
+    {
+        if(read_count > 5)
+        {
             return false;
-        }else{
+        }
+        else
+        {
             return cmd->is_connected;
-//            return true;
         }
     }
 

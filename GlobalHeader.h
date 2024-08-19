@@ -14,7 +14,6 @@
 #define EXTPROC_TEST
 
 extern Logger *plog;
-extern int ui_state;
 extern bool is_debug;
 extern QApplication *app;
 
@@ -45,12 +44,23 @@ POSE setAxisBack(POSE _pose);
 POSE setAxis(cv::Point2f _point, float _angle);
 POSE setAxisBack(cv::Point2f _point, float _angle);
 
-bool sortLocation2(const LOCATION &l1, const LOCATION &l2);
 bool sortWifi(const QString &w1, const QString &w2);
 
 QString getIniPath(QString file);
 
 QString getSettings(QString file, QString group, QString name);
+
+enum GIT_PULL_ERR_LIST
+{
+    NEED_RESET=0,
+    ALREADY_NEWEWST=1,
+};
+
+enum SLAM_MAP_RELOAD_MODE
+{
+    HARD_RELOAD=0,
+    SOFT_RELOAD=1,
+};
 
 typedef struct{
     QString group;
@@ -197,14 +207,15 @@ typedef struct{
     QString ipv4;
     QString method;
     QString netmask;
-    QString subnet;;
+    QString subnet;
     QString gateway;
     QString dns1;
     QString dns2;
     QString mac;
 }ST_NET_INTERFACE;
 
-typedef struct{
+typedef struct
+{
     bool ipc_use = false;
     //from Robot
     ST_MOTOR motor[2];
@@ -314,7 +325,8 @@ typedef struct{
 }ST_ROBOT;
 extern ST_ROBOT *probot;
 
-typedef struct{
+typedef struct
+{
     QString message;
     QString commit;
     QString date;
@@ -322,7 +334,8 @@ typedef struct{
     bool file_exist = false;
 }ST_UPDATE;
 
-typedef struct{
+typedef struct
+{
     QString type = "";
     QString source = "";
     int x = 0;
@@ -333,7 +346,8 @@ typedef struct{
     QString color = "";
 }ST_PAGE_OBJECT;
 
-typedef struct{
+typedef struct
+{
     //arrive : pass, calling, pickup
     //moving : face, location
     QString mode = "pickup";
@@ -346,7 +360,8 @@ typedef struct{
     QList<ST_PAGE_OBJECT> objects;
 }ST_PAGE;
 
-typedef struct{
+typedef struct
+{
     QString name = "";
     QString filename = "";
 
@@ -372,7 +387,8 @@ typedef struct{
     ST_PAGE arrive_page;
 }ST_PATROL;
 
-typedef struct{
+typedef struct
+{
     int tray_num;
     int travelline;
     int table_num;
@@ -389,7 +405,8 @@ typedef struct{
     bool useServerCMD;
 }ST_SETTING;
 
-enum ROBOT_CMD{
+enum ROBOT_CMD
+{
     ROBOT_CMD_NONE = 0,
     ROBOT_CMD_MOVE_TARGET_EX,
     ROBOT_CMD_MOVE_TARGET,
@@ -433,7 +450,8 @@ enum ROBOT_CMD{
 
 };
 
-enum UI_CMD{
+enum UI_CMD
+{
     UI_CMD_NONE = 0,
     UI_CMD_MOVE_SERVING,
     UI_CMD_PAUSE,
@@ -442,7 +460,8 @@ enum UI_CMD{
     UI_CMD_MOVE_CHARGING//5
 };
 
-enum UI_STATE{
+enum UI_STATE
+{
     UI_STATE_NONE = 0,
     UI_STATE_INITAILIZING,
     UI_STATE_SETTING,
@@ -456,19 +475,22 @@ enum UI_STATE{
     UI_STATE_HANDS_UP
 };
 
-enum LOCALIZATION_STATE{
+enum LOCALIZATION_STATE
+{
     LOCAL_NOT_READY = 0,
     LOCAL_START,
     LOCAL_READY,
     LOCAL_FAILED
 };
 
-enum{
+enum
+{
     NOT_READY = 0,
     READY
 };
 
-enum ROBOT_MOVING_STATE{
+enum ROBOT_MOVING_STATE
+{
     ROBOT_MOVING_NOT_READY = 0,
     ROBOT_MOVING_READY,
     ROBOT_MOVING_MOVING,
@@ -476,17 +498,21 @@ enum ROBOT_MOVING_STATE{
     ROBOT_MOVING_PAUSED
 };
 
-enum ROBOT_MULTI_STATE{
+enum ROBOT_MULTI_STATE
+{
     MULTI_READY = 0,
     MULTI_MOVING,
     MULTI_WAIT
 };
 
-enum ROBOT_ERROR{
+enum ROBOT_ERROR
+{
     ROBOT_ERROR_NONE = 0,
     ROBOT_ERROR_WAIT,
     ROBOT_ERROR_NO_PATH,
     ROBOT_ERROR_LOCALIZATION_FAILED
 };
+
+extern std::atomic<int> ui_state;
 
 #endif // GLOBALHEADER_H

@@ -23,7 +23,7 @@ SOURCES += \
     CameraView.cpp \
     IPCHandler.cpp \
     MapHandler.cpp \
-    checker.cpp \
+    Cmd_checker.cpp \
     cmd_client.cpp \
     MapViewer.cpp \
     ServerHandler.cpp \
@@ -80,7 +80,7 @@ HEADERS += \
     MapViewer.h \
     ServerHandler.h \
     TTSHandler.h \
-    checker.h \
+    Cmd_checker.h \
     python_wrapper.h \
     spline.h \
     Keyemitter.h \

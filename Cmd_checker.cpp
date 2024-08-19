@@ -1,24 +1,24 @@
-#include "checker.h"
+#include "Cmd_checker.h"
 #include <QTimer>
 #include "QtDBus/QDBusInterface"
 #include "QtDBus/QDBusConnection"
 #include "QtDBus/QDBusReply"
 #include "QtDBus/QDBusObjectPath"
 
-Checker::Checker(QObject *parent)
+CMD_CHECKER::CMD_CHECKER(QObject *parent)
     : QObject(parent)
 {
 
-    timer = new QTimer();
-    connect(timer, &QTimer::timeout, this, &Checker::onTimer);
-    timer->start(100);
+    cmd_timer = new QTimer();
+    connect(cmd_timer, &QTimer::timeout, this, &CMD_CHECKER::cmd_loop);
+    cmd_timer->start(100);
 
     getPing("www.google.com");
 }
 
-Checker::~Checker()
+CMD_CHECKER::~CMD_CHECKER()
 {
-    timer->deleteLater();
+    cmd_timer->deleteLater();
 }
 
 QString subnetToNetmask(QString subnetSize)
@@ -81,8 +81,9 @@ bool sortWifi2(const ST_WIFI &w1, const ST_WIFI &w2)
     }
 }
 
-void Checker::start_get_wifi_interface(QString read_method)
+void CMD_CHECKER::start_get_wifi_interface(QString read_method)
 {
+    is_busy = true;
     std::unique_ptr<QProcess> get_wifi_interface_process = std::make_unique<QProcess>(this);
     if(read_method == "readall")
     {
@@ -252,10 +253,12 @@ void Checker::start_get_wifi_interface(QString read_method)
 
     get_wifi_interface_process->deleteLater();
     get_wifi_interface_process.release();
+    is_busy = false;
 }
 
-void Checker::start_get_system_volume()
+void CMD_CHECKER::start_get_system_volume()
 {
+    is_busy = true;
     std::unique_ptr<QProcess> get_system_volume_process = std::make_unique<QProcess>(this);
     get_system_volume_process->start("pactl", QStringList() << "list" << "sinks");
     if(!get_system_volume_process->waitForFinished())
@@ -290,10 +293,12 @@ void Checker::start_get_system_volume()
 
     get_system_volume_process->deleteLater();
     get_system_volume_process.release();
+    is_busy = false;
 }
 
-void Checker::start_set_system_volume(int volume)
+void CMD_CHECKER::start_set_system_volume(int volume)
 {
+    is_busy = true;
     if(volume < 0 || !isfinite(volume) || isnan(volume))
     {
         return;
@@ -309,10 +314,12 @@ void Checker::start_set_system_volume(int volume)
 
     set_system_volume_process->deleteLater();
     set_system_volume_process.release();
+    is_busy = false;
 
 }
-void Checker::start_connect_wifi(QString ssid, QString pw)
+void CMD_CHECKER::start_connect_wifi(QString ssid, QString pw)
 {
+    is_busy = true;
     std::unique_ptr<QProcess> connect_wifi_process = std::make_unique<QProcess>(this);
     connect(connect_wifi_process.get(), &QProcess::readyReadStandardError, [this, _process = connect_wifi_process.get()](){error_connect_wifi(_process);});
 
@@ -358,10 +365,12 @@ void Checker::start_connect_wifi(QString ssid, QString pw)
 
     connect_wifi_process->deleteLater();
     connect_wifi_process.release();
+    is_busy = false;
 }
 
-void Checker::start_set_ip(QString method, QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
+void CMD_CHECKER::start_set_ip(QString method, QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
 {
+    is_busy = true;
     subnet = netmaskToSubnet(subnet);
     plog->write("[CHECKER] Set Wifi " + ssid + " : (" + method + ") " + ip + "/" + subnet + " , " + gateway + " , " + dns1 + " , " + dns2);
 
@@ -403,10 +412,12 @@ void Checker::start_set_ip(QString method, QString ssid, QString ip, QString sub
         set_ip_process2->deleteLater();
         set_ip_process2.release();
     }
+    is_busy = false;
 }
 
-void Checker::start_set_ehternet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
+void CMD_CHECKER::start_set_ehternet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
 {
+    is_busy = true;
     subnet = netmaskToSubnet(subnet);
     plog->write("[CHECKER] Set Ethernet " + probot->ethernet_interface.ssid + " : " + ip + "/" + subnet + " , " + gateway + " , " + dns1 + " , " + dns2);
 
@@ -437,12 +448,15 @@ void Checker::start_set_ehternet(QString ip, QString subnet, QString gateway, QS
 
     set_ethernet_process2->deleteLater();
     set_ethernet_process2.release();
+    is_busy = false;
 }
 
-void Checker::start_git_reset()
+void CMD_CHECKER::start_git_reset()
 {
+    is_busy = true;
+    plog->write("[CHECKER] start git reset");
     std::unique_ptr<QProcess> set_git_reset_process = std::make_unique<QProcess>(this);
-    connect(set_git_reset_process.get(),SIGNAL(readyReadStandardError()),this,SLOT(set_git_reset_process()));
+    connect(set_git_reset_process.get(), SIGNAL(readyReadStandardError()), this, SLOT(error_git_reset()));
 
     set_git_reset_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
     set_git_reset_process->start("git", QStringList() << "reset" << "--hard" << "origin/" + probot->program_branch);
@@ -453,10 +467,12 @@ void Checker::start_git_reset()
 
     set_git_reset_process.release();
     set_git_reset_process->deleteLater();
+    is_busy = false;
 }
 
-void Checker::start_get_network_state(QString ssid)
+void CMD_CHECKER::start_get_network_state(QString ssid)
 {
+    is_busy = true;
     QString name = "";
     bool all_search = false;
     if(ssid == "")
@@ -794,10 +810,12 @@ void Checker::start_get_network_state(QString ssid)
 
     get_network_state_process->deleteLater();
     get_network_state_process.release();
+    is_busy = false;
 }
 
-void Checker::start_git_pull()
+void CMD_CHECKER::start_git_pull()
 {
+    is_busy = true;
     plog->write("[UPDATE][git_pull] start git pull");
 
     std::unique_ptr<QProcess> git_pull_process = std::make_unique<QProcess>(this);\
@@ -814,34 +832,36 @@ void Checker::start_git_pull()
         QByteArray result = git_pull_process->readAllStandardOutput();
         if (result.isEmpty() && !is_error)
         {
-            plog->write("[UPDATE][git_pull] Already up-to-date");
-            emit sig_gitpull_fail(1);
+            plog->write("[UPDATE][git_pull] Error: already newest");
+            emit sig_gitpull_fail(ALREADY_NEWEWST);
         }
         else if (result.contains("error:") || is_error)
         {
-            plog->write("[UPDATE][git_pull] Failed");
-            emit sig_gitpull_fail(0);
+            plog->write("[UPDATE][git_pull] Error: need reset");
+            emit sig_gitpull_fail(NEED_RESET);
         }
         else
         {
-            plog->write("[UPDATE][git_pull] : Success");
+            plog->write("[UPDATE][git_pull] Success");
             emit sig_gitpull_success();
         }
     }
 
     git_pull_process->deleteLater();
     git_pull_process.release();
+    is_busy = false;
 }
 
-void Checker::start_check_ping(QString host)
+void CMD_CHECKER::start_check_ping(QString host)
 {
+    is_busy = true;
     QString hostname = "www.google.com";
     if(!host.isEmpty() || host != "")
     {
         hostname = host;
     }
 
-    plog->write("[CHECKER] Start ping check");
+    plog->write("[CHECKER][start_check_ping] Start ping check");
 
     std::unique_ptr<QProcess> check_ping_process = std::make_unique<QProcess>(new QProcess);
     check_ping_process->start("ping", QStringList() << "-c" << "1" << hostname);
@@ -855,27 +875,44 @@ void Checker::start_check_ping(QString host)
         if(result.contains("1 received"))
         {
             probot->con_internet = true;
+            std::cout << "[CHECKER][start_check_ping] internet connected." << std::endl;
         }
         else
         {
             probot->con_internet = false;
+            std::cout << "[CHECKER][start_check_ping] internet not connected." << std::endl;
         }
     }
 
-    std::cout << probot->con_internet << std::endl;
-
     check_ping_process.release();
+    is_busy = false;
 }
 
-void Checker::onTimer()
+void CMD_CHECKER::cmd_loop()
 {
-    if(cmd_list.size())
+    try
     {
-        set_work(cmd_list.first());
+        if(is_busy == false && !cmd_list.isEmpty())
+        {
+            set_work(cmd_list.first());
+            cmd_list.pop_front();
+        }
+    }
+    catch(const std::exception &e)
+    {
+        QString err_str = "[CMD_CHECKER][cmd_loop] Exception occurred, err: "  + QString(e.what());
+        std::cerr << err_str.toStdString() << std::endl;
+        plog->write(err_str);
+    }
+    catch(...)
+    {
+        QString err_str = "[CMD_CHECKER][cmd_loop] Exception occurred, err: unknown.";
+        std::cerr << err_str.toStdString() << std::endl;
+        plog->write(err_str);
     }
 }
 
-void Checker::getPing(QString host)
+void CMD_CHECKER::getPing(QString host)
 {
     for(ST_PROC p : cmd_list)
     {
@@ -893,13 +930,13 @@ void Checker::getPing(QString host)
     cmd_list.append(proc);
 }
 
-void Checker::getCurrentInterface()
+void CMD_CHECKER::getCurrentInterface()
 {
     getPing("www.google.com");
     getNetworkState();
 }
 
-void Checker::set_work(ST_PROC cmd)
+void CMD_CHECKER::set_work(ST_PROC cmd)
 {
     QString command = cmd.cmd;
     QStringList params = cmd.arg;
@@ -1006,13 +1043,13 @@ void Checker::set_work(ST_PROC cmd)
     }
 }
 
-void Checker::connect_wifi_success(QString ssid)
+void CMD_CHECKER::connect_wifi_success(QString ssid)
 {
     plog->write("[CHECKER] Connect Wifi Success : "+ssid);
     emit sig_con_wifi_success(ssid);
 }
 
-void Checker::connect_wifi_fail(int reason,QString ssid)
+void CMD_CHECKER::connect_wifi_fail(int reason,QString ssid)
 {
     if(reason == WIFI_PW_FAILED)
     {
@@ -1037,13 +1074,13 @@ void Checker::connect_wifi_fail(int reason,QString ssid)
     emit sig_con_wifi_fail(reason, ssid);
 }
 
-void Checker::set_wifi_success(QString ssid)
+void CMD_CHECKER::set_wifi_success(QString ssid)
 {
     plog->write("[CHECKER] Set Wifi Success : "+ssid);
     emit sig_set_wifi_success(ssid);
 }
 
-void Checker::set_wifi_fail(int reason, QString ssid)
+void CMD_CHECKER::set_wifi_fail(int reason, QString ssid)
 {
     if(reason == WIFI_SET_FAILED_ERROR)
     {
@@ -1057,7 +1094,7 @@ void Checker::set_wifi_fail(int reason, QString ssid)
     emit sig_set_wifi_fail(reason, ssid);
 }
 
-void Checker::setSystemVolume(int volume)
+void CMD_CHECKER::setSystemVolume(int volume)
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1075,7 +1112,7 @@ void Checker::setSystemVolume(int volume)
     cmd_list.append(proc);
 }
 
-void Checker::getSystemVolume()
+void CMD_CHECKER::getSystemVolume()
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1093,7 +1130,7 @@ void Checker::getSystemVolume()
     cmd_list.append(proc);
 }
 
-void Checker::getNetworkState()
+void CMD_CHECKER::getNetworkState()
 {
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     foreach (const QNetworkInterface &interface, interfaces)
@@ -1140,7 +1177,7 @@ void Checker::getNetworkState()
     cmd_list.append(proc);
 }
 
-void Checker::getWifiList(bool readall)
+void CMD_CHECKER::getWifiList(bool readall)
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1164,7 +1201,7 @@ void Checker::getWifiList(bool readall)
     cmd_list.append(proc);
 }
 
-void Checker::connectWifi(QString ssid, QString passwd)
+void CMD_CHECKER::connectWifi(QString ssid, QString passwd)
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1181,7 +1218,7 @@ void Checker::connectWifi(QString ssid, QString passwd)
     cmd_list.append(proc);
 }
 
-void Checker::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
+void CMD_CHECKER::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1199,7 +1236,7 @@ void Checker::setEthernet(QString ip, QString subnet, QString gateway, QString d
 
 }
 
-void Checker::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
+void CMD_CHECKER::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1224,7 +1261,7 @@ void Checker::setIP(bool is_manual, QString ssid, QString ip, QString subnet, QS
     cmd_list.append(proc);
 }
 
-void Checker::gitPull()
+void CMD_CHECKER::gitPull()
 {
     for(ST_PROC p : cmd_list)
     {
@@ -1238,9 +1275,9 @@ void Checker::gitPull()
     proc.arg = QStringList();
     proc.print = false;
     cmd_list.append(proc);
-
 }
-void Checker::gitReset()
+
+void CMD_CHECKER::gitReset()
 {
     for(ST_PROC p : cmd_list)
     {

@@ -6,7 +6,8 @@ import QtMultimedia 5.12
 import QtGraphicalEffects 1.0
 import "."
 
-Popup{
+Popup
+{
     id: popup_patrol
     property string mode: "sequence"
     property int select_pos_mode: 0
@@ -22,26 +23,34 @@ Popup{
     height: 800
     property bool show_menu: false
 
-    background: Rectangle{
+    background: Rectangle
+    {
         anchors.fill: parent
         opacity: 0.9
         color: color_dark_black
     }
 
-    onOpened:{
+    onOpened:
+    {
         update();
         show_menu = false;
     }
 
-    onSelect_pos_modeChanged: {
+    onSelect_pos_modeChanged:
+    {
         select();
     }
 
-    function update(){
+    function update()
+    {
         supervisor.readPatrol();
 
+        console.log("start read patrol");
         model_preset.clear();
-        for(var i=0; i<supervisor.getPatrolSize(); i++){
+        for(var i=0; i<supervisor.getPatrolSize(); i++)
+        {
+
+            console.log("reading patrol ", i);
             model_preset.append({"name":supervisor.getPatrolName(i),
                                 "type":supervisor.getPatrolType(i),
                                 "location":supervisor.getPatrolLocation(i),
@@ -53,21 +62,24 @@ Popup{
                                 "location_size":supervisor.getPatrolLocationSize(i)});
 
         }
-
-
+        console.log("end read patrol");
 
         model_patrols.clear();
 
-        for(var i=0; i<supervisor.getLocationNum("Charging"); i++){
-            model_patrols.append({"name":supervisor.getLocationName(i,"Charging"),"group":"Charging","type":"Charging","select":false});
+        for(var i=0; i<supervisor.getLocationNum("Charging"); i++)
+        {
+            model_patrols.append({"name":supervisor.getLocationName(i,"Charging"), "group":"Charging", "type":"Charging", "select":false});
         }
-        for(var i=0; i<supervisor.getLocationNum("Resting"); i++){
+        for(var i=0; i<supervisor.getLocationNum("Resting"); i++)
+        {
             model_patrols.append({"name":supervisor.getLocationName(i,"Resting"),"group":"Resting","type":"Resting","select":false});
         }
-        for(var i=0; i<supervisor.getLocationNum("Cleaning"); i++){
+        for(var i=0; i<supervisor.getLocationNum("Cleaning"); i++)
+        {
             model_patrols.append({"name":supervisor.getLocationName(i,"Cleaning"),"group":"Cleaning","type":"Cleaning","select":false});
         }
-        for(var i=0; i<supervisor.getLocationNum("Serving"); i++){
+        for(var i=0; i<supervisor.getLocationNum("Serving"); i++)
+        {
             model_patrols.append({"name":supervisor.getLocationName(i,"Serving"),"group":supervisor.getLocationNameGroup(i),"type":"Serving","select":false});
         }
         select();
@@ -91,43 +103,67 @@ Popup{
         combo_voice_lan.currentIndex = 0;
     }
 
-    function select(){
-        for(var i=0; i<model_patrols.count; i++){
-            if(popup_patrol.select_pos_mode === 0){
-                if(model_patrols.get(i).type === "Serving"){
-                    model_patrols.get(i).select = true;
-                }else{
+    function select()
+    {
+        for(var i=0; i<model_patrols.count; i++)
+        {
+            if(popup_patrol.select_pos_mode === 0)
+            {
+                if(model_patrols.get(i).type === "Serving")
+                {
                     model_patrols.get(i).select = true;
                 }
-            }else if(popup_patrol.select_pos_mode === 1){
-                if(model_patrols.get(i).type === "Serving"){
+                else
+                {
                     model_patrols.get(i).select = true;
-                }else{
+                }
+            }
+            else if(popup_patrol.select_pos_mode === 1)
+            {
+                if(model_patrols.get(i).type === "Serving")
+                {
+                    model_patrols.get(i).select = true;
+                }
+                else
+                {
                     model_patrols.get(i).select = false;
                 }
             }
         }
     }
 
-    function selectpreset(num){
+    function selectpreset(num)
+    {
         console.log("select patrol",num);
         popup_patrol.mode = supervisor.getPatrolType(num);
 
-        if(supervisor.getPatrolMovingPage(num) === "location"){
+        if(supervisor.getPatrolMovingPage(num) === "location")
+        {
             combo_movingpage.currentIndex = 2;
-        }else if(supervisor.getPatrolMovingPage(num) === "custom"){
+        }
+        else if(supervisor.getPatrolMovingPage(num) === "custom")
+        {
             combo_movingpage.currentIndex = 3;
-        }else if(supervisor.getPatrolMovingPage(num) === "face2"){
+        }
+        else if(supervisor.getPatrolMovingPage(num) === "face2")
+        {
             combo_movingpage.currentIndex = 1;
-        }else{
+        }
+        else
+        {
             combo_movingpage.currentIndex = 0;
         }
 
-        if(supervisor.getPatrolArrivePage(num) === "pickup"){
+        if(supervisor.getPatrolArrivePage(num) === "pickup")
+        {
             combo_arrivepage.currentIndex = 1;
-        }else if(supervisor.getPatrolArrivePage(num) === "calling"){
+        }
+        else if(supervisor.getPatrolArrivePage(num) === "calling")
+        {
             combo_arrivepage.currentIndex = 2;
-        }else{
+        }
+        else
+        {
             combo_arrivepage.currentIndex = 0;
         }
 
@@ -272,58 +308,73 @@ Popup{
         show_menu = false;
     }
 
-    Rectangle{
+    Rectangle
+    {
         id: rect_back
         width: show_menu?1100:500
         height : 700
         radius: 20
         anchors.centerIn: parent
-        Behavior on width{
-            NumberAnimation{
+        Behavior on width
+        {
+            NumberAnimation
+            {
                 duration: 400
             }
         }
-        Row{
+        Row
+        {
             anchors.centerIn: parent
-            Rectangle{
+            Rectangle
+            {
                 id: rect_main
                 width: show_menu?300:500
                 height: rect_back.height
                 color: "transparent"
-                Behavior on width{
-                    NumberAnimation{
+                Behavior on width
+                {
+                    NumberAnimation
+                    {
                         duration: 400
                     }
                 }
-                Column{
+                Column
+                {
                     anchors.fill: parent
-                    Rectangle{
+                    Rectangle
+                    {
                         width: parent.width
                         height: 100
                         color: "transparent"
-                        Text{
+                        Text
+                        {
                             anchors.centerIn : parent
                             text: qsTr("지정 순회")
                             font.family: font_noto_b.name
                             font.pixelSize: 30
                         }
                     }
-                    Rectangle{
+                    Rectangle
+                    {
                         width: parent.width
                         height: parent.height - 200
                         color: "transparent"
                         clip: true
-                        Column{
+                        Column
+                        {
                             anchors.fill: parent
-                            Flickable{
+                            Flickable
+                            {
                                 width: parent.width
                                 height: parent.height - 70
                                 contentHeight: colss.height
-                                Column{
+                                Column
+                                {
                                     id: colss
                                     spacing: 10
                                     anchors.horizontalCenter: parent.horizontalCenter
-                                    Repeater{
+                                    Repeater
+                                    {
                                         model: ListModel{id: model_preset}
                                         Rectangle{
                                             anchors.horizontalCenter: parent.horizontalCenter
@@ -331,7 +382,8 @@ Popup{
                                             height: 120
                                             radius: 20
                                             color: "transparent"
-                                            Rectangle{
+                                            Rectangle
+                                            {
                                                 width: rect_main.width*0.8
                                                 radius: 20
                                                 height: 100
@@ -339,30 +391,36 @@ Popup{
                                                 anchors.bottom: parent.bottom
                                             }
 
-                                            Column{
+                                            Column
+                                            {
                                                 anchors.centerIn: parent
                                                 spacing: 10
-                                                Rectangle{
+                                                Rectangle
+                                                {
                                                     anchors.horizontalCenter: parent.horizontalCenter
                                                     width: rect_main.width*0.6
                                                     radius: 10
                                                     color: select_preset === index ? color_green: color_blue
                                                     height: 40
-                                                    Text{
+                                                    Text
+                                                    {
                                                         anchors.centerIn: parent
                                                         text: name
                                                         font.family: font_noto_r.name
                                                         color: "white"
                                                         font.pixelSize: 20
-                                                        Component.onCompleted: {
-                                                            while(scale*width > rect_main.width*0.55){
+                                                        Component.onCompleted:
+                                                        {
+                                                            while(scale*width > rect_main.width*0.55)
+                                                            {
                                                                 scale -=0.05;
                                                             }
                                                         }
                                                         horizontalAlignment: Text.AlignHCenter
                                                     }
                                                 }
-                                                Rectangle{
+                                                Rectangle
+                                                {
                                                     width: rect_main.width*0.8
                                                     radius: 10
                                                     height: 25

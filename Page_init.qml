@@ -2160,7 +2160,6 @@ Item {
                                 popup_usb_notice.close();
                                 popup_usb_download.close();
                             }else{
-                                //supervisor.updateUSB();
                                 //popup_usb_notice.visible = false;
                                 //popup_usb_download.visible = false;
                                 popup_usb_notice.close();

@@ -26,16 +26,18 @@
 extern QObject *object;
 ST_ROBOT *probot;
 ST_MAP *pmap;
-int ui_state = 0;
+std::atomic<int> ui_state = {UI_STATE_NONE};
 bool is_test_moving = false;
 bool is_debug = false;
 #define MAIN_THREAD 200
 
-QString getIniPath(QString file){
-    return QDir::homePath()+"/RB_MOBILE/config/"+file+"_config.ini";
+QString getIniPath(QString file)
+{
+    return QDir::homePath()+"/RB_MOBILE/config/" + file + "_config.ini";
 }
 
-QString getSettings(QString file, QString group, QString name){
+QString getSettings(QString file, QString group, QString name)
+{
     QString ini_path = getIniPath(file);
     QSettings setting_robot(ini_path, QSettings::IniFormat);
     setting_robot.beginGroup(group);
@@ -45,22 +47,22 @@ QString getSettings(QString file, QString group, QString name){
 Supervisor::Supervisor(QObject *parent)
     : QObject(parent)
 {
+    plog->write("[SUPERVISOR] Program Started. Supervisor constructed.");
+
     checkShellFiles();
     Py_Initialize();
 
-    plog->write("[SUPERVISOR] Program Started. Supervisor constructed.");
-
-    //기존 SLAM/NAV 모두 종료하고 다시 시작
-    QList<QString> path_home_str = QDir::homePath().split("/");
-    QProcess process;
+    QProcess kill_all_programs_process;
     QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    process.start(file,QStringList(),QProcess::ReadWrite);
-    if(!process.waitForFinished()){
+    kill_all_programs_process.start(file, QStringList(), QProcess::ReadWrite);
+    if(!kill_all_programs_process.waitForFinished())
+    {
         plog->write("[SUPERVISOR] Kill All Failed");
-    }else{
+    }
+    else
+    {
         plog->write("[SUPERVISOR] Kill All");
     }
-    // process->waitForReadyRead(3000);
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
@@ -85,7 +87,7 @@ Supervisor::Supervisor(QObject *parent)
     zip = new ZIPHandler();
     call = new CallbellHandler();
     tts = new TTSHandler();
-    checker = new Checker();
+    checker = new CMD_CHECKER();
 
     connect(checker, SIGNAL(sig_con_wifi_success(QString)), this, SLOT(connect_wifi_success(QString)));
     connect(checker, SIGNAL(sig_con_wifi_fail(int,QString)), this, SLOT(connect_wifi_fail(int,QString)));
@@ -130,7 +132,8 @@ Supervisor::Supervisor(QObject *parent)
 //    qDebug() << "INTERNET : " << QNetworkConfigurationManager::isOnline();
 }
 
-Supervisor::~Supervisor(){
+Supervisor::~Supervisor()
+{
     plog->write("[BUILDER] SUPERVISOR desployed");
     ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
@@ -171,44 +174,57 @@ Supervisor::~Supervisor(){
     plog->write("[BUILDER] KILLED SLAMNAV");
 }
 
-void Supervisor::emo_state_changed(){
-    if(probot->status_emo==0){
+void Supervisor::emo_state_changed()
+{
+    if(probot->status_emo==0)
+    {
         playVoice("error_emo");
     }
 }
+
 ////*********************************************  WINDOW 관련   ***************************************************////
-void Supervisor::setWindow(QQuickWindow *Window){
+void Supervisor::setWindow(QQuickWindow *Window)
+{
     plog->write("[SUPERVISOR] SET WINDOW ");
     mMain = Window;
 }
+
 QQuickWindow *Supervisor::getWindow()
 {
     return mMain;
 }
+
 void Supervisor::setObject(QObject *object)
 {
     mObject = object;
 }
+
 QObject *Supervisor::getObject()
 {
     //rootobject를 리턴해준다.
     return mObject;
 }
 
-void Supervisor::got_message(QString msg){
+void Supervisor::got_message(QString msg)
+{
     qDebug() << "got message" << msg;
     QMetaObject::invokeMethod(mMain, "new_message",Qt::DirectConnection,
       Q_ARG(QVariant,QVariant().fromValue(msg)));
 }
+
 ////***********************96980101451808****************************////
-void Supervisor::update_fail(){
+void Supervisor::update_fail()
+{
     QMetaObject::invokeMethod(mMain, "update_fail");
 }
-void Supervisor::update_success(){
+
+void Supervisor::update_success()
+{
     QMetaObject::invokeMethod(mMain, "update_success");
 }
 
-void Supervisor::programRestart(){
+void Supervisor::programRestart()
+{
     plog->write("[COMMAND] programRestart");
     ipc->clearSharedMemory(ipc->shm_cmd);
     slam_process->kill();
@@ -218,41 +234,57 @@ void Supervisor::programRestart(){
     // QApplication::exit(12);
 }
 
-void Supervisor::programExit(){
+void Supervisor::programExit()
+{
     plog->write("[COMMAND] programExit");
     slam_process->kill();
     QCoreApplication::quit();
 }
 
-void Supervisor::writelog(QString msg){
+void Supervisor::writelog(QString msg)
+{
     plog->write(msg);
 }
 
-void Supervisor::setCursorView(bool visible){
-    if(visible){
+void Supervisor::setCursorView(bool visible)
+{
+    if(visible)
+    {
         QGuiApplication::setOverrideCursor(QCursor(Qt::ArrowCursor));
-    }else{
+    }
+    else
+    {
         QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
     }
 }
 
-
-QString Supervisor::getRawMapPath(QString name){
+QString Supervisor::getRawMapPath(QString name)
+{
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_raw.png";
 }
-QString Supervisor::getMapPath(QString name){
+
+QString Supervisor::getMapPath(QString name)
+{
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_edited.png";
 }
-QString Supervisor::getAnnotPath(QString name){
+
+QString Supervisor::getAnnotPath(QString name)
+{
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/annotation.ini";
 }
-QString Supervisor::getMetaPath(QString name){
+
+QString Supervisor::getMetaPath(QString name)
+{
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_meta.ini";
 }
-QString Supervisor::getTravelPath(QString name){
+
+QString Supervisor::getTravelPath(QString name)
+{
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_travel_line.png";
 }
-QString Supervisor::getCostPath(QString name){
+
+QString Supervisor::getCostPath(QString name)
+{
     return QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_cost.png";
 }
 // QString Supervisor::getIniPath(QString file){
@@ -260,28 +292,37 @@ QString Supervisor::getCostPath(QString name){
 // }
 
 ////*********************************수정해야해*****************************************//
-void Supervisor::loadMapServer(){
+void Supervisor::loadMapServer()
+{
 //    if(getSetting("SERVER",))
 //    ipc->sendCommand(ROBOT_CMD_SERVER_MAP_LOAD);
 }
 
-void Supervisor::sendMapServer(){
+void Supervisor::sendMapServer()
+{
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 }
 
-bool Supervisor::checkGroupName(QString name){
-    for(int i=0; i<pmap->location_groups.size(); i++){
-        if(pmap->location_groups[i] == name){
+bool Supervisor::checkGroupName(QString name)
+{
+    for(int i=0; i<pmap->location_groups.size(); i++)
+    {
+        if(pmap->location_groups[i] == name)
+        {
             return false;
         }
     }
     return true;
 }
 
-bool Supervisor::checkLocationName(int group, QString name){
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].group == group){
-            if(pmap->serving_locations[i].name == name){
+bool Supervisor::checkLocationName(int group, QString name)
+{
+    for(int i=0; i<pmap->serving_locations.size(); i++)
+    {
+        if(pmap->serving_locations[i].group == group)
+        {
+            if(pmap->serving_locations[i].name == name)
+            {
                 return false;
             }
         }
@@ -290,25 +331,36 @@ bool Supervisor::checkLocationName(int group, QString name){
 }
 
 ////*********************************************  CALLING 관련   ***************************************************////
-void Supervisor::clear_call(){
-    if(setting_call_num > -1){
-        if(setting_call_type == "Charging"){
+void Supervisor::clear_call()
+{
+    if(setting_call_num > -1)
+    {
+        if(setting_call_type == "Charging")
+        {
             plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
                         +pmap->charging_locations[setting_call_num].type + ", "  + pmap->charging_locations[setting_call_num].name);
             pmap->charging_locations[setting_call_num].call_id = "";
-        }else if(setting_call_type == "Resting"){
+        }
+        else if(setting_call_type == "Resting")
+        {
             plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
                         +pmap->resting_locations[setting_call_num].type + ", "  + pmap->resting_locations[setting_call_num].name);
             pmap->resting_locations[setting_call_num].call_id = "";
-        }else if(setting_call_type == "Cleaning"){
+        }
+        else if(setting_call_type == "Cleaning")
+        {
             plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
                         +pmap->cleaning_locations[setting_call_num].type + ", "  + pmap->cleaning_locations[setting_call_num].name);
             pmap->cleaning_locations[setting_call_num].call_id = "";
-        }else if(setting_call_type == "Init"){
+        }
+        else if(setting_call_type == "Init")
+        {
             plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
                         +pmap->init_locations[setting_call_num].type + ", "  + pmap->init_locations[setting_call_num].name);
             pmap->init_locations[setting_call_num].call_id = "";
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] clear_call "+setting_call_type+" "+QString::number(setting_call_num)+" : "
                         +pmap->serving_locations[setting_call_num].type + ", "  + pmap->serving_locations[setting_call_num].name);
             pmap->serving_locations[setting_call_num].call_id = "";
@@ -320,46 +372,68 @@ void Supervisor::clear_call(){
     }
 }
 
-void Supervisor::new_call_order(QString table){
+void Supervisor::new_call_order(QString table)
+{
     bool match_call = false;
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].name == table){
+    for(int i=0; i<pmap->serving_locations.size(); i++)
+    {
+        if(pmap->serving_locations[i].name == table)
+        {
             match_call = true;
             break;
         }
     }
-    if(match_call){
+    if(match_call)
+    {
         pmap->call_queue.push_back(table);
         plog->write("[SERVER] NEW CALL ORDER : "+table+" ( queue size "+QString::number(pmap->call_queue.size())+" )");
-    }else{
+    }
+    else
+    {
         plog->write("[SERVER] NEW CALL ORDER : "+table+" (Wrong ID -> Ignored)");
     }
 }
 
-void Supervisor::new_call(){
-    if(setting_call_num > -1){
-        if(setting_call_type == "Charging"){
-            if(setting_call_num<pmap->charging_locations.size()){
+void Supervisor::new_call()
+{
+    if(setting_call_num > -1)
+    {
+        if(setting_call_type == "Charging")
+        {
+            if(setting_call_num<pmap->charging_locations.size())
+            {
                 plog->write("[CALL] newCall : SET CallBell "+pmap->charging_locations[setting_call_num].name+" -> "+call->get_bell_ID());
                 pmap->charging_locations[setting_call_num].call_id = call->get_bell_ID();
             }
-        }else if(setting_call_type == "Resting"){
-            if(setting_call_num<pmap->resting_locations.size()){
+        }
+        else if(setting_call_type == "Resting")
+        {
+            if(setting_call_num<pmap->resting_locations.size())
+            {
                 plog->write("[CALL] newCall : SET CallBell "+pmap->resting_locations[setting_call_num].name+" -> "+call->get_bell_ID());
                 pmap->resting_locations[setting_call_num].call_id = call->get_bell_ID();
             }
-        }else if(setting_call_type == "Cleaning"){
-            if(setting_call_num<pmap->cleaning_locations.size()){
+        }
+        else if(setting_call_type == "Cleaning")
+        {
+            if(setting_call_num<pmap->cleaning_locations.size())
+            {
                 plog->write("[CALL] newCall : SET CallBell "+pmap->cleaning_locations[setting_call_num].name+" -> "+call->get_bell_ID());
                 pmap->cleaning_locations[setting_call_num].call_id = call->get_bell_ID();
             }
-        }else if(setting_call_type == "Init"){
-            if(setting_call_num<pmap->init_locations.size()){
+        }
+        else if(setting_call_type == "Init")
+        {
+            if(setting_call_num<pmap->init_locations.size())
+            {
                 plog->write("[CALL] newCall : SET CallBell "+pmap->init_locations[setting_call_num].name+" -> "+call->get_bell_ID());
                 pmap->init_locations[setting_call_num].call_id = call->get_bell_ID();
             }
-        }else{
-            if(setting_call_num<pmap->serving_locations.size()){
+        }
+        else
+        {
+            if(setting_call_num<pmap->serving_locations.size())
+            {
                 plog->write("[CALL] newCall : SET CallBell "+pmap->serving_locations[setting_call_num].name+" -> "+call->get_bell_ID());
                 pmap->serving_locations[setting_call_num].call_id = call->get_bell_ID();
             }
@@ -367,48 +441,62 @@ void Supervisor::new_call(){
         setting_call_num = -1;
         setting_call_type = "";
         QMetaObject::invokeMethod(mMain, "call_setting");
-    }else{
+    }
+    else
+    {
         bool already_in = false;
 
         qDebug() <<"ui state = " << ui_state;
 
         bool match = false;
         QString name = "";
-        for(int i=0; i<pmap->charging_locations.size(); i++){
-            if(pmap->charging_locations[i].call_id == call->get_bell_ID()){
+        for(int i=0; i<pmap->charging_locations.size(); i++)
+        {
+            if(pmap->charging_locations[i].call_id == call->get_bell_ID())
+            {
                 name = pmap->charging_locations[i].name;
                 match = true;
                 break;
             }
         }
-        if(!match){
-            for(int i=0; i<pmap->resting_locations.size(); i++){
-                if(pmap->resting_locations[i].call_id == call->get_bell_ID()){
+        if(!match)
+        {
+            for(int i=0; i<pmap->resting_locations.size(); i++)
+            {
+                if(pmap->resting_locations[i].call_id == call->get_bell_ID())
+                {
                     name = pmap->resting_locations[i].name;
                     match = true;
                     break;
                 }
             }
         }
-        if(!match){
-            for(int i=0; i<pmap->cleaning_locations.size(); i++){
-                if(pmap->cleaning_locations[i].call_id == call->get_bell_ID()){
+        if(!match)
+        {
+            for(int i=0; i<pmap->cleaning_locations.size(); i++)
+            {
+                if(pmap->cleaning_locations[i].call_id == call->get_bell_ID())
+                {
                     name = pmap->cleaning_locations[i].name;
                     match = true;
                     break;
                 }
             }
         }
-        if(!match){
-            for(int i=0; i<pmap->init_locations.size(); i++){
-                if(pmap->init_locations[i].call_id == call->get_bell_ID()){
+        if(!match)
+        {
+            for(int i=0; i<pmap->init_locations.size(); i++)
+            {
+                if(pmap->init_locations[i].call_id == call->get_bell_ID())
+                {
                     name = pmap->init_locations[i].name;
                     match = true;
                     break;
                 }
             }
         }
-        if(!match){
+        if(!match)
+        {
             for(int i=0; i<pmap->serving_locations.size(); i++){
                 if(pmap->serving_locations[i].call_id == call->get_bell_ID()){
                     name = pmap->serving_locations[i].name;
@@ -418,47 +506,64 @@ void Supervisor::new_call(){
             }
         }
 
-        for(int i=0; i<pmap->call_queue.size(); i++){
-            if(pmap->call_queue[i] == name){
+        for(int i=0; i<pmap->call_queue.size(); i++)
+        {
+            if(pmap->call_queue[i] == name)
+            {
                 already_in = true;
                 plog->write("[CALL] newCall : "+name+" ("+call->get_bell_ID()+") -> already queue in");
                 break;
             }
         }
-        if(!already_in){
-            if(name != ""){
+
+        if(!already_in)
+        {
+            if(name != "")
+            {
                 pmap->call_queue.push_back(name);
                 plog->write("[CALL] newCall : "+name+" ("+call->get_bell_ID()+")");
-            }else{
+            }
+            else
+            {
                 plog->write("[CALL] newCall : no found callbell ("+call->get_bell_ID()+")");
             }
         }
     }
 }
 
-void Supervisor::setCallbellForce(QString type, bool onoff){
+void Supervisor::setCallbellForce(QString type, bool onoff)
+{
     plog->write("[COMMAND] setCallbellForce : "+type+" -> "+onoff);
-    if(type == "Resting"){
-        if(onoff){
+    if(type == "Resting")
+    {
+        if(onoff)
+        {
             setSetting("setting","CALL/force_resting","true");
-        }else{
+        }
+        else
+        {
             setSetting("setting","CALL/force_resting","false");
         }
-    }else if(type == "Cleaning"){
-        if(onoff){
+    }
+    else if(type == "Cleaning")
+    {
+        if(onoff)
+        {
             setSetting("setting","CALL/force_cleaning","true");
-        }else{
+        }
+        else
+        {
             setSetting("setting","CALL/force_cleaning","false");
         }
     }
 }
 
-void Supervisor::setCallbell(QString type, int id){
+void Supervisor::setCallbell(QString type, int id)
+{
     setting_call_type = type;
     setting_call_num = id;
     plog->write("[COMMAND] setCallbell : "+type+" , "+QString::number(setting_call_num));
 }
-
 
 ////*********************************************  SETTING 관련   ***************************************************////
 void Supervisor::git_pull_success()
@@ -467,114 +572,163 @@ void Supervisor::git_pull_success()
     programRestart();
 }
 
-void Supervisor::git_pull_fail(int reason){
-    if(reason == 0){
-        plog->write("[UPDATE] Git Pull : Failed -> Maybe need Reset");
+void Supervisor::git_pull_fail(int reason)
+{
+    if(reason == NEED_RESET)
+    {
         QMetaObject::invokeMethod(mMain, "git_pull_fail");
-    }else{//nothing
-        plog->write("[UPDATE] Git Pull : Failed -> Program Already Newest");
+    }
+    else if(reason == ALREADY_NEWEWST)
+    {
         QMetaObject::invokeMethod(mMain, "git_pull_already");
     }
 }
 
-void Supervisor::playSound(QString name, int volume){
+void Supervisor::playSound(QString name, int volume)
+{
     click_effect->stop();
 
-    if(volume == -1){
+    if(volume == -1)
+    {
         volume = getSetting("setting","UI","volume_button").toInt();
     }
 
     // qDebug() << "playSound : " << name << volume;
 
-    if(name == "click"){
+    if(name == "click")
+    {
         click_effect->setSource(QUrl("qrc:/bgm/click.wav"));
         click_effect->setVolume(float(volume)/100.0);
         click_effect->play();
-    }else if(name == "no"){
+    }
+    else if(name == "no")
+    {
         click_effect->setSource(QUrl("qrc:/bgm/click_error.wav"));
         click_effect->setVolume(float(volume)/100.0);
         click_effect->play();
-    }else if(name == "start"){
+    }
+    else if(name == "start")
+    {
         click_effect->setSource(QUrl("qrc:/bgm/click_start.wav"));
         click_effect->setVolume(float(volume)/100.0);
         click_effect->play();
     }
 }
 
-bool Supervisor::isNewVersion(){
-    //깃 최신버전인지.
+//깃 최신버전인지.
+bool Supervisor::isNewVersion()
+{
     return server->need_update();
 }
-bool Supervisor::isNeedUpdate(){
-    //서버업데이트 필요한 지.
+
+//서버업데이트 필요한 지.
+bool Supervisor::isNeedUpdate()
+{
     return server->new_update;
 }
-void Supervisor::refreshVersion(){
+
+void Supervisor::refreshVersion()
+{
     qDebug() << "refreshVersion";
     server->getCurVersion("MAIN_MOBILE");
     server->getNewVersion("MAIN_MOBILE");
     server->getNewVersions("MAIN_MOBILE");
 }
-QString Supervisor::getNewVersion(){
+
+QString Supervisor::getNewVersion()
+{
     return server->ui_version_new.version;
 }
-QString Supervisor::getCurVersion(){
+
+QString Supervisor::getCurVersion()
+{
     return server->ui_version.version;
 }
-QString Supervisor::getCurVersionDate(){
+
+QString Supervisor::getCurVersionDate()
+{
     return server->ui_version.date;
 }
 
-QString Supervisor::getLocalVersion(){
+QString Supervisor::getLocalVersion()
+{
     return getSetting("robot","VERSION","last_update_date");
 }
-QString Supervisor::getServerVersion(){
-    if(server->program_version != ""){
+
+QString Supervisor::getServerVersion()
+{
+    if(server->program_version != "")
+    {
         return server->program_version;
-    }else{
+    }
+    else
+    {
         if(probot->gitList.size() > 0)
+        {
             return probot->gitList[0].date;
+        }
         else
+        {
             return "NONE";
+        }
     }
 }
-QString Supervisor::getLocalVersionDate(){
+
+QString Supervisor::getLocalVersionDate()
+{
     return getSetting("robot","VERSION","last_update_date");
 }
-QString Supervisor::getLocalVersionMessage(){
+
+QString Supervisor::getLocalVersionMessage()
+{
     return probot->program_message;
 }
-QString Supervisor::getServerVersionMessage(){
-    if(probot->gitList.size() > 0){
+
+QString Supervisor::getServerVersionMessage()
+{
+    if(probot->gitList.size() > 0)
+    {
         return probot->gitList[0].message;
-    }else{
+    }
+    else
+    {
         return "";
     }
 }
 
-QString Supervisor::getUpdateDate(){
+QString Supervisor::getUpdateDate()
+{
     return server->last_update_date;
 }
 
-int Supervisor::getUpdateSize(){
+int Supervisor::getUpdateSize()
+{
     return server->update_list.size();
 }
 
-QString Supervisor::getUpdateFileName(int num){
+QString Supervisor::getUpdateFileName(int num)
+{
     QStringList list = server->update_list.keys();
     return list[num];
 }
 
-QString Supervisor::getUpdateCommit(QString name){
+QString Supervisor::getUpdateCommit(QString name)
+{
     return server->update_list[name].commit;
 }
-QString Supervisor::getUpdateMessage(QString name){
+
+QString Supervisor::getUpdateMessage(QString name)
+{
     return server->update_list[name].message;
 }
-QString Supervisor::getLastUpdateDate(QString name){
+
+QString Supervisor::getLastUpdateDate(QString name)
+{
     return server->version_list[name].date;
 }
-void Supervisor::checkCleaningLocation(){
+
+void Supervisor::checkCleaningLocation()
+{
     // if(getLocationNum("Cleaning") == 0){
     //     plog->write("[ANNOTATION] Cleaning Mode : no found Location. make new");
     //     LOCATION temp;
@@ -589,43 +743,57 @@ void Supervisor::checkCleaningLocation(){
     //     saveAnnotation("");
     // }
 }
-int Supervisor::getNewVersionsSize(){
+
+int Supervisor::getNewVersionsSize()
+{
     return server->ui_new_versions.size();
 }
-QString Supervisor::getNewVersion(int i){
+
+QString Supervisor::getNewVersion(int i)
+{
     return server->ui_new_versions[i].version;
 }
-QString Supervisor::getNewVersionDate(int i){
+
+QString Supervisor::getNewVersionDate(int i)
+{
     return server->ui_new_versions[i].date;
-
 }
-QString Supervisor::getNewVersionMessage(int i){
+
+QString Supervisor::getNewVersionMessage(int i)
+{
     return server->ui_new_versions[i].message;
-
 }
-QString Supervisor::getCurrentCommit(QString name){
+
+QString Supervisor::getCurrentCommit(QString name)
+{
     return server->version_list[name].commit;
 }
-void Supervisor::updateProgram(QString _v){
+
+void Supervisor::updateProgram(QString _v)
+{
     plog->write("[UPDATE] Update UI version : "+_v);
     server->doUpdateUI(_v);
 }
-void Supervisor::updateProgram(){
+
+void Supervisor::updateProgram()
+{
     server->doUpdate();
 }
-void Supervisor::updateProgramGitPull(){
+
+void Supervisor::updateProgramGitPull()
+{
     checker->gitPull();
 }
-void Supervisor::gitReset(){
+
+void Supervisor::gitReset()
+{
     probot->program_branch = getSetting("setting","UI","program_branch");
     checker->gitReset();
 }
 
-void Supervisor::restartUpdate(){
+void Supervisor::restartUpdate()
+{
     plog->write("[UPDATE] USER CMD : Restart Update");
-    //File rename.
-//    server->rename_all();
-    //Start Update.sh
     QString file = QDir::homePath()+"/RB_MOBILE/sh";
 
     QProcess *tempprocess = new QProcess(this);
@@ -635,7 +803,9 @@ void Supervisor::restartUpdate(){
     tempprocess->start("xterm",QStringList()<<"./update.sh");
 
 }
-void Supervisor::startUpdate(){
+
+void Supervisor::startUpdate()
+{
     //Zip 압축풀기
 //#ifdef EXTPROC_TEST
 //    checker->gitPull();
@@ -644,90 +814,121 @@ void Supervisor::startUpdate(){
 //#endif
 }
 
-void Supervisor::checkVersionAgain(){
+
+void Supervisor::checkVersionAgain()
+{
     server->check_update = true;
     server->checkUpdate();
 }
 
-
-
-
-QString Supervisor::getGoqualID(){
+QString Supervisor::getGoqualID()
+{
     return server->goqual_login.id;
 }
-QString Supervisor::getGoqualPassword(){
+
+QString Supervisor::getGoqualPassword()
+{
     return server->goqual_login.passwd;
 }
-QString Supervisor::getGoqualClientID(){
+
+QString Supervisor::getGoqualClientID()
+{
     return server->goqual_login.client_id;
 }
-QString Supervisor::getGoqualClientSecret(){
+
+QString Supervisor::getGoqualClientSecret()
+{
     return server->goqual_login.client_secret;
 }
-QString Supervisor::getGoqualAccessKey(){
+
+QString Supervisor::getGoqualAccessKey()
+{
     return server->goqual_token.access_key;
 }
-QString Supervisor::getGoqualRefreshKey(){
+
+QString Supervisor::getGoqualRefreshKey()
+{
     return server->goqual_token.refresh_key;
 }
-QString Supervisor::getGoqualExpiresIn(){
+
+QString Supervisor::getGoqualExpiresIn()
+{
     return QString::number(server->goqual_token.expires_in);
 }
 
-void Supervisor::getGoqualKey(){
+void Supervisor::getGoqualKey()
+{
     server->getGoqualKey();
 }
-void Supervisor::refreshGoqualKey(){
+
+void Supervisor::refreshGoqualKey()
+{
     server->refreshGoqualKey();
 }
-void Supervisor::getGoqualDeviceList(){
+
+void Supervisor::getGoqualDeviceList()
+{
     server->getGoqualDevices();
 }
 
-void Supervisor::setGoqualDevice(QString id, bool onoff){
+void Supervisor::setGoqualDevice(QString id, bool onoff)
+{
     qDebug() << "setRelay " << id << onoff;
     server->setGoqualRelay(id,onoff);
 }
 
-
-int Supervisor::getGoqualDeviceSize(){
+int Supervisor::getGoqualDeviceSize()
+{
     return server->goqual_relays.size();
 }
 
-QString Supervisor::getGoqualDeviceID(int num){
-    if(num>-1 && num < server->goqual_relays.size()){
+QString Supervisor::getGoqualDeviceID(int num)
+{
+    if(num>-1 && num < server->goqual_relays.size())
+    {
         QStringList key = server->goqual_relays.keys();
         return server->goqual_relays[key[num]].id;
     }
 }
-QString Supervisor::getGoqualDeviceName(int num){
-    if(num>-1 && num < server->goqual_relays.size()){
+
+QString Supervisor::getGoqualDeviceName(int num)
+{
+    if(num>-1 && num < server->goqual_relays.size())
+    {
         QStringList key = server->goqual_relays.keys();
         return server->goqual_relays[key[num]].name;
     }
 }
 
-QString Supervisor::getGoqualDeviceType(int num){
-    if(num>-1 && num < server->goqual_relays.size()){
+QString Supervisor::getGoqualDeviceType(int num)
+{
+    if(num>-1 && num < server->goqual_relays.size())
+    {
         QStringList key = server->goqual_relays.keys();
         return server->goqual_relays[key[num]].type;
     }
 }
-bool Supervisor::getGoqualDeviceState(int num){
-    if(num>-1 && num < server->goqual_relays.size()){
+
+bool Supervisor::getGoqualDeviceState(int num)
+{
+    if(num>-1 && num < server->goqual_relays.size())
+    {
         QStringList key = server->goqual_relays.keys();
         return server->goqual_relays[key[num]].state;
     }
 }
-bool Supervisor::getGoqualDeviceOnline(int num){
-    if(num>-1 && num < server->goqual_relays.size()){
+
+bool Supervisor::getGoqualDeviceOnline(int num)
+{
+    if(num>-1 && num < server->goqual_relays.size())
+    {
         QStringList key = server->goqual_relays.keys();
         return server->goqual_relays[key[num]].online;
     }
 }
 
-
-void Supervisor::saveSetting(){
+void Supervisor::saveSetting()
+{
     plog->write("[COMMAND] saveSetting");
     QString setting_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.ini";
     QString update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.ini";
@@ -737,51 +938,71 @@ void Supervisor::saveSetting(){
     QString new_update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.backup";
     QString new_static_path = QDir::homePath()+"/RB_MOBILE/config/static_config.backup";
 
-    if(QFile::exists(setting_path)){
-
-        if(QFile::exists(new_setting_path)){
+    if(QFile::exists(setting_path))
+    {
+        if(QFile::exists(new_setting_path))
+        {
             QFile::remove(new_setting_path);
         }
 
-        if(QFile::copy(setting_path, new_setting_path)){
+        if(QFile::copy(setting_path, new_setting_path))
+        {
             plog->write("[COMMAND] saveSetting : setting_config -> success");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] saveSetting : setting_config -> failed");
         }
-    }else{
+    }
+    else
+    {
         plog->write("[COMMAND] saveSetting : setting_config -> no file found");
     }
 
-    if(QFile::exists(update_path)){
-
-        if(QFile::exists(new_update_path)){
+    if(QFile::exists(update_path))
+    {
+        if(QFile::exists(new_update_path))
+        {
             QFile::remove(new_update_path);
         }
-        if(QFile::copy(update_path, new_update_path)){
+        if(QFile::copy(update_path, new_update_path))
+        {
             plog->write("[COMMAND] saveSetting : update_config -> success");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] saveSetting : update_config -> failed");
         }
-    }else{
+    }
+    else
+    {
         plog->write("[COMMAND] saveSetting : update_config -> no file found");
     }
 
-    if(QFile::exists(static_path)){
-
-        if(QFile::exists(new_static_path)){
+    if(QFile::exists(static_path))
+    {
+        if(QFile::exists(new_static_path))
+        {
             QFile::remove(new_static_path);
         }
-        if(QFile::copy(static_path, new_static_path)){
+
+        if(QFile::copy(static_path, new_static_path))
+        {
             plog->write("[COMMAND] saveSetting : static_config -> success");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] saveSetting : static_config -> failed");
         }
-    }else{
+    }
+    else
+    {
         plog->write("[COMMAND] saveSetting : static_config -> no file found");
     }
 }
 
-void Supervisor::loadSetting(){
+void Supervisor::loadSetting()
+{
     plog->write("[COMMAND] loadSetting");
 
     QString setting_path = QDir::homePath()+"/RB_MOBILE/config/setting_config.ini";
@@ -792,57 +1013,77 @@ void Supervisor::loadSetting(){
     QString backup_update_path = QDir::homePath()+"/RB_MOBILE/config/update_config.backup";
     QString backup_static_path = QDir::homePath()+"/RB_MOBILE/config/static_config.backup";
 
-    if(QFile::exists(backup_setting_path)){
-
-        if(QFile::exists(setting_path)){
+    if(QFile::exists(backup_setting_path))
+    {
+        if(QFile::exists(setting_path))
+        {
             QFile::remove(setting_path);
         }
-        if(QFile::copy(backup_setting_path, setting_path)){
+        if(QFile::copy(backup_setting_path, setting_path))
+        {
             plog->write("[COMMAND] loadSetting : setting_config -> success");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] loadSetting : setting_config -> failed");
         }
-    }else{
+    }
+    else
+    {
         plog->write("[COMMAND] loadSetting : setting_config -> no file found");
     }
 
-    if(QFile::exists(backup_update_path)){
-
-        if(QFile::exists(update_path)){
+    if(QFile::exists(backup_update_path))
+    {
+        if(QFile::exists(update_path))
+        {
             QFile::remove(update_path);
         }
-        if(QFile::copy(backup_update_path, update_path)){
+        if(QFile::copy(backup_update_path, update_path))
+        {
             plog->write("[COMMAND] loadSetting : update_config -> success");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] loadSetting : update_config -> failed");
         }
-    }else{
+    }
+    else
+    {
         plog->write("[COMMAND] loadSetting : update_config -> no file found");
     }
 
-    if(QFile::exists(backup_static_path)){
-
-        if(QFile::exists(static_path)){
+    if(QFile::exists(backup_static_path))
+    {
+        if(QFile::exists(static_path))
+        {
             QFile::remove(static_path);
         }
-        if(QFile::copy(backup_static_path, static_path)){
+        if(QFile::copy(backup_static_path, static_path))
+        {
             plog->write("[COMMAND] loadSetting : static_config -> success");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] loadSetting : static_config -> failed");
         }
-    }else{
+    }
+    else
+    {
         plog->write("[COMMAND] loadSetting : static_config -> no file found");
     }
-
 }
 
-void Supervisor::setSetting(QString file, QString name, QString value){
+void Supervisor::setSetting(QString file, QString name, QString value)
+{
     QString ini_path = getIniPath(file);
     QSettings setting(ini_path, QSettings::IniFormat);
     setting.setValue(name,value);
     plog->write("[SETTING] SET "+name+" VALUE TO "+value);
 }
-QString Supervisor::getSetting(QString file, QString group, QString name){
+
+QString Supervisor::getSetting(QString file, QString group, QString name)
+{
     return getSettings(file,group,name);
     // QString ini_path = getIniPath(file);
     // QSettings setting_robot(ini_path, QSettings::IniFormat);
@@ -850,7 +1091,8 @@ QString Supervisor::getSetting(QString file, QString group, QString name){
     // return setting_robot.value(name).toString();
 }
 
-void Supervisor::readSetting(QString map_name){
+void Supervisor::readSetting(QString map_name)
+{
     plog->write("[SUPERVISOR] READ SETTING : "+map_name);
     //Robot Setting================================================================
     QString ini_path = getIniPath("setting");
@@ -903,7 +1145,8 @@ void Supervisor::readSetting(QString map_name){
     QDir dir_release = QDir(QDir::homePath()+"/RB_MOBILE/release");
     QList<QString> releases = dir_release.entryList();
     server->version_list.clear();
-    for(int i=0; i<releases.size(); i++){
+    for(int i=0; i<releases.size(); i++)
+    {
         ST_UPDATE temp_update;
         robot_config.beginGroup(releases[i]);
         temp_update.commit = robot_config.value("commit").toString();
@@ -920,10 +1163,10 @@ void Supervisor::readSetting(QString map_name){
     probot->comeback_preset = update_config.value("comeback_preset").toInt();
     update_config.endGroup();
 
-    if(map_name == ""){
+    if(map_name == "")
+    {
         map_name = pmap->map_name;
     }
-
 
     pmap->annot_edit_location = false;
     pmap->annot_edit_tline = false;
@@ -944,7 +1187,8 @@ void Supervisor::readSetting(QString map_name){
     pmap->edited_height = setting_meta.value("map_edited_h").toInt();
     pmap->edited_origin[0] = setting_meta.value("map_edited_origin_u").toInt();
     pmap->edited_origin[1] = setting_meta.value("map_edited_origin_v").toInt();
-    if(pmap->edited_width > 0){
+    if(pmap->edited_width > 0)
+    {
         pmap->width = pmap->edited_width;
         pmap->height = pmap->edited_height;
         pmap->origin[0] = pmap->edited_origin[0];
@@ -971,23 +1215,32 @@ void Supervisor::readSetting(QString map_name){
     setting_anot.beginGroup("charging_locations");
     int num = setting_anot.value("num").toInt();
     QString loc_str;
-    for(int i=0; i<num; i++){
+    for(int i=0; i<num; i++)
+    {
         loc_str = setting_anot.value("loc"+QString::number(i)).toString();
         QStringList strlist = loc_str.split(",");
-        if(strlist.size()>1){
+        if(strlist.size()>1)
+        {
             temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
             temp_loc.angle = strlist[3].toFloat();
             temp_loc.group = 0;
             temp_loc.group_name = "Charging";
             temp_loc.type = "Charging";
             temp_loc.name = strlist[0];
-            if(strlist.size() > 4){
+            if(strlist.size() > 4)
+            {
                 temp_loc.call_id = strlist[4].split(":")[0];
                 if(strlist[4].split(":").size()>1)
+                {
                     temp_loc.ling_id = strlist[4].split(":")[1];
+                }
                 else
+                {
                     temp_loc.ling_id = "";
-            }else{
+                }
+            }
+            else
+            {
                 temp_loc.call_id = "";
                 temp_loc.ling_id = "";
             }
@@ -996,26 +1249,34 @@ void Supervisor::readSetting(QString map_name){
     }
     setting_anot.endGroup();
 
-
     setting_anot.beginGroup("resting_locations");
     num = setting_anot.value("num").toInt();
-    for(int i=0; i<num; i++){
+    for(int i=0; i<num; i++)
+    {
         loc_str = setting_anot.value("loc"+QString::number(i)).toString();
         QStringList strlist = loc_str.split(",");
-        if(strlist.size()>1){
+        if(strlist.size()>1)
+        {
             temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
             temp_loc.angle = strlist[3].toFloat();
             temp_loc.group = 0;
             temp_loc.group_name = "Resting";
             temp_loc.type = "Resting";
             temp_loc.name = strlist[0];
-            if(strlist.size() > 4){
+            if(strlist.size() > 4)
+            {
                 temp_loc.call_id = strlist[4].split(":")[0];
                 if(strlist[4].split(":").size()>1)
+                {
                     temp_loc.ling_id = strlist[4].split(":")[1];
+                }
                 else
+                {
                     temp_loc.ling_id = "";
-            }else{
+                }
+            }
+            else
+            {
                 temp_loc.call_id = "";
                 temp_loc.ling_id = "";
             }
@@ -1027,23 +1288,32 @@ void Supervisor::readSetting(QString map_name){
 
     setting_anot.beginGroup("cleaning_locations");
     num = setting_anot.value("num").toInt();
-    for(int i=0; i<num; i++){
+    for(int i=0; i<num; i++)
+    {
         loc_str = setting_anot.value("loc"+QString::number(i)).toString();
         QStringList strlist = loc_str.split(",");
-        if(strlist.size()>1){
+        if(strlist.size()>1)
+        {
             temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
             temp_loc.angle = strlist[3].toFloat();
             temp_loc.group = 0;
             temp_loc.group_name = "Cleaning";
             temp_loc.type = "Cleaning";
             temp_loc.name = strlist[0];
-            if(strlist.size() > 4){
+            if(strlist.size() > 4)
+            {
                 temp_loc.call_id = strlist[4].split(":")[0];
                 if(strlist[4].split(":").size()>1)
+                {
                     temp_loc.ling_id = strlist[4].split(":")[1];
+                }
                 else
+                {
                     temp_loc.ling_id = "";
-            }else{
+                }
+            }
+            else
+            {
                 temp_loc.call_id = "";
                 temp_loc.ling_id = "";
             }
@@ -1054,23 +1324,32 @@ void Supervisor::readSetting(QString map_name){
 
     setting_anot.beginGroup("init_locations");
     num = setting_anot.value("num").toInt();
-    for(int i=0; i<num; i++){
+    for(int i=0; i<num; i++)
+    {
         loc_str = setting_anot.value("loc"+QString::number(i)).toString();
         QStringList strlist = loc_str.split(",");
-        if(strlist.size()>1){
+        if(strlist.size()>1)
+        {
             temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
             temp_loc.angle = strlist[3].toFloat();
             temp_loc.group = 0;
             temp_loc.group_name = "Init";
             temp_loc.type = "Init";
             temp_loc.name = strlist[0];
-            if(strlist.size() > 4){
+            if(strlist.size() > 4)
+            {
                 temp_loc.call_id = strlist[4].split(":")[0];
                 if(strlist[4].split(":").size()>1)
+                {
                     temp_loc.ling_id = strlist[4].split(":")[1];
+                }
                 else
+                {
                     temp_loc.ling_id = "";
-            }else{
+                }
+            }
+            else
+            {
                 temp_loc.call_id = "";
                 temp_loc.ling_id = "";
             }
@@ -1079,20 +1358,21 @@ void Supervisor::readSetting(QString map_name){
     }
     setting_anot.endGroup();
 
-
     setting_anot.beginGroup("serving_locations");
     int total_serv_num = 0;
     int group_num = setting_anot.value("group").toInt();
     setting_anot.endGroup();
     pmap->location_groups.clear();
     int temp_id = 2;
-    for(int i=0; i<group_num; i++){
+    for(int i=0; i<group_num; i++)
+    {
         setting_anot.beginGroup("serving_"+QString::number(i));
         int serv_num = setting_anot.value("num").toInt();
         total_serv_num +=serv_num;
         QString group_name = setting_anot.value("name").toString();
         pmap->location_groups.append(group_name);
-        for(int j=0; j<serv_num; j++){
+        for(int j=0; j<serv_num; j++)
+        {
             QString loc_str = setting_anot.value("loc"+QString::number(j)).toString();
             QStringList strlist = loc_str.split(",");
             temp_loc.point = cv::Point2f(strlist[1].toFloat(),strlist[2].toFloat());
@@ -1100,31 +1380,36 @@ void Supervisor::readSetting(QString map_name){
             temp_loc.type = "Serving";
             temp_loc.name = strlist[0];
             temp_loc.group_name = pmap->location_groups[i];
-            if(strlist.size() > 4){
+            if(strlist.size() > 4)
+            {
                 temp_loc.call_id = strlist[4].split(":")[0];
                 if(strlist[4].split(":").size()>1)
+                {
                     temp_loc.ling_id = strlist[4].split(":")[1];
+                }
                 else
+                {
                     temp_loc.ling_id = "";
-            }else{
+                }
+            }
+            else
+            {
                 temp_loc.call_id = "";
                 temp_loc.ling_id = "";
             }
-
             temp_loc.group = i;
             pmap->serving_locations.push_back(temp_loc);
         }
         setting_anot.endGroup();
     }
 
-
-
     tts->readVoiceSetting();
     plog->write("[SUPERVISOR] READ SETTING : annot done");
 
     //Set Variable
     probot->trays.clear();
-    for(int i=0; i<setting.tray_num; i++){
+    for(int i=0; i<setting.tray_num; i++)
+    {
         ST_TRAY temp;
         probot->trays.push_back(temp);
     }
@@ -1132,94 +1417,106 @@ void Supervisor::readSetting(QString map_name){
     QMetaObject::invokeMethod(mMain, "update_ini");
 }
 
-QString Supervisor::makeLingbell(){
+QString Supervisor::makeLingbell()
+{
     int maxnum = 1;
-    for(int i=0; i<pmap->charging_locations.size(); i++){
-        if(pmap->charging_locations[i].ling_id.right(7).toInt() >= maxnum){
+    for(int i=0; i<pmap->charging_locations.size(); i++)
+    {
+        if(pmap->charging_locations[i].ling_id.right(7).toInt() >= maxnum)
+        {
             maxnum = pmap->charging_locations[i].ling_id.right(7).toInt();
         }
     }
-    for(int i=0; i<pmap->resting_locations.size(); i++){
-        if(pmap->resting_locations[i].ling_id.right(7).toInt() >= maxnum){
+    for(int i=0; i<pmap->resting_locations.size(); i++)
+    {
+        if(pmap->resting_locations[i].ling_id.right(7).toInt() >= maxnum)
+        {
             maxnum = pmap->resting_locations[i].ling_id.right(7).toInt();
         }
     }
-    for(int i=0; i<pmap->cleaning_locations.size(); i++){
-        if(pmap->cleaning_locations[i].ling_id.right(7).toInt() >= maxnum){
+    for(int i=0; i<pmap->cleaning_locations.size(); i++)
+    {
+        if(pmap->cleaning_locations[i].ling_id.right(7).toInt() >= maxnum)
+        {
             maxnum = pmap->cleaning_locations[i].ling_id.right(7).toInt();
         }
     }
-    for(int i=0; i<pmap->init_locations.size(); i++){
-        if(pmap->init_locations[i].ling_id.right(7).toInt() >= maxnum){
+    for(int i=0; i<pmap->init_locations.size(); i++)
+    {
+        if(pmap->init_locations[i].ling_id.right(7).toInt() >= maxnum)
+        {
             maxnum = pmap->init_locations[i].ling_id.right(7).toInt();
         }
     }
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].ling_id.right(7).toInt() >= maxnum){
+    for(int i=0; i<pmap->serving_locations.size(); i++)
+    {
+        if(pmap->serving_locations[i].ling_id.right(7).toInt() >= maxnum)
+        {
             maxnum = pmap->serving_locations[i].ling_id.right(7).toInt();
         }
     }
 
     return "F"+QString::asprintf("%07d",maxnum+1);
 }
-void Supervisor::resetLingbell(int id){
-    if(id>-1 && id<pmap->serving_locations.size()){
+void Supervisor::resetLingbell(int id)
+{
+    if(id>-1 && id<pmap->serving_locations.size())
+    {
         pmap->serving_locations[id].ling_id = "";
     }
 }
 
-void Supervisor::editLocation(QString type, int num){
+void Supervisor::editLocation(QString type, int num)
+{
     LOCATION temp;
-    if(maph->select_charging>-1){
+    if(maph->select_charging>-1)
+    {
         temp = pmap->charging_locations[maph->select_charging];
         pmap->charging_locations[maph->select_charging].point = probot->lastPose.point;
         pmap->charging_locations[maph->select_charging].angle = probot->lastPose.angle;
-    }else if(maph->select_resting>-1){
+    }
+    else if(maph->select_resting>-1)
+    {
         temp = pmap->resting_locations[maph->select_resting];
         pmap->resting_locations[maph->select_resting].point = probot->lastPose.point;
         pmap->resting_locations[maph->select_resting].angle = probot->lastPose.angle;
-    }else if(maph->select_cleaning>-1){
+    }
+    else if(maph->select_cleaning>-1)
+    {
         temp = pmap->cleaning_locations[maph->select_cleaning];
         pmap->cleaning_locations[maph->select_cleaning].point = probot->lastPose.point;
         pmap->cleaning_locations[maph->select_cleaning].angle = probot->lastPose.angle;
-    }else if(maph->select_init>-1){
+    }
+    else if(maph->select_init>-1)
+    {
         temp = pmap->init_locations[maph->select_init];
         pmap->init_locations[maph->select_init].point = probot->lastPose.point;
         pmap->init_locations[maph->select_init].angle = probot->lastPose.angle;
-    }else if(maph->select_serving>-1){
+    }
+    else if(maph->select_serving>-1)
+    {
         temp = pmap->serving_locations[maph->select_serving];
         pmap->serving_locations[maph->select_serving].point = probot->lastPose.point;
         pmap->serving_locations[maph->select_serving].angle = probot->lastPose.angle;
-
     }
 
-    plog->write("[ANNOTATION] Edit Location "+QString::number(num)+" : "+QString().asprintf("(%f,%f,%f) -> (%f,%f,%f)",
-                                                                                           temp.point.x,temp.point.y,temp.angle,
-                                                                                                probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
+    plog->write("[ANNOTATION] Edit Location " + QString::number(num) + " : " + QString().asprintf("(%f,%f,%f) -> (%f,%f,%f)",
+                                                                                            temp.point.x,temp.point.y,temp.angle,
+                                                                                            probot->lastPose.point.x,probot->lastPose.point.y,probot->lastPose.angle));
 }
 
-void Supervisor::map_reset(){
+void Supervisor::map_reset()
+{
     maph->setMapLayer();
 }
 
-void Supervisor::setSystemVolume(int volume){
-    qDebug() << "setSystemVolume" << volume;
-    // setMasterVolume(volume);
+void Supervisor::setSystemVolume(int volume)
+{
     checker->setSystemVolume(volume);
 }
 
-// int Supervisor::getLocationNum(QString group, QString name){
-//     for(int i=0; i<pmap->locations.size(); i++){
-//         if(pmap->locations[i].group == group){
-//             if(pmap->locations[i].name == name){
-//                 return i;
-//             }
-//         }
-//     }
-//     return -1;
-// }
-
-void Supervisor::saveLocation(QString type, int groupnum, QString name){
+void Supervisor::saveLocation(QString type, int groupnum, QString name)
+{
     LOCATION temp;
     temp.type = type;
     temp.name = name;
@@ -1228,10 +1525,12 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
     temp.point = setAxisBack(maph->new_location.point);
     temp.angle = setAxisBack(maph->new_location.angle);
 
-    if(pmap->location_groups.size() == 0){
+    if(pmap->location_groups.size() == 0)
+    {
         pmap->location_groups.push_back("Default");
     }
-    if(groupnum < pmap->location_groups.size()){
+    if(groupnum < pmap->location_groups.size())
+    {
         temp.group_name = pmap->location_groups[groupnum];
     }
 
@@ -1247,174 +1546,254 @@ void Supervisor::saveLocation(QString type, int groupnum, QString name){
     //     }
     // }
 
-    if(type == "Serving"){
+    if(type == "Serving")
+    {
         plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
         pmap->serving_locations.push_back(temp);
-    }else if(type == "Charging"){
-        if(pmap->charging_locations.size() > 0){
+    }
+    else if(type == "Charging")
+    {
+        if(pmap->charging_locations.size() > 0)
+        {
             plog->write("[COMMAND] saveLocation (Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->charging_locations[0] = temp;
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->charging_locations.push_back(temp);
         }
-    }else if(type == "Cleaning"){
-        if(pmap->cleaning_locations.size() > 0){
+    }
+    else if(type == "Cleaning")
+    {
+        if(pmap->cleaning_locations.size() > 0)
+        {
             plog->write("[COMMAND] saveLocation (Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->cleaning_locations[0] = temp;
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->cleaning_locations.push_back(temp);
         }
-    }else if(type == "Resting"){
-        if(pmap->resting_locations.size() > 0){
+    }
+    else if(type == "Resting")
+    {
+        if(pmap->resting_locations.size() > 0)
+        {
             plog->write("[COMMAND] saveLocation (Overwrite): "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->resting_locations[0] = temp;
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] saveLocation : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
             pmap->resting_locations.push_back(temp);
         }
-    }else if(type == "Init"){
+    }
+    else if(type == "Init")
+    {
         plog->write("[COMMAND] saveLocation (init) : "+type+","+name+","+QString().asprintf("%f,%f,%f",temp.point.x, temp.point.y, temp.angle));
         pmap->init_locations.push_back(temp);
     }
 
     pmap->annot_edit_location = true;
-
     saveAnnotation(maph->map_name, false);
 
 }
 ////*********************************************  OBJECTING 관련   ***************************************************////
-void Supervisor::addObject(int x, int y){
+void Supervisor::addObject(int x, int y)
+{
     maph->addObject(x,y);
 }
-void Supervisor::addObjectPoint(int x, int y){
+
+void Supervisor::addObjectPoint(int x, int y)
+{
     maph->addObjectPoint(x,y);
 }
-void Supervisor::setObject(int x, int y){
+
+void Supervisor::setObject(int x, int y)
+{
     maph->setObject(x,y);
 }
-void Supervisor::editObjectStart(int x, int y){
+
+void Supervisor::editObjectStart(int x, int y)
+{
     maph->editObjectStart(x,y);
 }
-void Supervisor::editObject(int x, int y){
+
+void Supervisor::editObject(int x, int y)
+{
     maph->editObject(x,y);
 }
-void Supervisor::saveObject(){
+
+void Supervisor::saveObject()
+{
     maph->saveObject();
     maph->setObjPose();
 }
-void Supervisor::clearObject(){
+
+void Supervisor::clearObject()
+{
     qDebug() << "clear";
     maph->clearObject();
 }
-void Supervisor::clearObjectAll(){
+
+void Supervisor::clearObjectAll()
+{
     qDebug() << "clear all";
     maph->clearObjectAll();
 }
-int Supervisor::getObjectNum(int x, int y){
+
+int Supervisor::getObjectNum(int x, int y)
+{
     return maph->getObjectNum(x,y);
 }
-int Supervisor::getObjectPointNum(int x, int y){
+
+int Supervisor::getObjectPointNum(int x, int y)
+{
     return maph->getObjectPointNum(x,y);
 }
-void Supervisor::selectObject(int num){
+
+void Supervisor::selectObject(int num)
+{
     maph->selectObject(num);
 }
-bool Supervisor::getObjectflag(){
+
+bool Supervisor::getObjectflag()
+{
     return (ipc->flag_objecting||maph->getObjectFlag());
 }
-void Supervisor::undoObject(){
+
+void Supervisor::undoObject()
+{
     maph->undoObject();
 }
 
-
 //-------------------------------------------------- DB ------------------------------------------------//
-void Supervisor::setTableColNum(int col_num){
+void Supervisor::setTableColNum(int col_num)
+{
     setSetting("setting","UI/table_col_num",QString::number(col_num));
     readSetting();
 }
-int Supervisor::getTrayNum(){
+
+int Supervisor::getTrayNum()
+{
     return setting.tray_num;
 }
-QString Supervisor::getRobotType(){
+
+QString Supervisor::getRobotType()
+{
     return getSetting("setting","ROBOT_TYPE","type");
 }
-void Supervisor::setCamera(QString left, QString right){
+
+void Supervisor::setCamera(QString left, QString right)
+{
     setSetting("static","SENSOR/left_camera_serial",left);
     setSetting("static","SENSOR/right_camera_serial",right);
 //    readSetting();
 }
-QString Supervisor::getLeftCamera(){
+
+QString Supervisor::getLeftCamera()
+{
     return getSetting("static","SENSOR","left_camera_serial");
 }
-QString Supervisor::getRightCamera(){
+
+QString Supervisor::getRightCamera()
+{
     return getSetting("static","SENSOR","right_camera_serial");
 }
-int Supervisor::getCameraNum(){
+
+int Supervisor::getCameraNum()
+{
     return pmap->camera_info.size();
 }
-int Supervisor::getRunawayState(){
+
+int Supervisor::getRunawayState()
+{
     return probot->drawing_state;
 }
-QString Supervisor::getCameraSerial(int num){
-    try{
-        if(num > -1 && num < pmap->camera_info.size()){
+
+QString Supervisor::getCameraSerial(int num)
+{
+    try
+    {
+        if(num > -1 && num < pmap->camera_info.size())
+        {
             return pmap->camera_info[num].serial;
-        }else{
+        }
+        else
+        {
             return "";
         }
-    }catch(...){
+    }
+    catch(...)
+    {
         qDebug() << "Something Wrong to get Camera Serial " << num << pmap->camera_info.size();
         return "";
     }
 }
+
 //------------------------------------------------- SLAM COMMAND --------------------------------------//
-void Supervisor::requestCamera(){
+void Supervisor::requestCamera()
+{
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_REQ_CAMERA;
     ipc->set_cmd(send_msg);
 }
-void Supervisor::drawingRunawayStart(){
+
+void Supervisor::drawingRunawayStart()
+{
     maph->startDrawingTline();
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_DRAW_LINE_START;
     ipc->set_cmd(send_msg);
 }
 
-void Supervisor::drawingRunawayStop(){
+void Supervisor::drawingRunawayStop()
+{
     maph->stopDrawingTline();
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_DRAW_LINE_SAVE;
     ipc->set_cmd(send_msg);
 }
-void Supervisor::slam_map_reload(QString filename, int mode){
+
+void Supervisor::slam_map_reload(QString filename, int mode)
+{
     IPCHandler::CMD send_msg;
-    if(mode == 0){
+    if(mode == HARD_RELOAD)
+    {
         send_msg.cmd = ROBOT_CMD_MAP_RELOAD;
-        memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
-        ipc->set_cmd(send_msg,"MAP HARD RELOAD");
+        memcpy(send_msg.params, filename.toUtf8(), sizeof(char)*255);
+        ipc->set_cmd(send_msg, "MAP HARD RELOAD");
+
         probot->localization_state = 0;
         probot->motor[0].status = 0;
         probot->motor[1].status = 0;
         probot->localization_confirm = false;
-    }else{
+    }
+    else
+    {
         send_msg.cmd = ROBOT_CMD_MAP_SOFT_RELOAD;
-        memcpy(send_msg.params,filename.toUtf8(),sizeof(char)*255);
+        memcpy(send_msg.params, filename.toUtf8(), sizeof(char)*255);
         ipc->set_cmd(send_msg,"MAP SOFT RELOAD");
     }
 }
-void Supervisor::slam_ini_reload(){
+
+void Supervisor::slam_ini_reload()
+{
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_SETTING_RELOAD;
     ipc->set_cmd(send_msg,"INI RELOAD");
 }
 
 ////*********************************************  INIT PAGE 관련   ***************************************************////
-bool Supervisor::isConnectServer(){
+bool Supervisor::isConnectServer()
+{
     return server->connection && server->first_response;
 }
-void Supervisor::deleteEditedMap(){
+
+void Supervisor::deleteEditedMap()
+{
     plog->write("[USER INPUT] Remove Edited Map Data");
     QFile *file = new QFile(QDir::homePath()+"/RB_MOBILE/maps/"+pmap->map_name+"/map_edited.png");
     file->remove();
@@ -1434,7 +1813,8 @@ void Supervisor::deleteEditedMap(){
     slam_map_reload(pmap->map_name);
 }
 
-void Supervisor::deleteAnnotation(){
+void Supervisor::deleteAnnotation()
+{
     plog->write("[USER INPUT] Remove Annotation Data");
 
     pmap->charging_locations.clear();
@@ -1450,466 +1830,778 @@ void Supervisor::deleteAnnotation(){
     file->deleteLater();
     file2->deleteLater();
     saveAnnotation(pmap->map_name);
-
 }
-bool Supervisor::isAvailableAnnotation(){
-    if(QFile::exists(getAnnotPath(pmap->map_name))){
-        if(getLocationNum("Charging")>0 && getLocationNum("Resting")>0){
+
+bool Supervisor::isAvailableAnnotation()
+{
+    if(QFile::exists(getAnnotPath(pmap->map_name)))
+    {
+        if(getLocationNum("Charging")>0 && getLocationNum("Resting")>0)
+        {
             return true;
-        }else{
+        }
+        else
+        {
             return false;
         }
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::isExistAnnotation(QString name){
+
+bool Supervisor::isExistAnnotation(QString name)
+{
     QString file_meta = getMetaPath(name);
     QString file_annot = getAnnotPath(name);
 
     return QFile::exists(file_annot);
 }
-bool Supervisor::isExistTravelMap(QString name){
+
+bool Supervisor::isExistTravelMap(QString name)
+{
     QString file = getTravelPath(name);
     return QFile::exists(file);
 }
 
-int Supervisor::getAvailableMap(){
+int Supervisor::getAvailableMap()
+{
     std::string path = QString(QDir::homePath()+"/RB_MOBILE/maps").toStdString();
     QDir directory(path.c_str());
     QStringList FileList = directory.entryList();
     map_list.clear();
-    for(int i=0; i<FileList.size(); i++){
-        if(FileList[i] == "." || FileList[i] == ".."){
+    for(int i=0; i<FileList.size(); i++)
+    {
+        if(FileList[i] == "." || FileList[i] == "..")
+        {
             continue;
         }
+
         QString path3 = QDir::homePath() + "/RB_MOBILE/maps/"+FileList[i];
         QFileInfo info(path3);
-        if(!info.isDir()){
+        if(!info.isDir())
+        {
             continue;
         }
-//        QStringList namelist = FileList[i].split(".");
-//        if(namelist.size() > 1){
-//            continue;
-//        }
+
         std::string path2 = QString(QDir::homePath()+"/RB_MOBILE/maps/"+FileList[i]).toStdString();
         QDir direc2(path2.c_str());
         QStringList detailList = direc2.entryList();
         bool available = false;
-        for(int j=0; j<detailList.size(); j++){
-            if(detailList[j].left(4) == "map_"){
+        for(int j=0; j<detailList.size(); j++)
+        {
+            if(detailList[j].left(4) == "map_")
+            {
                 available = true;
                 break;
             }
-
         }
-        if(available){
+
+        if(available)
+        {
             map_list.push_back(FileList[i]);
         }
     }
+
     return map_list.size();
 }
-QString Supervisor::getAvailableMapPath(int num){
-    if(num>-1 && num<map_list.size()){
+
+QString Supervisor::getAvailableMapPath(int num)
+{
+    if(num>-1 && num<map_list.size())
+    {
         return map_list[num];
     }
     return "";
 }
-bool Supervisor::isExistMap(QString name){
-    if(name==""){
+
+bool Supervisor::isExistMap(QString name)
+{
+    if(name == "")
+    {
         name = getMapname();
     }
 
-    if(QFile::exists(getMapPath(name))){
-//        if(QFile::exists(getRawMapPath(name))){
+    if(QFile::exists(getMapPath(name)))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
-//        }else{
-//            //make map_raw.png
-//            QFile::copy(getMapPath(name),getRawMapPath(name));
-//        }
-        return true;
-    }else{
-        return false;
-    }
-}
-bool Supervisor::isExistTlineMap(QString name){
-    if(name==""){
+bool Supervisor::isExistTlineMap(QString name)
+{
+    if(name=="")
+    {
         name = getMapname();
     }
-    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_travel_line.png")){
+
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_travel_line.png"))
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::isExistVelMap(QString name){
-    if(name==""){
+
+bool Supervisor::isExistVelMap(QString name)
+{
+    if(name=="")
+    {
         name = getMapname();
     }
-    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_velocity.png")){
+
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_velocity.png"))
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::isExistObjectMap(QString name){
-    if(name==""){
+
+bool Supervisor::isExistObjectMap(QString name)
+{
+    if(name=="")
+    {
         name = getMapname();
     }
-    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_obs.png")){
+
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_obs.png"))
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::isExistAvoidMap(QString name){
-    if(name==""){
+
+bool Supervisor::isExistAvoidMap(QString name)
+{
+    if(name=="")
+    {
         name = getMapname();
     }
-    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_avoid.png")){
+
+    if(QFile::exists(QDir::homePath()+"/RB_MOBILE/maps/"+name+"/map_avoid.png"))
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::isExistRawMap(QString name){
-    if(QFile::exists(getRawMapPath(name))){
+
+bool Supervisor::isExistRawMap(QString name)
+{
+    if(QFile::exists(getRawMapPath(name)))
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::isLoadMap(){
+
+bool Supervisor::isLoadMap()
+{
     //기본 설정된 맵파일 확인
-    if(QFile::exists(getMapPath(getMapname()))){
+    if(QFile::exists(getMapPath(getMapname())))
+    {
         return true;
     }
     return false;
 }
-void Supervisor::removeMap(QString filename){
+
+void Supervisor::removeMap(QString filename)
+{
     plog->write("[USER INPUT] Remove Map : "+filename);
     QDir dir(QDir::homePath()+"/RB_MOBILE/maps/" + filename);
 
-    if(dir.removeRecursively()){
+    if(dir.removeRecursively())
+    {
         qDebug() << "true";
-    }else{
+    }
+    else
+    {
         qDebug() << "false";
     }
 }
-bool Supervisor::isExistRobotINI(){
+
+bool Supervisor::isExistRobotINI()
+{
     QString file = getIniPath("robot");
     return QFile::exists(file);
 }
-bool Supervisor::checkINI(){
-    QString file = getIniPath("static");
-    if(QFile::exists(file)){
-        if(getSetting("static","SENSOR","right_camera_serial")=="" || getSetting("static","SENSOR","left_camera_serial")==""){
-            return false;
-        }
-        return true;
-    }else{
-        return false;
-    }
-}
-void Supervisor::checkRobotINI(){
-    //1. Update_config==========================================================
-    if(getSetting("update","MOTOR","gear_ratio") == "")
-        setSetting("update","MOTOR/gear_ratio","1.0");
-    if(getSetting("update","MOTOR","k_d") == "")
-        setSetting("update","MOTOR/k_d","4400.0");
-    if(getSetting("update","MOTOR","k_i") == "")
-        setSetting("update","MOTOR/k_i","0.0");
-    if(getSetting("update","MOTOR","k_p") == "")
-        setSetting("update","MOTOR/k_p","100.0");
-    if(getSetting("update","MOTOR","left_id") == ""&&getSetting("update","MOTOR","right_id") == ""){
-        setSetting("update","MOTOR/left_id","1");
-        setSetting("update","MOTOR/right_id","0");
-    }
-    if(getSetting("update","MOTOR","limit_v") == "")
-        setSetting("update","MOTOR/limit_v","2");
-    if(getSetting("update","MOTOR","limit_v_acc") == "")
-        setSetting("update","MOTOR/limit_v_acc","1.5");
-    if(getSetting("update","MOTOR","limit_w") == "")
-        setSetting("update","MOTOR/limit_w","180.0");
-    if(getSetting("update","MOTOR","limit_w_acc") == "")
-        setSetting("update","MOTOR/limit_w_acc","180.0");
-    if(getSetting("update","MOTOR","wheel_dir") == "")
-        setSetting("update","MOTOR/wheel_dir","-1");
 
+bool Supervisor::checkINI()
+{
+    bool is_ini = false;
+    QString file = getIniPath("static");
+    if(QFile::exists(file))
+    {
+        if(!(getSetting("static","SENSOR","right_camera_serial")=="" || getSetting("static","SENSOR","left_camera_serial")==""))
+        {
+            is_ini = true;
+        }
+    }
+
+    return is_ini;
+}
+
+void Supervisor::checkRobotINI()
+{
+    if(getSetting("update","MOTOR","gear_ratio") == "")
+    {
+        setSetting("update","MOTOR/gear_ratio", "1.0");
+    }
+
+    if(getSetting("update","MOTOR","k_d") == "")
+    {
+        setSetting("update","MOTOR/k_d", "4400.0");
+    }
+
+    if(getSetting("update","MOTOR","k_i") == "")
+    {
+        setSetting("update","MOTOR/k_i", "0.0");
+    }
+
+    if(getSetting("update","MOTOR","k_p") == "")
+    {
+        setSetting("update","MOTOR/k_p", "100.0");
+    }
+    if(getSetting("update","MOTOR","left_id") == "" && getSetting("update","MOTOR","right_id") == "")
+    {
+        setSetting("update","MOTOR/left_id", "1");
+        setSetting("update","MOTOR/right_id", "0");
+    }
+
+    if(getSetting("update","MOTOR","limit_v") == "")
+    {
+        setSetting("update","MOTOR/limit_v", "2");
+    }
+
+    if(getSetting("update","MOTOR","limit_v_acc") == "")
+    {
+        setSetting("update","MOTOR/limit_v_acc", "1.5");
+    }
+
+    if(getSetting("update","MOTOR","limit_w") == "")
+    {
+        setSetting("update","MOTOR/limit_w", "180.0");
+    }
+
+    if(getSetting("update","MOTOR","limit_w_acc") == "")
+    {
+        setSetting("update","MOTOR/limit_w_acc", "180.0");
+    }
+
+    if(getSetting("update","MOTOR","wheel_dir") == "")
+    {
+        setSetting("update","MOTOR/wheel_dir", "-1");
+    }
 
     if(getSetting("setting","UI","box_size") == "")
-        setSetting("setting","UI/box_size","1");
+    {
+        setSetting("setting","UI/box_size", "1");
+    }
 
     if(getSetting("update","DRIVING","cur_preset") == "")
-        setSetting("update","DRIVING/cur_preset","3");
+    {
+        setSetting("update","DRIVING/cur_preset", "3");
+    }
+
     if(getSetting("update","DRIVING","comeback_preset") == "")
-        setSetting("update","DRIVING/comeback_preset","3");
+    {
+        setSetting("update","DRIVING/comeback_preset", "3");
+    }
+
     if(getSetting("update","DRIVING","pause_check_ms") == "")
-        setSetting("update","DRIVING/pause_check_ms","500");
+    {
+        setSetting("update","DRIVING/pause_check_ms", "500");
+    }
+
     if(getSetting("update","DRIVING","pause_motor_current") == "")
-        setSetting("update","DRIVING/pause_motor_current","3000");
+    {
+        setSetting("update","DRIVING/pause_motor_current", "3000");
+    }
 
     if(getSetting("update","DRIVING","goal_dist") == "")
-        setSetting("update","DRIVING/goal_dist","0.05");
+    {
+        setSetting("update","DRIVING/goal_dist", "0.1");
+    }
+
     if(getSetting("update","DRIVING","goal_th") == "")
-        setSetting("update","DRIVING/goal_th","1");
+    {
+        setSetting("update","DRIVING/goal_th", "3");
+    }
+
     if(getSetting("update","DRIVING","goal_near_dist") == "")
-        setSetting("update","DRIVING/goal_near_dist","0.3");
+    {
+        setSetting("update","DRIVING/goal_near_dist", "0.3");
+    }
+
     if(getSetting("update","DRIVING","goal_near_th") == "")
-        setSetting("update","DRIVING/goal_near_th","15");
-    if(getSetting("update","DRIVING","goal_v") == "")
-        setSetting("update","DRIVING/goal_v","0.05");
-    if(getSetting("update","DRIVING","k_curve") == "")
-        setSetting("update","DRIVING/k_curve","0.005");
-    if(getSetting("update","DRIVING","k_v") == "")
-        setSetting("update","DRIVING/k_v","1.5");
-    if(getSetting("update","DRIVING","k_w") == "")
-        setSetting("update","DRIVING/k_w","1.5");
-    if(getSetting("update","DRIVING","k_dd") == "")
-        setSetting("update","DRIVING/k_dd","1.25");
-    if(getSetting("update","DRIVING","path_out_dist") == "")
-        setSetting("update","DRIVING/path_out_dist","1");
+    {
+        setSetting("update","DRIVING/goal_near_th", "15");
+    }
+
     if(getSetting("update","DRIVING","st_v") == "")
+    {
         setSetting("update","DRIVING/st_v","0.05");
+    }
+
+    if(getSetting("update","DRIVING","goal_v") == "")
+    {
+        setSetting("update","DRIVING/goal_v", "0.05");
+    }
+
+    if(getSetting("update","DRIVING","k_v") == "")
+    {
+        setSetting("update","DRIVING/k_v", "1.0");
+    }
+
+    if(getSetting("update","DRIVING","k_w") == "")
+    {
+        setSetting("update","DRIVING/k_w", "1.0");
+    }
+
+    if(getSetting("update","DRIVING","path_out_dist") == "")
+    {
+        setSetting("update","DRIVING/path_out_dist","1");
+    }
+
     if(getSetting("update","DRIVING","look_ahead_dist") == "")
+    {
         setSetting("update","DRIVING/look_ahead_dist","1");
+    }
+
     if(getSetting("update","DRIVING","min_look_ahead_dist") == "")
-        setSetting("update","DRIVING/min_look_ahead_dist","0.1");
+    {
+        setSetting("update","DRIVING/min_look_ahead_dist","0.5");
+    }
+
     if(getSetting("update","DRIVING","path_delta_v_acc_gain") == "")
-        setSetting("update","DRIVING/path_delta_v_acc_gain","1");
+    {
+        setSetting("update","DRIVING/path_delta_v_acc_gain", "1");
+    }
+
     if(getSetting("update","DRIVING","path_delta_v_dec_gain") == "")
-        setSetting("update","DRIVING/path_delta_v_dec_gain","0.5");
-    if(getSetting("update","DRIVING","path_ref_v_gain") == "")
-        setSetting("update","DRIVING/path_ref_v_gain","0.8");
-    if(getSetting("update","DRIVING","path_shifting_val") == "")
-        setSetting("update","DRIVING/path_shifting_val","0");
+    {
+        setSetting("update","DRIVING/path_delta_v_dec_gain", "0.5");
+    }
 
     if(getSetting("update","SLAM","slam_submap_cnt") == "")
-        setSetting("update","SLAM/slam_submap_cnt","100");
-    if(getSetting("update","SLAM","slam_lc_dist") == "")
-        setSetting("update","SLAM/slam_lc_dist","10");
-    if(getSetting("update","SLAM","slam_lc_icp_dist") == "")
-        setSetting("update","SLAM/slam_lc_icp_dist","2");
-    if(getSetting("update","SLAM","map_size") == "")
-        setSetting("update","SLAM/map_size","1000");
-    if(getSetting("update","SLAM","grid_size") == "")
-        setSetting("update","SLAM/grid_size","0.05");
+    {
+        setSetting("update","SLAM/slam_submap_cnt", "300");
+    }
 
+    if(getSetting("update","SLAM","slam_lc_dist") == "")
+    {
+        setSetting("update","SLAM/slam_lc_dist", "5.0");
+    }
+
+    if(getSetting("update","SLAM","slam_lc_icp_dist") == "")
+    {
+        setSetting("update","SLAM/slam_lc_icp_dist", "0.5");
+    }
+
+    if(getSetting("update","SLAM","map_size") == "")
+    {
+        setSetting("update","SLAM/map_size", "1000");
+    }
+
+    if(getSetting("update","SLAM","grid_size") == "")
+    {
+        setSetting("update","SLAM/grid_size", "0.05");
+    }
 
     if(getSetting("update","LOCALIZATION","icp_dist") == "")
-        setSetting("update","LOCALIZATION/icp_dist","0.2");
+    {
+        setSetting("update","LOCALIZATION/icp_dist", "0.2");
+    }
+
     if(getSetting("update","LOCALIZATION","icp_error") == "")
-        setSetting("update","LOCALIZATION/icp_error","0.1");
+    {
+        setSetting("update","LOCALIZATION/icp_error", "0.2");
+    }
+
     if(getSetting("update","LOCALIZATION","icp_near") == "")
-        setSetting("update","LOCALIZATION/icp_near","1");
+    {
+        setSetting("update","LOCALIZATION/icp_near", "0.5");
+    }
+
     if(getSetting("update","LOCALIZATION","icp_odometry_weight") == "")
-        setSetting("update","LOCALIZATION/icp_odometry_weight","0.8");
+    {
+        setSetting("update","LOCALIZATION/icp_odometry_weight", "0.5");
+    }
+
     if(getSetting("update","LOCALIZATION","icp_ratio") == "")
-        setSetting("update","LOCALIZATION/icp_ratio","0.5");
+    {
+        setSetting("update","LOCALIZATION/icp_ratio","0.3");
+    }
+
     if(getSetting("update","LOCALIZATION","icp_repeat_dist") == "")
-        setSetting("update","LOCALIZATION/icp_repeat_dist","0.1");
+    {
+        setSetting("update","LOCALIZATION/icp_repeat_dist","0.05");
+    }
+
     if(getSetting("update","LOCALIZATION","icp_repeat_time") == "")
-        setSetting("update","LOCALIZATION/icp_repeat_time","0.3");
+    {
+        setSetting("update","LOCALIZATION/icp_repeat_time","0.1");
+    }
 
 
     //2. Setting_config=========================================================
     if(getSetting("setting","UI","group_row_num") == "")
+    {
         setSetting("setting","UI/group_row_num","2");
+    }
     if(getSetting("setting","UI","group_col_num") == "")
+    {
         setSetting("setting","UI/group_col_num","4");
+    }
+
     if(getSetting("setting","UI","table_row_num") == "")
+    {
         setSetting("setting","UI/table_row_num","5");
+    }
+
     if(getSetting("setting","UI","table_col_num") == "")
+    {
         setSetting("setting","UI/table_col_num","1");
+    }
+
     if(getSetting("setting","UI","moving_face") == "")
+    {
         setSetting("setting","UI/moving_face","1");
+    }
+
     if(getSetting("setting","UI","language") == "")
+    {
         setSetting("setting","UI/language","korean");
+    }
+
     if(getSetting("setting","UI","voice_mode") == "")
+    {
         setSetting("setting","UI/voice_mode","basic");
+    }
+
     if(getSetting("setting","UI","program_branch") == "")
+    {
         setSetting("setting","UI/program_branch","master");
+    }
+
     if(getSetting("setting","UI","voice_language") == "")
+    {
         setSetting("setting","UI/voice_language","ko");
+    }
+
     if(getSetting("setting","UI","voice_name") == "")
+    {
         setSetting("setting","UI/voice_name","none");
+    }
+
     if(getSetting("setting","UI","voice_speed") == "")
+    {
         setSetting("setting","UI/voice_speed","0");
+    }
+
     if(getSetting("setting","UI","voice_pitch") == "")
+    {
         setSetting("setting","UI/voice_pitch","0");
+    }
+
     if(getSetting("setting","UI","voice_alpha") == "")
+    {
         setSetting("setting","UI/voice_alpha","0");
+    }
+
     if(getSetting("setting","UI","voice_emotion") == "")
+    {
         setSetting("setting","UI/voice_emotion","0");
+    }
+
     if(getSetting("setting","UI","voice_emotion_strength") == "")
+    {
         setSetting("setting","UI/voice_emotion_strength","1");
+    }
+
     if(getSetting("setting","UI","volume_bgm") == "")
+    {
         setSetting("setting","UI/volume_bgm","50");
+    }
+
     if(getSetting("setting","UI","volume_voice") == "")
+    {
         setSetting("setting","UI/volume_voice","50");
+    }
+
     if(getSetting("setting","UI","volume_button") == "")
+    {
         setSetting("setting","UI/volume_button","50");
+    }
+
     if(getSetting("setting","UI","user_passwd") == "")
+    {
         setSetting("setting","UI/user_passwd","1111");
+    }
 
     if(getSetting("setting","CALL","call_maximum") == "")
+    {
         setSetting("setting","CALL/call_maximum","1");
+    }
 
     if(getSetting("setting","CALL","use_lingbell") == "")
+    {
         setSetting("setting","CALL/use_lingbell","false");
+    }
 
     if(getSetting("setting","CALL","use_lingbell_repeat") == "")
+    {
         setSetting("setting","CALL/use_lingbell_repeat","false");
+    }
 
     if(getSetting("setting","CALL","lingbell_time") == "")
+    {
         setSetting("setting","CALL/lingbell_time","5");
+    }
 
-    if(getSetting("setting","PRESET1","name")==""){
+    if(getSetting("setting","PRESET1","name")=="")
+    {
         setSetting("setting","PRESET1/name","매우느리게");
-        setSetting("setting","PRESET1/limit_pivot","30.0");
-        setSetting("setting","PRESET1/limit_pivot_acc","60");
+        setSetting("setting","PRESET1/limit_pivot","45");
+        setSetting("setting","PRESET1/limit_pivot_acc","360");
         setSetting("setting","PRESET1/limit_v","0.2");
         setSetting("setting","PRESET1/limit_v_acc","0.3");
-        setSetting("setting","PRESET1/limit_w","75");
-        setSetting("setting","PRESET1/limit_w_acc","90");
+        setSetting("setting","PRESET1/limit_w","40");
+        setSetting("setting","PRESET1/limit_w_acc","360");
     }
-    if(getSetting("setting","PRESET2","name")==""){
+
+    if(getSetting("setting","PRESET2","name")=="")
+    {
         setSetting("setting","PRESET2/name","느리게");
-        setSetting("setting","PRESET2/limit_pivot","30");
-        setSetting("setting","PRESET2/limit_pivot_acc","60");
+        setSetting("setting","PRESET2/limit_pivot","45");
+        setSetting("setting","PRESET2/limit_pivot_acc","360");
         setSetting("setting","PRESET2/limit_v","0.4");
         setSetting("setting","PRESET2/limit_v_acc","0.3");
-        setSetting("setting","PRESET2/limit_w","75");
-        setSetting("setting","PRESET2/limit_w_acc","90");
+        setSetting("setting","PRESET2/limit_w","40");
+        setSetting("setting","PRESET2/limit_w_acc","360");
     }
-    if(getSetting("setting","PRESET3","name")==""){
+
+    if(getSetting("setting","PRESET3","name")=="")
+    {
         setSetting("setting","PRESET3/name","보통");
-        setSetting("setting","PRESET3/limit_pivot","30");
-        setSetting("setting","PRESET3/limit_pivot_acc","60");
+        setSetting("setting","PRESET3/limit_pivot","45");
+        setSetting("setting","PRESET3/limit_pivot_acc","360");
         setSetting("setting","PRESET3/limit_v","0.6");
         setSetting("setting","PRESET3/limit_v_acc","0.3");
-        setSetting("setting","PRESET3/limit_w","75");
-        setSetting("setting","PRESET3/limit_w_acc","90");
+        setSetting("setting","PRESET3/limit_w","40");
+        setSetting("setting","PRESET3/limit_w_acc","360");
     }
-    if(getSetting("setting","PRESET4","name")==""){
+
+    if(getSetting("setting","PRESET4","name")=="")
+    {
         setSetting("setting","PRESET4/name","빠르게");
-        setSetting("setting","PRESET4/limit_pivot","30");
-        setSetting("setting","PRESET4/limit_pivot_acc","60");
+        setSetting("setting","PRESET4/limit_pivot","45");
+        setSetting("setting","PRESET4/limit_pivot_acc","360");
         setSetting("setting","PRESET4/limit_v","0.8");
         setSetting("setting","PRESET4/limit_v_acc","0.3");
-        setSetting("setting","PRESET4/limit_w","75");
-        setSetting("setting","PRESET4/limit_w_acc","90");
+        setSetting("setting","PRESET4/limit_w","40");
+        setSetting("setting","PRESET4/limit_w_acc","360");
     }
-    if(getSetting("setting","PRESET5","name")==""){
+
+    if(getSetting("setting","PRESET5","name")=="")
+    {
         setSetting("setting","PRESET5/name","매우빠르게");
-        setSetting("setting","PRESET5/limit_pivot","30");
-        setSetting("setting","PRESET5/limit_pivot_acc","60");
+        setSetting("setting","PRESET5/limit_pivot","45");
+        setSetting("setting","PRESET5/limit_pivot_acc","360");
         setSetting("setting","PRESET5/limit_v","1.0");
         setSetting("setting","PRESET5/limit_v_acc","0.3");
-        setSetting("setting","PRESET5/limit_w","75");
-        setSetting("setting","PRESET5/limit_w_acc","90");
+        setSetting("setting","PRESET5/limit_w","40");
+        setSetting("setting","PRESET5/limit_w_acc","360");
     }
 
     if(getSetting("setting","ROBOT_TYPE","type") == "")
+    {
         setSetting("setting","ROBOT_TYPE/type","BOTH");
+    }
+
     if(getSetting("setting","ROBOT_TYPE","model") == "")
+    {
         setSetting("setting","ROBOT_TYPE/model","None");
+    }
+
     if(getSetting("setting","ROBOT_TYPE","serial_num") == "")
+    {
         setSetting("setting","ROBOT_TYPE/serial_num","0");
+    }
+
     if(getSetting("setting","ROBOT_TYPE","tray_num") == "")
+    {
         setSetting("setting","ROBOT_TYPE/tray_num","2");
+    }
 
     if(getSetting("setting","USE_SLAM","use_uicmd") == "")
+    {
         setSetting("setting","USE_SLAM/use_uicmd","true");
-    if(getSetting("setting","USE_SLAM","use_early_stop_resting") == "")
-        setSetting("setting","USE_SLAM/use_early_stop_resting","false");
-    if(getSetting("setting","USE_SLAM","use_early_stop_serving") == "")
-        setSetting("setting","USE_SLAM/use_early_stop_serving","false");
-    if(getSetting("setting","USE_SLAM","use_obs_preview") == "")
-        setSetting("setting","USE_SLAM/use_obs_preview","true");
+    }
 
-    if(getSetting("setting","SENSOR","cam_exposure")=="")
-        setSetting("setting","SENSOR/cam_exposure","2000");
+    if(getSetting("setting","USE_SLAM","use_early_stop_resting") == "")
+    {
+        setSetting("setting","USE_SLAM/use_early_stop_resting","false");
+    }
+
+    if(getSetting("setting","USE_SLAM","use_early_stop_serving") == "")
+    {
+        setSetting("setting","USE_SLAM/use_early_stop_serving","false");
+    }
+
+    if(getSetting("setting","USE_SLAM","use_obs_preview") == "")
+    {
+        setSetting("setting","USE_SLAM/use_obs_preview","true");
+    }
+
     if(getSetting("setting","SENSOR","mask")=="")
+    {
         setSetting("setting","SENSOR/mask","10.0");
+    }
+
     if(getSetting("setting","SENSOR","max_range")=="")
+    {
         setSetting("setting","SENSOR/max_range","40.0");
+    }
 
     if(getSetting("setting","OBSTACLE","obs_check_range")=="")
+    {
         setSetting("setting","OBSTACLE/obs_check_range","2.5");
+    }
+
     if(getSetting("setting","OBSTACLE","obs_deadzone")=="")
-        setSetting("setting","OBSTACLE/obs_deadzone","0.4");
+    {
+        setSetting("setting","OBSTACLE/obs_deadzone","0.35");
+    }
+
     if(getSetting("setting","OBSTACLE","obs_preview_time")=="")
+    {
         setSetting("setting","OBSTACLE/obs_preview_time","3");
+    }
+
     if(getSetting("setting","OBSTACLE","obs_wait_time")=="")
+    {
         setSetting("setting","OBSTACLE/obs_wait_time","1");
+    }
     if(getSetting("setting","OBSTACLE","obs_detect_area")=="")
+    {
         setSetting("setting","OBSTACLE/obs_detect_area","2");
+    }
     if(getSetting("setting","OBSTACLE","obs_detect_sensitivity")=="")
+    {
         setSetting("setting","OBSTACLE/obs_detect_sensitivity","2");
+    }
     if(getSetting("setting","OBSTACLE","obs_height_max")=="")
+    {
         setSetting("setting","OBSTACLE/obs_height_max","0.5");
+    }
     if(getSetting("setting","OBSTACLE","obs_height_min")=="")
+    {
         setSetting("setting","OBSTACLE/obs_height_min","0.1");
+    }
     if(getSetting("setting","OBSTACLE","obs_margin0")=="")
+    {
         setSetting("setting","OBSTACLE/obs_margin0","0.05");
+    }
     if(getSetting("setting","OBSTACLE","obs_margin1")=="")
+    {
         setSetting("setting","OBSTACLE/obs_margin1","0.05");
-    if(getSetting("setting","OBSTACLE","obs_avoid_v")=="")
-        setSetting("setting","OBSTACLE/obs_avoid_v","0.2");
-    if(getSetting("setting","OBSTACLE","obs_avoid_width")=="")
-        setSetting("setting","OBSTACLE/obs_avoid_width","1");
-    if(getSetting("setting","OBSTACLE","obs_near")=="")
-        setSetting("setting","OBSTACLE/obs_near","1");
+    }
     if(getSetting("setting","OBSTACLE","obs_early_stop_dist")=="")
+    {
         setSetting("setting","OBSTACLE/obs_early_stop_dist","1");
-    if(getSetting("setting","OBSTACLE","obs_decel_gain")=="")
-        setSetting("setting","OBSTACLE/obs_decel_gain","0.8");
+    }
 
     if(getSetting("setting","INITIALIZATION","icp_init_ratio") == "")
+    {
         setSetting("setting","INITIALIZATION/icp_init_ratio","0.7");
-    if(getSetting("setting","INITIALIZATION","icp_init_error") == "")
-        setSetting("setting","INITIALIZATION/icp_init_error","0.2");
-    if(getSetting("setting","INITIALIZATION","icp_mapping_ratio") == "")
-        setSetting("setting","INITIALIZATION/icp_mapping_ratio","0.7");
-    if(getSetting("setting","INITIALIZATION","icp_mapping_error") == "")
-        setSetting("setting","INITIALIZATION/icp_mapping_error","0.2");
+    }
 
+    if(getSetting("setting","INITIALIZATION","icp_init_error") == "")
+    {
+        setSetting("setting","INITIALIZATION/icp_init_error","0.2");
+    }
+    if(getSetting("setting","INITIALIZATION","icp_mapping_ratio") == "")
+    {
+        setSetting("setting","INITIALIZATION/icp_mapping_ratio","0.7");
+    }
+
+    if(getSetting("setting","INITIALIZATION","icp_mapping_error") == "")
+    {
+        setSetting("setting","INITIALIZATION/icp_mapping_error","0.2");
+    }
 
     //3. Static_config==========================================================
     if(getSetting("static","ROBOT_HW","wheel_base") == "")
+    {
         setSetting("static","ROBOT_HW/wheel_base","0.3542");
+    }
+
     if(getSetting("static","ROBOT_HW","wheel_radius") == "")
+    {
         setSetting("static","ROBOT_HW/wheel_radius","0.0635");
+    }
     if(getSetting("static","ROBOT_HW","robot_radius") == "")
+    {
         setSetting("static","ROBOT_HW/robot_radius","0.3");
+    }
     if(getSetting("static","ROBOT_HW","robot_length") == "")
+    {
         setSetting("static","ROBOT_HW/robot_length","0.52");
-
+    }
     if(getSetting("static","SENSOR","lidar_offset_tf") == "")
+    {
         setSetting("static","SENSOR/lidar_offset_tf","0.17,0.0,-178.0");
+    }
     if(getSetting("static","SENSOR","left_camera_tf") == "")
-        setSetting("static","SENSOR/left_camera_tf","0.27,0.1,0.2,62.0,0.0,115.0");
+    {
+        setSetting("static","SENSOR/left_camera_tf","0.223,0.0831,0.2,64,0,115");
+    }
     if(getSetting("static","SENSOR","right_camera_tf") == "")
-        setSetting("static","SENSOR/right_camera_tf","0.27,-0.1,0.2,-62.0,0.0,-115.0");
-
+    {
+        setSetting("static","SENSOR/right_camera_tf","0.235,-0.0881,0.2,-62,0,-115");
+    }
 }
-void Supervisor::makeRobotINI(){
+
+void Supervisor::makeRobotINI()
+{
     QString updatep = getIniPath("update");
     QString settingp = getIniPath("setting");
     QString staticp = getIniPath("static");
     QString robotp = getIniPath("robot");
 
-    if(QFile::exists(updatep) && QFile::exists(settingp) && QFile::exists(staticp)){
+    if(QFile::exists(updatep) && QFile::exists(settingp) && QFile::exists(staticp))
+    {
         plog->write("[SUPERVISOR] Make Robot Ini : Already good");
-    }else{
+    }
+    else
+    {
         checkRobotINI();
         readSetting();
         slam_ini_reload();
     }
 }
 
-bool Supervisor::rotate_map(QString _src, QString _dst, int mode){
+bool Supervisor::rotate_map(QString _src, QString _dst, int mode)
+{
     cv::Mat map1 = cv::imread(_src.toStdString());
 
     cv::rotate(map1,map1,cv::ROTATE_90_CLOCKWISE);
@@ -1917,51 +2609,72 @@ bool Supervisor::rotate_map(QString _src, QString _dst, int mode){
     QImage temp_image = QPixmap::fromImage(mat_to_qimage_cpy(map1)).toImage();
     QString path = QDir::homePath()+"/RB_MOBILE/maps/"+_dst;
     QDir directory(path);
-    if(!directory.exists()){
+    if(!directory.exists())
+    {
         directory.mkpath(".");
     }
 
     //Save PNG File
-    if(mode == 1){//edited
-        if(temp_image.save(QDir::homePath()+"/RB_MOBILE/maps/"+_dst+"/map_edited.png","PNG")){
+    if(mode == 1)
+    {
+        //edited
+        if(temp_image.save(QDir::homePath()+"/RB_MOBILE/maps/"+_dst+"/map_edited.png","PNG"))
+        {
             QFile *file = new QFile(QGuiApplication::applicationDirPath()+"/"+_src);
             file->remove();
             plog->write("[MAP] Save edited Map : "+_dst);
             return true;
-        }else{
+        }
+        else
+        {
             plog->write("[MAP] Fail to save edited Map : "+_dst);
             return false;
         }
-    }else if(mode == 2){//raw
-        if(temp_image.save(QDir::homePath()+"/RB_MOBILE/maps/"+_dst+"/map_raw.png","PNG")){
+    }
+    else if(mode == 2)
+    {
+        //raw
+        if(temp_image.save(QDir::homePath()+"/RB_MOBILE/maps/"+_dst+"/map_raw.png","PNG"))
+        {
             QFile *file = new QFile(QGuiApplication::applicationDirPath()+"/"+_src);
             file->remove();
             plog->write("[MAP] Save raw Map : "+_dst);
             return true;
-        }else{
+        }
+        else
+        {
             plog->write("[MAP] Fail to save raw Map : "+_dst);
             return false;
         }
     }
 }
-bool Supervisor::getIPCConnection(){
+
+bool Supervisor::getIPCConnection()
+{
     return ipc->getConnection();
 }
-int  Supervisor::getusbsize(){
+
+int Supervisor::getusbsize()
+{
     return usb_list.size();
 }
-QString Supervisor::getusbname(int num){
-    if(num > -1 && num < usb_list.size()){
+
+QString Supervisor::getusbname(int num)
+{
+    if(num > -1 && num < usb_list.size())
+    {
         return usb_list[num];
     }
     return "";
 }
 
-void Supervisor::readusb(){
+void Supervisor::readusb()
+{
 
 }
 
-void Supervisor::saveMapfromUsb(QString path){
+void Supervisor::saveMapfromUsb(QString path)
+{
     std::string user = getenv("USER");
     std::string path1 = "/media/" + user + "/";
 
@@ -1970,36 +2683,51 @@ void Supervisor::saveMapfromUsb(QString path){
     kk.pop_front();
 
     QString new_path = QCoreApplication::applicationDirPath();
-    for(int i=0; i<kk.size(); i++){
+    for(int i=0; i<kk.size(); i++)
+    {
         new_path += "/" + kk[i];
     }
-    if(QFile::exists(orin_path)){
-        if(QFile::copy(orin_path, new_path)){
+
+    if(QFile::exists(orin_path))
+    {
+        if(QFile::copy(orin_path, new_path))
+        {
             plog->write("[SETTING] Save Map from USB : "+kk[kk.length()-1]);
-        }else{
+        }
+        else
+        {
             plog->write("[SETTING - ERROR] Save Map from USB (Copy failed): "+kk[kk.length()-1]);
         }
-    }else{
+    }
+    else
+    {
         plog->write("[SETTING - ERROR] Save Map from USB (Origin not found): "+kk[kk.length()-1]);
     }
 }
-void Supervisor::CopyPath(QString src, QString dst){
+
+void Supervisor::CopyPath(QString src, QString dst)
+{
     QDir dir(src);
     if (! dir.exists())
+    {
         return;
+    }
 
-    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+    foreach (QString d, dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot))
+    {
         QString dst_path = dst + QDir::separator() + d;
         dir.mkpath(dst_path);
         CopyPath(src+ QDir::separator() + d, dst_path);
     }
 
-    foreach (QString f, dir.entryList(QDir::Files)) {
+    foreach (QString f, dir.entryList(QDir::Files))
+    {
         QFile::copy(src + QDir::separator() + f, dst + QDir::separator() + f);
     }
 }
 
-int Supervisor::copyMap(QString orinname, QString newname){
+int Supervisor::copyMap(QString orinname, QString newname)
+{
     plog->write("[SETTING] Copy Map orin = "+orinname+", new = "+newname);
 
     QString orin_path = QDir::homePath() + "/RB_MOBILE/maps/" + orinname;
@@ -2007,35 +2735,50 @@ int Supervisor::copyMap(QString orinname, QString newname){
 
     QDir dir(orin_path);
 
-    if(QFile::exists(orin_path)){
-        if(QFile::exists(new_path)){
+    if(QFile::exists(orin_path))
+    {
+        if(QFile::exists(new_path))
+        {
             plog->write("[SETTING] Copy Map failed : Already has");
             return 2;
-        }else{
-            if(QDir().mkdir(new_path)){
+        }
+        else
+        {
+            if(QDir().mkdir(new_path))
+            {
                 CopyPath(orin_path, new_path);
                 return 0;
-            }else{
+            }
+            else
+            {
                 plog->write("[SETTING] Copy Map failed : new Folder make failed");
                 return 2;
             }
         }
-    }else{
+    }
+    else
+    {
         plog->write("[SETTING] Copy Map failed : No orinFile");
         return 1;
     }
 }
-void Supervisor::loadMap(QString name){
+
+void Supervisor::loadMap(QString name)
+{
     setSetting("setting","MAP/map_path",QDir::homePath()+"/RB_MOBILE/maps/"+name);
     setSetting("setting","MAP/map_name",name);
     readSetting(name);
     slam_map_reload(name);
 }
-void Supervisor::restartSLAM(){
+
+void Supervisor::restartSLAM()
+{
     ipc->clearSharedMemory(ipc->shm_cmd);
-    if(slam_process != nullptr){
+    if(slam_process != nullptr)
+    {
         plog->write("[SUPERVISOR] RESTART SLAM -> PID : "+QString::number(slam_process->processId()));
-        if(slam_process->state() == QProcess::NotRunning){
+        if(slam_process->state() == QProcess::NotRunning)
+        {
             plog->write("[SUPERVISOR] RESTART SLAM -> NOT RUNNING -> KILL");
             slam_process->kill();
             slam_process->close();
@@ -2050,9 +2793,13 @@ void Supervisor::restartSLAM(){
             slam_process->start(file,QStringList(),QProcess::ReadWrite);
             slam_process->waitForReadyRead(3000);
             plog->write("[SUPERVISOR] RESTART SLAM -> START SLAM "+QString::number(slam_process->processId()));
-        }else if(slam_process->state() == QProcess::Starting){
+        }
+        else if(slam_process->state() == QProcess::Starting)
+        {
             plog->write("[SUPERVISOR] RESTART SLAM -> STARTING");
-        }else{
+        }
+        else
+        {
             plog->write("[SUPERVISOR] RESTART SLAM -> RUNNING");
             QProcess *tempprocess = new QProcess(this);
             tempprocess->start(QDir::homePath() + "/RB_MOBILE/sh/killslam.sh",QStringList(),QProcess::ReadWrite);
@@ -2064,7 +2811,9 @@ void Supervisor::restartSLAM(){
         probot->status_emo = 0;
         probot->status_power = 0;
         probot->status_remote = 0;
-    }else{
+    }
+    else
+    {
         plog->write("[SUPERVISOR] RESTART SLAM -> SLAM PROCESS IS NEW ");
         slam_process = new QProcess(this);
         slam_process->setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
@@ -2079,7 +2828,9 @@ void Supervisor::restartSLAM(){
     probot->status_remote = 0;
     ipc->update();
 }
-void Supervisor::startSLAM(){
+
+void Supervisor::startSLAM()
+{
     plog->write("[SUPERVISOR] START SLAM");
     probot->localization_state = LOCAL_NOT_READY;
     probot->status_charge = 0;
@@ -2096,7 +2847,8 @@ void Supervisor::startSLAM(){
 }
 
 ////*******************************************  SLAM(LOCALIZATION) 관련   ************************************************////
-void Supervisor::startMapping(int mapsize, float grid){
+void Supervisor::startMapping(int mapsize, float grid)
+{
     plog->write("[USER INPUT] START MAPPING");
     pmap->width = getSetting("update","SLAM","map_size").toInt();
     pmap->height = getSetting("update","SLAM","map_size").toInt();
@@ -2110,69 +2862,92 @@ void Supervisor::startMapping(int mapsize, float grid){
     ipc->is_mapping = true;
 }
 
-void Supervisor::stopMapping(){
+void Supervisor::stopMapping()
+{
     plog->write("[USER INPUT] STOP MAPPING");
     ipc->flag_mapping = false;
     ipc->is_mapping = false;
     ipc->stopMapping();
     readSetting(getMapname());
 }
-void Supervisor::saveMapping(QString name){
+
+void Supervisor::saveMapping(QString name)
+{
     ipc->flag_mapping = false;
     ipc->is_mapping = false;
     ipc->saveMapping(name);
+}
+
+void Supervisor::setSLAMMode(int mode)
+{
 
 }
-void Supervisor::setSLAMMode(int mode){
 
-}
-void Supervisor::setInitCurPos(){
+void Supervisor::setInitCurPos()
+{
     maph->set_init_pose = probot->curPose;
     plog->write("[LOCALIZATION] SET INIT POSE : "+QString().asprintf("%f, %f, %f",maph->set_init_pose.point.x, maph->set_init_pose.point.y, maph->set_init_pose.angle));
 }
 
-void Supervisor::slam_setInit(){
+void Supervisor::slam_setInit()
+{
     POSE temp = setAxisBack(maph->set_init_pose.point,maph->set_init_pose.angle);
     plog->write("[SLAM] SLAM SET INIT : "+QString().asprintf("%f, %f, %f",temp.point.x,temp.point.y,temp.angle));
 
     ipc->setInitPose(temp.point.x, temp.point.y, temp.angle);
 }
-void Supervisor::slam_run(){
-    ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
 
+void Supervisor::slam_run()
+{
+    ipc->set_cmd(ROBOT_CMD_SLAM_RUN, "LOCALIZATION RUN");
 }
-void Supervisor::slam_stop(){
+
+void Supervisor::slam_stop()
+{
     ipc->set_cmd(ROBOT_CMD_SLAM_STOP, "LOCALIZATION STOP");
 }
-void Supervisor::slam_autoInit(){
+
+void Supervisor::slam_autoInit()
+{
     plog->write("[LOCALIZATION] AUTO INIT : "+QString::number(pmap->map_rotate_angle));
     ipc->set_cmd(ROBOT_CMD_SLAM_AUTO, "LOCALIZATION AUTO INIT");
 }
-void Supervisor::slam_restInit(){
+
+void Supervisor::slam_restInit()
+{
     plog->write("[LOCALIZATION] REST INIT : "+QString::number(pmap->map_rotate_angle));
     ipc->set_cmd(ROBOT_CMD_SLAM_RESTING, "LOCALIZATION REST INIT");
 }
-void Supervisor::slam_fullautoInit(){
+
+void Supervisor::slam_fullautoInit()
+{
     plog->write("[LOCALIZATION] FULL AUTO INIT : "+QString::number(pmap->map_rotate_angle));
     ipc->set_cmd(ROBOT_CMD_SLAM_FULL_AUTO, "LOCALIZATION FULL AUTO INIT");
-
 }
-bool Supervisor::is_slam_running(){
-    if(probot->localization_state == LOCAL_READY){
+
+bool Supervisor::is_slam_running()
+{
+    if(probot->localization_state == LOCAL_READY)
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-bool Supervisor::getMappingflag(){
-    return ipc->flag_mapping;
 
+bool Supervisor::getMappingflag()
+{
+    return ipc->flag_mapping;
 }
 
-void Supervisor::play_voice(ST_VOICE voice){
+void Supervisor::play_voice(ST_VOICE voice)
+{
     voice_player->stop();
     voice_player->setMedia(QUrl::fromLocalFile(voice.file_path));
-    if(voice.volume == -1){
+    if(voice.volume == -1)
+    {
         voice.volume = getSetting("setting","UI","volume_voice").toInt();
     }
     voice_player->setVolume(voice.volume);
@@ -2180,7 +2955,8 @@ void Supervisor::play_voice(ST_VOICE voice){
     plog->write("[SOUND] play_voice : "+voice.file_path + "(volume = "+QString::number(voice.volume)+")");
 }
 
-void Supervisor::makePatrolTTS(int language, int voice, QString text, bool play){
+void Supervisor::makePatrolTTS(int language, int voice, QString text, bool play)
+{
     ST_VOICE temp;
     temp.mode = "tts";
     temp.language = tts->getVoiceLanguage(language);
@@ -2191,68 +2967,103 @@ void Supervisor::makePatrolTTS(int language, int voice, QString text, bool play)
     temp.file_path = QDir::homePath()+"/RB_MOBILE/voice/"+temp.voice+"_patrol.mp3";
     tts->makeTTS(temp, play);
 }
-QString Supervisor::getTTSMention(QString text){
+
+QString Supervisor::getTTSMention(QString text)
+{
     return tts->getMentionStr(text);
 }
-void Supervisor::setTTSMention(QString text, QString mention){
+
+void Supervisor::setTTSMention(QString text, QString mention)
+{
     tts->setMentionStr(text,mention);
 }
 
-void Supervisor::playVoice(QString file, QString voice, QString mode, QString language, int volume){
+void Supervisor::playVoice(QString file, QString voice, QString mode, QString language, int volume)
+{
     ST_VOICE v;
 
-    if(mode == ""){
-        if(probot->is_patrol){
-            if(current_patrol.voice_mode == "none"){
+    if(mode == "")
+    {
+        if(probot->is_patrol)
+        {
+            if(current_patrol.voice_mode == "none")
+            {
                 v.mode = getSetting("setting","UI","voice_mode");
-            }else{
+            }
+            else
+            {
                 v.mode = current_patrol.voice_mode;
             }
-        }else{
+        }
+        else
+        {
             v.mode = getSetting("setting","UI","voice_mode");
         }
-    }else{
+    }
+    else
+    {
         v.mode = mode;
     }
 
-
-
-    if(file == "test"){
+    if(file == "test")
+    {
         volume = 50;
-    }else if(volume == -1){
-        if(probot->is_patrol){
-            if(current_patrol.voice_mode == "none"){
+    }
+    else if(volume == -1)
+    {
+        if(probot->is_patrol)
+        {
+            if(current_patrol.voice_mode == "none")
+            {
                 volume = tts->curVoice.volume;
-            }else{
+            }
+            else
+            {
                 volume = current_patrol.voice_volume;
-                if(current_patrol.voice_volume == 0){
+                if(current_patrol.voice_volume == 0)
+                {
                     volume = 50;
                     qDebug() << "fuck";
                 }
             }
-        }else{
+        }
+        else
+        {
             volume = tts->curVoice.volume;
         }
     }
 
-    if(v.mode == "basic"){
-        if(voice == ""){
-            if(probot->is_patrol){
-                if(current_patrol.voice_mode == "none"){
+    if(v.mode == "basic")
+    {
+        if(voice == "")
+        {
+            if(probot->is_patrol)
+            {
+                if(current_patrol.voice_mode == "none")
+                {
                     v.voice = getSetting("setting","UI","voice_name");
-                }else{
+                }
+                else
+                {
                     v.voice = current_patrol.voice_name;
                 }
-            }else{
+            }
+            else
+            {
                 v.voice = getSetting("setting","UI","voice_name");
             }
-        }else{
+        }
+        else
+        {
             v.voice = voice;
         }
 
-        if(v.voice == "woman"|| v.voice == "child"){
+        if(v.voice == "woman"|| v.voice == "child")
+        {
 
-        }else{
+        }
+        else
+        {
             v.voice = "woman";
         }
 
@@ -2261,40 +3072,60 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
         voice_player->setVolume(volume);
         voice_player->play();
         plog->write("[SUPERVISOR] Play Voice (Basic) : "+v.voice + ", " + file);
-    }else{
-        if(voice == ""){
-            if(probot->is_patrol){
-                if(current_patrol.voice_mode == "none"){
+    }
+    else
+    {
+        if(voice == "")
+        {
+            if(probot->is_patrol)
+            {
+                if(current_patrol.voice_mode == "none")
+                {
                     v.voice = tts->curVoice.voice;//getSetting("setting","UI","voice_name");
-                }else{
+                }
+                else
+                {
                     v.voice = current_patrol.voice_name;
                 }
-            }else{
+            }
+            else
+            {
                 v.voice = tts->curVoice.voice;//getSetting("setting","UI","voice_name");
             }
-        }else{
+        }
+        else
+        {
             v.voice = voice;
         }
 
         QString filepath = QDir::homePath()+"/RB_MOBILE/voice/"+v.voice+"_"+file+".mp3";
-        if(QFile::exists(filepath)){
+        if(QFile::exists(filepath))
+        {
             voice_player->stop();
             voice_player->setMedia(QUrl::fromLocalFile(filepath));
             voice_player->setVolume(volume);
             voice_player->play();
             plog->write("[SOUND] PlayVoiceTTS : "+filepath+", "+QString::number(volume));
-        }else{
+        }
+        else
+        {
             v.file = file;
             v.file_path = filepath;
             v.volume = volume;
-            if(probot->is_patrol){
-                if(current_patrol.voice_mode == "none"){
+            if(probot->is_patrol)
+            {
+                if(current_patrol.voice_mode == "none")
+                {
                     v.mention = tts->getMentionStr(file);
-                }else{
+                }
+                else
+                {
                     v.mention = tts->getMentionBasicStr(v.language,v.file);// (file);
                 }
 
-            }else{
+            }
+            else
+            {
                 v.mention = tts->getMentionStr(file);
             }
             v.language = language;
@@ -2304,7 +3135,8 @@ void Supervisor::playVoice(QString file, QString voice, QString mode, QString la
     }
 }
 
-void Supervisor::makeTTSAll(){
+void Supervisor::makeTTSAll()
+{
     ST_VOICE v = tts->curVoice;
     v.mode = getSetting("setting","UI","voice_mode");
 
@@ -2334,147 +3166,237 @@ void Supervisor::makeTTSAll(){
                             "stop_mapping",
                             "test"};
 
-    for(QString f : makeList){
+    for(QString f : makeList)
+    {
         v.file = f;
         v.file_path = QDir::homePath()+"/RB_MOBILE/voice/"+v.voice+"_"+v.file+".mp3";
         v.mention = tts->getMentionStr(v.file);
         tts->makeTTS(v,false);
     }
-
 }
 
-bool Supervisor::isplayBGM(){
-    if(bgm_player->state() == QMediaPlayer::PlayingState){
+bool Supervisor::isplayBGM()
+{
+    if(bgm_player->state() == QMediaPlayer::PlayingState)
+    {
         return true;
-    }else{
+    }
+    else
+    {
         return false;
     }
 }
-void Supervisor::playBGM(int volume){
+
+void Supervisor::playBGM(int volume)
+{
     list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
     list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
     bgm_player->setPlaylist(list_bgm);
-    if(volume == -1){
+    if(volume == -1)
+    {
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
     plog->write("[SOUND] playBGM : "+QString::number(volume));
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
-void Supervisor::setvolumeBGM(int volume){
+
+void Supervisor::setvolumeBGM(int volume)
+{
     bgm_player->setVolume(volume);
     plog->write("[SOUND] playBGMVolume : "+QString::number(volume));
 }
-void Supervisor::stopBGM(){
+
+void Supervisor::stopBGM()
+{
     bgm_player->stop();
 }
 
-QString Supervisor::getnewMapname(){
+QString Supervisor::getnewMapname()
+{
     int max_num = -1;
-    for(int i=0; i<getAvailableMap(); i++){
+    for(int i=0; i<getAvailableMap(); i++)
+    {
         QStringList name = map_list[i].split("_");
-        if(name.size() > 1 && name[0] == "map"){
-            if(name[1].toInt() > max_num){
+        if(name.size() > 1 && name[0] == "map")
+        {
+            if(name[1].toInt() > max_num)
+            {
                 max_num = name[1].toInt();
             }
         }
     }
-    if(max_num == -1){
+    if(max_num == -1)
+    {
         return "map_0";
-    }else{
+    }
+    else
+    {
         return "map_"+QString::number(max_num+1);
     }
 }
 
+void Supervisor::usb_detect()
+{
+    try
+    {
+        const char* user_c = getenv("USER");
+        std::string user = (user_c != nullptr) ? user_c : "";
+        std::string path = "/media/" + user;
+        QDir directory(path.c_str());
+        if(!directory.exists())
+        {
+            plog->write("[SUPERVISOR][usb_detect] Directory does not exist: " + QString::fromStdString(path));
+            return;
+        }
 
-void Supervisor::usb_detect(){
-    std::string user = getenv("USER");
-    std::string path = "/media/" + user;
-    QDir directory(path.c_str());
-    QStringList temp = directory.entryList();
-    usb_list.clear();
-    usb_file_list.clear();
-    usb_file_full_list.clear();
-    foreach (QString name, temp) {
-        if(name != "." && name != ".."){
-            usb_list.append(name);
+        // clear usb list
+        usb_list.clear();
+        usb_file_list.clear();
+        usb_file_full_list.clear();
 
-            QDir dd(directory.path()+"/"+name);
-            QStringList files = dd.entryList();
+        QStringList temp = directory.entryList();
+        foreach (QString name, temp)
+        {
+            if(name != "." && name != "..")
+            {
+                usb_list.append(name);
 
-            foreach(QString file, files){
-                QStringList ex = file.split(".");
-                if(ex.size() > 1){
+                QString full_path = directory.path() + "/" + name;
+                QDir dd(full_path);
 
-                    if(ex[1] == "zip"){
-                        if(ex[0].left(11) == "MobileRobot"){
-                            QStringList names = ex[0].split("_");
-                            if(names.size() == 3){
-                                usb_file_full_list.append(name+"/"+file);
-                                usb_file_list.append(names[2]);
-                                qDebug() << "FIND !!!!!" << ex[0];
+                QStringList files = dd.entryList();
+                foreach(QString file, files)
+                {
+                    QStringList ex = file.split(".");
+                    if(ex.size() > 1)
+                    {
+                        if(ex[1] == "zip")
+                        {
+                            if(ex[0].left(11) == "MobileRobot")
+                            {
+                                QStringList names = ex[0].split("_");
+                                if(names.size() == 3)
+                                {
+                                    std::cout << "[SUPERVISOR][usb_detect] find device: " << ex[0].toStdString() << std::endl;
+
+                                    usb_file_full_list.append(name+"/"+file);
+                                    usb_file_list.append(names[2]);
+                                }
                             }
                         }
-                    }else{
+                        else
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
                         continue;
                     }
-                }else{
-                    continue;
                 }
             }
         }
+        plog->write("[SUPERVISOR][usb_detect] NEW USB Detected cnt: " + QString::number(usb_list.size()));
     }
-
-    plog->write("[USB] NEW USB Detected : "+QString::number(usb_list.size()));
-
+    catch(const std::exception &e)
+    {
+        QString err_str = "[SUPERVISOR][usb_detect] Exception occurred, err: "  + QString(e.what());
+        std::cerr << err_str.toStdString() << std::endl;
+        plog->write(err_str);
+    }
+    catch(...)
+    {
+        QString err_str = "[SUPERVISOR][usb_detect] Exception occurred, err: unknown.";
+        std::cerr << err_str.toStdString() << std::endl;
+        plog->write(err_str);
+    }
 }
 
-int Supervisor::getusberrorsize(){
+int Supervisor::getusberrorsize()
+{
     return zip->errorlist.size();
 }
 
-int Supervisor::getusbfilesize(){
+int Supervisor::getusbfilesize()
+{
     return usb_file_list.size();
 }
-QString Supervisor::getusbfile(int num){
-    if(usb_file_full_list.size() > num && num > -1)
-        return usb_file_full_list[num];
-    else
-        return "";
+
+QString Supervisor::getusbfile(int num)
+{
+    QString usb_str = "";
+    if(usb_file_full_list.isEmpty())
+    {
+        return usb_str;
+    }
+
+    if(num >= 0 && num < usb_file_full_list.size())
+    {
+        usb_str = usb_file_full_list[num];
+    }
+
+    return usb_str;
 }
-QString Supervisor::getusbrecentfile(){
-    double temp = 0;
+
+QString Supervisor::getusbrecentfile()
+{
     QString filename = "";
-    for(int i=0; i<usb_file_list.size(); i++){
+    if(usb_file_list.isEmpty())
+    {
+        return filename;
+    }
+
+    double temp = 0;
+    for(int i=0; i<usb_file_list.size(); i++)
+    {
         QString tempstr = usb_file_list[i];
-        if(temp < tempstr.toDouble()){
+        if(temp < tempstr.toDouble())
+        {
             temp = tempstr.toDouble();
             filename = tempstr;
         }
     }
+
     return filename;
-
-
 }
-QString Supervisor::getusberror(int num){
-    if(num > -1 && num < zip->errorlist.size()){
-        return zip->errorlist[num];
-    }else{
-        return "";
+
+QString Supervisor::getusberror(int num)
+{
+    QString usb_err_str = "";
+    if(zip->errorlist.isEmpty())
+    {
+        return usb_err_str;
     }
+
+    if(num >= 0 && num < zip->errorlist.size())
+    {
+        usb_err_str = zip->errorlist[num];
+    }
+
+    return usb_err_str;
 }
 
-void Supervisor::readusbrecentfile(){
+void Supervisor::readusbrecentfile()
+{
+    if(usb_file_list.isEmpty())
+    {
+        return;
+    }
+
     double temp = 0;
     int num = -1;
-    for(int i=0; i<usb_file_list.size(); i++){
+    for(int i=0; i<usb_file_list.size(); i++)
+    {
         QString tempstr = usb_file_list[i];
-        if(temp < tempstr.toDouble()){
+        if(temp < tempstr.toDouble())
+        {
             temp = tempstr.toDouble();
             num = i;
         }
     }
-    if(num == -1){
+    if(num == -1)
+    {
         return;
     }
 
@@ -2482,1380 +3404,3275 @@ void Supervisor::readusbrecentfile(){
     zip->getZip(path);
 }
 
-void Supervisor::callCallbell(QString id){
+void Supervisor::callCallbell(QString id)
+{
+    QString func_str = "[SUPERVISOR][callCallbell] ";
+    plog->write(func_str + "start func. params(id):" + id);
+
+    if(!call)
+    {
+        log_advanced(func_str + "Error: call is null.");
+        return;
+    }
+
     call->send_call(id);
-}
-
-void Supervisor::updateUSB(){
-    QString updatestr = QDir::homePath()+"/RB_MOBILE/sh/updateusb.sh";
-    if(!QFile::exists(updatestr)){
-        makeUSBShell();
-    }
-    updatestr = QDir::homePath()+"/RB_MOBILE/sh/updatedummy.sh";
-    if(!QFile::exists(updatestr)){
-        QString file_name = QDir::homePath() + "/RB_MOBILE/sh/updatedummy.sh";
-        QFile file(file_name);
-        if(file.open(QIODevice::ReadWrite)){
-            QTextStream stream(&file);
-            stream << "#!/bin/bash" << "\n" << "\n";
-
-            stream << "/home/odroid/RB_MOBILE/sh/updateusb.sh" << "\n";
-        }
-        file.close();
-        //Chmod
-        QProcess process;
-        process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-        process.start("chmod +x updatedummy.sh",QStringList(),QProcess::ReadWrite);
-        process.waitForReadyRead(200);
-    }
-    QProcess process;
-    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("xterm ./updatedummy.sh",QStringList(),QProcess::ReadWrite);
-    process.waitForReadyRead(3000);
-}
-
-void Supervisor::makeExtProcessShell(){
-//    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/startextproc.sh";
-//    QFile file(file_name);
-//    if(file.open(QIODevice::ReadWrite)){
-//        QTextStream stream(&file);
-//        stream << "#!/bin/bash" << "\n" << "\n";
-//        stream << "while [ 1 ]"<<"\n";
-//        stream << "do"<<"\n";
-//        stream << "     pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-//        stream << "     if [ -z $pid ]" << "\n";
-//        stream << "     then" << "\n";
-//        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
-//        stream << "     else" << "\n";
-//        stream << "         kill -9 $pid" << "\n";
-//        stream << "         /home/odroid/RB_MOBILE/release/ExtProcess" << "\n";
-//        stream << "     fi" << "\n";
-//        stream << "done" << "\n";
-//    }
-//    file.close();
-//    //Chmod
-//    QProcess process;
-//    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-//    process.start("chmod +x startextproc.sh",QStringList(),QProcess::ReadWrite);
-//    process.waitForReadyRead(200);
-
-}
-void Supervisor::makeUSBShell(){
-//    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/updateusb.sh";
-//    QFile file(file_name);
-//    if(file.open(QIODevice::ReadWrite)){
-//        QTextStream stream(&file);
-//        stream << "#!/bin/bash" << "\n" << "\n";
-//        stream << "cd /home/odroid/RB_MOBILE" << "\n";
-
-//        stream << "if [ -d \"config\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp config/robot_config.ini /home/odroid/RB_MOBILE/config/robot_config.ini" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"sn_log\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R sn_log /home/odroid/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"ui_log\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R ui_log /home/odroid/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"maps\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R maps /home/odroid/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"SLAMNAV\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R SLAMNAV /home/odroid/code/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"build-SLAMNAV-Desktop-Release\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R SLAMNAV_release /home/odroid/code/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"build-SLAMNAV-Desktop-Debug\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R build-SLAMNAV-Desktop-Debug /home/odroid/code/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "if [ -d \"UI_MOBILE_release\" ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "    cp -R UI_MOBILE_release /home/odroid/" << "\n";
-//        stream << "fi" << "\n";
-
-//        stream << "cd /home/odroid" << "\n";
-//        stream << "rm -R tempBackup" << "\n";
-//        stream << "rm tempBackup.zip" << "\n";
-
-//        stream << "/home/odroid/auto_kill.sh" << "\n";
-//        stream << "/home/odroid/UI_MOBILE_release/autostart.sh" << "\n";
-//    }
-//    file.close();
-//    //Chmod
-//    QProcess process;
-//    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-//    process.start("chmod +x updateusb.sh");
-//    process.waitForReadyRead(200);
 }
 
 ////*********************************************  ANNOTATION 관련   ***************************************************////
 /////Location
 ///
-QString Supervisor::getNewServingName(int group){
-    int count = 0;
+QString Supervisor::getNewServingName(int group)
+{
+    QString func_str = "[SUPERVISOR][getNewServingName] ";
+    plog->write(func_str + "start func. params(group):" + QString::number(group));
+
     QString groupname = "";
-    if(group > -1 && group < pmap->location_groups.size()){
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return groupname;
+    }
+
+    if(group < 0 || group > pmap->location_groups.size())
+    {
+        log_advanced(func_str + "Error: group is out of bounds.");
+        return groupname;
+    }
+    else
+    {
         groupname = pmap->location_groups[group];
-    }
-    // for(int i=0; i<pmap->location_groups.size(); i+)
-    // for(int i=0; i<pmap->serving_locations.size(); i++){
-    //     if(pmap->serving_locations[i].type == "Serving"){
-    //         if(pmap->serving_locations[i].group == group){
-    //             groupname = pmap->serving_locations[i].group_name;
-    //             break;
-    //         }
-    //     }
-    // }
-
-    if(groupname == "" || groupname == "Default"){
-        groupname = "서빙";
+        if(groupname == "" || groupname == "Default")
+        {
+            groupname = "서빙";
+        }
     }
 
-    while(isDuplicateName(group, groupname+QString::number(count+1))){
+    int count = 0;
+    while(isDuplicateName(group, groupname + QString::number(count + 1)))
+    {
         count++;
     }
-    return groupname+QString::number(count+1);
+
+    return groupname + QString::number(count + 1);
 }
 
-bool Supervisor::isDuplicateName(int group, QString name){
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].group == group){
-            if(pmap->serving_locations[i].name == name){
-                return true;
-            }
+bool Supervisor::isDuplicateName(int group, QString name)
+{
+    for (const auto& location : pmap->serving_locations)
+    {
+        if (location.group == group && location.name == name)
+        {
+            return true;
         }
-
     }
-    return false;
 
+    return false;
 }
-QString Supervisor::getServingName(int group, int num){
+
+QString Supervisor::getServingName(int group, int num)
+{
+    QString func_str = "[SUPERVISOR][getServingName] ";
+    plog->write(func_str + "start func. params(group, num):" + QString::number(group) + "," + QString::number(num));
+
+    QString name = tr("설정 안됨");
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return name;
+    }
+
     int count = 0;
-    QString name = "";
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].group == group){
+    for(const auto& location : pmap->serving_locations)
+    {
+        if(location.group == group)
+        {
             if(count == num)
-                name = pmap->serving_locations[i].name;
+            {
+                name = location.name;
+            }
             count++;
         }
     }
-    qDebug() << "getServingName " << group << num << name << pmap->serving_locations.size();
-    if(name == ""){
-        name = tr("설정 안됨");
-    }
+
     return name;
 }
-int Supervisor::getLocationNum(QString type){
-    if(type == "Charging"){
-        return pmap->charging_locations.size();
-    }else if(type == "Resting"){
-        return pmap->resting_locations.size();
-    }else if(type == "Cleaning"){
-        return pmap->cleaning_locations.size();
-    }else if(type == "Init"){
-        return pmap->init_locations.size();
-    }else{
-        return pmap->serving_locations.size();
+
+int Supervisor::getLocationNum(QString type)
+{
+    QString func_str = "[SUPERVISOR][getLocationNum] ";
+    plog->write(func_str + "start func. params(type):" + type);
+
+    int loc_num = 0;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_num;
     }
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        loc_num = locations.size();
+    }
+
+    return loc_num;
 }
 
-int Supervisor::getLocationGroupNum(int num){
-    if(pmap->serving_locations.size()>num && num > -1){
-        if(pmap->location_groups.size() > pmap->serving_locations[num].group)
-            return pmap->serving_locations[num].group;
+int Supervisor::getLocationGroupNum(int num)
+{
+    QString func_str = "[SUPERVISOR][getLocationGroupNum] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    int group_num = 0;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return group_num;
+    }
+
+    if(num < 0 || num >= pmap->serving_locations.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return group_num;
+    }
+
+    try
+    {
+        if(pmap->location_groups.size() <= pmap->serving_locations[num].group)
+        {
+            log_advanced(func_str + "Error: group index out of bounds.");
+            return group_num;
+        }
         else
-            return 0;
-    }
-}
-
-QString Supervisor::getLocationCallID(QString type, int num){
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        return pmap->charging_locations[num].call_id;
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        return pmap->resting_locations[num].call_id;
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        return pmap->cleaning_locations[num].call_id;
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        return pmap->init_locations[num].call_id;
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        return pmap->serving_locations[num].call_id;
-    }
-    return "";
-}
-
-QString Supervisor::getLocationLingID(QString type, int num){
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        return pmap->charging_locations[num].ling_id;
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        return pmap->resting_locations[num].ling_id;
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        return pmap->cleaning_locations[num].ling_id;
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        return pmap->init_locations[num].ling_id;
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        return pmap->serving_locations[num].ling_id;
-    }
-    return "";
-}
-
-void Supervisor::setLocationGroup(int num, int group){
-    if(num > -1 && num < pmap->serving_locations.size()){
-        pmap->serving_locations[num].group = group;
-        plog->write("[ANNOTATION] SET Location Group "+QString().asprintf("%d : %d",num,group));
-    }
-}
-
-QString Supervisor::getLocationGroup(int num){
-    if(num>-1 && num<pmap->serving_locations.size()){
-        if(pmap->location_groups.size() > pmap->serving_locations[num].group)
-            return pmap->location_groups[pmap->serving_locations[num].group];
-    }
-    return "(-)";
-}
-
-void Supervisor::addLocationGroup(QString name){
-    pmap->location_groups.append(name);
-    plog->write("[SUPERVISOR] Add Location Group : "+name + "(size = "+QString::number(pmap->location_groups.size())+")");
-
-}
-void Supervisor::removeLocationGroup(int num){
-    plog->write("[SUPERVISOR] Remove Location Group :"+QString::number(num)+"(size = "+QString::number(pmap->location_groups.size())+")");
-    pmap->location_groups.removeAt(num);
-}
-int Supervisor::getLocationGroupNum(){
-    return pmap->location_groups.size();
-}
-void Supervisor::selectLocation(QString type, int num){
-    qDebug() << "selectLocation " << type << num;
-    if(type == "Charging"){
-        maph->setSelectCharging(num);
-    }else if(type == "Resting"){
-        maph->setSelectResting(num);
-    }else if(type == "Cleaning"){
-        maph->setSelectCleaning(num);
-    }else if(type == "Init"){
-        maph->setSelectInit(num);
-    }else{
-        maph->setSelectServing(num);
-    }
-}
-bool Supervisor::setLocationUp(int num){
-    if(num>0 && num < pmap->serving_locations.size()){
-        plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->serving_locations[num].name+") Up");
-        pmap->serving_locations.move(num,num-1);
-        return true;
-    }
-    return false;
-}
-bool Supervisor::setLocationDown(int num){
-    qDebug() << num << pmap->serving_locations.size();
-    if(num>-1 && num < pmap->serving_locations.size()-1){
-        plog->write("[ANNOTATION] Location "+QString::number(num)+"("+pmap->serving_locations[num].name+") Down");
-        pmap->serving_locations.move(num,num+1);
-        return true;
-    }
-    return false;
-}
-int Supervisor::getLocationGroupSize(int num){
-    int size = 0;
-    if(num > -1 && num < pmap->location_groups.size()){
-        for(int i=0; i<pmap->serving_locations.size(); i++){
-            if(pmap->serving_locations[i].group == num)
-                size++;
+        {
+            group_num = pmap->serving_locations[num].group;
         }
     }
-//    qDebug() << "location group size " << num << size << pmap->locations.size();
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+
+    return group_num;
+}
+
+QString Supervisor::getLocationCallID(QString type, int num)
+{
+    QString func_str = "[SUPERVISOR][getLocationCallID] ";
+    plog->write(func_str + "start func. params(type,num):" + type + "," + QString::number(num));
+
+    QString loc_call_id_str = "";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_call_id_str;
+    }
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        if(num < 0 || num > locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+        }
+        else
+        {
+            loc_call_id_str =locations.at(num).call_id;
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown type: " + type);
+    }
+
+    return loc_call_id_str;
+}
+
+QString Supervisor::getLocationLingID(QString type, int num)
+{
+    QString func_str = "[SUPERVISOR][getLocationLingID] ";
+    plog->write(func_str + "start func. params(type,num):" + type + "," + QString::number(num));
+
+    QString loc_ling_id_str = "";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_ling_id_str;
+    }
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        if(num < 0 || num > locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+        }
+        else
+        {
+            loc_ling_id_str =locations.at(num).ling_id;
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown type: " + type);
+    }
+
+    return loc_ling_id_str;
+}
+
+void Supervisor::setLocationGroup(int num, int group)
+{
+    QString func_str = "[SUPERVISOR][getLocationGroup] ";
+    plog->write(func_str + "start func. params(num,group):" + QString::number(num) + "," + QString::number(group));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
+    }
+
+    if(num < 0 || num >= pmap->serving_locations.size())
+    {
+        log_advanced(func_str + "Error: num is out of bound.");
+        return;
+    }
+    else
+    {
+        plog->write(func_str + "SET Location Group (num, group) " + QString().asprintf("%d:%d", num, group));
+        pmap->serving_locations[num].group = group;
+    }
+}
+
+QString Supervisor::getLocationGroup(int num)
+{
+    QString func_str = "[SUPERVISOR][getLocationGroup] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString loc_group_str = "(-)";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_group_str;
+    }
+
+    if(num < 0 || num >= pmap->serving_locations.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return loc_group_str;
+    }
+
+    int group_index = pmap->serving_locations[num].group;
+    if(group_index < 0 || pmap->location_groups.size() <= group_index)
+    {
+        log_advanced(func_str + "Error: group size invalid.");
+        return loc_group_str;
+    }
+
+    loc_group_str = pmap->location_groups[pmap->serving_locations[num].group];
+
+    return loc_group_str;
+}
+
+void Supervisor::addLocationGroup(QString name)
+{
+    QString func_str = "[SUPERVISOR][addLocationGroup] ";
+    plog->write(func_str + "start func. params(name):" + name);
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
+    }
+
+    pmap->location_groups.append(name);
+    plog->write(func_str + "Add Location Group : " + name + "(size = " + QString::number(pmap->location_groups.size()) + ")");
+}
+
+void Supervisor::removeLocationGroup(int num)
+{
+    QString func_str = "[SUPERVISOR][removeLocationGroup] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
+    }
+
+    if(num < 0 || num > pmap->location_groups.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return;
+    }
+
+    pmap->location_groups.removeAt(num);
+    plog->write(func_str + " remove:" + QString::number(num) + "(size = " + QString::number(pmap->location_groups.size()) + ")");
+}
+
+int Supervisor::getLocationGroupNum()
+{
+    QString func_str = "[SUPERVISOR][getLocationGroupNum] ";
+    plog->write(func_str + "start func. params()");
+
+    int loc_group_num = 0;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_group_num;
+    }
+
+    return pmap->location_groups.size();
+}
+
+void Supervisor::selectLocation(QString type, int num)
+{   
+    QString func_str = "[SUPERVISOR][getLocationName] ";
+    plog->write(func_str + "start func. params(type,num):" + type + "," + QString::number(num));
+
+    const std::map<QString, void (MapHandler::*)(int)> location_map =
+    {
+        {"Charging", &MapHandler::setSelectCharging},
+        {"Resting", &MapHandler::setSelectResting},
+        {"Cleaning", &MapHandler::setSelectCleaning},
+        {"Init", &MapHandler::setSelectInit},
+        {"Serving", &MapHandler::setSelectServing}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        (maph->*(it->second))(num);
+    }
+    else
+    {
+        log_advanced(func_str + "Error: loc type invalid.");
+        return;
+    }
+}
+
+bool Supervisor::setLocationUp(int num)
+{
+    QString func_str = "[SUPERVISOR][setLocationUp] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return false;
+    }
+
+    if(num <= 0 || num >= pmap->serving_locations.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return false;
+    }
+
+    plog->write(func_str + " Location "+QString::number(num) + "(" + pmap->serving_locations[num].name + ") Up");
+    pmap->serving_locations.move(num, num-1);
+
+    return true;
+}
+
+bool Supervisor::setLocationDown(int num)
+{
+    QString func_str = "[SUPERVISOR][setLocationDown] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return false;
+    }
+
+    if(num < 0 || num >= pmap->serving_locations.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return false;
+    }
+
+    plog->write(func_str + "Location " + QString::number(num) + "(" + pmap->serving_locations[num].name + ") Down");
+    pmap->serving_locations.move(num, num + 1);
+
+    return true;
+}
+
+int Supervisor::getLocationGroupSize(int num)
+{
+    QString func_str = "[SUPERVISOR][getLocationGroupSize] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    int size = 0;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return size;
+    }
+
+    if(num < 0 || num >= pmap->location_groups.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return size;
+    }
+
+    for(const auto& location : pmap->serving_locations)
+    {
+        if(location.group == num)
+        {
+            size++;
+        }
+    }
+
     return size;
 }
-QString Supervisor::getLocationName(int num, QString type){
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        return pmap->charging_locations[num].name;
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        return pmap->resting_locations[num].name;
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        return pmap->cleaning_locations[num].name;
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        return pmap->init_locations[num].name;
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        return pmap->serving_locations[num].name;
+
+QString Supervisor::getLocationName(int num, QString type)
+{
+    QString func_str = "[SUPERVISOR][getLocationName] ";
+    plog->write(func_str + "start func. params(num,type):" + QString::number(num) + "," + type);
+
+    QString loc_name_str = "-";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_name_str;
     }
-    return "-";
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if (it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        if(num < 0 || num >= locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+        }
+        else
+        {
+            loc_name_str = locations[num].name;
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown location type '" + type + "'.");
+    }
+
+    return loc_name_str;
 }
 
-QString Supervisor::getLocationNameGroup(int num){
-    if(num>-1 && num<pmap->serving_locations.size()){
-        return pmap->serving_locations[num].group_name;
+QString Supervisor::getLocationNameGroup(int num)
+{
+    QString func_str = "[SUPERVISOR][getLocGroupname] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString loc_group_name_str = "-";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_group_name_str;
     }
-    return "-";
+
+    if(num < 0 || num >= pmap->serving_locations.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return loc_group_name_str;
+    }
+    else
+    {
+        loc_group_name_str = pmap->serving_locations[num].group_name;
+    }
+
+    return loc_group_name_str;
 }
 
-float Supervisor::getLocationX(int num, QString type){
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        return setAxis(pmap->charging_locations[num].point).x;
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        return setAxis(pmap->resting_locations[num].point).x;
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        return setAxis(pmap->cleaning_locations[num].point).x;
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        return setAxis(pmap->init_locations[num].point).x;
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        return setAxis(pmap->serving_locations[num].point).x;
-    }
-    return 0;
+void Supervisor::setLocation(int num, QString name, int group, int tablenum)
+{
+    QString func_str = "[SUPERVISOR][setLocation] ";
+    plog->write(func_str + "start func. params(num,name,group,tablenum):" +
+                QString::number(num) + "," +
+                name + "," +
+                QString::number(group) + "," +
+                QString::number(tablenum));
+
 }
 
-void Supervisor::setLocation(int num, QString name, int group, int tablenum){
-//     if(num > -1 && num < pmap->locations.size()){
-//         int count = 0;
-//         for(int i=0; i<pmap->locations.size(); i++){
-//             if(pmap->locations[i].type == "Serving"){
-//                 if(num==count){
-//                     pmap->locations[i].name = name;
-//                     pmap->locations[i].group = group;
-// //                    pmap->locations[i].number = tablenum;
-//                     pmap->annot_edit_location = true;
-//                     plog->write("[SUPERVISOR] SET LOCATION : "+QString().asprintf("(%d) group : %d, number : %d, name : ",num,group,tablenum)+name);
-//                 }
-//                 count++;
-//             }
-//         }
-//     }
-}
-QString Supervisor::getLocGroupname(int num){
-    if(num > -1 && num <pmap->location_groups.size()){
-        return pmap->location_groups[num];
+QString Supervisor::getLocGroupname(int num)
+{
+    QString func_str = "[SUPERVISOR][getLocGroupname] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString loc_group_name_str = " - ";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_group_name_str;
     }
-    return " - ";
-}
-float Supervisor::getLocationY(int num, QString type){
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        return setAxis(pmap->charging_locations[num].point).y;
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        return setAxis(pmap->resting_locations[num].point).y;
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        return setAxis(pmap->cleaning_locations[num].point).y;
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        return setAxis(pmap->init_locations[num].point).y;
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        return setAxis(pmap->serving_locations[num].point).y;
+
+    if(num < 0 || num >= pmap->location_groups.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
     }
-    return 0;
-}
-float Supervisor::getLocationTH(int num, QString type){
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        return setAxis(pmap->charging_locations[num].angle);
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        return setAxis(pmap->resting_locations[num].angle);
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        return setAxis(pmap->cleaning_locations[num].angle);
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        return setAxis(pmap->init_locations[num].angle);
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        return setAxis(pmap->serving_locations[num].angle);
+    else
+    {
+        loc_group_name_str = pmap->location_groups[num];
     }
-    return 0;
+
+    return loc_group_name_str;
 }
 
+float Supervisor::getLocationX(int num, QString type)
+{
+    QString func_str = "[SUPERVISOR][getLocationX] ";
+    plog->write(func_str + "start func. params(num,type):" + QString::number(num) + "," + type);
 
-float setAxis(float _angle){
-    return -_angle - M_PI/2;
+    float loc_x = 0.f;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_x;
+    }
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        if(num < 0 || num >= locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+        }
+        else
+        {
+            loc_x = setAxis(locations.at(num).point).x;
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown location type '" + type + "'.");
+    }
+
+    return loc_x;
 }
-float setAxisBack(float _angle){
-    return -_angle - M_PI/2;
+
+float Supervisor::getLocationY(int num, QString type)
+{
+    QString func_str = "[SUPERVISOR][getLocationY] ";
+    plog->write(func_str + "start func. params(num,type):" + QString::number(num) + "," + type);
+
+    float loc_y = 0.f;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_y;
+    }
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        if(num < 0 || num >= locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+        }
+        else
+        {
+            loc_y = setAxis(locations.at(num).point).y;
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown location type '" + type + "'.");
+    }
+
+    return loc_y;
 }
-cv::Point2f setAxis(cv::Point2f _point){
+
+float Supervisor::getLocationTH(int num, QString type)
+{
+    QString func_str = "[SUPERVISOR][getLocationTH] ";
+    plog->write(func_str + "start func. params(num,type):" + QString::number(num) + "," + type);
+
+    float loc_th = 0.f;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return loc_th;
+    }
+
+    const std::map<QString, QList<LOCATION>> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        const QList<LOCATION>& locations = it->second;
+        if(num < 0 || num >= locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+        }
+        else
+        {
+            loc_th = setAxis(locations.at(num).angle);
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown location type '" + type + "'.");
+    }
+
+    return loc_th;
+}
+
+float setAxis(float _angle)
+{
+    float val = -_angle - M_PI/2;
+    //plog->write("[SUPERVISOR][setAxis] angle:" + QString::number(val));
+
+    return val;
+}
+
+float setAxisBack(float _angle)
+{
+    float val = -_angle - M_PI/2;
+    //plog->write("[SUPERVISOR][setAxisBack] angle:" + QString::number(val));
+
+    return val;
+}
+
+cv::Point2f setAxis(cv::Point2f _point)
+{
     cv::Point2f temp;
     temp.x = -_point.y/pmap->gridwidth + pmap->origin[1];
     temp.y = -_point.x/pmap->gridwidth + pmap->origin[0];
+
+    //plog->write("[SUPERVISOR][setAxis] (x,y):" + QString::number(temp.x) + "," + QString::number(temp.y));
     return temp;
 }
-cv::Point2f setAxisMapping(cv::Point2f _point){
-    cv::Point2f temp;
-//    qDebug() << "mapping : " << pmap->mapping_gridwidth << pmap->mapping_width;
+
+cv::Point2f setAxisMapping(cv::Point2f _point)
+{
     float grid = pmap->mapping_gridwidth*pmap->mapping_width/1000;
+    cv::Point2f temp;
     temp.x = -_point.y/grid + 1000/2;
     temp.y = -_point.x/grid + 1000/2;
+
+    //plog->write("[SUPERVISOR][setAxisMapping] (x,y):" + QString::number(temp.x) + "," + QString::number(temp.y));
     return temp;
 }
-cv::Point2f setAxisObject(cv::Point2f _point){
-    cv::Point2f temp;
+
+cv::Point2f setAxisObject(cv::Point2f _point)
+{
     float grid = pmap->gridwidth*pmap->width/pmap->mapping_width;
+    cv::Point2f temp;
     temp.x = -_point.y/grid + pmap->mapping_width/2;
     temp.y = -_point.x/grid + pmap->mapping_width/2;
-//    qDebug() << temp.x << temp.y << pmap->width;
+
+    //plog->write("[SUPERVISOR][setAxisObject] (x,y):" + QString::number(temp.x) + "," + QString::number(temp.y));
     return temp;
 }
-cv::Point2f setAxisBack(cv::Point2f _point){
+
+cv::Point2f setAxisBack(cv::Point2f _point)
+{
     cv::Point2f temp;
     temp.x = -pmap->gridwidth*(_point.y-pmap->origin[1]);
     temp.y = -pmap->gridwidth*(_point.x-pmap->origin[0]);
-//    qDebug() << _point.y << temp.x << pmap->gridwidth << pmap->origin[1];
+
+    //plog->write("[SUPERVISOR][setAxisBack] (x,y):" + QString::number(temp.x) + "," + QString::number(temp.y));
     return temp;
 }
-POSE setAxis(POSE _pose){
+
+POSE setAxis(POSE _pose)
+{
     POSE temp;
     temp.point = setAxis(_pose.point);
     temp.angle = setAxis(_pose.angle);
     return temp;
 }
 
-POSE setAxisBack(POSE _pose){
+POSE setAxisBack(POSE _pose)
+{
     POSE temp;
     temp.point = setAxisBack(_pose.point);
     temp.angle = setAxisBack(_pose.angle);
     return temp;
 }
-POSE setAxis(cv::Point2f _point, float _angle){
+
+POSE setAxis(cv::Point2f _point, float _angle)
+{
     POSE temp;
     temp.point = setAxis(_point);
     temp.angle = setAxis(_angle);
     return temp;
 }
-POSE setAxisBack(cv::Point2f _point, float _angle){
+
+POSE setAxisBack(cv::Point2f _point, float _angle)
+{
     POSE temp;
     temp.point = setAxisBack(_point);
     temp.angle = setAxisBack(_angle);
+
     return temp;
 }
 
-bool sortWifi(const QString &w1, const QString &w2){
+bool sortWifi(const QString &w1, const QString &w2)
+{
     if(probot->wifi_map[w1].inuse)
+    {
         return true;
+    }
     else if(probot->wifi_map[w2].inuse)
+    {
         return true;
-    else{
+    }
+    else
+    {
         return probot->wifi_map[w1].level > probot->wifi_map[w2].level;
     }
 }
-bool sortLocation2(const LOCATION &l1, const LOCATION &l2){
-//    if(l1.group == l2.group)
-//        return l1.number < l2.number;
-//    else
-        return false;
+
+int Supervisor::getObjectNum()
+{
+    QString func_str = "[SUPERVISOR][getObjectNum] ";
+    plog->write(func_str + "start func. params()");
+
+    int obj_size = 0;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return obj_size;
+    }
+
+    obj_size = pmap->objects.size();
+    return obj_size;
 }
 
-int Supervisor::getObjectNum(){
-    return pmap->objects.size();
-}
-QString Supervisor::getObjectName(int num){
+QString Supervisor::getObjectName(int num)
+{
+    QString func_str = "[SUPERVISOR][getObjectName] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString name_str = "_";
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return name_str;
+    }
+
+    if(num < 0 || num >= pmap->objects.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return name_str;
+    }
+
     int count = 0;
-    if(num > -1 && num < pmap->objects.size()){
-        for(int i=0; i<num; i++){
-            if(pmap->objects[i].type == pmap->objects[num].type){
-                count++;
-            }
-        }
-        return pmap->objects[num].type + "_" + QString::number(count);
-    }
-}
-int Supervisor::getObjectPointSize(int num){
-    return pmap->objects[num].points.size();
-}
-float Supervisor::getObjectX(int num, int point){
-    if(num > -1 && num < pmap->objects.size()){
-        if(point > -1 && point < pmap->objects[num].points.size()){
-            return setAxis(pmap->objects[num].points[point]).x;
+    for(int i=0; i<num; i++)
+    {
+        if(pmap->objects[i].type == pmap->objects[num].type)
+        {
+            count++;
         }
     }
-    return 0;
-}
-float Supervisor::getObjectY(int num, int point){
-    if(num > -1 && num < pmap->objects.size()){
-        if(point > -1 && point < pmap->objects[num].points.size()){
-            return setAxis(pmap->objects[num].points[point]).y;
-        }
-    }
-    return 0;
+
+    name_str = pmap->objects[num].type + "_" + QString::number(count);
+    return name_str;
 }
 
-bool Supervisor::getAnnotEditFlag(){
-    qDebug() << pmap->annot_edit_object << pmap->annot_edit_location;
-    if(pmap->annot_edit_object || pmap->annot_edit_location){
-        return true;
-    }else
-        return false;
-    return pmap->annotation_edited;
+int Supervisor::getObjectPointSize(int num)
+{
+    QString func_str = "[SUPERVISOR][getObjectPointSize] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    int obj_pt_size = 0;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return obj_pt_size;
+    }
+
+    if(num < 0 || num >= pmap->objects.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return obj_pt_size;
+    }
+
+    obj_pt_size = pmap->objects[num].points.size();
+    return obj_pt_size;
 }
-void Supervisor::setAnnotEditFlag(bool flag){
+
+float Supervisor::getObjectX(int num, int point)
+{
+    QString func_str = "[SUPERVISOR][getObjectX] ";
+    plog->write(func_str + "start func. params(num,point):" + QString::number(num) + "," + QString::number(point));
+
+    float obj_x = 0.f;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return obj_x;
+    }
+
+    if(num < 0 || num >= pmap->objects.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return obj_x;
+    }
+
+    if(point < 0 || point >= pmap->objects[num].points.size())
+    {
+        log_advanced(func_str + "Error: point is out of bounds.");
+        return obj_x;
+    }
+
+    try
+    {
+        obj_x = setAxis(pmap->objects[num].points[point]).x;
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception : " + QString(e.what()));
+        obj_x = 0.f;
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception : unknwon.");
+        obj_x = 0.f;
+    }
+
+    return obj_x;
+}
+
+float Supervisor::getObjectY(int num, int point)
+{
+    QString func_str = "[SUPERVISOR][getObjectY] ";
+    plog->write(func_str + "start func. params(num,point):" + QString::number(num) + "," + QString::number(point));
+
+    float obj_y = 0.f;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return obj_y;
+    }
+
+    if(num < 0 || num >= pmap->objects.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return obj_y;
+    }
+
+    if(point < 0 || point >= pmap->objects[num].points.size())
+    {
+        log_advanced(func_str + "Error: point is out of bounds.");
+        return obj_y;
+    }
+
+    try
+    {
+        obj_y = setAxis(pmap->objects[num].points[point]).y;
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception : " + QString(e.what()));
+        obj_y = 0.f;
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception : unknwon.");
+        obj_y = 0.f;
+    }
+
+    return obj_y;
+}
+
+bool Supervisor::getAnnotEditFlag()
+{
+    QString func_str = "[SUPERVISOR][getAnnotEditFlag] ";
+    plog->write(func_str + "start func. params()");
+
+    bool is_edit = false;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return is_edit;
+    }
+
+    is_edit = pmap->annotation_edited;
+    return is_edit;
+}
+
+void Supervisor::setAnnotEditFlag(bool flag)
+{
+    QString func_str = "[SUPERVISOR][setAnnotEditFlag] ";
+    plog->write(func_str + "start func. params(flag):" + QString::number((int)flag));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
+    }
+
     pmap->annotation_edited = flag;
 }
 
-void Supervisor::clearSharedMemory(){
+void Supervisor::clearSharedMemory()
+{
+    QString func_str = "[SUPERVISOR][clearSharedMemory] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!ipc)
+    {
+        log_advanced(func_str + "Error: ipc is null.");
+        return;
+    }
+
     ipc->clearSharedMemory(ipc->shm_cmd);
 }
-int Supervisor::getObjPointNum(int obj_num, int x, int y){
-    //NEED DEBUG
+
+int Supervisor::getObjPointNum(int obj_num, int x, int y)
+{
+    QString func_str = "[SUPERVISOR][getObjPointNum] ";
+    plog->write(func_str + "start func. params(obj_num,x,y):" + QString::number(obj_num) + "," + QString::number(x) + "," + QString::number(y));
+
+    int idx = -1;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return idx;
+    }
+
+    if(obj_num < 0 || obj_num >= pmap->objects.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return idx;
+    }
+
     cv::Point2f pos = setAxisBack(cv::Point2f(x,y));
-    if(obj_num < pmap->objects.size() && obj_num > -1){
-        qDebug() << "check obj" << obj_num << pmap->objects[obj_num].points.size();
-        if(obj_num != -1){
-            for(int j=0; j<pmap->objects[obj_num].points.size(); j++){
-                qDebug() << pmap->objects[obj_num].points[j].x << pmap->objects[obj_num].points[j].y;
-                if(fabs(pmap->objects[obj_num].points[j].x - pos.x) < 0.1){
-                    if(fabs(pmap->objects[obj_num].points[j].y - pos.y) < 0.1){
-                        qDebug() << "Match Point !!" << obj_num << j;
-                        return j;
-                    }
-                }
-            }
+
+    const auto& pts = pmap->objects[obj_num].points;
+    for(int p=0; p<pts.size(); p++)
+    {
+        if(fabs(pts[p].x - pos.x) < 0.1 && fabs(pts[p].y - pos.y) < 0.1)
+        {
+            idx = p;
+            break;
         }
     }
-    qDebug() << "can't find obj num : " << x << y;
-    return -1;
+
+    if(idx == -1)
+    {
+        plog->write(func_str + "can't find obj num (obj_num,idx):" +QString::number(obj_num) + "," + QString::number(idx));
+    }
+    else
+    {
+        plog->write(func_str + "match point (obj_num,idx):" +QString::number(obj_num) + "," + QString::number(idx));
+    }
+
+    return idx;
 }
 
-void Supervisor::removeLocation(QString type, int num){
-    plog->write("[UI-MAP] REMOVE LOCATION "+ type + QString::number(num));
-    if(type == "Charging" && num>-1 && num<pmap->charging_locations.size()){
-        pmap->annotation_edited = true;
-        pmap->charging_locations.removeAt(num);
-    }else if(type == "Resting" && num>-1 && num<pmap->resting_locations.size()){
-        pmap->annotation_edited = true;
-        pmap->resting_locations.removeAt(num);
-    }else if(type == "Cleaning" && num>-1 && num<pmap->cleaning_locations.size()){
-        pmap->annotation_edited = true;
-        pmap->cleaning_locations.removeAt(num);
-    }else if(type == "Init" && num>-1 && num<pmap->init_locations.size()){
-        pmap->annotation_edited = true;
-        pmap->init_locations.removeAt(num);
-    }else if(type == "Serving" && num>-1 && num<pmap->serving_locations.size()){
-        pmap->annotation_edited = true;
-        pmap->serving_locations.removeAt(num);
-    }else{
-        plog->write("[UI-MAP] REMOVE LOCATION Failed "+ type + QString::number(num));
+void Supervisor::removeLocation(QString type, int num)
+{
+    QString func_str = "[SUPERVISOR][removeLocation] ";
+    plog->write(func_str + "start func. params(type,num):" + type + "," + QString::number(num));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
+    }
+
+    const std::map<QString, QList<LOCATION>&> location_map =
+    {
+        {"Charging", pmap->charging_locations},
+        {"Resting", pmap->resting_locations},
+        {"Cleaning", pmap->cleaning_locations},
+        {"Init", pmap->init_locations},
+        {"Serving", pmap->serving_locations}
+    };
+
+    auto it = location_map.find(type);
+    if(it != location_map.end())
+    {
+        QList<LOCATION>& locations = it->second;
+        if(num < 0 || num > locations.size())
+        {
+            log_advanced(func_str + "Error: num is out of bounds.");
+            return;
+        }
+        else
+        {
+            pmap->annotation_edited = true;
+            locations.removeAt(num);
+        }
+    }
+    else
+    {
+        log_advanced(func_str + "Error: unknown locatio type '" + type + "'.");
     }
 }
 
-int Supervisor::getObjectSize(QString type){
+void Supervisor::removeObject(int num)
+{
+    QString func_str = "[SUPERVISOR][removeObject] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
+    }
+
+    if(num < 0 || num >= pmap->objects.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return;
+    }
+    else
+    {
+        pmap->annotation_edited = true;
+        pmap->objects.removeAt(num);
+
+        try
+        {
+            maph->setObjPose();
+            maph->clearObject();
+            QMetaObject::invokeMethod(mMain, "updateobject");
+            plog->write(func_str + "remove obj " + QString().asprintf("(%d)", num));
+        }
+        catch(const std::exception &e)
+        {
+            log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+        }
+        catch(...)
+        {
+            log_advanced(func_str + "Exception occurred, err: unknown.");
+        }
+    }
+}
+
+int Supervisor::getObjectSize(QString type)
+{
+    QString func_str = "[SUPERVISOR][isOdroid] ";
+    plog->write(func_str + "start func. params(type):" + type);
+
     int size = 0;
-    for(int i=0; i<pmap->objects.size(); i++){
-        if(pmap->objects[i].type == type)
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return size;
+    }
+
+    for(const auto& obj : pmap->objects)
+    {
+        if(obj.type == type)
+        {
             size++;
+        }
     }
     return size;
 }
 
-void Supervisor::saveLocations(){
+bool Supervisor::isOdroid()
+{
+    QString func_str = "[SUPERVISOR][isOdroid] ";
+    plog->write(func_str + "start func. params()");
 
+    bool is_odroid = true;
+    try
+    {
+        QStringList str_list = QDir::homePath().split("/");
+        if(str_list.size() < 2)
+        {
+            log_advanced(func_str + "Error: str_list size under 2.");
+            return is_odroid;
+        }
+
+        if(str_list[2] != "odroid")
+        {
+            is_odroid = false;
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+        is_odroid = true;
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+        is_odroid = true;
+    }
+
+    return is_odroid;
 }
-void Supervisor::removeObject(int num){
-//    clear_all();
-    if(num > -1 && num < pmap->objects.size()){
-        pmap->objects.removeAt(num);
-        maph->setObjPose();
-        pmap->annotation_edited = true;
-        maph->clearObject();
-        QMetaObject::invokeMethod(mMain, "updateobject");
-        plog->write("[ANNOTATION - ERROR] removeObject " + QString().asprintf("(%d)",num));
-    }else{
-        plog->write("[ANNOTATION - ERROR] removeObject " + QString().asprintf("(%d)",num) + " but size error");
+
+void Supervisor::saveNode()
+{
+    QString func_str = "[SUPERVISOR][saveNode] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!maph)
+    {
+        log_advanced(func_str + "Error: maph is null.");
+        return;
+    }
+
+    try
+    {
+        maph->saveNode();
+        maph->saveAnnotation();
+        saveAnnotation("");
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
 
-bool Supervisor::isOdroid(){
-    if(QDir::homePath().split("/")[2]=="odroid"){
-        return true;
-    }else{
+bool Supervisor::saveAnnotation(QString filename, bool reload)
+{
+    QString func_str = "[SUPERVISOR][saveAnnotation] ";
+    plog->write(func_str + "start func. params(filename, reload):" + filename + "," + QString::number((int)reload));
+
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
         return false;
     }
-}
-void Supervisor::saveNode(){
-    maph->saveNode();
-    maph->saveAnnotation();
-    saveAnnotation("");
-}
-bool Supervisor::saveAnnotation(QString filename, bool reload){
-    plog->write("[COMMAND] saveAnnotation : "+filename);
-    //기존 파일 백업
-    QString backup = QDir::homePath()+"/RB_MOBILE/maps/"+filename+"/annotation_backup.ini";
-    QString origin = getAnnotPath(filename);
-    if(QFile::exists(origin) == true){
-        if(QFile::copy(origin, backup)){
-            plog->write("[DEBUG] Copy annotation.ini to annotation_backup.ini");
-        }else{
-            plog->write("[DEBUG] Fail to copy annotation.ini to annotation_backup.ini");
-        }
-    }else{
-        plog->write("[DEBUG] Fail to copy annotation.ini to annotation_backup.ini (No file found)");
+
+    if(!maph)
+    {
+        log_advanced(func_str + "Error: maph is null.");
+        return false;
     }
 
-    if(filename == ""){
+    if(filename == "")
+    {
         filename = getMapname();
     }
 
-    //데이터 입력(로케이션)
-    int other_num = 0;
-    int resting_num = 0;
-    int charging_num = 0;
-    int cleaning_num = 0;
-    int init_num = 0;
-    int group_num[pmap->location_groups.size()];
-
-    for(int i=0; i<pmap->location_groups.size(); i++)
-        group_num[i] = 0;
-
-    QString str_name;
-    QSettings settings(getAnnotPath(filename), QSettings::IniFormat);
-    settings.clear();
-
-    //name,x,y,th,num,locnum,callid
-    for(int i=0; i<pmap->charging_locations.size(); i++){
-        str_name = pmap->charging_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->charging_locations[i].point.x,pmap->charging_locations[i].point.y,pmap->charging_locations[i].angle)
-                +","+pmap->charging_locations[i].call_id+":"+pmap->charging_locations[i].ling_id;
-        settings.setValue("charging_locations/loc"+QString::number(charging_num),str_name);
-        charging_num++;
-    }
-    for(int i=0; i<pmap->resting_locations.size(); i++){
-        str_name = pmap->resting_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->resting_locations[i].point.x,pmap->resting_locations[i].point.y,pmap->resting_locations[i].angle)
-                +","+pmap->resting_locations[i].call_id+":"+pmap->resting_locations[i].ling_id;
-        settings.setValue("resting_locations/loc"+QString::number(resting_num),str_name);
-        resting_num++;
-    }
-    for(int i=0; i<pmap->cleaning_locations.size(); i++){
-        str_name = pmap->cleaning_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->cleaning_locations[i].point.x,pmap->cleaning_locations[i].point.y,pmap->cleaning_locations[i].angle)
-                +","+pmap->cleaning_locations[i].call_id+":"+pmap->cleaning_locations[i].ling_id;
-        settings.setValue("cleaning_locations/loc"+QString::number(cleaning_num),str_name);
-        cleaning_num++;
-    }
-    for(int i=0; i<pmap->init_locations.size(); i++){
-        str_name = pmap->init_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->init_locations[i].point.x,pmap->init_locations[i].point.y,pmap->init_locations[i].angle)
-                +","+pmap->init_locations[i].call_id+":"+pmap->init_locations[i].ling_id;
-        settings.setValue("init_locations/loc"+QString::number(init_num),str_name);
-        init_num++;
-    }
-
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        QString groupname = "serving_" + QString::number(pmap->serving_locations[i].group);
-        str_name = pmap->serving_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->serving_locations[i].point.x,pmap->serving_locations[i].point.y,pmap->serving_locations[i].angle)
-                +","+pmap->serving_locations[i].call_id+":"+pmap->serving_locations[i].ling_id;
-        settings.setValue(groupname+"/loc"+QString::number(group_num[pmap->serving_locations[i].group]),str_name);
-        group_num[pmap->serving_locations[i].group]++;
-    }
-
-    settings.setValue("cleaning_locations/num",cleaning_num);
-    settings.setValue("resting_locations/num",resting_num);
-    settings.setValue("serving_locations/group",pmap->location_groups.size());
-    settings.setValue("other_locations/num",other_num);
-    settings.setValue("init_locations/num",init_num);
-    settings.setValue("charging_locations/num",charging_num);
-
-    for(int i=0; i<pmap->location_groups.size(); i++){
-        settings.setValue("serving_"+QString::number(i)+"/name",pmap->location_groups[i]);
-        settings.setValue("serving_"+QString::number(i)+"/num",getLocationGroupSize(i));
-    }
-
-    slam_map_reload(filename, 1);
-    if(reload){
-        readSetting(filename);
-        maph->initLocation();
-    }
-    pmap->annotation_edited = false;
-    return true;
-}
-
-void Supervisor::saveTTSVoice(){
-    qDebug() <<"saveTTSVoice" << tts->curVoice.mode;
-
-    if(getSetting("setting","UI","voice_language") != tts->curVoice.language)
-        setSetting("setting","UI/voice_language",tts->curVoice.language);
-
-    if(getSetting("setting","UI","voice_name") != tts->curVoice.voice)
-        setSetting("setting","UI/voice_name",tts->curVoice.voice);
-
-    if(getSetting("setting","UI","voice_mode") != tts->curVoice.mode)
-        setSetting("setting","UI/voice_mode",tts->curVoice.mode);
-
-    if(getSetting("setting","UI","voice_speed") != QString::number(tts->curVoice.speed))
-        setSetting("setting","UI/voice_speed",QString::number(tts->curVoice.speed));
-
-    if(getSetting("setting","UI","voice_pitch") != QString::number(tts->curVoice.pitch))
-        setSetting("setting","UI/voice_pitch",QString::number(tts->curVoice.pitch));
-
-    if(getSetting("setting","UI","voice_alpha") != QString::number(tts->curVoice.alpha))
-        setSetting("setting","UI/voice_alpha",QString::number(tts->curVoice.alpha));
-
-    if(getSetting("setting","UI","voice_emotion") != QString::number(tts->curVoice.emotion))
-        setSetting("setting","UI/voice_emotion",QString::number(tts->curVoice.emotion));
-
-    if(getSetting("setting","UI","voice_emotion_strength") != QString::number(tts->curVoice.emotion_strength))
-        setSetting("setting","UI/voice_emotion_strength",QString::number(tts->curVoice.emotion_strength));
-}
-
-void Supervisor::clearTTSVoice(int lan, int name){
-    QDir path = QDir::homePath()+"/RB_MOBILE/voice";
-    QStringList files = path.entryList();
-    QString voice = tts->getVoiceName("tts",lan,name);
-    plog->write("[SOUND] clearTTSVoice : "+QString::number(lan)+","+QString::number(name)+" -> "+voice);
-    for(QString file : files){
-        if(file.split("_")[0] == voice){
-            qDebug() << "remove : " << file;
-            plog->write("[SOUND] clearTTSVoice : remove file ("+file+")");
-            QFile::remove(path.path()+"/"+file);
-        }
-    }
-}
-
-void Supervisor::setTTSMode(QString mode){
-    plog->write("[SOUND] setTTSMode : "+mode);
-    tts->curVoice.mode = mode;
-    setTTSVoice(0,0);
-    setTTSVoiceDetail(0,0,0);
-//    saveTTSVoice();
-}
-void Supervisor::setTTSMentionBasic(){
-    tts->setMentionBasic(tts->curVoice.language);
-}
-void Supervisor::setTTSVoice(int lan, int name){
-    plog->write("[SETTING] setTTSVoice : "+tts->getVoiceLanguage(lan)+"("+tts->getVoiceName("tts",lan,name)+")");
-    tts->setVoice(tts->getVoiceName("tts",lan,name),tts->getVoiceLanguage(lan));
-    saveTTSVoice();
-}
-void Supervisor::setTTSVoiceDetail(int speed, int pitch, int alpha, int emotion, int emostren){
-    tts->setVoiceDetail(speed,pitch,alpha,emotion,emostren);
-    saveTTSVoice();
-}
-
-
-////*********************************************  SCHEDULER(SERVING) 관련   ***************************************************////
-void Supervisor::setTray(int tray_num, int group, int table){
-    if(tray_num > -1 && tray_num < probot->trays.size()){
-        probot->trays[tray_num].empty = false;
-        probot->trays[tray_num].location = getServingLocation(group,getServingName(group,table));
-        plog->write("[COMMAND] setTray : "+QString::number(tray_num)+" , "+getServingName(group,table));
-    }
-}
-
-void Supervisor::startServing(){
-    if(isRobotReady()){
-        QString tray_str = "";
-        for(int i = 0; i<probot->trays.size(); i++){
-            if(!probot->trays[i].empty){
-                plog->write("[COMMAND] startServing "+probot->trays[i].location.name);
-                stateMoving();
-                return;
+    bool is_save_annot = true;
+    try
+    {
+        QString origin = getAnnotPath(filename);
+        if(QFile::exists(origin) == true)
+        {
+            QString backup = QDir::homePath() + "/RB_MOBILE/maps/" + filename + "/annotation_backup.ini";
+            if(QFile::copy(origin, backup))
+            {
+                plog->write(func_str + "Copy annotation.ini to annotation_backup.ini");
+            }
+            else
+            {
+                plog->write(func_str + "Fail to copy annotation.ini to annotation_backup.ini");
+                return false;
             }
         }
-        plog->write("[COMMAND] startServing : tray empty");
-    }else{
-        plog->write("[COMMAND] startServing : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+        else
+        {
+            plog->write(func_str + "Fail to copy annotation.ini to annotation_backup.ini (No file found)");
+            return false;
+        }
+
+        //데이터 입력(로케이션)
+        int resting_num = 0;
+        int charging_num = 0;
+        int cleaning_num = 0;
+        int init_num = 0;
+        std::vector<int> group_num(pmap->location_groups.size(), 0);
+
+        QString path_anot = getAnnotPath(filename);
+        QFileInfo file_info(path_anot);
+        if(file_info.exists() && file_info.isFile())
+        {
+            QSettings settings(path_anot, QSettings::IniFormat);
+            settings.clear();
+
+            //name, x, y, th, num, locnum, callid
+            for(const auto& loc : pmap->charging_locations)
+            {
+                QString loc_name = loc.name + QString().asprintf(",%f,%f,%f", loc.point.x, loc.point.y, loc.angle) + "," + loc.call_id + ":" + loc.ling_id;
+                settings.setValue("charging_locations/loc" + QString::number(charging_num), loc_name);
+                charging_num++;
+            }
+
+            for(const auto& loc : pmap->resting_locations)
+            {
+                QString loc_name = loc.name + QString().asprintf(",%f,%f,%f", loc.point.x, loc.point.y, loc.angle) + "," + loc.call_id + ":" + loc.ling_id;
+                settings.setValue("resting_locations/loc" + QString::number(resting_num), loc_name);
+                resting_num++;
+            }
+
+            for(const auto& loc : pmap->cleaning_locations)
+            {
+                QString loc_name = loc.name + QString().asprintf(",%f,%f,%f", loc.point.x, loc.point.y, loc.angle) + "," + loc.call_id + ":" + loc.ling_id;
+                settings.setValue("cleaning_locations/loc" + QString::number(cleaning_num), loc_name);
+                cleaning_num++;
+            }
+
+            for(const auto& loc : pmap->init_locations)
+            {
+                QString loc_name = loc.name + QString().asprintf(",%f,%f,%f", loc.point.x, loc.point.y, loc.angle) + "," + loc.call_id + ":" + loc.ling_id;
+                settings.setValue("init_locations/loc" + QString::number(init_num), loc_name);
+                init_num++;
+            }
+
+            for(const auto& loc : pmap->serving_locations)
+            {
+                QString groupname = "serving_" + QString::number(loc.group);
+                QString loc_name = loc.name + QString().asprintf(",%f,%f,%f", loc.point.x, loc.point.y, loc.angle) + "," + loc.call_id + ":" + loc.ling_id;
+                settings.setValue(groupname + "/loc" + QString::number(group_num[loc.group]), loc_name);
+                group_num[loc.group]++;
+            }
+
+            settings.setValue("charging_locations/num",charging_num);
+            settings.setValue("resting_locations/num", resting_num);
+            settings.setValue("cleaning_locations/num", cleaning_num);
+            settings.setValue("init_locations/num", init_num);
+            settings.setValue("serving_locations/group", pmap->location_groups.size());
+
+            for(int i=0; i<pmap->location_groups.size(); i++)
+            {
+                settings.setValue("serving_" + QString::number(i) + "/name", pmap->location_groups[i]);
+                settings.setValue("serving_" + QString::number(i) + "/num", getLocationGroupSize(i));
+            }
+
+            slam_map_reload(filename, SOFT_RELOAD);
+
+            if(reload == true)
+            {
+                readSetting(filename);
+                maph->initLocation();
+            }
+            pmap->annotation_edited = false;
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+        is_save_annot = false;
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+        is_save_annot = false;
+    }
+
+    return is_save_annot;
+}
+
+void Supervisor::saveTTSVoice()
+{
+    QString func_str = "[SUPERVISOR][saveTTSVoice] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!tts)
+    {
+        log_advanced(func_str + "Error: tts is null.");
+        return;
+    }
+
+    try
+    {
+        auto func_save_setting_if_changed = [this](const QString& key, const QString& value)
+        {
+            if (getSetting("setting", "UI", key) != value)
+            {
+                setSetting("setting", "UI/" + key, value);
+            }
+        };
+
+        func_save_setting_if_changed("voice_language", tts->curVoice.language);
+        func_save_setting_if_changed("voice_name", tts->curVoice.voice);
+        func_save_setting_if_changed("voice_mode", tts->curVoice.mode);
+        func_save_setting_if_changed("voice_speed", QString::number(tts->curVoice.speed));
+        func_save_setting_if_changed("voice_pitch", QString::number(tts->curVoice.pitch));
+        func_save_setting_if_changed("voice_alpha", QString::number(tts->curVoice.alpha));
+        func_save_setting_if_changed("voice_emotion", QString::number(tts->curVoice.emotion));
+        func_save_setting_if_changed("voice_emotion_strength", QString::number(tts->curVoice.emotion_strength));
+
+        plog->write(func_str + "save tts voice: " + tts->curVoice.mode);
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
 
-void Supervisor::startServing(int group, int table){
-    if(isRobotReady()){
-        LOCATION target;
-        patrol_mode = PATROL_NONE;
-        int target_num = -1;
-        int count = 0;
-        for(int i=0; i<pmap->serving_locations.size(); i++){
-            if(pmap->serving_locations[i].group == group){
-                if(count == table){
-                    target = pmap->serving_locations[i];
-                    target_num = count;
+void Supervisor::clearTTSVoice(int lan, int name)
+{
+    QString func_str = "[SUPERVISOR][clearTTSVoice] ";
+    plog->write(func_str + "start func. params(lan, name):" + QString::number(lan) + "," + QString::number(name));
+
+    if(!tts)
+    {
+        log_advanced(func_str + "Error: tts is null.");
+        return;
+    }
+
+    try
+    {
+        QDir path = QDir::homePath() + "/RB_MOBILE/voice";
+        QStringList files = path.entryList();
+        QString voice = tts->getVoiceName("tts", lan, name);
+        plog->write(func_str + " set clear(lan, name, voice) : " + QString::number(lan) + "," + QString::number(name) + " -> " + voice);
+
+        for(const QString& file : files)
+        {
+            if(file.startsWith(voice +"_"))
+            {
+                QString filePath = path.filePath(file);
+                if (QFile::remove(filePath))
+                {
+                    plog->write(func_str + "remove file (" + file + ")");
+                }
+                else
+                {
+                    plog->write(func_str + "failed to remove file (" + file + ")");
+                }
+            }
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::setTTSMode(QString mode)
+{
+    QString func_str = "[SUPERVISOR][setTTSMode] ";
+    plog->write(func_str + "start func. params(mode):" + mode);
+
+    if(!tts)
+    {
+        log_advanced(func_str + "Error: tts is null.");
+        return;
+    }
+
+    try
+    {
+        tts->curVoice.mode = mode;
+        setTTSVoice(0,0);
+        setTTSVoiceDetail(0,0,0);
+        plog->write(func_str + " set tts mode : " + mode);
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::setTTSMentionBasic()
+{
+    QString func_str = "[SUPERVISOR][setTTSMentionBasic] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!tts)
+    {
+        log_advanced(func_str + "Error: tts is null.");
+        return;
+    }
+
+    try
+    {
+        tts->setMentionBasic(tts->curVoice.language);
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::setTTSVoice(int lan, int name)
+{
+    QString func_str = "[SUPERVISOR][setTTSVoice] ";
+    plog->write(func_str + "start func. params(lan, name):" + QString::number(lan) + "," + QString::number(name));
+
+    if(!tts)
+    {
+        log_advanced(func_str + "Error: tts is null.");
+        return;
+    }
+
+    try
+    {
+        tts->setVoice(tts->getVoiceName("tts", lan, name), tts->getVoiceLanguage(lan));
+        saveTTSVoice();
+        plog->write(func_str + " set voice: " + tts->getVoiceLanguage(lan) + "(" + tts->getVoiceName("tts", lan, name) + ")");
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::setTTSVoiceDetail(int speed, int pitch, int alpha, int emotion, int emostren)
+{
+    QString func_str = "[SUPERVISOR][setTTSVoiceDetail] ";
+    plog->write(func_str + "start func. params(speed, pitch, alpha, emotion, emostren):" +
+                QString::number(speed) + "," +
+                QString::number(pitch) + "," +
+                QString::number(alpha) + "," +
+                QString::number(emotion) + "," +
+                QString::number(emostren));
+
+    if(!tts)
+    {
+        log_advanced(func_str + "Error: tts is null.");
+        return;
+    }
+
+    try
+    {
+        tts->setVoiceDetail(speed, pitch, alpha, emotion, emostren);
+        saveTTSVoice();
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+////*********************************************  SCHEDULER(SERVING) 관련   ***************************************************////
+void Supervisor::setTray(int tray_num, int group, int table)
+{
+    QString func_str = "[SUPERVISOR][setTray] ";
+    plog->write(func_str + "start func. params(group, table):" + QString::number(group) + "," + QString::number(table));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    if(tray_num < 0 || tray_num >= probot->trays.size())
+    {
+        log_advanced(func_str + "Error: tray_num is out of bounds.");
+        return;
+    }
+
+    try
+    {
+        QString serving_name = getServingName(group,table);
+        probot->trays[tray_num].location = getServingLocation(group, serving_name);
+        probot->trays[tray_num].empty = false;
+        plog->write(func_str + "setTray : " + QString::number(tray_num) + " , " + serving_name);
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::startServing()
+{
+    QString func_str = "[SUPERVISOR][startServing] ";
+    plog->write(func_str + "start func.");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    try
+    {
+        if(isRobotReady())
+        {
+            bool is_empty = true;
+            for(const auto &trays : probot->trays)
+            {
+                if(!trays.empty)
+                {
+                    is_empty = false;
+                    plog->write(func_str + "start serving. location name: " + trays.location.name);
+                    stateMoving();
                     break;
-                }else{
-                    count++;
                 }
             }
 
-        }
-        if(target_num > -1){
-            plog->write("[COMMAND] startServing : "+target.name+QString().asprintf(" (group : %d, table : %d)", group, table));
-            for(int i=0; i<probot->trays.size(); i++){
-                probot->trays[i].empty = false;
-                probot->trays[i].location = target;
+            if(is_empty)
+            {
+                plog->write(func_str + "empty tray");
             }
-            stateMoving();
-        }else{
-            plog->write("[COMMAND] startServing : target not found "+QString().asprintf(" (group : %d, table : %d)", group, table));
         }
-    }else{
-        plog->write("[COMMAND] startServing : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+        else
+        {
+            plog->write(func_str + "robot state not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)", (int)ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
 
-void Supervisor::setPreset(int preset){
-    plog->write("[COMMAND] SET PRESET : "+QString::number(preset));
-    probot->cur_preset = preset;
-    setSetting("update","DRIVING/cur_preset",QString::number(preset));
-}
+void Supervisor::startServing(int group, int table)
+{
+    QString func_str = "[SUPERVISOR][startServing(group,table)] ";
+    plog->write(func_str + "start func. params(group, table):" + QString::number(group) + "," + QString::number(table));
 
-void Supervisor::confirmPickup(QString mode){
-    if(ui_state == UI_STATE_PICKUP){
-        if(pmap->call_queue.size() > 0 && probot->is_calling){
-            plog->write("[COMMAND] confirmPickup : Call queue pop front "+pmap->call_queue[0]);
-            pmap->call_queue.pop_front();
-        }
-        if(isRobotReady()){
-            plog->write("[COMMAND] confirmPickup -> Moving");
-            stateMoving();
-            if(mode == "Cleaning"){
-                probot->current_target = getCleaningLocation(0);
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    try
+    {
+        if(isRobotReady())
+        {
+            LOCATION target;
+            patrol_mode = PATROL_NONE;
+            int target_num = -1;
+            int count = 0;
+
+            for(const auto& loc : pmap->serving_locations)
+            {
+                if(loc.group == group)
+                {
+                    if(count == table)
+                    {
+                        target = loc;
+                        target_num = count;
+                        break;
+                    }
+                    else
+                    {
+                        count++;
+                    }
+                }
             }
-        }else{
-            plog->write("[COMMAND] confirmPickup : Robot Not Ready");
-            QMetaObject::invokeMethod(mMain,"robotnotready");
+
+            if(target_num > -1)
+            {
+                plog->write(func_str + "start serving" + target.name+QString().asprintf("%d,%d", group, table));
+                for(int i=0; i<probot->trays.size(); i++)
+                {
+                    probot->trays[i].empty = false;
+                    probot->trays[i].location = target;
+                }
+                stateMoving();
+            }
+            else
+            {
+                plog->write(func_str + "target not found " + QString().asprintf("%d,%d", group, table));
+            }
         }
-    }else{
-        probot->current_target.name = "";
-        plog->write("[COMMAND] confirmPickup : (ui_state "+QString::number(ui_state)+") -> noting to do");
+        else
+        {
+            plog->write(func_str + "robot state not ready, " + QString::asprintf("(UIstate: %d, Loc: %d, Motor1: %d, Motor2: %d)",
+                                                                                  (int)ui_state,
+                                                                                  probot->localization_state,
+                                                                                  probot->motor[0].status,
+                                                                                  probot->motor[1].status));
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
-QList<int> Supervisor::getPickuptrays(){
-    return probot->pickupTrays;
+
+void Supervisor::setPreset(int preset)
+{
+    QString func_str = "[SUPERVISOR][setPreset] ";
+    plog->write(func_str + "start func. params(preset):" + QString::number(preset));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    try
+    {
+        probot->cur_preset = preset;
+        setSetting("update", "DRIVING/cur_preset", QString::number(preset));
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "[SUPERVISOR][setPreset] Exception occurred, err: unknown.");
+    }
 }
 
+void Supervisor::confirmPickup(QString mode)
+{
+    QString func_str = "[SUPERVISOR][confirmPickup] ";
+    plog->write(func_str + "start func. params(mode):" + mode);
 
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
 
+    try
+    {
+        if(ui_state == UI_STATE_PICKUP)
+        {
+            if(pmap->call_queue.size() > 0 && probot->is_calling)
+            {
+                plog->write(func_str + "Call queue pop front " + pmap->call_queue[0]);
+                pmap->call_queue.pop_front();
+            }
 
+            if(isRobotReady())
+            {
+                plog->write(func_str + "Moving");
+                stateMoving();
+                if(mode == "Cleaning")
+                {
+                    probot->current_target = getCleaningLocation(0);
+                }
+            }
+            else
+            {
+                plog->write(func_str + "robot state Not Ready");
+                QMetaObject::invokeMethod(mMain,"robotnotready");
+            }
+        }
+        else
+        {
+            probot->current_target.name = "";
+            plog->write(func_str + " (ui_state " + QString::number(ui_state) + ") -> noting to do");
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+QList<int> Supervisor::getPickuptrays()
+{
+    QString func_str = "[SUPERVISOR][getPickuptrays] ";
+    plog->write(func_str + "start func. params()");
+
+    QList<int> _pickupTrays;
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return _pickupTrays;
+    }
+
+    try
+    {
+        _pickupTrays= probot->pickupTrays;
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+
+    return _pickupTrays;
+}
 
 ////*********************************************  ROBOT MOVE 관련   ***************************************************////
-void Supervisor::movePause(){
-    plog->write("[COMMAND] Move Pause");
-    ipc->movePause();
+void Supervisor::movePause()
+{
+    QString func_str = "[SUPERVISOR][movePause] ";
+    plog->write(func_str + "start func. params()");
 
+    if(!ipc)
+    {
+        log_advanced(func_str + "Error: ipc is null.");
+        return;
+    }
+
+    ipc->movePause();
 }
-void Supervisor::moveResume(){
-    plog->write("[COMMAND] Move Resume");
+
+void Supervisor::moveResume()
+{
+    QString func_str = "[SUPERVISOR][moveResume] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!ipc)
+    {
+        log_advanced(func_str + "Error: ipc is null.");
+        return;
+    }
+
     ipc->moveResume();
 }
-void Supervisor::moveStopFlag(){
-    plog->write("[COMMAND] Move Stop Flag");
-    patrol_mode = PATROL_NONE;
-    probot->is_patrol = false;
-    pmap->call_queue.clear();
-    for(int i=0; i<probot->trays.size(); i++){
-        probot->trays[i].empty = true;
-    }
-}
 
-void Supervisor::moveStop(){
-    plog->write("[COMMAND] Move Stop");
-    stateInit();
-    QMetaObject::invokeMethod(mMain, "movestopped");
-}
+void Supervisor::moveStopFlag()
+{
+    QString func_str = "[SUPERVISOR][moveStopFlag] ";
+    plog->write(func_str + "start func. params()");
 
-void Supervisor::moveToCharge(){
-    if(isRobotReady()){
-        plog->write("[COMMAND] moveToCharge");
-        stateMoving();
-        probot->current_target = getChargingLocation(0);
-    }else{
-        QMetaObject::invokeMethod(mMain,"robotnotready");
-        plog->write("[COMMAND] moveToCharge : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return;
     }
-}
-void Supervisor::moveToWait(){
-    if(isRobotReady()){
-        plog->write("[COMMAND] moveToWait");
-        stateMoving();
-        probot->current_target = getRestingLocation(0);
-    }else{
-        QMetaObject::invokeMethod(mMain,"robotnotready");
-        plog->write("[COMMAND] moveToWait : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
     }
-}
-bool Supervisor::isFinalLocation(){
-    if(probot->is_patrol){
-        return false;
-    }
-    bool tray_occupied = false;
-    for(int i=0; i<setting.tray_num; i++){
-        //트레이 점유됨
-        if(!probot->trays[i].empty){
-            tray_occupied = true;
+
+    try
+    {
+        patrol_mode = PATROL_NONE;
+        probot->is_patrol = false;
+        pmap->call_queue.clear();
+        for(int i=0; i<probot->trays.size(); i++)
+        {
+            probot->trays[i].empty = true;
         }
     }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
 
-    if(tray_occupied){
+void Supervisor::moveStop()
+{
+    QString func_str = "[SUPERVISOR][moveStop] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
+    }
+
+    try
+    {
+        stateInit();
+        QMetaObject::invokeMethod(mMain, "movestopped");
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::moveToCharge()
+{
+    QString func_str = "[SUPERVISOR][moveToCharge] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
+    }
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    try
+    {
+        if(isRobotReady())
+        {
+            stateMoving();
+            probot->current_target = getChargingLocation(0);
+            plog->write(func_str + "move");
+        }
+        else
+        {
+            QMetaObject::invokeMethod(mMain, "robotnotready");
+            plog->write(func_str + "robot state not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)", (int)ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::moveToCleaning()
+{
+    QString func_str = "[SUPERVISOR][moveToCleaning] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
+    }
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    try
+    {
+        if(isRobotReady())
+        {
+            stateMoving();
+            probot->current_target = getCleaningLocation(0);
+            plog->write(func_str + "move");
+        }
+        else
+        {
+            QMetaObject::invokeMethod(mMain, "robotnotready");
+            plog->write(func_str + "robot state not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)", (int)ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::moveToWait()
+{
+    QString func_str = "[SUPERVISOR][moveToWait] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
+    }
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    try
+    {
+        if(isRobotReady())
+        {
+            stateMoving();
+            probot->current_target = getRestingLocation(0);
+            plog->write(func_str + "move");
+        }
+        else
+        {
+            QMetaObject::invokeMethod(mMain,"robotnotready");
+            plog->write(func_str + "robot state not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)", (int)ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+bool Supervisor::isFinalLocation()
+{
+    QString func_str = "[SUPERVISOR][isFinalLocation] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
         return false;
-    }else{
-        return true;
     }
 
-}
-void Supervisor::moveToCleaning(){
-    if(isRobotReady()){
-        plog->write("[COMMAND] moveToCleaning");
-        stateMoving();
-        probot->current_target = getCleaningLocation(0);
-    }else{
-        is_test_moving = false;
-        QMetaObject::invokeMethod(mMain,"robotnotready");
-        plog->write("[COMMAND] moveToCleaning : State not ready " + QString::asprintf("(UIstate: %d, Local: %d, Motor1: %d, Motor2: %d)",ui_state, probot->localization_state, probot->motor[0].status, probot->motor[1].status));
+    bool is_final_loc = true;
+    try
+    {
+        bool tray_occupied = false;
+        for(int i=0; i<setting.tray_num; i++)
+        {
+            if(!probot->trays[i].empty)
+            {
+                tray_occupied = true;
+                break;
+            }
+        }
+
+        if(tray_occupied == true || probot->is_patrol)
+        {
+            is_final_loc = false;
+        }
     }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+
+    return is_final_loc;
 }
-QString Supervisor::getcurLoc(){
+
+QString Supervisor::getcurLoc()
+{
+    QString func_str = "[SUPERVISOR][getcurLoc] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return "";
+    }
+
     return probot->curLocation.name;
 }
-int Supervisor::getMultiState(){
-    return 0;
-}
 
+int Supervisor::getMultiState()
+{
+    QString func_str = "[SUPERVISOR][getMultiState] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
+    return probot->multirobot_state;
+}
 
 ////*********************************************  ROBOT STATUS 관련   ***************************************************////
-int Supervisor::getBattery(){
+int Supervisor::getBattery()
+{
+    QString func_str = "[SUPERVISOR][getBattery] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->battery_percent;
 }
-bool Supervisor::getMotorConnection(int id){
+
+bool Supervisor::getMotorConnection(int id)
+{
+    QString func_str = "[SUPERVISOR][getMotorConnection] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return false;
+    }
+
     return probot->motor[id].connection;
 }
-int Supervisor::getMotorStatus(int id){
+
+int Supervisor::getMotorStatus(int id)
+{
+    QString func_str = "[SUPERVISOR][getMotorStatus] ";
+    //plog->write(func_str + "start func. params(id):" + QString::number(id));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->motor[id].status;
 }
-QString Supervisor::getMotorStatusStr(int id){
-    QString str = "";
-    if(probot->motor[id].connection == 0){
-        str = "CON";
-    }else{
-        if(probot->motor[id].status == 0){
-            str += "POW";
-        }
-        if(MOTOR_RUN(probot->motor[id].status) == 1)
-            str += " - ";
 
-        if(MOTOR_MOD_ERROR(probot->motor[id].status) == 1)
-            str += "M";
+QString Supervisor::getMotorStatusStr(int id)
+{
+    QString func_str = "[SUPERVISOR][getMotorStatusStr] ";
+    //plog->write(func_str + "start func. params(id):" + QString::number(id));
 
-        if(MOTOR_JAM_ERROR(probot->motor[id].status) == 1)
-            str += " J";
-
-        if(MOTOR_CUR_ERROR(probot->motor[id].status) == 1)
-            str += " CR";
-
-        if(MOTOR_BIG_ERROR(probot->motor[id].status) == 1)
-            str += " B";
-
-        if(MOTOR_INP_ERROR(probot->motor[id].status) == 1)
-            str += " I";
-
-        if(MOTOR_PS_ERROR(probot->motor[id].status) == 1)
-            str += " P";
-
-        if(MOTOR_COL_ERROR(probot->motor[id].status) == 1)
-            str += " CL";
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
     }
+
+    QString str = "";
+    if(probot->motor[id].connection == 0)
+    {
+        str = "CON";
+    }
+    else
+    {
+        str = "POW";
+        auto append_error = [&str](bool condition, const char* text)
+        {
+            if (condition)
+            {
+                str += text;
+            }
+        };
+
+        append_error(MOTOR_RUN(probot->motor[id].status) == 1, " - ");
+        append_error(MOTOR_MOD_ERROR(probot->motor[id].status) == 1, "M");
+        append_error(MOTOR_JAM_ERROR(probot->motor[id].status) == 1, " J");
+        append_error(MOTOR_CUR_ERROR(probot->motor[id].status) == 1, " CR");
+        append_error(MOTOR_BIG_ERROR(probot->motor[id].status) == 1, " B");
+        append_error(MOTOR_INP_ERROR(probot->motor[id].status) == 1, " I");
+        append_error(MOTOR_PS_ERROR(probot->motor[id].status) == 1, " P");
+        append_error(MOTOR_COL_ERROR(probot->motor[id].status) == 1, " CL");
+    }
+
     return str;
 }
-int Supervisor::getMotorTemperature(int id){
+int Supervisor::getMotorTemperature(int id)
+{
+    QString func_str = "[SUPERVISOR][getMotorTemperature] ";
+    //plog->write(func_str + "start func. params(id):" + QString::number(id));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->motor[id].temperature;
 }
-int Supervisor::getMotorInsideTemperature(int id){
+
+int Supervisor::getMotorInsideTemperature(int id)
+{
+    QString func_str = "[SUPERVISOR][getMotorInsideTemperature] ";
+    //plog->write(func_str + "start func. params(id):" + QString::number(id));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->motor[id].motor_temp;
 }
-int Supervisor::getMotorWarningTemperature(){
+
+int Supervisor::getMotorWarningTemperature()
+{
+    QString func_str = "[SUPERVISOR][getMotorWarningTemperature] ";
+    //plog->write(func_str + "start func. params()");
+
     return 55;
 }
-int Supervisor::getMotorCurrent(int id){
+
+int Supervisor::getMotorCurrent(int id)
+{
+    QString func_str = "[SUPERVISOR][getMotorCurrent] ";
+    //plog->write(func_str + "start func. params(id):" + QString::number(id));
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->motor[id].current;
 }
-int Supervisor::getPowerStatus(){
+
+int Supervisor::getPowerStatus()
+{
+    QString func_str = "[SUPERVISOR][getPowerStatus] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->status_power;
 }
-int Supervisor::getRemoteStatus(){
+
+int Supervisor::getRemoteStatus()
+{
+    QString func_str = "[SUPERVISOR][getRemoteStatus] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->status_remote;
 }
-int Supervisor::getChargeConnectStatus(){
+
+int Supervisor::getChargeConnectStatus()
+{
+    QString func_str = "[SUPERVISOR][getChargeConnectStatus] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->status_charge_connect;
 }
-int Supervisor::getChargeStatus(){
+
+int Supervisor::getChargeStatus()
+{
+    QString func_str = "[SUPERVISOR][getChargeStatus] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->status_charge;
 }
-int Supervisor::getEmoStatus(){
+
+int Supervisor::getEmoStatus()
+{
+    QString func_str = "[SUPERVISOR][getEmoStatus] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->status_emo;
 }
-int Supervisor::getLockStatus(){
+
+int Supervisor::getLockStatus()
+{
+    QString func_str = "[SUPERVISOR][getLockStatus] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->status_lock;
 }
-int Supervisor::getObsinPath(){
+
+int Supervisor::getObsinPath()
+{
+    QString func_str = "[SUPERVISOR][getObsinPath] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->obs_in_path_state;
 }
 
-void Supervisor::setMotorLock(bool onoff){
-    if(ipc->getConnection()){
-        if(onoff){
-            plog->write("[COMMAND] SET MOTOR LOCK : ON");
-            ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_ON,"ROBOT_CMD_MOTOR_LOCK_ON");
-        }else{
-            plog->write("[COMMAND] SET MOTOR LOCK : OFF");
-            ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_OFF2,"ROBOT_CMD_MOTOR_LOCK_OFF2");
+void Supervisor::setMotorLock(bool onoff)
+{
+    QString func_str = "[SUPERVISOR][setMotorLock] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    if(!ipc)
+    {
+        log_advanced(func_str + "Error: ipc is null.");
+        return;
+    }
+
+    try
+    {
+        if(ipc->getConnection())
+        {
+            if(onoff == true)
+            {
+                plog->write("[COMMAND] SET MOTOR LOCK : ON");
+                ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_ON,"ROBOT_CMD_MOTOR_LOCK_ON");
+            }
+            else
+            {
+                plog->write("[COMMAND] SET MOTOR LOCK : OFF");
+                ipc->set_cmd(ROBOT_CMD_MOTOR_LOCK_OFF2,"ROBOT_CMD_MOTOR_LOCK_OFF2");
+            }
         }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
 
-int Supervisor::getRobotcurPreset(){
+int Supervisor::getRobotcurPreset()
+{
+    QString func_str = "[SUPERVISOR][getRobotcurPreset] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->robot_preset;
 }
-float Supervisor::getBatteryIn(){
+
+float Supervisor::getBatteryIn()
+{
+    QString func_str = "[SUPERVISOR][getBatteryIn] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0.f;
+    }
+
     return probot->battery_in;
 }
-float Supervisor::getBatteryOut(){
+
+float Supervisor::getBatteryOut()
+{
+    QString func_str = "[SUPERVISOR][getBatteryOut] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0.f;
+    }
+
     return probot->battery_out;
 }
-float Supervisor::getBatteryCurrent(){
+
+float Supervisor::getBatteryCurrent()
+{
+    QString func_str = "[SUPERVISOR][getBatteryCurrent] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0.f;
+    }
+
     return probot->battery_cur;
 }
-float Supervisor::getPower(){
+
+float Supervisor::getPower()
+{
+    QString func_str = "[SUPERVISOR][getPower] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0.f;
+    }
+
     return probot->power;
 }
 
-float Supervisor::getPowerTotal(){
+float Supervisor::getPowerTotal()
+{
+    QString func_str = "[SUPERVISOR][getPowerTotal] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0.f;
+    }
+
     return probot->total_power;
 }
-int Supervisor::getMotorState(){
-    if(probot->motor[0].status == 1 && probot->motor[1].status == 1){
-        return 1;
-    }else{
+
+int Supervisor::getMotorState()
+{
+    QString func_str = "[SUPERVISOR][getMotorState] ";
+    //plog->write(func_str + "start func. params()");
+
+    int motor_state = 0;
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return motor_state;
+    }
+
+    if(probot->motor[0].status == 1 && probot->motor[1].status == 1)
+    {
+        motor_state = 1;
+    }
+
+    return motor_state;
+}
+
+int Supervisor::getLocalizationState()
+{
+    QString func_str = "[SUPERVISOR][getLocalizationState] ";
+    //plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
         return 0;
     }
-}
-int Supervisor::getLocalizationState(){
+
     return probot->localization_state;
 }
-int Supervisor::getStateMoving(){
+
+int Supervisor::getStateMoving()
+{
+    QString func_str = "[SUPERVISOR][getStateMoving] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return 0;
+    }
+
     return probot->running_state;
 }
 
-QString Supervisor::getStateMovingStr(){
-    if(probot->running_state == 0){
-        return tr("준비 안됨");
-    }else if(probot->running_state == 1){
-        return tr("준비됨");
-    }else if(probot->running_state == 2){
-        return tr("이동중");
-    }else if(probot->running_state == 3){
-        return tr("이동중 (장애물 감지)");
-    }else if(probot->running_state == 4){
-        return tr("이동중 (일시정지됨)");
-    }else{
-        return tr("알수 없음 ")+QString::number(probot->running_state);
+QString Supervisor::getStateMovingStr()
+{
+    QString func_str = "[SUPERVISOR][getStateMovingStr] ";
+    plog->write(func_str + "start func. params()");
+
+    QString state_moving_str = tr("알수 없음 ");
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return state_moving_str;
     }
-}
-QString Supervisor::getRobotName(){
-    if(is_debug){
-        return robot.name + "_" + robot.name_debug;
-    }else{
-        return robot.name;
+
+    try
+    {
+        if(probot->running_state == 0)
+        {
+            state_moving_str = tr("준비 안됨");
+        }
+        else if(probot->running_state == 1)
+        {
+            state_moving_str = tr("준비됨");
+        }
+        else if(probot->running_state == 2)
+        {
+            state_moving_str = tr("이동중");
+        }
+        else if(probot->running_state == 3)
+        {
+            state_moving_str = tr("이동중 (장애물 감지)");
+        }
+        else if(probot->running_state == 4)
+        {
+            state_moving_str = tr("이동중 (일시정지됨)");
+        }
+        else
+        {
+            state_moving_str = tr("알수 없음 ")+QString::number(probot->running_state);
+        }
     }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+        state_moving_str = tr("알수 없음 ");
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+        state_moving_str = tr("알수 없음 ");
+    }
+
+    return state_moving_str;
 }
-float Supervisor::getlastRobotx(){
-    POSE temp = setAxis(probot->lastPose);
-    return temp.point.x;
+
+QString Supervisor::getRobotName()
+{
+    QString func_str = "[SUPERVISOR][getRobotName] ";
+    plog->write(func_str + "start func. params()");
+
+    QString robot_name_str = robot.name;
+    if(is_debug)
+    {
+        robot_name_str = robot.name + "_" + robot.name_debug;
+    }
+
+    return robot_name_str;
 }
-float Supervisor::getlastRoboty(){
-    POSE temp = setAxis(probot->lastPose);
-    return temp.point.y;
+
+float Supervisor::getlastRobotx()
+{
+    QString func_str = "[SUPERVISOR][getlastRobotx] ";
+    plog->write(func_str + "start func. params()");
+
+    float x = 0.f;
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return x;
+    }
+
+    try
+    {
+        POSE temp;
+        temp = setAxis(probot->lastPose);
+        x = temp.point.x;
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+        x = 0.f;
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+        x = 0.f;
+    }
+
+    return x;
 }
-float Supervisor::getlastRobotth(){
-    POSE temp = setAxis(probot->lastPose);
-    return temp.angle;
+
+float Supervisor::getlastRoboty()
+{
+    QString func_str = "[SUPERVISOR][getlastRoboty] ";
+    plog->write(func_str + "start func. params()");
+
+    float y = 0.f;
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return y;
+    }
+
+    try
+    {
+        POSE temp;
+        temp = setAxis(probot->lastPose);
+        y = temp.point.y;
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+        y = 0.f;
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+        y = 0.f;
+    }
+
+    return y;
 }
-int Supervisor::getuistate(){
-    return ui_state;
+
+float Supervisor::getlastRobotth()
+{
+    QString func_str = "[SUPERVISOR][getlastRobotth] ";
+    plog->write(func_str + "start func. params()");
+
+    float ang = 0.f;
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return ang;
+    }
+
+    try
+    {
+        POSE temp;
+        temp = setAxis(probot->lastPose);
+        ang = temp.angle;
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+
+    return ang;
 }
-QString Supervisor::getMapname(){
-    return pmap->map_name;
+
+int Supervisor::getuistate()
+{
+    QString func_str = "[SUPERVISOR][getuistate] ";
+    plog->write(func_str + "start func. params()");
+
+    int _ui_state = ui_state;
+    return _ui_state;
 }
-QString Supervisor::getMappath(){
-    return pmap->map_path;
+
+QString Supervisor::getMapname()
+{
+    QString func_str = "[SUPERVISOR][getMapname] ";
+    plog->write(func_str + "start func. params()");
+
+    QString map_name = pmap->map_name;
+    return map_name;
 }
-int Supervisor::getMapWidth(){
-    return pmap->width;
+
+QString Supervisor::getMappath()
+{
+    QString func_str = "[SUPERVISOR][getMappath] ";
+    plog->write(func_str + "start func. params()");
+
+    QString map_path = pmap->map_path;
+    return map_path;
 }
-int Supervisor::getMapHeight(){
-    return pmap->height;
+
+int Supervisor::getMapWidth()
+{
+    QString func_str = "[SUPERVISOR][getMapWidth] ";
+    plog->write(func_str + "start func. params()");
+
+    int width = pmap->width;
+    return width;
 }
-float Supervisor::getGridWidth(){
-    return pmap->gridwidth;
+
+int Supervisor::getMapHeight()
+{
+    QString func_str = "[SUPERVISOR][getMapHeight] ";
+    plog->write(func_str + "start func. params()");
+
+    int height = pmap->height;
+    return height;
 }
-QList<int> Supervisor::getOrigin(){
+
+float Supervisor::getGridWidth()
+{
+    QString func_str = "[SUPERVISOR][getGridWidth] ";
+    plog->write(func_str + "start func. params()");
+
+    float gridwidth = pmap->gridwidth;
+    return gridwidth;
+}
+
+QList<int> Supervisor::getOrigin()
+{
+    QString func_str = "[SUPERVISOR][getOrigin] ";
+    plog->write(func_str + "start func. params()");
+
     QList<int> temp;
+    if(!pmap)
+    {
+        log_advanced(func_str + "Error: pmap is null.");
+        return temp;
+    }
+
     temp.push_back(pmap->origin[0]);
     temp.push_back(pmap->origin[1]);
     return temp;
 }
 
-void Supervisor::moveToServingTest(int group, QString name){
-    if(isRobotReady()){
-        if(name.left(8) == "Charging" || name == tr("충전위치")){
-            plog->write("[COMMAND] moveToServingTest : "+name);
-            stateMoving();
-            probot->current_target = getChargingLocation(0);
-        }else if(name.left(7) == "Resting"|| name == tr("대기위치")){
-            plog->write("[COMMAND] moveToServingTest : "+name);
-            stateMoving();
-            probot->current_target = getRestingLocation(0);
-        }else if(name.left(8) == "Cleaning"|| name == tr("퇴식위치")){
-            plog->write("[COMMAND] moveToServingTest : "+name);
-            stateMoving();
-            probot->current_target = getCleaningLocation(0);
-        }else{
-            LOCATION temp_loc = getServingLocation(group, name);
-            if(temp_loc.name == ""){
-                plog->write("[COMMAND] moveToServingTest (Not found) : "+name);
-                QMetaObject::invokeMethod(mMain,"notfoundlocation");
-            }else{
-                probot->trays[0].empty = false;
-                probot->trays[0].location = temp_loc;
-                plog->write("[COMMAND] moveToServingTest : "+name);
+void Supervisor::moveToServingTest(int group, QString name)
+{
+    QString func_str = "[SUPERVISOR][moveToServingTest] ";
+    plog->write(func_str + "start func. params(group, name):" + QString::number(group) + "," + name);
+
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return;
+    }
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
+    }
+
+    try
+    {
+        if(isRobotReady())
+        {
+            auto move_and_log = [&](const QString& locationType, const LOCATION& location, const QString& logSuffix)
+            {
                 stateMoving();
+                probot->current_target = location;
+                plog->write(func_str + locationType + " : move " + logSuffix);
+            };
+
+            if(name.left(8) == "Charging" || name == tr("충전위치"))
+            {
+                move_and_log("move to charging(test)", getChargingLocation(0), name);
+            }
+            else if(name.left(7) == "Resting"|| name == tr("대기위치"))
+            {
+                move_and_log("move to resting(test)", getRestingLocation(0), name);
+            }
+            else if(name.left(8) == "Cleaning"|| name == tr("퇴식위치"))
+            {
+                move_and_log("move to cleaning(test)", getCleaningLocation(0), name);
+            }
+            else
+            {
+                LOCATION temp_loc = getServingLocation(group, name);
+                if(temp_loc.name.isEmpty())
+                {
+                    plog->write(func_str + " move to serving(test) : move failed: not found name " + name);
+                    QMetaObject::invokeMethod(mMain,"notfoundlocation");
+                }
+                else
+                {
+                    probot->trays[0].empty = false;
+                    probot->trays[0].location = temp_loc;
+                    move_and_log("move to serving(test)", temp_loc, name);
+                }
             }
         }
-    }else{
-        plog->write("[COMMAND] moveToServingTest : Robot not ready "+name);
-        QMetaObject::invokeMethod(mMain,"robotnotready");
+        else
+        {
+            plog->write(func_str + " move to serving(test) : robot state not ready " + name);
+            QMetaObject::invokeMethod(mMain,"robotnotready");
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
-void Supervisor::startPatrol(int num){
-    if(num > -1 && num < patrols.size()){
-        if(isRobotReady()){
-            plog->write("[COMMAND] startPatrol : "+patrols[num].name);
-            patrol_mode = PATROL_NEW;
-            current_patrol = patrols[num];
-            stateMoving();
-        }else{
-            QMetaObject::invokeMethod(mMain,"robotnotready");
-            plog->write("[COMMAND] startPatrol : Robot Not Ready");
+
+void Supervisor::startPatrol(int num)
+{
+    QString func_str = "[SUPERVISOR][startPatrol] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
+    }
+
+    try
+    {
+        if(num > -1 && num < patrols.size())
+        {
+            if(isRobotReady())
+            {
+                plog->write(func_str + "start : " + patrols[num].name);
+                patrol_mode = PATROL_NEW;
+                current_patrol = patrols[num];
+                stateMoving();
+            }
+            else
+            {
+                plog->write(func_str + "robot status Not Ready");
+                QMetaObject::invokeMethod(mMain,"robotnotready");
+            }
         }
-    }else{
-        plog->write("[COMMAND] startPatrol : patrol not found "+QString::number(num));
-        QMetaObject::invokeMethod(mMain,"notfoundpatrol");
+        else
+        {
+            plog->write(func_str + "patrol not found " + QString::number(num));
+            QMetaObject::invokeMethod(mMain,"notfoundpatrol");
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
 
 //// *********************************** SLOTS *********************************** ////
-void Supervisor::path_changed(){
-    maph->setMap();
-}
-void Supervisor::camera_update(){
-    QMetaObject::invokeMethod(mMain, "updatecamera");
-}
-void Supervisor::mapping_update(){
-    maph->setMap();
-}
+void Supervisor::path_changed()
+{
+    QString func_str = "[SUPERVISOR][path_changed] ";
+    plog->write(func_str + "start func. params()");
 
-void Supervisor::checkShellFiles(){//need check
-//파일확인!
-    QString file_path;
-    QString path = QDir::homePath()+"/RB_MOBILE/log/ui_log";
-    QDir directory(path);
-    if(!directory.exists()){
-        directory.mkpath(".");
-        plog->write("[SUPERVISOR] ui_log directory not found. make new");
+    if(!maph)
+    {
+        log_advanced(func_str + "Error: maph is null.");
+        return;
     }
 
-    //auto_test.sh
-    file_path = QDir::homePath() + "/RB_MOBILE/sh/startslam.sh";
-    if(!QFile::exists(file_path)){
-        plog->write("[SUPERVISOR] startslam.sh not found. make new");
-        makeStartShell();
+    try
+    {
+        maph->setMap();
     }
-
-//    file_path = QDir::homePath() + "/RB_MOBILE/sh/startextproc.sh";
-//    if(!QFile::exists(file_path)){
-//        plog->write("[SUPERVISOR] startextproc.sh not found. make new");
-//        makeExtProcessShell();
-//    }
-
-    //kill_slam.sh
-    file_path = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
-    if(!QFile::exists(file_path)){
-        plog->write("[SUPERVISOR] restartslam.sh not found. make new");
-        makeKillShell();
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
     }
-
-    //auto_kill.sh
-    file_path = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    if(!QFile::exists(file_path)){
-        plog->write("[SUPERVISOR] killall.sh not found. make new");
-        makeAllKillShell();
-    }
-
-    //auto_reset.sh
-    file_path = QDir::homePath() + "/RB_MOBILE/sh/restartall.sh";
-    if(!QFile::exists(file_path)){
-        plog->write("[SUPERVISOR] restartall.sh not found. make new");
-        makeKillSlam();
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
-void Supervisor::makeKillShell(){//need check
-    //Make kill_slam.sh
-    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
-    QFile file(file_name);
-    if(file.open(QIODevice::ReadWrite)){
-        QTextStream stream(&file);
-        stream << "#!/bin/bash" << "\n" << "\n";
-        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"SLAMNAV is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
-    }
-    file.close();
-    //Chmod
-    QProcess process;
-    process.setWorkingDirectory(QDir::homePath());
-    process.start("chmod +x kill_slam.sh",QStringList(),QProcess::ReadWrite);
-    process.waitForReadyRead(200);
-}
-void Supervisor::checkUpdate(){//need check
-//    server->checkUpdate();
-}
-void Supervisor::setlanguage(QString lan){
-    QString path = "";
-    if(lan == "KR"){
-    }else if(lan=="US" || lan=="english"){
-        //path = QDir::homePath() + "/RB_MOBILE/config/locale/lang_en.qm";
-        path = QDir::homePath() + "/RB_MOBILE/release/lang_eddn.qm";
+
+void Supervisor::camera_update()
+{
+    QString func_str = "[SUPERVISOR][camera_update] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!mMain)
+    {
+        log_advanced(func_str + "Error: mMain is null.");
+        return;
     }
 
-    app->removeTranslator(translator);
-
-    if(translator->load(path)){
-        plog->write("[COMMAND] setlanguage : " + lan + " SUCCESS ("+path+")");
-        app->installTranslator(translator);
-    }else{
-        plog->write("[COMMAND] setlanguage : " + lan + " FAILED ("+path+")");
+    try
+    {
+        QMetaObject::invokeMethod(mMain, "updatecamera");
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
     }
 }
-bool Supervisor::checkNewUpdateProgram(){//need check
-    if(server->update_list.size() > 0){
-        return true;
-    }else{
+
+void Supervisor::mapping_update()
+{
+    QString func_str = "[SUPERVISOR][mapping_update] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!maph)
+    {
+        log_advanced(func_str + "Error: maph is null.");
+        return;
+    }
+
+    try
+    {
+        maph->setMap();
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::checkShellFiles()
+{
+    QString func_str = "[SUPERVISOR][checkShellFiles] ";
+    plog->write(func_str + "start func. params()");
+
+    try
+    {
+        //need check
+        //파일확인!
+        QString file_path;
+        QString path = QDir::homePath() + "/RB_MOBILE/log/ui_log";
+        QDir directory(path);
+        if(!directory.exists())
+        {
+            directory.mkpath(".");
+            plog->write("[SUPERVISOR] ui_log directory not found. make new");
+        }
+
+        //auto_test.sh
+        file_path = QDir::homePath() + "/RB_MOBILE/sh/startslam.sh";
+        if(!QFile::exists(file_path))
+        {
+            plog->write("[SUPERVISOR] startslam.sh not found. make new");
+            makeStartShell();
+        }
+
+        //kill_slam.sh
+        file_path = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
+        if(!QFile::exists(file_path))
+        {
+            plog->write("[SUPERVISOR] restartslam.sh not found. make new");
+            makeKillShell();
+        }
+
+        //auto_kill.sh
+        file_path = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
+        if(!QFile::exists(file_path))
+        {
+            plog->write("[SUPERVISOR] killall.sh not found. make new");
+            makeAllKillShell();
+        }
+
+        //auto_reset.sh
+        file_path = QDir::homePath() + "/RB_MOBILE/sh/restartall.sh";
+        if(!QFile::exists(file_path))
+        {
+            plog->write("[SUPERVISOR] restartall.sh not found. make new");
+            makeKillSlam();
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::makeKillShell()
+{
+    QString func_str = "[SUPERVISOR][makeKillShell] ";
+    plog->write(func_str + "start func. params()");
+
+    try
+    {
+        //need check
+        //Make kill_slam.sh
+        QString file_name = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
+        QFile file(file_name);
+        if (!file.open(QIODevice::ReadWrite))
+        {
+            throw std::runtime_error("Failed to open file: " + file_name.toStdString());
+        }
+        else
+        {
+            QTextStream stream(&file);
+            stream << "#!/bin/bash" << "\n" << "\n";
+            stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "if [ -z $pid ]" << "\n";
+            stream << "then" << "\n";
+            stream << "     echo \"SLAMNAV is not running\"" << "\n";
+            stream << "else" << "\n";
+            stream << "     kill -9 $pid" << "\n";
+            stream << "fi" << "\n";
+        }
+        file.close();
+
+        //Chmod
+        QProcess process;
+        process.setWorkingDirectory(QDir::homePath());
+        process.start("chmod +x kill_slam.sh",QStringList(),QProcess::ReadWrite);
+
+        if (!process.waitForFinished(2000)) // Increased wait time to ensure the process has enough time
+        {
+            throw std::runtime_error("Failed to execute chmod command.");
+        }
+
+        if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        {
+            throw std::runtime_error("Chmod command failed with exit code: " + QString::number(process.exitCode()).toStdString());
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::checkUpdate()
+{
+    QString func_str = "[SUPERVISOR][checkUpdate] ";
+    plog->write(func_str + "start func. params()");
+
+    //need check
+    //server->checkUpdate();
+}
+
+void Supervisor::setlanguage(QString lan)
+{
+    QString func_str = "[SUPERVISOR][setlanguage] ";
+    plog->write(func_str + "start func. params(lan):" + lan);
+
+    try
+    {
+        QString path = "";
+        if(lan == "KR")
+        {
+
+        }
+        else if(lan=="US" || lan=="english")
+        {
+            path = QDir::homePath() + "/RB_MOBILE/release/lang_eddn.qm";
+        }
+        app->removeTranslator(translator);
+
+        if(translator->load(path))
+        {
+            plog->write("[SUPERVISOR][setlanguage] setlanguage : " + lan + " SUCCESS ("+path+")");
+            app->installTranslator(translator);
+        }
+        else
+        {
+            plog->write("[SUPERVISOR][setlanguage] setlanguage : " + lan + " FAILED ("+path+")");
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+bool Supervisor::checkNewUpdateProgram()
+{
+    QString func_str = "[SUPERVISOR][checkNewUpdateProgram] ";
+    plog->write(func_str + "start func. params()");
+
+    if(!server)
+    {
+        log_advanced(func_str + "Error: server is null.");
         return false;
     }
-//    return server->new_update;
-}
-void Supervisor::makeKillSlam(){//need check
-    //Make kill_slam.sh
-    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
-    QFile file(file_name);
-    if(file.open(QIODevice::ReadWrite)){
-        QTextStream stream(&file);
-        stream << "#!/bin/bash" << "\n" << "\n";
-        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"SLAMNAV is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
-    }
-    file.close();
-    //Chmod
-    QProcess process;
-    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x restartslam.sh",QStringList(),QProcess::ReadWrite);
-    process.waitForReadyRead(200);
 
+    if(server->update_list.size() > 0)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
-void Supervisor::makeStartShell(){//need check
-    //Make kill_slam.sh
-    QString file_name = QDir::homePath() + "/RB_MOBILE/sh/startslam.sh";
-    QFile file(file_name);
+void Supervisor::makeKillSlam()
+{
+    QString func_str = "[SUPERVISOR][makeKillSlam] ";
+    plog->write(func_str + "start func. params()");
 
-    if(file.open(QIODevice::ReadWrite)){
-        QTextStream stream(&file);
-        stream << "#!/bin/bash" << "\n" << "\n";
-        stream << "while [ 1 ]"<<"\n";
-        stream << "do"<<"\n";
-        stream << "     pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "     if [ -z $pid ]" << "\n";
-        stream << "     then" << "\n";
-        stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << "\n";
-        stream << "     else" << "\n";
-        stream << "         kill -9 $pid" << "\n";
-        stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << "\n";
-        stream << "     fi" << "\n";
-        stream << "done" << "\n";
+    try
+    {
+        //need check
+        //Make kill_slam.sh
+        QString file_name = QDir::homePath() + "/RB_MOBILE/sh/restartslam.sh";
+        QFile file(file_name);
+        if (!file.open(QIODevice::ReadWrite))
+        {
+            throw std::runtime_error("Failed to open file: " + file_name.toStdString());
+        }
+        else
+        {
+            QTextStream stream(&file);
+            stream << "#!/bin/bash" << "\n" << "\n";
+            stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "if [ -z $pid ]" << "\n";
+            stream << "then" << "\n";
+            stream << "     echo \"SLAMNAV is not running\"" << "\n";
+            stream << "else" << "\n";
+            stream << "     kill -9 $pid" << "\n";
+            stream << "fi" << "\n";
+        }
+        file.close();
+
+        //Chmod
+        QProcess process;
+        process.setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/sh");
+        process.start("chmod +x restartslam.sh",QStringList(),QProcess::ReadWrite);
+
+        if (!process.waitForFinished(2000)) // Increased wait time to ensure the process has enough time
+        {
+            throw std::runtime_error("Failed to execute chmod command.");
+        }
+
+        if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        {
+            throw std::runtime_error("Chmod command failed with exit code: " + QString::number(process.exitCode()).toStdString());
+        }
     }
-
-    file.close();
-    //Chmod
-    QProcess process;
-    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x startslam.sh",QStringList(),QProcess::ReadWrite);
-    process.waitForReadyRead(200);
-
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
 }
-void Supervisor::makeAllKillShell(){//need check
-    //Make kill_slam.sh
-    QString file_name = QDir::homePath() + "/killall.sh";
-    QFile file(file_name);
-    if(file.open(QIODevice::ReadWrite)){
-        QTextStream stream(&file);
-        stream << "#!/bin/bash" << "\n" << "\n";
 
+void Supervisor::makeStartShell()
+{
+    QString func_str = "[SUPERVISOR][makeStartShell] ";
+    plog->write(func_str + "start func. params()");
 
-        stream << "pid=`ps -ef | grep \"startslam.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"startslam.sh is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
+    try
+    {
+        //need check
+        //Make kill_slam.sh
+        QString file_name = QDir::homePath() + "/RB_MOBILE/sh/startslam.sh";
+        QFile file(file_name);
+        if (!file.open(QIODevice::ReadWrite))
+        {
+            throw std::runtime_error("Failed to open file: " + file_name.toStdString());
+        }
+        else
+        {
+            QTextStream stream(&file);
+            stream << "#!/bin/bash" << "\n" << "\n";
+            stream << "while [ 1 ]"<<"\n";
+            stream << "do"<<"\n";
+            stream << "     pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "     if [ -z $pid ]" << "\n";
+            stream << "     then" << "\n";
+            stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << "\n";
+            stream << "     else" << "\n";
+            stream << "         kill -9 $pid" << "\n";
+            stream << "         /home/odroid/RB_MOBILE/release/SLAMNAV" << "\n";
+            stream << "     fi" << "\n";
+            stream << "done" << "\n";
+        }
+        file.close();
 
-//        stream << "pid=`ps -ef | grep \"startextproc.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-//        stream << "if [ -z $pid ]" << "\n";
-//        stream << "then" << "\n";
-//        stream << "     echo \"startextproc.sh is not running\"" << "\n";
-//        stream << "else" << "\n";
-//        stream << "     kill -9 $pid" << "\n";
-//        stream << "fi" << "\n";
+        //Chmod
+        QProcess process;
+        process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
+        process.start("chmod +x startslam.sh",QStringList(),QProcess::ReadWrite);
 
+        if (!process.waitForFinished(2000)) // Increased wait time to ensure the process has enough time
+        {
+            throw std::runtime_error("Failed to execute chmod command.");
+        }
 
-        stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"SLAMNAV is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
-
-        stream << "pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"ExtProcess is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
-
-        stream << "pid=`ps -ef | grep \"MAIN_MOBILE\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
-        stream << "if [ -z $pid ]" << "\n";
-        stream << "then" << "\n";
-        stream << "     echo \"MAIN_MOBILE is not running\"" << "\n";
-        stream << "else" << "\n";
-        stream << "     kill -9 $pid" << "\n";
-        stream << "fi" << "\n";
+        if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        {
+            throw std::runtime_error("Chmod command failed with exit code: " + QString::number(process.exitCode()).toStdString());
+        }
     }
-    file.close();
-    //Chmod
-    QProcess process;
-    process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
-    process.start("chmod +x killall.sh",QStringList(),QProcess::ReadWrite);
-    process.waitForReadyRead(200);
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
+}
+
+void Supervisor::makeAllKillShell()
+{
+    QString func_str = "[SUPERVISOR][makeAllKillShell] ";
+    plog->write(func_str + "start func. params()");
+
+    try
+    {
+        //need check
+        //Make kill_slam.sh
+        QString file_name = QDir::homePath() + "/killall.sh";
+        QFile file(file_name);
+        if (!file.open(QIODevice::ReadWrite))
+        {
+            throw std::runtime_error("Failed to open file: " + file_name.toStdString());
+        }
+        else
+        {
+            QTextStream stream(&file);
+            stream << "#!/bin/bash" << "\n" << "\n";
+
+            stream << "pid=`ps -ef | grep \"startslam.sh\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "if [ -z $pid ]" << "\n";
+            stream << "then" << "\n";
+            stream << "     echo \"startslam.sh is not running\"" << "\n";
+            stream << "else" << "\n";
+            stream << "     kill -9 $pid" << "\n";
+            stream << "fi" << "\n";
+
+            stream << "pid=`ps -ef | grep \"SLAMNAV\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "if [ -z $pid ]" << "\n";
+            stream << "then" << "\n";
+            stream << "     echo \"SLAMNAV is not running\"" << "\n";
+            stream << "else" << "\n";
+            stream << "     kill -9 $pid" << "\n";
+            stream << "fi" << "\n";
+
+            stream << "pid=`ps -ef | grep \"ExtProcess\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "if [ -z $pid ]" << "\n";
+            stream << "then" << "\n";
+            stream << "     echo \"ExtProcess is not running\"" << "\n";
+            stream << "else" << "\n";
+            stream << "     kill -9 $pid" << "\n";
+            stream << "fi" << "\n";
+
+            stream << "pid=`ps -ef | grep \"MAIN_MOBILE\" | grep -v 'grep' | awk '{print $2}'`"<<"\n";
+            stream << "if [ -z $pid ]" << "\n";
+            stream << "then" << "\n";
+            stream << "     echo \"MAIN_MOBILE is not running\"" << "\n";
+            stream << "else" << "\n";
+            stream << "     kill -9 $pid" << "\n";
+            stream << "fi" << "\n";
+        }
+
+        file.close();
+        //Chmod
+        QProcess process;
+        process.setWorkingDirectory(QDir::homePath()+"/RB_MOBILE/sh");
+        process.start("chmod +x killall.sh",QStringList(),QProcess::ReadWrite);
+
+        if (!process.waitForFinished(2000)) // Increased wait time to ensure the process has enough time
+        {
+            throw std::runtime_error("Failed to execute chmod command.");
+        }
+
+        if (process.exitStatus() != QProcess::NormalExit || process.exitCode() != 0)
+        {
+            throw std::runtime_error("Chmod command failed with exit code: " + QString::number(process.exitCode()).toStdString());
+        }
+    }
+    catch(const std::exception &e)
+    {
+        log_advanced(func_str + "Exception occurred, err: "  + QString(e.what()));
+    }
+    catch(...)
+    {
+        log_advanced(func_str + "Exception occurred, err: unknown.");
+    }
 }
 
 //// *********************************** TIMER *********************************** ////
-void Supervisor::onTimer(){
+void Supervisor::onTimer()
+{
     static int prev_local_state = -1;
     static int prev_motor_1_state = -1;
     static int prev_motor_2_state = -1;
@@ -3870,703 +6687,983 @@ void Supervisor::onTimer(){
     static bool flag_movewait = false;
 
     // QML 오브젝트 매칭
-    if(mMain == nullptr && object != nullptr){
+    if(mMain == nullptr && object != nullptr)
+    {
         setObject(object);
         setWindow(qobject_cast<QQuickWindow*>(object));
     }
 
-    //
-    if(timer_cnt++ > 300){
+    // check connected internet (intervel: 60s)
+    if(timer_cnt++ > 300)
+    {
         timer_cnt = 0;
         checker->getCurrentInterface();
     }
 
-    if(start_clear){
-        start_clear = false;
-        timer2 = new QTimer();
-        connect(timer2, SIGNAL(timeout()),this,SLOT(clear_all()));
-        timer2->start(500);
-    }
-
-    //************************** WiFi *********************************//
-
-    switch(ui_state){
-    case UI_STATE_NONE:{
-        //State : None
-        //Robot 연결 안됨, 초기화 시작 전(프로그램 실행직후)
-        if(ipc->getConnection()){
-            ui_state = UI_STATE_INITAILIZING;
-            flag_annot_localization = false;
-            plog->write("[STATE] None : Connection check done -> Initailizing");
-        }else{
-            clearStatus();
-            if(curPage != "page_init" && !debug_mode){
-                plog->write("[STATE] None : Disconnected -> UI Init");
-                QMetaObject::invokeMethod(mMain, "need_init");
+    switch(ui_state)
+    {
+        case UI_STATE_NONE:
+        {
+            //State : None
+            //Robot 연결 안됨, 초기화 시작 전(프로그램 실행직후)
+            if(ipc)
+            {
+                if(ipc->getConnection())
+                {
+                    ui_state = UI_STATE_INITAILIZING;
+                    flag_annot_localization = false;
+                    plog->write("[SUPERVISOR][TIMER] UI_STATE_NONE -> UI_STATE_INITAILIZING");
+                }
+                else
+                {
+                    clearStatus();
+                    if(curPage != "page_init" && !debug_mode)
+                    {
+                        plog->write("[SUPERVISOR][TIMER] UI_STATE_NONE : ipc Disconnected -> go UI Init page");
+                        QMetaObject::invokeMethod(mMain, "need_init");
+                    }
+                }
             }
-        }
-        cmd_accept = false;
-        break;
-    }
-    case UI_STATE_INITAILIZING:{
-        if(debug_mode){
-
-        }else if(probot->status_charge_connect == 1){
-            plog->write("[STATE] Initializing : Charging Connected -> Charging");
-            ui_state = UI_STATE_CHARGING;
-        }else if(probot->localization_confirm){
-            if(getMotorState() == READY){
-                plog->write("[STATE] Initializing : Localization Good, Motor state Good -> Resting");
-                ui_state = UI_STATE_RESTING;
-                flag_annot_localization = false;
-            }else if(probot->status_lock==0){
-
-            }else if(probot->localization_state != 2){
-                probot->localization_confirm = false;
-            }else{
-                if(curPage != "page_init" && curPage != "page_annotation"){
-                    plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
+            else
+            {
+                clearStatus();
+                if(curPage != "page_init" && !debug_mode)
+                {
+                    plog->write("[SUPERVISOR][TIMER] UI_STATE_NONE Error: ipc is null -> go UI Init page");
                     QMetaObject::invokeMethod(mMain, "need_init");
-                }else if(curPage == "page_annotation"){
-                    if(!flag_annot_localization){
-                        plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
+                }
+            }
+
+            cmd_accept = false;
+            break;
+        }
+        case UI_STATE_INITAILIZING:
+        {
+            if(debug_mode)
+            {
+
+            }
+
+            if(probot->status_charge_connect == 1)
+            {
+                plog->write("[SUPERVISOR][TIMER] UI_STATE_INITAILIZING -> UI_STATE_CHARGING");
+                ui_state = UI_STATE_CHARGING;
+            }
+            else if(probot->localization_confirm)
+            {
+                if(getMotorState() == READY)
+                {
+                    plog->write("[SUPERVISOR][TIMER] UI_STATE_INITAILIZING -> UI_STATE_RESTING");
+                    ui_state = UI_STATE_RESTING;
+                    flag_annot_localization = false;
+                }
+                else if(probot->localization_state != 2)
+                {
+                    probot->localization_confirm = false;
+                }
+                else
+                {
+                    if(curPage != "page_init" && curPage != "page_annotation")
+                    {
+                        plog->write("[SUPERVISOR][TIMER] UI_STATE_INITAILIZING : robot state not ready -> go UI Init page");
+                        QMetaObject::invokeMethod(mMain, "need_init");
+                    }
+                    else if(curPage == "page_annotation")
+                    {
+                        if(!flag_annot_localization)
+                        {
+                            plog->write("[SUPERVISOR][TIMER] UI_STATE_INITAILIZING : robot state not ready -> go UI Init page");
+                            QMetaObject::invokeMethod(mMain, "need_init");
+                            flag_annot_localization = true;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if(curPage != "page_init" && curPage != "page_annotation")
+                {
+                    plog->write("[SUPERVISOR][TIMER] UI_STATE_INITAILIZING : robot state not ready -> go UI Init page");
+                    QMetaObject::invokeMethod(mMain, "need_init");
+                }
+                else if(curPage == "page_annotation")
+                {
+                    if(!flag_annot_localization)
+                    {
+                        plog->write("[SUPERVISOR][TIMER] UI_STATE_INITAILIZING : robot state not ready -> go UI Init page");
                         QMetaObject::invokeMethod(mMain, "need_init");
                         flag_annot_localization = true;
                     }
                 }
             }
-        }else{
-            if(curPage != "page_init" && curPage != "page_annotation"){
-                plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
-                QMetaObject::invokeMethod(mMain, "need_init");
-            }else if(curPage == "page_annotation"){
-                if(!flag_annot_localization){
-                    plog->write("[STATE] Initializing : State not ready (Motor: "+ QString::number(getMotorState())+ ", LConfirm: " + QString::number(probot->localization_confirm) + ", LState: " + QString::number(probot->localization_state)+") -> UI Init");
-                    QMetaObject::invokeMethod(mMain, "need_init");
-                    flag_annot_localization = true;
+            break;
+        }
+        case UI_STATE_RESTING:
+        {
+            need_init = false;
+
+            static int count_battery = 0;
+            int cur_bat_percent = getBattery();
+            if(cur_bat_percent < 20)
+            {
+                // 10min
+                if(count_battery++ > 1200000/MAIN_THREAD)
+                {
+                    playVoice("error_battery");
+                    count_battery = 0;
                 }
             }
-        }
-        break;
-    }
-    case UI_STATE_RESTING:{
-        static int count_battery = 0;
-        need_init = false;
-        if(probot->battery_percent < 20){
-            if(count_battery++ > 600000/MAIN_THREAD){//10분
-                playVoice("error_battery");
+            else
+            {
                 count_battery = 0;
             }
-        }else{
-            count_battery = 0;
-        }
 
-        cmd_accept = false;
-        if(probot->status_charge_connect == 1){
-            plog->write("[STATE] Resting : Charging Connected -> Charging");
-            ui_state = UI_STATE_CHARGING;
-        }else if(probot->motor[0].status > 1 || probot->motor[1].status > 1){
-            plog->write("[STATE] Resting : State Failed "+QString().asprintf("(Motor1: %d, Motor2: %d) -> Kill Slam",probot->motor[0].status,probot->motor[1].status));
-            killSLAM();
-        }else if(probot->status_emo == 1){
-        }else if(pmap->call_queue.size() > 0){
-            plog->write("[STATE] Resting : Calling Detected "+QString::number(pmap->call_queue.size())+" -> Moving");
-            stateMoving();
-        }else if(getSetting("setting","SERVER","use_server_call") == "true"){//not used
-            if(probot->server_call_size > 0){
-                probot->server_call_size = 0;
-                //콜 번호가 유효한 지 체크
-            }else if(probot->server_call_size == -1){
-                probot->server_call_size = 0;
+            cmd_accept = false;
+            if(probot->status_charge_connect == 1)
+            {
+                plog->write("[SUPERVISOR][TIMER] UI_STATE_RESTING -> UI_STATE_CHARGING");
+                ui_state = UI_STATE_CHARGING;
             }
-        }
-        break;
-    }
-    case UI_STATE_CHARGING:{
-        patrol_mode = PATROL_NONE;
-
-        if(probot->status_charge_connect == 0){
-            plog->write("[STATE] Charging : Charge Connect = 0 -> None");
-            stateInit();
-            QMetaObject::invokeMethod(mMain, "need_init");
-            break;
-        }else if(curPage != "page_charge" && !debug_mode){
-            plog->write("[STATE] Charging -> UI Charging");
-            QMetaObject::invokeMethod(mMain, "charging");
-        }
-        break;
-    }
-    case UI_STATE_MOVING:{
-        static int timer_cnt2 = 0;
-        if(probot->ui_fail_state == 1){
-            //local fail, no path, charging, motor error, motor connection
-            if(!getMotorConnection(0) || !getMotorConnection(1)){
-                plog->write("[IPC] UI Fail State -> Motor Connection Error "+QString::asprintf("(%d, %d)",getMotorConnection(0),getMotorConnection(1)));
-            }else if(getMotorState()==0){
-                plog->write("[IPC] UI Fail State -> Motor Error "+QString::asprintf("(%d, %d)",probot->motor[0].status,probot->motor[1].status));
-            }else if(getLocalizationState()!=LOCAL_READY){
-                plog->write("[IPC] UI Fail State -> Localization Not ready"+QString::asprintf("(%d)",probot->localization_state));
-            }else if(getChargeConnectStatus()){
-                plog->write("[IPC] UI Fail State -> Charging"+QString::asprintf("(%d, %d)",probot->status_charge,probot->status_charge_connect));
-            }else{
-                plog->write("[IPC] UI Fail State -> No Path ?");
+            else if(probot->motor[0].status > 1 || probot->motor[1].status > 1)
+            {
+                plog->write("[SUPERVISOR][TIMER] UI_STATE_RESTING: motor err, kill slam: " + QString().asprintf("(mo1:%d, mo2:%d)", probot->motor[0].status, probot->motor[1].status));
+                killSLAM();
             }
-            plog->write("[STATE] Moving : UI Fail State -> Kill Slam");
-            killSLAM();
-        }else if(probot->status_lock && getMotorState() == 0){//need check
-            plog->write(QString::number(probot->status_emo)+QString::number(probot->status_lock)+QString::number(probot->status_remote)+QString::number(probot->status_power)+QString::number(probot->motor[0].status)+QString::number(probot->motor[1].status)+QString::number(probot->battery_in)+QString::number(probot->battery_out));
-            plog->write("[STATE] Moving : MOTOR NOT READY -> Movefail");
-            QMetaObject::invokeMethod(mMain, "movefail");
-            ui_state = UI_STATE_MOVEFAIL;
-        }else{
-            if(getSetting("setting","USE_UI","use_current_pause")=="true"){
-                float current_threshold = getSetting("update","DRIVING","pause_motor_current").toFloat();
-                int check_count = getSetting("update","DRIVING","pause_current_ms").toInt()/MAIN_THREAD;
-                if(probot->motor[0].current > current_threshold || probot->motor[1].current > current_threshold){
-                    if(current_cnt++ > check_count){
-                        //MOTOR THRESHOLD IN. PAUSED!
-                        if(probot->running_state != ROBOT_MOVING_PAUSED){
-                            plog->write("[STATE] Moving : Auto Paused. Motor Current Over "+QString().asprintf("(0 : %f, 1 : %f, limit: %f)",probot->motor[0].current,probot->motor[1].current,current_threshold));
-                            ipc->movePause();
-                            is_test_moving = false;
-                        }
-                    }
-                }else{
-                    current_cnt = 0;
+            else if(pmap->call_queue.size() > 0)
+            {
+                plog->write("[SUPERVISOR][TIMER] UI_STATE_RESTING: Calling Detected " + QString::number(pmap->call_queue.size()) + " -> Moving");
+                stateMoving();
+            }
+            else if(getSetting("setting", "SERVER", "use_server_call") == "true")
+            {
+                //not used
+                if(probot->server_call_size > 0)
+                {
+                    probot->server_call_size = 0;
+                }
+                else if(probot->server_call_size == -1)
+                {
+                    probot->server_call_size = 0;
                 }
             }
-
-            if(probot->running_state == ROBOT_MOVING_READY){
-                if(cmd_accept){
-                    if(probot->current_target.name == "Charging0"){
-                        if(probot->is_patrol){
-                            plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
-
-                            //Play Voice
-                            if(current_patrol.voice_mode != "none"){
-                                playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
+            break;
+        }
+        case UI_STATE_CHARGING:
+        {
+            patrol_mode = PATROL_NONE;
+            if(probot->status_charge_connect == 0)
+            {
+                plog->write("[SUPERVISOR][TIMER] UI_STATE_CHARGING : Charge connector disconnected -> None");
+                stateInit();
+                QMetaObject::invokeMethod(mMain, "need_init");
+                break;
+            }
+            else if(curPage != "page_charge" && !debug_mode)
+            {
+                plog->write("[SUPERVISOR][TIMER] UI_STATE_CHARGING -> go UI Charging page");
+                QMetaObject::invokeMethod(mMain, "charging");
+            }
+            break;
+        }
+        case UI_STATE_MOVING:
+        {
+            static int timer_cnt2 = 0;
+            if(probot->ui_fail_state == 1)
+            {
+                //local fail, no path, charging, motor error, motor connection
+                if(!getMotorConnection(0) || !getMotorConnection(1))
+                {
+                    plog->write("[IPC] UI Fail State -> Motor Connection Error "+QString::asprintf("(%d, %d)",getMotorConnection(0),getMotorConnection(1)));
+                }
+                else if(getMotorState()==0)
+                {
+                    plog->write("[IPC] UI Fail State -> Motor Error "+QString::asprintf("(%d, %d)",probot->motor[0].status,probot->motor[1].status));
+                }
+                else if(getLocalizationState()!=LOCAL_READY)
+                {
+                    plog->write("[IPC] UI Fail State -> Localization Not ready"+QString::asprintf("(%d)",probot->localization_state));
+                }
+                else if(getChargeConnectStatus())
+                {
+                    plog->write("[IPC] UI Fail State -> Charging"+QString::asprintf("(%d, %d)",probot->status_charge,probot->status_charge_connect));
+                }
+                else
+                {
+                    plog->write("[IPC] UI Fail State -> No Path ?");
+                }
+                plog->write("[STATE] Moving : UI Fail State -> Kill Slam");
+                killSLAM();
+            }
+            else if(probot->status_lock && getMotorState() == 0)
+            {
+                //need check
+                plog->write(QString::number(probot->status_emo) +
+                            QString::number(probot->status_lock) +
+                            QString::number(probot->status_remote) +
+                            QString::number(probot->status_power) +
+                            QString::number(probot->motor[0].status) +
+                            QString::number(probot->motor[1].status) +
+                            QString::number(probot->battery_in) +
+                            QString::number(probot->battery_out));
+                plog->write("[STATE] Moving : MOTOR NOT READY -> Movefail");
+                QMetaObject::invokeMethod(mMain, "movefail");
+                ui_state = UI_STATE_MOVEFAIL;
+            }
+            else
+            {
+                if(getSetting("setting", "USE_UI", "use_current_pause")=="true")
+                {
+                    float current_threshold = getSetting("update", "DRIVING", "pause_motor_current").toFloat();
+                    int check_count = getSetting("update", "DRIVING", "pause_current_ms").toInt()/MAIN_THREAD;
+                    if(probot->motor[0].current > current_threshold || probot->motor[1].current > current_threshold)
+                    {
+                        if(current_cnt++ > check_count)
+                        {
+                            //MOTOR THRESHOLD IN. PAUSED!
+                            if(probot->running_state != ROBOT_MOVING_PAUSED)
+                            {
+                                plog->write("[STATE] Moving : Auto Paused. Motor Current Over "+QString().asprintf("(0 : %f, 1 : %f, limit: %f)",probot->motor[0].current,probot->motor[1].current,current_threshold));
+                                ipc->movePause();
+                                is_test_moving = false;
                             }
-                            lingbell_count = 0;
-                            ui_state = UI_STATE_PICKUP;
-                        }else if(probot->is_calling){
-                            if(pmap->call_queue.size() > 0){
-                                plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name+" -> Charging");
-                                pmap->call_queue.pop_front();
-                            }else{
-                                probot->is_calling = false;
-                            }
-                            //Ling bell
-                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
-                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->send_call(probot->current_target.ling_id);
-                            }
-                            ui_state = UI_STATE_CHARGING;
-                        }else{
-                            plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+" -> Charging");
-                            //Ling bell
-                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
-                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->send_call(probot->current_target.ling_id);
-                            }
-                            ui_state = UI_STATE_CHARGING;
-                        }
-                    }else if(probot->current_target.name == "Resting0"){
-                        probot->call_moving_count = 0;
-                        if(probot->is_patrol){
-                            plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
-
-                            //Play Voice
-                            if(current_patrol.voice_mode != "none"){//basic
-                                playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
-                            }
-                            lingbell_count = 0;
-                            ui_state = UI_STATE_PICKUP;
-
-                        }else if(probot->is_calling){
-                            if(pmap->call_queue.size() > 0){
-                                if(pmap->call_queue[0].left(7) == "Resting"){
-                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name);
-                                    pmap->call_queue.pop_front();
-                                }else{
-                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode) -> Max Calling Resting (Next : "+pmap->call_queue[0]+", CallCount : "+QString::number(probot->call_moving_count)+", MaxCall : "+QString::number(probot->max_moving_count)+")");
-                                }
-                            }else{
-                                probot->is_calling = false;
-                                plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
-                            }
-                            //Ling bell
-                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
-                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->send_call(probot->current_target.ling_id);
-                            }
-                            QMetaObject::invokeMethod(mMain, "waitkitchen");
-                            ui_state = UI_STATE_CLEANING;
-                        }else{
-                            plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
-                            //Ling bell
-                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
-                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->send_call(probot->current_target.ling_id);
-                            }
-                            QMetaObject::invokeMethod(mMain, "waitkitchen");
-                            ui_state = UI_STATE_INITAILIZING;
-                        }
-
-                    }else if(probot->current_target.name == "Cleaning0"){
-                        probot->call_moving_count = 0;
-                        if(probot->is_patrol){
-                            plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
-
-                            //Play Voice
-                            if(current_patrol.voice_mode != "none"){//basic
-                                playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
-                            }
-                            lingbell_count = 0;
-                            ui_state = UI_STATE_PICKUP;
-                        }else if(probot->is_calling){
-                            if(pmap->call_queue.size() > 0){
-                                if(pmap->call_queue[0].left(8) == "Cleaning"){
-                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name);
-                                    pmap->call_queue.pop_front();
-                                }else{
-                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode) -> Max Calling Cleaning (Next : "+pmap->call_queue[0]+", CallCount : "+QString::number(probot->call_moving_count)+", MaxCall : "+QString::number(probot->max_moving_count)+")");
-                                }
-                            }else{
-                                probot->is_calling = false;
-                                plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
-                            }
-                            //Ling bell
-                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
-                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->send_call(probot->current_target.ling_id);
-                            }
-                            QMetaObject::invokeMethod(mMain, "clearkitchen");
-                            ui_state = UI_STATE_CLEANING;
-                        }else{
-                            //Ling bell
-                            if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != ""){
-                                plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                                call->send_call(probot->current_target.ling_id);
-                            }
-                            plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
-                            QMetaObject::invokeMethod(mMain, "clearkitchen");
-                            ui_state = UI_STATE_CLEANING;
-                        }
-                    }else{
-                        if(probot->is_patrol){
-                            plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
-
-                            //Play Voice
-                            if(current_patrol.voice_mode != "none"){//basic
-                                playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
-                            }
-                            lingbell_count = 0;
-                            ui_state = UI_STATE_PICKUP;
-                        }else if(probot->is_calling){
-                            plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name + " -> Pickup");
-                            probot->call_moving_count++;
-                            lingbell_count = 0;
-                            ui_state = UI_STATE_PICKUP;
-                        }else{
-                            LOCATION curLoc;
-                            bool match = false;
-                            //트레이 클리어
-                            probot->pickupTrays.clear();
-                            for(int i=0; i<setting.tray_num; i++){
-                                //트레이 점유됨
-                                if(!probot->trays[i].empty){
-                                    if(!match){
-                                        match = true;
-                                        curLoc = probot->trays[i].location;
-                                    }
-                                    if(isSameLocation(probot->trays[i].location,curLoc)){
-                                        plog->write("[STATE] Tray Reset : "+QString::number(i)+", " + probot->trays[i].location.name);
-                                        probot->trays[i].empty = true;
-                                        probot->pickupTrays.push_back(i+1);
-                                    }
-                                }else{
-                                    LOCATION clearLoc;
-                                    probot->trays[i].location = clearLoc;
-                                }
-                            }
-                            lingbell_count = 0;
-                            plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+", "+curLoc.name+" -> Pickup");
-                            ui_state = UI_STATE_PICKUP;
                         }
                     }
-                    probot->current_target.name = "";
-                    cmd_accept = false;
-                }else{
-                    if(probot->current_target.name == ""){
-                        LOCATION cur_target;
-                        probot->is_patrol = false;
-                        probot->is_calling = false;
+                    else
+                    {
+                        current_cnt = 0;
+                    }
+                }
 
-                        //1. 서빙 포인트 있는지 체크
-                        int tray_num = -1;
-                        for(int i=0; i<setting.tray_num; i++){
-                            if(!probot->trays[i].empty){
-                                tray_num = i;
-                                break;
+                if(probot->running_state == ROBOT_MOVING_READY)
+                {
+                    if(cmd_accept)
+                    {
+                        if(probot->current_target.name == "Charging0")
+                        {
+                            if(probot->is_patrol)
+                            {
+                                plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
+
+                                //Play Voice
+                                if(current_patrol.voice_mode != "none")
+                                {
+                                    playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
+                                }
+                                lingbell_count = 0;
+                                ui_state = UI_STATE_PICKUP;
                             }
-                        }
-                        if(tray_num > -1){
-                            //서빙 포인트 세팅
-                            cur_target = probot->trays[tray_num].location;
-                            plog->write("[STATE] Moving : New Target (Serving) -> "+cur_target.name+" ( tray num : "+QString::number(tray_num)+" , tray location )");
-                        }else{
-                            //최대 이동 횟수 초과 시 -> 대기장소로 이동
-                            if(probot->call_moving_count + 1 > probot->max_moving_count){
-                                probot->is_calling = true;
-                                plog->write("[STATE] Moving : Call Move Count is Max "+QString::number(probot->call_moving_count)+","+QString::number(probot->max_moving_count));
-                            }else{
-                                //2. 들어온 콜 위치가 있는지 체크
-                                for(QString call:pmap->call_queue){
-                                    LOCATION temp_loc;
-
-                                    if(call == "Charging0"){
-                                        temp_loc = getChargingLocation(0);
-                                    }else if(call == "Resting0"){
-                                        temp_loc = getRestingLocation(0);
-                                    }else if(call == "Cleaning0"){
-                                        temp_loc = getCleaningLocation(0);
-                                    }else{
-                                        temp_loc = getServingLocation(call);
-                                    }
-                                    if(temp_loc.name != ""){
-                                        cur_target = temp_loc;
-                                        plog->write("[STATE] Moving : New Target (Calling) -> "+temp_loc.name+" ( call id : "+temp_loc.call_id+" )");
-                                        probot->is_calling = true;
-                                        break;
-                                    }else{
-                                        plog->write("[STATE] Moving : New Call but ID Wrong ("+pmap->call_queue[0]+")");
-                                        pmap->call_queue.pop_front();
-                                    }
+                            else if(probot->is_calling)
+                            {
+                                if(pmap->call_queue.size() > 0)
+                                {
+                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name+" -> Charging");
+                                    pmap->call_queue.pop_front();
+                                }
+                                else
+                                {
+                                    probot->is_calling = false;
                                 }
 
-                                if(cur_target.name == ""){
-                                    if(getSetting("setting","SERVER","use_server_call") == "true"){
+                                //Ling bell
+                                if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != "")
+                                {
+                                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                    call->send_call(probot->current_target.ling_id);
+                                }
+                                ui_state = UI_STATE_CHARGING;
+                            }
+                            else
+                            {
+                                plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+" -> Charging");
+                                //Ling bell
+                                if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != "")
+                                {
+                                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                    call->send_call(probot->current_target.ling_id);
+                                }
+                                ui_state = UI_STATE_CHARGING;
+                            }
+                        }
+                        else if(probot->current_target.name == "Resting0")
+                        {
+                            probot->call_moving_count = 0;
+                            if(probot->is_patrol)
+                            {
+                                plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
 
-                                    }else{
-                                        //3. PATROLLING
-                                        if(patrol_mode == PATROL_NEW){
-                                            if(current_patrol.location.size()>1){
-                                                if(current_patrol.type == "random"){
-                                                    //패트롤 위치 랜덤하게 지정
-                                                    int temp = QRandomGenerator::global()->bounded(0,1000);
+                                //Play Voice
+                                if(current_patrol.voice_mode != "none")
+                                {
+                                    //basic
+                                    playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
+                                }
+                                lingbell_count = 0;
+                                ui_state = UI_STATE_PICKUP;
 
-                                                    while(patrol_num == temp%(current_patrol.location.size())){
-                                                        temp = QRandomGenerator::global()->bounded(0,1000);
+                            }
+                            else if(probot->is_calling)
+                            {
+                                if(pmap->call_queue.size() > 0)
+                                {
+                                    if(pmap->call_queue[0].left(7) == "Resting")
+                                    {
+                                        plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name);
+                                        pmap->call_queue.pop_front();
+                                    }
+                                    else
+                                    {
+                                        plog->write("[STATE] Moving : Arrived Location (Calling Mode) -> Max Calling Resting (Next : "+pmap->call_queue[0]+", CallCount : "+QString::number(probot->call_moving_count)+", MaxCall : "+QString::number(probot->max_moving_count)+")");
+                                    }
+                                }
+                                else
+                                {
+                                    probot->is_calling = false;
+                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
+                                }
+                                //Ling bell
+                                if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != "")
+                                {
+                                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                    call->send_call(probot->current_target.ling_id);
+                                }
+                                QMetaObject::invokeMethod(mMain, "waitkitchen");
+                                ui_state = UI_STATE_CLEANING;
+                            }
+                            else
+                            {
+                                plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
+                                //Ling bell
+                                if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != "")
+                                {
+                                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                    call->send_call(probot->current_target.ling_id);
+                                }
+                                QMetaObject::invokeMethod(mMain, "waitkitchen");
+                                ui_state = UI_STATE_INITAILIZING;
+                            }
+                        }
+
+                        else if(probot->current_target.name == "Cleaning0")
+                        {
+                            probot->call_moving_count = 0;
+                            if(probot->is_patrol)
+                            {
+                                plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
+
+                                //Play Voice
+                                if(current_patrol.voice_mode != "none")
+                                {
+                                    //basic
+                                    playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
+                                }
+                                lingbell_count = 0;
+                                ui_state = UI_STATE_PICKUP;
+                            }
+                            else if(probot->is_calling)
+                            {
+                                if(pmap->call_queue.size() > 0)
+                                {
+                                    if(pmap->call_queue[0].left(8) == "Cleaning")
+                                    {
+                                        plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name);
+                                        pmap->call_queue.pop_front();
+                                    }
+                                    else
+                                    {
+                                        plog->write("[STATE] Moving : Arrived Location (Calling Mode) -> Max Calling Cleaning (Next : "+pmap->call_queue[0]+", CallCount : "+QString::number(probot->call_moving_count)+", MaxCall : "+QString::number(probot->max_moving_count)+")");
+                                    }
+                                }
+                                else
+                                {
+                                    probot->is_calling = false;
+                                    plog->write("[STATE] Moving : Arrived Location (Calling Mode?) "+probot->current_target.name);
+                                }
+                                //Ling bell
+                                if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != "")
+                                {
+                                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                    call->send_call(probot->current_target.ling_id);
+                                }
+                                QMetaObject::invokeMethod(mMain, "clearkitchen");
+                                ui_state = UI_STATE_CLEANING;
+                            }
+                            else
+                            {
+                                //Ling bell
+                                if(getSetting("setting","CALL","use_lingbell") == "true" && probot->current_target.ling_id != "")
+                                {
+                                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                                    call->send_call(probot->current_target.ling_id);
+                                }
+                                plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name);
+                                QMetaObject::invokeMethod(mMain, "clearkitchen");
+                                ui_state = UI_STATE_CLEANING;
+                            }
+                        }
+                        else
+                        {
+                            if(probot->is_patrol)
+                            {
+                                plog->write("[STATE] Moving : Arrived Location (Patrol Mode) "+probot->current_target.name);
+
+                                //Play Voice
+                                if(current_patrol.voice_mode != "none")
+                                {
+                                    //basic
+                                    playVoice(current_patrol.voice_file, current_patrol.voice_name, current_patrol.voice_mode, current_patrol.voice_language, current_patrol.voice_volume);
+                                }
+                                lingbell_count = 0;
+                                ui_state = UI_STATE_PICKUP;
+                            }
+                            else if(probot->is_calling)
+                            {
+                                plog->write("[STATE] Moving : Arrived Location (Calling Mode) "+probot->current_target.name + " -> Pickup");
+                                probot->call_moving_count++;
+                                lingbell_count = 0;
+                                ui_state = UI_STATE_PICKUP;
+                            }
+                            else
+                            {
+                                LOCATION curLoc;
+                                bool match = false;
+
+                                //트레이 클리어
+                                probot->pickupTrays.clear();
+                                for(int i=0; i<setting.tray_num; i++)
+                                {
+                                    //트레이 점유됨
+                                    if(!probot->trays[i].empty)
+                                    {
+                                        if(!match)
+                                        {
+                                            match = true;
+                                            curLoc = probot->trays[i].location;
+                                        }
+
+                                        if(isSameLocation(probot->trays[i].location,curLoc))
+                                        {
+                                            plog->write("[STATE] Tray Reset : "+QString::number(i)+", " + probot->trays[i].location.name);
+                                            probot->trays[i].empty = true;
+                                            probot->pickupTrays.push_back(i+1);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        LOCATION clearLoc;
+                                        probot->trays[i].location = clearLoc;
+                                    }
+                                }
+                                lingbell_count = 0;
+                                plog->write("[STATE] Moving : Arrived Location "+probot->current_target.name+", "+curLoc.name+" -> Pickup");
+                                ui_state = UI_STATE_PICKUP;
+                            }
+                        }
+                        probot->current_target.name = "";
+                        cmd_accept = false;
+                    }
+                    else
+                    {
+                        if(probot->current_target.name == "")
+                        {
+                                LOCATION cur_target;
+                                probot->is_patrol = false;
+                                probot->is_calling = false;
+
+                                //1. 서빙 포인트 있는지 체크
+                                int tray_num = -1;
+                                for(int i=0; i<setting.tray_num; i++)
+                                {
+                                    if(!probot->trays[i].empty)
+                                    {
+                                        tray_num = i;
+                                        break;
+                                    }
+                                }
+                            if(tray_num > -1)
+                            {
+                                //서빙 포인트 세팅
+                                cur_target = probot->trays[tray_num].location;
+                                plog->write("[STATE] Moving : New Target (Serving) -> "+cur_target.name+" ( tray num : "+QString::number(tray_num)+" , tray location )");
+                            }
+                            else
+                            {
+                                //최대 이동 횟수 초과 시 -> 대기장소로 이동
+                                if(probot->call_moving_count + 1 > probot->max_moving_count)
+                                {
+                                    probot->is_calling = true;
+                                    plog->write("[STATE] Moving : Call Move Count is Max "+QString::number(probot->call_moving_count)+","+QString::number(probot->max_moving_count));
+                                }
+                                else
+                                {
+                                    //2. 들어온 콜 위치가 있는지 체크
+                                    for(QString call:pmap->call_queue)
+                                    {
+                                        LOCATION temp_loc;
+                                        if(call == "Charging0")
+                                        {
+                                            temp_loc = getChargingLocation(0);
+                                        }
+                                        else if(call == "Resting0")
+                                        {
+                                            temp_loc = getRestingLocation(0);
+                                        }
+                                        else if(call == "Cleaning0")
+                                        {
+                                            temp_loc = getCleaningLocation(0);
+                                        }
+                                        else
+                                        {
+                                            temp_loc = getServingLocation(call);
+                                        }
+
+                                        if(temp_loc.name != "")
+                                        {
+                                            cur_target = temp_loc;
+                                            plog->write("[STATE] Moving : New Target (Calling) -> "+temp_loc.name+" ( call id : "+temp_loc.call_id+" )");
+                                            probot->is_calling = true;
+                                            break;
+                                        }
+                                        else
+                                        {
+                                            plog->write("[STATE] Moving : New Call but ID Wrong ("+pmap->call_queue[0]+")");
+                                            pmap->call_queue.pop_front();
+                                        }
+                                    }
+
+                                    if(cur_target.name == "")
+                                    {
+                                        if(getSetting("setting","SERVER","use_server_call") == "true")
+                                        {
+
+                                        }
+                                        else
+                                        {
+                                            //3. PATROLLING
+                                            if(patrol_mode == PATROL_NEW)
+                                            {
+                                                if(current_patrol.location.size()>1)
+                                                {
+                                                    if(current_patrol.type == "random")
+                                                    {
+                                                        //패트롤 위치 랜덤하게 지정
+                                                        int temp = QRandomGenerator::global()->bounded(0,1000);
+
+                                                        while(patrol_num == temp%(current_patrol.location.size()))
+                                                        {
+                                                            temp = QRandomGenerator::global()->bounded(0,1000);
+                                                        }
+
+                                                        patrol_num = temp%(current_patrol.location.size());
+                                                        cur_target = current_patrol.location[patrol_num];
+                                                        probot->is_patrol = true;
+                                                        plog->write("[STATE] Moving : New Target (Patrol Random) -> "+cur_target.group_name+", "+cur_target.name);
                                                     }
+                                                    else
+                                                    {
+                                                        if(++patrol_num >= current_patrol.location.size())
+                                                        {
+                                                            patrol_num = 0;
+                                                        }
 
-                                                    patrol_num = temp%(current_patrol.location.size());
-                                                    cur_target = current_patrol.location[patrol_num];
-                                                    probot->is_patrol = true;
-                                                    plog->write("[STATE] Moving : New Target (Patrol Random) -> "+cur_target.group_name+", "+cur_target.name);
-                                                }else{
-                                                    if(++patrol_num >= current_patrol.location.size())
-                                                        patrol_num = 0;
-
-                                                    LOCATION temp_loc = current_patrol.location[patrol_num];
-                                                    cur_target = current_patrol.location[patrol_num];
-                                                    probot->is_patrol = true;
-                                                    plog->write("[STATE] Moving : New Target (Patrol Sequence) -> "+cur_target.group_name+", "+ cur_target.name);
+                                                        LOCATION temp_loc = current_patrol.location[patrol_num];
+                                                        cur_target = current_patrol.location[patrol_num];
+                                                        probot->is_patrol = true;
+                                                        plog->write("[STATE] Moving : New Target (Patrol Sequence) -> "+cur_target.group_name+", "+ cur_target.name);
+                                                    }
                                                 }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
 
 
-                        count_moveto = 0;
-                        if(cur_target.name == ""){
-                            // if(probot->is_cleaning){
-                            //     //세팅 되지 않음 -> 고 홈
-                            //     plog->write("[STATE] Moving : No Target -> Back to Cleaning0");
-                            //     probot->call_moving_count = 0;
-                            //     cur_target = getLocation(0,"Cleaning0");
-                            //     if(cur_target.name == ""){
-                            //         LOCATION temp_cleaning = getLocation(0,"Resting0");
-                            //         temp_cleaning.name = "Cleaning0";
-                            //         temp_cleaning.type = "Cleaning";
-                            //         temp_cleaning.group_name = "Cleaning";
-                            //         cur_target = temp_cleaning;
-                            //     }
-                            // }else{
-                                //세팅 되지 않음 -> 고 홈
+                            count_moveto = 0;
+                            if(cur_target.name == "")
+                            {
                                 plog->write("[STATE] Moving : No Target -> Back to Resting0");
                                 probot->call_moving_count = 0;
                                 cur_target = getRestingLocation(0);
-                            // }
-                        }
-
-                        bool match = false;
-                        //지정된 위치 실재하는 지 확인
-                        for(int i=0; i<pmap->serving_locations.size(); i++){
-                            if(pmap->serving_locations[i].group == cur_target.group){
-                                if(pmap->serving_locations[i].name == cur_target.name){
-                                    match = true;
-                                    break;
-                                }
                             }
-                        }
-                        if(cur_target.name == "Charging0" && pmap->charging_locations.size() > 0){
-                            match = true;
-                        }
-                        if(cur_target.name == "Resting0" && pmap->resting_locations.size() > 0){
-                            match = true;
-                        }
-                        if(cur_target.name == "Cleaning0" && pmap->cleaning_locations.size() > 0){
-                            match = true;
-                        }
 
-                        if(match){
-                            probot->current_target = cur_target;
-                        }else{
-                            plog->write("[STATE] Moving : Target not found -> "+cur_target.name+", "+QString::number(cur_target.group));
-                            QMetaObject::invokeMethod(mMain, "nolocation");
-                            ui_state = UI_STATE_RESTING;
-                            break;
-                        }
-                    }else{
-                        if(timer_cnt2%5==0){
-                            plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
-                            if(!probot->is_patrol && count_moveto++ > 5){//need check
-                                plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
-                                ipc->moveStop();
-                                QMetaObject::invokeMethod(mMain, "movefail");
-                                ui_state = UI_STATE_MOVEFAIL;
-                            }else{
-                                int preset = probot->cur_preset;
-
-                                if(curPage == "page_annotation"){
-                                    plog->write("[STATE] Moving : move to (test)"+probot->current_target.name+", preset "+QString::number(preset));
-                                    ipc->moveToLocationTest(probot->current_target,preset);
-                                }else{
-                                    if(probot->current_target.name.left(7) == "Resting" || probot->current_target.name.left(8) == "Cleaning"){
-                                        if(probot->comeback_preset != 0){
-                                            preset = probot->comeback_preset;
-                                        }
+                            //지정된 위치 실재하는 지 확인
+                            bool match = false;
+                            for(int i=0; i<pmap->serving_locations.size(); i++)
+                            {
+                                if(pmap->serving_locations[i].group == cur_target.group)
+                                {
+                                    if(pmap->serving_locations[i].name == cur_target.name)
+                                    {
+                                        match = true;
+                                        break;
                                     }
-                                    //무브 명령 보냄
-                                    plog->write("[STATE] Moving : move to "+probot->current_target.name+", preset "+QString::number(preset));
-                                    ipc->moveToLocation(probot->current_target,preset);
                                 }
                             }
+
+                            if(cur_target.name == "Charging0" && pmap->charging_locations.size() > 0)
+                            {
+                                match = true;
+                            }
+                            if(cur_target.name == "Resting0" && pmap->resting_locations.size() > 0)
+                            {
+                                match = true;
+                            }
+                            if(cur_target.name == "Cleaning0" && pmap->cleaning_locations.size() > 0)
+                            {
+                                match = true;
+                            }
+
+                            if(match)
+                            {
+                                probot->current_target = cur_target;
+                            }
+                            else
+                            {
+                                plog->write("[STATE] Moving : Target not found -> "+cur_target.name+", "+QString::number(cur_target.group));
+                                QMetaObject::invokeMethod(mMain, "nolocation");
+                                ui_state = UI_STATE_RESTING;
+                                break;
+                            }
                         }
-                        timer_cnt2++;
+                        else
+                        {
+                            if(timer_cnt2%5==0)
+                            {
+                                plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
+                                if(!probot->is_patrol && count_moveto++ > 5)
+                                {
+                                    //need check
+                                    plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
+                                    ipc->moveStop();
+                                    QMetaObject::invokeMethod(mMain, "movefail");
+                                    ui_state = UI_STATE_MOVEFAIL;
+                                }
+                                else
+                                {
+                                    int preset = probot->cur_preset;
+
+                                    if(curPage == "page_annotation")
+                                    {
+                                        plog->write("[STATE] Moving : move to (test)"+probot->current_target.name+", preset "+QString::number(preset));
+                                        ipc->moveToLocationTest(probot->current_target,preset);
+                                    }
+                                    else
+                                    {
+                                        if(probot->current_target.name.left(7) == "Resting" || probot->current_target.name.left(8) == "Cleaning")
+                                        {
+                                            if(probot->comeback_preset != 0)
+                                            {
+                                                preset = probot->comeback_preset;
+                                            }
+                                        }
+                                        //무브 명령 보냄
+                                        plog->write("[STATE] Moving : move to "+probot->current_target.name+", preset "+QString::number(preset));
+                                        ipc->moveToLocation(probot->current_target,preset);
+                                    }
+                                }
+                            }
+                            timer_cnt2++;
+                        }
                     }
                 }
-            }else if(probot->running_state == ROBOT_MOVING_MOVING){
-                // moving
-                if(!cmd_accept){
-                    cmd_accept = true;
-                    count_moveto = 0;
-                    if(probot->is_calling){
-                        plog->write("[STATE] Moving : Move Start (Calling)");
-                    }else{
-                        if(patrol_mode != PATROL_NONE){
-                            plog->write("[STATE] Moving : Move Start (Patrol)");
-                        }else{
-                            plog->write("[STATE] Moving : Move Start (Serving)");
+                else if(probot->running_state == ROBOT_MOVING_MOVING)
+                {
+                    // moving
+                    if(!cmd_accept)
+                    {
+                        cmd_accept = true;
+                        count_moveto = 0;
+                        if(probot->is_calling)
+                        {
+                            plog->write("[STATE] Moving : Move Start (Calling)");
+                        }
+                        else
+                        {
+                            if(patrol_mode != PATROL_NONE)
+                            {
+                                plog->write("[STATE] Moving : Move Start (Patrol)");
+                            }
+                            else
+                            {
+                                plog->write("[STATE] Moving : Move Start (Serving)");
+                            }
+                        }
+                        QMetaObject::invokeMethod(mMain, "movestart");
+                    }
+                }
+                else if(probot->running_state == ROBOT_MOVING_NOT_READY)
+                {
+                    plog->write("[STATE] Moving : Running state not ready -> Movefail");
+                    QMetaObject::invokeMethod(mMain, "movefail");
+                    ui_state = UI_STATE_MOVEFAIL;
+                }
+                else
+                {
+                    if(!flag_movewait)
+                    {
+                        if(probot->running_state == ROBOT_MOVING_WAIT)
+                        {
+                            plog->write("[STATE] Moving : MOVE WAIT");
+                            QMetaObject::invokeMethod(mMain, "movewait");
+                            count_movewait = 0;
+                            flag_movewait = true;
+                        }
+                        else if(probot->obs_in_path_state != 0 && probot->running_state == ROBOT_MOVING_MOVING)
+                        {
+                            plog->write("[STATE] Moving : EXCUSE ME");
+                            QMetaObject::invokeMethod(mMain, "excuseme");
+                            count_movewait = 0;
+                            flag_movewait = true;
                         }
                     }
-                    QMetaObject::invokeMethod(mMain, "movestart");
                 }
-            }else if(probot->running_state == ROBOT_MOVING_NOT_READY){
-                plog->write("[STATE] Moving : Running state not ready -> Movefail");
+            }
+            break;
+        }
+        case UI_STATE_CLEANING:
+        {
+            probot->call_moving_count = 0;
+            if(getSetting("setting","USE_UI","use_calling_notice") != "true")
+            {
+                if(probot->current_target.name != "Cleaning0")
+                {
+                    ui_state = UI_STATE_INITAILIZING;
+                }
+            }
+            break;
+        }
+        case UI_STATE_PICKUP:
+        {
+            if(probot->ui_fail_state == 1)
+            {
+                //local fail, no path, charging, motor error, motor connection
+                if(!getMotorConnection(0) || !getMotorConnection(1))
+                {
+                    plog->write("[IPC] UI Fail State -> Motor Connection Error "+QString::asprintf("(%d, %d)",getMotorConnection(0),getMotorConnection(1)));
+                }
+                else if(getMotorState()==0)
+                {
+                    plog->write("[IPC] UI Fail State -> Motor Error "+QString::asprintf("(%d, %d)",probot->motor[0].status,probot->motor[1].status));
+                }
+                else if(getLocalizationState()!=LOCAL_READY)
+                {
+                    plog->write("[IPC] UI Fail State -> Localization Not ready"+QString::asprintf("(%d)",probot->localization_state));
+                }
+                else if(getChargeConnectStatus())
+                {
+                    plog->write("[IPC] UI Fail State -> Charging"+QString::asprintf("(%d, %d)",probot->status_charge,probot->status_charge_connect));
+                }
+                else
+                {
+                    plog->write("[IPC] UI Fail State -> No Path ?");
+                }
+                plog->write("[STATE] Pickup : UI Fail State -> Kill Slam");
+                killSLAM();
+            }
+            else if(probot->status_lock && getMotorState() == 0)
+            {
+                plog->write(QString::number(probot->status_emo)+QString::number(probot->status_lock)+QString::number(probot->status_remote)+QString::number(probot->status_power)+QString::number(probot->motor[0].status)+QString::number(probot->motor[1].status)+QString::number(probot->battery_in)+QString::number(probot->battery_out));
+                plog->write("[STATE] Pickup : MOTOR NOT READY -> Movefail");
                 QMetaObject::invokeMethod(mMain, "movefail");
                 ui_state = UI_STATE_MOVEFAIL;
-            }else{
-                if(!flag_movewait){
-                    if(probot->running_state == ROBOT_MOVING_WAIT){
-                        plog->write("[STATE] Moving : MOVE WAIT");
-                        QMetaObject::invokeMethod(mMain, "movewait");
-                        count_movewait = 0;
-                        flag_movewait = true;
-                    }else if(probot->obs_in_path_state != 0 && probot->running_state == ROBOT_MOVING_MOVING){
-                        plog->write("[STATE] Moving : EXCUSE ME");
-                        QMetaObject::invokeMethod(mMain, "excuseme");
-                        count_movewait = 0;
-                        flag_movewait = true;
-                    }
+            }
+            else if(probot->running_state == ROBOT_MOVING_PAUSED)
+            {
+                plog->write("[STATE] Pickup : Robot paused -> RESUME");
+                ipc->moveResume();
+            }
+
+            //Call 강제귀환
+            for(int i=0; i<pmap->call_queue.size(); i++)
+            {
+                if(pmap->call_queue[i].left(7) == "Resting" && getSetting("setting","CALL","force_resting") == "true")
+                {
+                    plog->write("[STATE] Pickup : Force Calling (Resting) -> Moving");
+                    QString temp = pmap->call_queue[i];
+                    pmap->call_queue.clear();
+                    pmap->call_queue.append(temp);
+                    stateMoving();
+                    break;
+                }
+                else if(pmap->call_queue[i].left(8) == "Cleaning" && getSetting("setting","CALL","force_cleaning") == "true")
+                {
+                    plog->write("[STATE] Pickup : Force Calling (Cleaning) -> Moving");
+                    QString temp = pmap->call_queue[i];
+                    pmap->call_queue.clear();
+                    pmap->call_queue.append(temp);
+                    stateMoving();
+                    break;
                 }
             }
-        }
-        break;
-    }
-    case UI_STATE_CLEANING:{
-        probot->call_moving_count = 0;
-        if(getSetting("setting","USE_UI","use_calling_notice") != "true"){
-            if(probot->current_target.name != "Cleaning0")
-                ui_state = UI_STATE_INITAILIZING;
-        }
-        break;
-    }
-    case UI_STATE_PICKUP:{
-        if(probot->ui_fail_state == 1){
-            //local fail, no path, charging, motor error, motor connection
-            if(!getMotorConnection(0) || !getMotorConnection(1)){
-                plog->write("[IPC] UI Fail State -> Motor Connection Error "+QString::asprintf("(%d, %d)",getMotorConnection(0),getMotorConnection(1)));
-            }else if(getMotorState()==0){
-                plog->write("[IPC] UI Fail State -> Motor Error "+QString::asprintf("(%d, %d)",probot->motor[0].status,probot->motor[1].status));
-            }else if(getLocalizationState()!=LOCAL_READY){
-                plog->write("[IPC] UI Fail State -> Localization Not ready"+QString::asprintf("(%d)",probot->localization_state));
-            }else if(getChargeConnectStatus()){
-                plog->write("[IPC] UI Fail State -> Charging"+QString::asprintf("(%d, %d)",probot->status_charge,probot->status_charge_connect));
-            }else{
-                plog->write("[IPC] UI Fail State -> No Path ?");
-            }
-            plog->write("[STATE] Pickup : UI Fail State -> Kill Slam");
-            killSLAM();
-        }else if(probot->status_lock && getMotorState() == 0){
-            plog->write(QString::number(probot->status_emo)+QString::number(probot->status_lock)+QString::number(probot->status_remote)+QString::number(probot->status_power)+QString::number(probot->motor[0].status)+QString::number(probot->motor[1].status)+QString::number(probot->battery_in)+QString::number(probot->battery_out));
-            plog->write("[STATE] Pickup : MOTOR NOT READY -> Movefail");
-            QMetaObject::invokeMethod(mMain, "movefail");
-            ui_state = UI_STATE_MOVEFAIL;
-        }else if(probot->running_state == ROBOT_MOVING_PAUSED){
-            plog->write("[STATE] Pickup : Robot paused -> RESUME");
-            ipc->moveResume();
-        }
 
-        //Call 강제귀환
-        for(int i=0; i<pmap->call_queue.size(); i++){
-            if(pmap->call_queue[i].left(7) == "Resting" && getSetting("setting","CALL","force_resting") == "true"){
-                plog->write("[STATE] Pickup : Force Calling (Resting) -> Moving");
-                QString temp = pmap->call_queue[i];
-                pmap->call_queue.clear();
-                pmap->call_queue.append(temp);
-                stateMoving();
-                break;
-            }else if(pmap->call_queue[i].left(8) == "Cleaning" && getSetting("setting","CALL","force_cleaning") == "true"){
-                plog->write("[STATE] Pickup : Force Calling (Cleaning) -> Moving");
-                QString temp = pmap->call_queue[i];
-                pmap->call_queue.clear();
-                pmap->call_queue.append(temp);
-                stateMoving();
-                break;
-            }
-        }
-
-        //Ling bell
-        if(!probot->is_patrol){
-            if(getSetting("setting","CALL","use_lingbell") == "true"){
-                if(lingbell_count == 0){
-                    plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
-                    call->send_call(probot->current_target.ling_id);
-                    lingbell_count = 1;
-                }
-                if(getSetting("setting","CALL","use_lingbell_repeat") == "true"){
-                    if(lingbell_count++ > getSetting("setting","CALL","lingbell_time").toInt()*1000/MAIN_THREAD){
+            //Ling bell
+            if(!probot->is_patrol)
+            {
+                if(getSetting("setting","CALL","use_lingbell") == "true")
+                {
+                    if(lingbell_count == 0)
+                    {
                         plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
                         call->send_call(probot->current_target.ling_id);
                         lingbell_count = 1;
                     }
-                }else{
+                    if(getSetting("setting","CALL","use_lingbell_repeat") == "true")
+                    {
+                        if(lingbell_count++ > getSetting("setting","CALL","lingbell_time").toInt()*1000/MAIN_THREAD)
+                        {
+                            plog->write("[STATE] Send Lingbell : "+probot->current_target.ling_id);
+                            call->send_call(probot->current_target.ling_id);
+                            lingbell_count = 1;
+                        }
+                    }
+                    else
+                    {
+                    }
                 }
             }
-        }
 
-        if(patrol_mode != PATROL_NONE){
-            if(probot->current_target.type == "Serving"){
-                if(current_patrol.arrive_page.mode == "calling" || current_patrol.arrive_page.mode == "pickup"){
-                    if(patrol_wait_count == 0){
-                        plog->write("[STATE] Pickup -> UI Pickup");
-                        QMetaObject::invokeMethod(mMain, "showpickup");
+            if(patrol_mode != PATROL_NONE)
+            {
+                if(probot->current_target.type == "Serving")
+                {
+                    if(current_patrol.arrive_page.mode == "calling" || current_patrol.arrive_page.mode == "pickup")
+                    {
+                        if(patrol_wait_count == 0)
+                        {
+                            plog->write("[STATE] Pickup -> UI Pickup");
+                            QMetaObject::invokeMethod(mMain, "showpickup");
+                        }
+                        if(current_patrol.pass_time == 0)
+                        {
+                            //0이면 auto pass 안함
+                            patrol_wait_count++;
+                        }
+                        else
+                        {
+                            if(patrol_wait_count++ < current_patrol.pass_time*1000/MAIN_THREAD)
+                            {
+                                break;
+                            }
+                            else
+                            {
+                                plog->write("[STATE] Pickup -> AUTO PASS");
+                                stateMoving();
+                            }
+                        }
                     }
-                    if(current_patrol.pass_time == 0){
-                        //0이면 auto pass 안함
-                        patrol_wait_count++;
-                    }else{
-                        if(patrol_wait_count++ < current_patrol.pass_time*1000/MAIN_THREAD){
+                    else
+                    {
+                        if(patrol_wait_count++ < current_patrol.wait_time*1000/MAIN_THREAD)
+                        {
                             break;
-                        }else{
+                        }
+                        else
+                        {
                             plog->write("[STATE] Pickup -> AUTO PASS");
                             stateMoving();
                         }
-
                     }
-                }else{
-                    if(patrol_wait_count++ < current_patrol.wait_time*1000/MAIN_THREAD){
+                }
+                else
+                {
+                    if(patrol_wait_count++ < current_patrol.wait_time*1000/MAIN_THREAD)
+                    {
                         break;
-                    }else{
-                        plog->write("[STATE] Pickup -> AUTO PASS");
+                    }
+                    else
+                    {
                         stateMoving();
+                        plog->write("[STATE] Pickup -> AUTO PASS");
                     }
                 }
-            }else{
-                if(patrol_wait_count++ < current_patrol.wait_time*1000/MAIN_THREAD){
-                    break;
-                }else{
-                    stateMoving();
-                    plog->write("[STATE] Pickup -> AUTO PASS");
+            }
+            else
+            {
+                if(curPage != "page_pickup_calling" && curPage != "page_pickup" && !debug_mode)
+                {
+                    plog->write("[STATE] Pickup -> UI Pickup");
+                    QMetaObject::invokeMethod(mMain, "showpickup");
                 }
             }
+            break;
+        }
 
-        }else{
-            if(curPage != "page_pickup_calling" && curPage != "page_pickup" && !debug_mode){
-                plog->write("[STATE] Pickup -> UI Pickup");
-                QMetaObject::invokeMethod(mMain, "showpickup");
+        case UI_STATE_MOVEFAIL:
+        {
+            if(isRobotReady(false))
+            {
+                plog->write("[STATE] Movefail : Wake Up Auto -> None");
+                QMetaObject::invokeMethod(mMain, "movefail_wake");
+                stateInit();
             }
-        }
-        break;
-    }
-    case UI_STATE_MOVEFAIL:{
-        if(isRobotReady(false)){
-            plog->write("[STATE] Movefail : Wake Up Auto -> None");
-            QMetaObject::invokeMethod(mMain, "movefail_wake");
-            stateInit();
-        }else{
-            if(probot->localization_state != LOCAL_READY && prev_local_state != probot->localization_state){
-                QMetaObject::invokeMethod(mMain, "movefail");
-            }else if(probot->motor[0].status != 1 && prev_motor_1_state != probot->motor[0].status){
-                QMetaObject::invokeMethod(mMain, "movefail");
-            }else if(probot->motor[1].status != 1 && prev_motor_2_state != probot->motor[1].status){
-                QMetaObject::invokeMethod(mMain, "movefail");
-            }else if(probot->status_charge_connect == 1 && prev_charge_state != probot->status_charge_connect){
-                plog->write("[STATE] Initializing : Charging Connected -> Charging");
-                ui_state = UI_STATE_CHARGING;
+            else
+            {
+                if(probot->localization_state != LOCAL_READY && prev_local_state != probot->localization_state)
+                {
+                    QMetaObject::invokeMethod(mMain, "movefail");
+                }
+                else if(probot->motor[0].status != 1 && prev_motor_1_state != probot->motor[0].status)
+                {
+                    QMetaObject::invokeMethod(mMain, "movefail");
+                }
+                else if(probot->motor[1].status != 1 && prev_motor_2_state != probot->motor[1].status)
+                {
+                    QMetaObject::invokeMethod(mMain, "movefail");
+                }
+                else if(probot->status_charge_connect == 1 && prev_charge_state != probot->status_charge_connect)
+                {
+                    plog->write("[STATE] Initializing : Charging Connected -> Charging");
+                    ui_state = UI_STATE_CHARGING;
+                }
             }
+            patrol_mode = PATROL_NONE;
+            probot->current_target.name = "";
+            cmd_accept = false;
+            break;
         }
-        patrol_mode = PATROL_NONE;
-        probot->current_target.name = "";
-        cmd_accept = false;
-        break;
-    }
     }
 
     //State 강제 변경조건
-    if(!ipc->getConnection()){
+    if(!ipc->getConnection())
+    {
         //Clear Status
-        if(ui_state != UI_STATE_NONE){
+        if(ui_state != UI_STATE_NONE)
+        {
             plog->write("[STATE] "+curUiState()+" : SLAMNAV Disconnected -> None");
             QMetaObject::invokeMethod(mMain, "disconnected");
-//            debug_mode = false;
             stateInit();
         }
     }
 
-    if(probot->localization_state != LOCAL_READY){
-        if(probot->localization_confirm){
+    if(probot->localization_state != LOCAL_READY)
+    {
+        if(probot->localization_confirm)
+        {
             plog->write("[STATE] "+curUiState()+" : Localization State is "+QString::number(probot->localization_state)+" -> Localization Confirm false");
             probot->localization_confirm = false;
-            if(!debug_mode){
+            if(!debug_mode)
+            {
                 stateInit();
             }
         }
     }
-    if(!debug_mode && (probot->motor[0].status>1 || probot->motor[1].status>1)){
-        if(ui_state == UI_STATE_NONE || ui_state == UI_STATE_INITAILIZING){
-        }else{
+    if(!debug_mode && (probot->motor[0].status>1 || probot->motor[1].status>1))
+    {
+        if(ui_state == UI_STATE_NONE || ui_state == UI_STATE_INITAILIZING)
+        {
+        }
+        else
+        {
             plog->write("[STATE] "+curUiState()+" : Motor State is "+QString::number(probot->motor[0].status)+","+QString::number(probot->motor[1].status)+" -> Init");
             stateInit();
         }
     }
 
-    if(flag_movewait){
-        if(count_movewait++ > 15000/MAIN_THREAD){//15초
+    if(flag_movewait)
+    {
+        if(count_movewait++ > 15000/MAIN_THREAD)
+        {
+            //15초
             flag_movewait = false;
             count_movewait = 0;
         }
@@ -4579,73 +7676,120 @@ void Supervisor::onTimer(){
     prev_charge_state = probot->status_charge_connect;
 }
 
-QString Supervisor::curUiState(){
-    if(ui_state == UI_STATE_NONE){
+QString Supervisor::curUiState()
+{
+    if(ui_state == UI_STATE_NONE)
+    {
         return "None";
-    }else if(ui_state == UI_STATE_INITAILIZING){
+    }
+    else if(ui_state == UI_STATE_INITAILIZING)
+    {
         return "Initializing";
-    }else if(ui_state == UI_STATE_SETTING){
+    }
+    else if(ui_state == UI_STATE_SETTING)
+    {
         return "Setting";
-    }else if(ui_state == UI_STATE_RESTING){
+    }
+    else if(ui_state == UI_STATE_RESTING)
+    {
         return "Resting";
-    }else if(ui_state == UI_STATE_CHARGING){
+    }
+    else if(ui_state == UI_STATE_CHARGING)
+    {
         return "Charging";
-    }else if(ui_state == UI_STATE_MOVING){
+    }
+    else if(ui_state == UI_STATE_MOVING)
+    {
         return "Moving";
-    }else if(ui_state == UI_STATE_PICKUP){
+    }
+    else if(ui_state == UI_STATE_PICKUP)
+    {
         return "Pickup";
-    }else if(ui_state == UI_STATE_MOVEFAIL){
+    }
+    else if(ui_state == UI_STATE_MOVEFAIL)
+    {
         return "Movefail";
-    }else if(ui_state == UI_STATE_CLEANING){
+    }
+    else if(ui_state == UI_STATE_CLEANING)
+    {
         return "Cleaning";
-    }else{
+    }
+    else
+    {
         return QString::number(ui_state);
     }
 }
-void Supervisor::passInit(){
+
+void Supervisor::passInit()
+{
     plog->write("[COMMAND] ROBOT INIT PASS");
     debug_mode = true;
     stateInit();
 }
-QString Supervisor::getLogDate(int num){
+
+QString Supervisor::getLogDate(int num)
+{
     QString str = curLog[num].split("[")[0];
-    if(str.length() > 20){
+    if(str.length() > 20)
+    {
         return str.left(20);
-    }else{
+    }
+    else
+    {
         return str;
     }
 }
-QString Supervisor::getLogAuth(int num){
+
+QString Supervisor::getLogAuth(int num)
+{
     QString str = curLog[num];
     if(str.split("[").size() > 1)
+    {
         return str.split("[")[1].split("]")[0];
+    }
     else
+    {
         return "";
+    }
 }
-QString Supervisor::getLogMessage(int num){
+QString Supervisor::getLogMessage(int num)
+{
     QString str = curLog[num];
-    if(str.split("[").size() > 1){
+    if(str.split("[").size() > 1)
+    {
         str = curLog[num];
         if(str.split("]").size() > 1)
+        {
             return str.split("]")[1];
+        }
         else
-            return "";
-    }else{
-        if(str.split("[")[0].length() > 20){
-            return str.mid(20,str.length()-20);
-        }else{
+        {
             return "";
         }
     }
-
+    else
+    {
+        if(str.split("[")[0].length() > 20)
+        {
+            return str.mid(20,str.length()-20);
+        }
+        else
+        {
+            return "";
+        }
+    }
 }
-int Supervisor::getLogLineNum(){
+
+int Supervisor::getLogLineNum()
+{
     return curLog.size();
 }
-void Supervisor::readLog(QDateTime date){
-    std::string path = QString().toStdString();
+
+void Supervisor::readLog(QDateTime date)
+{
     QFile file(QDir::homePath()+"/RB_MOBILE/log/"+log_folder+"/"+date.toString("yyyy_MM_dd")+".txt");
-    if(!file.open(QIODevice::ReadOnly)){
+    if(!file.open(QIODevice::ReadOnly))
+    {
         curLog.clear();
         plog->write("[SUPERVISOR] READ LOG (File not opened) : "+file.fileName());
         return;
@@ -4653,233 +7797,342 @@ void Supervisor::readLog(QDateTime date){
 
     curLog.clear();
     QTextStream logs(&file);
-    while(!logs.atEnd()){
+    while(!logs.atEnd())
+    {
         QString line = logs.readLine();
         curLog.append(line);
     }
 }
 
-
-LOCATION Supervisor::getServingLocation(int group, QString name){
-    for(int i=0; i<pmap->serving_locations.size(); i++){
+LOCATION Supervisor::getServingLocation(int group, QString name)
+{
+    for(int i=0; i<pmap->serving_locations.size(); i++)
+    {
         if(pmap->serving_locations[i].group == group)
-            if(pmap->serving_locations[i].name == name){
-                return pmap->serving_locations[i];
-            }
-    }
-    return LOCATION();
-}
-LOCATION Supervisor::getServingLocation(QString group, QString name){
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].group_name == group){
-            if(pmap->serving_locations[i].name == name){
+        {
+            if(pmap->serving_locations[i].name == name)
+            {
                 return pmap->serving_locations[i];
             }
         }
     }
     return LOCATION();
 }
-LOCATION Supervisor::getServingLocation(QString name){
-    for(int i=0; i<pmap->serving_locations.size(); i++){
-        if(pmap->serving_locations[i].name == name){
+
+LOCATION Supervisor::getServingLocation(QString group, QString name)
+{
+    for(int i=0; i<pmap->serving_locations.size(); i++)
+    {
+        if(pmap->serving_locations[i].group_name == group)
+        {
+            if(pmap->serving_locations[i].name == name)
+            {
+                return pmap->serving_locations[i];
+            }
+        }
+    }
+    return LOCATION();
+}
+
+LOCATION Supervisor::getServingLocation(QString name)
+{
+    for(int i=0; i<pmap->serving_locations.size(); i++)
+    {
+        if(pmap->serving_locations[i].name == name)
+        {
             return pmap->serving_locations[i];
         }
     }
     return LOCATION();
 }
-LOCATION Supervisor::getChargingLocation(int num){
-    if(num > -1 && num < pmap->charging_locations.size()){
+
+LOCATION Supervisor::getChargingLocation(int num)
+{
+    if(num > -1 && num < pmap->charging_locations.size())
+    {
         return pmap->charging_locations[num];
     }
     return LOCATION();
 }
-LOCATION Supervisor::getRestingLocation(int num){
-    if(num > -1 && num < pmap->resting_locations.size()){
+
+LOCATION Supervisor::getRestingLocation(int num)
+{
+    if(num > -1 && num < pmap->resting_locations.size())
+    {
         return pmap->resting_locations[num];
     }
     return LOCATION();
 }
-LOCATION Supervisor::getInitLocation(int num){
-    if(num > -1 && num < pmap->init_locations.size()){
+
+LOCATION Supervisor::getInitLocation(int num)
+{
+    if(num > -1 && num < pmap->init_locations.size())
+    {
         return pmap->init_locations[num];
     }
     return LOCATION();
 }
-LOCATION Supervisor::getCleaningLocation(int num){
-    if(num > -1 && num < pmap->cleaning_locations.size()){
+
+LOCATION Supervisor::getCleaningLocation(int num)
+{
+    if(num > -1 && num < pmap->cleaning_locations.size())
+    {
         return pmap->cleaning_locations[num];
     }
     return LOCATION();
 }
 
-
-
-int Supervisor::getzipstate(){
+int Supervisor::getzipstate()
+{
     return zip->process;
 }
-void Supervisor::usbsave(QString usb, bool _ui, bool _slam, bool _config, bool _map, bool _log){
+
+void Supervisor::usbsave(QString usb, bool _ui, bool _slam, bool _config, bool _map, bool _log)
+{
     //need check
     zip->process = 0;
     std::string user = getenv("USER");
     std::string path = "/media/" + user;
     qDebug() << _ui << _slam;
-    if(usb == "Desktop"){
+    if(usb == "Desktop")
+    {
         plog->write("[USER INPUT] USB SAVE : Desktop");
         zip->makeZip(QDir::homePath()+"/Desktop",_ui,_slam,_config,_map,_log);
-    }else if(usb == ""){
-        if(usb_list.size() > 0){
+    }
+    else if(usb == "")
+    {
+        if(usb_list.size() > 0)
+        {
             QString usb_path = QString::fromStdString(path) + "/" + usb_list[0];
             plog->write("[USER INPUT] USB SAVE : "+usb_list[0]);
             zip->makeZip(usb_path,_ui,_slam,_config,_map,_log);
-        }else{
+        }
+        else
+        {
             plog->write("[USER INPUT] USB SAVE ERROR : usb_list size = 0");
         }
-    }else{
+    }
+    else
+    {
         QString usb_path = QString::fromStdString(path) + "/" + usb;
         qDebug() << usb_path;
         plog->write("[USER INPUT] USB SAVE : "+usb);
         zip->makeZip(usb_path,_ui,_slam,_config,_map,_log);
     }
 }
-int Supervisor::getWifiNum(){
-#ifdef EXTPROC_TEST
+
+int Supervisor::getWifiNum()
+{
+    #ifdef EXTPROC_TEST
     return probot->wifi_list.size();
-#else
+    #else
     return probot->wifi_map.size();
-#endif
-}
-QString Supervisor::getCurWifiSSID(){
-#ifdef EXTPROC_TEST
-    return probot->wifi_interface.ssid;
-#else
-    return probot->wifi_ssid;
-#endif
+    #endif
 }
 
-float Supervisor::getICPRatio(){
+QString Supervisor::getCurWifiSSID()
+{
+    #ifdef EXTPROC_TEST
+    return probot->wifi_interface.ssid;
+    #else
+    return probot->wifi_ssid;
+    #endif
+}
+
+float Supervisor::getICPRatio()
+{
     return probot->inlier_ratio;
 }
-float Supervisor::getICPError(){
+
+float Supervisor::getICPError()
+{
     return probot->inlier_error;
 }
-QString Supervisor::getWifiSSID(int num){//need check
-#ifdef EXTPROC_TEST
-    if(num < probot->wifi_list.size() && num > -1){
+
+QString Supervisor::getWifiSSID(int num)
+{
+    //need check
+    #ifdef EXTPROC_TEST
+    if(num < probot->wifi_list.size() && num > -1)
+    {
         qDebug() << probot->wifi_list[num].ssid;
         return QString::fromLocal8Bit(probot->wifi_list[num].ssid.toUtf8());
-    }else{
+    }
+    else
+    {
         return "unknown";
     }
-#else
-    if(num < probot->wifi_map.size() && num > -1){
+    #else
+    if(num < probot->wifi_map.size() && num > -1)
+    {
         QList<QString> keys = probot->wifi_map.keys();
         return probot->wifi_map[keys[num]].ssid;
         std::sort(keys.begin(),keys.end(),sortWifi);
-        if(num < keys.size() && num > -1){
+        if(num < keys.size() && num > -1)
+        {
             return probot->wifi_map[keys[num]].ssid;
-        }else
+        }
+        else
+        {
             return "unknown";
-    }else{
+        }
+    }
+    else
+    {
         return "unknown";
     }
-#endif
+    #endif
 }
-int Supervisor::getEthernetConnection(){
+
+int Supervisor::getEthernetConnection()
+{
     return probot->ethernet_interface.state;
 }
 
-int Supervisor::getInternetConnection(){
-    if(probot->con_internet){
+int Supervisor::getInternetConnection()
+{
+    if(probot->con_internet)
+    {
         return 2;
-    }else{
+    }
+    else
+    {
         return probot->con_internet2;
     }
 }
-int Supervisor::getWifiConnection(){
+
+int Supervisor::getWifiConnection()
+{
     return probot->wifi_interface.state;
 }
 
-void Supervisor::process_accept(int cmd){//need check
-
+void Supervisor::process_accept(int cmd)
+{
+    //need check
 }
 
-bool Supervisor::isRobotReady(bool print){
+bool Supervisor::isRobotReady(bool print)
+{
     //240401 lock state가 true면 motor status가 1이 아니어도 넘어가기에 삭제처리
-    if(!debug_mode && getStateMoving() == READY && probot->localization_state == LOCAL_READY && (probot->motor[0].status == 1 && probot->motor[1].status == 1) && probot->status_charge_connect == 0){
+    if(!debug_mode && getStateMoving() == READY && probot->localization_state == LOCAL_READY && (probot->motor[0].status == 1 && probot->motor[1].status == 1) && probot->status_charge_connect == 0)
+    {
         return true;
-    }else{
-        if(print){
-            plog->write("[COMMAND] Robot not Ready : "+QString::asprintf("DState: %d, RState : %d, LState : %d, LockState: %d, MState1: %d, MState2: %d, CState: %d, UState: %d",debug_mode, getStateMoving(), probot->localization_state, probot->status_lock, probot->motor[0].status, probot->motor[1].status, probot->status_charge_connect, ui_state));
+    }
+    else
+    {
+        if(print)
+        {
+            plog->write("[COMMAND] Robot not Ready : "+QString::asprintf("DState: %d, RState : %d, LState : %d, LockState: %d, MState1: %d, MState2: %d, CState: %d, UState: %d",
+                                                                         debug_mode,
+                                                                         getStateMoving(),
+                                                                         probot->localization_state,
+                                                                         probot->status_lock,
+                                                                         probot->motor[0].status,
+                                                                         probot->motor[1].status,
+                                                                         probot->status_charge_connect,
+                                                                         (int)ui_state));
         }
         return false;
     }
 }
 
-void Supervisor::connect_wifi_fail(int reason, QString ssid){
+void Supervisor::connect_wifi_fail(int reason, QString ssid)
+{
     QMetaObject::invokeMethod(mMain, "wifi_con_fail");
 }
-void Supervisor::connect_wifi_success(QString ssid){
+
+void Supervisor::connect_wifi_success(QString ssid)
+{
     QMetaObject::invokeMethod(mMain, "wifi_con_success");
 }
-void Supervisor::set_wifi_success(QString ssid){
+
+void Supervisor::set_wifi_success(QString ssid)
+{
     QMetaObject::invokeMethod(mMain, "wifi_set_success");
 }
-void Supervisor::set_wifi_fail(int reason,QString ssid){
+
+void Supervisor::set_wifi_fail(int reason,QString ssid)
+{
     QMetaObject::invokeMethod(mMain, "wifi_set_fail");
 }
-void Supervisor::process_done(int cmd){//need check
-#ifdef EXTPROC_TEST
-#else
-#endif
+
+void Supervisor::process_done(int cmd)
+{
+    //need check
 }
 
-void Supervisor::process_error(int cmd, int param){//need check
-#ifdef EXTPROC_TEST
-#else
-    if(cmd == ExtProcess::PROCESS_CMD_CHECK_CONNECTION){
+void Supervisor::process_error(int cmd, int param)
+{
+    //need check
+    #ifdef EXTPROC_TEST
+    #else
+    if(cmd == ExtProcess::PROCESS_CMD_CHECK_CONNECTION)
+    {
         QMetaObject::invokeMethod(mMain, "checkwifidone");
-    }else if(cmd == ExtProcess::PROCESS_CMD_CONNECT_WIFI){
+    }
+    else if(cmd == ExtProcess::PROCESS_CMD_CONNECT_WIFI)
+    {
         QMetaObject::invokeMethod(mMain, "wififailed");
-    }else if(cmd == ExtProcess::PROCESS_CMD_SET_WIFI_IP){
+    }
+    else if(cmd == ExtProcess::PROCESS_CMD_SET_WIFI_IP)
+    {
         QMetaObject::invokeMethod(mMain, "setip_fail");
-    }else if(cmd == ExtProcess::PROCESS_CMD_GIT_PULL){
+    }
+    else if(cmd == ExtProcess::PROCESS_CMD_GIT_PULL)
+    {
         extproc->git_reset();
-    }else if(cmd == ExtProcess::PROCESS_CMD_GIT_UPDATE){
-        if(param == 0){
+    }
+    else if(cmd == ExtProcess::PROCESS_CMD_GIT_UPDATE)
+    {
+        if(param == 0)
+        {
             plog->write("[PROCESS] Update failed");
             QMetaObject::invokeMethod(mMain, "gitfailed");
-        }else if(param == 1){
+        }
+        else if(param == 1)
+        {
             plog->write("[PROCESS] Update failed");
             QMetaObject::invokeMethod(mMain, "gitnewest");
         }
     }
-#endif
+    #endif
 }
 
-void Supervisor::process_timeout(int cmd){//need check
+void Supervisor::process_timeout(int cmd)
+{
+    //need check
     QMetaObject::invokeMethod(mMain, "checkwifidone");
 }
 
-void Supervisor::connectWifi(QString ssid, QString passwd){
+void Supervisor::connectWifi(QString ssid, QString passwd)
+{
     checker->connectWifi(ssid, passwd);
 }
 
-void Supervisor::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
+void Supervisor::setEthernet(QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
+{
     checker->setEthernet(ip,subnet,gateway,dns1,dns2);
 }
-void Supervisor::setWifiDHCP(){
+
+void Supervisor::setWifiDHCP()
+{
     checker->setIP(false,probot->wifi_interface.ssid);
 }
-void Supervisor::setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2){
-    if(ssid == ""){
+
+void Supervisor::setWifi(QString ssid, QString ip, QString subnet, QString gateway, QString dns1, QString dns2)
+{
+    if(ssid == "")
+    {
         ssid = probot->wifi_interface.ssid;
     }
     checker->setIP(true,ssid,ip,subnet,gateway,dns1,dns2);
 }
-void Supervisor::setWifi(QString ip, QString gateway, QString dns){
-#ifdef EXTPROC_TEST
-//    checker->setIP(probot->wifi_interface.ssid,ip,
-#else
+
+void Supervisor::setWifi(QString ip, QString gateway, QString dns)
+{
+    #ifdef EXTPROC_TEST
+    //checker->setIP(probot->wifi_interface.ssid,ip,
+    #else
     plog->write("[COMMAND] setWifi : "+ip+", "+gateway+", "+dns+" (cur Connection : "+probot->wifi_connection+", SSID : "+probot->wifi_ssid+")");
     ExtProcess::Command temp;
     temp.cmd = ExtProcess::PROCESS_CMD_SET_WIFI_IP;
@@ -4887,111 +8140,162 @@ void Supervisor::setWifi(QString ip, QString gateway, QString dns){
     memcpy(temp.params2,gateway.toUtf8(),sizeof(char)*100);
     memcpy(temp.params3,dns.toUtf8(),sizeof(char)*100);
     extproc->set_command(temp);
-#endif
+    #endif
 }
 
-QString Supervisor::getcurIPMethod(){
+QString Supervisor::getcurIPMethod()
+{
     return probot->wifi_interface.method;
 }
-QString Supervisor::getcurIP(){
+
+QString Supervisor::getcurIP()
+{
     return probot->wifi_interface.ipv4;
 }
-QString Supervisor::getcurGateway(){
+
+QString Supervisor::getcurGateway()
+{
     return probot->wifi_interface.gateway;
 }
 
-QString Supervisor::getcurNetmask(){
+QString Supervisor::getcurNetmask()
+{
     return probot->wifi_interface.netmask;
 }
-QString Supervisor::getcurDNS2(){
+
+QString Supervisor::getcurDNS2()
+{
     return probot->wifi_interface.dns2;
 }
-QString Supervisor::getcurDNS(){
+
+QString Supervisor::getcurDNS()
+{
     return probot->wifi_interface.dns1;
 }
 
-QString Supervisor::getethernetIP(){
+QString Supervisor::getethernetIP()
+{
     return probot->ethernet_interface.ipv4;
 }
-QString Supervisor::getethernetNetmask(){
+
+QString Supervisor::getethernetNetmask()
+{
     return probot->ethernet_interface.netmask;
 }
-QString Supervisor::getethernetGateway(){
+
+QString Supervisor::getethernetGateway()
+{
     return probot->ethernet_interface.gateway;
 }
-QString Supervisor::getethernetDNS(){
+
+QString Supervisor::getethernetDNS()
+{
     return probot->ethernet_interface.dns1;
 }
-QString Supervisor::getethernetDNS2(){
+
+QString Supervisor::getethernetDNS2()
+{
     return probot->ethernet_interface.dns2;
 }
-void Supervisor::getAllWifiList(){
+
+void Supervisor::getAllWifiList()
+{
     checker->getWifiList(true);
 }
-bool Supervisor::getWifiSecurity(QString ssid){
-    for(ST_WIFI w : probot->wifi_list){
-        if(w.ssid == ssid){
+
+bool Supervisor::getWifiSecurity(QString ssid)
+{
+    for(ST_WIFI w : probot->wifi_list)
+    {
+        if(w.ssid == ssid)
+        {
             return w.security;
         }
     }
     return false;
 }
-int Supervisor::getWifiLevel(){
-    for(ST_WIFI w : probot->wifi_list){
-        if(w.ssid == probot->wifi_interface.ssid){
+
+int Supervisor::getWifiLevel()
+{
+    for(ST_WIFI w : probot->wifi_list)
+    {
+        if(w.ssid == probot->wifi_interface.ssid)
+        {
             return w.level;
         }
     }
     return 0;
-}
-int Supervisor::getWifiLevel(QString ssid){
-    for(ST_WIFI w : probot->wifi_list){
-        if(w.ssid == ssid){
-            return w.level;
-        }
-    }
-    return 0;
-}
-int Supervisor::getWifiRate(QString ssid){
-    return probot->wifi_map[ssid].rate;
-}
-bool Supervisor::getWifiInuse(QString ssid){
-    if(ssid == probot->wifi_interface.ssid)
-        return true;
-    else
-        return false;
 }
 
-void Supervisor::cleanTray(){
+int Supervisor::getWifiLevel(QString ssid)
+{
+    for(ST_WIFI w : probot->wifi_list)
+    {
+        if(w.ssid == ssid)
+        {
+            return w.level;
+        }
+    }
+    return 0;
+}
+
+int Supervisor::getWifiRate(QString ssid)
+{
+    return probot->wifi_map[ssid].rate;
+}
+
+bool Supervisor::getWifiInuse(QString ssid)
+{
+    if(ssid == probot->wifi_interface.ssid)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void Supervisor::cleanTray()
+{
     plog->write("[COMMAND] cleanTray");
-    if(ui_state == UI_STATE_CLEANING){
+    if(ui_state == UI_STATE_CLEANING)
+    {
         ui_state = UI_STATE_INITAILIZING;
-    }else{
+    }
+    else
+    {
         stateInit();
     }
 }
-int Supervisor::getCallQueueSize(){
+
+int Supervisor::getCallQueueSize()
+{
     return pmap->call_queue.size();
 }
 
-void Supervisor::checkTravelline(){
+void Supervisor::checkTravelline()
+{
     pmap->tline_issue = 0;
     ipc->set_cmd(ROBOT_CMD_CHECK_TRAVEL_LINE,"Check Travelline");
 }
 
-void Supervisor::confirmLocalization(){
+void Supervisor::confirmLocalization()
+{
     plog->write("[COMMAND] confirmLocalization");
     probot->localization_confirm = true;
     debug_mode = false;
 }
 
-void Supervisor::confirmLocalizationAnnot(){
+void Supervisor::confirmLocalizationAnnot()
+{
     plog->write("[COMMAND] confirmLocalizationAnnot");
     probot->localization_confirm = true;
 //    debug_mode = false;
 }
 
-void Supervisor::clearStatusAll(){
+void Supervisor::clearStatusAll()
+{
     probot->status_power = 0;
     probot->status_emo = 0;
     probot->status_remote = 0;
@@ -5055,7 +8359,6 @@ void Supervisor::clearStatusAll(){
     probot->localPath[3].point.y = 0;
     probot->localPath[3].angle = 0;
 
-
     //mine
 //    probot->trays.clear();
     probot->is_calling=false;
@@ -5066,27 +8369,31 @@ void Supervisor::clearStatusAll(){
 
     probot->server_call_size=0;
     probot->server_call_location=-1;
-
 }
 
-void Supervisor::resetLocalization(){
+void Supervisor::resetLocalization()
+{
     plog->write("[COMMAND] resetLocalization");
     debug_mode = false;
     probot->localization_confirm = false;
 }
-void Supervisor::resetLocalizationConfirm(){
+
+void Supervisor::resetLocalizationConfirm()
+{
     plog->write("[COMMAND] resetLocalizationConfirm");
     probot->localization_confirm = false;
 }
 
-void Supervisor::clearStatus(){
+void Supervisor::clearStatus()
+{
     probot->localization_state = 0;
     probot->motor[0].status = 0;
     probot->motor[1].status = 0;
     pmap->call_queue.clear();
 }
 
-void Supervisor::stateMoving(){
+void Supervisor::stateMoving()
+{
     plog->write("[STATE] STATE MOVING");
     ui_state = UI_STATE_MOVING;
     count_moveto = 0;
@@ -5096,14 +8403,17 @@ void Supervisor::stateMoving(){
     probot->call_moving_count = 0;
 }
 
-void Supervisor::stateInit(){
-    if(ui_state != UI_STATE_NONE){
+void Supervisor::stateInit()
+{
+    if(ui_state != UI_STATE_NONE)
+    {
         plog->write("[STATE] STATE INIT");
         ui_state = UI_STATE_NONE;
     }
     patrol_mode = PATROL_NONE;
     probot->is_calling = false;
-    for(int i=0; i<probot->trays.size(); i++){
+    for(int i=0; i<probot->trays.size(); i++)
+    {
         probot->trays[i].empty = true;
     }
     current_patrol = ST_PATROL();
@@ -5112,30 +8422,35 @@ void Supervisor::stateInit(){
     probot->current_target.name = "";
     ipc->moveStop();
 }
-void Supervisor::killSLAM(){
+
+void Supervisor::killSLAM()
+{
     plog->write("[COMMAND] killSLAM");
     // ipc->set_cmd(ROBOT_CMD_RESTART,"Kill Slam");
     clearStatusAll();
     stateInit();
 }
 
-void Supervisor::clear_all(){
+void Supervisor::start_folder_clear()
+{
     plog->write("[COMMAND] Reset All (Remove all directories)");
-    timer2->stop();
 
     //maps 폴더 지움.
     QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
-                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
+                              Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]") + " /RB_MOBILE/maps directory : remove")),
                               Q_ARG(QVariant,QVariant().fromValue(1)));
 
     QString path_maps = QDir::homePath()+"/RB_MOBILE/maps";
     QDir dir_maps(path_maps);
-    if(dir_maps.removeRecursively()){
+    if(dir_maps.removeRecursively())
+    {
         plog->write("[CLEAR] Reset Clear : Remove maps");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
-    }else{
+    }
+    else
+    {
         plog->write("[CLEAR] Reset Clear : Remove maps failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/maps directory : remove")),
@@ -5146,28 +8461,33 @@ void Supervisor::clear_all(){
     //temp 폴더 지움.
     QString path_temp = QDir::homePath()+"/RB_MOBILE/temp";
     QDir dir_temp(path_temp);
-    if(dir_temp.removeRecursively()){
+    if(dir_temp.removeRecursively())
+    {
         plog->write("[CLEAR] Reset Clear : Remove temp");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
-    }else{
+    }
+    else
+    {
         plog->write("[CLEAR] Reset Clear : Remove temp failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/temp directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(3)));
     }
 
-
     //patrol 폴더 지움.
     QString path_patrol = QDir::homePath()+"/RB_MOBILE/patrol";
     QDir dir_patrol(path_patrol);
-    if(dir_patrol.removeRecursively()){
+    if(dir_patrol.removeRecursively())
+    {
         plog->write("[CLEAR] Reset Clear : Remove patrol");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
-    }else{
+    }
+    else
+    {
         plog->write("[CLEAR] Reset Clear : Remove patrol failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/patrol directory : remove")),
@@ -5178,12 +8498,15 @@ void Supervisor::clear_all(){
     //config 폴더 지움.
     QString path_config = QDir::homePath()+"/RB_MOBILE/config";
     QDir dir_config(path_config);
-    if(dir_config.removeRecursively()){
+    if(dir_config.removeRecursively())
+    {
         plog->write("[CLEAR] Reset Clear : Remove config");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
-    }else{
+    }
+    else
+    {
         plog->write("[CLEAR] Reset Clear : Remove config failed");
         QMetaObject::invokeMethod(mMain, "setClear",Qt::DirectConnection,
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/config directory : remove")),
@@ -5205,7 +8528,8 @@ void Supervisor::clear_all(){
 
     //log 삭제
     QDir dir_log(QDir::homePath()+"/RB_MOBILE/log");
-    if(dir_log.removeRecursively()){
+    if(dir_log.removeRecursively())
+    {
         QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
         QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
         QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
@@ -5215,9 +8539,11 @@ void Supervisor::clear_all(){
                                   Q_ARG(QVariant,QVariant().fromValue(QDateTime::currentDateTime().toString("[yyyy-MM-dd hh:mm:ss]")+" /RB_MOBILE/log directory : remove")),
                                   Q_ARG(QVariant,QVariant().fromValue(2)));
 
-
-    }else{
-        if(!dir_log.exists()){
+    }
+    else
+    {
+        if(!dir_log.exists())
+        {
             QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log");
             QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/ui_log");
             QDir().mkdir(QDir::homePath() + "/RB_MOBILE/log/extproc_log");
@@ -5235,68 +8561,95 @@ void Supervisor::clear_all(){
                               Q_ARG(QVariant,QVariant().fromValue(2)));
 }
 
-void Supervisor::factoryInit(){
-    start_clear = true;
+void Supervisor::factoryInit()
+{
+    start_folder_clear();
 }
 
-
-
-int Supervisor::getTravellineIssue(){
+int Supervisor::getTravellineIssue()
+{
     return pmap->tline_issue;
 }
-QString Supervisor::getTravellineIssueGroup(int num){
+
+QString Supervisor::getTravellineIssueGroup(int num)
+{
     return pmap->tline_issues[num].group;
 }
-QString Supervisor::getTravellineIssueName(int num){
 
+QString Supervisor::getTravellineIssueName(int num)
+{
     return pmap->tline_issues[num].name;
 }
-bool Supervisor::getTravellineIssueFar(int num){
 
+bool Supervisor::getTravellineIssueFar(int num)
+{
     return pmap->tline_issues[num].is_far;
 }
+
 bool Supervisor::getTravellineIssueBroken(int num){
     return pmap->tline_issues[num].is_broken;
 }
 
-void Supervisor::setVelmapView(bool onoff){
+void Supervisor::setVelmapView(bool onoff)
+{
     maph->setShowVelocitymap(onoff);
 }
-void Supervisor::setTlineView(bool onoff){
+
+void Supervisor::setTlineView(bool onoff)
+{
     maph->setShowTravelline(onoff);
 }
-void Supervisor::setObjectView(bool onoff){
+
+void Supervisor::setObjectView(bool onoff)
+{
     maph->setShowObject(onoff);
 }
-void Supervisor::setAvoidmapView(bool onoff){
+
+void Supervisor::setAvoidmapView(bool onoff)
+{
     maph->setShowAvoidMap(onoff);
 }
-void Supervisor::setLocationView(bool onoff){
+
+void Supervisor::setLocationView(bool onoff)
+{
     maph->setShowLocation(onoff);
 }
-void Supervisor::setRobotView(bool onoff){
+
+void Supervisor::setRobotView(bool onoff)
+{
     maph->setShowRobot(onoff);
 }
 
-void Supervisor::readPatrol(){
+void Supervisor::readPatrol()
+{
     patrols.clear();
     QString path = QDir::homePath() + "/RB_MOBILE/patrol";
-    if(!QFile::exists(path)){
-        QDir().mkdir(path);
+    if(!QFile::exists(path))
+    {
+        QDir().mkpath(path);
         plog->write("[COMMAND] readPatrol : no path make new -> "+path);
-    }else{
+    }
+    else
+    {
         QDir dir(path);
         QStringList files = dir.entryList();
         plog->write("[COMMAND] readPatrol : "+path);
-        for(QString file:files){
-            if(file.split(".").size() > 1){
-                if(file.left(7) == "patrol_" && file.split(".")[1] == "ini"){
+
+        for(QString file:files)
+        {
+            if(file.startsWith("patrol_"))
+            {
+                if(file.left(7) == "patrol_" && file.split(".")[1] == "ini")
+                {
                     QSettings patrol(path+"/"+file, QSettings::IniFormat);
                     ST_PATROL temp;
                     patrol.beginGroup("SETTING");
-                    if(patrol.value("name").toString() == ""){
+                    if(patrol.value("name").toString() == "")
+                    {
 
-                    }else{
+                    }
+                    else
+                    {
                         temp.name = patrol.value("name").toString();
                         temp.filename = patrol.value("filename").toString();
                         temp.type = patrol.value("type").toString();
@@ -5317,35 +8670,51 @@ void Supervisor::readPatrol(){
 
                         patrol.endGroup();
                         patrol.beginGroup("LOCATION");
-                        for(int i=0; i<loc_num; i++){
+                        for(int i=0; i<loc_num; i++)
+                        {
                             LOCATION temp_loc;
-                            if(patrol.value("group"+QString::number(i)).toString() == "Charging"){
+                            if(patrol.value("group"+QString::number(i)).toString() == "Charging")
+                            {
                                 temp_loc = getChargingLocation(0);
-                            }else if(patrol.value("group"+QString::number(i)).toString() == "Resting"){
+                            }
+                            else if(patrol.value("group"+QString::number(i)).toString() == "Resting")
+                            {
                                 temp_loc = getRestingLocation(0);
-                            }else if(patrol.value("group"+QString::number(i)).toString() == "Cleaning"){
+                            }
+                            else if(patrol.value("group"+QString::number(i)).toString() == "Cleaning")
+                            {
                                 temp_loc = getCleaningLocation(0);
-                            }else{
+                            }
+                            else
+                            {
                                 temp_loc = getServingLocation(patrol.value("group"+QString::number(i)).toString(),patrol.value("loc"+QString::number(i)).toString());
                             }
-                            if(temp_loc.name != ""){
+                            if(temp_loc.name != "")
+                            {
                                 temp.location.append(temp_loc);
                             }
                         }
                         patrol.endGroup();
 
-                        if(temp.moving_page.mode == "custom"){
+                        if(temp.moving_page.mode == "custom")
+                        {
                             patrol.beginGroup("MOVING");
                             temp.moving_page.background = patrol.value("background").toString();
-                            if(temp.moving_page.background == "color"){
+                            if(temp.moving_page.background == "color")
+                            {
                                 temp.moving_page.color = patrol.value("color").toString();
-                            }else if(temp.moving_page.background == "image"||temp.moving_page.background == "gif"){
+                            }
+                            else if(temp.moving_page.background == "image"||temp.moving_page.background == "gif")
+                            {
                                 temp.moving_page.image = patrol.value("image").toString();
-                            }else if(temp.moving_page.background == "video"){
+                            }
+                            else if(temp.moving_page.background == "video")
+                            {
                                 temp.moving_page.video = patrol.value("video").toString();
                                 temp.moving_page.audio = patrol.value("video_audio").toString();
 
-                                if(temp.moving_page.audio == ""){
+                                if(temp.moving_page.audio == "")
+                                {
                                     temp.moving_page.audio = "video";
                                 }
                             }
@@ -5353,10 +8722,12 @@ void Supervisor::readPatrol(){
 
                             int num = patrol.value("obj_num").toInt();
                             //object reading...(to be continue..)
-                            for(int i=0; i<num; i++){
+                            for(int i=0; i<num; i++)
+                            {
                                 ST_PAGE_OBJECT temp_obj;
                                 QStringList objs=patrol.value("obj"+QString::number(i)).toString().split(",");
-                                if(objs.size() > 5){
+                                if(objs.size() > 5)
+                                {
                                     temp_obj.type = objs[0];
                                     temp_obj.x = objs[1].toInt();
                                     temp_obj.y = objs[2].toInt();
@@ -5379,133 +8750,281 @@ void Supervisor::readPatrol(){
     }
 }
 
-int Supervisor::getPatrolSize(){
+int Supervisor::getPatrolSize()
+{
+    QString func_str = "[SUPERVISOR][getPatrolSize] ";
+    plog->write(func_str + "start func. params()");
+
+    std::cout << "patrols.size(): " << patrols.size() << std::endl;
+
     return patrols.size();
 }
 
-QString Supervisor::getPatrolName(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].name;
-    else
-        return "";
+QString Supervisor::getPatrolName(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolName] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString patrol_name = "";
+    if(num < 0 || num >= patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return patrol_name;
+    }
+
+    patrol_name = patrols[num].name;
+    return patrol_name;
 }
 
-void Supervisor::loopClosing(){
+void Supervisor::loopClosing()
+{
     ipc->set_cmd(ROBOT_CMD_MAP_LOOP_CLOSING, "LoopClosing");
 }
 
-int Supervisor::getPatrolVoiceNameNum(int num){
-    if(patrols[num].name == "vara" || patrols[num].name == "woman" || patrols[num].name == "danna" || patrols[num].name == "liangliang" || patrols[num].name == "ntomoko" || patrols[num].name == "jose"){
+int Supervisor::getPatrolVoiceNameNum(int num)
+{
+    if(patrols[num].name == "vara" || patrols[num].name == "woman" || patrols[num].name == "danna" || patrols[num].name == "liangliang" || patrols[num].name == "ntomoko" || patrols[num].name == "jose")
+    {
         return 1;
-    }else if(patrols[num].name == "nhajun" || patrols[num].name == "matt" || patrols[num].name == "dayumu" ){
+    }
+    else if(patrols[num].name == "nhajun" || patrols[num].name == "matt" || patrols[num].name == "dayumu" )
+    {
         return 2;
-    }else if(patrols[num].name == "njooahn" || patrols[num].name == "shinji"){
+    }
+    else if(patrols[num].name == "njooahn" || patrols[num].name == "shinji")
+    {
         return 3;
-    }else if(patrols[num].name == "nsangdo"){
+    }
+    else if(patrols[num].name == "nsangdo")
+    {
         return 4;
-    }else if(patrols[num].name == "nsunhee"){
+    }
+    else if(patrols[num].name == "nsunhee")
+    {
         return 5;
-    }else if(patrols[num].name == "nkyungtae"){
+    }
+    else if(patrols[num].name == "nkyungtae")
+    {
         return 6;
-    }else if(patrols[num].name == "nsabina"){
+    }
+    else if(patrols[num].name == "nsabina")
+    {
         return 7;
-    }else if(patrols[num].name == "nmammon"){
+    }
+    else if(patrols[num].name == "nmammon")
+    {
         return 8;
-    }else{
+    }
+    else
+    {
         return 0;
     }
 }
 
-QString Supervisor::getPatrolType(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].type;
-    else
-        return "";
+QString Supervisor::getPatrolType(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolType] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString type_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return type_str;
+    }
+
+    type_str = patrols[num].type;
+    return type_str;
 }
-QString Supervisor::getPatrolLocation(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].location_mode;
-    else
-        return "";
+
+QString Supervisor::getPatrolLocation(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolLocation] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString loc_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return loc_str;
+    }
+
+    loc_str = patrols[num].location_mode;
+    return loc_str;
 }
-QString Supervisor::getPatrolMovingPage(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].moving_page.mode;
-    else
-        return "";
+
+QString Supervisor::getPatrolMovingPage(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolMovingPage] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString page_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return page_str;
+    }
+
+    page_str = patrols[num].moving_page.mode;
+    return page_str;
 }
-QString Supervisor::getPatrolArrivePage(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].arrive_page.mode;
-    else
-        return "";
+
+QString Supervisor::getPatrolArrivePage(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolArrivePage] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString page_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return page_str;
+    }
+
+    page_str = patrols[num].arrive_page.mode;
+    return page_str;
 }
-int Supervisor::getPatrolWaitTime(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].wait_time;
-    else
-        return -1;
+
+int Supervisor::getPatrolWaitTime(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolWaitTime] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    int time = -1;
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return time;
+    }
+
+    time = patrols[num].wait_time;
+    return time;
 }
-int Supervisor::getPatrolPassTime(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].pass_time;
-    else
-        return -1;
+
+int Supervisor::getPatrolPassTime(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolPassTime] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    int time = -1;
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return time;
+    }
+
+    time = patrols[num].wait_time;
+
+    std::cout << "time: " << time << std::endl;
+    return time;
 }
-QString Supervisor::getPatrolVoiceMode(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].voice_mode;
-    else
-        return "";
+
+QString Supervisor::getPatrolVoiceMode(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolVoiceMode] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString mode_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return mode_str;
+    }
+
+    mode_str = patrols[num].voice_mode;
+
+    std::cout << "mode_str: " << mode_str.toStdString() << std::endl;
+    return mode_str;
 }
-QString Supervisor::getPatrolVoiceLanguage(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].voice_language;
-    else
-        return "";
+
+QString Supervisor::getPatrolVoiceLanguage(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolVoiceLanguage] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString voice_lan_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return voice_lan_str;
+    }
+
+    voice_lan_str = patrols[num].voice_language;
+    return voice_lan_str;
 }
-bool Supervisor::isPatrolPage(){
+
+bool Supervisor::isPatrolPage()
+{
     return probot->is_patrol;
 }
-QString Supervisor::getPatrolMovingMode(){
+
+QString Supervisor::getPatrolMovingMode()
+{
     return current_patrol.moving_page.mode;
 }
-QString Supervisor::getPatrolArriveMode(){
+
+QString Supervisor::getPatrolArriveMode()
+{
     return current_patrol.arrive_page.mode;
 }
-QString Supervisor::getPatrolVoice(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].voice_path;
-    else
-        return "";
+
+QString Supervisor::getPatrolVoice(int num)
+{
+    QString func_str = "[SUPERVISOR][getPatrolVoiceLanguage] ";
+    plog->write(func_str + "start func. params(num):" + QString::number(num));
+
+    QString patrol_voice_str = "";
+    if(num < 0 || num > patrols.size())
+    {
+        log_advanced(func_str + "Error: num is out of bounds.");
+        return patrol_voice_str;
+    }
+
+    patrol_voice_str = patrols[num].voice_path;
+    return patrol_voice_str;
 }
 
-QString Supervisor::getPatrolVoiceMention(int num){
+QString Supervisor::getPatrolVoiceMention(int num)
+{
+    QString voice_mention_str = "";
     if(num > -1 && num < patrols.size())
-        if(patrols[num].voice_mode == "tts"){
-            return patrols[num].voice_mention;
-        }else{
-            return patrols[num].voice_file;
+    {
+        if(patrols[num].voice_mode == "tts")
+        {
+            voice_mention_str = patrols[num].voice_mention;
         }
-    else
-        return "";
-}
-int Supervisor::getPatrolLocationSize(int num){
-    if(num > -1 && num < patrols.size())
-        return patrols[num].location.size();
-    else
-        return 0;
+        else
+        {
+            voice_mention_str = patrols[num].voice_file;
+        }
+    }
+
+    return voice_mention_str;
 }
 
-void Supervisor::initCurrentPatrol(){
+int Supervisor::getPatrolLocationSize(int num)
+{
+    int loc_size = 0;
+    if(num > -1 && num < patrols.size())
+    {
+        loc_size = patrols[num].location.size();
+    }
+
+    return loc_size;
+}
+
+void Supervisor::initCurrentPatrol()
+{
     current_patrol = ST_PATROL();
     current_patrol.moving_page.mode = "face1";
     current_patrol.arrive_page.mode = "pass";
 }
 
-void Supervisor::saveServingPage(){
+void Supervisor::saveServingPage()
+{
     QString path = QDir::homePath() + "/RB_MOBILE/patrol";
-    if(!QFile::exists(path)){
+    if(!QFile::exists(path))
+    {
         QDir().mkdir(path);
     }
     QString filestr = path + "/serving.ini";
@@ -5520,40 +9039,52 @@ void Supervisor::saveServingPage(){
     file.setValue("MOVING/obj_num",serving_page.objects.size());
     file.setValue("MOVING/audio",serving_page.volume);
 
-    for(int i=0; i<serving_page.objects.size(); i++){
+    for(int i=0; i<serving_page.objects.size(); i++)
+    {
         QString str = serving_page.objects[i].type + "," + QString::number(serving_page.objects[i].x) + "," + QString::number(serving_page.objects[i].y) + "," + QString::number(serving_page.objects[i].width) + "," + QString::number(serving_page.objects[i].height) +
                 "," + serving_page.objects[i].source +","+serving_page.objects[i].color;
         file.setValue("MOVING/obj"+QString::number(i),str);
     }
 }
 
-void Supervisor::savePatrolPage(){
+void Supervisor::savePatrolPage()
+{
 }
-void Supervisor::initServingPage(){
+
+void Supervisor::initServingPage()
+{
     QString path = QDir::homePath() + "/RB_MOBILE/patrol";
-    if(!QFile::exists(path)){
+    if(!QFile::exists(path))
+    {
         QDir().mkdir(path);
         plog->write("[COMMAND] initServingPage : no path make new -> "+path);
     }
 
-
     QString file = path + "/serving.ini";
-    if(!QFile::exists(file)){
+    if(!QFile::exists(file))
+    {
         plog->write("[COMMAND] initServingPage : no file -> "+file);
         serving_page.mode = "face1";
-    }else{
+    }
+    else
+    {
         QSettings patrol(file, QSettings::IniFormat);
         patrol.beginGroup("MOVING");
         serving_page.background = patrol.value("background").toString();
-        if(serving_page.background == "color"){
+        if(serving_page.background == "color")
+        {
             serving_page.color = patrol.value("color").toString();
-        }else if(serving_page.background == "image"||serving_page.background == "gif"){
+        }
+        else if(serving_page.background == "image"||serving_page.background == "gif")
+        {
             serving_page.image = patrol.value("image").toString();
-        }else if(serving_page.background == "video"){
+        }
+        else if(serving_page.background == "video")
+        {
             serving_page.video = patrol.value("video").toString();
-
             serving_page.audio = patrol.value("video_audio").toString();
-            if(serving_page.audio == ""){
+            if(serving_page.audio == "")
+            {
                 serving_page.audio = "video";
             }
         }
@@ -5562,10 +9093,12 @@ void Supervisor::initServingPage(){
         int num = patrol.value("obj_num").toInt();
         serving_page.objects.clear();
         //object reading...(to be continue..)
-        for(int i=0; i<num; i++){
+        for(int i=0; i<num; i++)
+        {
             ST_PAGE_OBJECT temp_obj;
             QStringList objs=patrol.value("obj"+QString::number(i)).toString().split(",");
-            if(objs.size() > 5){
+            if(objs.size() > 5)
+            {
                 temp_obj.type = objs[0];
                 temp_obj.x = objs[1].toInt();
                 temp_obj.y = objs[2].toInt();
@@ -5579,115 +9112,173 @@ void Supervisor::initServingPage(){
     }
 }
 
-void Supervisor::setCurrentPatrol(int num){
-    if(num > -1 && num < patrols.size()){
+void Supervisor::setCurrentPatrol(int num)
+{
+    if(num > -1 && num < patrols.size())
+    {
         current_patrol.location.clear();
         current_patrol = patrols[num];
         plog->write("[COMMAND] setCurrentPatrol : "+QString::number(num)+", " + current_patrol.name);
-    }else if(num == -1){
+    }
+    else if(num == -1)
+    {
         plog->write("[COMMAND] setCurrentPatrol : no found patrol " + QString::number(num) + ", " + QString::number(patrols.size()));
     }
 }
-QString Supervisor::getPatrolLocation(int num, int loc){
-    if(num > -1 && num < patrols.size()){
-        if(loc > -1 && loc < patrols[num].location.size()){
-            return patrols[num].location[loc].name;
-        }else{
-            return "";
+
+QString Supervisor::getPatrolLocation(int num, int loc)
+{
+    QString patrol_loc_str = "";
+    if(num > -1 && num < patrols.size())
+    {
+        if(loc > -1 && loc < patrols[num].location.size())
+        {
+            patrol_loc_str = patrols[num].location[loc].name;
         }
-    }else{
-        return "";
     }
-}
-QString Supervisor::getPatrolLocationGroup(int num, int loc){
-    if(num > -1 && num < patrols.size()){
-        if(loc > -1 && loc < patrols[num].location.size()){
-            return patrols[num].location[loc].group_name;
-        }else{
-            return "";
-        }
-    }else{
-        return "";
-    }
+    return patrol_loc_str;
 }
 
-void Supervisor::clearPatrolLocation(QString mode){
+QString Supervisor::getPatrolLocationGroup(int num, int loc)
+{
+    QString patrol_loc_group_str = "";
+    if(num > -1 && num < patrols.size())
+    {
+        if(loc > -1 && loc < patrols[num].location.size())
+        {
+            patrol_loc_group_str = patrols[num].location[loc].group_name;
+        }
+    }
+
+    return patrol_loc_group_str;
+}
+
+void Supervisor::clearPatrolLocation(QString mode)
+{
     current_patrol.location.clear();
     current_patrol.location_mode = mode;
 }
 
-void Supervisor::addPatrolLocation(QString type, QString group, QString name){
-    if(type == "Charging"){
-        if(getChargingLocation(0).name != ""){
+void Supervisor::addPatrolLocation(QString type, QString group, QString name)
+{
+    if(type == "Charging")
+    {
+        if(getChargingLocation(0).name != "")
+        {
             current_patrol.location.append(getChargingLocation(0));
         }
-    }else if(type == "Resting"){
-        if(getRestingLocation(0).name != ""){
+    }
+    else if(type == "Resting")
+    {
+        if(getRestingLocation(0).name != "")
+        {
             current_patrol.location.append(getRestingLocation(0));
         }
-    }else if(type == "Cleaning"){
-        if(getCleaningLocation(0).name != ""){
+    }
+    else if(type == "Cleaning")
+    {
+        if(getCleaningLocation(0).name != "")
+        {
             current_patrol.location.append(getCleaningLocation(0));
         }
-    }else if(type == "Serving"){
-        if(getServingLocation(name).name != ""){
+    }
+    else if(type == "Serving")
+    {
+        if(getServingLocation(name).name != "")
+        {
             current_patrol.location.append(getServingLocation(group,name));
         }
     }
 }
-void Supervisor::setPatrolMovingPage(QString mode, QString param1, QString param2, QString param3){
+
+void Supervisor::setPatrolMovingPage(QString mode, QString param1, QString param2, QString param3)
+{
     current_patrol.moving_page.mode = mode;
 }
-void Supervisor::setPatrolArrivePage(QString mode, QString param1, QString param2, QString param3){
-    if(mode == "custom"){
 
-    }else{
+void Supervisor::setPatrolArrivePage(QString mode, QString param1, QString param2, QString param3)
+{
+    if(mode != "custom")
+    {
         current_patrol.arrive_page.mode = mode;
     }
 }
-void Supervisor::savePatrolVoiceBasic(QString voice, QString text){
+
+void Supervisor::savePatrolVoiceBasic(QString voice, QString text)
+{
     qDebug() << "savePatrolVoiceBasic " <<voice <<text;
 }
-void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volume, int mention){
+
+void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volume, int mention)
+{
     qDebug() << "setPatrolVoice " << mode << language << voice << volume;
     current_patrol.voice_mode = mode;
     current_patrol.voice_language = tts->getVoiceLanguage(language);
     current_patrol.voice_volume = volume;
-    if(mode == "basic"){
-        if(voice == 1){
+    if(mode == "basic")
+    {
+        if(voice == 1)
+        {
             current_patrol.voice_name = "child";
-        }else{
+        }
+        else
+        {
             current_patrol.voice_name = "woman";
         }
 
-        if(mention == 0){
+        if(mention == 0)
+        {
             current_patrol.voice_file = "thanks";
-        }else if(mention == 1){
+        }
+        else if(mention == 1)
+        {
             current_patrol.voice_file = "hello";
-        }else if(mention == 2){
+        }
+        else if(mention == 2)
+        {
             current_patrol.voice_file = "funny_working_hard";
-        }else if(mention == 3){
+        }
+        else if(mention == 3)
+        {
             current_patrol.voice_file = "hello_rb";
-        }else if(mention == 4){
+        }
+        else if(mention == 4)
+        {
             current_patrol.voice_file = "path_finding";
-        }else if(mention == 5){
+        }
+        else if(mention == 5)
+        {
             current_patrol.voice_file = "rb_fighting";
-        }else if(mention == 6){
+        }
+        else if(mention == 6)
+        {
             current_patrol.voice_file = "moving";
-        }else if(mention == 7){
+        }
+        else if(mention == 7)
+        {
             current_patrol.voice_file = "sorry";
-        }else if(mention == 8){
+        }
+        else if(mention == 8)
+        {
             current_patrol.voice_file = "move_next";
-        }else if(mention == 9){
+        }
+        else if(mention == 9)
+        {
             current_patrol.voice_file = "move_patrol";
-        }else if(mention == 10){
+        }
+        else if(mention == 10)
+        {
             current_patrol.voice_file = "wait_path";
-        }else{
+        }
+        else
+        {
             current_patrol.voice_file = "thank_enjoy";
         }
 
         current_patrol.voice_path = "qrc:/"+current_patrol.voice_name+"_"+current_patrol.voice_file+".mp3";
-    }else if(mode == "tts"){
+    }
+    else if(mode == "tts")
+    {
         current_patrol.voice_file = "patrol";
         current_patrol.voice_name = tts->getVoiceName("tts",language,voice);
         current_patrol.voice_path = QDir::homePath() + "/RB_MOBILE/voice/"+current_patrol.voice_name+"_patrol.mp3";
@@ -5695,45 +9286,72 @@ void Supervisor::setPatrolVoice(QString mode, int language, int voice, int volum
     qDebug() << "setPatrolVoice2 " << current_patrol.voice_mode << current_patrol.voice_language << current_patrol.voice_name << current_patrol.voice_volume;
 }
 
-int Supervisor::getTTSLanguageNum(){
-    if(getSetting("setting","UI","voice_language") == "ko"){
+int Supervisor::getTTSLanguageNum()
+{
+    if(getSetting("setting","UI","voice_language") == "ko")
+    {
         return 0;
-    }else if(getSetting("setting","UI","voice_language") == "en"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "en")
+    {
         return 1;
-    }else if(getSetting("setting","UI","voice_language") == "zh-CN"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "zh-CN")
+    {
         return 2;
-    }else if(getSetting("setting","UI","voice_language") == "ja"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "ja")
+    {
         return 3;
-    }else if(getSetting("setting","UI","voice_language") == "es"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "es")
+    {
         return 4;
-    }else if(getSetting("setting","UI","voice_language") == "ru"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "ru")
+    {
         return 5;
-    }else if(getSetting("setting","UI","voice_language") == "ge"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "ge")
+    {
         return 6;
-    }else if(getSetting("setting","UI","voice_language") == "la"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "la")
+    {
         return 7;
-    }else if(getSetting("setting","UI","voice_language") == "id"){
+    }
+    else if(getSetting("setting","UI","voice_language") == "id")
+    {
         return 8;
-    }else{
+    }
+    else
+    {
         return 0;
     }
 }
 
-int Supervisor::getTTSNameNum(){
-    for(int i=0; i<9; i++){
+int Supervisor::getTTSNameNum()
+{
+    for(int i=0; i<9; i++)
+    {
         if(getSetting("setting","UI","voice_name") == tts->getVoiceName("tts",getTTSLanguageNum(),i))
             return i;
     }
 
-    if(getSetting("setting","UI","voice_name") == "woman"){
+    if(getSetting("setting","UI","voice_name") == "woman")
+    {
         return 1;
-    }else{
+    }
+    else
+    {
         return 0;
     }
-
 }
-void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, int pass_time){
-    if(num > -1 && num < patrols.size()){
+
+void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, int pass_time)
+{
+    if(num > -1 && num < patrols.size())
+    {
         QString path = QDir::homePath() + "/RB_MOBILE/patrol";
         QString filename = patrols[num].filename;
         QSettings file(path+"/"+filename, QSettings::IniFormat);
@@ -5756,12 +9374,14 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
         file.setValue("SETTING/location_mode",current_patrol.location_mode);
         file.setValue("SETTING/location_num",current_patrol.location.size());
 
-        for(int i=0; i<current_patrol.location.size(); i++){
+        for(int i=0; i<current_patrol.location.size(); i++)
+        {
             file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
             file.setValue("LOCATION/group"+QString::number(i),current_patrol.location[i].group_name);
         }
 
-        if(current_patrol.moving_page.mode == "custom"){
+        if(current_patrol.moving_page.mode == "custom")
+        {
             file.setValue("MOVING/background",current_patrol.moving_page.background);
             file.setValue("MOVING/image",current_patrol.moving_page.image);
             file.setValue("MOVING/video",current_patrol.moving_page.video);
@@ -5770,7 +9390,8 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
             file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
             file.setValue("MOVING/audio",current_patrol.moving_page.volume);
 
-            for(int i=0; i<current_patrol.moving_page.objects.size(); i++){
+            for(int i=0; i<current_patrol.moving_page.objects.size(); i++)
+            {
                 QString str = current_patrol.moving_page.objects[i].type + "," + QString::number(current_patrol.moving_page.objects[i].x) + "," + QString::number(current_patrol.moving_page.objects[i].y) + "," + QString::number(current_patrol.moving_page.objects[i].width) + "," + QString::number(current_patrol.moving_page.objects[i].height) +
                         "," + current_patrol.moving_page.objects[i].source +","+current_patrol.moving_page.objects[i].color;
                 file.setValue("MOVING/obj"+QString::number(i),str);
@@ -5782,32 +9403,42 @@ void Supervisor::setPatrol(int num, QString name, QString type, int wait_time, i
     }
 }
 
-void Supervisor::deletePatrol(int num){
-    if(num > -1 && num < patrols.size()){
+void Supervisor::deletePatrol(int num)
+{
+    if(num > -1 && num < patrols.size())
+    {
         QString path = QDir::homePath() + "/RB_MOBILE/patrol";
         QString filename = patrols[num].filename;
         QFile *file = new QFile(path+"/"+filename);
-        if(file->remove()){
+        if(file->remove())
+        {
             plog->write("[COMMAND] deletePatrol "+QString::number(num)+" : SUCCESS");
-        }else{
+        }
+        else
+        {
             plog->write("[COMMAND] deletePatrol "+QString::number(num)+" : FAILED");
         }
     }
 }
 
-void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_time){
+void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_time)
+{
     QString path = QDir::homePath() + "/RB_MOBILE/patrol";
-    if(!QFile::exists(path)){
+    if(!QFile::exists(path))
+    {
         QDir().mkdir(path);
     }
 
     QDir dir(path);
     QStringList files = dir.entryList();
     int size = 0;
-    for(QString file:files){
+    for(QString file:files)
+    {
         int tempsize = file.split(".")[0].remove(0,7).toInt();
         if(tempsize > size)
+        {
             size = tempsize;
+        }
     }
     QString filename = "patrol_" + QString::number(size+1) + ".ini";
 
@@ -5832,13 +9463,15 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
     file.setValue("SETTING/location_mode",current_patrol.location_mode);
     file.setValue("SETTING/location_num",current_patrol.location.size());
 
-    for(int i=0; i<current_patrol.location.size(); i++){
+    for(int i=0; i<current_patrol.location.size(); i++)
+    {
         file.setValue("LOCATION/type"+QString::number(i),current_patrol.location[i].type);
         file.setValue("LOCATION/loc"+QString::number(i),current_patrol.location[i].name);
         file.setValue("LOCATION/group"+QString::number(i),current_patrol.location[i].group_name);
     }
 
-    if(current_patrol.moving_page.mode == "custom"){
+    if(current_patrol.moving_page.mode == "custom")
+    {
         file.setValue("MOVING/background",current_patrol.moving_page.background);
         file.setValue("MOVING/image",current_patrol.moving_page.image);
         file.setValue("MOVING/video_audio",current_patrol.moving_page.audio);
@@ -5847,7 +9480,8 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
         file.setValue("MOVING/obj_num",current_patrol.moving_page.objects.size());
         file.setValue("MOVING/audio",current_patrol.moving_page.volume);
 
-        for(int i=0; i<current_patrol.moving_page.objects.size(); i++){
+        for(int i=0; i<current_patrol.moving_page.objects.size(); i++)
+        {
             QString str = current_patrol.moving_page.objects[i].type + "," + QString::number(current_patrol.moving_page.objects[i].x) + "," + QString::number(current_patrol.moving_page.objects[i].y) + "," + QString::number(current_patrol.moving_page.objects[i].width) + "," + QString::number(current_patrol.moving_page.objects[i].height) +
                     "," + current_patrol.moving_page.objects[i].source +","+current_patrol.moving_page.objects[i].color;
             file.setValue("MOVING/obj"+QString::number(i),str);
@@ -5857,148 +9491,189 @@ void Supervisor::savePatrol(QString name, QString type, int wait_time, int pass_
 }
 
 
-void Supervisor::setMovingPageColor(QString file){
+void Supervisor::setMovingPageColor(QString file)
+{
     setMovingPageBackground("color");
     current_patrol.moving_page.color = file;
 }
 
-QString Supervisor::getMovingPageColor(){
+QString Supervisor::getMovingPageColor()
+{
     return current_patrol.moving_page.color;
 }
 
-void Supervisor::setMovingPageMode(QString mode){
+void Supervisor::setMovingPageMode(QString mode)
+{
     current_patrol.moving_page.mode = mode;
 }
 
-QString Supervisor::getMovingPageMode(){
+QString Supervisor::getMovingPageMode()
+{
     return current_patrol.moving_page.mode;
 }
 
-void Supervisor::setMovingPageBackground(QString mode){
+void Supervisor::setMovingPageBackground(QString mode)
+{
     current_patrol.moving_page.background = mode;
 }
 
-QString Supervisor::getMovingPageBackground(){
+QString Supervisor::getMovingPageBackground()
+{
     return current_patrol.moving_page.background;
 }
 
-
-void Supervisor::setMovingPageImage(QString file){
+void Supervisor::setMovingPageImage(QString file)
+{
     current_patrol.moving_page.image = file;
 }
 
-QString Supervisor::getMovingPageImage(){
+QString Supervisor::getMovingPageImage()
+{
     return current_patrol.moving_page.image;
 }
 
-
-void Supervisor::setServingPageVideoAudio(QString mode){
+void Supervisor::setServingPageVideoAudio(QString mode)
+{
     serving_page.audio = mode;
 }
-QString Supervisor::getServingPageVideoAudio(){
+
+QString Supervisor::getServingPageVideoAudio()
+{
     return serving_page.audio;
 }
-void Supervisor::setMovingPageVideoAudio(QString mode){
+
+void Supervisor::setMovingPageVideoAudio(QString mode)
+{
     current_patrol.moving_page.audio = mode;
 }
-QString Supervisor::getMovingPageVideoAudio(){
+
+QString Supervisor::getMovingPageVideoAudio()
+{
     return current_patrol.moving_page.audio;
 }
-void Supervisor::setMovingPageVideo(QString file){
+
+void Supervisor::setMovingPageVideo(QString file)
+{
     setMovingPageBackground("video");
     current_patrol.moving_page.video = file;
 }
 
-QString Supervisor::getMovingPageVideo(){
+QString Supervisor::getMovingPageVideo()
+{
     return current_patrol.moving_page.video;
 }
-void Supervisor::setMovingPageAudio(float volume){
+
+void Supervisor::setMovingPageAudio(float volume)
+{
     qDebug() << "setMovingPageAudio " << volume;
     setMovingPageBackground("video");
     current_patrol.moving_page.volume = volume;
 }
 
-float Supervisor::getMovingPageAudio(){
+float Supervisor::getMovingPageAudio()
+{
     return current_patrol.moving_page.volume;
 }
 
-void Supervisor::setServingPageColor(QString file){
+void Supervisor::setServingPageColor(QString file)
+{
     setServingPageBackground("color");
     serving_page.color = file;
 }
 
-QString Supervisor::getServingPageColor(){
+QString Supervisor::getServingPageColor()
+{
     return serving_page.color;
 }
 
-void Supervisor::setServingPageMode(QString mode){
+void Supervisor::setServingPageMode(QString mode)
+{
     serving_page.mode = mode;
 }
 
-QString Supervisor::getServingPageMode(){
+QString Supervisor::getServingPageMode()
+{
     return serving_page.mode;
 }
 
-void Supervisor::setServingPageBackground(QString mode){
+void Supervisor::setServingPageBackground(QString mode)
+{
     serving_page.background = mode;
 }
 
-QString Supervisor::getServingPageBackground(){
+QString Supervisor::getServingPageBackground()
+{
     return serving_page.background;
 }
 
-
-void Supervisor::setServingPageImage(QString file){
+void Supervisor::setServingPageImage(QString file)
+{
     serving_page.image = file;
 }
 
-QString Supervisor::getServingPageImage(){
+QString Supervisor::getServingPageImage()
+{
     return serving_page.image;
 }
 
-void Supervisor::setServingPageVideo(QString file){
+void Supervisor::setServingPageVideo(QString file)
+{
     setServingPageBackground("video");
     serving_page.video = file;
 }
 
-QString Supervisor::getServingPageVideo(){
+QString Supervisor::getServingPageVideo()
+{
     return serving_page.video;
 }
-void Supervisor::setServingPageAudio(float volume){
+
+void Supervisor::setServingPageAudio(float volume)
+{
     setServingPageBackground("video");
     serving_page.volume = volume;
 }
 
-float Supervisor::getServingPageAudio(){
+float Supervisor::getServingPageAudio()
+{
     return serving_page.volume;
 }
 
-void Supervisor::addPatrolObject(QString page, QString obj){
+void Supervisor::addPatrolObject(QString page, QString obj)
+{
     plog->write("[PATROL] add Patrol Object ("+page+") : "+obj);
     ST_PAGE_OBJECT temp_obj = makeNewObj(obj);
 
-    if(page == "moving"){
+    if(page == "moving")
+    {
         current_patrol.moving_page.objects.append(temp_obj);
-    }else{
+    }
+    else
+    {
         current_patrol.arrive_page.objects.append(temp_obj);
     }
 }
-void Supervisor::addServingObject(QString page, QString obj){
+
+void Supervisor::addServingObject(QString page, QString obj)
+{
     plog->write("[PATROL] add Serving Object ("+page+") : "+obj);
     ST_PAGE_OBJECT temp_obj = makeNewObj(obj);
     serving_page.objects.append(temp_obj);
 }
 
-ST_PAGE_OBJECT Supervisor::makeNewObj(QString obj){
+ST_PAGE_OBJECT Supervisor::makeNewObj(QString obj)
+{
     ST_PAGE_OBJECT ob;
     ob.type = obj;
-    if(obj == "image"){
+    if(obj == "image")
+    {
         ob.x = 0;
         ob.y = 0;
         ob.width = 100;
         ob.height = 100;
         ob.source = "image/robot_head.png";
-    }else if(obj == "text"){
+    }
+    else if(obj == "text")
+    {
         ob.x = 0;
         ob.y = 0;
         ob.fontsize = 20;
@@ -6010,72 +9685,105 @@ ST_PAGE_OBJECT Supervisor::makeNewObj(QString obj){
     return ob;
 }
 
-int Supervisor::getPatrolObjectSize(){
+int Supervisor::getPatrolObjectSize()
+{
     return current_patrol.moving_page.objects.size();
 }
 
-QString Supervisor::getPageObjectType(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+QString Supervisor::getPageObjectType(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].type;
     }
     return "";
 }
-void Supervisor::setPageObjectSource(int num, QString src){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+void Supervisor::setPageObjectSource(int num, QString src)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         current_patrol.moving_page.objects[num].source = src;
     }
 }
-void Supervisor::setPageObjectColor(int num, QString color){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+void Supervisor::setPageObjectColor(int num, QString color)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         current_patrol.moving_page.objects[num].color = color;
     }
 }
-QString Supervisor::getPageObjectSource(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+QString Supervisor::getPageObjectSource(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].source;
     }
     return "";
 }
-QString Supervisor::getPageObjectColor(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+QString Supervisor::getPageObjectColor(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].color;
     }
     return "";
 }
-int Supervisor::getPageObjectX(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+int Supervisor::getPageObjectX(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].x;
     }
     return -1;
 }
-int Supervisor::getPageObjectY(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+int Supervisor::getPageObjectY(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].y;
     }
     return -1;
 }
-int Supervisor::getPageObjectWidth(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+int Supervisor::getPageObjectWidth(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].width;
     }
     return -1;
 }
-int Supervisor::getPageObjectHeight(int num){
+
+int Supervisor::getPageObjectHeight(int num)
+{
     if(num > -1 && num < current_patrol.moving_page.objects.size()){
         return current_patrol.moving_page.objects[num].height;
     }
     return -1;
 }
-int Supervisor::getPageObjectFontsize(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+int Supervisor::getPageObjectFontsize(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         return current_patrol.moving_page.objects[num].fontsize;
     }
 }
 
-int Supervisor::getPageObjectNum(int x, int y){
-    for(int i=current_patrol.moving_page.objects.size()-1; i>-1; i--){
-        if(x>(current_patrol.moving_page.objects[i].x-10) && x < current_patrol.moving_page.objects[i].x + current_patrol.moving_page.objects[i].width+10){
-            if(y>(current_patrol.moving_page.objects[i].y-10) && y < current_patrol.moving_page.objects[i].y + current_patrol.moving_page.objects[i].height+10){
+int Supervisor::getPageObjectNum(int x, int y)
+{
+    for(int i=current_patrol.moving_page.objects.size()-1; i>-1; i--)
+    {
+        if(x>(current_patrol.moving_page.objects[i].x-10) && x < current_patrol.moving_page.objects[i].x + current_patrol.moving_page.objects[i].width+10)
+        {
+            if(y>(current_patrol.moving_page.objects[i].y-10) && y < current_patrol.moving_page.objects[i].y + current_patrol.moving_page.objects[i].height+10)
+            {
                 return i;
             }
         }
@@ -6083,89 +9791,106 @@ int Supervisor::getPageObjectNum(int x, int y){
     return -1;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-int Supervisor::getServingObjectSize(){
+int Supervisor::getServingObjectSize()
+{
     return serving_page.objects.size();
 }
 
-QString Supervisor::getServingObjectType(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+QString Supervisor::getServingObjectType(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].type;
     }
     return "";
 }
-void Supervisor::setServingObjectSource(int num, QString src){
-    if(num > -1 && num < serving_page.objects.size()){
+
+void Supervisor::setServingObjectSource(int num, QString src)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         serving_page.objects[num].source = src;
     }
 }
-void Supervisor::setServingObjectColor(int num, QString color){
-    if(num > -1 && num < serving_page.objects.size()){
+
+void Supervisor::setServingObjectColor(int num, QString color)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         serving_page.objects[num].color = color;
     }
 }
-QString Supervisor::getServingObjectSource(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+QString Supervisor::getServingObjectSource(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].source;
     }
     return "";
 }
-QString Supervisor::getServingObjectColor(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+QString Supervisor::getServingObjectColor(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].color;
     }
     return "";
 }
-int Supervisor::getServingObjectX(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+int Supervisor::getServingObjectX(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].x;
     }
     return -1;
 }
-int Supervisor::getServingObjectY(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+int Supervisor::getServingObjectY(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].y;
     }
     return -1;
 }
-int Supervisor::getServingObjectWidth(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+int Supervisor::getServingObjectWidth(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].width;
     }
     return -1;
 }
-int Supervisor::getServingObjectHeight(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+int Supervisor::getServingObjectHeight(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].height;
     }
     return -1;
 }
-int Supervisor::getServingObjectFontsize(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+int Supervisor::getServingObjectFontsize(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         return serving_page.objects[num].fontsize;
     }
 }
 
-int Supervisor::getServingObjectNum(int x, int y){
-    for(int i=serving_page.objects.size()-1; i>-1; i--){
-        if(x>(serving_page.objects[i].x-10) && x < serving_page.objects[i].x + serving_page.objects[i].width+10){
-            if(y>(serving_page.objects[i].y-10) && y < serving_page.objects[i].y + serving_page.objects[i].height+10){
+int Supervisor::getServingObjectNum(int x, int y)
+{
+    for(int i=serving_page.objects.size()-1; i>-1; i--)
+    {
+        if(x>(serving_page.objects[i].x-10) && x < serving_page.objects[i].x + serving_page.objects[i].width+10)
+        {
+            if(y>(serving_page.objects[i].y-10) && y < serving_page.objects[i].y + serving_page.objects[i].height+10)
+            {
                 return i;
             }
         }
@@ -6173,80 +9898,108 @@ int Supervisor::getServingObjectNum(int x, int y){
     return -1;
 }
 
-
-void Supervisor::movePatrolObject(int num, int x, int y){
+void Supervisor::movePatrolObject(int num, int x, int y)
+{
 //    qDebug() << "movePatrolObject " << num << x << y;
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         current_patrol.moving_page.objects[num].x = x;
         current_patrol.moving_page.objects[num].y = y;
     }
 }
 
-void Supervisor::setPatrolObjectSize(int num, int x, int y, int width, int height){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+void Supervisor::setPatrolObjectSize(int num, int x, int y, int width, int height)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         current_patrol.moving_page.objects[num].x = x;
         current_patrol.moving_page.objects[num].y = y;
         current_patrol.moving_page.objects[num].width = width;
         current_patrol.moving_page.objects[num].height = height;
     }
 }
-void Supervisor::deletePatrolObject(int num){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+void Supervisor::deletePatrolObject(int num)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         current_patrol.moving_page.objects.removeAt(num);
     }
 }
-void Supervisor::setPatrolObjectSize(int num, int point, int x, int y){
-    if(num > -1 && num < current_patrol.moving_page.objects.size()){
+
+void Supervisor::setPatrolObjectSize(int num, int point, int x, int y)
+{
+    if(num > -1 && num < current_patrol.moving_page.objects.size())
+    {
         qDebug() << "setPatrolObjectSize" << num << point << x << y;
         current_patrol.moving_page.objects[num].x += x;
         current_patrol.moving_page.objects[num].y += y;
         current_patrol.moving_page.objects[num].width -= x;
         current_patrol.moving_page.objects[num].height -= y;
     }
-
 }
 
-void Supervisor::clearPatrolPage(int num){
-    if(num == -1){
+void Supervisor::clearPatrolPage(int num)
+{
+    if(num == -1)
+    {
         current_patrol.moving_page.objects.clear();
-    }else if(num > -1 && num < patrols.size()){
+    }
+    else if(num > -1 && num < patrols.size())
+    {
         current_patrol.moving_page = patrols[num].moving_page;
     }
 }
 
-void Supervisor::moveServingObject(int num, int x, int y){
+void Supervisor::moveServingObject(int num, int x, int y)
+{
 //    qDebug() << "moveServingObject " << num << x << y;
-    if(num > -1 && num < serving_page.objects.size()){
+    if(num > -1 && num < serving_page.objects.size())
+    {
         serving_page.objects[num].x = x;
         serving_page.objects[num].y = y;
     }
 }
 
-void Supervisor::setServingObjectSize(int num, int x, int y, int width, int height){
-    if(num > -1 && num < serving_page.objects.size()){
+void Supervisor::setServingObjectSize(int num, int x, int y, int width, int height)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         serving_page.objects[num].x = x;
         serving_page.objects[num].y = y;
         serving_page.objects[num].width = width;
         serving_page.objects[num].height = height;
     }
 }
-void Supervisor::deleteServingObject(int num){
-    if(num > -1 && num < serving_page.objects.size()){
+
+void Supervisor::deleteServingObject(int num)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         serving_page.objects.removeAt(num);
     }
 }
-void Supervisor::setServingObjectSize(int num, int point, int x, int y){
-    if(num > -1 && num < serving_page.objects.size()){
+
+void Supervisor::setServingObjectSize(int num, int point, int x, int y)
+{
+    if(num > -1 && num < serving_page.objects.size())
+    {
         qDebug() << "setServingObjectSize" << num << point << x << y;
         serving_page.objects[num].x += x;
         serving_page.objects[num].y += y;
         serving_page.objects[num].width -= x;
         serving_page.objects[num].height -= y;
     }
-
 }
 
-void Supervisor::clearServingPage(){
+void Supervisor::clearServingPage()
+{
     qDebug() << "clearServingPage";
     serving_page.objects.clear();
+}
+
+void Supervisor::log_advanced(const QString& str)
+{
+    std::cerr << str.toStdString() << std::endl;
+    plog->write(str);
 }

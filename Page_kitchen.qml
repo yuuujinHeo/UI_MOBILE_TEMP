@@ -210,14 +210,17 @@ Item {
         id: patrolmodel
     }
 
-    Timer{
+    Timer
+    {
         id: timer_update
         interval : 500
         triggeredOnStart: true
         running: true
         repeat: true
-        onTriggered: {
-            if(supervisor.isDebugMode()){
+        onTriggered:
+        {
+            if(supervisor.isDebugMode())
+            {
                 menubar.menu2_en = false;
                 menubar.menu3_en = false;
                 menubar.menu4_en = false;
@@ -226,9 +229,13 @@ Item {
                 rect_go.color = color_red;
                 text_go.color = color_dark_gray;
                 text_go.text = qsTr("디버그 모드")
-            }else if(supervisor.getIPCConnection()){
-                if(supervisor.getPowerStatus()){
-                    if(supervisor.getEmoStatus()){
+            }
+            else if(supervisor.getIPCConnection())
+            {
+                if(supervisor.getPowerStatus())
+                {
+                    if(supervisor.getEmoStatus())
+                    {
                         menubar.menu2_en = false;
                         menubar.menu3_en = false;
                         menubar.menu4_en = false;
@@ -237,7 +244,9 @@ Item {
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("비상스위치가 눌려있음")
-                    }else if(supervisor.getMotorState() === 0){
+                    }
+                    else if(supervisor.getMotorState() === 0)
+                    {
                         btn_go.active = false;
                         menubar.menu2_en = false;
                         btn_patrol.active = false;
@@ -246,7 +255,9 @@ Item {
                         rect_go.color = color_red;
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("모터락해제됨")
-                    }else if(supervisor.getLocalizationState() === 2){
+                    }
+                    else if(supervisor.getLocalizationState() === 2)
+                    {
                         // if(supervisor.getSetting("setting","ROBOT_TYPE","type") === "CLEANING"){
                         //     btn_go.active = true;
                         //     menubar.menu2_en = true;
@@ -268,7 +279,9 @@ Item {
                             text_go.color = "white";
                             text_go.text = qsTr("주행 시작")
                         // }
-                    }else{
+                    }
+                    else
+                    {
                         btn_go.active = false;
                         menubar.menu2_en = false;
                         menubar.menu3_en = false;
@@ -278,7 +291,9 @@ Item {
                         text_go.color = color_dark_gray;
                         text_go.text = qsTr("위치 초기화필요")
                     }
-                }else{
+                }
+                else
+                {
                     btn_go.active = false;
                     menubar.menu2_en = false;
                     menubar.menu3_en = false;
@@ -288,7 +303,9 @@ Item {
                     text_go.color = color_dark_gray;
                     text_go.text = qsTr("모터 전원 안켜짐")
                 }
-            }else{
+            }
+            else
+            {
                 btn_go.active = false;
                 menubar.menu2_en = false;
                 menubar.menu3_en = false;
@@ -301,12 +318,15 @@ Item {
         }
     }
 
-    function update_group(){
+    function update_group()
+    {
         model_group.clear();
         var groupnum = -1;
-        for(var i=0; i<supervisor.getLocationGroupNum(); i++){
+        for(var i=0; i<supervisor.getLocationGroupNum(); i++)
+        {
             console.log(i,supervisor.getLocGroupname(i),groupnum);
-            if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default"){
+            if(supervisor.getLocGroupname(i) === "DEFAULT" || supervisor.getLocGroupname(i) === "Default")
+            {
                 if(supervisor.getLocationGroupSize(i) > 0){
                     if(groupnum == -1){
                         groupnum = i;
