@@ -85,7 +85,7 @@ Supervisor::Supervisor(QObject *parent)
     zip = new ZIPHandler();
     call = new CallbellHandler();
     tts = new TTSHandler();
-    checker = new Checker();
+    checker = new CMD_CHECKER();//Checker();
 
     connect(checker, SIGNAL(sig_con_wifi_success(QString)), this, SLOT(connect_wifi_success(QString)));
     connect(checker, SIGNAL(sig_con_wifi_fail(int,QString)), this, SLOT(connect_wifi_fail(int,QString)));
@@ -123,7 +123,8 @@ Supervisor::Supervisor(QObject *parent)
     translator = new QTranslator();
     setlanguage(getSetting("setting","UI","language"));
 
-    checker->getNetworkState("");
+    //checker->getNetworkState("");
+    checker->getNetworkState();
 
     initServingPage();
 //    checker->setIP("mobile_robot_mesh","10.108.1.132","24","10.108.1.1","10.108.1.1","8.8.8.8");
