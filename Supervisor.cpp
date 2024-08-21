@@ -3530,12 +3530,31 @@ float Supervisor::getPower(){
 float Supervisor::getPowerTotal(){
     return probot->total_power;
 }
-int Supervisor::getMotorState(){
-    if(probot->motor[0].status == 1 && probot->motor[1].status == 1){
-        return 1;
-    }else{
-        return 0;
+//int Supervisor::getMotorState(){
+//    if(probot->motor[0].status == 1 && probot->motor[1].status == 1){
+//        return 1;
+//    }else{
+//        return 0;
+//    }
+//}
+int Supervisor::getMotorState()
+{
+    QString func_str = "[SUPERVISOR][getMotorState] ";
+    //plog->write(func_str + "start func. params()");
+
+    int motor_state = 0;
+    if(!probot)
+    {
+        log_advanced(func_str + "Error: probot is null.");
+        return motor_state;
     }
+
+    if(probot->motor[0].status == 1 && probot->motor[1].status == 1)
+    {
+        motor_state = 1;
+    }
+
+    return motor_state;
 }
 int Supervisor::getLocalizationState(){
     return probot->localization_state;
