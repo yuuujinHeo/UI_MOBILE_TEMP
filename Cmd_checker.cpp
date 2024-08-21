@@ -821,12 +821,23 @@ void CMD_CHECKER::start_git_pull()
     std::unique_ptr<QProcess> git_pull_process = std::make_unique<QProcess>(this);\
     connect(git_pull_process.get(), &QProcess::readyReadStandardError, [this, _process = git_pull_process.get()](){error_git_pull(_process);});
 
-    git_pull_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE");
-    git_pull_process->start("git", QStringList() << "submodule" << "update" << "--remote");
+    git_pull_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
+    plog->write("[Checker]worker:[UPDATE] Git Pull : Start");
+    //git_pull_process->start("git", QStringList() << "submodule" << "update" << "--remote");
+    git_pull_process->start("git", QStringList() << "stash");
     if (!git_pull_process->waitForFinished())
     {
         plog->write("[UPDATE][git_pull] git pull error, Timeout or Error");
+        //emit finished(this);
+        return;
     }
+
+    //connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+
+        if(!git_pull_process->waitForFinished()){
+            //git_pull_processemit finished(this); //BJ
+            return; //BJ
+        }
     else
     {
         QByteArray result = git_pull_process->readAllStandardOutput();
