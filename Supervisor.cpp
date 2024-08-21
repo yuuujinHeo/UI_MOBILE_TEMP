@@ -3545,7 +3545,7 @@ int Supervisor::getMotorState()
     int motor_state = 0;
     if(!probot)
     {
-        log_advanced(func_str + "Error: probot is null.");
+        //log_advanced(func_str + "Error: probot is null.");
         return motor_state;
     }
 

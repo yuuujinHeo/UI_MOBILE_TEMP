@@ -813,57 +813,128 @@ void CMD_CHECKER::start_get_network_state(QString ssid)
     is_busy = false;
 }
 
+//void CMD_CHECKER::start_git_pull()
+//{
+//    is_busy = true;
+//    //plog->write("[UPDATE][git_pull] start git pull");
+//
+//    std::unique_ptr<QProcess> git_pull_process = std::make_unique<QProcess>(this);\
+//    //connect(git_pull_process.get(), &QProcess::readyReadStandardError, [this, _process = git_pull_process.get()](){error_git_pull(_process);});
+//
+//    git_pull_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
+//    plog->write("[Checker]worker:[UPDATE] Git Pull : Start");
+//    //git_pull_process->start("git", QStringList() << "submodule" << "update" << "--remote");
+//    git_pull_process->start("git", QStringList() << "stash");
+//    git_pull_process->start("git", QStringList() << "checkout" << "master");
+//    git_pull_process->start("git", QStringList() << "pull");
+//    plog->write("[Checker]worker:[UPDATE] Git stash/checkout master/pull");
+//
+//    if (!git_pull_process->waitForFinished())
+//    {
+//        plog->write("[UPDATE][git_pull] git pull error, Timeout or Error");
+//        //emit finished(this);
+//        return;
+//    }
+//    //std::unique_ptr<QProcess> git_checkout_process = std::make_unique<QProcess>(this);
+//    connect(git_pull_process(),SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+//
+//        if(!git_pull_process->waitForFinished()){
+//            //git_pull_processemit finished(this); //BJ
+//            return; //BJ
+//        }
+//    else
+//    {
+//        QByteArray result = git_pull_process->readAllStandardOutput();
+//        if (result.isEmpty() && !is_error)
+//        {
+//            plog->write("[UPDATE][git_pull] Error: already newest");
+//            //emit sig_gitpull_fail(ALREADY_NEWEWST);
+//            emit sig_gitpull_success();
+//        }
+//        else if (result.contains("error:") || is_error)
+//        {
+//            plog->write("[UPDATE][git_pull] Error: need reset");
+//            //emit sig_gitpull_fail(NEED_RESET);
+//            emit sig_gitpull_success();
+//        }
+//        else
+//        {
+//            plog->write("[UPDATE][git_pull] Success");
+//            emit sig_gitpull_success();
+//        }
+//    }
+//
+//    git_pull_process->deleteLater();
+//    git_pull_process.release();
+//    is_busy = false;
+//}
+
 void CMD_CHECKER::start_git_pull()
 {
     is_busy = true;
-    plog->write("[UPDATE][git_pull] start git pull");
 
-    std::unique_ptr<QProcess> git_pull_process = std::make_unique<QProcess>(this);\
-    connect(git_pull_process.get(), &QProcess::readyReadStandardError, [this, _process = git_pull_process.get()](){error_git_pull(_process);});
+    // Git stash
+    std::unique_ptr<QProcess> git_stash_process = std::make_unique<QProcess>(this);
+    connect(git_stash_process.get(), &QProcess::readyReadStandardError, [this, _process = git_stash_process.get()](){error_git_pull(_process);});
+    git_stash_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
+    plog->write("[Checker]worker:[UPDATE] Git Stash : Start");
+    git_stash_process->start("git", QStringList() << "stash");
 
-    git_pull_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
-    plog->write("[Checker]worker:[UPDATE] Git Pull : Start");
-    //git_pull_process->start("git", QStringList() << "submodule" << "update" << "--remote");
-    git_pull_process->start("git", QStringList() << "stash");
-    if (!git_pull_process->waitForFinished())
+    if (!git_stash_process->waitForFinished())
     {
-        plog->write("[UPDATE][git_pull] git pull error, Timeout or Error");
-        //emit finished(this);
+        plog->write("[UPDATE][git_pull] git stash error, Timeout or Error");
         return;
     }
 
-    //connect(process,SIGNAL(readyReadStandardError()),this,SLOT(error_git_pull()));
+    // Git checkout master
+    std::unique_ptr<QProcess> git_checkout_process = std::make_unique<QProcess>(this);
+    connect(git_checkout_process.get(), &QProcess::readyReadStandardError, [this, _process = git_checkout_process.get()](){error_git_pull(_process);});
+    git_checkout_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
+    plog->write("[Checker]worker:[UPDATE] Git Checkout master : Start");
+    git_checkout_process->start("git", QStringList() << "checkout" << "master");
 
-        if(!git_pull_process->waitForFinished()){
-            //git_pull_processemit finished(this); //BJ
-            return; //BJ
-        }
+    if (!git_checkout_process->waitForFinished())
+    {
+        plog->write("[UPDATE][git_pull] git checkout master error, Timeout or Error");
+        return;
+    }
+
+    // Git pull
+    std::unique_ptr<QProcess> git_pull_process = std::make_unique<QProcess>(this);
+    connect(git_pull_process.get(), &QProcess::readyReadStandardError, [this, _process = git_pull_process.get()](){error_git_pull(_process);});
+    git_pull_process->setWorkingDirectory(QDir::homePath() + "/RB_MOBILE/release");
+    plog->write("[Checker]worker:[UPDATE] Git Pull : Start");
+    git_pull_process->start("git", QStringList() << "pull");
+
+    if (!git_pull_process->waitForFinished())
+    {
+        plog->write("[UPDATE][git_pull] git pull error, Timeout or Error");
+        return;
+    }
+
+    QByteArray result = git_pull_process->readAllStandardOutput();
+    if (result.isEmpty() && !is_error)
+    {
+        plog->write("[UPDATE][git_pull] Error: already newest");
+        //emit sig_gitpull_fail(ALREADY_NEWEWST);
+        emit sig_gitpull_success();
+    }
+    else if (result.contains("error:") || is_error)
+    {
+        plog->write("[UPDATE][git_pull] Error: need reset");
+        //emit sig_gitpull_fail(NEED_RESET);
+        emit sig_gitpull_success();
+    }
     else
     {
-        QByteArray result = git_pull_process->readAllStandardOutput();
-        if (result.isEmpty() && !is_error)
-        {
-            plog->write("[UPDATE][git_pull] Error: already newest");
-            //emit sig_gitpull_fail(ALREADY_NEWEWST);
-            emit sig_gitpull_success();
-        }
-        else if (result.contains("error:") || is_error)
-        {
-            plog->write("[UPDATE][git_pull] Error: need reset");
-            //emit sig_gitpull_fail(NEED_RESET);
-            emit sig_gitpull_success();
-        }
-        else
-        {
-            plog->write("[UPDATE][git_pull] Success");
-            emit sig_gitpull_success();
-        }
+        plog->write("[UPDATE][git_pull] Success");
+        emit sig_gitpull_success();
     }
 
     git_pull_process->deleteLater();
-    git_pull_process.release();
     is_busy = false;
 }
+
 
 void CMD_CHECKER::start_check_ping(QString host)
 {
