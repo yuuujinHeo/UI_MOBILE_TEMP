@@ -6,6 +6,7 @@
 #include <QWebSocket>
 #include <QJsonArray>
 #include <QJsonObject>
+
 CMD_CLIENT::CMD_CLIENT(QObject *parent)
     : QObject(parent)
     , reconnect_timer(this)
@@ -26,8 +27,8 @@ CMD_CLIENT::~CMD_CLIENT()
     client.close();
 }
 
-void CMD_CLIENT::test(){
-
+void CMD_CLIENT::test()
+{
     // 예제 벡터 데이터
     QVector<int> vectorData = {1, 2, 3, 4, 5};
 
@@ -83,31 +84,17 @@ void CMD_CLIENT::test(){
     client.sendTextMessage(jsonDoc.toJson(QJsonDocument::Compact));
 }
 
-void CMD_CLIENT::onError(QAbstractSocket::SocketError error){
+void CMD_CLIENT::onError(QAbstractSocket::SocketError error)
+{
     // std::cerr << "WebSocket error: " << error << std::endl;
 }
 
-void CMD_CLIENT::onTextMessageReceived(QString message) {
-
-    plog->write("[IPC] SLAMNAV send Message : "+message);
+void CMD_CLIENT::onTextMessageReceived(QString message)
+{
+    plog->write("[IPC] SLAMNAV send Message : " + message);
 
     probot->notice_message = message;
     emit getMessage(message);
-
-    // // JSON 형식으로 역직렬화
-    // QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
-    // QJsonArray jsonArray = jsonDoc.array();
-    // QVector<int> vectorData;
-    // for (const QJsonValue &value : jsonArray) {
-    //     vectorData.append(value.toInt());
-    // }
-
-    // // 받은 데이터 처리 (예제에서는 출력)
-    // std::cout << "Processed data: ";
-    // for (int value : vectorData) {
-    //     std::cout << value << " ";
-    // }
-    // std::cout << std::endl;
 }
 
 void CMD_CLIENT::init()
@@ -120,7 +107,8 @@ void CMD_CLIENT::init()
 
 void CMD_CLIENT::connected()
 {
-    if(!is_connected){
+    if(!is_connected)
+    {
         is_connected = true;
         plog->write("[IPC] Command Client : Connected");
     }
@@ -128,7 +116,8 @@ void CMD_CLIENT::connected()
 
 void CMD_CLIENT::disconnected()
 {
-    if(is_connected){
+    if(is_connected)
+    {
         is_connected = false;
         plog->write("[IPC] Command Client : Disconnected");
     }
@@ -148,8 +137,7 @@ void CMD_CLIENT::reconnect_loop()
     {
         if(is_connected == false)
         {
-            //client.open(QUrl("ws://127.0.0.1:12335"));
-            client.open(QUrl("ws://127.0.0.1:12335")); // change :24.06.27
+            client.open(QUrl("ws://127.0.0.1:12335"));
         }
     }
 }

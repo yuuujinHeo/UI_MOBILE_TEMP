@@ -738,7 +738,7 @@ Item
     Timer
     {
         id: timer_status_update
-        interval: 100
+        interval: 1000
         repeat: true
         running: true
         onTriggered:
@@ -747,11 +747,12 @@ Item
             robot_battery = supervisor.getBattery();
             curTime = Qt.formatTime(new Date(), "hh:mm");
 
-            if(supervisor.getEthernetConnection()===1)
+            var EthernetConnection = supervisor.getEthernetConnection();
+            if(EthernetConnection === 1)
             {
                 image_ethernet.source = "qrc:/icon/icon_ethernet_connecting.png";
             }
-            else if(supervisor.getEthernetConnection()===2)
+            else if(EthernetConnection === 2)
             {
                 if(supervisor.getIPCConnection())
                 {
@@ -767,7 +768,7 @@ Item
                 image_ethernet.source = "qrc:/icon/icon_ethernet_discon.png";
             }
 
-            if(supervisor.getSetting("setting","USE_UI","show_time")==="true")
+            if(supervisor.getSetting("setting", "USE_UI", "show_time")==="true")
             {
                 textTime.visible = true;
             }
@@ -792,18 +793,20 @@ Item
             }
             else if(supervisor.getWifiConnection()===2)
             {
+                var wifiLevel = supervisor.getWifiLevel();
+
                 image_wifi.visible = true;
                 if(supervisor.getInternetConnection()===2)
                 {
-                    if(supervisor.getWifiLevel() === 4)
+                    if(wifiLevel === 4)
                     {
                         image_wifi.source = "qrc:/icon/icon_wifi_4.png";
                     }
-                    else if(supervisor.getWifiLevel() === 3)
+                    else if(wifiLevel === 3)
                     {
                         image_wifi.source = "qrc:/icon/icon_wifi_3.png";
                     }
-                    else if(supervisor.getWifiLevel() === 2)
+                    else if(wifiLevel === 2)
                     {
                         image_wifi.source = "qrc:/icon/icon_wifi_2.png";
                     }
@@ -814,15 +817,15 @@ Item
                 }
                 else
                 {
-                    if(supervisor.getWifiLevel() === 4)
+                    if(wifiLevel === 4)
                     {
                         image_wifi.source = "qrc:/icon/icon_wifibad_4.png";
                     }
-                    else if(supervisor.getWifiLevel() === 3)
+                    else if(wifiLevel === 3)
                     {
                         image_wifi.source = "qrc:/icon/icon_wifibad_3.png";
                     }
-                    else if(supervisor.getWifiLevel() === 2)
+                    else if(wifiLevel === 2)
                     {
                         image_wifi.source = "qrc:/icon/icon_wifibad_2.png";
                     }
@@ -837,19 +840,20 @@ Item
                 image_wifi.visible = false;
             }
 
-            if(supervisor.getSystemVolume()>80)
+            var SystemVolume = supervisor.getSystemVolume();
+            if(SystemVolume > 80)
             {
                 image_volume.source = "qrc:/icon/icon_volume_3.png";
             }
-            else if(supervisor.getSystemVolume()>40)
+            else if(SystemVolume > 40)
             {
                 image_volume.source = "qrc:/icon/icon_volume_2.png";
             }
-            else if(supervisor.getSystemVolume()>0)
+            else if(SystemVolume > 0)
             {
                 image_volume.source = "qrc:/icon/icon_volume_1.png";
             }
-            else if(supervisor.getSystemVolume() === 0)
+            else if(SystemVolume === 0)
             {
                 image_volume.source = "qrc:/icon/icon_volume_0.png";
             }
@@ -857,7 +861,6 @@ Item
             if(supervisor.getSetting("setting","USE_SLAM","use_multirobot") === "true")
             {
                 image_multi.visible = true;
-//                if(supervisor.get)
             }
             else
             {

@@ -757,7 +757,9 @@ void ServerHandler::newPost(QByteArray post_data, QString url){
         parsingReply("POST",url,reply);
     });
 }
-void ServerHandler::newPostFile(QString file_dir, QString url){
+
+void ServerHandler::newPostFile(QString file_dir, QString url)
+{
     QUrl serviceURL(url);
     QNetworkRequest request(serviceURL);
 

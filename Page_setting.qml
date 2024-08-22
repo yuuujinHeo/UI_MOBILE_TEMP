@@ -16091,10 +16091,12 @@ Item {
             text_serv_update.text = qsTr("");
         }
 
-        onOpened: {
+        onOpened:
+        {
             area_debug_update.count = 0;
             //서버 연결 체크
-            if(supervisor.isConnectServer()){
+            if(supervisor.isConnectServer())
+            {
                 //서버 연결 됨 -> 기본 서버업데이트, Git Pull은 선택
                 if(supervisor.isNeedUpdate()){
                     //서버 내 업데이트 존재 -> 서버 업데이트 유도. Git Pull숨겨둠
@@ -16107,7 +16109,9 @@ Item {
                     btn_doupdate.visible = true;
                     current_version.visible = true;
                     new_version.visible = true;
-                }else{
+                }
+                else
+                {
                     //서버 내 업데이트 없음 -> Git Pull 숨겨둠
                     supervisor.writelog("[SETTING] UPDATE PROGRAM -> No Server Update")
                     text_main_update.text = qsTr("프로그램이 이미 최신입니다");
@@ -16119,7 +16123,9 @@ Item {
                     current_version.visible = true;
                     new_version.visible = false;
                 }
-            }else{
+            }
+            else
+            {
                 //서버 연결 안됨 -> Git Pull만 가능(숨겨둠)
                 supervisor.writelog("[SETTING] UPDATE PROGRAM -> Disconnected Server")
                 text_main_update.text = qsTr("서버와 연결되지 않았습니다");

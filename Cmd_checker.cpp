@@ -8,7 +8,6 @@
 CMD_CHECKER::CMD_CHECKER(QObject *parent)
     : QObject(parent)
 {
-
     cmd_timer = new QTimer();
     connect(cmd_timer, &QTimer::timeout, this, &CMD_CHECKER::cmd_loop);
     cmd_timer->start(100);

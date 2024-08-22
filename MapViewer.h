@@ -12,15 +12,20 @@ class MapViewer : public QQuickPaintedItem
     Q_OBJECT
 public:
     MapViewer(QQuickItem *parent = nullptr);
-    Q_INVOKABLE void setActive(bool onoff){
-        if(onoff){
+    Q_INVOKABLE void setActive(bool onoff)
+    {
+        if(onoff)
+        {
             plog->write("[MapView] "+object_name+" active : true");
-        }else{
+        }
+        else
+        {
             plog->write("[MapView] "+object_name+" active : false");
         }
         active = onoff;
     }
-    Q_INVOKABLE void setName(QString name){
+    Q_INVOKABLE void setName(QString name)
+    {
         object_name = name;
         plog->write("[MapView] setMapview : "+object_name);
     }

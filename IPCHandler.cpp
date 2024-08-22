@@ -49,8 +49,10 @@ IPCHandler::IPCHandler(QObject *parent)
     connect(cmd,&CMD_CLIENT::getMessage,this,&IPCHandler::read_message);
 }
 
-void IPCHandler::clearSharedMemory(QSharedMemory &mem){
-    if(mem.isAttached()){
+void IPCHandler::clearSharedMemory(QSharedMemory &mem)
+{
+    if(mem.isAttached())
+    {
         mem.lock();
         memset(mem.data(),0,sizeof(mem.data()));
         mem.unlock();
@@ -58,16 +60,23 @@ void IPCHandler::clearSharedMemory(QSharedMemory &mem){
     }
 }
 
-void IPCHandler::read_message(QString msg){
+void IPCHandler::read_message(QString msg)
+{
     emit get_message(msg);
 }
-void IPCHandler::updateSharedMemory(QSharedMemory &mem, QString name, int size){
-    if(!mem.isAttached()){
+
+void IPCHandler::updateSharedMemory(QSharedMemory &mem, QString name, int size)
+{
+    if(!mem.isAttached())
+    {
         if (!mem.create(size, QSharedMemory::ReadWrite) && mem.error() == QSharedMemory::AlreadyExists)
         {
-            if(mem.attach()){
+            if(mem.attach())
+            {
                 plog->write("[IPC] "+name+" is already exist. attach success. ");
-            }else{
+            }
+            else
+            {
                 plog->write("[IPC] "+name+" is already exist. attach failed. ");
             }
         }
@@ -139,7 +148,8 @@ void IPCHandler::onTimer(){
     }
 
     set_status_ui();
-    if(getConnection() && probot->localization_state==LOCAL_READY){
+    if(getConnection() && probot->localization_state==LOCAL_READY)
+    {
         probot->lastPose = probot->curPose;
     }
 
@@ -162,15 +172,19 @@ void IPCHandler::onTimer(){
             sum_battery += probot->bat_list[i];
         }
 
-        float av_battery = sum_battery/probot->bat_list.size();
-
         probot->status_charge_connect = temp1.status_charge;
 
-        if(probot->battery > av_battery){
+        float av_battery = sum_battery/probot->bat_list.size();
+        if(probot->battery > av_battery)
+        {
             probot->battery = av_battery;
-        }else if(av_battery - probot->battery > 0.1){
-            if(probot->status_charge_connect == 1){
-                if(probot->status_charge == 0 && probot->battery != 0){
+        }
+        else if(av_battery - probot->battery > 0.1)
+        {
+            if(probot->status_charge_connect == 1)
+            {
+                if(probot->status_charge == 0 && probot->battery != 0)
+                {
                     probot->status_charge = 1;
                     plog->write("[IPC] Charging Status Detected on");
                 }
@@ -178,7 +192,8 @@ void IPCHandler::onTimer(){
             probot->battery = av_battery;
         }
 
-        if(probot->status_charge_connect == 0){
+        if(probot->status_charge_connect == 0)
+        {
             probot->status_charge = 0;
         }
 
@@ -668,7 +683,10 @@ IPCHandler::IMG IPCHandler::get_cam1()
 void IPCHandler::set_cmd(IPCHandler::CMD val, QString log)
 {
      if(val.cmd != ROBOT_CMD_REQ_CAMERA)
-        plog->write("[IPC] Set CMD "+QString::number(val.cmd)+" : "+log);
+     {
+        plog->write("[IPC] Set CMD " + QString::number(val.cmd) + " : " + log);
+     }
+
      QByteArray message;
      message.resize(sizeof(CMD));
      memcpy(message.data(), &val, sizeof(CMD));
@@ -750,7 +768,8 @@ void IPCHandler::moveToResting(int preset){
     // }
     plog->write("[IPC] MOVE TO COMMAND : RESTING (NOT FOUND)");
 }
-void IPCHandler::moveToCharging(int preset){
+void IPCHandler::moveToCharging(int preset)
+{
     // for(int i=0; i<pmap->locations.size(); i++){
     //     if(pmap->locations[i].type == "Charging"){
     //         plog->write("[IPC] MOVE TO COMMAND : "+pmap->locations[i].name);
@@ -762,12 +781,15 @@ void IPCHandler::moveToCharging(int preset){
     plog->write("[IPC] MOVE TO COMMAND : CHARGING (NOT FOUND)");
 }
 
-void IPCHandler::sendCommand(int _cmd){
+void IPCHandler::sendCommand(int _cmd)
+{
     IPCHandler::CMD send_msg;
     send_msg.cmd = _cmd;
     set_cmd(send_msg,"");
 }
-void IPCHandler::moveTo(float x, float y, float th, int preset){
+
+void IPCHandler::moveTo(float x, float y, float th, int preset)
+{
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_MOVE_TARGET;
     uint8_t *array;
@@ -788,13 +810,13 @@ void IPCHandler::moveTo(float x, float y, float th, int preset){
     send_msg.params[11]= array[3];
 
     send_msg.params[12] = (uint8_t)preset;
-//    qDebug() << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << send_msg.params[12];
 
     probot->curTarget.point.x = x;
     probot->curTarget.point.y = y;
     probot->curTarget.angle = th;
-    set_cmd(send_msg,"Move Target to "+QString().asprintf("%f, %f, %f, %d",x,y,th,preset));
+    set_cmd(send_msg, "Move Target to " + QString().asprintf("%f, %f, %f, %d", x, y ,th, preset));
 }
+
 void IPCHandler::moveToTest(float x, float y, float th, int preset){
     IPCHandler::CMD send_msg;
     send_msg.cmd = ROBOT_CMD_MOVE_TARGET_EX;

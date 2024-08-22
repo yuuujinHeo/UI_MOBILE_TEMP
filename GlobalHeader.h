@@ -50,6 +50,19 @@ QString getIniPath(QString file);
 
 QString getSettings(QString file, QString group, QString name);
 
+enum TTS_VOICE_LANGUAGE
+{
+    VOICE_KOREAN=0,
+    VOICE_ENGLISH=1,
+    VOICE_CHINESE=2,
+    VOICE_JAPANESE=3,
+    VOICE_SPANISH=4,
+    VOICE_RUSSIAN=5,
+    VOICE_GERMAN=6,
+    VOICE_LAOTIAN=7,
+    VOICE_INDONESIAN=8,
+};
+
 enum GIT_PULL_ERR_LIST
 {
     NEED_RESET=0,
@@ -62,12 +75,20 @@ enum SLAM_MAP_RELOAD_MODE
     SOFT_RELOAD=1,
 };
 
-typedef struct{
+enum CHARGING_STATE
+{
+    NO_CHARGING=0,
+    CHARGNING=1,
+};
+
+typedef struct
+{
     QString group;
     QString name;
     bool is_far;
     bool is_broken;
 }ST_TLINE_CHECK;
+
 enum{
     WIFI_NONE = 0,
     WIFI_CONNECTING,
@@ -270,7 +291,6 @@ typedef struct
     QString model = "";
     int serial_num;
     QString name_debug = "";
-    // QString type = "SERVING";
     float velocity = 1.0;
 
     QList<ST_TRAY> trays;
@@ -280,7 +300,6 @@ typedef struct
     LOCATION curLocation;
     int cur_preset=3;
     int comeback_preset=3;
-//    QList<QString> call_list;
 
     int call_moving_count=0;
     int max_moving_count;

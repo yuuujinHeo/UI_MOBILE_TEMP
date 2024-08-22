@@ -64,7 +64,6 @@ public:
 
     //state
     QString curUiState();
-    Q_INVOKABLE int getuistate();
     Q_INVOKABLE void passInit();
     Q_INVOKABLE void stateInit();
     Q_INVOKABLE void stateMoving();
@@ -90,7 +89,6 @@ public:
     Q_INVOKABLE int getLocalizationState();
     Q_INVOKABLE int getStateMoving();
     Q_INVOKABLE QString getStateMovingStr();
-    Q_INVOKABLE int getObsState(){return probot->obs_state;}
 
     Q_INVOKABLE bool getIPCConnection();
     Q_INVOKABLE bool getMotorConnection(int id);
@@ -101,7 +99,6 @@ public:
     Q_INVOKABLE int getMotorWarningTemperature();
     Q_INVOKABLE int getMotorCurrent(int id);
     Q_INVOKABLE int getPowerStatus();
-    Q_INVOKABLE int getRemoteStatus();
     Q_INVOKABLE int getChargeConnectStatus();
     Q_INVOKABLE int getChargeStatus();
     Q_INVOKABLE int getEmoStatus();
@@ -112,7 +109,6 @@ public:
     Q_INVOKABLE float getPower();
     Q_INVOKABLE float getPowerTotal();
     Q_INVOKABLE int getObsinPath();
-    Q_INVOKABLE int getRobotcurPreset();
 
     Q_INVOKABLE float getlastRobotx();
     Q_INVOKABLE float getlastRoboty();
@@ -462,7 +458,6 @@ public:
     Q_INVOKABLE void addPatrolLocation(QString type, QString group, QString name);
     Q_INVOKABLE void setPatrolMovingPage(QString mode, QString param1="", QString param2="", QString param3="");
     Q_INVOKABLE void setPatrolArrivePage(QString mode, QString param1="", QString param2="", QString param3="");
-    Q_INVOKABLE void savePatrolVoiceBasic(QString voice, QString text);
     Q_INVOKABLE void setPatrolVoice(QString mode, int language, int voice, int volume, int mention=0);
 
     Q_INVOKABLE void setServingPageBackground(QString mode);
@@ -833,15 +828,6 @@ public:
             log_folder = "sn_log";
         }
     }
-    Q_INVOKABLE int getLogLineNum();
-    Q_INVOKABLE QString getLogLine(int num){return curLog[num];}
-    Q_INVOKABLE QString getLogDate(int num);
-    Q_INVOKABLE QString getLogAuth(int num);
-    Q_INVOKABLE QString getLogMessage(int num);
-    Q_INVOKABLE void readLog(QDateTime date);
-    Q_INVOKABLE QString getLocaleDate(int year, int month, int date){
-        return QString().asprintf("%d-%02d-%02d",year,month,date);
-    }
 
     ////*********************************************  goqual 관련   ***************************************************////
     Q_INVOKABLE QString getGoqualID();
@@ -900,10 +886,5 @@ private:
     QObject *mObject = nullptr;
     QTranslator *translator;
 };
-
-
-//**************************** 사장된 모듈 *****************************//
-
-
 
 #endif // SUPERVISOR_H
