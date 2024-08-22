@@ -222,7 +222,7 @@ Item {
         running: false
         repeat: false
         onTriggered: {
-            supervisor.confirmPickup();
+            supervisor.confirmPickup("");
             supervisor.writelog("[QML-PickupCall] PICKUP PAGE -> Move to Next");
         }
     }

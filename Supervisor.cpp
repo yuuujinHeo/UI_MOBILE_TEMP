@@ -51,13 +51,19 @@ Supervisor::Supervisor(QObject *parent)
     plog->write("[SUPERVISOR] Program Started. Supervisor constructed.");
 
     //기존 SLAM/NAV 모두 종료하고 다시 시작
-    QList<QString> path_home_str = QDir::homePath().split("/");
-    QProcess process;
+    //QList<QString> path_home_str = QDir::homePath().split("/");
+    //QProcess process;
+    QProcess kill_all_programs_process;
     QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    process.start(file,QStringList(),QProcess::ReadWrite);
-    if(!process.waitForFinished()){
+    //process.start(file,QStringList(),QProcess::ReadWrite);
+    kill_all_programs_process.start(file, QStringList(), QProcess::ReadWrite);
+    //if(!process.waitForFinished()){
+    if(!kill_all_programs_process.waitForFinished())
+    {
         plog->write("[SUPERVISOR] Kill All Failed");
-    }else{
+    }
+    else
+    {
         plog->write("[SUPERVISOR] Kill All");
     }
     // process->waitForReadyRead(3000);
