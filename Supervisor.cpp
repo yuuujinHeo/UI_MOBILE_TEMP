@@ -1695,11 +1695,11 @@ void Supervisor::checkRobotINI(){
         setSetting("update","DRIVING/path_shifting_val","0");
 
     if(getSetting("update","SLAM","slam_submap_cnt") == "")
-        setSetting("update","SLAM/slam_submap_cnt","100");
+        setSetting("update","SLAM/slam_submap_cnt","300");
     if(getSetting("update","SLAM","slam_lc_dist") == "")
-        setSetting("update","SLAM/slam_lc_dist","10");
+        setSetting("update","SLAM/slam_lc_dist","5.0");
     if(getSetting("update","SLAM","slam_lc_icp_dist") == "")
-        setSetting("update","SLAM/slam_lc_icp_dist","2");
+        setSetting("update","SLAM/slam_lc_icp_dist","0.5");
     if(getSetting("update","SLAM","map_size") == "")
         setSetting("update","SLAM/map_size","1000");
     if(getSetting("update","SLAM","grid_size") == "")
@@ -1711,15 +1711,15 @@ void Supervisor::checkRobotINI(){
     if(getSetting("update","LOCALIZATION","icp_error") == "")
         setSetting("update","LOCALIZATION/icp_error","0.1");
     if(getSetting("update","LOCALIZATION","icp_near") == "")
-        setSetting("update","LOCALIZATION/icp_near","1");
+        setSetting("update","LOCALIZATION/icp_near","0.5");
     if(getSetting("update","LOCALIZATION","icp_odometry_weight") == "")
         setSetting("update","LOCALIZATION/icp_odometry_weight","0.8");
     if(getSetting("update","LOCALIZATION","icp_ratio") == "")
         setSetting("update","LOCALIZATION/icp_ratio","0.5");
     if(getSetting("update","LOCALIZATION","icp_repeat_dist") == "")
-        setSetting("update","LOCALIZATION/icp_repeat_dist","0.1");
+        setSetting("update","LOCALIZATION/icp_repeat_dist","0.05");
     if(getSetting("update","LOCALIZATION","icp_repeat_time") == "")
-        setSetting("update","LOCALIZATION/icp_repeat_time","0.3");
+        setSetting("update","LOCALIZATION/icp_repeat_time","0.1");
 
 
     //2. Setting_config=========================================================
