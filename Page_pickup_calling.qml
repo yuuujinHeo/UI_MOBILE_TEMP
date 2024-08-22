@@ -49,7 +49,7 @@ Item {
         }
         Column{
             id: column_pickup
-            visible: true
+            //visible: true
             anchors.bottom: parent.bottom
             Text{
                 id: target_pos
@@ -90,6 +90,13 @@ Item {
                 font.family: font_noto_b.name
                 color: "white"
             }
+            Text{
+                id: text_mention3
+                text: qsTr("수령 후 아래 <font color=\"#12d27c\">확인버튼</font>을 눌러주세요")
+                font.pixelSize: 40
+                font.family: font_noto_b.name
+                color: "white"
+            }
             Rectangle{
                 color:"transparent"
                 width: parent.width
@@ -99,7 +106,7 @@ Item {
                 id: btn_confirm
                 width: 320
                 height: 120
-                radius: 10
+                radius: 60
                 border.color: color_gray
                 border.width: 2
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -112,8 +119,8 @@ Item {
                         Image{
                             anchors.centerIn: parent
                             source:"icon/icon_yes.png"
-                            width: 60
-                            height: 60
+                            width: 80
+                            height: 80
                             sourceSize.width: width
                             sourceSize.height: height
                         }
@@ -127,6 +134,7 @@ Item {
                             text: qsTr("확인")
                             font.family: font_noto_b.name
                             font.pixelSize: 45
+                            color: color_green
                         }
                     }
                 }
@@ -146,6 +154,38 @@ Item {
                     }
                 }
             }
+            Rectangle{
+                id: btn_confirm2
+                width: 120
+                height: 120
+                radius: 100
+                visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
+                border.color: color_gray
+                border.width: 2
+                Text{
+                    anchors.centerIn: parent
+                    text: qsTr("퇴식")
+                    font.family: font_noto_b.name
+                    font.pixelSize: 45
+                    color: color_blue
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        supervisor.playSound('click');
+                        supervisor.writelog("[USER INPUT] PICKUP(CALL) CONFIRM2 clicked");
+                        supervisor.playVoice("thanks");
+                        column_pickup.visible = false;
+                        text_mention.visible = false;
+                        text_mention3.visible = false;
+                        target_pos.visible = false;
+                        btn_confirm.visible = false;
+                        text_hello.visible = true;
+                        timer_hello.start();
+                    }
+                }
+            }
+
         }
         Text{
             id: text_hello
@@ -178,7 +218,7 @@ Item {
     }
     Timer{
         id: timer_hello
-        interval: 3000
+        interval: 1500
         running: false
         repeat: false
         onTriggered: {
