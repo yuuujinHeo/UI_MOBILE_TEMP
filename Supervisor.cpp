@@ -78,6 +78,8 @@ Supervisor::Supervisor(QObject *parent)
 
     list_bgm = new QMediaPlaylist();
     list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
+    list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
+    bgm_player->setPlaylist(list_bgm);
 
     mMain = nullptr;
     usb_list.clear();
@@ -2364,16 +2366,14 @@ bool Supervisor::isplayBGM(){
 }
 void Supervisor::playBGM(int volume)
 {
-    list_bgm->clear();
-    bgm_player->stop();
+    plog->write("[SOUND] playBGM : "+QString::number(volume));
 
-    list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
-    bgm_player->setPlaylist(list_bgm);
     if(volume == -1)
     {
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
-    plog->write("[SOUND] playBGM : "+QString::number(volume));
+
+    bgm_player->stop();
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
