@@ -75,7 +75,9 @@ Supervisor::Supervisor(QObject *parent)
     voice_player = new QMediaPlayer();
     bgm_player = new QMediaPlayer();
     click_effect = new QSoundEffect();
+
     list_bgm = new QMediaPlaylist();
+    list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
 
     mMain = nullptr;
     usb_list.clear();
@@ -2360,17 +2362,22 @@ bool Supervisor::isplayBGM(){
         return false;
     }
 }
-void Supervisor::playBGM(int volume){
-    list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
+void Supervisor::playBGM(int volume)
+{
+    list_bgm->clear();
+    bgm_player->stop();
+
     list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
     bgm_player->setPlaylist(list_bgm);
-    if(volume == -1){
+    if(volume == -1)
+    {
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
     plog->write("[SOUND] playBGM : "+QString::number(volume));
     bgm_player->setVolume(volume);
     bgm_player->play();
 }
+
 void Supervisor::setvolumeBGM(int volume){
     bgm_player->setVolume(volume);
     plog->write("[SOUND] playBGMVolume : "+QString::number(volume));
