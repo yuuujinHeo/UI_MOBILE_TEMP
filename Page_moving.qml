@@ -466,6 +466,7 @@ Item {
     property bool flag_voice: false
     property int count_voice: 0
 
+    /*
     Timer{
         id: update_timer
         interval: 500
@@ -559,6 +560,101 @@ Item {
             }
         }
     }
+    */
+    Timer{
+        id: update_timer
+        interval: 500
+        running: true
+        repeat: true
+        property int prev_state: 0
+        onTriggered: {
+            if(supervisor.getLockStatus()===0){
+                if(motor_lock)
+                    supervisor.writelog("[UI] PageMoving : Motor Lock false");
+
+                motor_lock = false;
+
+                popup_notice.init();
+                popup_notice.style = "warning";
+                popup_notice.main_str = qsTr("로봇이 수동이동 중입니다")
+                popup_notice.sub_str = ""
+                popup_notice.addButton(qsTr("원래대로"));
+                popup_notice.open();
+            }else{
+                if(!motor_lock){
+                    supervisor.writelog("[UI] PageMoving : Motor Lock true");
+                }
+                motor_lock = true;
+
+                if(prev_state !== supervisor.getStateMoving()){
+                    if(supervisor.getStateMoving() === 4){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                        supervisor.writelog("[UI] PageMoving : Check State -> Robot Paused");
+                    }else if(supervisor.getStateMoving() === 0){
+                        robot_paused = true;
+                        popup_pause.visible = true;
+                        supervisor.writelog("[UI] PageMoving : Check State -> Robot Not Moving");
+                    }else{
+                        popup_pause.visible = false;
+                        robot_paused = false;
+                        supervisor.writelog("[UI] PageMoving : Check State -> "+Number(supervisor.getStateMoving()));
+                    }
+                }
+                prev_state = supervisor.getStateMoving();
+            }
+
+            if(supervisor.getMultiState() === 2){
+                popup_waiting.visible = true;
+            }else{
+                popup_waiting.visible = false;
+            }
+
+            obs_in_path =supervisor.getObsinPath();
+
+            if(show_face == 1){
+                if(obs_in_path == 0){
+                    if(face_image.cur_source !== "image/face_normal.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
+                        face_image.play("image/face_normal.gif");
+                    }
+                }else if(obs_in_path == 1){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_surprise.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
+                        face_image.play("image/face_surprise.gif");
+                    }
+                }else if(obs_in_path == 2){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_cry.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
+                        face_image.play("image/face_cry.gif");
+                    }
+                }
+            }else if(show_face === 2){
+                if(obs_in_path == 0){
+                    if(face_image.cur_source !== "image/face_normal2.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : NORMAL");
+                        face_image.play("image/face_normal2.gif");
+                    }
+                }else if(obs_in_path == 1){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_surprise2.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : SURPRISE");
+                        face_image.play("image/face_surprise2.gif");
+                    }
+                }else if(obs_in_path == 2){
+                    flag_voice = true;
+                    if(face_image.cur_source !== "image/face_cry2.gif"){
+                        supervisor.writelog("[UI] SHOW MOVING FACE : CRY");
+                        face_image.play("image/face_cry2.gif");
+                    }
+                }
+            }
+        }
+    }
+
+
     MouseArea{
         id: btn_page
         anchors.fill: parent
@@ -574,6 +670,7 @@ Item {
     Popup_notice{
         id: popup_notice
         z:99
+        /*
         onClicked:{
             if(cur_btn === qsTr("수동이동")){
                 supervisor.writelog("[UI] PopupNotice : Lock Off");
@@ -606,6 +703,47 @@ Item {
                 popup_notice.close();
             }
         }
+        */
+        onClicked:{
+            switch(cur_btn) {
+                case qsTr("수동이동"):
+                    supervisor.writelog("[UI] PopupNotice : Lock Off");
+                    supervisor.setMotorLock(false);
+                    break;
+                case qsTr("취 소"):
+                case qsTr("확 인"):
+                    popup_notice.close();
+                    break;
+                case qsTr("모터초기화"):
+                    supervisor.writelog("[UI] PopupNotice : Motor Init");
+                    supervisor.setMotorLock(true);
+                    supervisor.stateInit();
+                    if(loader_page.item.objectName === "page_moving" || loader_page.item.objectName === "page_moving_custom"){
+                        loadPage(pinit);
+                    }
+                    popup_notice.close();
+                    break;
+                case qsTr("위치초기화"):
+                    supervisor.writelog("[UI] PopupNotice : Local Init");
+                    if(loader_page.item.objectName === "page_annotation"){
+                        loader_page.item.setAnnotLocation();
+                    } else {
+                        loadPage(pinit);
+                        supervisor.resetLocalization();
+                        supervisor.stateInit();
+                    }
+                    popup_notice.close();
+                    break;
+                case qsTr("원래대로"):
+                    supervisor.writelog("[UI] PopupNotice : Lock On");
+                    supervisor.setMotorLock(true);
+                    supervisor.moveStopFlag();
+                    loadPage(pkitchen);
+                    popup_notice.close();
+                    break;
+            }
+        }
+
     }
 
 

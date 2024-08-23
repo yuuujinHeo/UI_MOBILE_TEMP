@@ -12460,7 +12460,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.4.1.1")
+                    text:qsTr("Version 1.4.5.1.1") //page_moving
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
