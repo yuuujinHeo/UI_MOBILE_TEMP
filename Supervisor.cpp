@@ -72,14 +72,15 @@ Supervisor::Supervisor(QObject *parent)
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
     timer->start(MAIN_THREAD);
 
+    //Original
     voice_player = new QMediaPlayer();
     bgm_player = new QMediaPlayer();
     click_effect = new QSoundEffect();
-
     list_bgm = new QMediaPlaylist();
+
     list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
     list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
-    bgm_player->setPlaylist(list_bgm);
+
 
     mMain = nullptr;
     usb_list.clear();
@@ -143,7 +144,7 @@ Supervisor::Supervisor(QObject *parent)
 
 Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
 
     timer->disconnect();
@@ -221,7 +222,7 @@ void Supervisor::update_success(){
 
 void Supervisor::programRestart(){
     plog->write("[COMMAND] programRestart");
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
 
     //BJ_TRY
     slam_process->kill();
@@ -2046,7 +2047,7 @@ void Supervisor::loadMap(QString name){
     slam_map_reload(name);
 }
 void Supervisor::restartSLAM(){
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
     if(slam_process != nullptr){
         plog->write("[SUPERVISOR] RESTART SLAM -> PID : "+QString::number(slam_process->processId()));
         if(slam_process->state() == QProcess::NotRunning){
@@ -2366,16 +2367,25 @@ bool Supervisor::isplayBGM(){
 }
 void Supervisor::playBGM(int volume)
 {
-    plog->write("[SOUND] playBGM : "+QString::number(volume));
+    //list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
+    //list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
+    //bgm_player->setPlaylist(0);
+    bgm_player->stop();
+    bgm_player->setPlaylist(list_bgm);
+
+
 
     if(volume == -1)
     {
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
 
-    bgm_player->stop();
+    //bgm_player->stop();
+    //bgm_player->setPosition(0);
     bgm_player->setVolume(volume);
     bgm_player->play();
+
+    plog->write("[SOUND] playBGM : "+QString::number(volume));
 }
 
 void Supervisor::setvolumeBGM(int volume){
@@ -3013,7 +3023,7 @@ void Supervisor::setAnnotEditFlag(bool flag){
 }
 
 void Supervisor::clearSharedMemory(){
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
 }
 int Supervisor::getObjPointNum(int obj_num, int x, int y){
     //NEED DEBUG

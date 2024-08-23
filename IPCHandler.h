@@ -301,14 +301,14 @@ public:
     bool flag_objecting = false;
     bool flag_joystick = false;
 
-    QSharedMemory shm_cmd;
+    //QSharedMemory shm_cmd;
     QSharedMemory shm_status;
     QSharedMemory shm_path;
     QSharedMemory shm_map;
     QSharedMemory shm_obs;
     QSharedMemory shm_cam0;
     QSharedMemory shm_cam1;
-    QSharedMemory shm_ui_status;
+    //QSharedMemory shm_ui_status;
     QSharedMemory shm_cam_color0;
     QSharedMemory shm_cam_color1;
     QSharedMemory shm_loc_status;
