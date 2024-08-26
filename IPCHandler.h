@@ -373,6 +373,7 @@ public:
     void stopMapping();
     void restartSLAM();
     void set_velocity(float vel);
+    void serverCheck();
 
     QString tempstr = "";
     int read_count = 50;

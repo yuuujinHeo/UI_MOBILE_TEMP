@@ -79,7 +79,7 @@ void IPCHandler::updateSharedMemory(QSharedMemory &mem, QString name, int size){
 }
 void IPCHandler::detachSharedMemory(QSharedMemory &mem, QString name){
     //if(shm_cmd.detach())
-    //{
+    //{sendMapServer
     //    plog->write("[IPC] "+name+" is detached success.");
     //}else{
     //    plog->write("[IPC] "+name+" is detached failed.");
@@ -941,4 +941,10 @@ void IPCHandler::set_velocity(float vel){
     send_msg.params[2] = array[2];
     send_msg.params[3] = array[3];
     set_cmd(send_msg, "SET Velocity to "+QString::number(vel));
+}
+
+void IPCHandler::serverCheck(){
+    IPCHandler::CMD send_msg;
+    send_msg.cmd = ROBOT_CMD_SERVER_CHECK;
+    set_cmd(send_msg, "Server Check");
 }

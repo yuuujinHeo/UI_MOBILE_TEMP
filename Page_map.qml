@@ -90,7 +90,7 @@ Item {
             spacing: 40
             anchors.centerIn: parent
             Repeater{
-                model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화")]
+                model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("현재맵 동기화"),qsTr("위치 초기화")]
                 Rectangle{
                     property int btn_size: 135
                     width: btn_size
@@ -113,11 +113,21 @@ Item {
                                 sourceSize.width: 50
                                 sourceSize.height: 48
                                 source: {
-                                    if(modelData === qsTr("맵 새로만들기")){
+                                    if(modelData === qsTr("맵 새로만들기"))
+                                    {
                                         "image/image_slam.png"
-                                    }else if(modelData === qsTr("현재맵 수정하기")){
+                                    }
+                                    else if(modelData === qsTr("현재맵 수정하기"))
+                                    {
                                         "image/image_annot.png"
-                                    }else if(modelData === qsTr("위치 초기화")){
+                                    }
+                                    //else if(multirobot_state = 1)
+                                    else if(modelData === qsTr("현재맵 동기화"))
+                                    {
+                                        "image/image_localization_reset.png"
+                                    }
+                                    else if(modelData === qsTr("위치 초기화"))
+                                    {
                                         "image/image_localization.png"
                                     }
                                 }
@@ -139,7 +149,8 @@ Item {
                         }
                         onReleased:{
                             rect_btn.color = "white";
-                            if(modelData === qsTr("맵 새로만들기")){
+                            if(modelData === qsTr("맵 새로만들기"))
+                            {
                                 if(!supervisor.getIPCConnection()){
                                     supervisor.playSound('no');
                                     openNotice("ipc_discon");
@@ -148,29 +159,32 @@ Item {
                                     supervisor.writelog("[UI] MAP : move to Mapping");
                                     loadPage(pmapping);
                                 }
-                            }else if(modelData === qsTr("현재맵 수정하기")){
+                            }
+                            else if(modelData === qsTr("현재맵 수정하기"))
+                            {
                                 supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to Annotation");
                                 loadPage(pannotation);
                                 loader_page.item.init();
                                 supervisor.setAnnotEditFlag(true);
-                            //}else if(modelData === qsTr("지정 순회")){
-                            //    if(supervisor.isRobotReady()){
-                            //        supervisor.playSound('click');
-                            //        supervisor.writelog("[UI] MAP : Show Patrol Popup")
-                            //        popup_patrol.open();
-                            //        popup_patrol.mode = "sequence";
-                            //    }else{
-                            //        supervisor.playSound('no');
-                            //        supervisor.writelog("[UI] MAP : Show Patrol Popup -> Robot Not Ready")
-                            //        robotnotready();
-                            //    }
-                            }else if(modelData === qsTr("위치 초기화")){
+
+                            }
+                            else if (modelData === qsTr("현재맵 동기화"))
+                            {
+                                supervisor.playSound('click');
+                                supervisor.writelog("[UI] MAP : move to FMS & others")
+                                //supervisor.resetLocalization();
+                                //loadPage(pinit);
+                                supervisor.sendMapSync();
+                            }
+                            else if(modelData === qsTr("위치 초기화"))
+                            {
                                 supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to Localization")
                                 supervisor.resetLocalization();
                                 loadPage(pinit);
                             }
+
                         }
                     }
                 }
@@ -240,9 +254,12 @@ Item {
         }
     }
 
+
+
     Popup_patrol{
         id: popup_patrol
     }
+
 
     Component {
         id: locationCompo1
@@ -285,6 +302,8 @@ Item {
 //        check_slam_init_timer.stop();
         map.loadmap(name,type);
     }
+
+
 
     Popup{
         id: popup_help
