@@ -286,10 +286,8 @@ void Supervisor::sendMapServer(){
 
 void Supervisor::sendMapSync(){
     ipc->sendCommand(ROBOT_CMD_SERVER_CHECK);
-    if (ROBOT_CMD_SERVER_CHECK !=0)
-    {
-        ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
-    }
+
+    ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 
 }
 
