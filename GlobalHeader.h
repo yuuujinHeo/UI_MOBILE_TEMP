@@ -197,7 +197,7 @@ typedef struct{
     QString ipv4;
     QString method;
     QString netmask;
-    QString subnet;;
+    QString subnet;
     QString gateway;
     QString dns1;
     QString dns2;
@@ -241,6 +241,8 @@ typedef struct{
     float inlier_error = 0;
     float mapping_inlier_ratio = 0;
     float mapping_inlier_error = 0;
+
+    int fms_connection_state = 0; //BJ
 
     int err_code = 0;
 

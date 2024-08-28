@@ -2,14 +2,14 @@
 
 IPCHandler::IPCHandler(QObject *parent)
     : QObject(parent)
-    , shm_cmd("slamnav_cmd")
+    //, shm_cmd("slamnav_cmd")
     , shm_status("slamnav_status")
     , shm_path("slamnav_path")
     , shm_map("slamnav_map")
     , shm_obs("slamnav_obs")
     , shm_cam0("slamnav_cam0")
     , shm_cam1("slamnav_cam1")
-    , shm_ui_status("slamnav_ui_status")
+    //, shm_ui_status("slamnav_ui_status")
     , shm_cam_color0("slamnav_cam_color0")
     , shm_cam_color1("slamnav_cam_color1")
     , shm_loc_status("slamnav_loc_status")
@@ -21,7 +21,7 @@ IPCHandler::IPCHandler(QObject *parent)
     tick = 0;
 
     // create or attach
-    updateSharedMemory(shm_ui_status,"UiStatus",sizeof(IPCHandler::UI_STATUS));
+    //updateSharedMemory(shm_ui_status,"UiStatus",sizeof(IPCHandler::UI_STATUS));
     updateSharedMemory(shm_status,"Status",sizeof(IPCHandler::STATUS));
     updateSharedMemory(shm_path,"Path",sizeof(IPCHandler::PATH));
     updateSharedMemory(shm_map,"Map",sizeof(IPCHandler::MAP));
@@ -78,16 +78,16 @@ void IPCHandler::updateSharedMemory(QSharedMemory &mem, QString name, int size){
     }
 }
 void IPCHandler::detachSharedMemory(QSharedMemory &mem, QString name){
-    if(shm_cmd.detach())
-    {
-        plog->write("[IPC] "+name+" is detached success.");
-    }else{
-        plog->write("[IPC] "+name+" is detached failed.");
-    }
+    //if(shm_cmd.detach())
+    //{
+    //    plog->write("[IPC] "+name+" is detached success.");
+    //}else{
+    //    plog->write("[IPC] "+name+" is detached failed.");
+    //}
 }
 
 void IPCHandler::update(){
-    updateSharedMemory(shm_ui_status,"UiStatus",sizeof(IPCHandler::UI_STATUS));
+    //updateSharedMemory(shm_ui_status,"UiStatus",sizeof(IPCHandler::UI_STATUS));
     updateSharedMemory(shm_status,"Status",sizeof(IPCHandler::STATUS));
     updateSharedMemory(shm_path,"Path",sizeof(IPCHandler::PATH));
     updateSharedMemory(shm_map,"Map",sizeof(IPCHandler::MAP));
@@ -105,8 +105,8 @@ void IPCHandler::update(){
 
 IPCHandler::~IPCHandler()
 {
-    detachSharedMemory(shm_cmd,"Command");
-    detachSharedMemory(shm_ui_status,"UiStatus");
+    //detachSharedMemory(shm_cmd,"Command");
+    //detachSharedMemory(shm_ui_status,"UiStatus");
     detachSharedMemory(shm_status,"Status");
     detachSharedMemory(shm_path,"Path");
     detachSharedMemory(shm_map,"Map");
@@ -240,6 +240,8 @@ void IPCHandler::onTimer(){
         probot->inlier_error = temp1.ui_loc_inlier_error;
         probot->mapping_inlier_ratio = temp1.ui_mapping_inlier_ratio;
         probot->mapping_inlier_error = temp1.ui_mapping_inlier_error;
+
+        probot->fms_connection_state = temp1.ui_fms_connection_state; //BJ
 //        qDebug() << probot->curPose.point.x << probot->curPose.point.y << probot->curPose.angle << probot->lidar_data[0];
         prev_tick_status = temp1.tick;
     }
@@ -685,12 +687,12 @@ void IPCHandler::set_status_ui(){
     val.ui_map_rotate_angle = pmap->map_rotate_angle;
     val.ui_cut_map_x = pmap->cut_map[0];
     val.ui_cut_map_y = pmap->cut_map[1];
-    shm_ui_status.lock();
-    flag_tx = true;
-    val.tick = ++tick;
-    memcpy((char*)shm_ui_status.data(), &val, sizeof(IPCHandler::UI_STATUS));
-//    plog->write("[IPC] SET UI Status");
-    shm_ui_status.unlock();
+    //shm_ui_status.lock();
+    //flag_tx = true;
+    //val.tick = ++tick;
+    //memcpy((char*)shm_ui_status.data(), &val, sizeof(IPCHandler::UI_STATUS));
+//  //  plog->write("[IPC] SET UI Status");
+    //shm_ui_status.unlock();
 }
 ////*********************************************  COMMAND FUNCTIONS   ***************************************************////
 void IPCHandler::moveToServing(QString target_loc, int preset){

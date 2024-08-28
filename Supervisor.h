@@ -11,7 +11,7 @@
 #include "ZIPHandler.h"
 #include "python_wrapper.h"
 #include "IPCHandler.h"
-#include "checker.h"
+#include "Cmd_checker.h"
 #include <QMediaPlaylist>
 #include "ServerHandler.h"
 #include <QMediaPlayer>
@@ -51,7 +51,7 @@ public:
     ServerHandler *server;
     ZIPHandler *zip;
     MapHandler *maph;
-    Checker *checker;
+    CMD_CHECKER *checker;
     CallbellHandler *call;
     IPCHandler *ipc;
     TTSHandler *tts;

@@ -51,13 +51,19 @@ Supervisor::Supervisor(QObject *parent)
     plog->write("[SUPERVISOR] Program Started. Supervisor constructed.");
 
     //기존 SLAM/NAV 모두 종료하고 다시 시작
-    QList<QString> path_home_str = QDir::homePath().split("/");
-    QProcess process;
+    //QList<QString> path_home_str = QDir::homePath().split("/");
+    //QProcess process;
+    QProcess kill_all_programs_process;
     QString file = QDir::homePath() + "/RB_MOBILE/sh/killall.sh";
-    process.start(file,QStringList(),QProcess::ReadWrite);
-    if(!process.waitForFinished()){
+    //process.start(file,QStringList(),QProcess::ReadWrite);
+    kill_all_programs_process.start(file, QStringList(), QProcess::ReadWrite);
+    //if(!process.waitForFinished()){
+    if(!kill_all_programs_process.waitForFinished())
+    {
         plog->write("[SUPERVISOR] Kill All Failed");
-    }else{
+    }
+    else
+    {
         plog->write("[SUPERVISOR] Kill All");
     }
     // process->waitForReadyRead(3000);
@@ -66,10 +72,15 @@ Supervisor::Supervisor(QObject *parent)
     connect(timer, SIGNAL(timeout()),this,SLOT(onTimer()));
     timer->start(MAIN_THREAD);
 
+    //Original
     voice_player = new QMediaPlayer();
     bgm_player = new QMediaPlayer();
     click_effect = new QSoundEffect();
     list_bgm = new QMediaPlaylist();
+
+    list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
+    list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
+
 
     mMain = nullptr;
     usb_list.clear();
@@ -85,7 +96,7 @@ Supervisor::Supervisor(QObject *parent)
     zip = new ZIPHandler();
     call = new CallbellHandler();
     tts = new TTSHandler();
-    checker = new Checker();
+    checker = new CMD_CHECKER();//Checker();
 
     connect(checker, SIGNAL(sig_con_wifi_success(QString)), this, SLOT(connect_wifi_success(QString)));
     connect(checker, SIGNAL(sig_con_wifi_fail(int,QString)), this, SLOT(connect_wifi_fail(int,QString)));
@@ -123,7 +134,8 @@ Supervisor::Supervisor(QObject *parent)
     translator = new QTranslator();
     setlanguage(getSetting("setting","UI","language"));
 
-    checker->getNetworkState("");
+    //checker->getNetworkState("");
+    checker->getNetworkState();
 
     initServingPage();
 //    checker->setIP("mobile_robot_mesh","10.108.1.132","24","10.108.1.1","10.108.1.1","8.8.8.8");
@@ -132,7 +144,7 @@ Supervisor::Supervisor(QObject *parent)
 
 Supervisor::~Supervisor(){
     plog->write("[BUILDER] SUPERVISOR desployed");
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
     Py_FinalizeEx();
 
     timer->disconnect();
@@ -210,12 +222,15 @@ void Supervisor::update_success(){
 
 void Supervisor::programRestart(){
     plog->write("[COMMAND] programRestart");
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
+
+    //BJ_TRY
     slam_process->kill();
-    QCoreApplication::quit();
+    //QCoreApplication::quit();
+
     //240809 yujin - pm2 start -> restart twice
-    // QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
-    // QApplication::exit(12);
+    QProcess::startDetached(QApplication::applicationFilePath(),QStringList());
+    QApplication::exit(12);
 }
 
 void Supervisor::programExit(){
@@ -462,16 +477,16 @@ void Supervisor::setCallbell(QString type, int id){
 
 ////*********************************************  SETTING 관련   ***************************************************////
 void Supervisor::git_pull_success(){
-    plog->write("[UPDATE] Git Pull : Success -> Program Restart");
+    plog->write("[supervisor]git_pull_success:[UPDATE] Git Pull : Success -> Program Restart");
     programRestart();
 }
 
 void Supervisor::git_pull_fail(int reason){
     if(reason == 0){
-        plog->write("[UPDATE] Git Pull : Failed -> Maybe need Reset");
+        plog->write("[supervisor]git_pull_fail:[UPDATE] Git Pull : Failed -> Maybe need Reset");
         QMetaObject::invokeMethod(mMain, "git_pull_fail");
     }else{//nothing
-        plog->write("[UPDATE] Git Pull : Failed -> Program Already Newest");
+        plog->write("[supervisor]git_pull_fail:[UPDATE] Git Pull : Failed -> Program Already Newest");
         QMetaObject::invokeMethod(mMain, "git_pull_already");
     }
 }
@@ -614,10 +629,11 @@ void Supervisor::updateProgram(){
 }
 void Supervisor::updateProgramGitPull(){
     checker->gitPull();
+    plog->write("[UPDATE][Checker]supervisor: update program git pull");
 }
 void Supervisor::gitReset(){
-    probot->program_branch = getSetting("setting","UI","program_branch");
     checker->gitReset();
+    probot->program_branch = getSetting("setting","UI","program_branch");
 }
 
 void Supervisor::restartUpdate(){
@@ -1684,11 +1700,11 @@ void Supervisor::checkRobotINI(){
         setSetting("update","DRIVING/path_shifting_val","0");
 
     if(getSetting("update","SLAM","slam_submap_cnt") == "")
-        setSetting("update","SLAM/slam_submap_cnt","100");
+        setSetting("update","SLAM/slam_submap_cnt","300");
     if(getSetting("update","SLAM","slam_lc_dist") == "")
-        setSetting("update","SLAM/slam_lc_dist","10");
+        setSetting("update","SLAM/slam_lc_dist","5.0");
     if(getSetting("update","SLAM","slam_lc_icp_dist") == "")
-        setSetting("update","SLAM/slam_lc_icp_dist","2");
+        setSetting("update","SLAM/slam_lc_icp_dist","0.5");
     if(getSetting("update","SLAM","map_size") == "")
         setSetting("update","SLAM/map_size","1000");
     if(getSetting("update","SLAM","grid_size") == "")
@@ -1700,15 +1716,15 @@ void Supervisor::checkRobotINI(){
     if(getSetting("update","LOCALIZATION","icp_error") == "")
         setSetting("update","LOCALIZATION/icp_error","0.1");
     if(getSetting("update","LOCALIZATION","icp_near") == "")
-        setSetting("update","LOCALIZATION/icp_near","1");
+        setSetting("update","LOCALIZATION/icp_near","0.5");
     if(getSetting("update","LOCALIZATION","icp_odometry_weight") == "")
         setSetting("update","LOCALIZATION/icp_odometry_weight","0.8");
     if(getSetting("update","LOCALIZATION","icp_ratio") == "")
         setSetting("update","LOCALIZATION/icp_ratio","0.5");
     if(getSetting("update","LOCALIZATION","icp_repeat_dist") == "")
-        setSetting("update","LOCALIZATION/icp_repeat_dist","0.1");
+        setSetting("update","LOCALIZATION/icp_repeat_dist","0.05");
     if(getSetting("update","LOCALIZATION","icp_repeat_time") == "")
-        setSetting("update","LOCALIZATION/icp_repeat_time","0.3");
+        setSetting("update","LOCALIZATION/icp_repeat_time","0.1");
 
 
     //2. Setting_config=========================================================
@@ -2031,7 +2047,7 @@ void Supervisor::loadMap(QString name){
     slam_map_reload(name);
 }
 void Supervisor::restartSLAM(){
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
     if(slam_process != nullptr){
         plog->write("[SUPERVISOR] RESTART SLAM -> PID : "+QString::number(slam_process->processId()));
         if(slam_process->state() == QProcess::NotRunning){
@@ -2349,17 +2365,29 @@ bool Supervisor::isplayBGM(){
         return false;
     }
 }
-void Supervisor::playBGM(int volume){
-    list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
-    list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
+void Supervisor::playBGM(int volume)
+{
+    //list_bgm->addMedia(QUrl("qrc:/bgm/song.mp3"));
+    //list_bgm->setPlaybackMode(QMediaPlaylist::Loop);
+    //bgm_player->setPlaylist(0);
+    bgm_player->stop();
     bgm_player->setPlaylist(list_bgm);
-    if(volume == -1){
+
+
+
+    if(volume == -1)
+    {
         volume = getSetting("setting","UI","volume_bgm").toInt();
     }
-    plog->write("[SOUND] playBGM : "+QString::number(volume));
+
+    //bgm_player->stop();
+    //bgm_player->setPosition(0);
     bgm_player->setVolume(volume);
     bgm_player->play();
+
+    plog->write("[SOUND] playBGM : "+QString::number(volume));
 }
+
 void Supervisor::setvolumeBGM(int volume){
     bgm_player->setVolume(volume);
     plog->write("[SOUND] playBGMVolume : "+QString::number(volume));
@@ -2995,7 +3023,7 @@ void Supervisor::setAnnotEditFlag(bool flag){
 }
 
 void Supervisor::clearSharedMemory(){
-    ipc->clearSharedMemory(ipc->shm_cmd);
+    //ipc->clearSharedMemory(ipc->shm_cmd);
 }
 int Supervisor::getObjPointNum(int obj_num, int x, int y){
     //NEED DEBUG
@@ -3158,12 +3186,13 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
         settings.setValue("serving_"+QString::number(i)+"/num",getLocationGroupSize(i));
     }
 
-    slam_map_reload(filename, 1);
+    //slam_map_reload(filename, 1); //08.14
     if(reload){
         readSetting(filename);
         maph->initLocation();
     }
     pmap->annotation_edited = false;
+
     return true;
 }
 
@@ -3403,7 +3432,15 @@ QString Supervisor::getcurLoc(){
     return probot->curLocation.name;
 }
 int Supervisor::getMultiState(){
-    return 0;
+    static int previousState = -1;  // 이전 상태를 저장하는 정적 변수
+    int state = probot->fms_connection_state;
+
+    if (state != previousState) {  // 현재 상태와 이전 상태를 비교
+        plog->write("[FMS Connection State] : " + QString::number(state));
+        previousState = state;  // 이전 상태를 현재 상태로 업데이트
+    }
+
+    return state;
 }
 
 
@@ -3516,12 +3553,31 @@ float Supervisor::getPower(){
 float Supervisor::getPowerTotal(){
     return probot->total_power;
 }
-int Supervisor::getMotorState(){
-    if(probot->motor[0].status == 1 && probot->motor[1].status == 1){
-        return 1;
-    }else{
-        return 0;
+//int Supervisor::getMotorState(){
+//    if(probot->motor[0].status == 1 && probot->motor[1].status == 1){
+//        return 1;
+//    }else{
+//        return 0;
+//    }
+//}
+int Supervisor::getMotorState()
+{
+    QString func_str = "[SUPERVISOR][getMotorState] ";
+    //plog->write(func_str + "start func. params()");
+
+    int motor_state = 0;
+    if(!probot)
+    {
+        //log_advanced(func_str + "Error: probot is null.");
+        return motor_state;
     }
+
+    if(probot->motor[0].status == 1 && probot->motor[1].status == 1)
+    {
+        motor_state = 1;
+    }
+
+    return motor_state;
 }
 int Supervisor::getLocalizationState(){
     return probot->localization_state;
@@ -3986,8 +4042,9 @@ void Supervisor::onTimer(){
 
         if(probot->status_charge_connect == 0){
             plog->write("[STATE] Charging : Charge Connect = 0 -> None");
-            stateInit();
-            QMetaObject::invokeMethod(mMain, "need_init");
+            //stateInit();
+            //QMetaObject::invokeMethod(mMain, "need_init");
+            QMetaObject::invokeMethod(mMain, "charging");
             break;
         }else if(curPage != "page_charge" && !debug_mode){
             plog->write("[STATE] Charging -> UI Charging");
