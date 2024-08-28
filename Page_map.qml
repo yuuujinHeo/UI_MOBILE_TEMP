@@ -173,8 +173,8 @@ Item {
                             {
                                 supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to FMS & others")
-                                //supervisor.resetLocalization();
-                                //loadPage(pinit);
+                                popup_loading.open();
+                                timer_popup_loading.start();
                                 supervisor.sendMapSync();
                             }
                             else if(modelData === qsTr("위치 초기화"))
@@ -252,8 +252,8 @@ Item {
                 loadPage(pmenu);
             }
         }
-    }
 
+    }
 
 
     Popup_patrol{
@@ -344,5 +344,19 @@ Item {
                 popup_help.close();
             }
         }
+    }
+
+    Popup_loading{
+        id:popup_loading
+    }
+    Timer{
+        id: timer_popup_loading
+        interval: 15000 // 15sec
+        running: true
+        repeat: false
+        onTriggered: {
+            popup_loading.close();
+            }
+
     }
 }
