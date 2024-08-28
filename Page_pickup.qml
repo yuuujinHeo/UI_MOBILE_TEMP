@@ -356,7 +356,7 @@ Item {
         repeat: false
         onTriggered: {
             supervisor.confirmPickup("Cleaning");
-            supervisor.writelog("[QML-Pickup] PICKUP PAGE2222222 -> Move to Next");
+            supervisor.writelog("[QML-Pickup] PICKUP PAGE2222222 -> Move to Next ,from Cleanning");
         }
     }
 }

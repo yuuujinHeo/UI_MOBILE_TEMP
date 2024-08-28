@@ -181,7 +181,7 @@ Item {
                         target_pos.visible = false;
                         btn_confirm.visible = false;
                         text_hello.visible = true;
-                        timer_hello.start();
+                        timer_hello2.start();
                     }
                 }
             }
@@ -224,6 +224,17 @@ Item {
         onTriggered: {
             supervisor.confirmPickup("");
             supervisor.writelog("[QML-PickupCall] PICKUP PAGE -> Move to Next");
+        }
+    }
+
+    Timer{
+        id: timer_hello2
+        interval: 1500
+        running: false
+        repeat: false
+        onTriggered: {
+            supervisor.confirmPickup("Cleaning");
+            supervisor.writelog("[QML-PickupCall] PICKUP PAGE -> Move to Next ,from Cleanning");
         }
     }
 }
