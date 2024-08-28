@@ -11,6 +11,7 @@ Item {
     height: 800
 
     property int type: 0
+    property int clickCount: 0 // 클릭 횟수 저장
 
     function init(){
         if(type == 0){//부르셨나요?
@@ -172,16 +173,19 @@ Item {
                 MouseArea{
                     anchors.fill: parent
                     onClicked: {
-                        supervisor.playSound('click');
-                        supervisor.writelog("[USER INPUT] PICKUP(CALL) CONFIRM2 clicked");
-                        supervisor.playVoice("thanks");
-                        column_pickup.visible = false;
-                        text_mention.visible = false;
-                        text_mention3.visible = false;
-                        target_pos.visible = false;
-                        btn_confirm.visible = false;
-                        text_hello.visible = true;
-                        timer_hello2.start();
+                        clickCount += 1;
+                        if (clickCount == 2) {
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
+                            supervisor.playVoice("thanks");
+                            column_pickup.visible = false;
+                            text_mention.visible = false;
+                            text_mention3.visible = false;
+                            target_pos.visible = false;
+                            btn_confirm.visible = false;
+                            text_hello.visible = true;
+                            timer_hello2.start();
+                        }
                     }
                 }
             }
@@ -230,11 +234,13 @@ Item {
     Timer{
         id: timer_hello2
         interval: 1500
-        running: false
+        //running: false
+        running: clickCount > 0
         repeat: false
         onTriggered: {
             supervisor.confirmPickup("Cleaning");
-            supervisor.writelog("[QML-PickupCall] PPICKUP PAGE2222222 -> Move to Next");
+            supervisor.writelog("[QML-Pickup] PICKUP PAGE2222222 -> Move to Next");
+            clickCount = 0; // 시간 내에 두 번 클릭하지 않으면 클릭 횟수 초기화
         }
     }
 }
