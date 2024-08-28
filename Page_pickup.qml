@@ -136,6 +136,36 @@ Item {
             sourceSize.height: height
             anchors.verticalCenter: parent.verticalCenter
             Rectangle{
+                id: btn_confirm3 // 퇴식 버튼
+                width: 50
+                height: 50
+                radius: 50
+                visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
+                //opacity: 0 // 투명하게 설정하여 보이지 않도록 함
+                border.color: color_gray
+                border.width: 2
+
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        clickCount += 1;
+                        if (clickCount == 2) {
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
+                            supervisor.playVoice("thanks");
+                            column_pickup.visible = false;
+                            text_mention.visible = false;
+                            text_mention3.visible = false;
+                            target_pos.visible = false;
+                            btn_confirm.visible = false;
+                            text_hello.visible = true;
+                            timer_hello2.start();
+                        }
+                    }
+                }
+
+            }
+            Rectangle{
                 id: rect_tray_1
                 color: blink_1?"#12d27c":"#525252"
                 width: 187
