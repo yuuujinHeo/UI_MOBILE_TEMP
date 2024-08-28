@@ -194,7 +194,8 @@ Item {
             font.pixelSize: 80
             font.family: font_noto_b.name
             color: "white"
-            anchors.verticalCenter: parent.verticalCenter
+            //anchors.verticalCenter: parent.verticalCenter
+            anchors.verticalCenter: image_robot.verticalCenter
         }
     }
     MouseArea{
@@ -226,15 +227,14 @@ Item {
             supervisor.writelog("[QML-PickupCall] PICKUP PAGE -> Move to Next");
         }
     }
-
     Timer{
         id: timer_hello2
         interval: 1500
         running: false
         repeat: false
         onTriggered: {
-            supervisor.confirmPickup("Cleaning");
-            supervisor.writelog("[QML-PickupCall] PICKUP PAGE -> Move to Next ,from Cleanning");
+            supervisor.confirmPickup("");
+            supervisor.writelog("[QML-PickupCall] PPICKUP PAGE2222222 -> Move to Next");
         }
     }
 }
