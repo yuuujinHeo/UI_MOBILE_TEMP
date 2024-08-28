@@ -2,4 +2,5 @@
 
 https://github.com/SimonLee9/RB_update.git
 
-./ update_srv.sh
+## 아래 파일 설치 진행
+update_srv.sh
