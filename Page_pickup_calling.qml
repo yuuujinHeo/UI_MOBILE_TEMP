@@ -58,8 +58,8 @@ Item {
                 border.color: color_gray
                 border.width: 2
                 //anchors.top: text_mention3.bottom
-                anchors.top:image_robot
-                anchors.topMargin: 40
+                anchors.top:image_robot.bottom
+                anchors.topMargin: 20
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.anchors
                 color:color_green
