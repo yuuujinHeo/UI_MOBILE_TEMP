@@ -47,35 +47,7 @@ Item {
             sourceSize.width: width
             sourceSize.height: height
             anchors.verticalCenter: parent.verticalCenter
-            Rectangle{
-                id: btn_confirm3
-                width: 120
-                height: 120
-                radius: 100
-                visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
-                //opacity: 0 // 투명하게 설정하여 보이지 않도록 함
-                border.color: color_gray
-                border.width: 2
 
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        clickCount += 1;
-                        if (clickCount == 2) {
-                            supervisor.playSound('click');
-                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
-                            supervisor.playVoice("thanks");
-                            column_pickup.visible = false;
-                            text_mention.visible = false;
-                            text_mention3.visible = false;
-                            target_pos.visible = false;
-                            btn_confirm.visible = false;
-                            text_hello.visible = true;
-                            timer_hello2.start();
-                        }
-                    }
-                }
-            }
         }
         Column{
             id: column_pickup
@@ -132,6 +104,41 @@ Item {
                 width: parent.width
                 height: 80
             }
+            Rectangle{
+                id: btn_confirm2 // 퇴식 버튼
+                width: 200
+                height: 50
+                radius: 5
+                visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
+                //opacity: 0 // 투명하게 설정하여 보이지 않도록 함
+                border.color: color_gray
+                border.width: 2
+                anchors.top: target_pos.bottom
+                anchors.topMargin: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottom: parent.anchors
+                color:color_green
+
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        clickCount += 1;
+                        if (clickCount == 2) {
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
+                            supervisor.playVoice("thanks");
+                            column_pickup.visible = false;
+                            text_mention.visible = false;
+                            text_mention3.visible = false;
+                            target_pos.visible = false;
+                            btn_confirm.visible = false;
+                            text_hello.visible = true;
+                            timer_hello2.start();
+                        }
+                    }
+                }
+
+            }
             Row{
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 50
@@ -184,35 +191,6 @@ Item {
                         btn_confirm.visible = false;
                         text_hello.visible = true;
                         timer_hello.start();
-                    }
-                }
-            }
-            Rectangle{
-                id: btn_confirm2
-                width: 120
-                height: 120
-                radius: 100
-                visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
-                //opacity: 0 // 투명하게 설정하여 보이지 않도록 함
-                border.color: color_gray
-                border.width: 2
-
-                MouseArea{
-                    anchors.fill: parent
-                    onClicked: {
-                        clickCount += 1;
-                        if (clickCount == 2) {
-                            supervisor.playSound('click');
-                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
-                            supervisor.playVoice("thanks");
-                            column_pickup.visible = false;
-                            text_mention.visible = false;
-                            text_mention3.visible = false;
-                            target_pos.visible = false;
-                            btn_confirm.visible = false;
-                            text_hello.visible = true;
-                            timer_hello2.start();
-                        }
                     }
                 }
             }
