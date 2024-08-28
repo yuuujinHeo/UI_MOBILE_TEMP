@@ -285,7 +285,7 @@ void Supervisor::sendMapServer(){
 }
 
 void Supervisor::sendMapSync(){
-    ipc->sendCommand(ROBOT_CMD_SERVER_CHECK);
+    ipc->sendCommand(ROBOT_CMD_AUTO_FIND_DEVICE);
 
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 

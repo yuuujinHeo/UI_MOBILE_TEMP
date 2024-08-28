@@ -945,6 +945,6 @@ void IPCHandler::set_velocity(float vel){
 
 void IPCHandler::serverCheck(){
     IPCHandler::CMD send_msg;
-    send_msg.cmd = ROBOT_CMD_SERVER_CHECK;
+    send_msg.cmd = ROBOT_CMD_AUTO_FIND_DEVICE;
     set_cmd(send_msg, "Server Check");
 }

@@ -174,8 +174,9 @@ Item {
                                 supervisor.playSound('click');
                                 supervisor.writelog("[UI] MAP : move to FMS & others")
                                 popup_loading.open();
-                                timer_popup_loading.start();
                                 supervisor.sendMapSync();
+                                timer_popup_loading.start();
+
                             }
                             else if(modelData === qsTr("위치 초기화"))
                             {
