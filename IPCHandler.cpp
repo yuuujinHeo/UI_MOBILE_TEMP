@@ -46,7 +46,7 @@ IPCHandler::IPCHandler(QObject *parent)
     cmd = new CMD_CLIENT();
     cmd->init();
 
-    connect(cmd,&CMD_CLIENT::getMessage,this,&IPCHandler::read_message);
+    connect(cmd,&CMD_CLIENT::getMessage_error,this,&IPCHandler::read_message);
 }
 
 void IPCHandler::clearSharedMemory(QSharedMemory &mem){
