@@ -8,22 +8,30 @@
 #include <QJsonObject>
 CMD_CLIENT::CMD_CLIENT(QObject *parent)
     : QObject(parent)
-    , reconnect_timer(this)
+    , cmd_reconnect_timer(this)
+    , error_reconnect_timer(this)
 {
-    connect(&client, &QWebSocket::connected, this, &CMD_CLIENT::connected);
-    connect(&client, &QWebSocket::disconnected, this, &CMD_CLIENT::disconnected);
-    connect(&client, &QWebSocket::disconnected, this, &CMD_CLIENT::disconnected);
-    connect(&client, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
-            this, &CMD_CLIENT::onError);
+    connect(&cmd_client, &QWebSocket::connected, this, &CMD_CLIENT::cmd_connected);
+    connect(&cmd_client, &QWebSocket::disconnected, this, &CMD_CLIENT::cmd_disconnected);
+    connect(&cmd_client, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
+            this, &CMD_CLIENT::onError_cmd);
 
-    connect(&client, &QWebSocket::textMessageReceived, this, &CMD_CLIENT::onTextMessageReceived);
+    connect(&cmd_client, &QWebSocket::textMessageReceived, this, &CMD_CLIENT::onTextMessageReceived_cmd);
+    connect(&cmd_reconnect_timer, SIGNAL(timeout()), this, SLOT(cmd_reconnect_loop()));
 
-    connect(&reconnect_timer, SIGNAL(timeout()), this, SLOT(reconnect_loop()));
+    connect(&error_client, &QWebSocket::connected, this, &CMD_CLIENT::error_connected);
+    connect(&error_client, &QWebSocket::disconnected, this, &CMD_CLIENT::error_disconnected);
+    connect(&error_client, QOverload<QAbstractSocket::SocketError>::of(&QWebSocket::error),
+            this, &CMD_CLIENT::onError_error);
+
+    connect(&error_client, &QWebSocket::textMessageReceived, this, &CMD_CLIENT::onTextMessageReceived_error);
+    connect(&error_reconnect_timer, SIGNAL(timeout()), this, SLOT(cmd_reconnect_loop()));
 }
 
 CMD_CLIENT::~CMD_CLIENT()
 {
-    client.close();
+    cmd_client.close();
+    error_client.close();
 }
 
 void CMD_CLIENT::test(){
@@ -80,81 +88,444 @@ void CMD_CLIENT::test(){
     QJsonDocument jsonDoc(testObject);
 
     // 서버로 JSON 데이터 전송
-    client.sendTextMessage(jsonDoc.toJson(QJsonDocument::Compact));
+    cmd_client.sendTextMessage(jsonDoc.toJson(QJsonDocument::Compact));
 }
 
-void CMD_CLIENT::onError(QAbstractSocket::SocketError error){
+void CMD_CLIENT::onError_cmd(QAbstractSocket::SocketError error){
     // std::cerr << "WebSocket error: " << error << std::endl;
 }
 
-void CMD_CLIENT::onTextMessageReceived(QString message) {
+void CMD_CLIENT::onError_error(QAbstractSocket::SocketError error){
+    // std::cerr << "WebSocket error: " << error << std::endl;
+}
 
-    plog->write("[IPC] SLAMNAV send Message : "+message);
+void CMD_CLIENT::onTextMessageReceived_cmd(QString message) {
+
+    plog->write("[IPC][CMD] SLAMNAV send Message : " + message);
+
+    QStringList msg_list = message.split(",");
+    if(msg_list.size() < 3)
+    {
+        plog->write("[IPC][ERROR] invalid msg format");
+        return;
+    }
+
+    int cmd = msg_list[1].toInt();
+    QString accept = msg_list[2];
+
+    if(cmd == ROBOT_CMD_MOVE_TARGET_EX)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MOVE_TARGET_EX] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            // check ROBOT_CMD_ERROR_LIST
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            if(msg_list.size() != 7)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MOVE_TARGET_EX] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            double x = msg_list[3].toDouble();
+            double y = msg_list[4].toDouble();
+            double deg = msg_list[5].toDouble();
+            int preset = msg_list[6].toInt();
+        }
+    }
+    else if(cmd == ROBOT_CMD_MOVE_TARGET)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MOVE_TARGET] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+
+
+
+        }
+        else if(accept == "success")
+        {
+            if(msg_list.size() != 7)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MOVE_TARGET] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            double x = msg_list[3].toDouble();
+            double y = msg_list[4].toDouble();
+            double deg = msg_list[5].toDouble();
+            int preset = msg_list[6].toInt();
+        }
+    }
+    else if(cmd == ROBOT_CMD_MOVE_STOP)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MOVE_PAUSE)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MOVE_RESUME)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_RESTART)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SET_INIT)
+    {
+        if(accept == "success")
+        {
+            if(msg_list.size() != 6)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MOVE_TARGET] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            double x = msg_list[3].toDouble();
+            double y = msg_list[4].toDouble();
+            double deg = msg_list[5].toDouble();
+        }
+    }
+    else if(cmd == ROBOT_CMD_SLAM_RUN)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SLAM_STOP)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SLAM_AUTO)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SLAM_FULL_AUTO)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MAPPING_START)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 6)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MAPPING_START] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+            int map_size = msg_list[4].toInt();
+            double grid_size = msg_list[5].toDouble();
+        }
+        else if(accept == "success")
+        {
+            if(msg_list.size() != 5)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MAPPING_START] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int map_size = msg_list[3].toInt();
+            double grid_size = msg_list[4].toDouble();
+        }
+    }
+    else if(cmd == ROBOT_CMD_MAPPING_STOP)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MAPPING_STOP] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MAPPING_SAVE)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MAPPING_SAVE] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MOTOR_LOCK_ON)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_DRAW_LINE_START)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_DRAW_LINE_SAVE)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MAP_RELOAD)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_MAP_RELOAD] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SETTING_RELOAD)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SERVER_MAP_UPDATE)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_SERVER_MAP_UPDATE] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_CHECK_TRAVEL_LINE)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MAP_SOFT_RELOAD)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_SERVER_MAP_UPDATE] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MAP_LOOP_CLOSING)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_SLAM_RESTING)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_MOTOR_LOCK_OFF2)
+    {
+        if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == ROBOT_CMD_AUTO_FIND_DEVICE)
+    {
+        if(accept == "failed")
+        {
+            if(msg_list.size() != 4)
+            {
+                plog->write("[IPC][ERROR][ROBOT_CMD_SERVER_MAP_UPDATE] invalid size:" + QString::number(msg_list.size()));
+                return;
+            }
+
+            int err_code = msg_list[3].toInt();
+        }
+        else if(accept == "success")
+        {
+            // do something
+        }
+    }
+    else if(cmd == -1)
+    {
+
+    }
+
+    //probot->notice_message = message;
+    emit getMessage_cmd(message);
+
+}
+
+void CMD_CLIENT::onTextMessageReceived_error(QString message) {
+
+    plog->write("[IPC][ERROR] SLAMNAV send Message : " + message);
 
     probot->notice_message = message;
-    emit getMessage(message);
-
-    // // JSON 형식으로 역직렬화
-    // QJsonDocument jsonDoc = QJsonDocument::fromJson(message.toUtf8());
-    // QJsonArray jsonArray = jsonDoc.array();
-    // QVector<int> vectorData;
-    // for (const QJsonValue &value : jsonArray) {
-    //     vectorData.append(value.toInt());
-    // }
-
-    // // 받은 데이터 처리 (예제에서는 출력)
-    // std::cout << "Processed data: ";
-    // for (int value : vectorData) {
-    //     std::cout << value << " ";
-    // }
-    // std::cout << std::endl;
+    emit getMessage_error(message);
 }
 
 void CMD_CLIENT::init()
 {
     QString url = "ws://127.0.0.1:12335"; // change : 24.06.27
-    plog->write("[IPC] Command Client : Init "+url);
-    client.open(QUrl(url));
-    reconnect_timer.start(3000);
+    plog->write("[IPC] Command Client : Init " + url);
+    cmd_client.open(QUrl(url));
+    cmd_reconnect_timer.start(3000);
+
+    QString error_url = "ws://127.0.0.1:12336"; // change : 24.06.27
+    plog->write("[IPC] Error Client : Init " + error_url);
+    error_client.open(QUrl(error_url));
+    error_reconnect_timer.start(3000);
 }
 
-void CMD_CLIENT::connected()
+void CMD_CLIENT::cmd_connected()
 {
-    if(!is_connected){
-        is_connected = true;
+    if(!is_cmd_connected){
+        is_cmd_connected = true;
         plog->write("[IPC] Command Client : Connected");
     }
 }
 
-void CMD_CLIENT::disconnected()
+void CMD_CLIENT::cmd_disconnected()
 {
-    if(is_connected){
-        is_connected = false;
+    if(is_cmd_connected){
+        is_cmd_connected = false;
         plog->write("[IPC] Command Client : Disconnected");
     }
 }
 
-void CMD_CLIENT::reconnect_loop()
+void CMD_CLIENT::cmd_reconnect_loop()
 {
-    if(client.state() == QAbstractSocket::ConnectedState)
+    if(cmd_client.state() == QAbstractSocket::ConnectedState)
     {
 
     }
-    else if(client.state() == QAbstractSocket::ConnectingState)
+    else if(cmd_client.state() == QAbstractSocket::ConnectingState)
     {
 
     }
     else
     {
-        if(is_connected == false)
+        if(is_cmd_connected == false)
         {
-            //client.open(QUrl("ws://127.0.0.1:12335"));
-            client.open(QUrl("ws://127.0.0.1:12335")); // change :24.06.27
+            cmd_client.open(QUrl("ws://127.0.0.1:12335"));
+        }
+    }
+}
+
+void CMD_CLIENT::error_connected()
+{
+    if(!is_error_connected){
+        is_error_connected = true;
+        plog->write("[IPC] Error Client : Connected");
+    }
+}
+
+void CMD_CLIENT::error_disconnected()
+{
+    if(is_error_connected){
+        is_error_connected = false;
+        plog->write("[IPC] Error Client : Disconnected");
+    }
+}
+
+void CMD_CLIENT::error_reconnect_loop()
+{
+    if(error_client.state() == QAbstractSocket::ConnectedState)
+    {
+
+    }
+    else if(error_client.state() == QAbstractSocket::ConnectingState)
+    {
+
+    }
+    else
+    {
+        if(is_error_connected == false)
+        {
+            error_client.open(QUrl("ws://127.0.0.1:12336"));
         }
     }
 }
 
 void CMD_CLIENT::cts_cmd(QByteArray cur_cmd)
 {
-    client.sendBinaryMessage(cur_cmd);
+    cmd_client.sendBinaryMessage(cur_cmd);
 }

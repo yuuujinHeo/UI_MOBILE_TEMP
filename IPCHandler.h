@@ -334,7 +334,7 @@ public:
         if(read_count > 5){
             return false;
         }else{
-            return cmd->is_connected;
+            return cmd->is_cmd_connected;
 //            return true;
         }
     }
