@@ -187,7 +187,7 @@ void CMD_CHECKER::start_get_wifi_interface(QString read_method)
         }
         else if(line.contains("Signal level"))
         {
-            QString temp = QString::fromUtf8(line.split('-')[1].split(' ')[0]);
+            QString temp = QString::fromUtf8(line.split('=')[1].split('/')[0]);//QString::fromUtf8(line.split('-')[1].split(' ')[0]);
             int lv = temp.toInt();
             if(lv > 70)
             {
