@@ -187,8 +187,48 @@ void CMD_CHECKER::start_get_wifi_interface(QString read_method)
         }
         else if(line.contains("Signal level"))
         {
-            QString temp = QString::fromUtf8(line.split('-')[1].split(' ')[0]);
-            int lv = temp.toInt();
+            // 5db (Nexi)
+            //QString temp = QString::fromUtf8(line.split('=')[1].split('/')[0]);
+            // 2db (5BK)
+            //QString temp = QString::fromUtf8(line.split('-')[1].split(' ')[0])
+
+            int lv = 0;
+            QList<QByteArray> line_split1 = line.split('=');
+            if(line_split1.size() < 2)
+            {
+                QList<QByteArray> line_split2 = line.split('-');
+                if(line_split2.size() < 2)
+                {
+                    lv = 0;
+                }
+                else
+                {
+                    QList<QByteArray> line_split2_1 = line_split2[1].split(' ');
+                    if(line_split2_1.size() < 1)
+                    {
+                        lv = 0;
+                    }
+                    else
+                    {
+                        QString temp = QString::fromUtf8(line_split2_1[0]);
+                        lv = temp.toInt();
+                    }
+                }
+            }
+            else
+            {
+                QList<QByteArray> line_split1_1 = line_split1[1].split('/');
+                if(line_split1_1.size() < 1)
+                {
+                    lv = 0;
+                }
+                else
+                {
+                    QString temp = QString::fromUtf8(line_split1_1[0]);
+                    lv = temp.toInt();
+                }
+            };
+
             if(lv > 70)
             {
                 lv = VERY_LOW;
