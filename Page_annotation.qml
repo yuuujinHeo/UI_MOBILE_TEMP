@@ -1537,6 +1537,7 @@ Item {
                                 name = text;
                                 if(text != '' && select_location === index){
                                     locations.get(index-getIndex(select_location_type)).name = name;
+                                    supervisor.setLocationName(select_location-getIndex(select_location_type),name);
                                 }
                                 clearLocationName();
                                 checkLocationName();

@@ -50,6 +50,7 @@ Item {
         }
 
         update_group();
+        cur_group = supervisor.getCurGroup();
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             if(supervisor.isCallingMode() || supervisor.getCallQueueSize() > 0){
                 popup_clean_calling.cleaninglocation = false;
@@ -187,6 +188,7 @@ Item {
     property int cur_preset: 3
 
     onCur_groupChanged: {
+        supervisor.setCurGroup(cur_group);
         cur_table = -1;
         update_table();
     }
@@ -580,6 +582,7 @@ Item {
                                         onClicked:{
                                             supervisor.playSound('click');
                                             cur_group = num;
+                                            supervisor.setCurGroup(num);
                                         }
                                     }
                                 }

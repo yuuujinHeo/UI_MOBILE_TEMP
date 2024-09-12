@@ -2688,7 +2688,7 @@ QString Supervisor::getServingName(int group, int num){
             count++;
         }
     }
-    qDebug() << "getServingName " << group << num << name << pmap->serving_locations.size();
+    //qDebug() << "getServingName " << group << num << name << pmap->serving_locations.size();
     if(name == ""){
         name = tr("설정 안됨");
     }
@@ -2745,6 +2745,13 @@ QString Supervisor::getLocationLingID(QString type, int num){
         return pmap->serving_locations[num].ling_id;
     }
     return "";
+}
+
+void Supervisor::setLocationName(int num, QString name){
+    if(num > -1 && num < pmap->serving_locations.size()){
+        plog->write("[ANNOTATION] SET Location Name "+QString().asprintf("%d : ",num)+pmap->serving_locations[num].name+" -> " +name);
+        pmap->serving_locations[num].name = name;
+    }
 }
 
 void Supervisor::setLocationGroup(int num, int group){
@@ -3174,6 +3181,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     }
 
     for(int i=0; i<pmap->serving_locations.size(); i++){
+        qDebug() << i << pmap->serving_locations[i].name;
         QString groupname = "serving_" + QString::number(pmap->serving_locations[i].group);
         str_name = pmap->serving_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->serving_locations[i].point.x,pmap->serving_locations[i].point.y,pmap->serving_locations[i].angle)
                 +","+pmap->serving_locations[i].call_id+":"+pmap->serving_locations[i].ling_id;
@@ -3202,7 +3210,14 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
 
     return true;
 }
-
+void Supervisor::setCurGroup(int num){
+    qDebug() << "setCurGroup : " << num;
+    cur_group = num;
+}
+int Supervisor::getCurGroup(){
+    qDebug() << "getCurGroup : " << cur_group;
+    return cur_group;
+}
 void Supervisor::saveTTSVoice(){
     qDebug() <<"saveTTSVoice" << tts->curVoice.mode;
 
