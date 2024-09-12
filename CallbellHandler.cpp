@@ -18,15 +18,15 @@ CallbellHandler::CallbellHandler()
     m_serialPort->setFlowControl(QSerialPort::SoftwareControl);
 
     if(m_serialPort->open(QIODevice::ReadWrite)){
-        plog->write("[CALLBELL] Port ttyCB0 Open Success");
+        //plog->write("[CALLBELL] Port ttyCB0 Open Success");
 
 
     }else{
         m_serialPort->setPortName("ttyUSB1");
         if(m_serialPort->open(QIODevice::ReadWrite)){
-            plog->write("[CALLBELL] Port ttyUSB1 Open Success");
+            //plog->write("[CALLBELL] Port ttyUSB1 Open Success");
         }
-        plog->write("[CALLBELL] Port ttyCB0 Open Faile");
+        //plog->write("[CALLBELL] Port ttyCB0 Open Faile");
         //return;
     }
 
@@ -42,7 +42,7 @@ void CallbellHandler::onTimer(){
     time_cnt++;
     if(time_cnt > 10 && !m_serialPort->isOpen()){
         if(m_serialPort->open(QIODevice::ReadWrite)){
-            plog->write("[CALLBELL] SERIAL "+m_serialPort->portName() + " OPEN SUCCESS!");
+            //plog->write("[CALLBELL] SERIAL "+m_serialPort->portName() + " OPEN SUCCESS!");
         }
         time_cnt = 0;
     }
@@ -66,7 +66,7 @@ void CallbellHandler::readData(){
         str += QString().asprintf("0x%02X ", uchar(data[i]));
     }
 
-    plog->write("[CALLBELL] readData: "+data+ " -> "+QString::number(datas.size()));
+    //plog->write("[CALLBELL] readData: "+data+ " -> "+QString::number(datas.size()));
    /*
     * Syscall protocol v0.4
     *
@@ -101,11 +101,11 @@ void CallbellHandler::readData(){
     *
     */
 
-    plog->write("[CALLBELL] readData: " + QString::number(datas.length()) + "," + QString::number(datas.size()));
-    plog->write("[CALLBELL] readData: " + data + " -> " + datas);
+    //plog->write("[CALLBELL] readData: " + QString::number(datas.length()) + "," + QString::number(datas.size()));
+    //plog->write("[CALLBELL] readData: " + data + " -> " + datas);
 
     while (datas.length() > 5) {
-        plog->write("[CALLBELL] readData while : " + datas + " -> " + QString::number(datas.length()) + "," + QString::number(datas.size()));
+        //plog->write("[CALLBELL] readData while : " + datas + " -> " + QString::number(datas.length()) + "," + QString::number(datas.size()));
         if (uchar(datas[0]) == 0x03 && uchar(datas[1]) == 0x01) {
             int size = (short)(uchar(datas[3]) | (uchar(datas[2]) << 8));
             if (size <= 0 || size > 24) {
@@ -139,7 +139,7 @@ void CallbellHandler::readData(){
                         if (checksum == temp_cs) {
                             SendDataCheckMessage();
                             last_bell_id = bell_str;
-                            plog->write("[CALLBELL] ReadData (NewCall) : " + last_bell_id);
+                            //plog->write("[CALLBELL] ReadData (NewCall) : " + last_bell_id);
                             emit new_call();
                         }
                         datas.remove(0, size);
@@ -157,13 +157,13 @@ void CallbellHandler::readData(){
         }
     }
 
-    plog->write("[CALLBELL] readData : done");
+    //plog->write("[CALLBELL] readData : done");
 
 }
 
 void CallbellHandler::handleError(QSerialPort::SerialPortError error){
     if(error == QSerialPort::ResourceError){
-        plog->write("[CALLBELL] SerialPort Error : "+QString::number(error));
+        //plog->write("[CALLBELL] SerialPort Error : "+QString::number(error));
         if(m_serialPort->isOpen())
             m_serialPort->close();
     }
@@ -200,7 +200,7 @@ void CallbellHandler::sendCall(QString id){
         for(int i=0; i<sendData.size(); i++){
             strSend += QString().asprintf("0x%02X ", uchar(sendData[i]));
         }
-        plog->write("[CALLBELL] sendCall : ("+id+") -> "+strSend);
+        //plog->write("[CALLBELL] sendCall : ("+id+") -> "+strSend);
         m_serialPort->write(sendData);
     }
 }
