@@ -284,6 +284,13 @@ void Supervisor::sendMapServer(){
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
 }
 
+void Supervisor::sendMapSync(){
+    ipc->sendCommand(ROBOT_CMD_AUTO_FIND_DEVICE);
+
+    ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
+
+}
+
 bool Supervisor::checkGroupName(QString name){
     for(int i=0; i<pmap->location_groups.size(); i++){
         if(pmap->location_groups[i] == name){

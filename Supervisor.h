@@ -629,6 +629,8 @@ public:
     Q_INVOKABLE bool isConnectServer();
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
+    Q_INVOKABLE void sendMapSync();
+
 
 
 ////*********************************************  SETTINGs   *********************************************////

@@ -12460,7 +12460,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.8") //page_moving - temp push
+                    text:qsTr("Version 1.4.9") //page_moving - temp push
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
@@ -13405,7 +13405,7 @@ Item {
                                     Text{
                                         id: text_con1
                                         anchors.centerIn: parent
-                                        text:qsTr("연결 안됨")
+                                        text:qsTr("연결 안됨1")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -13418,7 +13418,7 @@ Item {
                                     Text{
                                         id: text_status1
                                         anchors.centerIn: parent
-                                        text:qsTr("준비 안됨")
+                                        text:qsTr("준비 안됨1")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -13531,7 +13531,7 @@ Item {
                                     Text{
                                         id: text_con2
                                         anchors.centerIn: parent
-                                        text:qsTr("연결 안됨")
+                                        text:qsTr("연결 안됨2")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -13544,7 +13544,7 @@ Item {
                                     Text{
                                         id: text_status2
                                         anchors.centerIn: parent
-                                        text:qsTr("준비 안됨")
+                                        text:qsTr("준비 안됨2")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }

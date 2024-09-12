@@ -46,7 +46,7 @@ IPCHandler::IPCHandler(QObject *parent)
     cmd = new CMD_CLIENT();
     cmd->init();
 
-    connect(cmd,&CMD_CLIENT::getMessage,this,&IPCHandler::read_message);
+    connect(cmd,&CMD_CLIENT::getMessage_error,this,&IPCHandler::read_message);
 }
 
 void IPCHandler::clearSharedMemory(QSharedMemory &mem){
@@ -941,4 +941,9 @@ void IPCHandler::set_velocity(float vel){
     send_msg.params[2] = array[2];
     send_msg.params[3] = array[3];
     set_cmd(send_msg, "SET Velocity to "+QString::number(vel));
+}
+void IPCHandler::serverCheck(){
+    IPCHandler::CMD send_msg;
+    send_msg.cmd = ROBOT_CMD_AUTO_FIND_DEVICE;
+    set_cmd(send_msg, "Server Check");
 }

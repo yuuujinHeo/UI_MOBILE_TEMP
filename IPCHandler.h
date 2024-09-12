@@ -334,7 +334,7 @@ public:
         if(read_count > 5){
             return false;
         }else{
-            return cmd->is_connected;
+            return cmd->is_cmd_connected;
 //            return true;
         }
     }
@@ -373,6 +373,7 @@ public:
     void stopMapping();
     void restartSLAM();
     void set_velocity(float vel);
+    void serverCheck();
 
     QString tempstr = "";
     int read_count = 50;
