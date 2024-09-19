@@ -3575,9 +3575,11 @@ Item {
                                     ischanged = true;
                                     if(currentIndex == 0){
                                         use_multirobot = false;
+
                                     }else{
                                         use_multirobot = true;
                                     }
+
                                 }
                                 model:[qsTr("사용안함"),qsTr("사용")]
                             }
@@ -12446,8 +12448,15 @@ Item {
                         console.log("?????????"+slider_volume_button.value);
                         supervisor.playSound('click', slider_volume_button.value);
                         save();
+
+                        if(combo_multirobot.ischanged == true)
+                        {
+                            supervisor.programRestart();
+                        }
+
                     }
                 }
+
             }
 
 
