@@ -196,7 +196,7 @@ Item {
                 anchors.top: rect_tray_3.bottom
                 anchors.topMargin: 10
                 anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottom: parent.anchors
+                //anchors.bottom: parent.anchors
                 color:color_green
 
                 MouseArea{

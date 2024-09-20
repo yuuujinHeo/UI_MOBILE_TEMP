@@ -90,7 +90,8 @@ Item {
             spacing: 40
             anchors.centerIn: parent
             Repeater{
-                model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("현재맵 동기화"),qsTr("위치 초기화")]
+                //model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("현재맵 동기화"),qsTr("위치 초기화")]
+                model: [qsTr("맵 새로만들기"),qsTr("현재맵 수정하기"),qsTr("위치 초기화")]
                 Rectangle{
                     property int btn_size: 135
                     width: btn_size
@@ -117,8 +118,8 @@ Item {
                                         "image/image_slam.png"
                                     }else if(modelData === qsTr("현재맵 수정하기")){
                                         "image/image_annot.png"
-                                    }else if(modelData === qsTr("현재맵 동기화")){
-                                        "image/image_localization_reset.png"
+                                    //}else if(modelData === qsTr("현재맵 동기화")){
+                                    //    "image/image_localization_reset.png"
                                     }else if(modelData === qsTr("위치 초기화")){
                                         "image/image_localization.png"
                                     }
@@ -156,12 +157,12 @@ Item {
                                 loadPage(pannotation);
                                 loader_page.item.init();
                                 supervisor.setAnnotEditFlag(true);
-                            }else if (modelData === qsTr("현재맵 동기화")){
-                                supervisor.playSound('click');
-                                supervisor.writelog("[UI] MAP : move to FMS & others")
-                                popup_loading.open();
-                                supervisor.sendMapSync();
-                                timer_popup_loading.start();
+                            //}else if (modelData === qsTr("현재맵 동기화")){
+                            //    supervisor.playSound('click');
+                            //    supervisor.writelog("[UI] MAP : move to FMS & others")
+                            //    popup_loading.open();
+                            //    supervisor.sendMapSync();
+                            //    timer_popup_loading.start();
 
                             }else if(modelData === qsTr("위치 초기화")){
                                 supervisor.playSound('click');

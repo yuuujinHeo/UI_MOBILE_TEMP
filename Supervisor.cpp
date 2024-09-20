@@ -4790,8 +4790,6 @@ LOCATION Supervisor::getCleaningLocation(int num){
     return LOCATION();
 }
 
-
-
 int Supervisor::getzipstate(){
     return zip->process;
 }
@@ -5317,8 +5315,6 @@ void Supervisor::factoryInit(){
     start_clear = true;
 }
 
-
-
 int Supervisor::getTravellineIssue(){
     return pmap->tline_issue;
 }
@@ -5446,7 +5442,6 @@ void Supervisor::readPatrol(){
                                 }
                             }
                         }
-
                         //arrive_page도 똑같이
                         plog->write("[COMMAND] readPatrol File : "+file + " -> "+temp.name+", "+temp.type+", "+QString::number(temp.location.size())+", "+temp.voice_name);
                         patrols.append(temp);
@@ -6160,22 +6155,6 @@ int Supervisor::getPageObjectNum(int x, int y){
     }
     return -1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 int Supervisor::getServingObjectSize(){
