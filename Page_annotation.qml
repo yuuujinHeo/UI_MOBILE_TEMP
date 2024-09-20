@@ -34,6 +34,7 @@ Item {
     property int select_preset: 1
     property int select_object: -1
     property bool is_object: false
+    property bool save_location: false
 
     //robot state 체크할지말지
     property bool checkState: true
@@ -1535,7 +1536,8 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             onTextChanged: {
                                 name = text;
-                                if(text != '' && select_location === index){
+                                if(text != '' && select_location === index && ltype=="Serving"){
+                                    console.log("??????????? : ",text, select_location_type, select_location, ltype, index);
                                     locations.get(index-getIndex(select_location_type)).name = name;
                                     supervisor.setLocationName(select_location-getIndex(select_location_type),name);
                                 }
@@ -1860,23 +1862,33 @@ Item {
                     print("save location");
                     supervisor.saveAnnotation(supervisor.getMapname());
                     supervisor.drawingRunawayStop();
+                    save_location = true;
                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Check Done ");
-                    if(annotation_after_mapping)
-                        annot_pages.sourceComponent = page_annot_done;
-                    else
-                        loadPage(pmap);
+                    // if(annotation_after_mapping)
+                        // annot_pages.sourceComponent = page_annot_done;
+                    // else
+                        // loadPage(pmap);
 //                        annot_pages.sourceComponent = page_annot_menu;
                 }
             }
             Buttons{
                 style: "normal"
-                text: qsTr("취 소")
+                text: qsTr("나가기")
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 280
                 onClicked: {
-                    annot_pages.sourceComponent = page_annot_menu;
+                    if(save_location){
+                        if(annotation_after_mapping){
+                            annot_pages.sourceComponent = page_annot_done;
+                        }else{
+                            loadPage(pmap);
+                        }
+                    }else{
+                        annot_pages.sourceComponent = page_annot_menu;
+                    }
+
                 }
             }
         }
