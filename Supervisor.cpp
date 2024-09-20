@@ -1141,6 +1141,14 @@ void Supervisor::readSetting(QString map_name){
 
 
 
+    for(int i=0; i<pmap->location_groups.size(); i++){
+        if(getLocationGroupSize(i) > 0){
+            plog->write("[SUPERVISOR] set Cur Group Init : "+QString::number(i));
+            cur_group = i;
+            break;
+        }
+    }
+
     tts->readVoiceSetting();
     plog->write("[SUPERVISOR] READ SETTING : annot done");
 
