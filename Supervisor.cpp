@@ -3618,7 +3618,16 @@ int Supervisor::getStateMoving(){
 
 QString Supervisor::getStateMovingStr(){
     if(probot->running_state == 0){
-        return tr("준비 안됨");
+        if(probot->localization_state != 2){
+            return tr("위치 초기화 확인 필요");
+        }
+        else if (probot->motor[0].status !=1){
+            return tr("왼쪽 모터 상태 이상");
+        }
+        else if (probot->motor[1].status !=1){
+            return tr("오른쪽 모터 상태 이상");
+        }
+
     }else if(probot->running_state == 1){
         return tr("준비됨");
     }else if(probot->running_state == 2){
