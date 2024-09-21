@@ -24,8 +24,8 @@
 #include <QStringList>
 
 extern QObject *object;
-ST_ROBOT *probot;
-ST_MAP *pmap;
+ST_ROBOT *probot = nullptr;
+ST_MAP *pmap = nullptr;
 int ui_state = 0;
 bool is_test_moving = false;
 bool is_debug = false;
@@ -37,6 +37,7 @@ QString getIniPath(QString file){
 
 QString getSettings(QString file, QString group, QString name){
     QString ini_path = getIniPath(file);
+    
     QSettings setting_robot(ini_path, QSettings::IniFormat);
     setting_robot.beginGroup(group);
     return setting_robot.value(name).toString();
