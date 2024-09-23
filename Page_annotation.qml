@@ -6427,23 +6427,43 @@ Item {
                 btn_confirm.text = qsTr("이동완료했습니다")
                 row_call_force.visible = false;
                 supervisor.setMotorLock(false);
+                //supervisor.drawingRunawayStart();
+                onClicked: {
+                    if (btn_confirm.text === qsTr("이동완료했습니다")) {
+                        supervisor.drawingRunawayStop();
+                    }
+                }
+                //var is_changed = false;
+                //if (is_changed == true)
+                //{
+                //    supervisor.drawingRunawayStop();
+                //}
+
                 if(select_location_type === "Charging"){
                     image_location.source = "icon/icon_charge.png"
                     text_loc.text = qsTr("수정하실 충전위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+                    supervisor.drawingRunawayStary();
+                    //is_changed =true;
                 }else if(select_location_type === "Resting"){
                     image_location.source = "icon/icon_wait.png"
                     text_loc.text = qsTr("수정하실 대기위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+                    supervisor.drawingRunawayStary();
+
                 }else if(select_location_type === "Cleaning"){
                     image_location.source = "icon/icon_cleaning.png"
                     text_loc.text = qsTr("수정하실 퇴식위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+                    supervisor.drawingRunawayStary();
+
                 }else{
                     image_location.source = "icon/icon_add_loc.png"
                     text_loc.text = qsTr("수정하실 서빙위치로 로봇을 이동시켜 주세요")
                     text_sub.text = qsTr("위치이름 : ")+details.get(select_location).name
+                    supervisor.drawingRunawayStary();
                 }
+
             }else if(mode == "callbell"){
                 btn_confirm.text = qsTr("초기화")
                 image_location.source = "icon/icon_callbell.png"
