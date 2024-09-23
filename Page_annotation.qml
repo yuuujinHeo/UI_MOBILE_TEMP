@@ -2511,7 +2511,7 @@ Item {
                         width: annot_pages.width - view_category.width
                         height: 80
                         color: "transparent"
-                        Row{
+                        Row{ //표시정보 구역
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.right: parent.right
                             anchors.rightMargin: 30
@@ -6427,41 +6427,29 @@ Item {
                 btn_confirm.text = qsTr("이동완료했습니다")
                 row_call_force.visible = false;
                 supervisor.setMotorLock(false);
-                //supervisor.drawingRunawayStart();
-                onClicked: {
-                    if (btn_confirm.text === qsTr("이동완료했습니다")) {
-                        supervisor.drawingRunawayStop();
-                    }
-                }
-                //var is_changed = false;
-                //if (is_changed == true)
-                //{
-                //    supervisor.drawingRunawayStop();
-                //}
+                supervisor.drawingRunawayStart();
 
                 if(select_location_type === "Charging"){
                     image_location.source = "icon/icon_charge.png"
                     text_loc.text = qsTr("수정하실 충전위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
-                    supervisor.drawingRunawayStary();
+
                     //is_changed =true;
                 }else if(select_location_type === "Resting"){
                     image_location.source = "icon/icon_wait.png"
                     text_loc.text = qsTr("수정하실 대기위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
-                    supervisor.drawingRunawayStary();
+
 
                 }else if(select_location_type === "Cleaning"){
                     image_location.source = "icon/icon_cleaning.png"
                     text_loc.text = qsTr("수정하실 퇴식위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
-                    supervisor.drawingRunawayStary();
 
                 }else{
                     image_location.source = "icon/icon_add_loc.png"
                     text_loc.text = qsTr("수정하실 서빙위치로 로봇을 이동시켜 주세요")
                     text_sub.text = qsTr("위치이름 : ")+details.get(select_location).name
-                    supervisor.drawingRunawayStary();
                 }
 
             }else if(mode == "callbell"){
@@ -6506,7 +6494,7 @@ Item {
             }else if(mode == "saveall"){
                 row_call_force.visible = false;
                 image_location.source = "icon/icon_save.png"
-                text_loc.text = qsTr("이대로 <font color=\"#12d27c\">저장</font>하시겠습니까?")
+                text_loc.text = qsTr("이대로 모두<font color=\"#12d27c\">저장</font>하시겠습니까?")
                 text_sub.text = qsTr("기존의 파일은 삭제됩니다")
                 btn_confirm.text = qsTr("저장")
             }else if(mode == "save_rotate"){
