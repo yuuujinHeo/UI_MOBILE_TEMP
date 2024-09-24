@@ -12455,10 +12455,10 @@ Item {
                         supervisor.playSound('click', slider_volume_button.value);
                         save();
 
-                        //if(combo_multirobot.ischanged == true)
-                        //{
-                        //    supervisor.programRestart();
-                        //}
+                        if(combo_multirobot.ischanged == true)
+                        {
+                            supervisor.programRestart();
+                        }
 
                     }
                 }
