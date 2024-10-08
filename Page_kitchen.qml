@@ -121,7 +121,6 @@ Item {
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("모터초기화가 필요합니다");
             popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
-
             popup_notice.addButton(qsTr("모터초기화"))
             popup_notice.open();
         }else if(errstr === "debug"){
