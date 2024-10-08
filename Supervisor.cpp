@@ -3625,7 +3625,7 @@ QString Supervisor::getStateMovingStr(){
         }else if (probot->motor[0].status !=1){
             return tr("왼쪽 모터 상태 이상");
         }else if (probot->motor[1].status !=1){
-            qDebug() << probot->motor[1].status;
+            //qDebug() << probot->motor[1].status;
             return tr("오른쪽 모터 상태 이상?");
         }else{
             return tr("준비 안됨");
@@ -4431,13 +4431,14 @@ void Supervisor::onTimer(){
                     }else{
                         if(timer_cnt2%5==0){
                             plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
-                            if(!probot->is_patrol && count_moveto++ > 5){//need check
-                                if(getSetting("update", "USE_SLAM", "use_multirobot") == "true"){
+                            if(!probot->is_patrol && count_moveto++ > 2){//need check
+                                if(getSetting("setting", "USE_SLAM", "use_multirobot") == "true"){
+                                    plog->write("[MULTI][STATE] : Robot moving waite");
                                     //popup open -> 5초 뒤 다시 move send
                                     QMetaObject::invokeMethod(mMain, "multiwait");
                                     count_moveto = 0;
                                 }else{
-                                    plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
+                                    plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + "목적지");
                                     ipc->moveStop();
                                     QMetaObject::invokeMethod(mMain, "movefail");
                                     ui_state = UI_STATE_MOVEFAIL;

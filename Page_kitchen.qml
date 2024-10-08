@@ -109,7 +109,7 @@ Item {
             popup_notice.open();
         }else if(errstr === "multi_wait"){
             popup_notice.style = "warning";
-            popup_notice.main_str = qsTr("다른 로봇을 기다리는 중입니다");
+            popup_notice.main_str = qsTr("다른 로봇을 기다리는 중입니다");//multi
             popup_notice.sub_str = qsTr("");
             popup_notice.open();
         }else if(errstr === "no_patrol"){
