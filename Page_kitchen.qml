@@ -107,6 +107,11 @@ Item {
             popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("");
             popup_notice.open();
+        }else if(errstr === "multi_wait"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("다른 로봇을 기다리는 중입니다");
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
         }else if(errstr === "no_patrol"){
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("없는 지정순회 파일입니다");

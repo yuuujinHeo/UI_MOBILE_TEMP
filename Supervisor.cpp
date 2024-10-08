@@ -4432,10 +4432,16 @@ void Supervisor::onTimer(){
                         if(timer_cnt2%5==0){
                             plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
                             if(!probot->is_patrol && count_moveto++ > 5){//need check
-                                plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
-                                ipc->moveStop();
-                                QMetaObject::invokeMethod(mMain, "movefail");
-                                ui_state = UI_STATE_MOVEFAIL;
+                                if(getSetting("update", "USE_SLAM", "use_multirobot") == "true"){
+                                    //popup open -> 5초 뒤 다시 move send
+                                    QMetaObject::invokeMethod(mMain, "multiwait");
+                                    count_moveto = 0;
+                                }else{
+                                    plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
+                                    ipc->moveStop();
+                                    QMetaObject::invokeMethod(mMain, "movefail");
+                                    ui_state = UI_STATE_MOVEFAIL;
+                                }
                             }else{
                                 int preset = probot->cur_preset;
 
