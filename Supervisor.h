@@ -337,10 +337,12 @@ public:
         return false;
     }
 
-
+    int cur_group = 0;
     ////*********************************************  ANNOTATION 관련   ***************************************************////
     //Location
     // Q_INVOKABLE int getLocationNum(QString group, QString name);
+    Q_INVOKABLE void setCurGroup(int num);
+    Q_INVOKABLE int getCurGroup();
     Q_INVOKABLE void saveLocation(QString type, int groupnum, QString name);
     Q_INVOKABLE void clearLocation(){maph->clearLocation();}
     Q_INVOKABLE void addLocation(int x, int y,float th){
@@ -361,6 +363,7 @@ public:
     Q_INVOKABLE QString getLocationGroup(int num);
     Q_INVOKABLE int getLocationGroupNum();
     Q_INVOKABLE int getLocationGroupSize(int num);
+    Q_INVOKABLE void setLocationName(int num, QString name);
     Q_INVOKABLE int getLocationGroupNum(int num);
     Q_INVOKABLE QString getLocationCallID(QString type, int num);
     Q_INVOKABLE QString getLocationLingID(QString type, int num);
@@ -629,6 +632,7 @@ public:
     Q_INVOKABLE bool isConnectServer();
     Q_INVOKABLE void loadMapServer();
     Q_INVOKABLE void sendMapServer();
+    Q_INVOKABLE void sendMapSync();
 
 
 ////*********************************************  SETTINGs   *********************************************////

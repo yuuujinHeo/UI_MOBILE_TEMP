@@ -34,6 +34,7 @@ Item {
     property int select_preset: 1
     property int select_object: -1
     property bool is_object: false
+    property bool save_location: false
 
     //robot state 체크할지말지
     property bool checkState: true
@@ -1535,8 +1536,10 @@ Item {
                             horizontalAlignment: Text.AlignHCenter
                             onTextChanged: {
                                 name = text;
-                                if(text != '' && select_location === index){
+                                if(text != '' && select_location === index && ltype=="Serving"){
+                                    console.log("??????????? : ",text, select_location_type, select_location, ltype, index);
                                     locations.get(index-getIndex(select_location_type)).name = name;
+                                    supervisor.setLocationName(select_location-getIndex(select_location_type),name);
                                 }
                                 clearLocationName();
                                 checkLocationName();
@@ -1859,23 +1862,33 @@ Item {
                     print("save location");
                     supervisor.saveAnnotation(supervisor.getMapname());
                     supervisor.drawingRunawayStop();
+                    save_location = true;
                     supervisor.writelog("[ANNOTATION] LOCAION SAVE : Check Done ");
-                    if(annotation_after_mapping)
-                        annot_pages.sourceComponent = page_annot_done;
-                    else
-                        loadPage(pmap);
+                    // if(annotation_after_mapping)
+                        // annot_pages.sourceComponent = page_annot_done;
+                    // else
+                        // loadPage(pmap);
 //                        annot_pages.sourceComponent = page_annot_menu;
                 }
             }
             Buttons{
                 style: "normal"
-                text: qsTr("취 소")
+                text: qsTr("나가기")
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
                 anchors.bottomMargin: 50
                 anchors.rightMargin: 280
                 onClicked: {
-                    annot_pages.sourceComponent = page_annot_menu;
+                    if(save_location){
+                        if(annotation_after_mapping){
+                            annot_pages.sourceComponent = page_annot_done;
+                        }else{
+                            loadPage(pmap);
+                        }
+                    }else{
+                        annot_pages.sourceComponent = page_annot_menu;
+                    }
+
                 }
             }
         }
@@ -2498,7 +2511,7 @@ Item {
                         width: annot_pages.width - view_category.width
                         height: 80
                         color: "transparent"
-                        Row{
+                        Row{ //표시정보 구역
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.right: parent.right
                             anchors.rightMargin: 30
@@ -6414,23 +6427,31 @@ Item {
                 btn_confirm.text = qsTr("이동완료했습니다")
                 row_call_force.visible = false;
                 supervisor.setMotorLock(false);
+                supervisor.drawingRunawayStart();
+
                 if(select_location_type === "Charging"){
                     image_location.source = "icon/icon_charge.png"
                     text_loc.text = qsTr("수정하실 충전위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+
+                    //is_changed =true;
                 }else if(select_location_type === "Resting"){
                     image_location.source = "icon/icon_wait.png"
                     text_loc.text = qsTr("수정하실 대기위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+
+
                 }else if(select_location_type === "Cleaning"){
                     image_location.source = "icon/icon_cleaning.png"
                     text_loc.text = qsTr("수정하실 퇴식위치로 로봇을 이동시켜 주세요")
                     text_sub.text = ""
+
                 }else{
                     image_location.source = "icon/icon_add_loc.png"
                     text_loc.text = qsTr("수정하실 서빙위치로 로봇을 이동시켜 주세요")
                     text_sub.text = qsTr("위치이름 : ")+details.get(select_location).name
                 }
+
             }else if(mode == "callbell"){
                 btn_confirm.text = qsTr("초기화")
                 image_location.source = "icon/icon_callbell.png"
@@ -6473,7 +6494,7 @@ Item {
             }else if(mode == "saveall"){
                 row_call_force.visible = false;
                 image_location.source = "icon/icon_save.png"
-                text_loc.text = qsTr("이대로 <font color=\"#12d27c\">저장</font>하시겠습니까?")
+                text_loc.text = qsTr("이대로 모두<font color=\"#12d27c\">저장</font>하시겠습니까?")
                 text_sub.text = qsTr("기존의 파일은 삭제됩니다")
                 btn_confirm.text = qsTr("저장")
             }else if(mode == "save_rotate"){

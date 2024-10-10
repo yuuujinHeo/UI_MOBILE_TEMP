@@ -1547,66 +1547,7 @@ Item {
                         }
                     }
                 }
-                Rectangle{
-                    id: set_robot_1_serial
-                    width: 840
-                    height: setting_height
-                    visible: false//use_multirobot
-                    Row{
-                        anchors.fill: parent
-                        Rectangle{
-                            width: 350
-                            height: parent.height
-                            Text{
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.left: parent.left
-                                anchors.leftMargin: 30
-                                font.family: font_noto_r.name
-                                text:qsTr("플랫폼 넘버 (중복주의)")
-                                font.pixelSize: name_font_size
-                                Component.onCompleted: {
-                                    scale = 1;
-                                    while(width*scale > parent.width*0.8){
-                                        scale=scale-0.01;
-                                    }
-                                }
-                            }
-                            Item_buttons{
-                                type: "circle_text"
-                                width: parent.height*0.8
-                                height: width
-                                anchors.verticalCenter: parent.verticalCenter
-                                anchors.right: parent.right
-                                anchors.rightMargin: 20
-                                text:qsTr("?")
-                                onClicked:{
-                                    popup_help_setting.open();
-                                    popup_help_setting.setTitle(qsTr("플랫폼 넘버"));
-                                    popup_help_setting.addLine(qsTr("동일한 이름으로 설정된 로봇을 여러대 구동할 때 구분용으로 사용됩니다"));
-                                    popup_help_setting.addLine(qsTr("중복에 유의하여 설정해주세요"));
-                                }
-                            }
-                        }
-                        Rectangle{
-                            width: 1
-                            height: parent.height
-                            color: "#d0d0d0"
-                        }
-                        Rectangle{
-                            width: parent.width - 351
-                            height: parent.height
-                            ComboBox{
-                                id: combo_platform_serial
-                                anchors.fill: parent
-                                property bool ischanged: false
-                                onCurrentIndexChanged: {
-                                    ischanged = true;
-                                }
-                                model:[0,1,2,3,4,5,6,7,8,9,10]
-                            }
-                        }
-                    }
-                }
+
 
                 Rectangle{
                     id: set_robot_2
@@ -3575,11 +3516,77 @@ Item {
                                     ischanged = true;
                                     if(currentIndex == 0){
                                         use_multirobot = false;
+
                                     }else{
                                         use_multirobot = true;
                                     }
+
                                 }
                                 model:[qsTr("사용안함"),qsTr("사용")]
+                            }
+                        }
+
+
+                    }
+                }
+
+                Rectangle{
+                    id: set_robot_1_serial
+                    width: 840
+                    height: setting_height
+                    //visible: false//use_multirobot
+                    visible: use_multirobot
+                    Row{
+                        anchors.fill: parent
+                        Rectangle{
+                            width: 350
+                            height: parent.height
+                            Text{
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.left: parent.left
+                                anchors.leftMargin: 30
+                                font.family: font_noto_r.name
+                                text:qsTr("플랫폼 넘버 (중복주의)")
+                                font.pixelSize: name_font_size
+                                Component.onCompleted: {
+                                    scale = 1;
+                                    while(width*scale > parent.width*0.8){
+                                        scale=scale-0.01;
+                                    }
+                                }
+                            }
+                            Item_buttons{
+                                type: "circle_text"
+                                width: parent.height*0.8
+                                height: width
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.right: parent.right
+                                anchors.rightMargin: 20
+                                text:qsTr("?")
+                                onClicked:{
+                                    popup_help_setting.open();
+                                    popup_help_setting.setTitle(qsTr("플랫폼 넘버"));
+                                    popup_help_setting.addLine(qsTr("동일한 이름으로 설정된 로봇을 여러대 구동할 때 구분용으로 사용됩니다"));
+                                    popup_help_setting.addLine(qsTr("중복에 유의하여 설정해주세요"));
+                                }
+                            }
+                        }
+                        Rectangle{
+                            width: 1
+                            height: parent.height
+                            color: "#d0d0d0"
+                        }
+                        Rectangle{
+                            width: parent.width - 351
+                            height: parent.height
+                            ComboBox{
+                                id: combo_platform_serial
+                                anchors.fill: parent
+                                property bool ischanged: false
+                                onCurrentIndexChanged: {
+                                    ischanged = true;
+                                }
+                                model:[0,1,2,3,4,5,6,7,8,9,10]
                             }
                         }
                     }
@@ -3631,6 +3638,7 @@ Item {
                         }
                     }
                 }
+
                 Rectangle{
                     id: set_server_ip
                     width: 840
@@ -12446,8 +12454,15 @@ Item {
                         console.log("?????????"+slider_volume_button.value);
                         supervisor.playSound('click', slider_volume_button.value);
                         save();
+
+                        if(combo_multirobot.ischanged == true)
+                        {
+                            supervisor.programRestart();
+                        }
+
                     }
                 }
+
             }
 
 
@@ -12460,7 +12475,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.8") //page_moving - temp push
+                    text:qsTr("Version 1.4.9") //page_moving - temp push
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
@@ -13405,7 +13420,7 @@ Item {
                                     Text{
                                         id: text_con1
                                         anchors.centerIn: parent
-                                        text:qsTr("연결 안됨")
+                                        text:qsTr("연결 안됨1")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -13418,7 +13433,7 @@ Item {
                                     Text{
                                         id: text_status1
                                         anchors.centerIn: parent
-                                        text:qsTr("준비 안됨")
+                                        text:qsTr("준비 안됨1")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -13531,7 +13546,7 @@ Item {
                                     Text{
                                         id: text_con2
                                         anchors.centerIn: parent
-                                        text:qsTr("연결 안됨")
+                                        text:qsTr("연결 안됨2")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }
@@ -13544,7 +13559,7 @@ Item {
                                     Text{
                                         id: text_status2
                                         anchors.centerIn: parent
-                                        text:qsTr("준비 안됨")
+                                        text:qsTr("준비 안됨2")
                                         font.family: font_noto_r.name
                                         font.pixelSize: 15
                                     }

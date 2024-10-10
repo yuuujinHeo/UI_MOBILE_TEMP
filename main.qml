@@ -156,6 +156,12 @@ Window {
         }
     }
 
+    function multiwait(){
+        //popup open
+        setNotice("multi_wait");
+
+    }
+
     function notfoundlocation(){
         supervisor.playVoice("sorry");
         setNotice("no_location");

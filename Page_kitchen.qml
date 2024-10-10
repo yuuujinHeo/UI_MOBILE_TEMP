@@ -50,6 +50,9 @@ Item {
         }
 
         update_group();
+
+        cur_group = supervisor.getCurGroup();
+
         if(supervisor.getSetting("setting","USE_UI","use_calling_notice") === "true"){
             if(supervisor.isCallingMode() || supervisor.getCallQueueSize() > 0){
                 popup_clean_calling.cleaninglocation = false;
@@ -104,6 +107,11 @@ Item {
             popup_notice.main_str = qsTr("목적지를 찾을 수 없습니다");
             popup_notice.sub_str = qsTr("");
             popup_notice.open();
+        }else if(errstr === "multi_wait"){
+            popup_notice.style = "warning";
+            popup_notice.main_str = qsTr("다른 로봇을 기다리는 중입니다");//multi
+            popup_notice.sub_str = qsTr("");
+            popup_notice.open();
         }else if(errstr === "no_patrol"){
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("없는 지정순회 파일입니다");
@@ -113,7 +121,6 @@ Item {
             popup_notice.style = "warning";
             popup_notice.main_str = qsTr("모터초기화가 필요합니다");
             popup_notice.sub_str = qsTr("비상전원스위치를 눌렀다가 풀어주세요");
-
             popup_notice.addButton(qsTr("모터초기화"))
             popup_notice.open();
         }else if(errstr === "debug"){
@@ -187,6 +194,7 @@ Item {
     property int cur_preset: 3
 
     onCur_groupChanged: {
+//        supervisor.setCurGroup(cur_group);
         cur_table = -1;
         update_table();
     }
@@ -331,7 +339,6 @@ Item {
             cur_group = 0;
         }else{
             cur_group = groupnum;
-
         }
 
         if(model_group.count > 0){
@@ -580,6 +587,7 @@ Item {
                                         onClicked:{
                                             supervisor.playSound('click');
                                             cur_group = num;
+                                            supervisor.setCurGroup(num);
                                         }
                                     }
                                 }

@@ -97,6 +97,12 @@ Item{
                 text_finding.text = qsTr("로봇이 위치를 찾지 못했습니다") //로봇의 위치를 찾지 못했습니다
                 show_success = false;
                 show_failed = true;
+            }else if(local_find_state === 5){// success but far away
+                timeout_cnt = 0;
+                show_timeout = false;
+                text_finding.text = qsTr("로봇이 대기위치 상에 있지 않습니다.\n 로봇을 대기위치에 가져다 놓은다음 다시시도해 주세요.") //로봇의 위치를 찾았지만 대기위치와 멀리 떨어져 있어 위치추정이 잘못되어있을 가능성 높음.
+                show_success = false;
+                show_failed = true;
             }else{
                 show_timeout = false;
                 text_finding.text = qsTr("주행 준비가 되지 않았습니다") //로봇과 연결이 되지 않았습니다

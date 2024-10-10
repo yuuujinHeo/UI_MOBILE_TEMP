@@ -985,7 +985,7 @@ void CMD_CHECKER::start_check_ping(QString host)
         hostname = host;
     }
 
-    plog->write("[CHECKER][start_check_ping] Start ping check");
+    //plog->write("[CHECKER][start_check_ping] Start ping check");
 
     std::unique_ptr<QProcess> check_ping_process = std::make_unique<QProcess>(new QProcess);
     check_ping_process->start("ping", QStringList() << "-c" << "1" << hostname);
@@ -999,7 +999,7 @@ void CMD_CHECKER::start_check_ping(QString host)
         if(result.contains("1 received"))
         {
             probot->con_internet = true;
-            std::cout << "[CHECKER][start_check_ping] internet connected." << std::endl;
+            //std::cout << "[CHECKER][start_check_ping] internet connected." << std::endl;
         }
         else
         {

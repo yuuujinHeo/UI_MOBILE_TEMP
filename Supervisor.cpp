@@ -24,8 +24,8 @@
 #include <QStringList>
 
 extern QObject *object;
-ST_ROBOT *probot;
-ST_MAP *pmap;
+ST_ROBOT *probot = nullptr;
+ST_MAP *pmap = nullptr;
 int ui_state = 0;
 bool is_test_moving = false;
 bool is_debug = false;
@@ -37,6 +37,7 @@ QString getIniPath(QString file){
 
 QString getSettings(QString file, QString group, QString name){
     QString ini_path = getIniPath(file);
+    
     QSettings setting_robot(ini_path, QSettings::IniFormat);
     setting_robot.beginGroup(group);
     return setting_robot.value(name).toString();
@@ -282,6 +283,13 @@ void Supervisor::loadMapServer(){
 
 void Supervisor::sendMapServer(){
     ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
+}
+
+void Supervisor::sendMapSync(){
+    ipc->sendCommand(ROBOT_CMD_AUTO_FIND_DEVICE);
+
+    ipc->sendCommand(ROBOT_CMD_SERVER_MAP_UPDATE);
+
 }
 
 bool Supervisor::checkGroupName(QString name){
@@ -1133,6 +1141,14 @@ void Supervisor::readSetting(QString map_name){
     }
 
 
+
+    for(int i=0; i<pmap->location_groups.size(); i++){
+        if(getLocationGroupSize(i) > 0){
+            plog->write("[SUPERVISOR] set Cur Group Init : "+QString::number(i));
+            cur_group = i;
+            break;
+        }
+    }
 
     tts->readVoiceSetting();
     plog->write("[SUPERVISOR] READ SETTING : annot done");
@@ -2681,7 +2697,7 @@ QString Supervisor::getServingName(int group, int num){
             count++;
         }
     }
-    qDebug() << "getServingName " << group << num << name << pmap->serving_locations.size();
+    //qDebug() << "getServingName " << group << num << name << pmap->serving_locations.size();
     if(name == ""){
         name = tr("설정 안됨");
     }
@@ -2738,6 +2754,13 @@ QString Supervisor::getLocationLingID(QString type, int num){
         return pmap->serving_locations[num].ling_id;
     }
     return "";
+}
+
+void Supervisor::setLocationName(int num, QString name){
+    if(num > -1 && num < pmap->serving_locations.size()){
+        plog->write("[ANNOTATION] SET Location Name "+QString().asprintf("%d : ",num)+pmap->serving_locations[num].name+" -> " +name);
+        pmap->serving_locations[num].name = name;
+    }
 }
 
 void Supervisor::setLocationGroup(int num, int group){
@@ -3167,6 +3190,7 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
     }
 
     for(int i=0; i<pmap->serving_locations.size(); i++){
+        qDebug() << i << pmap->serving_locations[i].name;
         QString groupname = "serving_" + QString::number(pmap->serving_locations[i].group);
         str_name = pmap->serving_locations[i].name + QString().asprintf(",%f,%f,%f",pmap->serving_locations[i].point.x,pmap->serving_locations[i].point.y,pmap->serving_locations[i].angle)
                 +","+pmap->serving_locations[i].call_id+":"+pmap->serving_locations[i].ling_id;
@@ -3186,16 +3210,24 @@ bool Supervisor::saveAnnotation(QString filename, bool reload){
         settings.setValue("serving_"+QString::number(i)+"/num",getLocationGroupSize(i));
     }
 
-    //slam_map_reload(filename, 1); //08.14
+    slam_map_reload(filename, 1); //08.14
     if(reload){
         readSetting(filename);
         maph->initLocation();
     }
     pmap->annotation_edited = false;
+    plog->write("saveAnnotation");
 
     return true;
 }
-
+void Supervisor::setCurGroup(int num){
+    qDebug() << "setCurGroup : " << num;
+    cur_group = num;
+}
+int Supervisor::getCurGroup(){
+    qDebug() << "getCurGroup : " << cur_group;
+    return cur_group;
+}
 void Supervisor::saveTTSVoice(){
     qDebug() <<"saveTTSVoice" << tts->curVoice.mode;
 
@@ -3588,7 +3620,17 @@ int Supervisor::getStateMoving(){
 
 QString Supervisor::getStateMovingStr(){
     if(probot->running_state == 0){
-        return tr("준비 안됨");
+        if(probot->localization_state != 2){
+            return tr("위치 초기화 확인 필요");
+        }else if (probot->motor[0].status !=1){
+            return tr("왼쪽 모터 상태 이상");
+        }else if (probot->motor[1].status !=1){
+            //qDebug() << probot->motor[1].status;
+            return tr("오른쪽 모터 상태 이상?");
+        }else{
+            return tr("준비 안됨");
+        }
+
     }else if(probot->running_state == 1){
         return tr("준비됨");
     }else if(probot->running_state == 2){
@@ -4389,11 +4431,18 @@ void Supervisor::onTimer(){
                     }else{
                         if(timer_cnt2%5==0){
                             plog->write("[DEBUG] Moving : "+QString::number(timer_cnt2)+", "+QString::number(count_moveto));
-                            if(!probot->is_patrol && count_moveto++ > 5){//need check
-                                plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + " (");
-                                ipc->moveStop();
-                                QMetaObject::invokeMethod(mMain, "movefail");
-                                ui_state = UI_STATE_MOVEFAIL;
+                            if(!probot->is_patrol && count_moveto++ > 2){//need check
+                                if(getSetting("setting", "USE_SLAM", "use_multirobot") == "true"){
+                                    plog->write("[MULTI][STATE] : Robot moving waite");
+                                    //popup open -> 5초 뒤 다시 move send
+                                    QMetaObject::invokeMethod(mMain, "multiwait");
+                                    count_moveto = 0;
+                                }else{
+                                    plog->write("[STATE] Moving : Robot not moving "+probot->current_target.name + "목적지");
+                                    ipc->moveStop();
+                                    QMetaObject::invokeMethod(mMain, "movefail");
+                                    ui_state = UI_STATE_MOVEFAIL;
+                                }
                             }else{
                                 int preset = probot->cur_preset;
 
@@ -4767,8 +4816,6 @@ LOCATION Supervisor::getCleaningLocation(int num){
     }
     return LOCATION();
 }
-
-
 
 int Supervisor::getzipstate(){
     return zip->process;
@@ -5295,8 +5342,6 @@ void Supervisor::factoryInit(){
     start_clear = true;
 }
 
-
-
 int Supervisor::getTravellineIssue(){
     return pmap->tline_issue;
 }
@@ -5424,7 +5469,6 @@ void Supervisor::readPatrol(){
                                 }
                             }
                         }
-
                         //arrive_page도 똑같이
                         plog->write("[COMMAND] readPatrol File : "+file + " -> "+temp.name+", "+temp.type+", "+QString::number(temp.location.size())+", "+temp.voice_name);
                         patrols.append(temp);
@@ -6138,22 +6182,6 @@ int Supervisor::getPageObjectNum(int x, int y){
     }
     return -1;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 int Supervisor::getServingObjectSize(){

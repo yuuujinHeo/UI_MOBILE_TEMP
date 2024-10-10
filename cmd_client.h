@@ -15,23 +15,35 @@ public:
     ~CMD_CLIENT();
 
     QString id = "";
-    QWebSocket client;
-    QTimer reconnect_timer;
-    std::atomic<bool> is_connected = {false};
+    QWebSocket cmd_client;
+    QWebSocket error_client;
+    QTimer cmd_reconnect_timer;
+    QTimer error_reconnect_timer;
+    std::atomic<bool> is_cmd_connected = {false};
+    std::atomic<bool> is_error_connected = {false};
     std::atomic<int> fms_tick = {0};
 
     void init();
     void test();
 
 signals:
-    void getMessage(QString msg);
+    void getMessage_cmd(QString msg);
+    void getMessage_error(QString msg);
+
 
 private slots:
-    void connected();
-    void disconnected();
-    void reconnect_loop();
-    void onTextMessageReceived(QString message);
-    void onError(QAbstractSocket::SocketError error);
+    void cmd_connected();
+    void cmd_disconnected();
+    void cmd_reconnect_loop();
+    void onTextMessageReceived_cmd(QString message);
+
+    void error_connected();
+    void error_disconnected();
+    void error_reconnect_loop();
+    void onTextMessageReceived_error(QString message);
+
+    void onError_cmd(QAbstractSocket::SocketError error);
+    void onError_error(QAbstractSocket::SocketError error);
 
 public slots:
     void cts_cmd(QByteArray cur_cmd);

@@ -18,6 +18,7 @@ Item {
     property bool blink_2: false
     property bool blink_3: false
     property var tray_num: parseInt(supervisor.getSetting("setting","ROBOT_TYPE","tray_num"))
+    property int clickCount: 0 // 클릭 횟수 저장
 
     function init(){
         supervisor.writelog("[QML-Pickup] PICKUP PAGE Init");
@@ -134,6 +135,7 @@ Item {
             sourceSize.width: width
             sourceSize.height: height
             anchors.verticalCenter: parent.verticalCenter
+
             Rectangle{
                 id: rect_tray_1
                 color: blink_1?"#12d27c":"#525252"
@@ -182,6 +184,41 @@ Item {
                     font.pixelSize: 15
                 }
             }
+            Rectangle{
+                id: btn_confirm2 // 퇴식 버튼
+                width: 200
+                height: 50
+                radius: 5
+                visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
+                //opacity: 0 // 투명하게 설정하여 보이지 않도록 함
+                border.color: color_gray
+                border.width: 2
+                anchors.top: rect_tray_3.bottom
+                anchors.topMargin: 10
+                anchors.horizontalCenter: parent.horizontalCenter
+                //anchors.bottom: parent.anchors
+                color:color_green
+
+                MouseArea{
+                    anchors.fill: parent
+                    onClicked: {
+                        clickCount += 1;
+                        if (clickCount == 2) {
+                            supervisor.playSound('click');
+                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
+                            supervisor.playVoice("thanks");
+                            column_pickup.visible = false;
+                            text_mention.visible = false;
+                            text_mention3.visible = false;
+                            target_pos.visible = false;
+                            btn_confirm.visible = false;
+                            text_hello.visible = true;
+                            timer_hello2.start();
+                        }
+                    }
+                }
+
+            }
 
         }
         Column{
@@ -221,7 +258,8 @@ Item {
             }
             Row{
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 120
+                spacing: 50
+
                 Rectangle{
                     id: btn_confirm
                     width: 320
@@ -274,37 +312,7 @@ Item {
                         }
                     }
                 }
-                Rectangle{
-                    id: btn_confirm2
-                    width: 120
-                    height: 120
-                    radius: 100
-                    visible: supervisor.isFinalLocation() && supervisor.getLocationNum("Cleaning")>0
-                    border.color: color_gray
-                    border.width: 2
-                    Text{
-                        anchors.centerIn: parent
-                        text: qsTr("퇴식")
-                        font.family: font_noto_b.name
-                        font.pixelSize: 45
-                        color: color_blue
-                    }
-                    MouseArea{
-                        anchors.fill: parent
-                        onClicked: {
-                            supervisor.playSound('click');
-                            supervisor.writelog("[USER INPUT] PICKUP CONFIRM2 clicked");
-                            supervisor.playVoice("thanks");
-                            column_pickup.visible = false;
-                            text_mention.visible = false;
-                            text_mention3.visible = false;
-                            target_pos.visible = false;
-                            btn_confirm.visible = false;
-                            text_hello.visible = true;
-                            timer_hello2.start();
-                        }
-                    }
-                }
+
 
             }
         }
@@ -352,11 +360,13 @@ Item {
     Timer{
         id: timer_hello2
         interval: 1500
-        running: false
+        //running: false
+        running: clickCount > 0
         repeat: false
         onTriggered: {
             supervisor.confirmPickup("Cleaning");
             supervisor.writelog("[QML-Pickup] PICKUP PAGE2222222 -> Move to Next");
+            clickCount = 0; // 시간 내에 두 번 클릭하지 않으면 클릭 횟수 초기화
         }
     }
 }
