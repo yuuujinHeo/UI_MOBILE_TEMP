@@ -12475,7 +12475,9 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.10") //page_moving - temp push
+                    text:qsTr("Version 1.4.10")
+                    // Update - History
+                    // 1) 10.11 : CallbellHandler.cpp -> USB1 block for New Lidar (bottom)
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
