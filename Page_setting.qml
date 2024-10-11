@@ -12475,7 +12475,7 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.9") //page_moving - temp push
+                    text:qsTr("Version 1.4.10") //page_moving - temp push
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"
