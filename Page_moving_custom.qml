@@ -749,6 +749,82 @@ Item {
         }
     }
 
+    Item{
+        id: popup_waiting
+        width: parent.width
+        height: parent.height
+        anchors.centerIn: parent
+        visible: false
+        onVisibleChanged: {
+            if(visible){
+                statusbar.visible = true;
+            }else{
+                statusbar.visible = false;
+            }
+        }
+        Rectangle{
+            anchors.fill: parent
+            color: "#282828"
+            opacity: 0.8
+        }
+        Text{
+            id: teeeq34e
+            anchors.centerIn: parent
+            font.family: font_noto_b.name
+            font.pixelSize: 50
+            color: "#e2574c"
+            text: qsTr("다른 로봇의 이동을 기다리고 있습니다")
+        }
+        Text{
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.top:teeeq34e.bottom
+            anchors.topMargin: 10
+            font.family: font_noto_b.name
+            font.pixelSize: 40
+            color: "#e2574c"
+            text: qsTr("( 목적지 : ")+pos_name+" )"
+        }
+        Row{
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 80
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 100
+            Rectangle{
+                width: 180
+                height: 120
+                radius: 20
+                color: "transparent"
+                enabled: motor_lock
+                border.color: motor_lock?color_red:color_gray
+                border.width: 6
+                Text{
+                    anchors.centerIn: parent
+                    color: color_red
+                    font.family: font_noto_r.name
+                    font.pixelSize: 30
+                    text: qsTr("경로 취소")
+                }
+                MouseArea{
+                    anchors.fill: parent
+                    z: 99
+                    propagateComposedEvents: true
+                    onPressed:{
+                        supervisor.playSound('click');;
+                        parent.color = color_dark_navy
+                    }
+                    onReleased:{
+                        parent.color = "transparent"
+                    }
+
+                    onClicked:{
+                        supervisor.writelog("[USER INPUT] MOVING PAUSED : PATH CANCELED");
+                        supervisor.moveStop();
+                    }
+                }
+            }
+        }
+    }
+
 
     Popup{
         id: popup_pause
