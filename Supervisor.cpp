@@ -31,18 +31,6 @@ bool is_test_moving = false;
 bool is_debug = false;
 #define MAIN_THREAD 200
 
-QString getIniPath(QString file){
-    return QDir::homePath()+"/RB_MOBILE/config/"+file+"_config.ini";
-}
-
-QString getSettings(QString file, QString group, QString name){
-    QString ini_path = getIniPath(file);
-    
-    QSettings setting_robot(ini_path, QSettings::IniFormat);
-    setting_robot.beginGroup(group);
-    return setting_robot.value(name).toString();
-}
-
 Supervisor::Supervisor(QObject *parent)
     : QObject(parent)
 {
@@ -91,8 +79,8 @@ Supervisor::Supervisor(QObject *parent)
     pmap = &map;
     pmap->call_queue.clear();
 
-    ipc = new IPCHandler();
     server = new ServerHandler();
+    ipc = new IPCHandler();
     maph = new MapHandler();
     zip = new ZIPHandler();
     call = new CallbellHandler();
@@ -208,6 +196,16 @@ QObject *Supervisor::getObject()
     return mObject;
 }
 
+QString getIniPath(QString file){
+    return QDir::homePath()+"/RB_MOBILE/config/"+file+"_config.ini";
+}
+QString getSettings(QString file, QString group, QString name){
+    QString ini_path = getIniPath(file);
+
+    QSettings setting_robot(ini_path, QSettings::IniFormat);
+    setting_robot.beginGroup(group);
+    return setting_robot.value(name).toString();
+}
 void Supervisor::got_message(QString msg){
     qDebug() << "got message" << msg;
     QMetaObject::invokeMethod(mMain, "new_message",Qt::DirectConnection,
@@ -897,7 +895,7 @@ void Supervisor::readSetting(QString map_name){
     //probot->type = setting_config.value("type").toString(); //for Bottom Lidar
 
     // To Do
-    //probot->robot_type = setting_config.value("model_version").toString();
+    probot->robot_version = setting_config.value("model_version").toString();
     //plog->write("ROBOT type:"+setting_config.value("model_version").toString());
 
     //Test

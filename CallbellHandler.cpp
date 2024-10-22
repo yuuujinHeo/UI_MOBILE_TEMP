@@ -10,6 +10,7 @@ CallbellHandler::CallbellHandler()
     connect(m_serialPort, SIGNAL(readyRead()), this, SLOT(readData()));
     connect(m_serialPort, SIGNAL(errorOccurred(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
 
+    probot->robot_version = getSettings("setting","ROBOT_TYPE","robot_version");
     m_serialPort->setPortName("ttyCB0");
     m_serialPort->setBaudRate(QSerialPort::Baud115200);
     m_serialPort->setDataBits(QSerialPort::Data8);
@@ -17,12 +18,8 @@ CallbellHandler::CallbellHandler()
     m_serialPort->setStopBits(QSerialPort::OneStop);
     m_serialPort->setFlowControl(QSerialPort::SoftwareControl);
 
-    //supervisor->getRobotVersion();
-    //supervisor->readSetting();
-
-    probot->robot_version = "bottom_lidar";
-    plog->write("[Callbell]ROBOT type test:"+probot->robot_version);
-
+    //plog->write("[Callbell]ROBOT type test:"+probot->robot_version);
+    //probot->robot_version = "bottom_lidar";
     if(probot->robot_version == "bottom_lidar")
     {
         plog->write("[Callbell]ROBOT Check type:"+probot->robot_version);
