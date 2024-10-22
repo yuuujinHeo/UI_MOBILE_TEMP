@@ -36,6 +36,8 @@ enum{
     PATROL_NEW
 };
 
+//class CallbellHandler;
+
 class Supervisor : public QObject
 {
     Q_OBJECT
@@ -56,6 +58,8 @@ public:
     IPCHandler *ipc;
     TTSHandler *tts;
     QProcess *slam_process;
+
+    QString *robot_type;
 
 
     ////*********************************************  State  *********************************************////
@@ -450,6 +454,7 @@ public:
     Q_INVOKABLE void clear_call();
     Q_INVOKABLE void setCallbell(QString type, int id);
     Q_INVOKABLE void setCallbellForce(QString type, bool onoff);
+    //Q_INVOKABLE QString getRobotType(){return probot->robot_type;}
 
     //lingbell
     Q_INVOKABLE void callCallbell(QString id);
@@ -642,7 +647,9 @@ public:
     Q_INVOKABLE void readSetting(QString map_name="");
     Q_INVOKABLE QString getSetting(QString file, QString group, QString name);
     Q_INVOKABLE QString getRobotType();
+    Q_INVOKABLE QString getRobotVersion();
     Q_INVOKABLE QString getRobotName();
+    //Q_INVOKABLE void getSetting_RobotType(QString file, QString name, QString value);
     Q_INVOKABLE int getMultiState();
     Q_INVOKABLE void saveSetting();
     Q_INVOKABLE void loadSetting();
@@ -907,6 +914,7 @@ private:
     QQuickWindow *mMain;
     QObject *mObject = nullptr;
     QTranslator *translator;
+
 };
 
 

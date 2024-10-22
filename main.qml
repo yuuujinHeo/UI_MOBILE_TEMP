@@ -75,6 +75,7 @@ Window {
 
     property string robot_type: supervisor.getRobotType()
     property string robot_name: supervisor.getRobotName()
+    property string robot_version: supervisor.getRobotVersion()
     property int robot_battery: 0
     property int count_resting: 0
     property string cur_location;
@@ -491,6 +492,7 @@ Window {
     function update_ini(){
         robot_type = supervisor.getRobotType()
         robot_name = supervisor.getRobotName()
+        robot_version = supervisor.getRobotVersion()
     }
 
     Supervisor{

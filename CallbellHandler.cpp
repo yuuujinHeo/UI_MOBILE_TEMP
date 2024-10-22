@@ -1,5 +1,5 @@
 #include "CallbellHandler.h"
-
+#include "Supervisor.h"
 CallbellHandler::CallbellHandler()
 {
     connection_count = 0;
@@ -17,21 +17,40 @@ CallbellHandler::CallbellHandler()
     m_serialPort->setStopBits(QSerialPort::OneStop);
     m_serialPort->setFlowControl(QSerialPort::SoftwareControl);
 
-    if(m_serialPort->open(QIODevice::ReadWrite)){
-        plog->write("[CALLBELL] Port ttyCB0 Open Success");
+    //supervisor->getRobotVersion();
+    //supervisor->readSetting();
+
+    probot->robot_version = "bottom_lidar";
+    plog->write("[Callbell]ROBOT type test:"+probot->robot_version);
+
+    if(probot->robot_version == "bottom_lidar")
+    {
+        plog->write("[Callbell]ROBOT Check type:"+probot->robot_version);
+        if(m_serialPort->open(QIODevice::ReadWrite)){
+            plog->write("[CALLBELL][BotLid] Port ttyCB0 Open Success");
+        }
+        else{
+            plog->write("[CALLBELL][BotLid] CB0 Port Open fail, check USB hub");
+        }
     }
-    // 하부라이다 추가로 인해 ttyUBS1사용 금지, ttyUSB0은 기존 라이다
-    //else{
-    //    m_serialPort->setPortName("ttyUSB1");
-    //    if(m_serialPort->open(QIODevice::ReadWrite)){
-    //        //plog->write("[CALLBELL] Port ttyUSB1 Open Success");
-    //    }
-    //    //plog->write("[CALLBELL] Port ttyCB0 Open Faile");
-    //    //return;
-    //}
-    else{
-        plog->write("[CALLBELL] Port Open fail, check USB hub");
+
+    else
+    {
+        if(m_serialPort->open(QIODevice::ReadWrite)){
+            plog->write("[CALLBELL] Port ttyCB0 Open Success");
+        }
+
+        else{
+            m_serialPort->setPortName("ttyUSB1");
+            if(m_serialPort->open(QIODevice::ReadWrite)){
+                plog->write("[CALLBELL] Port ttyUSB1 Open Success");
+            }
+            plog->write("[CALLBELL] Port ttyCB0 Open Faile");
+            return;
+        }
     }
+
+
 
     timer = new QTimer();
     connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));

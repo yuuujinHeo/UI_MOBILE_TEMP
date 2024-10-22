@@ -264,6 +264,8 @@ typedef struct{
     // QString type = "SERVING";
     float velocity = 1.0;
 
+    QString robot_version = "";
+
     QList<ST_TRAY> trays;
     bool is_calling = false;
     bool is_patrol = false;

@@ -7,6 +7,7 @@
 #include <QDebug>
 #include "GlobalHeader.h"
 
+class Supervisor;
 
 class CallbellHandler : public QObject
 {
@@ -34,6 +35,8 @@ private:
     QTimer *timer;
     QByteArray datas;
     QString last_bell_id;
+
+    Supervisor *supervisor;
 
 
     void SendConnectionCheckMessage();

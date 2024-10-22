@@ -12475,9 +12475,12 @@ Item {
                 color: "transparent"
                 Text{
                     anchors.centerIn: parent
-                    text:qsTr("Version 1.4.10")
+                    text:qsTr("Version 1.4.10.1")
                     // Update - History
                     // 1) 10.11 : CallbellHandler.cpp -> USB1 block for New Lidar (bottom)
+                    // 2) 10.21 : CallbellHadler.cpp - > setting_config에 따라서 변경
+                    // [ROBOT_TYPE]에서 새로운 항목 추가
+                    // model_version = bottom_lidar
                     font.family: font_noto_r.name
                     font.pixelSize: 25
                     color: "black"

@@ -873,6 +873,17 @@ QString Supervisor::getSetting(QString file, QString group, QString name){
     // return setting_robot.value(name).toString();
 }
 
+// To Do
+//void Supervisor::getSetting_RobotType(QString file, QString name, QString value){
+//    QString ini_path = getIniPath(file);
+//    QSettings setting_robot(ini_path, QSettings::IniFormat);
+//    //return setting_robot.value(name).toString();
+//    //return getSettings(file,group,name);
+//    //if (setSetting("setting", "ROBOT_TYPE/version", "BotLid")){
+//        //robot_type == "bottom_lidar";
+//    //}
+//}
+
 void Supervisor::readSetting(QString map_name){
     plog->write("[SUPERVISOR] READ SETTING : "+map_name);
     //Robot Setting================================================================
@@ -883,9 +894,17 @@ void Supervisor::readSetting(QString map_name){
     probot->model = setting_config.value("model").toString();
     probot->serial_num = setting_config.value("serial_num").toInt();
     probot->name = probot->model;// + QString::number(probot->serial_num);
-    // probot->type = setting_config.value("type").toString();
-    setting_config.endGroup();
+    //probot->type = setting_config.value("type").toString(); //for Bottom Lidar
 
+    // To Do
+    //probot->robot_type = setting_config.value("model_version").toString();
+    //plog->write("ROBOT type:"+setting_config.value("model_version").toString());
+
+    //Test
+    //if(probot->robot_type == "bottom_lidar")
+    //{
+    //    plog->write("OKKKKKKKKKKKKKK");
+    //}
     setting.tray_num = getSetting("setting","ROBOT_TYPE","tray_num").toInt();
 
     setting_config.beginGroup("CALL");
@@ -1370,6 +1389,20 @@ int Supervisor::getTrayNum(){
 }
 QString Supervisor::getRobotType(){
     return getSetting("setting","ROBOT_TYPE","type");
+    // To Do
+}
+QString Supervisor::getRobotVersion(){
+    return getSetting("setting","ROBOT_TYPE","model_version");
+
+    //probot->robot_version == "bottom_lidar";
+    //if(probot->robot_version == "bottom_lidar")
+    //{
+    //    probot->robot_version == "bottom_lidar";
+    //}
+    //else
+    //{
+    //    probot->robot_version == "";
+    //}
 }
 void Supervisor::setCamera(QString left, QString right){
     setSetting("static","SENSOR/left_camera_serial",left);
@@ -1849,6 +1882,8 @@ void Supervisor::checkRobotINI(){
         setSetting("setting","ROBOT_TYPE/serial_num","0");
     if(getSetting("setting","ROBOT_TYPE","tray_num") == "")
         setSetting("setting","ROBOT_TYPE/tray_num","2");
+    //if(getSetting("setting", "ROBOT_TYPE", "version") == "")
+    //    setSetting("setting", "ROBOT_TYPE/version", "bottom_lidar");
 
     if(getSetting("setting","USE_SLAM","use_uicmd") == "")
         setSetting("setting","USE_SLAM/use_uicmd","true");
