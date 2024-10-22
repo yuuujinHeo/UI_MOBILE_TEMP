@@ -37,12 +37,14 @@ CallbellHandler::CallbellHandler()
             plog->write("[CALLBELL] Port ttyCB0 Open Success");
         }
 
-        else{
+        else
+        {
+            plog->write("[CALLBELL] Port ttyCB0 Open Faile");
             m_serialPort->setPortName("ttyUSB1");
-            if(m_serialPort->open(QIODevice::ReadWrite)){
+            if(m_serialPort->open(QIODevice::ReadWrite))
+            {
                 plog->write("[CALLBELL] Port ttyUSB1 Open Success");
             }
-            plog->write("[CALLBELL] Port ttyCB0 Open Faile");
             return;
         }
     }
